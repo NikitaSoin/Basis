@@ -233,6 +233,21 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const [detOpen, setDetOpen] = useState(false);
   const [peerYear, setPeerYear] = useState(null);
   const [period, setPeriod] = useState("annual"); // "annual" | "interim" — переключатель периодичности таблиц
+  // Прогнозная финмодель (пилот 3-5 компаний) — отдельный эндпоинт, 404 = модели нет
+  // (секция ниже просто не рендерится). Самостоятельный fetch, не завязан на fin.
+  const [model, setModel] = useState(null);
+  useEffect(() => {
+    setModel(null);
+    const ticker = company?.ticker;
+    if (!ticker) return;
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    let alive = true;
+    fetch(`${apiUrl}/api/companies/by-ticker/${ticker}/financial-model`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (alive) setModel(d); })
+      .catch(() => { if (alive) setModel(null); });
+    return () => { alive = false; };
+  }, [company?.ticker]);
   if (!fin) return null;
 
   const meta = fin.meta || {};
@@ -666,6 +681,82 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const caveats = [];
   (val.methods || []).forEach((m) => { const cs = (m.explain && m.explain.caveats) || []; cs.forEach((c) => { if (caveats.length < 3 && c && !caveats.includes(c)) caveats.push(c); }); });
 
+  /* 6. Финансовая модель (прогноз) — пилотный эндпоинт /financial-model, 404 = null,
+     секция ниже просто не рендерится. Числа модели уже в млн ₽ (revenue/ebitda/
+     net_profit/fcf и банковские net_interest_income/net_fee_income/operating_income)
+     и ₽/акция (eps/dps/bvps) — bln()/num() применяются НАПРЯМУЮ, без множителя единиц
+     U (тот привязан к financials.json, у модели своя единица).
+     ЕДИНИЦЫ: bln() сам переключает млрд↔трлн по величине значения (у SBER net_profit
+     2026 = 1 920 000 млн = 1,92 ТРЛН) — единицу НЕЛЬЗЯ хардкодить в заголовке/футноуте,
+     иначе она соврёт в 1000× для компаний за порогом трлн. moneyRowUnit() считает ОДНУ
+     единицу на строку (по максимальному |значению| в строке — база+живое, все годы) и
+     показывает её один раз в первой колонке; сами ячейки — просто число в этой единице
+     (никакого дублирования "млрд ₽" 21 раз в таблице). */
+  const mMeta = model?.meta || {};
+  const mHorizon = (mMeta.horizon_years || []).map(String);
+  const mForecastBase = model?.forecast?.base || {};
+  const mLiveAdj = model?.live_adjusted_base || null;
+  const mDriversByKey = {};
+  (model?.drivers || []).forEach((d) => { mDriversByKey[d.key] = d; });
+  const SCEN_LABEL = { bear: "Медведь", base: "База", bull: "Бык" };
+  // Реестр строк на ВСЕ известные сектор-шаблоны пилота (oil_gas/retail — revenue+ebitda+fcf;
+  // banking — net_interest_income/net_fee_income/operating_income+roe/nim+bvps вместо них) —
+  // рендерится только то, что реально пришло в forecast.base, остальное фильтруется ниже.
+  const FM_ROW_DEFS = [
+    { key: "revenue", l: "Выручка", kind: "money", bold: true },
+    { key: "net_interest_income", l: "Чистый процентный доход", kind: "money", bold: true },
+    { key: "net_fee_income", l: "Чистый комиссионный доход", kind: "money" },
+    { key: "operating_income", l: "Операционные доходы", kind: "money", bold: true },
+    { key: "ebitda", l: "EBITDA", kind: "money", bold: true },
+    { key: "margins_ebitda_pct", l: "Маржа EBITDA", kind: "pct", muted: true },
+    { key: "net_profit", l: "Чистая прибыль", kind: "money", bold: true },
+    { key: "fcf", l: "FCF", kind: "money", bold: true },
+    { key: "roe_pct", l: "ROE", kind: "pct", muted: true },
+    { key: "nim_pct", l: "ЧПМ (NIM)", kind: "pct", muted: true },
+    { key: "eps_rub", l: "EPS", kind: "rub" },
+    { key: "dps_rub", l: "DPS", kind: "rub" },
+    { key: "bvps_rub", l: "BVPS", kind: "rub", muted: true },
+  ];
+  const FM_ROWS = FM_ROW_DEFS.filter((r) => mHorizon.some((y) => mForecastBase[r.key]?.[y] != null));
+  // Единица на СТРОКУ (не глобальная): по максимальному |значению| в строке (база + живое,
+  // по всем годам горизонта) — те же пороги, что у bln().
+  const moneyRowUnit = (vals) => {
+    const nums = (vals || []).filter((v) => typeof v === "number" && !isNaN(v)).map((v) => Math.abs(v));
+    const maxMlrd = (nums.length ? Math.max(...nums) : 0) / 1000;
+    return maxMlrd >= 1000 ? { div: 1e6, dec: 2, u: "трлн ₽" } : { div: 1e3, dec: maxMlrd >= 100 ? 0 : 1, u: "млрд ₽" };
+  };
+  // moneyUnit не передан → форматируем как самостоятельное число через bln() (свой юнит,
+  // возвращается инлайн) — нужно для track record, где строка не привязана к горизонту.
+  const fmtFmVal = (v, kind, moneyUnit) => {
+    if (v == null || isNaN(v)) return "—";
+    if (kind === "pct") return `${num(v, 1)} %`;
+    if (kind === "rub") return `${num(v, 0)} ${ccy}`;
+    if (moneyUnit) return num(v / moneyUnit.div, moneyUnit.dec);
+    const b = bln(v);
+    return `${b.v} ${b.u}`;
+  };
+  const mHasLiveRow = (key) => !!(mLiveAdj && mLiveAdj[key] && mHorizon.some((y) => mLiveAdj[key][y] != null));
+  const meaningfulDiff = (a, b) => a != null && b != null && Math.abs(a - b) > Math.abs(b || 1) * 0.002;
+  const mVal = model?.valuation || {};
+  const mWeighted = typeof mVal.weighted_fair_price_rub === "number" ? mVal.weighted_fair_price_rub : null;
+  const mLivePrice = typeof model?.live_price_rub === "number" ? model.live_price_rub : null;
+  const mUpsideLive = typeof model?.upside_pct_live === "number" ? model.upside_pct_live : null;
+  const mFwdPeLive = typeof model?.forward_pe_live === "number" ? model.forward_pe_live : null;
+  const mBasePct = model?.scenario_weights?.base != null ? Math.round(model.scenario_weights.base * 100) : null;
+  const mScenPrices = model ? ["bear", "base", "bull"].map((k) => ({
+    key: k, label: SCEN_LABEL[k], weight: model.scenario_weights?.[k], price: mVal.per_scenario?.[k]?.fair_price_rub,
+  })).filter((s) => typeof s.price === "number") : [];
+  const mSensRows = Array.isArray(model?.sensitivity) ? model.sensitivity : [];
+  const mTrackRows = Array.isArray(model?.track_record) ? model.track_record : [];
+  const mDataFlags = Array.isArray(model?.data_flags) ? model.data_flags : [];
+  const mBridge = model?.bridge || null;
+  const MFM_METRIC_LABEL = {
+    revenue: "Выручка", ebitda: "EBITDA", net_profit: "Чистая прибыль", fcf: "FCF", eps_rub: "EPS", dps_rub: "DPS",
+    net_interest_income: "ЧПД", net_fee_income: "ЧКД", operating_income: "Опер. доходы",
+    roe_pct: "ROE", nim_pct: "NIM", bvps_rub: "BVPS",
+  };
+  const mMetricKind = (metric) => (FM_ROW_DEFS.find((r) => r.key === metric) || {}).kind || "money";
+
   return (
     <div className="fin-hybrid">
       <div className="layout">
@@ -955,6 +1046,241 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
           )}
 
           <p className="foot-note">Композитная оценка, перцентили и нормализация — аналитические ориентиры Basis по вселенной сектора. Это не инвестиционная рекомендация и не сигнал к покупке или продаже.</p>
+
+          {/* 6. Финансовая модель (прогноз) — пилот 3-5 компаний, /financial-model.
+              404 → model=null → секция целиком не рендерится (ни заголовка, ни заглушки). */}
+          {model && (
+            <>
+              <div className="card">
+                <h3>Финансовая модель (прогноз) <span className="tag tag-model">модель</span><span className="hmeta">{mMeta.model_version ? `${mMeta.model_version} · ` : ""}горизонт {mHorizon.join("–")}</span></h3>
+                {mMeta.model_status && <p className="sub">{mMeta.model_status}</p>}
+
+                {model.structure_stale && (
+                  <div className="ff-note" style={{ marginBottom: 16 }}>
+                    <div className="nh">Модель ждёт пересборки</div>
+                    Живой драйвер сдвинулся дальше барьера линейной эластичности (±40 % от базового уровня) — механический пересчёт ниже капирован и может быть неточным. Нужна ручная пересборка структуры аналитиком.
+                  </div>
+                )}
+
+                {(mWeighted != null || mLivePrice != null) && (
+                  <div className="fair">
+                    {mWeighted != null && (
+                      <div>
+                        <div className="big">{num(mWeighted, mWeighted >= 100 ? 0 : 1)}<s> {ccy}</s></div>
+                        <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 4 }}>взвешенная справедливая · модель</div>
+                      </div>
+                    )}
+                    {mUpsideLive != null && (
+                      <div className={`ud delta ${mUpsideLive >= 0 ? "up" : "dn"}`}>{mUpsideLive >= 0 ? "▲" : "▼"} {num(Math.abs(mUpsideLive), 1)} % {mUpsideLive >= 0 ? "апсайд" : "даунсайд"} от живой цены</div>
+                    )}
+                    <div className="corr">
+                      {mLivePrice != null && <>живая цена<br /><b>{num(mLivePrice, 2)} {ccy}</b></>}
+                      {mFwdPeLive != null && <><br /><span style={{ fontSize: 11 }}>форв. P/E живой {num(mFwdPeLive, 1)}×</span></>}
+                    </div>
+                  </div>
+                )}
+
+                {mScenPrices.length > 0 && (
+                  <div className="fm-scen-row">
+                    {mScenPrices.map((s) => (
+                      <div className={`fm-scen-chip${s.key === "base" ? " fm-scen-base" : ""}`} key={s.key}>
+                        <span className="fm-scen-lbl">{s.label}{s.weight != null ? ` · вес ${Math.round(s.weight * 100)} %` : ""}</span>
+                        <span className="fm-scen-val">{num(s.price, s.price >= 100 ? 0 : 1)} {ccy}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {mScenPrices.length > 0 && (
+                  <div className="ff-note" style={{ marginTop: 14 }}>
+                    <div className="nh">Как читать сценарии</div>
+                    База — не среднее, а наиболее вероятный режим рынка прямо сейчас{mBasePct != null ? ` (вес ${mBasePct} %)` : ""}; бык и медведь — другой набор допущений по цене/ставке/риску, а не симметричные «±%». Если вес медведя и быка не совпадают — это суждение аналитика о том, куда смещён риск.
+                  </div>
+                )}
+              </div>
+
+              <details className="disc" open>
+                <summary>
+                  <div><div className="dt">Прогноз по годам</div><div className="dd">Прогноз · драйверы · чувствительность · мост</div></div>
+                  <span className="tag tag-model" style={{ marginLeft: 8 }}>модель</span>
+                  <span className="chev">▾</span>
+                </summary>
+                <div className="disc-body">
+                  {FM_ROWS.length > 0 && (
+                    <>
+                      <div className="subh">Прогноз {mHorizon[0]}–{mHorizon[mHorizon.length - 1]}</div>
+                      <div className="tbl-scroll">
+                        <table className="ftbl">
+                          <thead><tr><th>Показатель</th>{mHorizon.map((y) => <th key={y}>{y}</th>)}</tr></thead>
+                          <tbody>
+                            {FM_ROWS.map((r) => {
+                              const rowLive = mHasLiveRow(r.key);
+                              const rowUnit = r.kind === "money"
+                                ? moneyRowUnit(mHorizon.flatMap((y) => [mForecastBase[r.key]?.[y], mLiveAdj?.[r.key]?.[y]]))
+                                : null;
+                              return (
+                                <tr className={r.bold ? "bold" : ""} key={r.key}>
+                                  <td style={{ color: r.muted ? "var(--ink-3)" : undefined }}>
+                                    {r.l}{rowUnit && <span className="fm-row-unit"> · {rowUnit.u}</span>}
+                                    {rowLive && <span className="fm-live-chip" style={{ marginLeft: 6 }}>⚡ живой пересчёт</span>}
+                                  </td>
+                                  {mHorizon.map((y) => {
+                                    const baseV = mForecastBase[r.key]?.[y];
+                                    const liveV = mLiveAdj?.[r.key]?.[y];
+                                    const showV = liveV != null ? liveV : baseV;
+                                    if (showV == null) return <td key={y}><span style={{ color: "var(--ink-3)", fontSize: 11 }}>н.д.</span></td>;
+                                    return (
+                                      <td key={y}>
+                                        <span className="cv">{fmtFmVal(showV, r.kind, rowUnit)}</span>
+                                        {meaningfulDiff(liveV, baseV) && <div className="fm-basehint">база {fmtFmVal(baseV, r.kind, rowUnit)}</div>}
+                                      </td>
+                                    );
+                                  })}
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                      <div className="fc-note">Единица указана у каждой строки (масштаб млрд/трлн ₽ зависит от величины — EPS/DPS/BVPS в ₽/акция, ROE/NIM/маржа в %).{mLiveAdj ? " ⚡ живой пересчёт — база скорректирована под текущие значения живых драйверов (Brent/курс/ставка и т.п.), см. «Драйверы модели» ниже; исходный (застывший на дату сборки) уровень — под живым значением." : ""}</div>
+                    </>
+                  )}
+
+                  {(model.drivers || []).length > 0 && (
+                    <>
+                      <div className="subh" style={{ marginTop: 22 }}>Драйверы модели</div>
+                      <div className="fm-drivers">
+                        {model.drivers.map((d, i) => {
+                          const kindLabel = { live: "live", assumption: "допущение", macro: "макро" }[d.kind] || d.kind;
+                          const kindCls = { live: "fm-kind-live", assumption: "fm-kind-assum", macro: "fm-kind-macro" }[d.kind] || "";
+                          return (
+                            <div className="fm-drv" key={d.key || i}>
+                              <div className="fm-drv-top">
+                                <span className="fm-drv-name">{d.name}</span>
+                                <span className={`fm-drv-kind ${kindCls}`}>{kindLabel}</span>
+                              </div>
+                              {d.kind === "live" ? (
+                                <div className="fm-drv-live">
+                                  <span className="fm-drv-vals">база {num(d.base_value, 2)} → живое <b>{num(d.live_value, 2)}</b></span>
+                                  {typeof d.live_shift_pct === "number" && <Delta v={d.live_shift_pct} d={1} />}
+                                </div>
+                              ) : d.scenario_values ? (
+                                <div className="fm-drv-scen">
+                                  {["bear", "base", "bull"].map((k) => d.scenario_values[k] != null && (
+                                    <span className="fm-scen-mini" key={k}><i>{SCEN_LABEL[k]}</i>{num(d.scenario_values[k], 1)}</span>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="fm-drv-vals">база {num(d.base_value, 2)}</div>
+                              )}
+                              {d.kind === "live" && d.live_status && <div className="fm-drv-status">{d.live_status}</div>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+
+                  {mBridge && Array.isArray(mBridge.steps) && mBridge.steps.length > 0 && (
+                    <>
+                      {/* Заголовок и «итого» — БЕЗ хардкода метрики: мост EBITDA у oil_gas/retail,
+                          но мост ЧИСТОЙ ПРИБЫЛИ у banking (SBER) — bridge.from несёт точное имя. */}
+                      <div className="subh" style={{ marginTop: 22 }}>Мост</div>
+                      {mBridge.from && <div className="fc-note" style={{ marginTop: 0, marginBottom: 10 }}>{mBridge.from}</div>}
+                      <div className="fm-bridge-list">
+                        {mBridge.steps.map((s, i) => (
+                          <div className="fm-bridge-row" key={i}>
+                            <span className="fm-bridge-name">{s.name}</span>
+                            <span className={`delta ${s.delta >= 0 ? "up" : "dn"}`}>{s.delta >= 0 ? "▲" : "▼"} {bln(Math.abs(s.delta)).v} {bln(Math.abs(s.delta)).u}</span>
+                          </div>
+                        ))}
+                        {typeof mBridge.delta_total === "number" && (
+                          <div className="fm-bridge-row fm-bridge-total">
+                            <span className="fm-bridge-name">Итого изменение</span>
+                            <span className={`delta ${mBridge.delta_total >= 0 ? "up" : "dn"}`}>{mBridge.delta_total >= 0 ? "▲" : "▼"} {bln(Math.abs(mBridge.delta_total)).v} {bln(Math.abs(mBridge.delta_total)).u}</span>
+                          </div>
+                        )}
+                      </div>
+                      {mBridge.note && <div className="fc-note">{mBridge.note}</div>}
+                    </>
+                  )}
+
+                  {mSensRows.length > 0 && (
+                    <>
+                      <div className="subh" style={{ marginTop: 22 }}>Чувствительность</div>
+                      <div className="tbl-scroll">
+                        <table className="ftbl">
+                          <thead><tr><th>Драйвер</th><th>Сдвиг</th><th>Δ прибыль</th><th>Δ цена</th></tr></thead>
+                          <tbody>
+                            {mSensRows.map((s, i) => {
+                              const dName = mDriversByKey[s.driver]?.name || s.driver;
+                              const npDn = /^[-−]/.test(String(s.net_profit_pct ?? ""));
+                              const fpDn = /^[-−]/.test(String(s.fair_price_pct ?? ""));
+                              return (
+                                <tr key={i}>
+                                  <td>{dName}</td>
+                                  <td>{s.shift}</td>
+                                  <td><span className={`delta ${npDn ? "dn" : "up"}`}>{npDn ? "▼" : "▲"} {s.net_profit_pct}</span></td>
+                                  <td><span className={`delta ${fpDn ? "dn" : "up"}`}>{fpDn ? "▼" : "▲"} {s.fair_price_pct}</span></td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                      {mSensRows.some((s) => s.note) && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
+                          {mSensRows.filter((s) => s.note).map((s, i) => (
+                            <div className="fc-note" key={i}><b>{mDriversByKey[s.driver]?.name || s.driver}:</b> {s.note}</div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  <div className="subh" style={{ marginTop: 22 }}>История прогнозов (track record)</div>
+                  {mTrackRows.length > 0 ? (
+                    <div className="tbl-scroll">
+                      <table className="ftbl">
+                        <thead><tr><th>Период</th><th>Метрика</th><th>Прогноз</th><th>Факт</th><th>Ошибка</th></tr></thead>
+                        <tbody>
+                          {mTrackRows.map((t, i) => {
+                            const tKind = mMetricKind(t.metric);
+                            const errDn = typeof t.error_pct === "number" && t.error_pct < 0;
+                            return (
+                              <tr key={i}>
+                                <td>{t.period}</td>
+                                <td>{MFM_METRIC_LABEL[t.metric] || t.metric}</td>
+                                <td>{fmtFmVal(t.forecast, tKind)}</td>
+                                <td>{fmtFmVal(t.actual, tKind)}</td>
+                                <td>{typeof t.error_pct === "number" ? <span className={`delta ${errDn ? "dn" : "up"}`}>{errDn ? "▼" : "▲"} {num(Math.abs(t.error_pct), 1)} %</span> : "—"}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="fc-note">{model.track_record_note || "Пилотная модель — история прогноз/факт пока не накоплена, появится после ближайшей отчётности."}</p>
+                  )}
+
+                  <p className="foot-note" style={{ marginTop: 18 }}>Прогноз — модель Basis (оценка/суждение), не факт и не рекомендация. Не является ИИР.</p>
+                </div>
+              </details>
+
+              {mDataFlags.length > 0 && (
+                <details className="disc">
+                  <summary>
+                    <div><div className="dt">Ограничения модели</div><div className="dd">{mDataFlags.length} пункт{mDataFlags.length === 1 ? "" : mDataFlags.length < 5 ? "а" : "ов"} — что не гарантировано, где деградация</div></div>
+                    <span className="tag tag-est" style={{ marginLeft: 8 }}>оценка</span>
+                    <span className="chev">▾</span>
+                  </summary>
+                  <div className="disc-body">
+                    {mDataFlags.map((f, i) => <div className="fc-warn" key={i}>{f}</div>)}
+                  </div>
+                </details>
+              )}
+            </>
+          )}
         </div>
 
         {/* правый рейл — Заметка аналитика */}

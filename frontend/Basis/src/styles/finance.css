@@ -245,3 +245,52 @@
 .fin-hybrid .an-flag{display:flex;gap:8px;font-size:11.5px;line-height:1.4;color:var(--ink-2);}
 .fin-hybrid .an-flag::before{content:"⚠";color:var(--amber);flex-shrink:0;}
 .fin-hybrid .fv-note{font-size:11px;color:var(--ink-3);line-height:1.5;margin:14px 0 0;}
+
+/* ── 6. Финансовая модель (прогноз) — пилот, /financial-model ──
+   Тег «модель» — канон --bs-estimate (синий), а не локальный --cyan алиас (тот уже
+   занят «оценкой» дальше по вкладке) — отличает «модельное число, живьём пересчитанное»
+   от «оценки аналитика по методу». --bs-estimate САМ не тема-адаптивен (одно значение
+   в :root basis-design-system.css, без .dark-варианта) — поэтому фон/текст выводим через
+   color-mix() от --panel (тот УЖЕ тема-адаптивен через --cc-panel), без хардкод-фолбэков
+   в var(): в тёмной теме текст дополнительно осветляем миксом с white, иначе тёмно-синий
+   на почти-чёрной подложке проваливается по контрасту (как у соседних .tag-est/.tag-judg,
+   у которых сам --cc-info/--cc-violet светлеет в .dark). */
+.fin-hybrid .tag-model{background:color-mix(in srgb,var(--bs-estimate) 10%,var(--panel));color:var(--bs-estimate);}
+.dark .fin-hybrid .tag-model{background:color-mix(in srgb,var(--bs-estimate) 18%,var(--panel));color:color-mix(in srgb,var(--bs-estimate) 55%,white);}
+/* сценарные цены (медведь/база/бык) — компактные плашки рядом с hero-числом */
+.fin-hybrid .fm-scen-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+.fin-hybrid .fm-scen-chip{flex:1;min-width:120px;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:10px 13px;display:flex;flex-direction:column;gap:4px;}
+.fin-hybrid .fm-scen-chip.fm-scen-base{border-color:var(--accent);background:var(--accent-soft);}
+.fin-hybrid .fm-scen-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);}
+.fin-hybrid .fm-scen-chip.fm-scen-base .fm-scen-lbl{color:var(--accent-2);}
+.fin-hybrid .fm-scen-val{font-family:var(--mono);font-size:17px;font-weight:600;}
+/* единица измерения строки прогноза (млрд/трлн ₽ и т.п.) — рядом с названием строки,
+   НЕ в заголовке таблицы (та единая на все строки не может быть honest — см. FinanceTab.jsx) */
+.fin-hybrid .fm-row-unit{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-3);font-family:var(--mono);}
+/* ⚡ живой пересчёт — бейдж строки/ячейки таблицы прогноза */
+.fin-hybrid .fm-live-chip{font-family:var(--sans);font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--accent-2);background:var(--accent-soft);padding:2px 6px;border-radius:5px;white-space:nowrap;}
+.fin-hybrid .fm-basehint{font-family:var(--mono);font-size:10px;color:var(--ink-3);margin-top:2px;white-space:nowrap;}
+/* драйверы модели — карточки в сетке 2 колонки */
+.fin-hybrid .fm-drivers{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+@media(max-width:760px){.fin-hybrid .fm-drivers{grid-template-columns:1fr;}}
+.fin-hybrid .fm-drv{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;}
+.fin-hybrid .fm-drv-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.fin-hybrid .fm-drv-name{font-size:13px;color:var(--ink);font-weight:600;}
+.fin-hybrid .fm-drv-kind{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:5px;flex-shrink:0;}
+.fin-hybrid .fm-kind-live{background:var(--accent-soft);color:var(--accent-2);}
+.fin-hybrid .fm-kind-assum{background:var(--violet-soft);color:var(--violet);}
+.fin-hybrid .fm-kind-macro{background:color-mix(in srgb,var(--ink-3) 14%,transparent);color:var(--ink-2);}
+.fin-hybrid .fm-drv-live{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-family:var(--mono);font-size:12px;color:var(--ink-2);}
+.fin-hybrid .fm-drv-live b{color:var(--ink);}
+.fin-hybrid .fm-drv-vals{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-top:8px;display:block;}
+.fin-hybrid .fm-drv-scen{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.fin-hybrid .fm-scen-mini{font-family:var(--mono);font-size:11px;color:var(--ink-2);background:var(--panel-3);border-radius:5px;padding:2px 7px;}
+.fin-hybrid .fm-scen-mini i{font-style:normal;color:var(--ink-3);margin-right:5px;}
+.fin-hybrid .fm-drv-status{font-size:11px;color:var(--ink-3);margin-top:7px;line-height:1.4;}
+/* мост EBITDA — простой горизонтальный список шагов */
+.fin-hybrid .fm-bridge-list{display:flex;flex-direction:column;}
+.fin-hybrid .fm-bridge-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;}
+.fin-hybrid .fm-bridge-name{color:var(--ink-2);}
+.fin-hybrid .fm-bridge-row .delta{font-family:var(--mono);font-weight:600;white-space:nowrap;}
+.fin-hybrid .fm-bridge-row.fm-bridge-total{border-bottom:0;border-top:2px solid var(--line-2);font-weight:600;}
+.fin-hybrid .fm-bridge-row.fm-bridge-total .fm-bridge-name{color:var(--ink);}
