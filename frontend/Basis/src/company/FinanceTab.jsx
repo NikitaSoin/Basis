@@ -893,7 +893,9 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
               иначе честная пометка «неприменима» с причиной. */}
           {bfv && bfv.status === "ok" && (
             <div className="card">
-              <h3>Справедливая цена — новая методика (BFV) <span className="tag tag-model">тест · модель</span></h3>
+              <h3>Справедливая цена — новая методика (BFV) <span className="tag tag-model">тест · модель</span>
+                {bfv.reliability === "low" && <span className="tag" style={{ marginLeft: 6, background: "var(--warning, #b26a00)", color: "#fff" }}>методика не для этой бумаги</span>}
+              </h3>
               <p className="sub">
                 Дивидендная оценка «за миноритария»: главный выход — ожидаемая доходность при
                 текущей цене против требуемого порога. Пересчитывается живьём от цены, кривой ОФЗ
@@ -901,13 +903,25 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                 бумаги между собой надёжнее, чем читать абсолютный вердикт.
               </p>
 
+              {bfv.reliability === "low" && (
+                <div className="ff-note" style={{ marginBottom: 14, borderLeft: "3px solid var(--warning, #b26a00)" }}>
+                  <div className="nh">⚠ Абсолютная цена по этой бумаге ненадёжна</div>
+                  Дивидендно-балансовая модель плохо подходит для этого профиля (растущая /
+                  asset-light / глубокий дисконт к балансу) — она считает текущие выплаты и
+                  балансовый капитал, а не потенциал роста. Смотрите на <b>ожидаемую доходность</b>
+                  ниже (что даёт бумага при текущей цене, если считать только дивиденды и рост
+                  книги), а не на абсолютную «справедливую цену».
+                </div>
+              )}
+
               <div className="fair">
                 <div>
-                  <div className="big" style={bfv.reliability === "low" ? { opacity: 0.5 } : null}>
+                  <div className="big" style={bfv.reliability === "low" ? { opacity: 0.45 } : null}>
                     {bfv.reliability === "low" ? "≈ " : ""}{num(bfv.fair_price, bfv.fair_price >= 100 ? 0 : 2)}<s> {ccy}</s>
                   </div>
                   <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 4 }}>
                     справедливая цена BFV · при спреде {num(bfv.required_spread_pp, 1)} п.п. к ОФЗ
+                    {bfv.reliability === "low" && " · ненадёжна для этой бумаги"}
                   </div>
                 </div>
                 {bfv.reliability !== "low" && typeof bfv.upside_pct === "number" && (
