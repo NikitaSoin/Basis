@@ -102,10 +102,24 @@ def _load_anchor(path: str) -> dict:
         return {}
 
 
-def _anchor_digest_for_prompt() -> dict:
-    """Компактная выжимка якорей — контекст, относительно которого меряем дельту."""
-    geo = _load_anchor(_GEO_BARO)
-    inst = _load_anchor(_INST_BARO)
+def _anchor_digest_for_prompt(db: Session = None) -> dict:
+    """Компактная выжимка якорей — контекст, относительно которого меряем дельту.
+    Читаем через barometer_store (текущая published версия — экспертная ИЛИ
+    авто-обновлённая ревизором), чтобы оверлей мерил дельту от ТОГО ЖЕ барометра,
+    что показан на витрине (иначе расхождение слоёв). Фолбэк на файл, если db не
+    передан или store недоступен."""
+    geo = inst = None
+    if db is not None:
+        try:
+            from app.services.barometer_store import get_payload_with_meta
+            geo = get_payload_with_meta(db, "geo")
+            inst = get_payload_with_meta(db, "inst")
+        except Exception:  # noqa: BLE001
+            geo = inst = None
+    if geo is None:
+        geo = _load_anchor(_GEO_BARO)
+    if inst is None:
+        inst = _load_anchor(_INST_BARO)
     out = {}
     regions = geo.get("regions") or {}
     for scope in ("svo", "middle_east", "atr"):
@@ -163,7 +177,7 @@ def _sanitize_sources(blocks: dict) -> dict:
 def generate(db: Session, window_days: int = _WINDOW_DAYS) -> SituationOverlay:
     """Суточный прогон оверлея. Fail-closed: при ошибке/пустой ленте/блоклисте
     пишем ряд с published=False (фронт отдаёт последний published, не этот)."""
-    anchors = _anchor_digest_for_prompt()
+    anchors = _anchor_digest_for_prompt(db)
     articles = gather_articles(db, window_days)
     counts = {s: len(articles.get(s) or []) for s in _SCOPES}
 

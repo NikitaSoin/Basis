@@ -588,34 +588,30 @@ def market_geopolitics(portfolio_only: bool = False,
 
 
 @router.get("/market/institutions")
-def market_institutions():
+def market_institutions(db: Session = Depends(get_db)):
     """Институциональная среда (Обозреватель): барометр M1-M13, карта власти/
-    кланов, активные сценарии и алерты. Методика — docs/Институты_агенты.md,
-    docs/Институты_дополнение.md; заполняет institutional-macro-analyst,
-    файл config/institutional_barometer.json (не пилотный per-company блок —
-    единый рыночный документ, обновляется отдельным прогоном)."""
-    import json as _json
-    path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
-        os.path.abspath(__file__)))), "config", "institutional_barometer.json")
-    if not os.path.exists(path):
+    кланов, сценарии, алерты. Читается через barometer_store (текущая published
+    версия из БД — экспертная ИЛИ авто-обновлённая ревизором; при пустой БД —
+    импорт файла-якоря). _meta несёт источник/дату для пометки «авто» на фронте."""
+    from app.services.barometer_store import get_payload_with_meta
+    payload = get_payload_with_meta(db, "inst")
+    if payload is None:
         raise HTTPException(status_code=404, detail="Барометр ещё не сформирован")
-    with open(path, encoding="utf-8") as f:
-        return JSONResponse(content=_json.load(f))
+    return JSONResponse(content=payload)
 
 
 @router.get("/market/geo-barometer")
-def market_geo_barometer():
+def market_geo_barometer(db: Session = Depends(get_db)):
     """Геополитический барометр (Обозреватель, «Оценка ситуации»): 13 субиндексов
-    G1-G13, сценарная рамка S1-S4, имплайд-рынок, секторные флаги. Методика —
-    docs/geo-system/; заполняет geo-macro-analyst, файл config/geo_barometer.json
-    (единый рыночный документ, не per-регион — заменяет geo_blocks tab=deep синтез)."""
-    import json as _json
-    path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
-        os.path.abspath(__file__)))), "config", "geo_barometer.json")
-    if not os.path.exists(path):
+    G1-G13, сценарии S1-S4, имплайд-рынок, регионы, секторные флаги. Читается
+    через barometer_store (текущая published версия из БД — экспертная ИЛИ
+    авто-обновлённая ревизором; при пустой БД — импорт файла-якоря). _meta
+    несёт источник/дату для пометки «авто-обновление» на фронте."""
+    from app.services.barometer_store import get_payload_with_meta
+    payload = get_payload_with_meta(db, "geo")
+    if payload is None:
         raise HTTPException(status_code=404, detail="Барометр ещё не сформирован")
-    with open(path, encoding="utf-8") as f:
-        return JSONResponse(content=_json.load(f))
+    return JSONResponse(content=payload)
 
 
 @router.get("/market/situation-overlay")

@@ -1,8 +1,9 @@
-"""Автономный агент-РЕВИЗОР барометров (гео/институты) — SHADOW-режим.
+"""Автономный агент-РЕВИЗОР барометров (гео/институты) — АВТОПУБЛИКАЦИЯ.
 
 Владелец (2026-07-27): «убрать ручные перезапуски — агенты на DeepSeek сами
-переделывают барометр с учётом новостей». Владелец выбрал путь «shadow
-сначала». План — docs/autonomous-barometer-plan.md (ревью advisor).
+переделывают барометр»; затем «пусть агент сразу на бой катит, а не в
+черновик» — shadow-период отменён, автопубликация с первого прогона (гейт
+остаётся барьером). План — docs/autonomous-barometer-plan.md (ревью advisor).
 
 РАМКА: автономное ОБСЛУЖИВАНИЕ калибровки, НЕ автономное суждение.
 - агент НЕ переписывает барометр свободно и НЕ ежедневно;
@@ -10,8 +11,12 @@
   ЯКОРЬ (баллы+rationale+anchor_note) и предлагает РЕВИЗИЮ на поводке:
   каждое движение балла обосновано ссылками на статьи ленты, суммарный дрейф
   от экспертной версии ограничен кодом;
-- SHADOW: результат пишется status=draft, на бой НЕ публикуется (первые ~2
-  недели наблюдения). Автопубликацию включает владелец отдельным решением.
+- АВТОПУБЛИКАЦИЯ (владелец 2026-07-27: «пусть агент сразу на бой катит, а не
+  в черновик»; остаточный комплаенс-риск принят явно): прошедшая ГЕЙТ ревизия
+  сразу становится published (витрина читает её через barometer_store).
+  ГЕЙТ и поводок дрейфа — НЕ наблюдение, а единственный барьер: провал →
+  published-версия не меняется (fail-closed). Сдвинутые баллы помечаются на
+  фронте как «оценка (авто)», рядом дата экспертного якоря.
 
 Гейт качества (fail-closed, образец macro_addendum_agent._gate):
   схема · кэпы движения · поводок дрейфа · verifiable delta_rationale ·
@@ -30,13 +35,11 @@ from sqlalchemy.orm import Session
 from app.models.geo import BarometerVersion, SituationOverlay
 from app.models.geo_digest import GeoDigestArticle
 from app.services import llm
-from app.services.situation_overlay import _BLOCKLIST, _GREY_SOURCES
+from app.services.situation_overlay import _BLOCKLIST, _sanitize_sources
+from app.services import barometer_store
 
 logger = logging.getLogger(__name__)
 
-_BACKEND = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-_FILES = {"geo": os.path.join(_BACKEND, "config", "geo_barometer.json"),
-          "inst": os.path.join(_BACKEND, "config", "institutional_barometer.json")}
 _KIND_SCOPES = {"geo": ("svo", "middle_east", "atr"), "inst": ("institutions",)}
 
 # --- поводок и кэпы (гейт) ---
@@ -50,44 +53,6 @@ _WINDOW_DAYS = 14
 _COOLDOWN_DAYS = 5       # анти-осцилляция: не чаще раза в 5 дней на барометр
 _STALE_DAYS = 30         # плановая ревизия «для свежести» даже в тишине
 _SHIFT_QUORUM = 4        # «сдвигает» в ≥4 из 7 последних оверлеев → ревизия
-
-
-# ----------------------------- ЕДИНЫЙ READ-PATH -----------------------------
-def get_current_barometer(db: Session, kind: str) -> tuple[dict | None, BarometerVersion | None]:
-    """Текущий барометр: последняя published-версия из БД; если в БД ещё нет —
-    импортирует экспертный файл как source=expert/published (паттерн
-    asset_data — файл остаётся источником правды экспертного якоря, БД его
-    зеркалит и версионирует). Возвращает (payload, row-якоря или None).
-
-    NB: боевой фронт/эндпоинты и situation_overlay пока читают ФАЙЛ напрямую —
-    их перевод на этот read-path идёт вместе с включением автопубликации (тогда
-    же, чтобы не плодить расхождение). Сейчас (shadow) этим read-path пользуется
-    только ревизор."""
-    row = (db.query(BarometerVersion)
-           .filter(BarometerVersion.kind == kind, BarometerVersion.status == "published")
-           .order_by(BarometerVersion.created_at.desc()).first())
-    if row is not None:
-        return row.payload, row
-    path = _FILES.get(kind)
-    if not path or not os.path.exists(path):
-        return None, None
-    try:
-        with open(path, encoding="utf-8") as f:
-            payload = json.load(f)
-    except Exception as e:  # noqa: BLE001
-        logger.warning("barometer_reviser: файл якоря %s не прочитан: %s", kind, e)
-        return None, None
-    row = BarometerVersion(kind=kind, source="expert", status="published",
-                           payload=payload, trigger_reason="import_from_file")
-    db.add(row); db.commit(); db.refresh(row)
-    logger.info("barometer_reviser: экспертный якорь %s импортирован в БД как v#%d", kind, row.id)
-    return payload, row
-
-
-def _last_expert(db: Session, kind: str) -> BarometerVersion | None:
-    return (db.query(BarometerVersion)
-            .filter(BarometerVersion.kind == kind, BarometerVersion.source == "expert")
-            .order_by(BarometerVersion.created_at.desc()).first())
 
 
 # ----------------------------- ТРИГГЕР -----------------------------
@@ -119,7 +84,7 @@ def should_revise(db: Session, kind: str) -> tuple[bool, str | None]:
         if n >= _SHIFT_QUORUM:
             return True, f"накопленный сдвиг по {sc} ({n}/7)"
     # 3) свежесть: экспертный якорь давно, авторевизий тоже давно
-    anchor = _last_expert(db, kind)
+    anchor = barometer_store.last_expert(db, kind)
     last_any = recent or anchor
     if last_any and (now - last_any.created_at) >= timedelta(days=_STALE_DAYS):
         return True, f"плановая (>{_STALE_DAYS} дней без ревизии)"
@@ -199,13 +164,15 @@ def _gate(revision: dict, anchor: dict, expert_anchor: dict,
                         if abs(v - ap[sk]) > _MAX_PROB_STEP + 1e-9:
                             notes.append(f"{hk}:{sk}_step>{_MAX_PROB_STEP}")
 
-    # комплаенс — тот же фильтр, что у оверлея
-    blob = json.dumps(revision, ensure_ascii=False)
-    m = _BLOCKLIST.search(blob)
+    # комплаенс: имена серых источников ОБЕЗЛИЧИВАЕМ (как в оверлее), а не
+    # рубим — иначе модель, помянувшая источник, заворачивала бы всю ревизию
+    # баллов, и барометр никогда бы не обновился. Санитизация делается на
+    # payload перед сохранением (в revise); здесь гейт проверяет уже
+    # санитизированный revision. Hard-fail — только _BLOCKLIST (оккупир/
+    # аннексир/укр.топонимы/купить-продать).
+    m = _BLOCKLIST.search(json.dumps(revision, ensure_ascii=False))
     if m:
         notes.append(f"blocklist:{m.group(0)}")
-    if _GREY_SOURCES.search(blob):
-        notes.append("grey_source_named")
     return not notes, notes
 
 
@@ -232,18 +199,19 @@ _SYS = (
 
 
 def revise(db: Session, kind: str, force: bool = False) -> BarometerVersion | None:
-    """Один прогон ревизора. SHADOW: пишет draft/rejected, НЕ published.
-    Возвращает строку BarometerVersion или None (если триггер не сработал и не
-    force)."""
+    """Один прогон ревизора. Прошёл гейт → published (сразу на бой); не прошёл
+    → rejected (published-версия не меняется, fail-closed). Возвращает строку
+    BarometerVersion или None (триггер не сработал и не force)."""
     trig_ok, reason = (True, "ручной") if force else should_revise(db, kind)
     if not trig_ok:
         return None
 
-    anchor_payload, anchor_row = get_current_barometer(db, kind)
+    anchor_row = barometer_store.current_row(db, kind)
+    anchor_payload = anchor_row.payload if anchor_row else None
     if not anchor_payload:
         logger.warning("barometer_reviser: нет якоря для %s", kind)
         return None
-    expert_row = _last_expert(db, kind)
+    expert_row = barometer_store.last_expert(db, kind)
     expert_payload = expert_row.payload if expert_row else anchor_payload
 
     # свежие статьи-основания по scope барометра
@@ -277,10 +245,14 @@ def revise(db: Session, kind: str, force: bool = False) -> BarometerVersion | No
         logger.warning("barometer_reviser: %s LLM недоступен — rejected #%d", kind, row.id)
         return row
 
+    # Обезличиваем имена серых источников ДО гейта (как в оверлее) — серое имя
+    # не повод завернуть ревизию баллов, достаточно заменить на «по данным ленты».
+    if isinstance(revision, dict):
+        revision = _sanitize_sources(revision)
     ok, notes = _gate(revision, anchor_payload, expert_payload, article_ids)
     row = BarometerVersion(
         kind=kind, source="auto",
-        status="draft" if ok else "rejected",   # SHADOW: даже прошедший гейт — draft, не published
+        status="published" if ok else "rejected",  # прошёл гейт → сразу на бой (владелец 2026-07-27)
         payload=revision if ok else None,
         parent_id=anchor_row.id if anchor_row else None,
         trigger_reason=reason, gate_notes=None if ok else notes,
@@ -292,7 +264,7 @@ def revise(db: Session, kind: str, force: bool = False) -> BarometerVersion | No
 
 
 def run_all(db: Session, force: bool = False) -> dict:
-    """Обе барометра за прогон (крон). SHADOW."""
+    """Обе барометра за прогон (крон). Прошедшее гейт публикуется сразу."""
     out = {}
     for kind in ("geo", "inst"):
         try:

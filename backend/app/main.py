@@ -638,6 +638,26 @@ async def _geo_job():
         logger.exception("Ошибка обновления геополитики: %s", e)
 
 
+async def _barometer_expert_reimport_startup():
+    """При старте: если экспертный файл барометра обновился (субагент + git push
+    + деплой), апсертить его как новую source=expert/published версию в БД —
+    так витрина (читающая published из БД) подхватывает ручное обновление, а
+    поводок дрейфа авторевизий обнуляется. Идемпотентно по содержимому."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.barometer_store import reimport_expert
+        db = SessionLocal()
+        try:
+            for kind in ("geo", "inst"):
+                reimport_expert(db, kind)
+        finally:
+            db.close()
+    try:
+        await asyncio.get_event_loop().run_in_executor(None, _run)
+    except Exception as e:
+        logger.warning("Переимпорт экспертных барометров при старте не удался: %s", e)
+
+
 async def _barometer_reviser_job():
     """Автономный ревизор барометров (гео/институты) — SHADOW-режим (владелец
     2026-07-27, план docs/autonomous-barometer-plan.md). Пишет draft/rejected,
@@ -932,6 +952,7 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(_selftest_startup())
     asyncio.create_task(_geo_frontline_sync_startup())
     asyncio.create_task(_company_metrics_job())  # файлы приезжают с деплоем — скринер сразу в ногу с карточками
+    asyncio.create_task(_barometer_expert_reimport_startup())  # файл барометра мог обновиться экспертом → освежить якорь в БД
 
     # Облигации/фьючерсы/фонды — БЕЗ страховки на рестарт (в отличие от акций
     # выше) молча отставали на T+1..T+N: их крон (asset_data_refresh, 06:00 МСК)
