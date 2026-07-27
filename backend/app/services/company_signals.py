@@ -37,7 +37,11 @@ logger = logging.getLogger(__name__)
 # Инсайд-каналы: internal-only + low trust (владелец: «любят приукрасить/
 # приврать, но для рисков и подсветки внутрянки полезны»). НЕ публикуются
 # клиентам, НЕ единственное основание изменить карточку.
-INTERNAL_SOURCE_KEYS = {"moi_misli_vslukh", "insider_best_tg", "insider_elites"}
+# internal-only источники: инсайд-TG (низкое доверие) + The Bell (иностранный
+# агент в РФ — комплаенс: во входной поток берём как радар/сырьё для сигналов и
+# барометров, но клиентам НЕ публикуем; владелец 2026-07-27 просил «пусть
+# участвует во входном потоке», это и есть input-flow без публикации).
+INTERNAL_SOURCE_KEYS = {"moi_misli_vslukh", "insider_best_tg", "insider_elites", "thebell"}
 _OFFICIAL_SOURCES = {"e_disclosure", "acra", "raexpert", "nkr", "nra", "cbr", "moex"}
 
 _KEEP_DAYS = 45
@@ -63,16 +67,22 @@ def _classify_by_text(text: str) -> tuple[str, str, str]:
     return ("news", "markets", "low")
 
 
+# Инсайд-каналы: низкое доверие. The Bell: профессиональное СМИ (доверие media),
+# но иноагент → internal. internal и trust — разные оси.
+_INSIDER_KEYS = {"moi_misli_vslukh", "insider_best_tg", "insider_elites"}
+
+
 def _trust_for(source_key: str | None) -> tuple[str, bool]:
     """(trust, internal) по ключу источника."""
     sk = (source_key or "").lower()
-    if sk in INTERNAL_SOURCE_KEYS:
+    internal = sk in INTERNAL_SOURCE_KEYS
+    if sk in _INSIDER_KEYS:
         return "insider", True
     if sk in _OFFICIAL_SOURCES:
-        return "official", False
+        return "official", internal
     if sk in ("rybar", "isw", "economist", "carnegie", "rerussia", "globalaffairs", "tg_carnegie"):
-        return "analytical", False
-    return "media", False
+        return "analytical", internal
+    return "media", internal  # The Bell попадёт сюда: media + internal=True
 
 
 def _upsert(db: Session, **kw) -> bool:

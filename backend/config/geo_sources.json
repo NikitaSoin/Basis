@@ -235,6 +235,19 @@
       ],
       "enabled": true,
       "_note": "Fed пресс-релизы (офиц. RSS) — ставка/ДКП США, мировой макро-фон. Только пересказ."
+    },
+    {
+      "key": "thebell",
+      "role": "analysis",
+      "method": "rss",
+      "url": "https://thebell.io/feed",
+      "regions": [
+        "svo",
+        "middle_east",
+        "atr"
+      ],
+      "enabled": true,
+      "_note": "INTERNAL-ONLY (иноагент): питает барометры/оверлей как радар макро/институтов, из публичного дайджеста скрыт по source_key."
     }
   ],
   "region_keywords": {

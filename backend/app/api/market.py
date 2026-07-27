@@ -336,7 +336,11 @@ def list_news_endpoint(
     user=Depends(get_current_user_optional),
 ):
     """Лента рыночно-значимых новостей (только опубликованные, свежие сверху)."""
-    q = db.query(MarketUpdate).filter(MarketUpdate.status == "published")
+    from app.services.company_signals import INTERNAL_SOURCE_KEYS
+    # internal-only источники (инсайд-TG, The Bell/иноагент) — во входном потоке
+    # участвуют (сигналы/барометры), но в клиентскую Ленту НЕ отдаются.
+    q = (db.query(MarketUpdate).filter(MarketUpdate.status == "published")
+         .filter(MarketUpdate.source.notin_(INTERNAL_SOURCE_KEYS)))
     if importance:
         q = q.filter(MarketUpdate.importance == importance)
     if rubric:

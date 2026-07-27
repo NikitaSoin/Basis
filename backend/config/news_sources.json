@@ -72,6 +72,13 @@
       "url": "https://frankmedia.ru/feed",
       "enabled": true,
       "_sector": "банки/ЦБ"
+    },
+    {
+      "source": "thebell",
+      "rubric": "business",
+      "url": "https://thebell.io/feed",
+      "enabled": true,
+      "_note": "INTERNAL-ONLY (иностранный агент в РФ, владелец 2026-07-27): участвует во входном потоке (сигналы карточек, барометры-радар), из клиентской Ленты скрыт по source в INTERNAL_SOURCE_KEYS."
     }
   ],
   "schedule_msk_hours": [
