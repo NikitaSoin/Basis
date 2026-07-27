@@ -138,7 +138,9 @@
     {"code": "yahoo_palladium", "title": "Палладий (мировая цена)", "unit": "usd/oz", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 95, "source_type": "yahoo",
      "influence_short": "Мировая цена палладия — выручка производителей металлов платиновой группы (Норникель). 🔴 Источник неофициальный (Yahoo Finance, без ключа/соглашения) — World Bank/FRED палладий не покрывают."},
     {"code": "yahoo_lumber", "title": "Пиломатериалы (мировая цена)", "unit": "usd/mbf", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 96, "source_type": "yahoo",
-     "influence_short": "Североамериканская цена пиломатериалов (CME) — ориентир для выручки лесопромышленников (Сегежа). 🔴 Источник неофициальный (Yahoo Finance); история короче остальных — старый контракт CME остановлен в 2022, преемник моложе."}
+     "influence_short": "Североамериканская цена пиломатериалов (CME) — ориентир для выручки лесопромышленников (Сегежа). 🔴 Источник неофициальный (Yahoo Finance); история короче остальных — старый контракт CME остановлен в 2022, преемник моложе."},
+    {"code": "yahoo_steel_hrc", "title": "Стальной г/к прокат (мировая цена, США)", "unit": "usd/st", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 97, "source_type": "yahoo",
+     "influence_short": "Цена г/к проката США Midwest (CME HRC) — направление МИРОВОГО цикла стали, ориентир для металлургов (НЛМК/Северсталь/ММК/Мечел). НЕ российская цена — свободного индекса цены проката в РФ нет; внутренние цены формируются в основном спросом (стройка, ставка ЦБ), а не мировым паритетом. 🔴 Источник неофициальный (Yahoo Finance)."}
   ],
   "csv_mapping": {
     "Key_rate": {"code": "key_rate", "metric": "level"},

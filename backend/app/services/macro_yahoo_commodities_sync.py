@@ -13,10 +13,20 @@ Yahoo Finance (Направление: «Товар компании», commodit
 Sheet и FRED/IMF Global Price series палладий не покрывают вообще) —
 владелец платформы одобрил этот компромисс явно (2026-07-23).
 
-Курируем ТОЛЬКО палладий (COMEX-фьючерс PA=F, USD/тройскую унцию) — не
-расширяем список без отдельного решения владельца, т.к. каждый новый тикер
-здесь увеличивает юридическую/операционную хрупкость платформы.
-"""
+Курируем палладий (COMEX PA=F), лес (CME LBR=F) и — с 2026-07-27 (владелец
+одобрил явно после аудита пробелов в commodity_exposure металлургов) — сталь
+г/к прокат (CME HRC=F, "U.S. Midwest Domestic Hot-Rolled Coil Steel",
+USD/короткую тонну, история с 2008). НЕ расширяем список ДАЛЬШЕ без
+отдельного решения владельца — та же юридическая/операционная хрупкость.
+
+🔴 HRC=F — ЦЕНА США (Midwest), НЕ российская цена стального проката: у РФ нет
+свободного/биржевого индекса вообще (не MOEX FORTS, не World Bank Pink Sheet,
+не FRED) — собственные тексты металлургов (НЛМК/Северсталь) прямо говорят,
+что российские внутренние цены обычно ВЫШЕ мировых и определяются в первую
+очередь внутренним спросом (стройка, ставка ЦБ), а не паритетом экспорта.
+HRC=F — честный МИРОВОЙ ориентир направления цикла (растёт/падает глобальный
+рынок стали), а не прямая российская цена — обязательна явная оговорка везде,
+где используется (см. commodity_exposure.reasoning металлургов)."""
 from __future__ import annotations
 
 import logging
@@ -37,10 +47,13 @@ _HTTP = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/53
 # LBS=F ("Random Length Lumber") в 2022 — LBS=F перестал обновляться (мёртвый
 # тикер), поэтому история короче остальных (с сентября 2022, не с 2016) —
 # ограничение самого контракта, не платформы.
-_SYMBOLS = {"PA=F": "yahoo_palladium", "LBR=F": "yahoo_lumber"}
-_UNITS = {"yahoo_palladium": "usd/oz", "yahoo_lumber": "usd/mbf"}
+# HRC=F (CME, "Hot-Rolled Coil Steel") — короткая тонна (short ton), история
+# с 2008-10 (firstTradeDate). МИРОВОЙ (US Midwest) ориентир, см. докстринг.
+_SYMBOLS = {"PA=F": "yahoo_palladium", "LBR=F": "yahoo_lumber", "HRC=F": "yahoo_steel_hrc"}
+_UNITS = {"yahoo_palladium": "usd/oz", "yahoo_lumber": "usd/mbf", "yahoo_steel_hrc": "usd/st"}
 _SOURCE_URL = {"PA=F": "https://finance.yahoo.com/quote/PA=F/history",
-               "LBR=F": "https://finance.yahoo.com/quote/LBR=F/history"}
+               "LBR=F": "https://finance.yahoo.com/quote/LBR=F/history",
+               "HRC=F": "https://finance.yahoo.com/quote/HRC=F/history"}
 
 
 def _month_end_of(ts: int) -> date:
