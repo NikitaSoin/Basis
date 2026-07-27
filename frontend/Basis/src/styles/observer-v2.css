@@ -1549,6 +1549,15 @@
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
+/* Фильтр очагов «Оценки ситуации» (Весь рынок / СВО / Ближний Восток / АТР) —
+   та же грамматика .obs-chip, просто с иконкой очага внутри (иначе SVG+текст
+   съезжают на разные базовые линии), тот же приём, что у .obs-geomap-zoomchip. */
+.obs-scope-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* =============================================================
    ARTICLE CARDS — obs-art-*
    Macro "Обзор" section: analytics docs from ЦБ/ЦМАКП.
@@ -3585,6 +3594,66 @@ details[open] > summary.obs-ai-section-heading .obs-ai-section-chev {
 .obs-baro-note svg { flex-shrink: 0; margin-top: 2px; color: var(--info); }
 .obs-baro-note b { color: var(--text-primary); }
 
+/* Компактная «шапка» барометра — замена полного ObsBaroHero, когда в
+   «Оценке ситуации» выбран конкретный очаг (фильтр СВО/Ближний Восток/АТР):
+   балл рынка в целом остаётся виден (владелец: «не потеряй число барометра
+   совсем»), но не доминирует над фокус-карточкой очага ниже. Та же
+   визуальная семья, что .obs-inst-hero (карточка/бордер/тень), просто
+   горизонтальная и меньше. */
+.obs-baro-compact {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 14px 20px;
+  box-shadow: var(--shadow-sm);
+}
+.obs-baro-compact-score {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.obs-baro-compact-score-max {
+  font-size: 0.45em;
+  font-weight: 500;
+  opacity: 0.6;
+  margin-left: 1px;
+}
+.obs-baro-compact-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-right: 16px;
+  border-right: 1px solid var(--border-subtle);
+}
+.obs-baro-compact-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.obs-baro-compact-verdict {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+.obs-baro-compact-note {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+  max-width: 44ch;
+}
+
 /* Гейдж-шкала 1-5 под общим баллом hero — направление градиента задаёт
    полярность (higherBetter/higherWorse), маркер — сам балл. */
 .obs-baro-scale {
@@ -3886,6 +3955,30 @@ details[open] > summary.obs-ai-section-heading .obs-ai-section-chev {
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
   padding: 3px 9px;
+}
+
+/* Фокус-вид одного очага в «Оценке ситуации» (фильтр СВО/Ближний Восток/АТР
+   выбран) — та же .obs-region-card, крупнее (не тесная 3-колоночная плитка,
+   а единственная карточка на всю ширину) + собственный дельта-слой по ленте
+   и футер с надёжностью/срезом оценки. */
+.obs-region-card--focus {
+  padding: 22px 26px;
+  gap: 12px;
+}
+.obs-region-card--focus .obs-region-card-name { font-size: 17px; }
+.obs-region-card--focus .obs-region-card-summary { font-size: 13.5px; }
+
+.obs-region-card-foot {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-subtle);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 10.5px;
+  color: var(--text-tertiary);
 }
 
 /* ---- Epistemic tags (факт переиспользует .obs-tag-fact сайта; здесь —

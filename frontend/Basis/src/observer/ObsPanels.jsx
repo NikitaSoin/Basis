@@ -1537,6 +1537,14 @@ const GEO_REGION_META = [
   { key: "atr", label: "АТР", icon: Globe },
 ];
 
+// direction ("эскалация"/"деэскалация"/"статус-кво") → цвет; общий хелпер
+// вместо трёх копий одной и той же регулярки (мини-плитки/карта/фокус-карточка).
+function obsGeoDirColor(direction) {
+  const esc = /эскалац/i.test(direction || "");
+  const desc = /деэскалац/i.test(direction || "");
+  return esc ? "var(--danger)" : desc ? "var(--success)" : "var(--text-tertiary)";
+}
+
 // =========================
 // OBS MACRO ARTICLES — Обозреватель · Разбор · Макроэкономика
 // Две вкладки: Обзор (article-cards из /macro/analytics) +
@@ -2857,7 +2865,7 @@ function ObsGeoTheaterBrief({ theater, data }) {
 // теперь в цикле по всем очагам на ОДНОЙ карте вместо одного экземпляра на
 // каждый. См. заголовочный комментарий раздела выше (unionGeoBounds).
 // =========================
-function ObsGeoWorldMap({ theaters, dataByTheater }) {
+function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
   const [styleLoaded, setStyleLoaded] = useState(false);
   const [activeType, setActiveType] = useState("all");
   const [focus, setFocus] = useState("world"); // "world" | theaterKey
@@ -3196,6 +3204,31 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
       mapRef.current = null;
     };
   }, []);
+
+  // --- Автофокус камеры по внешнему activeTheater (владелец, 2026-07-27:
+  // фильтр очагов теперь есть и в «Оценке ситуации», карта должна перелетать
+  // к выбранному очагу) — те же goTheater/goWorld, что у чипов зума внутри
+  // карты, просто вызванные ещё и извне. Данные/слои НЕ трогает (правило п.5
+  // выше) — только камера. Эффект объявлен ПОСЛЕ эффекта инициализации карты,
+  // поэтому на первом монтировании mapRef.current уже установлен к этому
+  // моменту (React выполняет passive-эффекты одного компонента по порядку
+  // объявления в теле функции).
+  // appliedActiveTheaterRef — родитель (ObsGeopolitics) пересоздаёт массив
+  // theaters/колбэки goTheater/goWorld почти на КАЖДЫЙ свой ре-рендер (не
+  // мемоизированы выше по дереву), из-за чего этот эффект технически
+  // перезапускается гораздо чаще, чем реально меняется activeTheater. Без
+  // этого ref-гейта карта бы дёргалась (повторный flyTo с тем же bounds)
+  // на любое несвязанное состояние (тумблер 6мес/18мес, догрузка дайджеста
+  // и т.п.) — сравниваем ЗНАЧЕНИЕ activeTheater, а не полагаемся на то, что
+  // эффект вызвался.
+  const appliedActiveTheaterRef = useRef(undefined);
+  useEffect(() => {
+    if (!mapRef.current) return;
+    if (appliedActiveTheaterRef.current === activeTheater) return;
+    appliedActiveTheaterRef.current = activeTheater;
+    if (activeTheater && theaters.some((t) => t.key === activeTheater)) goTheater(activeTheater);
+    else goWorld();
+  }, [activeTheater, theaters, goTheater, goWorld]);
 
   // --- Речевой пузырь деталей клика: тот же паттерн, что раньше (один Popup +
   // один React-root на карту, без пересоздания), контент читает данные
@@ -3711,7 +3744,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
 // Честная деградация: очаг, для которого файл ещё не появился (404), просто
 // не участвует ни в карте, ни в брифах — без баннера ошибки.
 // =========================
-function ObsGeoTheaters({ regions, token }) {
+function ObsGeoTheaters({ regions, token, activeTheater = null }) {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const [dataByTheater, setDataByTheater] = useState({});
   const [settled, setSettled] = useState({});
@@ -3741,7 +3774,7 @@ function ObsGeoTheaters({ regions, token }) {
 
   return (
     <>
-      <ObsGeoWorldMap theaters={loadedRegions} dataByTheater={dataByTheater} />
+      <ObsGeoWorldMap theaters={loadedRegions} dataByTheater={dataByTheater} activeTheater={activeTheater} />
       {loadedRegions.map((r) => (
         <ObsGeoTheaterBrief key={r.key} theater={r} data={dataByTheater[r.key]} />
       ))}
@@ -3761,6 +3794,11 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
   const [error, setError] = useState(false);
   const [region, setRegion] = useState(null); // null = первый из списка
   const [mode, setMode] = useState("overview"); // overview | assessment
+  // Фильтр очагов ВНУТРИ «Оценки ситуации» — отдельный от region (у «Обзора»
+  // null означает «первый очаг из списка», у «Оценки ситуации» null-эквивалент
+  // ("all") означает «Весь рынок» — разная семантика, поэтому разный стейт,
+  // чтобы переключение режима не путало одно с другим.
+  const [assessmentScope, setAssessmentScope] = useState("all"); // all | svo | middle_east | atr
   const [digestByRegion, setDigestByRegion] = useState({});
   const [digestLoading, setDigestLoading] = useState({});
   const [baro, setBaro] = useState(null);
@@ -3861,10 +3899,10 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
         и что это значит для российского рынка.
       </p>
 
-      {/* Фильтр регионов — относится ТОЛЬКО к «Обзору» (лента фактов по региону).
-          Барометр «Оценка ситуации» — единый показатель на весь рынок, регион-независимый;
-          поэтому чипы скрыты в этом режиме (см. пояснение ниже), чтобы не создавать
-          ложное впечатление, будто барометр можно фильтровать по региону. */}
+      {/* Фильтр очагов — «Обзор» фильтрует ленту фактов по региону (стейт region);
+          «Оценка ситуации» фильтрует детализацию барометра (стейт assessmentScope,
+          "Весь рынок" = агрегат, очаг = отдельная региональная оценка). Разный
+          стейт, та же визуальная грамматика чипов. */}
       {mode === "overview" && regions.length > 0 && (
         <div className="obs-filterbar">
           {regions.map((r) => {
@@ -3880,6 +3918,27 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
               </button>
             );
           })}
+        </div>
+      )}
+      {mode === "assessment" && (
+        <div className="obs-filterbar">
+          <button
+            type="button"
+            className={`obs-chip obs-scope-chip${assessmentScope === "all" ? " obs-chip--active" : ""}`}
+            onClick={() => setAssessmentScope("all")}
+          >
+            <Globe size={13} aria-hidden="true" /> Весь рынок
+          </button>
+          {GEO_REGION_META.map(({ key, label, icon: Icon }) => (
+            <button
+              key={key}
+              type="button"
+              className={`obs-chip obs-scope-chip${assessmentScope === key ? " obs-chip--active" : ""}`}
+              onClick={() => setAssessmentScope(key)}
+            >
+              <Icon size={13} aria-hidden="true" /> {label}
+            </button>
+          ))}
         </div>
       )}
 
@@ -3902,7 +3961,11 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
       {mode === "assessment" && (
         <div className="obs-baro-note">
           <Info size={14} />
-          <span>Барометр ниже — <b>единый показатель для российского рынка в целом</b>, не разбит по регионам (СВО / Ближний Восток / АТР — это оси одного барометра, G9–G11). Фильтр по региону выше относится только к ленте фактов на вкладке «Обзор».</span>
+          {assessmentScope === "all" ? (
+            <span>Барометр ниже — <b>единый показатель для российского рынка в целом</b>, собран из 13 показателей (СВО / Ближний Восток / АТР входят в него как отдельные оси, G9–G11). Выберите очаг выше — увидите отдельную оценку конкретно по нему.</span>
+          ) : (
+            <span>Оценка по очагу ниже — детализация <b>одной из осей</b> общего барометра рынка (показан компактно выше). «Весь рынок» вернёт полную картину: сценарии, секторные последствия, все 13 показателей.</span>
+          )}
         </div>
       )}
 
@@ -3990,66 +4053,137 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                 const currentMatch = String(baro.scenario?.current_lean || "").match(/S[1-4]/);
                 const currentKey = currentMatch ? ladderItems.find((it) => it.key.startsWith(currentMatch[0]))?.key : null;
 
+                // Фокус на конкретном очаге (assessmentScope !== "all") — данные
+                // очага + цвет направления + балл-«шапка» компактной версии hero
+                // (см. рендер ниже). Считаем один раз здесь, не в трёх местах JSX.
+                const scopeKey = assessmentScope !== "all" ? assessmentScope : null;
+                const scopeMeta = scopeKey ? GEO_REGION_META.find((m) => m.key === scopeKey) : null;
+                const ScopeIcon = scopeMeta?.icon || null;
+                const scopeRegionData = scopeKey ? baro.regions?.[scopeKey] : null;
+                const scopeDirColor = scopeRegionData ? obsGeoDirColor(scopeRegionData.direction) : null;
+                const compactTier = baro.barometer?.overall != null ? obsScoreTier(baro.barometer.overall, "higherWorse") : null;
+
                 return (
                   <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                     <ObsBaroCaveat flags={baro.data_flags} />
 
-                    <ObsBaroHero
-                      eyebrow="Геополитический барометр · оценка Basis"
-                      asOf={baro.as_of}
-                      score={baro.barometer?.overall}
-                      verdict={baro.barometer?.label}
-                      polarity="higherWorse"
-                      scaleLabels={["низкий риск", "высокий риск"]}
-                      subindices={baro.subindices}
-                    />
+                    {assessmentScope === "all" ? (
+                      <ObsBaroHero
+                        eyebrow="Геополитический барометр · оценка Basis"
+                        asOf={baro.as_of}
+                        score={baro.barometer?.overall}
+                        verdict={baro.barometer?.label}
+                        polarity="higherWorse"
+                        scaleLabels={["низкий риск", "высокий риск"]}
+                        subindices={baro.subindices}
+                      />
+                    ) : (
+                      <div className="obs-baro-compact">
+                        <div className="obs-baro-compact-score" style={{ color: compactTier ? compactTier.color : "var(--text-tertiary)" }}>
+                          {baro.barometer?.overall != null ? Number(baro.barometer.overall).toFixed(1) : "—"}
+                          <span className="obs-baro-compact-score-max">/5</span>
+                        </div>
+                        <div className="obs-baro-compact-meta">
+                          <span className="obs-baro-compact-label"><Activity size={11} aria-hidden="true" /> Барометр рынка РФ в целом</span>
+                          {baro.barometer?.label && <span className="obs-baro-compact-verdict">{baro.barometer.label}</span>}
+                        </div>
+                        <span className="obs-baro-compact-note">Фон рынка в целом{baro.as_of ? ` · срез на ${baro.as_of}` : ""} — ниже детализация по очагу «{scopeMeta?.label}»</span>
+                      </div>
+                    )}
 
-                    {/* Явная разбивка по очагам — владелец прямо попросил разделить
-                        (единый барометр читался как «всё замешано», СВО/Ближний Восток/АТР
-                        было не различить). Три самостоятельные мини-оценки: откуда угроза,
-                        куда движется, кого касается, сколько продлится. Общий барометр выше
-                        остаётся агрегатом (SVO доминирует по весу), это — детализация. */}
+                    {/* Разбивка по очагам — владелец прямо попросил разделить (единый
+                        барометр читался как «всё замешано», СВО/Ближний Восток/АТР было
+                        не различить), а затем (2026-07-27) явно попросил ещё и фильтр:
+                        «Весь рынок» — три мини-оценки рядом (как раньше); конкретный очаг
+                        (assessmentScope) — одна крупная фокус-карточка вместо трёх мелких,
+                        с собственным дельта-слоем по ленте. Общий барометр выше остаётся
+                        агрегатом (SVO доминирует по весу), это — детализация. */}
                     {baro.regions && (
                       <div>
-                        <div className="obs-synth-head" style={{ marginBottom: 14 }}>По очагам: откуда, на кого и насколько долго</div>
-                        <div className="obs-region-grid">
-                          {GEO_REGION_META.map(({ key, label, icon: Icon }) => {
-                            const r = baro.regions[key];
-                            if (!r) return null;
-                            const esc = /эскалац/i.test(r.direction || "");
-                            const desc = /деэскалац/i.test(r.direction || "");
-                            const dirColor = esc ? "var(--danger)" : desc ? "var(--success)" : "var(--text-tertiary)";
-                            return (
-                              <div key={key} className="obs-region-card">
+                        {assessmentScope === "all" ? (
+                          <>
+                            <div className="obs-synth-head" style={{ marginBottom: 14 }}>По очагам: откуда, на кого и насколько долго</div>
+                            <div className="obs-region-grid">
+                              {GEO_REGION_META.map(({ key, label, icon: Icon }) => {
+                                const r = baro.regions[key];
+                                if (!r) return null;
+                                const dirColor = obsGeoDirColor(r.direction);
+                                return (
+                                  <div key={key} className="obs-region-card">
+                                    <div className="obs-region-card-head">
+                                      <Icon size={16} />
+                                      <span className="obs-region-card-name">{label}</span>
+                                      <span className="obs-region-card-dir" style={{ color: dirColor, borderColor: dirColor }}>{r.direction}</span>
+                                    </div>
+                                    {r.label && <div className="obs-region-card-label">{r.label}</div>}
+                                    {r.duration_estimate && (
+                                      <div className="obs-region-card-duration"><Clock size={12} />{r.duration_estimate}</div>
+                                    )}
+                                    {r.summary && <p className="obs-region-card-summary">{r.summary}</p>}
+                                    {Array.isArray(r.affected) && r.affected.length > 0 && (
+                                      <div className="obs-region-card-affected">
+                                        <div className="obs-region-card-affected-label">Кого касается</div>
+                                        <div className="obs-region-card-chips">
+                                          {r.affected.map((a, i) => <span key={i} className="obs-region-chip">{a}</span>)}
+                                        </div>
+                                      </div>
+                                    )}
+                                    {overlay?.blocks?.[key] && (
+                                      <ObsSituationOverlay
+                                        block={overlay.blocks[key]}
+                                        generatedAt={overlay.generated_at}
+                                        anchorAsOf={r.as_of || baro.as_of}
+                                      />
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="obs-region-focus">
+                            <div className="obs-synth-head" style={{ marginBottom: 14 }}>
+                              <Info size={13} aria-hidden="true" style={{ marginRight: 5, verticalAlign: -2 }} />
+                              Оценка Basis по очагу «{scopeMeta?.label}»
+                            </div>
+                            {scopeRegionData ? (
+                              <div className="obs-region-card obs-region-card--focus">
                                 <div className="obs-region-card-head">
-                                  <Icon size={16} />
-                                  <span className="obs-region-card-name">{label}</span>
-                                  <span className="obs-region-card-dir" style={{ color: dirColor, borderColor: dirColor }}>{r.direction}</span>
+                                  {ScopeIcon && <ScopeIcon size={18} />}
+                                  <span className="obs-region-card-name">{scopeRegionData.label || scopeMeta?.label}</span>
+                                  <span className="obs-region-card-dir" style={{ color: scopeDirColor, borderColor: scopeDirColor }}>{scopeRegionData.direction}</span>
                                 </div>
-                                {r.label && <div className="obs-region-card-label">{r.label}</div>}
-                                {r.duration_estimate && (
-                                  <div className="obs-region-card-duration"><Clock size={12} />{r.duration_estimate}</div>
+                                {scopeRegionData.duration_estimate && (
+                                  <div className="obs-region-card-duration"><Clock size={13} />{scopeRegionData.duration_estimate}</div>
                                 )}
-                                {r.summary && <p className="obs-region-card-summary">{r.summary}</p>}
-                                {Array.isArray(r.affected) && r.affected.length > 0 && (
+                                {scopeRegionData.summary && <p className="obs-region-card-summary">{scopeRegionData.summary}</p>}
+                                {Array.isArray(scopeRegionData.affected) && scopeRegionData.affected.length > 0 && (
                                   <div className="obs-region-card-affected">
                                     <div className="obs-region-card-affected-label">Кого касается</div>
                                     <div className="obs-region-card-chips">
-                                      {r.affected.map((a, i) => <span key={i} className="obs-region-chip">{a}</span>)}
+                                      {scopeRegionData.affected.map((a, i) => <span key={i} className="obs-region-chip">{a}</span>)}
                                     </div>
                                   </div>
                                 )}
-                                {overlay?.blocks?.[key] && (
+                                {(scopeRegionData.confidence || scopeRegionData.as_of) && (
+                                  <div className="obs-region-card-foot">
+                                    {scopeRegionData.confidence && <span>надёжность оценки: {_geomapConfidenceRu(scopeRegionData.confidence)}</span>}
+                                    {scopeRegionData.as_of && <span>срез на {scopeRegionData.as_of}</span>}
+                                  </div>
+                                )}
+                                {overlay?.blocks?.[scopeKey] && (
                                   <ObsSituationOverlay
-                                    block={overlay.blocks[key]}
+                                    block={overlay.blocks[scopeKey]}
                                     generatedAt={overlay.generated_at}
-                                    anchorAsOf={r.as_of || baro.as_of}
+                                    anchorAsOf={scopeRegionData.as_of || baro.as_of}
                                   />
                                 )}
                               </div>
-                            );
-                          })}
-                        </div>
+                            ) : (
+                              <div className="obs-art-empty">Оценка по очагу «{scopeMeta?.label}» пока недоступна.</div>
+                            )}
+                          </div>
+                        )}
 
                         {/* ОДНА общая карта очагов (владелец, 2026-07-25: «один вид на весь
                             мир сразу», не три отдельные полноширинные карты друг под другом
@@ -4058,16 +4192,16 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                             с подписями — ОТК персоны это подтвердил), сама секция сама вернёт
                             null, если ни для одного очага ещё нет geo_map_<theater>.json —
                             новые очаги появятся автоматически, без правки кода, когда
-                            появятся их файлы. См. ObsGeoTheaters/ObsGeoWorldMap выше. */}
+                            появятся их файлы. См. ObsGeoTheaters/ObsGeoWorldMap выше.
+                            activeTheater — камера перелетает к выбранному очагу при смене
+                            фильтра выше (все три очага остаются загруженными, как и раньше). */}
                         <ObsGeoTheaters
                           regions={GEO_REGION_META.map(({ key, label, icon }) => {
                             const r = baro.regions[key];
-                            const esc = /эскалац/i.test(r?.direction || "");
-                            const desc = /деэскалац/i.test(r?.direction || "");
-                            const dirColor = esc ? "var(--danger)" : desc ? "var(--success)" : "var(--text-tertiary)";
-                            return { key, label, icon, direction: r?.direction, directionColor: dirColor };
+                            return { key, label, icon, direction: r?.direction, directionColor: obsGeoDirColor(r?.direction) };
                           })}
                           token={token}
+                          activeTheater={scopeKey}
                         />
                       </div>
                     )}
@@ -4079,6 +4213,9 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                           Сценарий: {baro.scenario.current_lean ? baro.scenario.current_lean.split(",")[0].trim() : "—"}
                           {baro.scenario.confidence && <span className="obs-inst-scenario-current">confidence {baro.scenario.confidence}</span>}
                         </div>
+                        {assessmentScope !== "all" && (
+                          <p className="obs-inst-card-sub">Рыночный контекст — общий сценарий не привязан к одному очагу, учитывает все оси барометра (G1–G13).</p>
+                        )}
                         {baro.scenario.current_lean && (
                           <p className="obs-inst-card-sub" style={{ maxWidth: "100%" }}>{baro.scenario.current_lean}</p>
                         )}
