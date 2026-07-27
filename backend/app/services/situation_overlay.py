@@ -44,9 +44,13 @@ from app.services import llm
 
 logger = logging.getLogger(__name__)
 
-_REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-_GEO_BARO = os.path.join(_REPO, "config", "geo_barometer.json")
-_INST_BARO = os.path.join(_REPO, "config", "institutional_barometer.json")
+# backend/ (3 уровня вверх от app/services/этого файла) — барометры лежат в
+# backend/config/, НЕ в корне репо (в корне config/ только sectors.json, откуда
+# и была ошибка: скопировал 4-уровневый _REPO из macro_interpreter, но у гео
+# конфиг на уровень ниже — файл не читался, дельта считалась без якоря).
+_BACKEND = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_GEO_BARO = os.path.join(_BACKEND, "config", "geo_barometer.json")
+_INST_BARO = os.path.join(_BACKEND, "config", "institutional_barometer.json")
 
 _WINDOW_DAYS = 10          # окно свежести статей ленты
 _MIN_ARTICLES = 2         # меньше — честная деградация «существенных событий нет»
