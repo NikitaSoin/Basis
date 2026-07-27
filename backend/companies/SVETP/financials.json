@@ -38,18 +38,18 @@
       364.0
     ],
     "cogs": [
-      null,
-      null,
-      null,
-      null,
-      null
+      456.1,
+      270.3,
+      401.5,
+      487.5,
+      301.7
     ],
     "gross_profit": [
-      null,
-      null,
-      null,
-      null,
-      null
+      16.5,
+      40.4,
+      60.3,
+      189.6,
+      62.4
     ],
     "expense_lines": [],
     "operating_profit": [
@@ -57,7 +57,7 @@
       null,
       null,
       null,
-      null
+      21.3
     ],
     "da": [
       null,
@@ -74,32 +74,32 @@
       null
     ],
     "finance_costs": [
-      null,
-      null,
-      null,
-      null,
-      null
+      23.9,
+      23.4,
+      20.3,
+      15.0,
+      8.2
     ],
     "finance_income": [
       null,
       null,
       null,
       null,
-      null
+      22.1
     ],
     "pre_tax_profit": [
+      1.3,
+      25.6,
       null,
       null,
-      null,
-      null,
-      null
+      7.7
     ],
     "income_tax": [
+      0.0,
+      0.0,
       null,
       null,
-      null,
-      null,
-      null
+      -0.7
     ],
     "net_profit": [
       1.0,
@@ -271,11 +271,11 @@
       ]
     },
     "total_assets": [
-      null,
-      null,
-      null,
-      null,
-      null
+      686.2,
+      459.1,
+      527.2,
+      646.4,
+      725.8
     ],
     "equity": {
       "share_capital": [
@@ -375,11 +375,11 @@
       ]
     },
     "total_liabilities": [
-      null,
-      null,
-      null,
-      null,
-      null
+      382.6,
+      297.5,
+      314.8,
+      197.9,
+      206.3
     ],
     "net_debt": [
       null,
@@ -432,36 +432,36 @@
       null,
       null,
       null,
-      null,
-      null
+      -93.3,
+      -32.1
     ],
     "cfi": [
       null,
       null,
       null,
-      null,
-      null
+      -35.6,
+      -41.1
     ],
     "cff": [
       null,
       null,
       null,
-      null,
-      null
+      127.4,
+      73.2
     ],
     "net_change_in_cash": [
       null,
       null,
       null,
-      null,
-      null
+      -1.5,
+      0.0
     ],
     "capex": [
       null,
       null,
       null,
-      null,
-      null
+      7.0,
+      54.9
     ],
     "fcf": [
       null,
@@ -1180,6 +1180,12 @@
       "type": "internal",
       "title": "config/market_params.json — ОФЗ 14.6%, ERP 9.0%",
       "reliability": "high"
+    },
+    {
+      "id": "src_sync_svet",
+      "type": "internal",
+      "title": "companies/SVET/financials.json — синхронизация фундаментала с парной обыкновенной (единая РСБУ-отчётность эмитента)",
+      "reliability": "high"
     }
   ],
   "data_flags": [
@@ -1192,7 +1198,8 @@
     "P/B формально считается (0.52 на 2025), но для онлайн-EdTech балансовая стоимость РСБУ не репрезентативна",
     "Дивиденды нерегулярны и непредсказуемы: дивидендная модель Гордона нерепрезентативна при Ke=31%",
     "Бета 1.8 — суждение, не биржевая бета (недостаточно ликвидных торгов для расчёта)",
-    "Оценочный коридор 13-28 руб имеет низкую надёжность: на основании РСБУ + механического прогноза + медианного P/E"
+    "Оценочный коридор 13-28 руб имеет низкую надёжность: на основании РСБУ + механического прогноза + медианного P/E",
+    "СИНХРОНИЗИРОВАНО (2026-07-28, аудит гэпов): income_statement/balance_sheet/cash_flow заменены на данные ПАРНОЙ ОБЫКНОВЕННОЙ SVET (тот же эмитент ПАО «Светофор Групп», ИНН 7814693830, единая РСБУ-отчётность на оба класса акций — SVET получил постатейный ГИР БО ФНС в предыдущем проходе). Закрыты гэпы: operating_profit/pre_tax_profit/income_tax 2025, total_assets/total_liabilities все годы (были полностью null), cfo/cfi/cff/capex 2025, разбивка капитала по статьям 2025, ОДДС построчно 2024-2025. Цена/число акций/дивиденды/оценка (meta, valuation, metrics_timeseries, multiples) остаются СВОИМИ для префа SVETP — не тронуты."
   ],
   "segments": [
     {

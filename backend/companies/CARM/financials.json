@@ -1772,7 +1772,8 @@
     {
       "code": "MFO_LOANS_DEPOSITS_SPLIT",
       "note": "Раскрыто: loans_retail = чистый портфель займов физлицам (монолайновый розничный кредитор, PTS-автозаймы), loans_corporate = 0 — корпоративного кредитования нет; суммы бьются с net_loans (2022–2025). funding_rate_pct добавлен в bank_metrics = проц.расходы/средние проц.обязательства (облиг.+банк.линии): 17,5/17,5/18,4% за 2023–2025 (2022 null — нет остатка на 31.12.2021 для среднего). Структурно недоступно: deposits_retail/deposits_corporate = null — МФО по закону не вправе принимать вклады, фондирование только облигациями и банковскими линиями; сегментного розница/корпораты разбиения депозитов не существует как класса."
-    }
+    },
+    "CLOSE_GAP 2026-07-28: bank_pnl 2025 (NII, комиссии нетто, provisions, operating_income/expenses, pre_tax, налог, ЧП) дозаполнен из sources/extracted_financials.json (точные OCR-цифры из отчёта МСФО за 2025 год уже были извлечены отдельным прогоном report-fetcher, но не были смёржены в основной financials.json). Мост pre_tax(166.206) + налог(-164.156) ≈ ЧП(2.15) сходится (Δ4.6%, в допуске). Мост operating_income = NII_after_prov(1719.554) + other_income(251.077) = 1970.631 сходится точно. audit_financials.py --ticker CARM: ЧИСТО."
   ],
   "relative_peers_sector": {
     "basis_metric": "pb",
@@ -1849,40 +1850,40 @@
       null,
       2476.5,
       2961.0,
-      3119.5,
-      null
+      3119.507,
+      3324.623
     ],
     "interest_expense": [
       null,
       null,
       -507.4,
       -443.2,
-      -508.5,
-      null
+      -508.546,
+      -759.838
     ],
     "net_interest_income": [
       null,
       null,
       1969.1,
       2517.8,
-      2611.0,
-      null
+      2610.961,
+      2564.785
     ],
     "fee_income": [
       null,
       null,
       175.3,
       168.8,
-      162.8,
-      null
+      162.771,
+      189.43
     ],
     "fee_expense": [
       null,
       null,
       -55.8,
       -44.7,
-      -63.3,
-      null
+      -63.271,
+      -101.134
     ],
     "net_fee_income": [
       null,
@@ -1890,63 +1891,79 @@
       119.5,
       124.1,
       99.5,
-      null
+      88.296
     ],
     "provisions": [
       null,
       null,
       -685.3,
       -653.4,
-      -749.3,
-      null
+      -749.322,
+      -845.231
     ],
     "operating_income": [
       null,
       null,
       1489.1,
       2075.7,
-      2079.7,
-      null
+      2079.748,
+      1970.631
     ],
     "operating_expenses": [
       null,
       null,
       -880.8,
       -1223.9,
-      -1409.5,
-      null
+      -1409.498,
+      -1578.036
     ],
     "other_income": [
       null,
       null,
       205.3,
       211.3,
-      218.1,
-      null
+      218.109,
+      251.077
     ],
     "pre_tax_profit": [
       null,
       null,
       462.3,
       682.9,
-      528.7,
-      null
+      528.65,
+      166.206
     ],
     "income_tax": [
       null,
       null,
       -72.5,
       -128.7,
-      -293.9,
-      null
+      -293.939,
+      -164.156
     ],
     "net_profit": [
       null,
       null,
       389.8,
       554.2,
-      234.7,
-      null
+      234.711,
+      2.15
+    ],
+    "net_interest_income_after_provisions": [
+      null,
+      null,
+      null,
+      null,
+      1861.639,
+      1719.554
+    ],
+    "other_expenses": [
+      null,
+      null,
+      -146.0,
+      -168.9,
+      -141.6,
+      -226.389
     ]
   },
   "bank_balance": {
