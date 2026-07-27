@@ -192,16 +192,23 @@ def compile_params(fin: dict, gov: dict, inst: dict, barometer: dict,
                              "(частая причина — отрицательный капитал)"]}
 
     # --- roe0 (нормализованный) ---
-    roe_pct = _recent_median(fin.get("returns", {}).get("roe"), n=5)
-    if roe_pct is None:
-        roe_pct = _last_valid((fin.get("bank_metrics", {}) or {}).get("roe"))
-    if roe_pct is None:
-        g = fin.get("forecast", {}).get("roe_2026_guidance_pct")
-        roe_pct = float(g) if isinstance(g, (int, float)) else None
-    if roe_pct is None:
+    # ЛОВУШКА ЕДИНИЦ (на бою: Яндекс отсеян с ROE 0.2%): returns.roe у разных компаний
+    # то в ПРОЦЕНТАХ (Сбер 22.76), то в ДОЛЯХ (Яндекс 0.206=20.6%) — один и тот же
+    # ряд, разный масштаб. Нормируем по величине: |медиана|<1.5 ⇒ уже доля, иначе
+    # проценты /100. (ROE-доля >150% и ROE-процент <1.5% — оба практически не
+    # встречаются, порог 1.5 разделяет надёжно.) 30 компаний были ошибочно
+    # «неприменимо» из-за этого.
+    def _roe_frac(v):
+        return None if v is None else (v if abs(v) < 1.5 else v / 100.0)
+    roe0 = _roe_frac(_recent_median(fin.get("returns", {}).get("roe"), n=5))
+    if roe0 is None:
+        roe0 = _roe_frac(_last_valid((fin.get("bank_metrics", {}) or {}).get("roe")))
+    if roe0 is None:
+        g = fin.get("forecast", {}).get("roe_2026_guidance_pct")  # имя _pct ⇒ всегда проценты
+        roe0 = (float(g) / 100.0) if isinstance(g, (int, float)) else None
+    if roe0 is None:
         return {"params": None, "scenarios": None, "base_meta": None,
-                "warnings": ["нет ROE — BFV не считается"]}
-    roe0 = roe_pct / 100.0
+                "warnings": ["нет данных по ROE — BFV не считается"]}
     g_terminal = 0.035
     # §5.1 канон g = b·ROE ⇒ должно быть g_terminal ≤ ROE_terminal ≤ ROE0. Если ROE0
     # ниже/у терминального роста — устойчивого состояния нет (payout вышел бы < 0),
