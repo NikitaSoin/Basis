@@ -1310,6 +1310,66 @@ def debug_trigger_rating_agencies(acra_limit: int = 15, nkr_limit: int = 25,
         db.close()
 
 
+@router.post("/debug/trigger-card-consumer")
+def debug_trigger_card_consumer(signal_id: int | None = None, sample: str | None = None):
+    """Ручной прогон consumer-агента: точные сигналы (rating_action/earnings от
+    официальных источников) → addendum вкладки карточки под код-гейтом. v1 белый
+    список источников (не fuzzy-Лента). Публикация — по флагу CARD_CONSUMER_PUBLISH
+    (иначе draft, на карточку не идёт).
+    signal_id — прогнать агента на КОНКРЕТНОМ сигнале (минуя фильтр батча);
+    sample=rating_action|earnings — взять СВЕЖАЙШИЙ сигнал типа (любой важности)
+    для пред-полётного просмотра качества; иначе полный прогон батча."""
+    from app.db.session import SessionLocal
+    from app.services.card_consumer_agent import run_consumer, run_for_signal
+    from app.models.geo import CompanySignal
+    db = SessionLocal()
+    try:
+        sig = None
+        if signal_id is not None:
+            sig = db.query(CompanySignal).get(signal_id)
+        elif sample:
+            sig = (db.query(CompanySignal)
+                   .filter(CompanySignal.signal_type == sample,
+                           CompanySignal.trust == "official")
+                   .order_by(CompanySignal.created_at.desc()).first())
+        if signal_id is not None or sample:
+            if not sig:
+                return {"error": "signal not found"}
+            row = run_for_signal(db, sig)
+            if row is None:
+                return {"result": "cooldown", "ticker": sig.ticker, "tab": sig.card_tab}
+            return {"signal": {"id": sig.id, "ticker": sig.ticker, "title": sig.title},
+                    "status": row.status, "content": row.content,
+                    "gate_notes": row.gate_notes, "tokens": row.tokens_used}
+        return run_consumer(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-card-consumer: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
+@router.post("/debug/card-consumer-addenda")
+def debug_card_consumer_addenda(ticker: str | None = None, limit: int = 20):
+    """Посмотреть последние addendum'ы consumer-агента (любой статус) — для
+    пред-полётного просмотра выборки перед включением публикации."""
+    from app.db.session import SessionLocal
+    from app.models.agent_addendum import AgentAddendum
+    db = SessionLocal()
+    try:
+        q = db.query(AgentAddendum).filter(AgentAddendum.kind == "signal_addendum")
+        if ticker:
+            q = q.filter(AgentAddendum.ticker == ticker.upper())
+        rows = q.order_by(AgentAddendum.created_at.desc()).limit(min(limit, 50)).all()
+        return {"count": len(rows), "addenda": [
+            {"ticker": r.ticker, "status": r.status, "content": r.content,
+             "gate_notes": r.gate_notes, "tokens": r.tokens_used,
+             "created_at": r.created_at.isoformat() if r.created_at else None}
+            for r in rows]}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-barometer-reviser")
 def debug_trigger_barometer_reviser(force: bool = True):
     """Ручной прогон автономного ревизора барометров (SHADOW — пишет draft/

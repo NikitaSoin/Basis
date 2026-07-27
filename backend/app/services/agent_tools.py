@@ -118,6 +118,40 @@ def _get_recent_news(db: Session, ticker: str) -> dict:
     return {"news": [{"title": r[0], "date": r[1], "summary": (r[2] or "")[:300]} for r in rows]}
 
 
+def _read_card_tab(db: Session, ticker: str, tab: str) -> dict:
+    """Компактное содержимое вкладки карточки — чтобы агент увидел, ОТРАЖЕНО ли
+    уже событие (не плодить дубль). v1: bonds (рейтинги бумаг эмитента) и finance
+    (последний год + дата разбора); прочие вкладки — начало <tab>_summary.md."""
+    t = ticker.upper()
+    tab = (tab or "").lower()
+    if tab == "bonds":
+        rows = db.execute(text("""
+            SELECT secid, short_name, agency_rating, agency_rating_source, risk_tier, ytm
+            FROM bonds WHERE issuer_ticker = :t ORDER BY secid LIMIT 20
+        """), {"t": t}).fetchall()
+        return {"tab": "bonds", "bonds": [
+            {"secid": r[0], "name": r[1], "agency_rating": r[2], "source": r[3],
+             "risk_tier": r[4], "ytm": float(r[5]) if r[5] is not None else None} for r in rows]}
+    if tab in ("finance", "financials"):
+        path = COMPANIES_DIR / t / "financials.json"
+        if not path.exists():
+            return {"tab": "finance", "error": "no_financials"}
+        try:
+            d = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            return {"tab": "finance", "error": "unreadable"}
+        years = d.get("fiscal_years") or d.get("years") or []
+        last = years[-1] if isinstance(years, list) and years else None
+        return {"tab": "finance", "as_of": d.get("as_of") or (d.get("meta") or {}).get("as_of"),
+                "last_period": last, "has_valuation": bool(d.get("valuation"))}
+    # generic: начало markdown-резюме вкладки
+    for fn in (f"{tab}_summary.md", f"{tab}.md"):
+        p = COMPANIES_DIR / t / fn
+        if p.exists():
+            return {"tab": tab, "summary_head": p.read_text(encoding="utf-8")[:1200]}
+    return {"tab": tab, "error": "no_tab_content"}
+
+
 def _get_recent_earnings(db: Session, ticker: str) -> dict:
     """Разобранные отчёты по тикеру за 120 дней (что вышло из финансовых событий)."""
     rows = db.execute(text("""
@@ -313,6 +347,8 @@ def execute_tool(db: Session, name: str, args: dict, allowed_ticker: str) -> dic
     t = str(args.get("ticker", allowed_ticker)).upper()
     if t != allowed_ticker.upper():
         return {"error": "ticker_not_allowed", "note": f"Доступен только {allowed_ticker}"}
+    if name == "read_card_tab":
+        return _read_card_tab(db, t, str(args.get("tab", "")))
     if name == "read_macro_card":
         return _read_macro_card(t)
     if name == "get_live_macro":
@@ -336,3 +372,28 @@ def execute_tool(db: Session, name: str, args: dict, allowed_ticker: str) -> dic
 # Ревизор с веб-доступом (поиск + документы) — предпочтительная схема для
 # card_review_agent, когда внутренних данных может не хватить.
 REVIEW_TOOLS_WEB_SCHEMA = REVIEW_TOOLS_SCHEMA + WEB_TOOLS_SCHEMA
+
+# Инструменты consumer-агента (card_consumer_agent): читает вкладку карточки
+# (проверить «уже отражено»), свежие новости/отчёты/календарь + может открыть
+# первоисточник (fetch_document) для сверки. Веб-поиск НЕ даём — сигнал уже
+# несёт source_url; задача не «искать», а «подтвердить и коротко описать».
+_READ_CARD_TAB_SCHEMA = {
+    "type": "function",
+    "function": {
+        "name": "read_card_tab",
+        "description": ("Компактное содержимое вкладки карточки компании (bonds|finance|"
+                        "governance|dividends|markets|macro) — проверить, ОТРАЖЕНО ли уже событие "
+                        "сигнала (чтобы не дублировать) и на что ложится обновление."),
+        "parameters": {"type": "object", "properties": {
+            "ticker": {"type": "string"},
+            "tab": {"type": "string", "description": "bonds|finance|governance|dividends|markets|macro"},
+        }, "required": ["ticker", "tab"]},
+    },
+}
+CONSUMER_TOOLS_SCHEMA = [
+    _READ_CARD_TAB_SCHEMA,
+    TOOLS_SCHEMA[2],  # get_recent_news
+    REVIEW_TOOLS_SCHEMA[3],  # get_recent_earnings
+    REVIEW_TOOLS_SCHEMA[4],  # get_calendar
+    WEB_TOOLS_SCHEMA[1],     # fetch_document (открыть первоисточник)
+]

@@ -694,6 +694,27 @@ async def _rating_agencies_job():
         logger.exception("Ошибка ингестора рейтинговых агентств: %s", e)
 
 
+async def _card_consumer_job():
+    """Consumer-агент: точные сигналы (rating_action/earnings от офиц. источников)
+    → датированный addendum на вкладке карточки под код-гейтом (владелец
+    2026-07-28, дизайн ревью advisor). v1 БЕЛЫЙ СПИСОК источников, не importance —
+    fuzzy-Лента в карточку не идёт. Публикация — по флагу CARD_CONSUMER_PUBLISH
+    (по умолчанию draft/пред-полёт). После rating_agencies+company_signals."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.card_consumer_agent import run_consumer
+        db = SessionLocal()
+        try:
+            return run_consumer(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Consumer-агент карточек: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка consumer-агента карточек: %s", e)
+
+
 async def _barometer_expert_reimport_startup():
     """При старте: если экспертный файл барометра обновился (субагент + git push
     + деплой), апсертить его как новую source=expert/published версию в БД —
@@ -995,6 +1016,7 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("geo_digest", _geo_digest_job), "cron", minute=10, id="geo_digest")  # каждый час
         scheduler.add_job(_with_heartbeat("company_signals", _company_signals_job), "cron", minute=35, id="company_signals")  # шина: после news(5)+geo_digest(10), их выход = вход
         scheduler.add_job(_with_heartbeat("rating_agencies", _rating_agencies_job), "cron", hour=20, minute=55, id="rating_agencies")  # рейтинговые действия АКРА/НКР → сигналы + освежение agency_rating бумаг
+        scheduler.add_job(_with_heartbeat("card_consumer", _card_consumer_job), "cron", hour=21, minute=15, id="card_consumer")  # consumer-агент: точные сигналы → addendum вкладки (гейт); после rating_agencies(20:55)+company_signals(:35)
         scheduler.add_job(_with_heartbeat("agent_pilot", _agent_pilot_job), "cron", hour=7, minute=40, id="agent_pilot")  # автономный агент-пилот (macro addendum)
         scheduler.add_job(_with_heartbeat("chronicle_maintenance", _chronicle_maintenance_job), "cron", hour=5, minute=20, id="chronicle_maintenance")  # летопись: бэкфилл + ретеншен Ленты
         logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo/geo_digest)")
