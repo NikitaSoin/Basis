@@ -1270,6 +1270,24 @@ def debug_sanitize_analyst_notes(dry_run: bool = True):
         db.close()
 
 
+@router.post("/debug/trigger-barometer-reviser")
+def debug_trigger_barometer_reviser(force: bool = True):
+    """Ручной прогон автономного ревизора барометров (SHADOW — пишет draft/
+    rejected, на бой НЕ публикует; план docs/autonomous-barometer-plan.md).
+    force=true игнорирует триггер-условия (для проверки), false — как крон
+    (только если сработал сенсор situation_overlay)."""
+    from app.db.session import SessionLocal
+    from app.services.barometer_reviser import run_all
+    db = SessionLocal()
+    try:
+        return run_all(db, force=force)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-barometer-reviser: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-situation-overlay")
 def debug_trigger_situation_overlay(window_days: int = 10):
     """Ручной прогон оверлея «текущая ситуация по ленте» (гео 3 очага +

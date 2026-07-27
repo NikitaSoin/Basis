@@ -638,6 +638,27 @@ async def _geo_job():
         logger.exception("Ошибка обновления геополитики: %s", e)
 
 
+async def _barometer_reviser_job():
+    """Автономный ревизор барометров (гео/институты) — SHADOW-режим (владелец
+    2026-07-27, план docs/autonomous-barometer-plan.md). Пишет draft/rejected,
+    на бой НЕ публикует. Событийный: внутри run_all → should_revise проверяет
+    триггеры от situation_overlay (сенсор), cooldown 5 дней. После оверлея
+    (21:20) — читает его свежий вердикт как триггер."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.barometer_reviser import run_all
+        db = SessionLocal()
+        try:
+            return run_all(db, force=False)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Ревизор барометров (shadow): %s", res)
+    except Exception as e:
+        logger.exception("Ошибка ревизора барометров: %s", e)
+
+
 async def _situation_overlay_job():
     """Оверлей «текущая ситуация по ленте» (гео 3 очага + институты). После
     _geo_job (21:00): тот же новостной поток digest, что уже собран за день,
@@ -894,6 +915,7 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("report_watch", _report_watch_job), "cron", hour=20, minute=45, id="report_watch")
         scheduler.add_job(_with_heartbeat("geopolitics", _geo_job), "cron", hour=21, minute=0, id="geopolitics")
         scheduler.add_job(_with_heartbeat("situation_overlay", _situation_overlay_job), "cron", hour=21, minute=20, id="situation_overlay")  # оверлей ситуации гео/институты — после geopolitics (тот же дневной digest)
+        scheduler.add_job(_with_heartbeat("barometer_reviser", _barometer_reviser_job), "cron", hour=21, minute=40, id="barometer_reviser")  # SHADOW-ревизор барометров — после оверлея (его вердикт = триггер); cooldown 5 дней внутри
         scheduler.add_job(_with_heartbeat("geo_digest", _geo_digest_job), "cron", minute=10, id="geo_digest")  # каждый час
         scheduler.add_job(_with_heartbeat("agent_pilot", _agent_pilot_job), "cron", hour=7, minute=40, id="agent_pilot")  # автономный агент-пилот (macro addendum)
         scheduler.add_job(_with_heartbeat("chronicle_maintenance", _chronicle_maintenance_job), "cron", hour=5, minute=20, id="chronicle_maintenance")  # летопись: бэкфилл + ретеншен Ленты

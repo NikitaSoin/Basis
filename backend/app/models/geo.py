@@ -5,7 +5,7 @@ GeoBlock — синтез на регион×вкладку (обзор/глуб
 """
 from datetime import date as date_type, datetime, timezone
 
-from sqlalchemy import Date, DateTime, Float, String, Text, UniqueConstraint
+from sqlalchemy import Date, DateTime, Float, Integer, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -175,3 +175,33 @@ class SituationOverlay(Base):
     source_snapshot: Mapped[dict | None] = mapped_column(JSONB)  # счётчики статей по scope, окно дней
     published: Mapped[bool] = mapped_column(default=True)
     blocked_reason: Mapped[str | None] = mapped_column(Text)  # почему fail-closed (для лога/аудита)
+
+
+class BarometerVersion(Base):
+    """Версия барометра (гео/институты) — задел под АВТОНОМНОЕ обслуживание
+    калибровки (владелец 2026-07-27; план docs/autonomous-barometer-plan.md,
+    ревью advisor). Барометр переезжает из config/*.json в БД, потому что
+    сервер Timeweb не пишет в git — автономный агент-ревизор файл персистентно
+    не обновит. Версионирование даёт откат и аудит-трейл авто-контента.
+
+    source: expert — экспертный якорь (субагент → файл → git → импорт при
+    деплоя апсертит сюда, паттерн asset_data); auto — авторевизия агентом.
+    status: published — текущая боевая; draft — SHADOW (агент пишет, но на бой
+    НЕ идёт, первые 2 недели наблюдения); rejected — не прошла гейт качества.
+    parent_id — от какой версии наследована (цепочка ревизий от якоря, для
+    расчёта кумулятивного дрейфа/поводка). trigger_reason — что запустило
+    ревизию (alignment=противоречит / накопленный сдвиг / 30 дней / ручной).
+    gate_notes — почему rejected (для отладки)."""
+    __tablename__ = "barometer_versions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    kind: Mapped[str] = mapped_column(String(8))       # geo | inst
+    source: Mapped[str] = mapped_column(String(8))     # expert | auto
+    status: Mapped[str] = mapped_column(String(10))    # published | draft | rejected
+    payload: Mapped[dict | None] = mapped_column(JSONB)  # полный документ барометра
+    parent_id: Mapped[int | None] = mapped_column(Integer)
+    trigger_reason: Mapped[str | None] = mapped_column(String(120))
+    gate_notes: Mapped[list | None] = mapped_column(JSONB)
+    model_used: Mapped[str | None] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
