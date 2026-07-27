@@ -36,8 +36,8 @@
     "cost_format": "by_nature",
     "revenue": [
       8405,
-      9300,
-      9966
+      9319.168,
+      9965.615
     ],
     "cogs": [
       null,
@@ -54,20 +54,20 @@
         "name": "Операционные расходы (суммарно)",
         "values": [
           null,
-          8900,
-          9623
+          8856.298,
+          9623.42
         ]
       }
     ],
     "operating_profit": [
-      null,
+      427.5,
       454,
-      null
+      325.0
     ],
     "da": [
-      null,
-      535,
-      535
+      542.3,
+      511.6,
+      534.8
     ],
     "ebitda": [
       null,
@@ -75,27 +75,27 @@
       null
     ],
     "finance_costs": [
-      null,
-      null,
-      null
+      20.2,
+      8.3,
+      32.3
     ],
     "finance_income": [
-      null,
-      null,
-      null
+      15.5,
+      55.9,
+      58.5
     ],
     "pre_tax_profit": [
-      null,
-      null,
-      null
+      422.8,
+      501.8,
+      351.2
     ],
     "income_tax": [
-      null,
-      null,
-      null
+      96.1,
+      113.7,
+      131.1
     ],
     "net_profit": [
-      null,
+      326.8,
       388,
       220
     ],
@@ -183,13 +183,13 @@
     "non_current_assets": {
       "ppe": [
         null,
-        null,
-        5605
+        4293.843,
+        4698.718
       ],
       "intangibles": [
         null,
-        null,
-        null
+        129.447,
+        139.004
       ],
       "goodwill": [
         null,
@@ -203,30 +203,30 @@
       ],
       "other_non_current": [
         null,
-        null,
-        null
+        68.368,
+        129.127
       ],
       "total_non_current": [
         null,
-        null,
-        5605
+        4491.658,
+        4966.849
       ]
     },
     "current_assets": {
       "inventory": [
         null,
-        null,
-        null
+        78.252,
+        84.31
       ],
       "receivables": [
         null,
-        null,
-        null
+        505.03,
+        548.204
       ],
       "cash": [
         null,
-        null,
-        null
+        261.363,
+        18.183
       ],
       "short_term_investments": [
         null,
@@ -235,30 +235,30 @@
       ],
       "other_current": [
         null,
-        null,
-        null
+        63.963,
+        74.346
       ],
       "total_current": [
         null,
-        null,
-        725
+        908.608,
+        725.043
       ]
     },
     "total_assets": [
       5166.0,
-      5400.3,
-      12660
+      5400.266,
+      5691.892
     ],
     "equity": {
       "share_capital": [
         null,
-        null,
-        null
+        2161.078,
+        2161.078
       ],
       "retained_earnings": [
         null,
-        null,
-        null
+        1800.976,
+        1912.178
       ],
       "additional_paid_in": [
         null,
@@ -267,90 +267,90 @@
       ],
       "other_equity": [
         null,
-        null,
-        null
+        28.074,
+        30.357
       ],
       "total_equity": [
         null,
-        null,
-        4433
+        3990.128,
+        4103.613
       ]
     },
     "non_current_liabilities": {
       "long_term_debt": [
         null,
-        null,
-        null
+        56.103,
+        106.462
       ],
       "deferred_tax": [
         null,
-        null,
-        null
+        108.04,
+        212.537
       ],
       "other_non_current_liab": [
         null,
-        null,
-        642
+        19.27,
+        20.239
       ],
       "total_non_current_liab": [
         null,
-        null,
-        642
+        183.413,
+        339.238
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
         null,
-        null,
-        null
+        9.41,
+        28.73
       ],
       "payables": [
         null,
-        null,
-        null
+        897.855,
+        908.242
       ],
       "other_current_liab": [
         null,
-        null,
-        null
+        319.46,
+        312.069
       ],
       "total_current_liab": [
         null,
-        null,
-        null
+        1226.725,
+        1249.041
       ]
     },
     "total_liabilities": [
       1429.5,
-      1410.1,
-      7585
+      1410.138,
+      1588.279
     ],
     "net_debt": [
       null,
-      null,
-      120
+      -195.85,
+      117.009
     ],
     "tangible_equity": [
       null,
-      null,
-      4433
+      3860.681,
+      3964.609
     ],
-    "tangible_note": "Гудвил и значимые НМА не выявлены в доступных данных → tangible_equity = total_equity. При уточнении из первичной МСФО-отчётности возможна корректировка.",
+    "tangible_note": "Гудвил не выявлен. НМА уточнены из первичной МСФО-отчётности (примечание 14): 129.447 млн (2023), 139.004 млн (2024) — вычтены из total_equity для tangible_equity [rosseti-tomsk.ru, Финансовая отчётность по МСФО за год, закончившийся 31.12.2024, стр.9].",
     "ratios": {
       "debt_to_equity": [
         null,
-        null,
-        null
+        0.0164,
+        0.0329
       ],
       "net_debt_ebitda": [
         null,
-        0.12,
+        -0.198,
         null
       ],
       "current_ratio": [
         null,
-        null,
-        null
+        0.7407,
+        0.5805
       ]
     },
     "total_equity": [
@@ -361,7 +361,7 @@
   },
   "cash_flow": {
     "cfo": [
-      null,
+      909.8,
       950,
       820
     ],
@@ -381,7 +381,7 @@
       -243.2
     ],
     "capex": [
-      null,
+      609.9,
       850,
       960
     ],
@@ -1181,7 +1181,8 @@
     "Разброс методов ~200% → широкий коридор; честно отражает неопределённость при малом количестве данных",
     "cash_flow скопирован из TORS (диспетчер, 2026-07-06) — один эмитент.",
     "TORSP: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка.",
-    "meta.last_price добавлен (0.9742 ₽, уверенность: high (2 независимых метода согласуются)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price)."
+    "meta.last_price добавлен (0.9742 ₽, уверенность: high (2 независимых метода согласуются)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price).",
+    "2026-07-27 (report-fetcher, аудит CRIT:bs_eq): баланс 2024 г. был ошибочно взят из РСБУ-агрегатора (total_assets=12660, total_equity=4433 — активы≠капитал+обязательства, Δ5.1%). Заменён на первичный консолидированный МСФО-баланс (2023 и 2024 гг., постатейно) из официального годового отчёта «Финансовая отчётность по МСФО ПАО «Россети Томск» за год, закончившийся 31.12.2024» [rosseti-tomsk.ru/investors/disclosure/finance.php, файл ahzzyu1jsrw361szi729his3brz8j25q.pdf, стр.9-10]. Все статьи (внеоборотные/оборотные активы, капитал, долго-/краткосрочные обязательства) сверены арифметикой: assets=equity+liabilities сходится точно для 2023 (5400.266=3990.128+1410.138) и 2024 (5691.892=4103.613+1588.279). other_non_current (2024)=ROU-активы 120.553+ДЗ долгоср. 0.047+активы по вознагр.работникам 8.527; other_non_current_liab (2024)=ДКЗ долгоср. 1.890+обяз-ва по вознагр.работникам 13.515+гос.субсидии 4.834; other_current_liab (2024)=налоги кроме прибыли 128.456+авансы получ. 153.654+оценочные обяз-ва 29.959. net_debt и tangible_equity пересчитаны от той же первички (были оценкой из агрегатора). revenue[2023] уточнена до 9319.168 млн (точная цифра из отчёта, было округлённо 9300) — расхождение отмечалось в data_flags ранее, но не применялось. TORSP: income_statement (operating_profit/da/finance_costs/finance_income/pre_tax_profit/income_tax/net_profit) и cash_flow.cfo/capex синхронизированы с TORS (один и тот же эмитент/отчётность, TORS содержал более полные точные значения из этого же первичного МСФО)."
   ],
   "segments": [
     {

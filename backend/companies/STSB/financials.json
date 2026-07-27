@@ -201,18 +201,18 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        381.476,
+        582.039,
+        816.769,
+        1164.208,
+        1339.19
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        7.575,
+        6.925
       ],
       "goodwill": [
         null,
@@ -222,69 +222,69 @@
         null
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1244.37,
+        1244.37,
+        1244.628,
+        1244.508,
+        1244.368
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        66.855,
+        92.013,
+        85.988,
+        74.267,
+        99.296
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1692.701,
+        1918.422,
+        2147.385,
+        2490.558,
+        2689.779
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        26.887,
+        15.993,
+        8.653,
+        10.321,
+        15.868
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1687.345,
+        1585.815,
+        1452.174,
+        1582.444,
+        2178.252
       ],
       "cash": [
-        100,
-        188,
-        683,
-        1540,
-        1890
+        99.527,
+        188.246,
+        683.045,
+        1540.627,
+        1891.955
       ],
       "short_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        55.143,
+        37.612,
+        28.96,
+        27.614,
+        9.32
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2.719,
+        11.074,
+        2.382,
+        0.69,
+        2.209
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1871.621,
+        1838.74,
+        2175.214,
+        3161.696,
+        4097.604
       ]
     },
     "total_assets": [
@@ -296,99 +296,99 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null
+        5.419,
+        5.419,
+        5.419,
+        5.419,
+        5.419
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
-        null,
-        null
+        619.492,
+        1151.837,
+        1719.414,
+        2602.119,
+        3718.174
       ],
       "additional_paid_in": [
-        null,
-        null,
-        null,
-        null,
-        null
+        304.616,
+        304.616,
+        304.616,
+        304.616,
+        304.616
       ],
       "other_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        116.903,
+        4.195,
+        4.195,
+        4.195,
+        4.195
       ],
       "total_equity": [
-        1220,
-        1730,
-        2390,
-        3470,
-        4690
+        1046.43,
+        1466.067,
+        2033.644,
+        2916.349,
+        4032.404
       ]
     },
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        700.0,
+        500.0,
+        500.0,
+        500.0,
+        0.0
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
-        null
+        21.143,
+        49.314,
+        36.331,
+        44.579,
+        34.057
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        84.807,
+        50.189,
+        150.438,
+        109.033
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        721.143,
+        634.121,
+        586.52,
+        695.017,
+        143.09
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        226.03,
+        0.1,
+        0.0,
+        0.0,
+        0.0
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1542.659,
+        1515.373,
+        1536.003,
+        1861.079,
+        2381.839
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        28.06,
+        141.501,
+        166.432,
+        179.809,
+        230.05
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1796.749,
+        1656.974,
+        1702.435,
+        2040.888,
+        2611.889
       ]
     },
     "total_liabilities": [
@@ -437,11 +437,11 @@
       ]
     },
     "total_equity": [
-      1220,
-      1730,
-      2390,
-      3470,
-      4690
+      1046.43,
+      1466.067,
+      2033.644,
+      2916.349,
+      4032.404
     ]
   },
   "cash_flow": {
@@ -1192,7 +1192,9 @@
     "В income_statement.expense_lines добавлена строка 'Изменение отложенных налоговых обязательств/активов и прочее (стр.2460)' — небольшая техническая корректировка между pre_tax_profit-income_tax и net_profit (в пределах 0.01-1.4% в разные годы), которая присутствует в самой форме №2 РСБУ как отдельная строка 2460.",
     "other_non_current / other_current / other_equity / other_non_current_liab / other_current_liab — расчётные остаточные величины (total minus раскрытых построчно статей), не отдельные строки формы; включают строки 1190/1180/1140 (внеоб.активы), 1215/1220/1260 (об.активы), 1320/1340/1360 (капитал), 1430/1450 (долгоср.обяз.), 1530/1540/1550 (краткоср.обяз.) — детализация доступна по кодам строк при необходимости.",
     "capex взят как строка 4221 'Платежи в связи с приобретением/созданием внеоборотных активов' формы №4 (наиболее близкий аналог капзатрат в РСБУ ОДДС).",
-    "Все 5 лет (2021-2025) получены из отдельных годовых записей ГИР БО ФНС (каждая содержит 'current' показатели своего года как первичные, не как сравнительные из отчёта за следующий год) — данные максимально надёжны, арифметика (revenue-cogs=gross_profit; pre_tax-tax+2460=net_profit; assets=equity+liabilities; cfo+cfi+cff=net_change_in_cash) сходится с точностью до копейки округления для ВСЕХ лет и ВСЕХ трёх форм."
+    "Все 5 лет (2021-2025) получены из отдельных годовых записей ГИР БО ФНС (каждая содержит 'current' показатели своего года как первичные, не как сравнительные из отчёта за следующий год) — данные максимально надёжны, арифметика (revenue-cogs=gross_profit; pre_tax-tax+2460=net_profit; assets=equity+liabilities; cfo+cfi+cff=net_change_in_cash) сходится с точностью до копейки округления для ВСЕХ лет и ВСЕХ трёх форм.",
+    "ПОЧИНКА CRIT bs_eq (2026-07-27): balance_sheet.equity.total_equity/total_equity (верхнеуровневый) содержали СТАРЫЕ округлённые значения [1220,1730,2390,3470,4690] — не домержены из sources/extracted_financials.json (ГИР БО ФНС, ИНН 2626033550, отчётность форма №1, retrieved 2026-07-07), где уже лежали точные total_equity=[1046.43,1466.067,2033.644,2916.349,4032.404], сходящиеся с total_assets-total_liabilities с точностью до тысячных на всех 5 годах. Заменил на точные значения из первички + домержил полную построчную детализацию (ppe/intangibles/long_term_investments/inventory/receivables/short_term_investments/долг ST+LT/payables и т.д.) из того же источника — закрывает заодно GAP-пробелы 'нет разбивки активов/обязательств'.",
+    "ВНИМАНИЕ financial-analyst: скорректированный total_equity (был занижен на ~14-16% в 2021-2024, завышен ~14% в 2025 относительно старых чисел) делает УСТАРЕВШИМИ P/B-метрики и P/B-метод оценки (historical_pb: BVPS/pb_used считались от старого total_equity=4690 за 2025, правильно 4032.404) — bvps_2025 фактически 4032.404×1e6/859074636=4.694 руб. (было 5.4594), это меняет fair_value_per_share по P/B методу и итоговый диапазон. Также обнаружился РЕАЛЬНЫЙ долг (long_term_debt 700/500/500/500/0 млн + short_term_debt 226.03/0.1/0/0/0 млн за 2021-2025), тогда как net_debt в файле по-прежнему считался как net_debt=-cash (предположение 'долга нет') — net_debt/ratios.net_debt_ebitda/EV-based методы не пересчитаны в этом проходе (вне мандата report-fetcher, отдаю financial-analyst)."
   ],
   "segments": [],
   "cost_breakdown": [
