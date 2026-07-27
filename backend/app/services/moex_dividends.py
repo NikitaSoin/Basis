@@ -139,6 +139,20 @@ def update_risk_free_rate(db: Session) -> float | None:
                 "note": "Доходность ОФЗ ~10 лет (интерполяция G-curve/ZCYC MOEX) — Rf для DCF/CAPM акций",
                 "now": datetime.now(timezone.utc),
             })
+        # ПОЛНАЯ G-кривая (все точки yearyields) — для BFV-D нужен z_dur на СРОКЕ
+        # эффективной дюрации потока (~8-10 лет), а не механическая десятилетка
+        # (методика §11). Храним весь ряд [[срок, доходность_дробью], ...] в market_params
+        # как JSON-строку в note (value = число точек) — тот же кэш, что risk_free_*,
+        # обновляется этим же еженедельным кроном. curve уже в долях (value ISS в %? —
+        # нет, ZCYC value в процентах; здесь curve собран из float(value), это проценты).
+        if curve:
+            import json as _json
+            curve_frac = [[round(p, 3), round(v / 100.0, 6)] for p, v in curve]
+            db.execute(_UPSERT_PARAM_SQL, {
+                "key": "ofz_curve", "value": float(len(curve_frac)), "as_of": as_of,
+                "note": _json.dumps(curve_frac),
+                "now": datetime.now(timezone.utc),
+            })
         db.commit()
         logger.info("Безрисковая ставка: ОФЗ-1г %.2f%%, ОФЗ-10л %s на %s (G-curve)",
                     rate, f"{rate_10y:.2f}%" if rate_10y is not None else "н/д", as_of)

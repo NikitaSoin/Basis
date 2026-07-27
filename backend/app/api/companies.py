@@ -384,6 +384,22 @@ def get_financial_model_endpoint(ticker: str, db: Session = Depends(get_db)):
     return JSONResponse(content=model)
 
 
+@router.get("/companies/by-ticker/{ticker}/bfv")
+def get_bfv_endpoint(ticker: str, spread_pp: float | None = None, db: Session = Depends(get_db)):
+    """BFV-D — справедливая цена и ожидаемая доходность по новой дивидендной методике
+    (docs/basis_fair_price.md), ТЕСТОВАЯ версия. Пересчитывается на каждый запрос от
+    живых цены/кривой ОФЗ/беты (не статичное число). spread_pp — требуемый спред сверх
+    ОФЗ в п.п. (дефолт платформы 5). 404 — компании нет; status внутри тела:
+    ok / no_data (нет BVPS/ROE — напр. отр. капитал) / no_price / no_rate."""
+    from app.services.bfv.service import get_bfv
+    from app.services.bfv.compute import DEFAULT_REQUIRED_SPREAD
+    spread = (spread_pp / 100.0) if isinstance(spread_pp, (int, float)) and spread_pp > 0 else DEFAULT_REQUIRED_SPREAD
+    res = get_bfv(db, _safe(ticker).upper(), required_spread=spread)
+    if res is None:
+        raise HTTPException(status_code=404, detail="Компания не найдена")
+    return JSONResponse(content=res)
+
+
 @router.get("/companies/by-ticker/{ticker}/earnings/latest")
 def get_latest_earnings(ticker: str, db: Session = Depends(get_db)):
     """Разбор последнего отчёта для карточки (Направление 3): метрики + блок «Разбор отчёта».

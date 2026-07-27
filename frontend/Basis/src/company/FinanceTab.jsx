@@ -248,6 +248,23 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
       .catch(() => { if (alive) setModel(null); });
     return () => { alive = false; };
   }, [company?.ticker]);
+
+  // BFV-D — новая дивидендная методика (тестовая): справедливая цена + ожидаемая
+  // доходность, пересчёт на каждый запрос от живых цены/кривой/беты. status=ok →
+  // рендерим; иначе (no_data/no_rate) секция не показывается.
+  const [bfv, setBfv] = useState(null);
+  useEffect(() => {
+    setBfv(null);
+    const ticker = company?.ticker;
+    if (!ticker) return;
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    let alive = true;
+    fetch(`${apiUrl}/api/companies/by-ticker/${ticker}/bfv`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (alive) setBfv(d && d.status === "ok" ? d : null); })
+      .catch(() => { if (alive) setBfv(null); });
+    return () => { alive = false; };
+  }, [company?.ticker]);
   if (!fin) return null;
 
   const meta = fin.meta || {};
@@ -1280,6 +1297,81 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                 </details>
               )}
             </>
+          )}
+
+          {/* 7. BFV — новая дивидендная методика справедливой цены (ТЕСТОВАЯ).
+              status=ok приходит только для компаний, где движок применим (есть BVPS
+              и достаточная прибыльность); иначе bfv=null и блок не рендерится. */}
+          {bfv && bfv.status === "ok" && (
+            <div className="card">
+              <h3>Справедливая цена — новая методика (BFV) <span className="tag tag-model">тест · модель</span></h3>
+              <p className="sub">
+                Дивидендная оценка «за миноритария»: главный выход — ожидаемая доходность при
+                текущей цене против требуемого порога. Пересчитывается живьём от цены, кривой ОФЗ
+                и беты. <b>Экспертные параметры без калибровки на росс. данных</b> — сравнивать
+                бумаги между собой надёжнее, чем читать абсолютный вердикт.
+              </p>
+
+              <div className="fair">
+                <div>
+                  <div className="big" style={bfv.reliability === "low" ? { opacity: 0.5 } : null}>
+                    {bfv.reliability === "low" ? "≈ " : ""}{num(bfv.fair_price, bfv.fair_price >= 100 ? 0 : 2)}<s> {ccy}</s>
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 4 }}>
+                    справедливая цена · при спреде {num(bfv.required_spread_pp, 1)} п.п. к ОФЗ
+                  </div>
+                </div>
+                {bfv.reliability !== "low" && typeof bfv.upside_pct === "number" && (
+                  <div className={`ud delta ${bfv.upside_pct >= 0 ? "up" : "dn"}`}>
+                    {bfv.upside_pct >= 0 ? "▲" : "▼"} {num(Math.abs(bfv.upside_pct), 0)} % {bfv.upside_pct >= 0 ? "апсайд" : "даунсайд"}
+                  </div>
+                )}
+                <div className="corr">
+                  живая цена<br /><b>{num(bfv.current_price, 2)} {ccy}</b>
+                </div>
+              </div>
+
+              {/* Главный выход методики — ожидаемая доходность vs порог */}
+              <div className="fm-scen-row" style={{ marginTop: 14 }}>
+                <div className="fm-scen-chip fm-scen-base">
+                  <span className="fm-scen-lbl">ожидаемая доходность</span>
+                  <span className="fm-scen-val">{num(bfv.expected_return_pct, 1)} %</span>
+                </div>
+                <div className="fm-scen-chip">
+                  <span className="fm-scen-lbl">требуемый порог</span>
+                  <span className="fm-scen-val">{num(bfv.hurdle_pct, 1)} %</span>
+                </div>
+                <div className="fm-scen-chip">
+                  <span className="fm-scen-lbl">вердикт</span>
+                  <span className="fm-scen-val" style={{ color: bfv.verdict === "проходит" ? "var(--up, #1a7f4b)" : "var(--dn, #b23)" }}>
+                    {bfv.verdict}
+                  </span>
+                </div>
+                <div className="fm-scen-chip">
+                  <span className="fm-scen-lbl">див. дох. 1-го года</span>
+                  <span className="fm-scen-val">{num(bfv.div_yield_y1_pct, 1)} %</span>
+                </div>
+              </div>
+
+              <div className="ff-note" style={{ marginTop: 14 }}>
+                <div className="nh">Как читать</div>
+                «Ожидаемая доходность {num(bfv.expected_return_pct, 1)} %» — что вы заработаете при
+                текущей цене по прогнозу дивидендов и роста книги. «Порог {num(bfv.hurdle_pct, 1)} %» —
+                доходность ОФЗ на дюрации потока ({num(bfv.effective_duration_y, 1)} лет,
+                {num(bfv.z_dur_pct, 1)} %) плюс требуемая премия {num(bfv.required_spread_pp, 1)} п.п.
+                Проходит порог → бумага даёт больше, чем ОФЗ с той же дюрацией с запасом на риск.
+                {typeof bfv.holding_return_pct === "number" && (
+                  <> Доходность удержания 10 лет (без ставки на переоценку рынком): <b>{num(bfv.holding_return_pct, 1)} %</b>.</>
+                )}
+              </div>
+
+              {Array.isArray(bfv.warnings) && bfv.warnings.length > 0 && (
+                <div style={{ marginTop: 12 }}>
+                  {bfv.warnings.map((w, i) => <div className="fc-warn" key={i}>{w}</div>)}
+                </div>
+              )}
+              <div className="fc-note" style={{ marginTop: 10 }}>{bfv.method}</div>
+            </div>
           )}
         </div>
 
