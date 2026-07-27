@@ -86,6 +86,7 @@ def get_bfv(db: Session, ticker: str, required_spread: float = DEFAULT_REQUIRED_
     fin = _load_json(cdir / "financials.json")
     gov = _load_json(cdir / "governance.json")
     inst = _load_json(cdir / "institutions.json")
+    market = _load_json(cdir / "market.json")   # valuation_inputs (архетип/рост/маржа) для BFV-F
     barometer = _load_json(_CONFIG_DIR / "geo_barometer.json")
 
     # ручной слой суждений аналитика (§20), если заведён — не перетирается компилятором
@@ -97,7 +98,7 @@ def get_bfv(db: Session, ticker: str, required_spread: float = DEFAULT_REQUIRED_
     shares = fin.get("meta", {}).get("shares_outstanding")
 
     return compute_bfv(
-        fin, gov, inst, barometer,
+        fin, gov, inst, barometer, market=market,
         shares_outstanding=shares, live_price=price,
         ofz_curve=_ofz_curve(db), beta=_live_beta(db, ticker),
         required_spread=required_spread, overrides=overrides,

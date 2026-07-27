@@ -21,7 +21,7 @@ from __future__ import annotations
 from statistics import median
 from typing import Any
 
-from app.services.bfv.engine import Params, Scenario
+from app.services.bfv.engine import Params, ParamsF, Scenario, select_engine
 
 
 # ---- утилиты чтения рядов ---------------------------------------------------
@@ -238,13 +238,10 @@ def compile_params(fin: dict, gov: dict, inst: dict, barometer: dict,
     if roe0 is None:
         return {"params": None, "scenarios": None, "base_meta": None,
                 "warnings": ["нет данных по ROE — BFV не считается"]}
-    # Потолок стартового ROE (§5.2: «стартовый ROE берётся нормализованный, а не
-    # пиковый»). У части компаний нормализованного roe_adj в данных нет → берётся
-    # отчётный ПИКОВЫЙ (на бою: PLZL 127%, HHRU 111%, ASTR 100% — золото/asset-light
-    # на пике), что завышает потоки. Сустейнбл-ROE >45% в РФ на многолетнем горизонте
-    # неправдоподобен — кап нормализует старт, не трогая обычные 10-40%.
-    roe_capped = roe0 > 0.45
-    roe0 = min(roe0, 0.45)
+    # Потолок ROE 45% ОТМЕНЁН (поправка v1.1 §4): он срезал прибыль высоко-ROE компаний
+    # и делал оценку бессмысленной. Вместо усечения — МАРШРУТИЗАЦИЯ: компания с ROE≥45%
+    # сюда (BFV-D) вообще не попадает — select_engine уводит её в BFV-F, где уровень ROE
+    # не используется. Нормализованный старт даёт _resolve_roe (медиана истории, §5.2).
     g_terminal = 0.035
     # §5.1 канон g = b·ROE ⇒ должно быть g_terminal ≤ ROE_terminal ≤ ROE0. Если ROE0
     # ниже/у терминального роста — устойчивого состояния нет (payout вышел бы < 0),
@@ -356,3 +353,179 @@ def compile_params(fin: dict, gov: dict, inst: dict, barometer: dict,
         "sector": sector, "probabilities": {k: round(v, 4) for k, v in probs.items()},
     }
     return {"params": base, "scenarios": scenarios, "base_meta": base_meta, "warnings": warn}
+
+
+# =====================================================================
+# BFV-F: компилятор от денежного потока (поправка v1.1 §3) — для
+# растущих/asset-light, куда роутер уводит из BFV-D.
+# =====================================================================
+
+# sales_to_capital по архетипу (market.json valuation_inputs.archetype) / сектору:
+# ₽ прироста выручки на ₽ нового капитала. Asset-light высоко, тяжёлая промышленность низко.
+_S2C_BY_ARCHETYPE = {
+    "tech_growth": 7.0, "platform": 7.0, "software": 8.0, "internet": 7.0,
+    "consumer_growth": 4.0, "retail": 3.0, "telecom": 1.5, "healthcare": 4.0,
+    "financials": 5.0, "industrial": 1.5, "materials": 1.0, "energy": 1.0,
+    "oil_gas": 1.0, "utilities": 1.0, "real_estate": 1.2, "transport": 1.5,
+}
+_S2C_BY_SECTOR = [
+    (("нефт", "газ", "oil", "gas", "метал", "metal", "mining", "горн", "уголь", "сталь", "хим"), 1.0),
+    (("электроэнерг", "utilit", "сеть", "генерац", "транспорт", "инфраструктур", "девелоп", "недвиж"), 1.4),
+    (("телеком", "telecom", "связь"), 1.5),
+    (("потреб", "ритейл", "retail", "consumer", "food", "продукт"), 3.0),
+    (("технолог", "it", "софт", "internet", "интернет", "tech", "финанс", "financ"), 6.0),
+]
+
+
+def _sales_to_capital(archetype: str, sector: str, profile: str) -> float:
+    if archetype and archetype.lower() in _S2C_BY_ARCHETYPE:
+        return _S2C_BY_ARCHETYPE[archetype.lower()]
+    blob = f"{sector or ''} {profile or ''}".lower()
+    for markers, v in _S2C_BY_SECTOR:
+        if any(m in blob for m in markers):
+            return v
+    return 3.0
+
+
+def _revenue_per_share(fin: dict) -> float | None:
+    """Выручка на акцию, единично-безопасно: last_price / P/S (P/S безразмерен — та же
+    защита от разного масштаба shares_outstanding, что BVPS через P/B). Фолбэк —
+    revenue_total(млн)·1e6 / shares, но масштаб shares ненадёжен, поэтому вторично."""
+    ps = (fin.get("multiples", {}).get("current", {}) or {}).get("ps")
+    last_price = fin.get("meta", {}).get("last_price")
+    if isinstance(ps, (int, float)) and ps > 0 and isinstance(last_price, (int, float)) and last_price > 0:
+        return last_price / ps
+    return None
+
+
+def _net_margin(fin: dict) -> float | None:
+    """Медиана недавней чистой маржи (net_profit/revenue) — нормализованный уровень."""
+    is_ = fin.get("income_statement", {}) or {}
+    rev = is_.get("revenue")
+    ni = is_.get("net_profit") or is_.get("net_income")
+    if not isinstance(rev, list) or not isinstance(ni, list):
+        return None
+    margins = [ni[i] / rev[i] for i in range(min(len(rev), len(ni)))
+               if isinstance(rev[i], (int, float)) and rev[i] > 0 and isinstance(ni[i], (int, float))]
+    if not margins:
+        return None
+    return float(median(margins[-4:]))
+
+
+def _revenue_growth0(fin: dict) -> float | None:
+    """Стартовый рост выручки: медиана недавних темпов (metrics_timeseries.revenue_growth,
+    единицы нормализованы к доле), иначе CAGR по ряду выручки. Кап [0; 0.5]."""
+    g = _recent_median((fin.get("metrics_timeseries", {}) or {}).get("revenue_growth"), n=3)
+    if g is not None:
+        g = g if abs(g) < 1.5 else g / 100.0   # единицы: доля vs проценты
+    if g is None:
+        rev = (fin.get("income_statement", {}) or {}).get("revenue")
+        if isinstance(rev, list):
+            vals = [x for x in rev if isinstance(x, (int, float)) and x > 0]
+            if len(vals) >= 2 and vals[0] > 0:
+                g = (vals[-1] / vals[0]) ** (1.0 / (len(vals) - 1)) - 1.0
+    if g is None:
+        return None
+    return max(0.0, min(0.50, g))
+
+
+def _terminal_growth(fin: dict, market: dict) -> float:
+    tg = (market.get("valuation_inputs", {}) or {}).get("terminal_growth")
+    if isinstance(tg, dict):
+        lo, hi = tg.get("nominal_low_pct"), tg.get("nominal_high_pct")
+        if isinstance(lo, (int, float)) and isinstance(hi, (int, float)):
+            return (lo + hi) / 2.0 / 100.0
+    return 0.045
+
+
+def compile_params_f(fin: dict, gov: dict, inst: dict, barometer: dict, market: dict,
+                     shares_outstanding: float | None,
+                     overrides: dict | None = None) -> dict:
+    """Входы BFV-F из карточки. None-выход — нет выручки/маржи. Права/хазарды/сценарии —
+    те же источники, что BFV-D (governance/institutions/geo_barometer)."""
+    warn: list[str] = []
+    meta = fin.get("meta", {})
+    sector = meta.get("sector", "")
+    profile = meta.get("profile", "")
+    vi = market.get("valuation_inputs", {}) or {}
+    archetype = vi.get("archetype", "")
+
+    revenue0 = _revenue_per_share(fin)
+    if revenue0 is None or revenue0 <= 0:
+        return {"params": None, "scenarios": None, "base_meta": None, "engine": "BFV-F",
+                "warnings": ["нет выручки/P·S для BFV-F"]}
+    margin0 = _net_margin(fin)
+    if margin0 is None:
+        return {"params": None, "scenarios": None, "base_meta": None, "engine": "BFV-F",
+                "warnings": ["нет чистой маржи для BFV-F"]}
+    if margin0 <= 0:
+        warn.append(f"чистая маржа ≤ 0 ({margin0:.1%}) — компания убыточна, поток отрицателен")
+    g_rev0 = _revenue_growth0(fin)
+    if g_rev0 is None:
+        g_rev0 = 0.08
+        warn.append("нет темпа роста выручки — по умолчанию 8%")
+    g_terminal = _terminal_growth(fin, market)
+
+    # маржа_терминал: направление из margin_trajectory (EBITDA from→to), масштаб к чистой
+    margin_terminal = margin0
+    mt = vi.get("margin_trajectory")
+    if isinstance(mt, dict) and isinstance(mt.get("from_pct"), (int, float)) and isinstance(mt.get("to_pct"), (int, float)) and mt["from_pct"] > 0:
+        ratio = mt["to_pct"] / mt["from_pct"]
+        margin_terminal = max(margin0 * 0.7, min(margin0 * 1.6, margin0 * ratio))
+    margin_terminal = max(0.02, margin_terminal)  # не даём уйти в ноль
+
+    s2c = _sales_to_capital(archetype, sector, profile)
+
+    # права и хазарды — те же источники, что BFV-D
+    gscore = _governance_score(gov)
+    if gscore is None:
+        gscore = 3.0
+        warn.append("нет governance-балла — willingness по умолчанию")
+    willingness = round(_interp_grid(gscore, _WILLINGNESS_GRID), 3)
+    payment_fraction = round(_interp_grid(gscore, _PAYFRAC_GRID), 3)
+    s1 = _s1_property_protection(inst)
+    h_exprop = _EXPROP_BY_S1.get(s1, 0.004) if s1 is not None else 0.004
+    h_distress = 0.002
+
+    base = ParamsF(
+        revenue0=revenue0, g_revenue0=g_rev0, g_terminal=g_terminal, fade_years=10,
+        margin0=max(0.0, margin0), margin_terminal=margin_terminal, sales_to_capital=s2c,
+        p_willingness=willingness, payment_fraction=payment_fraction,
+        h_distress=h_distress, h_expropriation=h_exprop,
+        recovery_share_of_price=0.10,   # якорь возврата — доля цены (книга не якорь у asset-light)
+    )
+    if overrides:
+        ov = {k: v for k, v in overrides.items() if k in ParamsF.__dataclass_fields__}
+        if ov:
+            from dataclasses import replace as _replace
+            base = _replace(base, **ov)
+
+    # сценарии: те же вероятности из барометра; overrides — на поля ParamsF
+    probs = scenario_probabilities(barometer)
+    scenarios = [
+        Scenario("деэскалация", probs["деэскалация"], dict(
+            g_revenue0=min(0.50, g_rev0 * 1.10), p_willingness=min(0.99, willingness + 0.02),
+            h_distress=h_distress * 0.6, h_expropriation=h_exprop * 0.5)),
+        Scenario("статус-кво", probs["статус-кво"], dict(
+            g_revenue0=g_rev0, p_willingness=willingness,
+            h_distress=h_distress, h_expropriation=h_exprop)),
+        Scenario("эскалация", probs["эскалация"], dict(
+            g_revenue0=max(0.0, g_rev0 * 0.75), margin_terminal=margin_terminal * 0.85,
+            p_willingness=max(0.70, willingness - 0.06),
+            payment_fraction=max(0.80, payment_fraction - 0.05),
+            h_distress=min(0.03, h_distress * 2.0), h_expropriation=min(0.04, h_exprop * 2.5))),
+        Scenario("катастрофический хвост", probs["катастрофический хвост"], {},
+                 catastrophic=True, cat_recovery=round(0.05 * revenue0, 4)),
+    ]
+
+    base_meta = {
+        "revenue0": round(revenue0, 2), "g_revenue0": round(g_rev0, 4),
+        "g_terminal": round(g_terminal, 4), "margin0": round(margin0, 4),
+        "margin_terminal": round(margin_terminal, 4), "sales_to_capital": s2c,
+        "willingness": willingness, "payment_fraction": payment_fraction,
+        "h_expropriation": h_exprop, "archetype": archetype, "sector": sector,
+        "governance_score": round(gscore, 2),
+        "probabilities": {k: round(v, 4) for k, v in probs.items()},
+    }
+    return {"params": base, "scenarios": scenarios, "base_meta": base_meta,
+            "engine": "BFV-F", "warnings": warn}

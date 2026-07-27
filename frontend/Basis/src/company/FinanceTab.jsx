@@ -889,42 +889,49 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
           )}
 
           {/* 2b. Справедливая цена по НОВОЙ методике (BFV) — сразу под классической
-              оценкой, «к остальным» (по запросу владельца). status=ok → число;
-              иначе честная пометка «неприменима» с причиной. */}
-          {bfv && bfv.status === "ok" && (
+              оценкой, «к остальным» (по запросу владельца). Маршрутизация v1.1:
+              движок выбирается ПОД класс бизнеса (BFV-D дивиденды/книга или BFV-F
+              денежный поток) — «для этого класса применяется другой метод», а не
+              «ненадёжно». Обратный режим — для ловушек стоимости; границы доходности
+              (<0.5% / >200%) подписываются честно. */}
+          {bfv && bfv.status === "ok" && (() => {
+            const isF = bfv.engine === "BFV-F";
+            const rev = bfv.reverse;
+            const bound = bfv.return_bound; // 'below' | 'above' | null
+            const engineLabel = isF ? "денежный поток" : "дивиденды и книга";
+            const expRetText = bound === "below" ? "< 0,5 %" : bound === "above" ? "> 200 %" : num(bfv.expected_return_pct, 1) + " %";
+            return (
             <div className="card">
               <h3>Справедливая цена — новая методика (BFV) <span className="tag tag-model">тест · модель</span>
-                {bfv.reliability === "low" && <span className="tag" style={{ marginLeft: 6, background: "var(--warning, #b26a00)", color: "#fff" }}>методика не для этой бумаги</span>}
+                <span className="tag" style={{ marginLeft: 6, background: isF ? "var(--bs-copper, #C97A4A)" : "var(--ink-2, #555)", color: "#fff" }}>метод: {engineLabel}</span>
               </h3>
               <p className="sub">
-                Дивидендная оценка «за миноритария»: главный выход — ожидаемая доходность при
-                текущей цене против требуемого порога. Пересчитывается живьём от цены, кривой ОФЗ
-                и беты. <b>Экспертные параметры без калибровки на росс. данных</b> — сравнивать
-                бумаги между собой надёжнее, чем читать абсолютный вердикт.
+                {isF
+                  ? "Для растущего / asset-light бизнеса подключается метод денежного потока (BFV-F): оценка от будущей выручки и её конвертации в поток акционеру, а не от текущих дивидендов."
+                  : "Дивидендно-балансовый метод (BFV-D): оценка «за миноритария» от прогноза дивидендов и роста книги."}
+                {" "}Пересчитывается живьём от цены, кривой ОФЗ и беты. <b>Экспертные параметры
+                без калибровки на росс. данных</b> — сравнивать бумаги между собой надёжнее,
+                чем читать абсолютный вердикт.
               </p>
 
-              {bfv.reliability === "low" && (
-                <div className="ff-note" style={{ marginBottom: 14, borderLeft: "3px solid var(--warning, #b26a00)" }}>
-                  <div className="nh">⚠ Абсолютная цена по этой бумаге ненадёжна</div>
-                  Дивидендно-балансовая модель плохо подходит для этого профиля (растущая /
-                  asset-light / глубокий дисконт к балансу) — она считает текущие выплаты и
-                  балансовый капитал, а не потенциал роста. Смотрите на <b>ожидаемую доходность</b>
-                  ниже (что даёт бумага при текущей цене, если считать только дивиденды и рост
-                  книги), а не на абсолютную «справедливую цену».
+              {rev && (
+                <div className="ff-note" style={{ marginBottom: 14, borderLeft: "3px solid var(--bs-copper, #C97A4A)" }}>
+                  <div className="nh">Обратное прочтение — вероятная ловушка стоимости</div>
+                  {rev.note}
                 </div>
               )}
 
               <div className="fair">
                 <div>
-                  <div className="big" style={bfv.reliability === "low" ? { opacity: 0.45 } : null}>
-                    {bfv.reliability === "low" ? "≈ " : ""}{num(bfv.fair_price, bfv.fair_price >= 100 ? 0 : 2)}<s> {ccy}</s>
+                  <div className="big" style={rev ? { opacity: 0.5 } : null}>
+                    {rev ? "≈ " : ""}{num(bfv.fair_price, bfv.fair_price >= 100 ? 0 : 2)}<s> {ccy}</s>
                   </div>
                   <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 4 }}>
-                    справедливая цена BFV · при спреде {num(bfv.required_spread_pp, 1)} п.п. к ОФЗ
-                    {bfv.reliability === "low" && " · ненадёжна для этой бумаги"}
+                    {rev ? "прямая оценка (справочно) · " : "справедливая цена BFV · "}
+                    при спреде {num(bfv.required_spread_pp, 1)} п.п. к ОФЗ
                   </div>
                 </div>
-                {bfv.reliability !== "low" && typeof bfv.upside_pct === "number" && (
+                {!rev && typeof bfv.upside_pct === "number" && (
                   <div className={`ud delta ${bfv.upside_pct >= 0 ? "up" : "dn"}`}>
                     {bfv.upside_pct >= 0 ? "▲" : "▼"} {num(Math.abs(bfv.upside_pct), 0)} % {bfv.upside_pct >= 0 ? "апсайд" : "даунсайд"}
                   </div>
@@ -937,7 +944,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
               <div className="fm-scen-row" style={{ marginTop: 14 }}>
                 <div className="fm-scen-chip fm-scen-base">
                   <span className="fm-scen-lbl">ожидаемая доходность</span>
-                  <span className="fm-scen-val">{num(bfv.expected_return_pct, 1)} %</span>
+                  <span className="fm-scen-val">{expRetText}</span>
                 </div>
                 <div className="fm-scen-chip">
                   <span className="fm-scen-lbl">требуемый порог</span>
@@ -950,18 +957,19 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                   </span>
                 </div>
                 <div className="fm-scen-chip">
-                  <span className="fm-scen-lbl">див. дох. 1-го года</span>
+                  <span className="fm-scen-lbl">{isF ? "поток к акционеру 1-й год" : "див. дох. 1-го года"}</span>
                   <span className="fm-scen-val">{num(bfv.div_yield_y1_pct, 1)} %</span>
                 </div>
               </div>
 
               <div className="ff-note" style={{ marginTop: 14 }}>
                 <div className="nh">Как читать</div>
-                «Ожидаемая доходность {num(bfv.expected_return_pct, 1)} %» — что вы заработаете при
-                текущей цене по прогнозу дивидендов и роста книги. «Порог {num(bfv.hurdle_pct, 1)} %» —
-                доходность ОФЗ на дюрации потока ({num(bfv.effective_duration_y, 1)} лет,
-                {num(bfv.z_dur_pct, 1)} %) плюс требуемая премия {num(bfv.required_spread_pp, 1)} п.п.
-                Проходит порог → бумага даёт больше, чем ОФЗ с той же дюрацией с запасом на риск.
+                «Ожидаемая доходность {expRetText}» — что вы заработаете при текущей цене по прогнозу
+                {isF ? " денежного потока (выручка → маржа → распределение акционеру)" : " дивидендов и роста книги"}.
+                «Порог {num(bfv.hurdle_pct, 1)} %» — доходность ОФЗ на дюрации потока
+                ({num(bfv.effective_duration_y, 1)} лет, {num(bfv.z_dur_pct, 1)} %) плюс требуемая
+                премия {num(bfv.required_spread_pp, 1)} п.п. Проходит порог → бумага даёт больше,
+                чем ОФЗ с той же дюрацией с запасом на риск.
                 {typeof bfv.holding_return_pct === "number" && (
                   <> Доходность удержания 10 лет (без ставки на переоценку рынком): <b>{num(bfv.holding_return_pct, 1)} %</b>.</>
                 )}
@@ -974,23 +982,23 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
               )}
               <div className="fc-note" style={{ marginTop: 10 }}>{bfv.method}</div>
             </div>
-          )}
+            );
+          })()}
           {bfv && bfv.status && bfv.status !== "ok" && (
             <div className="card">
               <h3>Справедливая цена — новая методика (BFV) <span className="tag tag-model">тест · модель</span></h3>
               <p className="sub" style={{ marginBottom: 0 }}>
                 {bfv.status === "no_data"
                   ? "Неприменима к этой бумаге: "
-                  : bfv.status === "no_rate"
-                  ? "Оценка неинформативна: "
                   : bfv.status === "no_price"
                   ? "Нет живой цены для расчёта."
                   : "Расчёт недоступен. "}
                 {(bfv.warnings && bfv.warnings[0]) || (bfv.reason || "")}
                 {bfv.status === "no_data" && (
-                  <> Дивидендно-балансовая модель требует положительного капитала и достаточной
-                     устойчивой прибыльности; для этой бумаги эти условия не выполняются, поэтому
-                     осмысленное число она не даёт (это честный отказ, не пропуск данных).</>
+                  <> Оба движка (дивидендно-балансовый и денежного потока) требуют информативного
+                     потока к акционеру; для этой бумаги поток отрицательный или нулевой (убыточна /
+                     раздаёт из долга), поэтому осмысленное число модель не даёт — это честный отказ,
+                     не пропуск данных.</>
                 )}
               </p>
             </div>

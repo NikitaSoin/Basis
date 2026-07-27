@@ -1,11 +1,8 @@
 """
-BFV-D — дивидендный движок справедливой оценки (методика BFV v1.0, docs/basis_fair_price.md,
-§18 «минимальное ядро»). Портирован из эталонной реализации docs/basis_engine.py БЕЗ
-изменения расчётной логики: золотой тест §17 (backend/tests/test_bfv_engine.py) —
-регрессионный якорь, воспроизводит эталонные выходы с допуском ±0.05 п.п.
+BFV-D — эталонная реализация дивидендного движка (методика BFV v1.0, §18 «минимальное ядро»).
 
-Чистые детерминированные функции, без хранилища/сети/логирования. Входы (Params/Scenario)
-компилирует params.py из данных карточки; живой прогон при рыночной цене — compute.py.
+Назначение: проверяемый образец расчёта для портирования в продакшен.
+Это НЕ продакшен-код: нет хранилища, API и логирования. Один файл, чистые функции.
 
 Структура повторяет разделы методики:
   Params/Scenario   — входы
@@ -14,8 +11,8 @@ BFV-D — дивидендный движок справедливой оцен�
   expected_flows    — §3: агрегация по состояниям (по потокам, НЕ по ставкам)
   solve_rate        — §12: ожидаемая доходность
   hurdle/value_at   — §11, §13: порог и справедливая цена
-  check_*           — §14: обязательные проверки
-  golden_case/run_golden — §17: эталонный случай (используется тестом)
+  checks_*          — §14: обязательные проверки
+  tests             — §17, §19: золотой, свойственные и негативные тесты
 """
 
 from dataclasses import dataclass, replace
@@ -104,15 +101,11 @@ def project_flows(p: Params) -> Tuple[List[float], List[float], List[float]]:
     roe = p.roe0
     survival = 1.0
     shares = 1.0
-    # Инициализация банковского капитала (§9). ИСПРАВЛЕНО против эталона
-    # docs/basis_engine.py: там cet1 = cet1_ratio0·bv0, а rwa = bv0/cet1_ratio0 —
-    # тогда CET1/RWA = cet1_ratio0², т.е. фактическая достаточность выходила ~1.7%
-    # вместо 13%, ёмкость распределения занулялась и банк «не платил» (на бою: у Сбера
-    # дивдоходность 1-го года 0.4% вместо ~11%). Золотой тест §17 это не ловил — его
-    # эталонный кейс не банк (is_bank=False). Правильно: CET1 ≈ балансовый капитал на
-    # акцию (bv0), RWA = CET1/достаточность ⇒ CET1/RWA = cet1_ratio0 по построению.
+    # §9: CET1 приблизительно равен капиталу; RWA выводится из заявленной достаточности.
+    # Ошибка «CET1 = ratio × капитал» занижает капитал в 1/ratio раз (~7.7×) и обнуляет
+    # ёмкость распределения — банк выглядит неспособным платить. Проверяется test_bank_golden.
     cet1 = p.bv0 if p.is_bank else 0.0
-    rwa = p.bv0 / p.cet1_ratio0 if p.is_bank else 0.0
+    rwa = cet1 / p.cet1_ratio0 if p.is_bank else 0.0
 
     flows, bvps_path, eps_path = [], [], []
 
@@ -388,17 +381,17 @@ def run_golden():
 
 
 # ============================================================
-# МАРШРУТИЗАТОР ДВИЖКОВ (§0.2, поправка v1.1) + BFV-F (от денежного потока)
-# Портировано из docs/basis_engine_2.py БЕЗ изменения логики.
+# МАРШРУТИЗАТОР ДВИЖКОВ (§0.2 — восстановлен)
 # ============================================================
 
-def select_engine(bvps, roe, pb, payout, is_bank: bool = False,
+def select_engine(bvps: Optional[float], roe: Optional[float], pb: Optional[float],
+                  payout: Optional[float], is_bank: bool = False,
                   g_terminal: float = 0.035) -> str:
-    """Выбор движка ДО расчёта (v1.1 §0.2). Применение BFV-D вне его области —
-    источник систематической недооценки, а не свойство рынка.
+    """Выбор движка ДО расчёта. Применение BFV-D вне его области — источник
+    систематической недооценки, а не свойство рынка.
 
     BFV-D пригоден, когда книга — якорь стоимости и платится ощутимый дивиденд:
-    банки, страховщики, сети/утилиты, зрелые сырьевики и индустрия. Остальное — BFV-F.
+    банки, страховщики, сети и утилиты, зрелые сырьевики и индустрия.
     """
     if is_bank:
         return "BFV-D"                      # книга и капитал — сама суть бизнеса
@@ -415,12 +408,15 @@ def select_engine(bvps, roe, pb, payout, is_bank: bool = False,
     return "BFV-D"
 
 
+# ============================================================
+# ДВИЖОК BFV-F — от денежного потока (для asset-light и растущих)
+# ============================================================
+
 @dataclass(frozen=True)
 class ParamsF:
-    """Движок BFV-F от выручки и реинвестиций. Части I, III, IV методики общие с BFV-D:
-    те же права, события, состояния, агрегация, порог, режим доходности. Отличается
-    ТОЛЬКО построение потока (Часть II, §5): рост берётся из ВЫРУЧКИ, а не из
-    компаундирования книги — поэтому компания со 100% payout здесь может расти."""
+    """Движок от выручки и реинвестиций. Части I, III, IV методики общие с BFV-D:
+    те же права, события, состояния, агрегация, порог, режим доходности.
+    Отличается ТОЛЬКО построение потока (Часть II, §5)."""
     revenue0: float                 # выручка на акцию
     g_revenue0: float = 0.30        # стартовый рост выручки
     g_terminal: float = 0.035
@@ -445,25 +441,29 @@ class ParamsF:
 
 
 def project_flows_fcfe(p: ParamsF, price_pre_event: float = 0.0) -> List[float]:
-    """FCFE = чистая прибыль − реинвестиции + чистые заимствования. Рост здесь берётся
-    из выручки, а не из компаундирования книги (поправка v1.1 §3)."""
+    """FCFE = чистая прибыль − реинвестиции + чистые заимствования.
+    Рост здесь берётся из выручки, а не из компаундирования книги — поэтому
+    компания со 100% payout может расти, что в BFV-D невозможно по построению."""
     rev = p.revenue0
     survival = 1.0
     flows = []
     for t in range(1, p.T_explicit + 1):
+        # затухание роста выручки к терминальному
         k = min(t, p.fade_years) / p.fade_years
         g = p.g_revenue0 + (p.g_terminal - p.g_revenue0) * k
         margin = p.margin0 + (p.margin_terminal - p.margin0) * k
 
         rev_new = rev * (1.0 + g)
         earnings = rev_new * margin
-        reinvest = (rev_new - rev) / p.sales_to_capital
+        reinvest = (rev_new - rev) / p.sales_to_capital      # подход через капиталоотдачу
         net_borrow = reinvest * p.net_borrow_share
         fcfe = earnings - reinvest + net_borrow
         rev = rev_new
 
+        # те же фильтры прав, что в BFV-D (§6)
         dist = max(0.0, fcfe) * p.p_ability * p.p_permission * p.p_willingness * p.payment_fraction
 
+        # те же события (§7), но якорь возврата — доля цены, а не книги
         h_total = p.h_distress + p.h_expropriation
         q_total = 1.0 - math.exp(-h_total)
         recovery = q_total * p.recovery_share_of_price * price_pre_event
@@ -473,19 +473,194 @@ def project_flows_fcfe(p: ParamsF, price_pre_event: float = 0.0) -> List[float]:
     return flows
 
 
-def expected_flows_f(base: "ParamsF", scenarios: List[Scenario], price_pre_event: float = 0.0) -> List[float]:
-    """Агрегация BFV-F по состояниям (§3): сначала потоки, потом одна ставка.
-    Scenario.overrides применяются к полям ParamsF (g_revenue0/margin*/willingness/hazards)."""
-    total_p = sum(s.prob for s in scenarios)
-    if abs(total_p - 1.0) > 1e-9:
-        raise ValueError(f"Вероятности состояний не суммируются в 1: {total_p:.6f}")
-    T = base.T_explicit
-    exp_cf = [0.0] * T
-    for s in scenarios:
-        if s.catastrophic:
-            exp_cf[0] += s.prob * s.cat_recovery
-            continue
-        cf = project_flows_fcfe(replace(base, **s.overrides), price_pre_event=price_pre_event)
-        for t in range(T):
-            exp_cf[t] += s.prob * cf[t]
-    return exp_cf
+def demo_asset_light():
+    """Демонстрация §3: одна и та же компания в двух движках.
+    Профиль близок к asset-light рекрутинговой платформе."""
+    price, bvps, roe, payout = 2790.0, 279.0, 1.11, 1.00
+    engine = select_engine(bvps=bvps, roe=roe, pb=price / bvps, payout=payout)
+
+    # BFV-D (как раскатывали): книга якорь, payout 100% -> роста нет
+    d = Params(bv0=bvps, roe0=min(roe, 0.45), roe_terminal=0.20, payout0=payout,
+               payout_ramp=1, p_willingness=0.97, payment_fraction=0.98,
+               h_distress=0.001, h_expropriation=0.002)
+    cf_d, _, _ = project_flows(d)
+    v_d = pv(cf_d, 0.232)
+
+    # BFV-F: рост от выручки, реинвестиции малы (высокая капиталоотдача)
+    f = ParamsF(revenue0=560.0, g_revenue0=0.28, margin0=0.33, margin_terminal=0.22,
+                sales_to_capital=7.0, p_willingness=0.97, payment_fraction=0.98,
+                h_distress=0.001, h_expropriation=0.002)
+    cf_f = project_flows_fcfe(f, price_pre_event=price)
+    v_f = pv(cf_f, 0.232)
+    r_f = solve_rate(cf_f, price)
+
+    return {
+        "маршрутизатор выбрал": engine,
+        "BFV-D (вне области): цена": v_d,
+        "BFV-D: отклонение от рынка, %": (v_d / price - 1) * 100,
+        "BFV-F: цена": v_f,
+        "BFV-F: отклонение от рынка, %": (v_f / price - 1) * 100,
+        "BFV-F: ожидаемая доходность, %": r_f * 100,
+    }
+
+
+# ============================================================
+# ТЕСТЫ (§19)
+# ============================================================
+
+def test_golden():
+    got = run_golden()
+    expect = {
+        "ожидаемая доходность, %": 23.50,
+        "эффективная дюрация, лет": 8.56,
+        "порог, %": 23.20,
+        "справедливая цена при пороге": 97.03,
+        "див. доходность 1-го года, %": 9.18,
+        "доходность удержания 10 лет, %": 24.70,
+        "компонента переоценки, п.п.": -1.19,
+        "доля терминальной фазы, %": 13.07,
+        "стоимость рва": -7.86,
+    }
+    for k, v in expect.items():
+        tol = 0.05 if "%" in k or "п.п." in k else 0.1
+        assert abs(got[k] - v) <= tol, f"{k}: получено {got[k]:.3f}, ожидалось {v} (допуск {tol})"
+    assert got["вердикт"] == "проходит"
+    return "OK"
+
+
+def test_property_terminal_identity():
+    """payout_L = 1 − g/ROE выполняется, и рост на выходе сходится к g_terminal."""
+    p = Params()
+    flows, bvps, eps = project_flows(replace(p, h_distress=0, h_expropriation=0,
+                                             p_willingness=1.0, payment_fraction=1.0))
+    g_late = flows[-1] / flows[-2] - 1.0
+    assert abs(g_late - p.g_terminal) < 1e-4, f"терминальный рост {g_late:.5f} ≠ {p.g_terminal}"
+    return "OK"
+
+
+def test_property_ri_equivalence():
+    """Дивидендный и остаточно-доходный расчёты совпадают на бессобытийной траектории."""
+    diff = check_ri_equivalence(Params(), 0.232)
+    assert diff < 1e-6, f"расхождение DDM/RI = {diff:.9f}"
+    return "OK"
+
+
+def test_property_unique_root():
+    """Найденная ставка действительно обнуляет невязку и единственна на интервале."""
+    base, scen, price, *_ = golden_case()
+    cf, _ = expected_flows(base, scen)
+    r = solve_rate(cf, price)
+    assert abs(pv(cf, r) - price) < 1e-6
+    assert pv(cf, r - 0.01) > price and pv(cf, r + 0.01) < price, "PV не монотонна"
+    return "OK"
+
+
+def test_negative_rate_averaging():
+    try:
+        average_rates_forbidden()
+    except NotImplementedError:
+        return "OK"
+    raise AssertionError("усреднение ставок должно падать")
+
+
+def test_negative_hazard_sum():
+    try:
+        check_hazard_mode([0.10, 0.15, 0.05], approx=True)
+    except ValueError:
+        return "OK"
+    raise AssertionError("приближённое сложение больших интенсивностей должно падать")
+
+
+def test_negative_bad_probabilities():
+    base, scen, *_ = golden_case()
+    bad = [replace(scen[0], prob=0.5)] + scen[1:]
+    try:
+        expected_flows(base, bad)
+    except ValueError:
+        return "OK"
+    raise AssertionError("несуммирующиеся вероятности должны падать")
+
+
+def test_negative_catastrophic_irr():
+    """В катастрофическом состоянии ставка не существует — solve_rate обязан отказать."""
+    cf = [5.0] + [0.0] * 49
+    try:
+        solve_rate(cf, 95.0)
+    except ValueError:
+        return "OK"
+    raise AssertionError("несуществующая ставка должна падать, а не возвращать число")
+
+
+def test_bank_capacity_no_double_count():
+    """Прибыль не должна учитываться в мосте дважды."""
+    cet1_pre = 13.0 + 3.0     # капитал прошлого года + прибыль
+    cap = bank_capacity(cet1_pre, rwa=110.0, target_ratio=0.11)
+    assert abs(cap - (16.0 - 12.1)) < 1e-9
+    return "OK"
+
+
+def test_bank_golden():
+    """Банк с достаточностью выше целевой ОБЯЗАН иметь ненулевую ёмкость и осмысленную
+    дивидендную доходность. Тест закрывает ошибку инициализации CET1, найденную при
+    раскатке на реальных данных (Сбер давал 0.4% дивдоходности)."""
+    p = Params(is_bank=True, cet1_ratio0=0.13, cet1_target=0.11, rwa_growth=0.10,
+               roe0=0.24, roe_terminal=0.20, payout0=0.50)
+    flows, bvps, _ = project_flows(p)
+    dy = flows[0] / p.bv0
+    assert dy > 0.03, f"дивдоходность банка {dy*100:.2f}% — ёмкость обнулена, проверьте мост CET1"
+    assert flows[0] > 0 and flows[5] > 0, "поток банка не должен схлопываться"
+    return "OK"
+
+
+def test_engine_router():
+    """Маршрутизатор обязан уводить непригодные для BFV-D профили в другой движок,
+    а не считать их дивидендно-балансовой моделью."""
+    assert select_engine(bvps=-50, roe=0.20, pb=None, payout=0.9) == "BFV-F"      # отриц. капитал
+    assert select_engine(bvps=279, roe=1.11, pb=10.0, payout=1.0) == "BFV-F"      # asset-light
+    assert select_engine(bvps=100, roe=0.02, pb=0.5, payout=0.0) == "BFV-F"       # ROE ниже роста
+    assert select_engine(bvps=100, roe=0.22, pb=1.0, payout=0.5) == "BFV-D"       # ядро
+    assert select_engine(bvps=100, roe=0.24, pb=0.9, payout=0.5, is_bank=True) == "BFV-D"
+    return "OK"
+
+
+ALL_TESTS = [
+    ("золотой тест §17", test_golden),
+    ("золотой тест: банк", test_bank_golden),
+    ("маршрутизатор движков", test_engine_router),
+    ("свойство: терминальное тождество", test_property_terminal_identity),
+    ("свойство: DDM ≡ RI без событий", test_property_ri_equivalence),
+    ("свойство: единственность корня", test_property_unique_root),
+    ("негатив: усреднение ставок", test_negative_rate_averaging),
+    ("негатив: сложение интенсивностей", test_negative_hazard_sum),
+    ("негатив: сумма вероятностей", test_negative_bad_probabilities),
+    ("негатив: ставка не существует", test_negative_catastrophic_irr),
+    ("банк: прибыль в мосте один раз", test_bank_capacity_no_double_count),
+]
+
+
+if __name__ == "__main__":
+    print("=" * 66)
+    print("BFV-D — эталонный расчёт (методика v1.0, §17)")
+    print("=" * 66)
+    for k, v in run_golden().items():
+        print(f"  {k:<34} {v if isinstance(v, str) else f'{v:>8.2f}'}")
+
+    print("\n" + "=" * 66)
+    print("ТЕСТЫ (§19)")
+    print("=" * 66)
+    failed = 0
+    for name, fn in ALL_TESTS:
+        try:
+            print(f"  [{fn()}]   {name}")
+        except AssertionError as e:
+            failed += 1
+            print(f"  [FAIL] {name}\n         {e}")
+    print(f"\n  итог: {len(ALL_TESTS) - failed}/{len(ALL_TESTS)} пройдено")
+
+
+def _demo_footer():
+    print("\n" + "=" * 66)
+    print("ДЕМОНСТРАЦИЯ §3: asset-light в двух движках")
+    print("=" * 66)
+    for k, v in demo_asset_light().items():
+        print(f"  {k:<36} {v if isinstance(v,str) else f'{v:>9.1f}'}")

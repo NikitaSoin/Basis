@@ -31,16 +31,15 @@ import logging
 import re
 from datetime import date, datetime, timezone
 
-import requests
-import urllib3
+import httpx
 from sqlalchemy.orm import Session
 
 from app.models.bond import Bond
 from app.models.company import Company
 from app.services import company_signals
+from app.services.http_util import _socket_options
 
 logger = logging.getLogger(__name__)
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 _UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
        "(KHTML, like Gecko) Chrome/120.0 Safari/537.36")
@@ -180,21 +179,30 @@ def _parse_title(title: str) -> dict:
 
 # ----------------------------- ДОБЫЧА -----------------------------
 def _get(url: str) -> str | None:
-    """GET с фолбэком по TLS: АКРА/НКР на РОССИЙСКОМ нац. CA (Минцифры), которого
-    нет в mozilla/certifi-бандле → при SSLError повторяем без верификации цепочки.
-    Читаем ПУБЛИЧНЫЕ пресс-релизы, секретов не передаём — фолбэк безопасен.
-    (На боевом Timeweb-сервере системный бандл обычно содержит нац. CA — тогда
-    сработает первая, верифицированная попытка.)"""
+    """GET (httpx — как весь бэкенд; requests в зависимостях прода НЕТ) с фолбэком
+    по TLS: АКРА/НКР на РОССИЙСКОМ нац. CA (Минцифры), которого нет в mozilla-
+    бандле → при ошибке верификации повторяем без проверки цепочки. Читаем
+    ПУБЛИЧНЫЕ пресс-релизы, секретов не шлём — фолбэк безопасен. Сокет с MSS-
+    клампингом (http_util) — страховка от MTU-black-hole на маршруте инстанса."""
     hdr = {"User-Agent": _UA}
     for verify in (True, False):
         try:
-            r = requests.get(url, headers=hdr, timeout=_TIMEOUT, verify=verify)
+            # verify задаётся на ТРАНСПОРТЕ (при кастомном транспорте Client.verify
+            # игнорируется); транспорт создаём заново на каждой попытке
+            transport = httpx.HTTPTransport(retries=0, verify=verify,
+                                            socket_options=_socket_options())
+            with httpx.Client(timeout=_TIMEOUT, headers=hdr, transport=transport,
+                              follow_redirects=True) as cli:
+                r = cli.get(url)
             if r.status_code == 200:
                 return r.text
             logger.warning("rating_agencies: %s → HTTP %s", url, r.status_code)
             return None
-        except requests.exceptions.SSLError:
-            continue  # пробуем verify=False
+        except (httpx.ConnectError, httpx.TransportError) as e:
+            if verify:
+                continue  # верификация не прошла (росс. нац. CA) → verify=False
+            logger.warning("rating_agencies: %s недоступен (%s)", url, e)
+            return None
         except Exception as e:  # noqa: BLE001
             logger.warning("rating_agencies: %s недоступен (%s)", url, e)
             return None
