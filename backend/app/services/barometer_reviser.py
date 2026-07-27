@@ -37,6 +37,7 @@ from app.models.geo_digest import GeoDigestArticle
 from app.services import llm
 from app.services.situation_overlay import _BLOCKLIST, _sanitize_sources
 from app.services import barometer_store
+from app.services.barometer_history import get_revision_timeline, format_timeline_for_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -214,6 +215,14 @@ _SYS = (
     "- вероятности сценариев меняй максимум на ±0.10, сумма = 1;\n"
     "- РФ-топонимика, нейтральный тон, без «оккупир/аннексир/купить/продать», "
     "без имён СМИ-источников;\n"
+    "Тебе также дана ХРОНОЛОГИЯ предыдущих ревизий этого барометра — что и почему "
+    "менялось раньше. Используй её для СОГЛАСОВАННОСТИ: не двигай балл в сторону, "
+    "прямо противоречащую недавнему обоснованному сдвигу, если свежие статьи не "
+    "дают для разворота столь же явных оснований (иначе барометр будет колебаться "
+    "туда-обратно от прогона к прогону вместо того, чтобы копить понимание). Если "
+    "новые статьи ПОДТВЕРЖДАЮТ прежнюю траекторию — это тоже основание для "
+    "delta_rationale («продолжение тренда с [дата]»), не обязательно для движения "
+    "балла.\n"
     "Верни JSON РОВНО той же структуры, что якорь (subindices[], scenario{}), "
     "плюс у сдвинутых субиндексов поля delta_rationale и evidence_ids. "
     "Никакого текста вне JSON."
@@ -250,8 +259,11 @@ def revise(db: Session, kind: str, force: bool = False) -> BarometerVersion | No
     articles_for_prompt = [{"id": str(a.id), "date": a.published_at.isoformat() if a.published_at else None,
                             "title": a.title, "summary": (a.summary or "")[:400]} for a in arts]
 
+    timeline = format_timeline_for_prompt(get_revision_timeline(db, kind, limit=15))
     user = ("ЯКОРЬ (текущий барометр — правь минимально):\n"
             + json.dumps(anchor_payload, ensure_ascii=False)[:24000]
+            + "\n\nХРОНОЛОГИЯ ПРЕДЫДУЩИХ РЕВИЗИЙ (что и почему менялось раньше, для согласованности):\n"
+            + timeline
             + "\n\nСВЕЖИЕ СТАТЬИ ЛЕНТЫ (id — для evidence_ids):\n"
             + json.dumps(articles_for_prompt, ensure_ascii=False))
     model = llm.pro_model()
