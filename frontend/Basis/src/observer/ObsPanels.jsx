@@ -1604,7 +1604,7 @@ function ObsMacroArticles({ token }) {
   // Загружаем список аналитических записок один раз
   useEffect(() => {
     setLoading(true);
-    fetch(`${apiUrl}/api/market/macro/analytics?limit=20`)
+    fetch(`${apiUrl}/api/market/macro/analytics?limit=40`)
       .then((r) => (r.ok ? r.json() : []))
       .then((d) => { setDocs(d || []); setLoading(false); })
       .catch(() => setLoading(false));
@@ -1627,7 +1627,7 @@ function ObsMacroArticles({ token }) {
   // (телеграм-каналы, только макро-тезисы — не геополитика/институты, см. geo_digest.py),
   // MarketTwits и др.)
   useEffect(() => {
-    fetch(`${apiUrl}/api/market/macro/digest?limit=30`)
+    fetch(`${apiUrl}/api/market/macro/digest?limit=60`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => setDigest(d.articles || []))
       .catch(() => setDigest([]))
@@ -3865,7 +3865,7 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
   const loadDigest = useCallback((r) => {
     if (!r || digestByRegion[r] !== undefined) return;
     setDigestLoading((s) => ({ ...s, [r]: true }));
-    fetch(`${apiUrl}/api/market/geopolitics/${r}/digest`, { headers: authHeaders })
+    fetch(`${apiUrl}/api/market/geopolitics/${r}/digest?limit=40`, { headers: authHeaders })
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((d) => setDigestByRegion((s) => ({ ...s, [r]: d.articles || [] })))
       .catch(() => setDigestByRegion((s) => ({ ...s, [r]: [] })))
@@ -4392,7 +4392,7 @@ function ObsInstitutions({ token }) {
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
-    fetch(`${apiUrl}/api/market/institutions/digest`, { headers: authHeaders })
+    fetch(`${apiUrl}/api/market/institutions/digest?limit=40`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => setDigest(d.articles || []))
       .catch(() => setDigest([]))
