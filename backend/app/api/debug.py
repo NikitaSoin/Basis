@@ -1287,6 +1287,25 @@ def debug_trigger_company_signals():
         db.close()
 
 
+@router.post("/debug/trigger-rating-agencies")
+def debug_trigger_rating_agencies(acra_limit: int = 15, nkr_limit: int = 25,
+                                  acra_dates: bool = False):
+    """Ручной прогон ингестора рейтинговых действий АКРА/НКР → сигналы карточек
+    (rating_action, вкладка «Облигации») + освежение официального agency_rating
+    бумаг по ISIN/имени эмитента. Идемпотентно (дедуп по URL релиза).
+    acra_dates=true — тянуть точные даты из релизов АКРА (медленно, ~10с/релиз)."""
+    from app.db.session import SessionLocal
+    from app.services.rating_agencies import refresh
+    db = SessionLocal()
+    try:
+        return refresh(db, acra_limit=acra_limit, nkr_limit=nkr_limit, acra_dates=acra_dates)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-rating-agencies: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-barometer-reviser")
 def debug_trigger_barometer_reviser(force: bool = True):
     """Ручной прогон автономного ревизора барометров (SHADOW — пишет draft/

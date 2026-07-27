@@ -74,6 +74,14 @@
       "_sector": "банки/ЦБ"
     },
     {
+      "source": "rusmet",
+      "rubric": "metals",
+      "url": "https://rusmet.ru/feed/",
+      "enabled": true,
+      "_sector": "металлургия",
+      "_note": "Владелец 2026-07-28 просил Metal Bulletin (металлургия). Сам Metal Bulletin недоступен: стал платным Fastmarkets, ToS против редистрибуции (категория Bloomberg/FT — не тянем). rusmet.ru — рабочий RU-RSS металлургии (Норникель/Полюс/цветмет/уголь/сталь), питает вкладку «Рынки» металлургических карточек (GMKN/PLZL/MAGN/NLMK/CHMF)."
+    },
+    {
       "source": "thebell",
       "rubric": "business",
       "url": "https://thebell.io/feed",
