@@ -30,9 +30,57 @@
       "rubric": "politics_world",
       "url": "https://www.kommersant.ru/RSS/section-world.xml",
       "enabled": true
+    },
+    {
+      "source": "angi",
+      "rubric": "oil_gas",
+      "url": "https://www.angi.ru/rss/angi.xml",
+      "enabled": true,
+      "_sector": "нефтегаз"
+    },
+    {
+      "source": "tadviser",
+      "rubric": "it_telecom",
+      "url": "https://www.tadviser.ru/xml/tadviser.xml",
+      "enabled": true,
+      "_sector": "IT/телеком"
+    },
+    {
+      "source": "retail_ru",
+      "rubric": "retail",
+      "url": "https://www.retail.ru/rss/news/",
+      "enabled": true,
+      "_sector": "ритейл"
+    },
+    {
+      "source": "ikar",
+      "rubric": "agro",
+      "url": "https://ikar.ru/rss/all.xml",
+      "enabled": true,
+      "_sector": "агро"
+    },
+    {
+      "source": "sovecon",
+      "rubric": "agro",
+      "url": "https://sovecon.ru/feed/",
+      "enabled": true,
+      "_sector": "агро"
+    },
+    {
+      "source": "frankmedia",
+      "rubric": "banks",
+      "url": "https://frankmedia.ru/feed",
+      "enabled": true,
+      "_sector": "банки/ЦБ"
     }
   ],
-  "schedule_msk_hours": [7, 13, 19, 1],
+  "schedule_msk_hours": [
+    7,
+    13,
+    19,
+    1
+  ],
   "max_items_per_feed": 60,
-  "dedup_title_similarity": 0.62
+  "dedup_title_similarity": 0.62,
+  "_comment_sector": "Отраслевые фиды (2026-07-27, разведка source-scouting.md): нефтегаз/IT/ритейл/агро/банки — питают вкладку «Рынки» карточек через шину company_signals; importance-фильтр Ленты отсекает шум."
 }

@@ -209,6 +209,32 @@
       ],
       "enabled": true,
       "_note": "INTERNAL-ONLY + low trust."
+    },
+    {
+      "key": "ecb",
+      "role": "analysis",
+      "method": "rss",
+      "url": "https://www.ecb.europa.eu/rss/press.xml",
+      "regions": [
+        "svo",
+        "middle_east",
+        "atr"
+      ],
+      "enabled": true,
+      "_note": "ECB пресс-релизы (офиц. RSS, работает из РФ) — мировой макро-фон, target=macro по классификации. Только пересказ."
+    },
+    {
+      "key": "fed",
+      "role": "analysis",
+      "method": "rss",
+      "url": "https://www.federalreserve.gov/feeds/press_all.xml",
+      "regions": [
+        "svo",
+        "middle_east",
+        "atr"
+      ],
+      "enabled": true,
+      "_note": "Fed пресс-релизы (офиц. RSS) — ставка/ДКП США, мировой макро-фон. Только пересказ."
     }
   ],
   "region_keywords": {
