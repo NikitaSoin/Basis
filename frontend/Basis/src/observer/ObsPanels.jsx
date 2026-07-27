@@ -1246,6 +1246,15 @@ function obsParsePct(v) {
   return m ? Math.round(parseFloat(m[1].replace(",", "."))) : 0;
 }
 
+// ISO-дата → «ДД.ММ» (кратко, для пометки авто-обновления барометра/якоря;
+// полная дата с годом — отдельно _obsDateRu выше по файлу).
+function obsFmtDDMM(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" });
+}
+
 // Общий балл → две группы субиндексов «тянут вниз» / «относительно лучше»
 function obsBaroBalance(subindices, polarity) {
   if (!Array.isArray(subindices) || subindices.length === 0) return null;
@@ -1282,15 +1291,36 @@ function ObsBaroScale({ score, max = 5, polarity, labels }) {
   );
 }
 
-// Hero-вердикт барометра: балл + шкала + текстовый вывод Basis + явный баланс
-function ObsBaroHero({ eyebrow, asOf, score, verdict, polarity, scaleLabels, subindices, extra, coSignal }) {
+// Hero-вердикт барометра: балл + шкала + текстовый вывод Basis + явный баланс.
+// meta — необязательное поле _meta ответа API (см. situation_overlay/автономный
+// ревизор): source "expert" (как раньше, ручной субагент) | "auto" (модель сама
+// обновила баллы по свежей ленте между экспертными прогонами). Тело барометра
+// (barometer/subindices/scenario) при auto НЕ переписывается заново — только
+// baro.as_of/сами баллы сдвигаются; поэтому при auto показываем ДВЕ даты явно
+// (когда сработало авто-обновление + от какого экспертного среза оно отталкивалось),
+// вместо одной «срез на», чтобы не выдавать автообновление за полный экспертный
+// пересмотр (та же честность, что у ObsSituationOverlay — anchor as_of всегда виден рядом).
+function ObsBaroHero({ eyebrow, asOf, score, verdict, polarity, scaleLabels, subindices, extra, coSignal, meta }) {
   const tier = obsScoreTier(score, polarity);
   const balance = obsBaroBalance(subindices, polarity);
+  const isAuto = meta?.source === "auto";
+  const autoDate = isAuto ? obsFmtDDMM(meta.generated_at) : null;
+  const anchorDate = isAuto ? obsFmtDDMM(meta.expert_anchor_as_of) : null;
   return (
     <div className="obs-inst-hero">
       <div className="obs-inst-hero-top">
         <span className="obs-inst-hero-eyebrow"><Activity size={13} /> {eyebrow}</span>
-        {asOf && <span className="obs-inst-hero-asof">срез на {asOf}</span>}
+        {isAuto ? (
+          <span className="obs-baro-auto-note" title={meta.trigger_reason || undefined}>
+            <span className="obs-baro-auto-note-main">
+              <span className="obs-baro-auto-dot" aria-hidden="true" />
+              автообновление{autoDate ? ` от ${autoDate}` : ""} · модель
+            </span>
+            {anchorDate && <span className="obs-baro-auto-anchor">экспертный якорь от {anchorDate}</span>}
+          </span>
+        ) : (
+          asOf && <span className="obs-inst-hero-asof">срез на {asOf}</span>
+        )}
       </div>
       <div className="obs-inst-hero-score-row">
         <span className="obs-inst-hero-score" style={{ color: tier.color }}>
@@ -1348,6 +1378,14 @@ function ObsBaroSubRow({ s, polarity }) {
         {s.type === "факт"
           ? <span className="obs-tag-fact">факт</span>
           : <span className="obs-inst-tag obs-inst-tag--est">оценка</span>}
+        {/* Балл этого субиндекса сдвинут автономным ревизором между экспертными
+            прогонами (не переоценка вручную) — delta_rationale поясняет, что именно
+            в ленте это подвинуло; тултип, не отдельная карточка, приглушённый тег. */}
+        {s.delta_rationale && (
+          <span className="obs-inst-tag obs-inst-tag--auto" title={s.delta_rationale}>
+            оценка (авто)
+          </span>
+        )}
         <span className="obs-inst-sub-score" style={{ color: sTier.color }}>
           {s.score}<span className="obs-inst-sub-score-max">/5</span>
         </span>
@@ -4076,6 +4114,7 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                         polarity="higherWorse"
                         scaleLabels={["низкий риск", "высокий риск"]}
                         subindices={baro.subindices}
+                        meta={baro._meta}
                       />
                     ) : (
                       <div className="obs-baro-compact">
@@ -4434,6 +4473,7 @@ function ObsInstitutions({ token }) {
                   polarity="higherBetter"
                   scaleLabels={["слабые институты", "сильные институты"]}
                   subindices={restSub}
+                  meta={baro._meta}
                   coSignal={baro.institutional_crp_floor_pp != null && (
                     <div className="obs-inst-hero-cosignal">
                       <span className="obs-inst-hero-cosignal-label">CRP-«пол»</span>

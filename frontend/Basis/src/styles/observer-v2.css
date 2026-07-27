@@ -4004,6 +4004,17 @@ details[open] > summary.obs-ai-section-heading .obs-ai-section-chev {
   background: var(--warning-soft);
   color: var(--warning);
 }
+/* «оценка (авто)» — субиндекс, чей балл подвинул автономный ревизор между
+   экспертными прогонами (s.delta_rationale непустой — тултип с обоснованием).
+   Outlined/приглушённый вариант (как .obs-overlay-align--confirm), НЕ заливка
+   --info/--warning: это пометка происхождения балла, не тревога и не отдельный
+   эпистемический уровень факт/оценка/суждение — тег дополняет их, не заменяет. */
+.obs-inst-tag--auto {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-tertiary);
+  cursor: help;
+}
 
 /* ---- <details> generic disclosure (CRP «как считали») ---- */
 .obs-inst-details {
@@ -4088,6 +4099,44 @@ details[open] > summary .obs-inst-chev,
   font-variant-numeric: tabular-nums;
   font-size: 11px;
   color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* Пометка «автообновление» — когда баллы между экспертными прогонами подвинул
+   автономный ревизор (baro._meta.source === "auto"), а не ручной субагент.
+   Приглушённая (это прозрачность источника, не тревога) — тот же --text-tertiary,
+   что у обычного «срез на», без нового цвета. Точка — нейтральный маркер статуса,
+   НЕ семантический цвет (не success/danger/warning). Якорь-строка мельче и туснее —
+   честно показывает, что тело барометра всё ещё отталкивается от экспертной даты. */
+.obs-baro-auto-note {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.obs-baro-auto-note-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.obs-baro-auto-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  flex-shrink: 0;
+}
+.obs-baro-auto-anchor {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 9.5px;
+  color: var(--text-tertiary);
+  opacity: 0.75;
   white-space: nowrap;
 }
 
