@@ -205,3 +205,40 @@ class BarometerVersion(Base):
     model_used: Mapped[str | None] = mapped_column(String(64))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class CompanySignal(Base):
+    """Сигнальная шина «поток Обозревателя → карточка компании» (владелец
+    2026-07-27: входящий поток должен системно дообновлять карточки, а не
+    гоняться агентами в веб-серч за всем подряд). Нормализованное событие по
+    ТИКЕРУ из уже отфильтрованного потока (Лента market_updates + дайджест
+    geo_digest, включая инсайд-TG). См. app/services/company_signals.py и
+    docs/observer-source-map.md.
+
+    card_tab — какую вкладку карточки затрагивает (finance|dividends|
+    governance|markets|macro|geo|institutions|bonds); consumer-агент по этому
+    полю поймёт, что обновлять. trust: official|media|analytical|insider —
+    ярус доверия источника (эпистемика). internal=True — из закрытого контура
+    (инсайд-TG): НЕ отдаётся публичными эндпоинтами, питает только агентов/
+    барометры с пометкой «непроверенный инсайд». importance: high|medium|low —
+    порог, выше которого стоит триггерить обновление вкладки."""
+    __tablename__ = "company_signals"
+    __table_args__ = (UniqueConstraint("ticker", "signal_type", "dedup_key",
+                                        name="uq_company_signal"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ticker: Mapped[str] = mapped_column(String(20), index=True)
+    signal_type: Mapped[str] = mapped_column(String(32))     # earnings|dividend|rating_action|mgmt|...
+    card_tab: Mapped[str | None] = mapped_column(String(20))
+    importance: Mapped[str | None] = mapped_column(String(8))  # high|medium|low
+    trust: Mapped[str | None] = mapped_column(String(12))      # official|media|analytical|insider
+    internal: Mapped[bool] = mapped_column(default=False)
+    title: Mapped[str | None] = mapped_column(String(400))
+    summary: Mapped[str | None] = mapped_column(Text)
+    source_key: Mapped[str | None] = mapped_column(String(48))
+    source_url: Mapped[str | None] = mapped_column(String(1000))
+    published_at: Mapped[date_type | None] = mapped_column(Date, index=True)
+    dedup_key: Mapped[str] = mapped_column(String(64))          # окно/хэш для дедупа
+    consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))  # когда агент отработал сигнал
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

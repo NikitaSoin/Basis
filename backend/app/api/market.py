@@ -880,7 +880,7 @@ def _cap_by_source(rows: list, limit: int, max_share: float = 0.4) -> list:
 
 
 @router.get("/market/geopolitics/{region}/digest")
-def market_geopolitics_digest(region: str, limit: int = 15, db: Session = Depends(get_db)):
+def market_geopolitics_digest(region: str, limit: int = Query(15, ge=1, le=100), db: Session = Depends(get_db)):
     """Отдельные статьи-карточки по региону (не слитый синтез geo_blocks) — подробный
     пересказ + тезисы. source_label показывается (временно, обкатка пайплайна —
     geo_digest.py). Сортировка по created_at (когда МЫ сохранили), не published_at:
@@ -889,23 +889,39 @@ def market_geopolitics_digest(region: str, limit: int = 15, db: Session = Depend
     бэклогом re:russia с той же датой. Пул шире limit — нужен запас, чтобы
     _cap_by_source() было из чего выбирать помимо MarketTwits."""
     from app.models.geo_digest import GeoDigestArticle, GEO_DIGEST_TARGETS
+    from app.services.company_signals import INTERNAL_SOURCE_KEYS
     if region not in GEO_DIGEST_TARGETS or region in ("institutions", "macro"):
         raise HTTPException(status_code=404, detail="Неизвестный регион")
+    # Инсайд-каналы (moi_misli_vslukh/insider_*) — internal-only, клиентам не отдаём.
     pool = (db.query(GeoDigestArticle).filter_by(target=region)
+           .filter(GeoDigestArticle.source_key.notin_(INTERNAL_SOURCE_KEYS))
            .order_by(GeoDigestArticle.created_at.desc()).limit(limit * 4).all())
     rows = _cap_by_source(pool, limit)
     return {"region": region, "articles": [_digest_dict(a) for a in rows]}
 
 
 @router.get("/market/institutions/digest")
-def market_institutions_digest(limit: int = 15, db: Session = Depends(get_db)):
+def market_institutions_digest(limit: int = Query(15, ge=1, le=100), db: Session = Depends(get_db)):
     """Дайджест статей институциональной среды с экономической проекцией —
     дополняет статичный барометр (market_institutions) живой лентой."""
     from app.models.geo_digest import GeoDigestArticle
+    from app.services.company_signals import INTERNAL_SOURCE_KEYS
     pool = (db.query(GeoDigestArticle).filter_by(target="institutions")
+           .filter(GeoDigestArticle.source_key.notin_(INTERNAL_SOURCE_KEYS))
            .order_by(GeoDigestArticle.created_at.desc()).limit(limit * 4).all())
     rows = _cap_by_source(pool, limit)
     return {"articles": [_digest_dict(a) for a in rows]}
+
+
+@router.get("/market/companies/{ticker}/signals")
+def market_company_signals(ticker: str, limit: int = Query(20, ge=1, le=50),
+                           db: Session = Depends(get_db)):
+    """Свежие сигналы по компании из потока Обозревателя (шина company_signals):
+    отчётность/дивиденды/рейтинги/управление и т.д., промапленные на тикер и
+    вкладку карточки. ТОЛЬКО публичные — инсайд-каналы (internal) сюда не идут.
+    Для блока «Свежее по компании» на карточке. См. docs/observer-source-map.md."""
+    from app.services.company_signals import public_signals_for
+    return {"ticker": ticker.upper(), "signals": public_signals_for(db, ticker, limit)}
 
 
 @router.get("/market/macro/digest")

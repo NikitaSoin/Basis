@@ -170,6 +170,45 @@
       "channel": "markettwits",
       "limit": 15,
       "_about": "MarketTwits — оперативка по рынку/геополитике"
+    },
+    {
+      "key": "moi_misli_vslukh",
+      "role": "analysis",
+      "method": "telegram",
+      "channel": "moi_misli_vslukh",
+      "regions": [
+        "svo",
+        "middle_east",
+        "atr"
+      ],
+      "enabled": true,
+      "_note": "INTERNAL-ONLY (владелец 2026-07-27, не публиковать): инсайд/внутрянка, low trust; питает барометры/оверлей/сигналы с internal-флагом, из публичного дайджеста скрыт по source_key."
+    },
+    {
+      "key": "insider_best_tg",
+      "role": "analysis",
+      "method": "telegram",
+      "channel": "insider_best_tg",
+      "regions": [
+        "svo",
+        "middle_east",
+        "atr"
+      ],
+      "enabled": true,
+      "_note": "INTERNAL-ONLY + low trust (приукрашивают/привирают, но полезны для рисков/внутрянки)."
+    },
+    {
+      "key": "insider_elites",
+      "role": "analysis",
+      "method": "telegram",
+      "channel": "insider_elites",
+      "regions": [
+        "svo",
+        "middle_east",
+        "atr"
+      ],
+      "enabled": true,
+      "_note": "INTERNAL-ONLY + low trust."
     }
   ],
   "region_keywords": {

@@ -1270,6 +1270,23 @@ def debug_sanitize_analyst_notes(dry_run: bool = True):
         db.close()
 
 
+@router.post("/debug/trigger-company-signals")
+def debug_trigger_company_signals():
+    """Ручной прогон сигнальной шины «поток → карточки» (company_signals):
+    Лента (affected_tickers) + дайджест (LLM-маппинг тикеров, вкл. инсайд-TG).
+    Идемпотентно (дедуп). См. docs/observer-source-map.md."""
+    from app.db.session import SessionLocal
+    from app.services.company_signals import refresh
+    db = SessionLocal()
+    try:
+        return refresh(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-company-signals: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-barometer-reviser")
 def debug_trigger_barometer_reviser(force: bool = True):
     """Ручной прогон автономного ревизора барометров (SHADOW — пишет draft/
