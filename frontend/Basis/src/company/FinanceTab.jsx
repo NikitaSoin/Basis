@@ -261,7 +261,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     let alive = true;
     fetch(`${apiUrl}/api/companies/by-ticker/${ticker}/bfv`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { if (alive) setBfv(d && d.status === "ok" ? d : null); })
+      .then((d) => { if (alive) setBfv(d && d.status ? d : null); })
       .catch(() => { if (alive) setBfv(null); });
     return () => { alive = false; };
   }, [company?.ticker]);
@@ -1371,6 +1371,29 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                 </div>
               )}
               <div className="fc-note" style={{ marginTop: 10 }}>{bfv.method}</div>
+            </div>
+          )}
+
+          {/* BFV неприменима — честная пометка на карточке (а не пустота): чтобы
+              «раскатано на все» значило видимый блок на каждой карточке, с причиной. */}
+          {bfv && bfv.status && bfv.status !== "ok" && (
+            <div className="card">
+              <h3>Справедливая цена — новая методика (BFV) <span className="tag tag-model">тест · модель</span></h3>
+              <p className="sub" style={{ marginBottom: 0 }}>
+                {bfv.status === "no_data"
+                  ? "Неприменима к этой бумаге: "
+                  : bfv.status === "no_rate"
+                  ? "Оценка неинформативна: "
+                  : bfv.status === "no_price"
+                  ? "Нет живой цены для расчёта."
+                  : "Расчёт недоступен. "}
+                {(bfv.warnings && bfv.warnings[0]) || (bfv.reason || "")}
+                {bfv.status === "no_data" && (
+                  <> Дивидендно-балансовая модель требует положительного капитала и достаточной
+                     устойчивой прибыльности; для этой бумаги эти условия не выполняются, поэтому
+                     осмысленное число она не даёт (это честный отказ, не пропуск данных).</>
+                )}
+              </p>
             </div>
           )}
         </div>
