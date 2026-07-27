@@ -1042,6 +1042,8 @@ def debug_trigger_macro_sync():
     from app.services.macro_tankermap_sync import sync_urals
     from app.services.macro_wb_commodities_sync import sync_wb_commodities
     from app.services.macro_yahoo_commodities_sync import sync_yahoo_commodities
+    from app.services.macro_metaltorg_steel_sync import sync_metaltorg_steel
+    from app.services.macro_idex_diamond_sync import sync_idex_diamond
     db = SessionLocal()
     out = {}
     try:
@@ -1069,6 +1071,8 @@ def debug_trigger_macro_sync():
             ("urals", lambda: sync_urals(db, period="max")),
             ("wb_commodities", lambda: sync_wb_commodities(db, months_back=120)),
             ("yahoo_commodities", lambda: sync_yahoo_commodities(db)),
+            ("metaltorg_steel", lambda: sync_metaltorg_steel(db)),
+            ("idex_diamond", lambda: sync_idex_diamond(db)),
         ):
             try:
                 out[key] = fn()
