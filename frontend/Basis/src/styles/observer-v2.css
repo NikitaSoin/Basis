@@ -1579,34 +1579,71 @@
 }
 
 .obs-art-card {
+  position: relative;
   background: var(--bg-elevated);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
-  padding: 20px 22px;
+  padding: 22px 24px 22px 27px;
   margin-bottom: 12px;
   box-shadow: var(--shadow-sm);
   transition: box-shadow 180ms ease;
+  overflow: hidden;
+}
+
+.obs-art-card::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--text-tertiary);
 }
 
 .obs-art-card:hover {
   box-shadow: var(--shadow-md);
 }
 
-/* Meta row: source · doc_type · date */
+/* tier="official" (ЦБ/ЦМАКП — первоисточник, не переоценка Basis): медная
+   метка + едва заметная тёплая заливка сверху, как летерхед — сигнализирует
+   «это первичный документ», не декор ради декора (владелец 2026-07-27/28:
+   «жиденько, тускло, серо» про прежний плоский вид). */
+.obs-art-card--official::before { background: var(--accent); }
+.obs-art-card--official {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, var(--bg-elevated)) 0%, var(--bg-elevated) 150px);
+}
+
+/* Meta row: source-mark · source · doc_type · date */
 .obs-art-head {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 12px;
   color: var(--text-tertiary);
-  margin-bottom: 10px;
+  margin-bottom: 11px;
   flex-wrap: wrap;
 }
 
 .obs-art-head b {
-  color: var(--text-secondary);
-  font-weight: 600;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 12.5px;
 }
+
+.obs-art-srcmark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 700;
+  font-size: 10.5px;
+  color: #fff;
+  background: var(--text-tertiary);
+}
+
+.obs-art-srcmark--official { background: var(--accent); }
 
 .obs-art-date {
   font-family: var(--font-mono);
@@ -1614,13 +1651,15 @@
   font-size: 12px;
 }
 
-/* Article title */
+/* Article title — Fraunces (было обычный bold-Inter, читалось как служебный
+   UI-текст, не как заголовок разбора). */
 .obs-art-title {
+  font-family: "Fraunces", Georgia, serif;
   font-weight: 600;
-  font-size: 15.5px;
+  font-size: 18.5px;
   color: var(--text-primary);
   margin-bottom: 10px;
-  line-height: 1.4;
+  line-height: 1.32;
 }
 
 /* Chip-stats row (key metrics inline): */
@@ -1657,12 +1696,17 @@
   color: var(--text-primary);
 }
 
-/* Takeaway (lead text) */
+/* Takeaway (lead text) — раньше 13.5px text-secondary (жалоба владельца:
+   «жиденько, тускло, серо»); теперь Fraunces-проза полным ink-контрастом,
+   читается как редакционный вывод, не подпись под карточкой. */
 .obs-art-takeaway {
-  font-size: 13.5px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: 12px;
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 400;
+  font-size: 15.5px;
+  color: var(--text-primary);
+  line-height: 1.62;
+  max-width: 66ch;
+  margin-bottom: 13px;
 }
 
 /* Expand / collapse toggle */
@@ -1715,32 +1759,134 @@
   margin-bottom: 12px;
 }
 
-/* Basis interpretation callout inside article */
+/* Basis interpretation callout inside article — иконка в собственном цветном
+   круге (как печать), лейбл капсом отдельной строкой, тело полным ink (было
+   text-secondary — тоже часть жалобы «тускло, серо»). */
 .obs-art-callout {
   display: flex;
-  gap: 10px;
+  gap: 13px;
   align-items: flex-start;
   background: var(--accent-soft);
-  border-radius: 10px;
-  padding: 14px 16px;
+  border-radius: 12px;
+  padding: 15px 17px;
   margin-bottom: 10px;
 }
 
-.obs-art-callout svg {
+.obs-art-callout-ic {
   flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.obs-art-callout-lbl {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--accent-hover, var(--accent));
-  margin-top: 2px;
+  margin-bottom: 4px;
 }
 
 .obs-art-callout p {
-  color: var(--text-secondary);
-  font-size: 13.5px;
-  line-height: 1.55;
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.56;
   margin: 0;
 }
 
-.obs-art-callout b {
+/* ---- MarketTwits — компактная строка вместо полной карточки (единственный
+   источник в десятки заметок/день; полная карточка каждый раз раздула бы
+   ленту после расширения окна лимитов до 40-60). ---- */
+.obs-wire-row-wrap { margin-bottom: 2px; }
+
+.obs-wire-row {
+  display: grid;
+  grid-template-columns: 68px 96px 1fr 16px;
+  align-items: baseline;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.obs-wire-row:hover { background: var(--accent-soft); }
+
+.obs-wire-row:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.obs-wire-date {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.obs-wire-src {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.obs-wire-title {
+  font-size: 13px;
   color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.obs-wire-toggle {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.obs-wire-detail {
+  padding: 2px 12px 14px 12px;
+  margin: 0 0 0 12px;
+  border-left: 2px solid var(--border-subtle);
+}
+
+.obs-wire-detail p {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.55;
+  margin: 6px 0 10px;
+  max-width: 64ch;
+}
+
+.obs-wire-detail ul {
+  padding-left: 18px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@media (max-width: 640px) {
+  .obs-wire-row { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+  .obs-wire-title { white-space: normal; }
+  .obs-wire-toggle { display: none; }
 }
 
 .obs-art-link {

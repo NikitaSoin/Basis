@@ -1114,6 +1114,41 @@ function ObsCalendar({ token, portfolioOnly, onSelectCompany }) {
 // =========================
 // OBS ARTICLE CARD — expandable разбор-карточка документа ЦБ/ЦМАКП
 // =========================
+// Значок-марка источника — 2 буквы в цветном квадрате (тот же приём, что
+// CompanyLogo-инициалы). tier="official" (медь, ЦБ/ЦМАКП/первоисточник) vs
+// "analysis" (нейтральный, вторичная аналитика вроде Carnegie/ISW/Рыбарь).
+function ObsSrcMark({ label, tier = "analysis" }) {
+  const initials = (label || "?").trim().slice(0, 2).toUpperCase();
+  return <span className={`obs-art-srcmark obs-art-srcmark--${tier}`}>{initials}</span>;
+}
+
+// Каллаут-«печать» — общий для «Интерпретация Basis» (ЦБ/ЦМАКП) и «Почему это
+// важно инвестору» (внешний дайджест). Раньше — мелкая иконка + инлайн-<b>,
+// владелец: «жиденько, тускло, серо». Теперь — цветной кружок-печать + лейбл
+// капсом отдельной строкой, тело полным ink (не text-secondary).
+function ObsArtCallout({ label, children, icon }) {
+  return (
+    <div className="obs-art-callout">
+      <span className="obs-art-callout-ic">{icon}</span>
+      <div className="tw-min-w-0">
+        <div className="obs-art-callout-lbl">{label}</div>
+        <p>{children}</p>
+      </div>
+    </div>
+  );
+}
+
+const _ICON_BOLT = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14" aria-hidden="true">
+    <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
+  </svg>
+);
+const _ICON_TARGET = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14" aria-hidden="true">
+    <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" />
+  </svg>
+);
+
 function ObsArticleCard({ doc }) {
   const [open, setOpen] = useState(false);
   const SOURCE_LABELS = { cmakp: "ЦМАКП", cbr: "Банк России" };
@@ -1121,9 +1156,12 @@ function ObsArticleCard({ doc }) {
   const dateStr = doc.published_at ? doc.published_at.slice(0, 10) : "";
 
   return (
-    <div className="obs-art-card">
-      {/* Шапка: источник · тип документа · дата */}
+    <div className="obs-art-card obs-art-card--official">
+      {/* Шапка: источник · тип документа · дата — ЦБ/ЦМАКП всегда первоисточник,
+          поэтому tier="official" (медная метка + едва заметная тёплая заливка
+          сверху карточки, как летерхед — сигнал «это первичный документ»). */}
       <div className="obs-art-head">
+        <ObsSrcMark label={srcLabel} tier="official" />
         <b>{srcLabel}</b>
         {doc.doc_type && <span>· {doc.doc_type} ·</span>}
         <span className="obs-art-date">{dateStr}</span>
@@ -1154,13 +1192,7 @@ function ObsArticleCard({ doc }) {
           )}
 
           {doc.interpretation && (
-            <div className="obs-art-callout">
-              {/* Молния-иконка (Basis interpretation) */}
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden="true">
-                <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
-              </svg>
-              <p><b>Интерпретация Basis.</b> {doc.interpretation}</p>
-            </div>
+            <ObsArtCallout label="Интерпретация Basis" icon={_ICON_BOLT}>{doc.interpretation}</ObsArtCallout>
           )}
 
           {doc.source_url && (
@@ -1175,16 +1207,50 @@ function ObsArticleCard({ doc }) {
 }
 
 // =========================
-// OBS DIGEST CARD/LIST — переиспользуемая карточка для geo_digest (Геополитика per-регион +
-// Институциональная среда «Обзор»). Формат как у ObsArticleCard (ЦБ/ЦМАКП), но источник —
-// внешний (Рыбарь/Carnegie/re:russia/Economist/ISW), поэтому есть source_label-бейдж и
-// отдельный investor_relevance callout.
+// OBS DIGEST CARD/LIST — переиспользуемая карточка для geo_digest (Макро-дайджест +
+// Геополитика per-регион + Институциональная среда «Обзор»). Внешние источники —
+// Рыбарь/Carnegie/re:russia/Economist/ISW (полная карточка, tier="analysis") и
+// MarketTwits (единственный источник в десятки заметок/день — компактная строка
+// ObsWireRow, иначе после расширения окна лимитов до 40-60 список из одинаковых
+// больших карточек читать было бы ещё тяжелее, не легче; владелец 2026-07-27/28).
 // =========================
+const _WIRE_SOURCE_LABEL = "MarketTwits";
+
+function ObsWireRow({ a }) {
+  const [open, setOpen] = useState(false);
+  const dateStr = a.published_at ? String(a.published_at).slice(0, 10) : "";
+  return (
+    <div className="obs-wire-row-wrap">
+      <button type="button" className="obs-wire-row" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+        <span className="obs-wire-date">{dateStr}</span>
+        <span className="obs-wire-src">{a.source_label}</span>
+        <span className="obs-wire-title">{a.title}</span>
+        <span className="obs-wire-toggle" aria-hidden="true">{open ? "▴" : "▾"}</span>
+      </button>
+      {open && (
+        <div className="obs-wire-detail">
+          {a.summary && <p>{a.summary}</p>}
+          {Array.isArray(a.key_takeaways) && a.key_takeaways.length > 0 && (
+            <ul>{a.key_takeaways.map((t, i) => <li key={i}>{t}</li>)}</ul>
+          )}
+          {a.investor_relevance && (
+            <ObsArtCallout label="Почему это важно инвестору" icon={_ICON_TARGET}>{a.investor_relevance}</ObsArtCallout>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ObsDigestCard({ a }) {
   const dateStr = a.published_at ? String(a.published_at).slice(0, 10) : "";
+  if (a.source_label === _WIRE_SOURCE_LABEL) {
+    return <ObsWireRow a={a} />;
+  }
   return (
     <div className="obs-art-card">
       <div className="obs-art-head">
+        {a.source_label && <ObsSrcMark label={a.source_label} tier="analysis" />}
         {a.source_label && <b>{a.source_label}</b>}
         <span className="obs-art-date">{dateStr}</span>
       </div>
@@ -1196,11 +1262,8 @@ function ObsDigestCard({ a }) {
         </ul>
       )}
       {a.investor_relevance && (
-        <div className="obs-art-callout" style={{ marginTop: 12 }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" />
-          </svg>
-          <p><b>Почему это важно инвестору.</b> {a.investor_relevance}</p>
+        <div style={{ marginTop: 12 }}>
+          <ObsArtCallout label="Почему это важно инвестору" icon={_ICON_TARGET}>{a.investor_relevance}</ObsArtCallout>
         </div>
       )}
     </div>
