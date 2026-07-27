@@ -176,6 +176,28 @@ def _gate(revision: dict, anchor: dict, expert_anchor: dict,
     return not notes, notes
 
 
+def _restore_untouched_prose(revision: dict, anchor: dict) -> dict:
+    """Для каждого субиндекса: если балл не двигался относительно якоря —
+    восстанавливаем rationale/anchor_note ДОСЛОВНО из якоря (модель могла
+    перефразировать). Двигавшиеся субиндексы не трогаем (их delta_rationale
+    гейт проверит отдельно)."""
+    anc = _subindices(anchor)
+    for rs in (revision.get("subindices") or []):
+        a = anc.get(rs.get("key"))
+        if not a:
+            continue
+        try:
+            moved = abs(float(rs.get("score")) - float(a.get("score"))) > 1e-9
+        except (TypeError, ValueError):
+            moved = True
+        if not moved:
+            if "rationale" in a:
+                rs["rationale"] = a["rationale"]
+            if "anchor_note" in a:
+                rs["anchor_note"] = a["anchor_note"]
+    return revision
+
+
 # ----------------------------- ПРОГОН -----------------------------
 _SYS = (
     "Ты — аналитик Basis, ОБСЛУЖИВАЕШЬ калибровку геополитического/"
@@ -249,6 +271,13 @@ def revise(db: Session, kind: str, force: bool = False) -> BarometerVersion | No
     # не повод завернуть ревизию баллов, достаточно заменить на «по данным ленты».
     if isinstance(revision, dict):
         revision = _sanitize_sources(revision)
+        # ПРИНУДИТЕЛЬНО восстанавливаем прозу нетронутых субиндексов из якоря:
+        # LLM почти всегда чуть перефразирует rationale даже там, где балл не
+        # двигал (живой прогon: geo завернулся по rationale_edited_without_move
+        # у G1/G12). Не заворачиваем ревизию баллов из-за косметики прозы —
+        # просто берём rationale/anchor_note якоря дословно для нетронутых.
+        # Строже, чем проверка: модель физически не может переписать чужую прозу.
+        revision = _restore_untouched_prose(revision, anchor_payload)
     ok, notes = _gate(revision, anchor_payload, expert_payload, article_ids)
     row = BarometerVersion(
         kind=kind, source="auto",
