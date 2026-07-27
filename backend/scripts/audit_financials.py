@@ -56,6 +56,16 @@ def _rel_err(a, b):
     return abs(a - b) / max(abs(a), abs(b))
 
 
+
+
+def _tax_bridge_err(pt, tax, npf):
+    """Мин. ошибка моста pre_tax→net при обеих знаковых конвенциях налога
+    (в файлах налог бывает и расходом с минусом, и с плюсом; налоговая
+    ВЫГОДА — легитимно увеличивает прибыль: abs() давал ложный WARN)."""
+    cands = [_rel_err(pt - abs(tax), npf), _rel_err(pt + abs(tax), npf)]
+    cands = [c for c in cands if c is not None]
+    return min(cands) if cands else None
+
 def audit_company(ticker: str) -> list[dict]:
     """Список дефектов компании: {sev, code, msg}. sev: CRIT | GAP | WARN | INFO."""
     path = COMPANIES / ticker / "financials.json"
@@ -99,7 +109,7 @@ def audit_company(ticker: str) -> list[dict]:
                 add("GAP", "bank_pnl", f"bank_pnl.{k}: последний год пуст/отсутствует")
         pt, tax, np_ = _last(bp.get("pre_tax_profit")), _last(bp.get("income_tax")), _last(bp.get("net_profit"))
         if pt is not None and tax is not None and np_ is not None:
-            err = _rel_err(pt - abs(tax), np_)
+            err = _tax_bridge_err(pt, tax, np_)
             if err is not None and err > TOL_SOFT:
                 add("WARN", "bank_tax_bridge",
                     f"pre_tax {pt:.0f} − налог {abs(tax):.0f} ≠ прибыль {np_:.0f} (Δ {err*100:.1f}%)")
@@ -160,10 +170,10 @@ def audit_company(ticker: str) -> list[dict]:
         if tax is None:
             add("GAP", "pnl", "income_tax: последний год пуст")
         if pt is not None and tax is not None and npf is not None:
-            err = _rel_err(pt - abs(tax), npf)
+            err = _tax_bridge_err(pt, tax, npf)
             if err is not None and err > TOL_SOFT:
                 nci = _last(inc.get("net_profit_attributable_to_parent"))
-                if nci is None or _rel_err(pt - abs(tax), nci) is None or _rel_err(pt - abs(tax), nci) > TOL_SOFT:
+                if nci is None or _tax_bridge_err(pt, tax, nci) is None or _tax_bridge_err(pt, tax, nci) > TOL_SOFT:
                     add("WARN", "tax_bridge",
                         f"до налога {pt:.0f} − налог {abs(tax):.0f} ≠ чистая {npf:.0f} "
                         f"(Δ {err*100:.1f}%; NCI/прочее не объясняет)")
