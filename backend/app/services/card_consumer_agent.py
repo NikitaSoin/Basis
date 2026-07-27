@@ -49,7 +49,7 @@ _KIND = "signal_addendum"
 _BATCH_CAP = 5           # сигналов за один прогон
 _FRESH_DAYS = 10         # не трогаем протухшие сигналы (иначе v2 хлынет бэклогом)
 _COOLDOWN_DAYS = 10      # анти-осцилляция на (тикер, вкладка)
-_SO_WHAT_MAX = 240       # кэп интерпретации (1–2 предложения)
+_SO_WHAT_MAX = 320       # кэп интерпретации (1–2 предложения; 240 резал по делу)
 
 # публикация: по умолчанию draft (пред-полёт), CARD_CONSUMER_PUBLISH=1 → published
 _PUBLISH = os.environ.get("CARD_CONSUMER_PUBLISH", "").lower() in ("1", "true", "yes")
@@ -120,9 +120,12 @@ def _gate(result: dict, signal: CompanySignal) -> tuple[bool, list[str]]:
     blob = json.dumps(result, ensure_ascii=False)
     if _FORBIDDEN.search(blob):
         notes.append("forbidden_words")
-    # чужие тикеры (латиница 3-6 заглавных, не наш и не общеупотребимые)
-    whitelist = {signal.ticker.upper(), "USD", "RUB", "GDP", "CPI", "OPEC", "IPO",
-                 "EBITDA", "FCF", "YTM", "MSFO", "RSBU", "AAA", "AA", "BBB", "BB", "RU", "NKR"}
+    # чужие тикеры (латиница 3-6 заглавных, не наш и не общеупотребимые). Сюда же
+    # не-тикерные финтермины/аббревиатуры и уровни рейтинга, чтобы не ловить их
+    # как «чужой тикер» (ISIN/SPO/OFZ — не эмитенты).
+    whitelist = {signal.ticker.upper(), "USD", "RUB", "GDP", "CPI", "OPEC", "IPO", "SPO",
+                 "EBITDA", "FCF", "YTM", "MSFO", "RSBU", "ISIN", "ESG", "CBR", "OFZ",
+                 "AAA", "AA", "BBB", "BB", "CCC", "CC", "RU", "NKR", "ACRA"}
     for m in set(re.findall(r"\b[A-Z]{3,6}\b", blob)):
         if m not in whitelist:
             notes.append(f"foreign_ticker:{m}")
