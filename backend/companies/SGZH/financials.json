@@ -228,69 +228,69 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        73862,
+        82213,
+        77890,
+        80611,
+        60021
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
-        null
+        5427,
+        5442,
+        5226,
+        5133,
+        4612
       ],
       "goodwill": [
-        null,
-        null,
-        null,
-        null,
-        null
+        444,
+        444,
+        444,
+        444,
+        21
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        593,
+        386,
+        421,
+        414,
+        414
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        79039,
+        74977,
+        74870,
+        73175,
+        42431
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        160560,
-        null
+        159365,
+        163462,
+        158851,
+        159777,
+        107499
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        21806,
+        24613,
+        21137,
+        23332,
+        18630
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        7477,
+        8522,
+        10229,
+        12444,
+        7386
       ],
       "cash": [
-        null,
-        null,
-        null,
-        null,
-        null
+        12634,
+        22879,
+        10656,
+        4641,
+        3014
       ],
       "short_term_investments": [
         null,
@@ -300,18 +300,18 @@
         null
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        12666,
+        8614,
+        7346,
+        6360,
+        5216
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        25120,
-        null
+        54583,
+        64628,
+        49368,
+        46777,
+        34246
       ]
     },
     "total_assets": [
@@ -360,62 +360,62 @@
     },
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        66900
+        52362,
+        86584,
+        77970,
+        89498,
+        45076
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
-        null
+        8258,
+        7775,
+        5740,
+        5659,
+        6710
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        101230,
-        null
+        30169,
+        21551,
+        17056,
+        14266,
+        12796
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        101230,
-        null
+        90789,
+        115910,
+        100766,
+        109423,
+        64582
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        3200
+        21408,
+        37257,
+        55259,
+        62923,
+        24972
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        16779,
+        21110,
+        18414,
+        24076,
+        14254
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        38780,
+        11759,
+        10416,
+        9048,
+        37682
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        41870,
-        null
+        76967,
+        70126,
+        84089,
+        96047,
+        76908
       ]
     },
     "total_liabilities": [
@@ -426,8 +426,8 @@
       141490
     ],
     "net_debt": [
-      null,
-      null,
+      61136,
+      100962,
       122600,
       147900,
       67000
@@ -456,11 +456,11 @@
         null
       ],
       "current_ratio": [
-        null,
-        null,
-        null,
-        0.6,
-        null
+        0.71,
+        0.92,
+        0.59,
+        0.49,
+        0.45
       ]
     },
     "total_equity": [
@@ -476,7 +476,7 @@
       13092,
       2259,
       -9910,
-      -8500,
+      -12679,
       null
     ],
     "cfi": [
@@ -502,16 +502,16 @@
     ],
     "capex": [
       23116,
-      7200,
+      10181,
       7764,
-      7200,
+      9989,
       5300
     ],
     "fcf": [
-      null,
-      null,
-      null,
-      -15700,
+      -10024,
+      -7922,
+      -17674,
+      -22668,
       null
     ],
     "cfo_lines": [
@@ -1539,6 +1539,13 @@
       "title": "Экспертная оценка peer-мультипликаторов ЛПК в кризис (отраслевое суждение)",
       "url": "",
       "reliability": "low"
+    },
+    {
+      "id": "src_primary_2026_07_28",
+      "type": "company_ir",
+      "title": "Segezha Group PJSC — Consolidated Financial Statements (audited/special-purpose), постатейный баланс и ОДДС 2021-2024 из sources/extracted_financials.json (report-fetcher прошлого прохода 2026-07-06/07), перенесено в основной файл этим проходом",
+      "url": "https://segezha-group.com/en/investors/report/financial-results/",
+      "reliability": "high"
     }
   ],
   "data_flags": [
@@ -1562,7 +1569,11 @@
     "finance_costs расхождение: главный=[2550, 10500, 13600, 23600, 19100], первичка (report-fetcher, 2026-07-06)=[3910, 11626, 16493, 26513, None] — первичка заметно выше по всем годам. НЕ заменено молча, нужна сверка аналитиком перед использованием в расчётах.",
     "🔴 total_equity ИСПРАВЛЕН 2026-07-07 (report-fetcher, первичка МСФО): было [None, None, None, 42580, 67280] (2024=42580, 2025=67280), стало [46192, 42054, 23364, 1084, 255] (2024=1084, 2025=255) — прежние значения завышены в 39-264 РАЗ. Проверено арифметикой (assets=equity+liabilities, 0 расхождение) И независимым третьим источником (KPI-инфографика в sources/, совпадает по всем 9 годам 2017-2025). Капитал компании практически обнулён накопленными убытками — существенно меняет P/BV, левередж, все показатели платёжеспособности.",
     "BALANCE SHEET (2021-2025) добыт построчно из первичных консолидированных МСФО (все 5 годовых отчётов скачаны с segezha-group.com/investors/report/financial-results/: FY2021 an6vxpgppglbo6a4sya3zkwwuw3iko6v.pdf, FY2022 0r3xa6k330atuj72rx7prs6hbixb65st.pdf, FY2023(SP) 6ve7zm02as87k84ecttdmefp48n1yhu1.pdf, FY2024(SP) 6yw7bqqt7e2b5jwtp6wh2b3tlnm629ej.pdf, FY2025(SP) 90wf8fn2epd62xlhk7jw34xf7ydm3eo5.pdf). Для 2021 использован РЕСТАЙТЕД столбец из отчёта FY2022 (компания пересмотрела 2021 после завершения PPA по приобретению бизнеса и выделения налоговых переплат) — совпадает с независимой KPI-инфографикой (sources/'Сегежа (МСФО 2025) на 21.05.2026г.pdf') и обеспечивает сквозную сопоставимость 2021-2022. Арифметика прошла ИДЕАЛЬНО (0% отклонение) на каждый год: total_non_current+total_current=total_assets; total_equity+total_liabilities=total_assets; все подстатьи по каждому блоку суммируются точно. 🔴 КРИТИЧЕСКОЕ РАСХОЖДЕНИЕ С ОСНОВНЫМ financials.json: там balance_sheet почти пустой (только FY2024 частично + total_equity FY2025), и эти немногие заполненные значения НЕВЕРНЫ — financials.json: total_assets FY2024=185680 (правильно 206554), total_liabilities FY2024=143100 (правильно 205470), total_equity FY2024=42580 (правильно 1084!), total_equity FY2025=67280 (правильно 255!). Расхождение по equity FY2024/FY2025 драматическое (в 39x и 264x) — компания фактически на грани технического банкротства по капиталу (равенство почти нулю после гигантских убытков 2023-2025), а не 'здоровые' 42.6/67.3 млрд как в текущем файле. Revenue и total_non_current(FY2024)/total_current(FY2024) в основном файле СОВПАДАЮТ с новыми данными (revenue почти точно, non_current 160560≈159777, current 25120 vs правильных 46777 — тоже расходится). Значения total_equity/total_assets в основном financials.json нужно ЗАМЕНИТЬ на данные из этого файла — сверено по первичным аудированным МСФО и независимо подтверждено KPI-инфографикой (третий независимый источник, точное совпадение по годам 2017-2025).",
-    "meta.last_price добавлен (3413.0019 ₽, уверенность: medium (только 1 метод)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price)."
+    "meta.last_price добавлен (3413.0019 ₽, уверенность: medium (только 1 метод)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price).",
+    "ПЕРЕНОС ИЗ sources/extracted_financials.json В ОСНОВНОЙ ФАЙЛ (report-fetcher, 2026-07-28, закрытие GAP-аудита): balance_sheet.non_current_assets/current_assets/non_current_liabilities/current_liabilities ПОЛНОСТЬЮ заменены на постатейные данные из первичных аудированных МСФО (были собраны прошлым проходом 2026-07-06/07, но НЕ ДОЕХАЛИ до основного financials.json — лежали только в sources/extracted_financials.json). Арифметика проверена повторно и сходится точно на всех 5 годах: total_current+total_non_current=total_assets; total_current_liab+total_non_current_liab=total_liabilities (закрывает WARN bs_liab Δ50.5% для 2025: было cl=3200(только short_term_debt)+ncl=66900(только long_term_debt)=70100 vs total_liabilities=141490; стало cl=76908+ncl=64582=141490 — 0% ошибка). Закрывает GAP 'cash: последний год пуст' (current_assets.cash[2025]=3014) и GAP 'нет разбивки активов на оборотные/внеоборотные'.",
+    "CASH_FLOW ИСПРАВЛЕН (report-fetcher, 2026-07-28): cfo/cfi/cff/net_change_in_cash/capex за 2021-2024 заменены на данные из первичных аудированных МСФО (были в основном файле частично неверны — напр. cfo[2024] было -8500, стало -12679: старое значение НЕ сходилось с собственным net_change_in_cash[2024]=-6379 файла (−8500−4968+11268=−2200≠−6379), новое сходится точно (−12679−4968+11268=−6379). capex[2022]/[2024] были одинаковые 7200/7200 (подозрительно — похоже на placeholder), заменены на 10181/9989, подтверждённые НЕЗАВИСИМО третьим источником (KPI-инфографика 'Сегежа (МСФО 2025) на 21.05.2026г.pdf' в sources/). Добавлены cfo_lines/cfi_lines/cff_lines — полная построчная реконциляция (19/11/12 статей).",
+    "CFO/CFI/CFF/net_change_in_cash 2025 ОСТАЮТСЯ null — ПОВТОРНО ПРОВЕРЕНО 2026-07-28 (спустя 3 недели после первой попытки от 2026-07-06): на IR-странице segezha-group.com financial-results НЕТ отчёта за полный 2025 год (FY2025/12М2025) — раскрытие прыгает с 'Segezha_IFRS_Cons_FS_2025_09' (9 месяцев 2025, неаудированный) сразу на 'Segezha_IFRS_Cons_FS_2026_03' (Q1 2026). В разделе 'Annual Reports' тоже нет отчёта за 2025 год (последний — Annual report 2024). Это ЧЕСТНЫЙ пробел: компания ещё не опубликовала годовую консолидированную МСФО-отчётность за 2025 год на момент прохода (необычная задержка &gt;6 месяцев после конца отчётного периода — возможно связано с кризисным финансовым положением и допэмиссией). total_assets/total_equity/total_liabilities/баланс на 31.12.2025 уже есть (из special-purpose отчёта с сопоставимыми данными), но денежные потоки за ПОЛНЫЙ год 2025 недоступны — только 9М2025 (справочно, см. предыдущий флаг СПРАВОЧНО).",
+    "net_debt[2021]=61136, net_debt[2022]=100962 — досчитаны из новых данных (short_term_debt+long_term_debt-cash), ранее были null. ratios.current_ratio пересчитан для всех 5 лет из новой разбивки: 2021=0.71, 2022=0.92, 2023=0.59, 2024=0.49, 2025=0.45 — стабильно ниже 1.0, подтверждает структурный дефицит оборотного капитала на всём периоде, не только в кризисные 2023-2025 годы."
   ],
   "segments": [
     {
