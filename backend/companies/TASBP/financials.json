@@ -29,71 +29,71 @@
   "income_statement": {
     "cost_format": "by_nature",
     "revenue": [
-      5880,
-      6170,
-      6500,
-      7480
+      6959.374,
+      7165.809,
+      7560.131,
+      8612.916
     ],
     "cogs": [
-      null,
-      null,
-      null,
-      null
+      3701.123,
+      3701.055,
+      3787.279,
+      4288.669
     ],
     "gross_profit": [
-      null,
-      null,
-      null,
-      null
+      3258.251,
+      3464.754,
+      3772.852,
+      4324.247
     ],
     "expense_lines": [],
     "operating_profit": [
-      273,
-      317,
-      370,
-      299
+      293.87,
+      343.726,
+      318.532,
+      330.002
     ],
     "da": [
-      25,
-      38,
-      56,
-      80
+      null,
+      null,
+      null,
+      null
     ],
     "ebitda": [
-      298,
-      355,
-      426,
-      379
+      null,
+      null,
+      null,
+      null
     ],
     "finance_costs": [
-      null,
-      null,
-      null,
-      null
+      0.513,
+      0.996,
+      3.04,
+      11.514
     ],
     "finance_income": [
-      null,
-      null,
-      null,
-      null
+      60.499,
+      77.151,
+      213.484,
+      328.844
     ],
     "pre_tax_profit": [
-      null,
-      null,
-      null,
-      null
+      327.85,
+      392.134,
+      583.56,
+      615.932
     ],
     "income_tax": [
-      null,
-      null,
-      null,
-      null
+      66.248,
+      80.867,
+      117.091,
+      156.39
     ],
     "net_profit": [
-      261,
-      317,
-      467,
-      461
+      261.031,
+      311.835,
+      466.607,
+      460.127
     ],
     "margins": {
       "gross_margin": [
@@ -237,10 +237,10 @@
       ]
     },
     "total_assets": [
-      1620,
-      1950,
-      2430,
-      3060
+      1661.806,
+      1988.591,
+      2465.394,
+      3101.236
     ],
     "equity": {
       "share_capital": [
@@ -327,10 +327,10 @@
       ]
     },
     "total_liabilities": [
-      815,
-      820,
-      830,
-      1000
+      815.379,
+      826.106,
+      832.462,
+      1007.014
     ],
     "net_debt": [
       -803,
@@ -380,22 +380,22 @@
       276
     ],
     "cfi": [
-      null,
-      null,
-      null,
-      null
+      -11.108,
+      -17.155,
+      123.071,
+      198.187
     ],
     "cff": [
-      null,
-      null,
-      null,
-      null
+      -0.095,
+      -2.406,
+      -7.598,
+      -21.657
     ],
     "net_change_in_cash": [
-      null,
-      null,
-      null,
-      null
+      204.48,
+      311.579,
+      442.456,
+      461.281
     ],
     "capex": [
       85,
@@ -1115,7 +1115,8 @@
     "Финансовые доходы от кубышки (ЧП>ОП во все годы) существенны: implied ~35-185 млн нарастающим; рост fincome по мере роста кэша — системный фактор, не разовый",
     "EV = cap − cash (финансового долга нет явно); liabilities 815-1000 млн трактуются как торговая кредиторка/авансы покупателей; при наличии финансового долга EV/мультипликаторы изменятся",
     "Нет брокерского покрытия — прогноз механический",
-    "P/B historical mean завышен годом 2022 (P/B=3.87) с тех пор снижается по мере роста капитала; текущий P/B 1.51 ближе к реальному"
+    "P/B historical mean завышен годом 2022 (P/B=3.87) с тех пор снижается по мере роста капитала; текущий P/B 1.51 ближе к реальному",
+    "GAP:op_bridge устранён + СИНХРОНИЗАЦИЯ С TASB (2026-07-27, report-fetcher): income_statement (revenue/cogs/gross_profit/operating_profit/da/ebitda/finance_costs/finance_income/pre_tax_profit/income_tax/net_profit), balance_sheet.total_assets/total_liabilities и cash_flow.cfi/cff/net_change_in_cash синхронизированы с TASB (тот же эмитент ПАО «Тамбовская энергосбытовая компания», источник ГИР БО ФНС, перенесён report-fetcher 2026-07-07 в TASB, но не был перенесён в TASBP). До правки TASBP хранил ЗАСТАРЕВШИЕ округлённые/неверные значения из smart-lab-агрегатора (напр. revenue [5880,6170,6500,7480] вместо точных [6959.374,7165.809,7560.131,8612.916] — расхождение до ~15%; cogs/gross_profit/pre_tax_profit/income_tax были null). Мост revenue-cogs=gross_profit точный (0% по всем 4 годам); pre_tax−income_tax≈net_profit сходится (макс. отклонение 0.22%); cfo+cfi+cff=net_change_in_cash точный (0% по всем 4 годам). margins/adjusted/returns/multiples/metrics_timeseries НЕ трогались — уже совпадали между TASB и TASBP (проверено построчной сверкой)."
   ],
   "segments": [],
   "cost_breakdown": [],
