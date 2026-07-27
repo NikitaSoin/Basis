@@ -49,6 +49,44 @@ def _recent_median(series: Any, n: int = 4) -> float | None:
     return float(median(vals[-n:]))
 
 
+# ---- ROE: единый резолвер из «бардака» полей -------------------------------
+# ROE хранится в РАЗНЫХ местах и под РАЗНЫМИ ключами (разные агенты собирали
+# по-разному) И в РАЗНЫХ единицах (проценты у одних, доли у других) — на бою это
+# давало «нет ROE» у Т-Технологий (лежит в bank_metrics.roe_rep_pct) и ROE 0.2% у
+# Яндекса (returns.roe в долях). Читаем как карточка (FinanceTab.bmA), собирая все
+# алиасы, и ПРЕДПОЧИТАЕМ нормализованный ROE (§5.2 — нормализованный, не пиковый;
+# владелец: «относительно норм. прибыли»). Единицы приводим к доле по величине.
+_ROE_NORMALIZED_KEYS = [  # (контейнер, ключ) — нормализованный/устойчивый ROE, приоритет
+    ("metrics_timeseries", "roe_adj"), ("bank_metrics", "roe_adj_pct"),
+    ("bank_metrics", "roe_adjusted"), ("bank_metrics", "roe_adj"),
+    ("returns", "roe_adjusted"), ("returns", "roe_adj"),
+]
+_ROE_REPORTED_KEYS = [  # отчётный ROE, если нормализованного нет
+    ("metrics_timeseries", "roe"), ("returns", "roe"),
+    ("bank_metrics", "roe_rep_pct"), ("bank_metrics", "roe_reported_pct"),
+    ("bank_metrics", "roe_pct"), ("bank_metrics", "roe_reported"), ("bank_metrics", "roe"),
+]
+
+
+def _roe_to_fraction(v):
+    """Единицы ROE к доле: |v|<1.5 ⇒ уже доля (0.25); иначе проценты (25.0/100).
+    Порог 1.5 надёжно разделяет (ROE-доля >150% и ROE-процент <1.5% не встречаются)."""
+    return None if v is None else (v if abs(v) < 1.5 else v / 100.0)
+
+
+def _resolve_roe(fin: dict) -> tuple[float | None, str | None]:
+    """Нормализованная медиана ROE (доля) + метка источника. Сначала все
+    нормализованные ключи, затем отчётные; медиана последних 5, приведённая к доле."""
+    for container, key in _ROE_NORMALIZED_KEYS + _ROE_REPORTED_KEYS:
+        series = (fin.get(container, {}) or {}).get(key)
+        m = _recent_median(series, n=5)
+        if m is not None:
+            frac = _roe_to_fraction(m)
+            if frac is not None and frac > 0:  # отрицательную медиану ROE не берём как база
+                return frac, f"{container}.{key}"
+    return None, None
+
+
 # ---- секторные пресеты (§5.2 полураспад спреда) -----------------------------
 # φ = 0.5**(1/полураспад). Ключ — по подстроке в meta.sector/profile (RU/EN).
 _SECTOR_PHI = [
@@ -192,23 +230,21 @@ def compile_params(fin: dict, gov: dict, inst: dict, barometer: dict,
                              "(частая причина — отрицательный капитал)"]}
 
     # --- roe0 (нормализованный) ---
-    # ЛОВУШКА ЕДИНИЦ (на бою: Яндекс отсеян с ROE 0.2%): returns.roe у разных компаний
-    # то в ПРОЦЕНТАХ (Сбер 22.76), то в ДОЛЯХ (Яндекс 0.206=20.6%) — один и тот же
-    # ряд, разный масштаб. Нормируем по величине: |медиана|<1.5 ⇒ уже доля, иначе
-    # проценты /100. (ROE-доля >150% и ROE-процент <1.5% — оба практически не
-    # встречаются, порог 1.5 разделяет надёжно.) 30 компаний были ошибочно
-    # «неприменимо» из-за этого.
-    def _roe_frac(v):
-        return None if v is None else (v if abs(v) < 1.5 else v / 100.0)
-    roe0 = _roe_frac(_recent_median(fin.get("returns", {}).get("roe"), n=5))
-    if roe0 is None:
-        roe0 = _roe_frac(_last_valid((fin.get("bank_metrics", {}) or {}).get("roe")))
+    roe0, roe_src = _resolve_roe(fin)
     if roe0 is None:
         g = fin.get("forecast", {}).get("roe_2026_guidance_pct")  # имя _pct ⇒ всегда проценты
-        roe0 = (float(g) / 100.0) if isinstance(g, (int, float)) else None
+        if isinstance(g, (int, float)):
+            roe0, roe_src = g / 100.0, "forecast.roe_2026_guidance_pct"
     if roe0 is None:
         return {"params": None, "scenarios": None, "base_meta": None,
                 "warnings": ["нет данных по ROE — BFV не считается"]}
+    # Потолок стартового ROE (§5.2: «стартовый ROE берётся нормализованный, а не
+    # пиковый»). У части компаний нормализованного roe_adj в данных нет → берётся
+    # отчётный ПИКОВЫЙ (на бою: PLZL 127%, HHRU 111%, ASTR 100% — золото/asset-light
+    # на пике), что завышает потоки. Сустейнбл-ROE >45% в РФ на многолетнем горизонте
+    # неправдоподобен — кап нормализует старт, не трогая обычные 10-40%.
+    roe_capped = roe0 > 0.45
+    roe0 = min(roe0, 0.45)
     g_terminal = 0.035
     # §5.1 канон g = b·ROE ⇒ должно быть g_terminal ≤ ROE_terminal ≤ ROE0. Если ROE0
     # ниже/у терминального роста — устойчивого состояния нет (payout вышел бы < 0),
@@ -311,7 +347,8 @@ def compile_params(fin: dict, gov: dict, inst: dict, barometer: dict,
                                                prob=man.get("prob", sc.prob))
 
     base_meta = {
-        "bv0": round(bv0, 4), "roe0": round(roe0, 4), "roe_terminal": round(roe_terminal, 4),
+        "bv0": round(bv0, 4), "roe0": round(roe0, 4), "roe_src": roe_src,
+        "roe_terminal": round(roe_terminal, 4),
         "phi": phi, "payout0": round(payout0, 4), "willingness": willingness,
         "payment_fraction": payment_fraction, "h_expropriation": h_exprop,
         "h_distress": round(h_distress, 4), "is_bank": is_bank,
