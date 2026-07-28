@@ -58,7 +58,7 @@ import json
 import logging
 import re
 import time
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 import httpx
 from sqlalchemy import text
@@ -76,6 +76,20 @@ logger = logging.getLogger(__name__)
 
 _SKRIN_BASE = "https://disclosure.skrin.ru"
 _WINDOW_DAYS = 5   # окно вокруг event_date, где ищем текст (публикация может отставать)
+# 🔴 Найдено на бою 2026-07-28 (жалоба владельца: «отчёт POSI вышел, а разбора нет»):
+# calendar_event существовал, событие обработалось В ДЕНЬ публикации, но суточный крон
+# report_watch (20:45 МСК) проверил Ленту НОВОСТЕЙ ДО того, как там появилась статья
+# про сам отчёт (та вышла через несколько часов) — источник не нашёлся, легла запись
+# needs_source, а докстринг этого модуля («повторно не трогаем, ручной ре-триггер —
+# случай редкий») не даёт ей шанса на самоисцеление на следующих суточных прогонах.
+# Для крупных/заметных эмитентов такая гонка НЕ редкость — новость может выйти в
+# любое время суток, а прогон один раз в день. Фикс: на КАЖДОМ следующем суточном
+# прогоне, пока needs_source-запись моложе этого окна, пробуем источник ЗАНОВО (см.
+# _stale_needs_source) — если источник нашёлся, старая запись удаляется и создаётся
+# новая обработанная взамен. Старше окна — не трогаем: даём странице «отчёт не вышел»
+# (corporate_news.py, _MISSING_GRACE_DAYS=7) честно сработать, не устраиваем вечный
+# опрос по-настоящему не вышедших отчётов.
+_RETRY_WINDOW_DAYS = 5
 # 🔴 Найдено на бою 2026-07-12: тикер-тег (affected_tickers) СЛИШКОМ широкий фильтр —
 # крупный банк вроде SBER попадает почти в любую новость про банковское регулирование
 # (реформа банкротства, комиссии СБП и т.п.), а не только про свой отчёт. Без фильтра
@@ -649,12 +663,29 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
     return "created"
 
 
+def _stale_needs_source(existing: EarningsReport) -> bool:
+    """True — существующая needs_source-запись ещё в окне ретрая (см.
+    _RETRY_WINDOW_DAYS), стоит удалить и попробовать источник заново. Записи
+    ЛЮБОГО другого статуса (processed/extract_failed) — не трогаем, они не
+    ждут повторной попытки."""
+    if existing.status != "needs_source":
+        return False
+    age = datetime.now(timezone.utc) - existing.created_at
+    return age <= timedelta(days=_RETRY_WINDOW_DAYS)
+
+
 def process_event(db: Session, event: CalendarEvent, company: Company, market_cap: float | None,
                   inn_map: dict[str, list[str]]) -> str:
     """Обработать одно календарное earnings-событие (MOEX ir-calendar-путь, ~76
-    тикеров). Идемпотентно — дедуп по calendar_event_id."""
-    if db.query(EarningsReport).filter_by(calendar_event_id=event.id).first():
-        return "exists"
+    тикеров). Идемпотентно — дедуп по calendar_event_id, кроме свежих
+    needs_source (см. _stale_needs_source) — им даём повторную попытку найти
+    источник на следующем суточном прогоне."""
+    existing = db.query(EarningsReport).filter_by(calendar_event_id=event.id).first()
+    if existing:
+        if not _stale_needs_source(existing):
+            return "exists"
+        db.delete(existing)
+        db.commit()
     inn = next((i for i, tickers in inn_map.items() if event.ticker in tickers), None)
     src = _source_text(db, event, inn)
     standard = event.status  # уже нормализовано build_ir_calendar/_classify_report_kind
