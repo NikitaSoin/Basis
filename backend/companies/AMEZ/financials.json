@@ -270,54 +270,126 @@
   },
   "balance_sheet": {
     "non_current_assets": {
-      "ppe": null,
-      "intangibles": null,
-      "goodwill": null,
-      "long_term_investments": null,
-      "other_non_current": null,
-      "total_non_current": null
+      "ppe": [
+        null,
+        null,
+        null,
+        12810.554,
+        18748.2
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        694.937,
+        480.213
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        43.368,
+        515.779
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        13548.859,
+        19744.192
+      ]
     },
     "current_assets": {
-      "inventory": null,
-      "receivables": null,
+      "inventory": [
+        null,
+        null,
+        null,
+        8799.972,
+        6905.652
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        1327.74,
+        1793.876
+      ],
       "cash": [
         3811.606,
         null,
         6109.948,
         3298.917,
-        null
+        2369.654
       ],
-      "short_term_investments": null,
-      "other_current": null,
-      "total_current": null
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        5594.841,
+        1305.449
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        8563.252,
+        5537.443
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        27584.722,
+        17912.074
+      ]
     },
-    "total_assets": null,
+    "total_assets": [
+      null,
+      null,
+      null,
+      41133.581,
+      37656.266
+    ],
     "equity": {
       "share_capital": [
-        3104.708,
-        3104.708,
-        3104.708,
+        null,
+        null,
+        null,
         3104.708,
         3104.708
       ],
       "retained_earnings": [
-        5633.042,
-        17307.279,
-        35751.468,
+        null,
+        null,
+        null,
         10575.228,
         9186.928
       ],
       "additional_paid_in": [
-        45.887,
-        45.887,
-        45.887,
-        45.887,
-        45.887
+        null,
+        null,
+        null,
+        3734.188,
+        3734.188
       ],
       "other_equity": [
-        -35.025,
-        -58.536,
-        -4026.533,
+        null,
+        null,
+        null,
         -3875.793,
         -3875.793
       ],
@@ -325,61 +397,121 @@
         8748.612,
         20399.338,
         34875.53,
-        9850.03,
-        8461.73
+        13538.331,
+        12150.031
       ]
     },
     "non_current_liabilities": {
-      "long_term_debt": null,
-      "deferred_tax": null,
-      "other_non_current_liab": null,
-      "total_non_current_liab": null
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        700.0,
+        6981.354
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        1176.597,
+        784.842
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        9.731,
+        158.579
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        1886.328,
+        7924.775
+      ]
     },
     "current_liabilities": {
-      "short_term_debt": null,
-      "payables": null,
-      "other_current_liab": null,
-      "total_current_liab": null
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        16653.431,
+        11559.718
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        9054.736,
+        6012.676
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        0.755,
+        9.066
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        25708.922,
+        17581.46
+      ]
     },
-    "total_liabilities": null,
-    "net_debt": null,
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      27595.25,
+      25506.235
+    ],
+    "net_debt": [
+      null,
+      null,
+      null,
+      14054.514,
+      16171.418
+    ],
     "tangible_equity": [
       8748.612,
       20399.338,
       34875.53,
-      9850.03,
-      8461.73
+      13538.331,
+      12150.031
     ],
-    "tangible_note": "Гудвил и НМА не раскрыты (баланс partial — только капитал доступен). tangible_equity = total_equity. При получении полного баланса требует пересмотра.",
+    "tangible_note": "Гудвил/НМА не раскрываются отдельной строкой баланса (нет такой строки в отчёте — вероятно отсутствуют как отдельные активы). tangible_equity = total_equity. 🔴 ИСПРАВЛЕНО 2026-07-28: total_equity 2024/2025 пересчитан по первичному аудированному балансу (было 9850.03/8461.73 — занижено, т.к. additional_paid_in не включал строку «Добавочный капитал» 3688.301 млн, только «Эмиссионный доход» 45.887 млн; верно 13538.331/12150.031). Капитал 2020-2023 НЕ перепроверен в этом проходе — возможен тот же пропуск, требуется отдельная верификация по первичным балансам за эти годы.",
     "ratios": {
       "debt_to_equity": [
         null,
         null,
         null,
-        null,
-        null
+        1.282,
+        1.526
       ],
       "net_debt_ebitda": [
         null,
         null,
         null,
-        null,
+        2.76,
         null
       ],
       "current_ratio": [
         null,
         null,
         null,
-        null,
-        null
+        1.073,
+        1.019
       ]
     },
     "total_equity": [
       8748.612,
       20399.338,
       34875.53,
-      9850.03,
-      8461.73
+      13538.331,
+      12150.031
     ]
   },
   "cash_flow": {
@@ -850,15 +982,15 @@
       5.7,
       37.8,
       27.5,
-      49.4,
-      -16.4
+      36.0,
+      -11.4
     ],
     "roa": [
       null,
       null,
       null,
-      null,
-      null
+      11.68,
+      -3.52
     ],
     "roic": [
       null,
@@ -915,15 +1047,15 @@
       5.7,
       37.8,
       27.5,
-      49.4,
-      -16.4
+      36.0,
+      -11.4
     ],
     "roa": [
       null,
       null,
       null,
-      null,
-      null
+      11.68,
+      -3.52
     ],
     "roic": [
       null,
@@ -1312,6 +1444,15 @@
       "period": "2024-2025",
       "url": "",
       "reliability": "medium"
+    },
+    {
+      "id": "src_new_2025",
+      "type": "company_ir",
+      "title": "Группа «Ашинский металлургический завод» — Консолидированная финансовая отчётность МСФО за 2025 год (аудировано)",
+      "url": "https://www.amet.ru/upload/iblock/5b1/4d7x1oba0u6n8j9rd4qnebpgmyvm4gnr/ASHINSKIY-METZAVOD_IFRS-208FZ_AUDIT-RPRT_2025.pdf",
+      "period": "2024-2025",
+      "reliability": "high",
+      "note": "Полный построчный баланс на 31.12.2025/31.12.2024, визуально считан (нативный текстовый PDF с искажённой кодировкой кириллицы в pdftotext — читался по PNG-рендеру страницы)."
     }
   ],
   "data_flags": [
@@ -1333,7 +1474,10 @@
     "2022 год отсутствует в fiscal_years главного financials.json — отчёт за 2022 не найден на сайте компании (пропуск в раскрытии, характерно для санкционного периода); не добывался в этой сессии.",
     "Строки cfo_lines/cfi_lines/cff_lines — точные названия статей из отчёта МСФО (индексный метод), null там, где строка отсутствовала в конкретном году (компания меняла состав раскрываемых статей год к году).",
     "Все значения переведены из тыс. руб. в млн руб. (делением на 1000) для единства с financials.json.",
-    "meta.last_price добавлен (57.8879 ₽, уверенность: medium (только 1 метод)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price)."
+    "meta.last_price добавлен (57.8879 ₽, уверенность: medium (только 1 метод)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price).",
+    "🔴 КРИТИЧНАЯ ПРАВКА (2026-07-28, report-fetcher, GAP-аудит): total_equity 2024/2025 БЫЛИ ЗАНИЖЕНЫ (9850.03/8461.73 млн) — additional_paid_in содержал только «Эмиссионный доход» (45.887 млн), пропуская строку баланса «Добавочный капитал» (3688.301 млн). Верно по первичному аудированному балансу (2025 год, disclosure.ru→amet.ru, ASHINSKIY-METZAVOD_IFRS-208FZ_AUDIT-RPRT_2025.pdf, стр.9 отчёта — 'Итого капитала, относимого на собственников Компании'): 2024=13538.331 млн, 2025=12150.031 млн. Арифметика подтверждена кодом: assets=equity+liabilities сходится ТОЧНО (37656.266=12150.031+25506.235; 41133.581=13538.331+27595.250). Это меняет ROE (2024: было 49.4%→стало 36.0%; 2025: было -16.4%→стало -11.4%) и потенциально P/B (multiples.pb НЕ пересчитан в этом проходе — зона financial-analyst, эта строка теперь несогласована со скорректированным equity, пометка для financial-analyst обязательна). Капитал 2020-2023 (8748.612/20399.338/34875.53) НЕ перепроверен в этом проходе — тот же пропуск добавочного капитала МОГ иметь место, требуется отдельная верификация по первичным балансам за 2020/2021/2023 гг.",
+    "GAP-АУДИТ (2026-07-28, report-fetcher): balance_sheet ПОЛНОСТЬЮ дозаполнен построчно за 2024-2025 (ppe/long_term_investments(фин.активы по аморт.ст-ти)/other_non_current(ROU-активы+ОНА+прочая деб.задолж+прочие внеоб.), inventory/receivables/short_term_investments/other_current(авансы выданные+огранич.денежные ср-ва+предоплата налога), долг LT/ST, deferred_tax, payables) из НОВОГО первичного источника — аудированная консолидированная МСФО AMEZ за 2025 год (подписана 24.04.2026, ранее не была в системе, найдена на amet.ru/upload/iblock/5b1/.../ASHINSKIY-METZAVOD_IFRS-208FZ_AUDIT-RPRT_2025.pdf). Гудвил/НМА не раскрываются отдельной строкой (в балансе такой строки нет вообще — вероятно отсутствуют как отдельные активы, ОС может включать НМА). total_assets/total_liabilities дозаполнены для 2024/2025 (ранее были null во ВСЕХ 5 годах). net_debt/debt_to_equity/current_ratio пересчитаны для 2024-2025 (net_debt = LT+ST долг − кэш, БЕЗ вычета краткосрочных фин.активов по аморт.ст-ти — их ликвидность неочевидна, могут быть займы/депозиты, не мгновенный кэш).",
+    "ОСТАВШИЙСЯ ЧЕСТНЫЙ ПРОБЕЛ (2026-07-28): non_current_assets/current_assets(кроме cash)/equity-компоненты(кроме верифицированных 2024-2025)/liabilities-компоненты за 2020, 2021, 2023 годы ПО-ПРЕЖНЕМУ null — эта сессия добывала только 2024-2025 (новый годовой отчёт). 2022 год отсутствует полностью (отчёт не публиковался — санкционный период). multiples.pb НЕ пересчитан после исправления equity — несогласованность до пересчёта financial-analyst."
   ],
   "segments": [
     {

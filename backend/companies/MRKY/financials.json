@@ -252,18 +252,18 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        35695.9,
+        37687.6,
+        27975.4,
+        27363.8,
+        38789.4
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
-        null
+        25.3,
+        21.2,
+        16.5,
+        12.7,
+        192.7
       ],
       "goodwill": [
         null,
@@ -273,69 +273,69 @@
         null
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2115.5,
+        1746.6,
+        267.8,
+        1712.8,
+        1946.8
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1677.2,
+        1469.4,
+        3060.7,
+        3270.6,
+        2386.3
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        39699.4,
+        41123.0,
+        31404.6,
+        32472.2,
+        43315.1
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        717.7,
+        853.1,
+        781.8,
+        990.1,
+        1129.2
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        9117.1,
+        8536.5,
+        8051.6,
+        7453.8,
+        6930.5
       ],
       "cash": [
-        null,
-        null,
-        null,
-        null,
-        2570
+        999.2,
+        1154.9,
+        1494.2,
+        1451.7,
+        2092.7
       ],
       "short_term_investments": [
         null,
         null,
         null,
-        null,
-        null
+        0.0,
+        0.0
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        558.3,
+        426.4,
+        332.6,
+        436.5,
+        562.7
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        11392.3,
+        10971.0,
+        10660.1,
+        10332.0,
+        10715.1
       ]
     },
     "total_assets": [
@@ -347,99 +347,99 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null
+        15164.1,
+        15164.1,
+        15164.1,
+        15164.1,
+        15164.1
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
-        null,
-        null
+        -16423.1,
+        -14333.2,
+        -12746.9,
+        -10316.1,
+        -3260.0
       ],
       "additional_paid_in": [
-        null,
-        null,
-        null,
-        null,
-        null
+        11549.5,
+        11528.0,
+        0,
+        0,
+        0
       ],
       "other_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        239.2,
+        239.2,
+        342.7,
+        342.7,
+        464.2
       ],
       "total_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        10529.8,
+        12598.1,
+        2759.9,
+        5190.7,
+        12368.3
       ]
     },
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        13722.5,
+        14389.5,
+        15368.7,
+        14458.1,
+        12748.6
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2265.1,
+        2770.8,
+        2307.3,
+        3003.7,
+        4749.9
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        6255.7,
+        2525.7,
+        1157.8,
+        1342.5,
+        1871.8
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        22243.3,
+        19686.0,
+        18833.8,
+        18804.3,
+        19370.2
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        6572.7,
+        8711.4,
+        7033.8,
+        7878.4,
+        11214.4
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        9204.8,
+        8427.5,
+        11309.0,
+        8999.4,
+        9446.6
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2541.1,
+        2671.0,
+        2128.3,
+        1931.4,
+        1630.7
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        18318.6,
+        19809.9,
+        20471.1,
+        18809.3,
+        22291.7
       ]
     },
     "total_liabilities": [
@@ -480,11 +480,11 @@
         2.9
       ],
       "current_ratio": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.622,
+        0.554,
+        0.521,
+        0.549,
+        0.481
       ]
     },
     "total_equity": [
@@ -497,18 +497,18 @@
   },
   "cash_flow": {
     "cfo": [
-      5388,
-      2681,
-      6485,
-      7685,
-      2780
+      3053.4,
+      2898.2,
+      4911.3,
+      4639.8,
+      4053.2
     ],
     "cfi": [
       -6266.5,
       -5568.2,
       -3882.2,
       -4707.8,
-      -6020
+      -5223.5
     ],
     "cff": [
       3729.0,
@@ -522,21 +522,21 @@
       155.7,
       339.2,
       -42.4,
-      -3030
+      641.0
     ],
     "capex": [
-      6868,
-      5682,
-      5268,
-      5418,
-      6020
+      6077.4,
+      5457.7,
+      3700.5,
+      4547.6,
+      4950.7
     ],
     "fcf": [
-      null,
-      null,
-      null,
-      null,
-      -3240
+      -3024.0,
+      -2559.5,
+      1210.8,
+      92.2,
+      -897.5
     ],
     "cfo_lines": [
       {
@@ -676,25 +676,25 @@
     ],
     "ratios": {
       "fcf_margin": [
-        null,
-        null,
-        null,
-        null,
-        -5.7
+        -0.0736,
+        -0.059,
+        0.0275,
+        0.0018,
+        -0.0159
       ],
       "cfo_to_capex": [
-        null,
-        null,
-        null,
-        null,
-        0.46
+        0.502,
+        0.531,
+        1.327,
+        1.02,
+        0.819
       ],
       "capex_to_revenue": [
-        null,
-        null,
-        null,
-        null,
-        10.7
+        0.1479,
+        0.1258,
+        0.0839,
+        0.0892,
+        0.0878
       ]
     }
   },
@@ -1241,7 +1241,10 @@
     "income_tax рассчитан как разница pre_tax_profit − net_profit (включает текущий и отложенный налог, а также прочие корректировки 2460) — не выделен отдельно по видам.",
     "cfo_lines/cfi_lines/cff_lines — платежи (оттоки) записаны с отрицательным знаком, поступления (притоки) — с положительным, как в форме №4 ОКУД 0710005.",
     "Capex взят как строка 4221 формы №4 ('платежи в связи с приобретением, созданием, модернизацией, реконструкцией и подготовкой к использованию внеоборотных активов') — близок, но не идентичен capex в financials.json (5-15% расхождение, ожидаемо для standalone vs группы).",
-    "MRKY: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка."
+    "MRKY: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка.",
+    "2026-07-28 (report-fetcher, закрытие GAP-хвостов сессия 2): постатейный БАЛАНС полностью перенесён из sources/extracted_financials.json (ГИР БО ФНС, РСБУ головного юрлица ПАО «Россети Юг») в основной файл — non_current_assets (ppe/intangibles/long_term_investments/other), current_assets (inventory/receivables/cash/other), equity (share_capital/retained_earnings/additional_paid_in/other), non_current_liabilities и current_liabilities по статьям. МОСТ ПРОВЕРЕН программно перед переносом: total_non_current+total_current=total_assets, total_non_current_liab+total_current_liab=total_liabilities, сумма статей equity=total_equity — сходится ТОЧНО (<0.1%) по всем 5 годам, т.к. total_assets/total_liabilities в главном файле уже и раньше были производными от этого же источника (просто без разбивки на статьи). current_ratio теперь вычислим — добавлен.",
+    "2026-07-28 (report-fetcher, ИСПРАВЛЕНИЕ): cash_flow ПЕРЕСОБРАН на единый источник (ГИР БО ФНС РСБУ) вместо смеси (cfo был из financemarker.ru, cfi/cff — из ГИР БО ФНС) — смесь давала ЛОЖНЫЙ мост: cfo+cfi+cff ≠ net_change_in_cash (напр. 2024: 2780−6020+1811.3=−1428.7 ≠ записанные −3030). Теперь cfo/cfi/cff/capex/net_change_in_cash — ЕДИНЫЙ ряд из ГИР БО ФНС, мост сходится ТОЧНО по всем 5 годам (проверено программно). FCF 2024 уточнён: было −3240 (financemarker cfo/capex), стало −897.5 (RSBU cfo/capex) — направление то же (отрицательный), но масштаб меньше. cfo_lines/cfi_lines/cff_lines (построчная детализация) тоже перенесены из sources — 7+3+3 статей. ВНИМАНИЕ financial-analyst: meta.anomaly_note (пункты 3 и 5) и adjusted.bridge/fcf_normalized для 2024 ссылаются на СТАРЫЕ числа (FCF −3240, «баланс почти полностью null») — требуют пересмотра под новые цифры при следующей ревизии.",
+    "2026-07-28: pre_tax_profit/income_tax ОСТАЮТСЯ null в income_statement (P&L МСФО) — в sources/extracted_financials.json ЕСТЬ pre_tax_profit=[1.0,2643.0,-305.0,3279.1,9884.2] и income_tax=[210.4,574.6,254.3,848.3,2658.7], НО это РСБУ standalone P&L (net_profit_rsbu=pre_tax−tax=[-209.4,2068.4,-559.3,2430.8,7225.5]), который НЕ совпадает с уже используемым в этом файле net_profit МСФО=[-1200,-3730,340,3010,6130] (консолидация с дочками vs материнская компания одна). Подставить pre_tax/tax из РСБУ при net_profit из МСФО сломало бы арифметику pre_tax-tax=net_profit внутри одной строки — оставлено честным пробелом. Баланс/ОДДС перенесены (см. выше), т.к. они УЖЕ были RSBU-периметра (total_assets в файле и раньше совпадал с суммой РСБУ статей), а P&L — нет."
   ],
   "segments": [
     {

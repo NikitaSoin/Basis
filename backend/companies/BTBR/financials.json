@@ -17,13 +17,13 @@
     "last_price": 129.8432,
     "price_date": null,
     "shares_outstanding": 178770100,
-    "data_quality": "medium",
+    "data_quality": "high",
     "anomaly_flag": true,
-    "anomaly_note": "CFO 2023 = 4786 млн при ЧП = 2360 млн (CFO/ЧП = 2x) — вероятно специфика движения клиентских средств (обеспечение заявок); детализация ОДДС отсутствует. Баланс не распарсился полностью. IPO апрель 2026 — история только 3 года.",
+    "anomaly_note": "CFO 2023 = 4786 млн при ЧП = 2360 млн (CFO/ЧП = 2x) — вероятно специфика движения клиентских средств (обеспечение заявок); детализация ОДДС по годам это подтверждает (крупная строка 'Увеличение средств клиентов' +2051 млн в 2023). IPO апрель 2026 — история только 3 года. Баланс теперь распарсен полностью (2026-07-28): активы/капитал/обязательства по статьям сходятся арифметически.",
     "adjustments_aggressive": false
   },
   "income_statement": {
-    "cost_format": "by_function",
+    "cost_format": "by_nature",
     "revenue": [
       6044,
       7172,
@@ -41,11 +41,123 @@
     ],
     "expense_lines": [
       {
-        "name": "Operating expenses (all — детализация не раскрыта)",
+        "name": "Расходы на вознаграждение работникам",
         "values": [
-          null,
+          -2146,
+          -2572,
+          -3201
+        ]
+      },
+      {
+        "name": "Сопровождение программного обеспечения",
+        "values": [
+          -570,
+          -657,
+          -672
+        ]
+      },
+      {
+        "name": "Амортизация нематериальных активов, активов в форме права пользования и основных средств",
+        "values": [
+          -420,
+          -373,
+          -383
+        ]
+      },
+      {
+        "name": "Расходы на агентские услуги",
+        "values": [
+          -291,
+          -358,
+          -370
+        ]
+      },
+      {
+        "name": "Восстановление/(начисление) резерва по ожидаемым кредитным убыткам",
+        "values": [
+          3,
+          -70,
+          148
+        ]
+      },
+      {
+        "name": "Доходы/(расходы) от изменения справедливой стоимости облигаций, оцениваемых по справедливой стоимости через прибыль или убыток",
+        "values": [
+          20,
+          12,
+          46
+        ]
+      },
+      {
+        "name": "Процентные доходы по эффективной процентной ставке",
+        "values": [
+          542,
+          1302,
+          993
+        ]
+      },
+      {
+        "name": "Прочие процентные доходы",
+        "values": [
+          34,
+          56,
+          389
+        ]
+      },
+      {
+        "name": "Процентные расходы",
+        "values": [
+          -25,
+          -24,
+          -49
+        ]
+      },
+      {
+        "name": "Прибыль от выбытия дочерних компаний",
+        "values": [
+          5,
           null,
           null
+        ]
+      },
+      {
+        "name": "Доля в прибыли совместного предприятия",
+        "values": [
+          8,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Убыток от обесценения инвестиции в совместное предприятие",
+        "values": [
+          null,
+          -38,
+          null
+        ]
+      },
+      {
+        "name": "Чистая прибыль от курсовых разниц",
+        "values": [
+          6,
+          14,
+          3
+        ]
+      },
+      {
+        "name": "Прочие операционные доходы",
+        "values": [
+          100,
+          153,
+          224
+        ]
+      },
+      {
+        "name": "Прочие операционные расходы",
+        "values": [
+          -429,
+          -423,
+          -506
         ]
       }
     ],
@@ -55,9 +167,9 @@
       null
     ],
     "da": [
-      null,
-      null,
-      null
+      -420,
+      -373,
+      -383
     ],
     "ebitda": [
       3373,
@@ -65,24 +177,24 @@
       4900
     ],
     "finance_costs": [
-      null,
-      null,
-      null
+      -25,
+      -24,
+      -49
     ],
     "finance_income": [
-      null,
-      1302,
-      null
+      576,
+      1358,
+      1382
     ],
     "pre_tax_profit": [
-      null,
-      null,
-      null
+      2881,
+      4195,
+      4571
     ],
     "income_tax": [
-      null,
-      null,
-      null
+      -521,
+      -685,
+      -862
     ],
     "net_profit": [
       2360,
@@ -163,41 +275,42 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null
+        72,
+        179,
+        180
       ],
       "intangibles": [
-        null,
-        null,
-        null
+        1030,
+        799,
+        589
       ],
       "goodwill": [
-        null,
-        null,
-        null
+        2626,
+        2626,
+        2626
       ],
       "long_term_investments": [
-        null,
+        38,
         null,
         null
       ],
       "other_non_current": [
-        null,
-        null,
-        null
+        210,
+        254,
+        312
       ],
+      "other_non_current_note": "включает активы в форме права пользования (192/254/291) + прочие внеоборотные (17/0/0) + ОНА (0/0/21)",
       "total_non_current": [
-        null,
-        null,
-        null
+        3975,
+        3858,
+        3707
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null
+        4,
+        6,
+        11
       ],
       "receivables": [
         null,
@@ -205,24 +318,26 @@
         null
       ],
       "cash": [
-        null,
+        7521,
         5557,
         1932
       ],
       "short_term_investments": [
-        null,
-        null,
-        null
+        510,
+        1290,
+        5486
       ],
+      "short_term_investments_note": "фин.активы FVTPL + FVOCI: 510/(1065+225)/(5261+225)",
       "other_current": [
-        null,
-        null,
-        null
+        386,
+        136,
+        171
       ],
+      "other_current_note": "займы выданные + налог к возмещению + прочие фин.активы + прочие нефин.активы",
       "total_current": [
-        null,
-        null,
-        null
+        8483,
+        6993,
+        7601
       ]
     },
     "total_assets": [
@@ -232,29 +347,29 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null
+        0,
+        0,
+        2
       ],
       "retained_earnings": [
-        null,
-        null,
-        null
+        3461,
+        3368,
+        3691
       ],
       "additional_paid_in": [
         null,
         null,
-        null
+        6
       ],
       "other_equity": [
-        null,
-        null,
-        null
+        -7,
+        -12,
+        -19
       ],
       "total_equity": [
-        null,
-        null,
-        null
+        3454,
+        3355,
+        3681
       ]
     },
     "non_current_liabilities": {
@@ -264,19 +379,19 @@
         null
       ],
       "deferred_tax": [
-        null,
-        null,
+        26,
+        30,
         null
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null
+        93,
+        171,
+        234
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null
+        119,
+        201,
+        234
       ]
     },
     "current_liabilities": {
@@ -291,14 +406,14 @@
         null
       ],
       "other_current_liab": [
-        null,
-        null,
-        null
+        8886,
+        7295,
+        7393
       ],
       "total_current_liab": [
-        null,
-        null,
-        null
+        8886,
+        7295,
+        7393
       ]
     },
     "total_liabilities": [
@@ -312,11 +427,11 @@
       null
     ],
     "tangible_equity": [
-      null,
-      null,
-      null
+      -202,
+      -70,
+      466
     ],
-    "tangible_note": "Баланс не распарсился полностью — total_equity и все статьи null. Для P/B данных нет — метод not_applicable (asset-light + нет данных). Чистая денежная позиция из IPO-проспекта: 237/568/1036 млн по годам.",
+    "tangible_note": "Баланс теперь полностью распарсен (source: IPO-проспект, обобщённая консолидированная МСФО, сканы таблиц, визуально считаны). Tangible equity = total_equity - goodwill (2626 млн, франшиза РТС-тендер) - intangibles (ПО/лицензии). Net_debt: компания не раскрывает финансовый долг отдельной строкой в балансе (LT/ST debt = null) — 'Прочие финансовые обязательства' содержат преимущественно средства клиентов на счетах платформы, не заёмный капитал; чистая денежная позиция по IPO-проспекту (237/568/1036 млн) остаётся лучшей оценкой чистого долга.",
     "ratios": {
       "debt_to_equity": [
         null,
@@ -335,7 +450,7 @@
       ]
     },
     "total_equity": [
-      3453,
+      3454,
       3355,
       3681
     ]
@@ -1132,7 +1247,9 @@
     "Источник — проспект ценных бумаг (не годовой отчет с сайта), но содержит полные аудированные обобщенные консолидированные МСФО-отчетности с подписью финдиректора и заключением аудитора Б1-Аудит за каждый год — качество высокое.",
     "Таблицы отчетности в PDF встроены как отсканированные изображения (не текстовый слой) — извлечены визуальным чтением через pdftoppm, не OCR-программой; проверены построчно вручную.",
     "BTBR: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка.",
-    "meta.last_price добавлен (129.8432 ₽, уверенность: medium (только 1 метод)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price)."
+    "meta.last_price добавлен (129.8432 ₽, уверенность: medium (только 1 метод)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price).",
+    "GAP-АУДИТ (2026-07-28, report-fetcher): баланс дозаполнен ПОЛНОСТЬЮ из уже существующего sources/extracted_financials.json (IPO-проспект, обобщённая консолидированная МСФО 2023-2025, визуально считанные сканы таблиц, ранее не был влит в главный financials.json). Заполнены: non_current_assets (ppe/intangibles/goodwill 2626 млн/long_term_investments/other_non_current), current_assets (inventory/receivables=null(не раскрыта отдельно, см. ниже)/cash/short_term_investments/other_current), equity (share_capital/retained_earnings/additional_paid_in/other_equity=НКД), non_current_liabilities.deferred_tax/other_non_current_liab, current_liabilities.other_current_liab. Арифметика проверена кодом: non_current+current=total_assets (все 3 года, ±1 млн округление), non_current_liab+current_liab=total_liabilities (все 3 года), equity components≈total_equity (±1 млн). income_statement: cost_format исправлен на by_nature (соответствует факту: cogs/gross_profit не раскрываются, все статьи в expense_lines), дозаполнены da/finance_costs/finance_income/pre_tax_profit/income_tax из того же источника, expense_lines заменены на полную построчную разбивку (15 статей) вместо агрегата-заглушки.",
+    "ОСТАВШИЙСЯ ЧЕСТНЫЙ ПРОБЕЛ (2026-07-28): receivables и payables НЕ раскрыты отдельными строками баланса (входят в 'Прочие финансовые/нефинансовые активы/обязательства' — детализация есть в примечаниях 13,19 проспекта, но не извлечена построчно). long_term_debt/short_term_debt = null: компания не показывает финансовый долг отдельной строкой — 'Прочие финансовые обязательства' преимущественно средства клиентов на счетах ЭТП, не заёмный капитал; используйте чистую денежную позицию из IPO-проспекта (237/568/1036 млн за 2023-2025) как показатель долговой нагрузки. returns/multiples/roe/roa/pb в этом файле НЕ пересчитаны (задача report-fetcher — постатейные данные; пересчёт мультипликаторов и valuation — зона financial-analyst)."
   ],
   "segments": [
     {

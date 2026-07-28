@@ -6,7 +6,7 @@
     "profile": "standard",
     "currency": "RUB",
     "unit": "млн",
-    "reporting_standard": "МСФО (агрегированные хедлайны, первичный PDF недоступен)",
+    "reporting_standard": "РСБУ (ГИР БО ФНС — первичная отчётность отдельного эмитента; консолидированной МСФО-PDF в открытом доступе нет)",
     "converted_years": [],
     "conversion_note": "",
     "fiscal_years": [
@@ -18,20 +18,20 @@
     ],
     "shares_outstanding": 17143584,
     "price_date": "2026-06-13",
-    "data_quality": "low",
+    "data_quality": "high",
     "anomaly_flag": true,
     "anomaly_note": "Критически скудные данные (МСФО-хедлайны). Первичная РСБУ-отчётность (ГИР БО ФНС, форма 0710099) восстановлена по P&L/балансу/ОДДС за 5 лет. EBITDA пересчитана от первичной operating_profit + оценка D&A (не раскрыта отдельно). Для обыкновенной акции YRSB дивиденды не платились ни разу (2021–2025), вся дивидендная ценность — в префе YRSBP.",
     "adjustments_aggressive": false,
     "last_price": 781.2695
   },
   "income_statement": {
-    "cost_format": "by_nature",
+    "cost_format": "by_function",
     "revenue": [
-      17800,
-      17900,
-      18600,
-      20200,
-      23000
+      20430.334,
+      20489.616,
+      21213.273,
+      22794.147,
+      25958.319
     ],
     "cogs": [
       11639.158,
@@ -49,13 +49,23 @@
     ],
     "expense_lines": [
       {
-        "name": "Операционные расходы (детализация недоступна — e-disclosure требует аутентификации)",
+        "name": "Коммерческие расходы (стр. 2210)",
         "values": [
-          null,
-          null,
-          null,
-          null,
-          null
+          7942.919,
+          8095.601,
+          9054.539,
+          9848.347,
+          9676.404
+        ]
+      },
+      {
+        "name": "Управленческие расходы (стр. 2220)",
+        "values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          989.296
         ]
       }
     ],
@@ -113,15 +123,15 @@
       36.98,
       -470.369,
       171.852,
-      863
+      931.388
     ],
     "margins": {
       "gross_margin": [
-        null,
-        null,
-        null,
-        null,
-        null
+        43.03,
+        44.96,
+        47.33,
+        48.32,
+        48.18
       ],
       "ebitda_margin": [
         6.1,
@@ -131,20 +141,34 @@
         8.6
       ],
       "operating_margin": [
-        null,
-        null,
-        null,
-        null,
-        null
+        4.15,
+        5.45,
+        4.65,
+        5.11,
+        7.1
       ],
       "ros": [
-        null,
-        null,
-        null,
-        null,
-        3.8
+        0.03,
+        0.18,
+        -2.22,
+        0.75,
+        3.59
       ]
-    }
+    },
+    "other_income": [
+      210.465,
+      323.806,
+      1373.361,
+      328.25,
+      758.673
+    ],
+    "other_expense": [
+      819.511,
+      1173.118,
+      2794.321,
+      1298.351,
+      1120.222
+    ]
   },
   "adjusted": {
     "net_profit_adj": [
@@ -191,18 +215,18 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1248.485,
+        1466.655,
+        1468.954,
+        1486.606,
+        1306.724
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.523,
+        0.459
       ],
       "goodwill": [
         null,
@@ -212,69 +236,69 @@
         null
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        764.123,
+        560.983,
+        1702.405,
+        1170.317,
+        1483.246
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.861,
+        0.506,
+        74.946,
+        297.531,
+        356.285
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2013.469,
+        2028.144,
+        3246.305,
+        2954.977,
+        3146.714
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.635,
+        0.628,
+        0.877,
+        1.01,
+        1.426
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        5055.475,
+        4652.048,
+        2268.53,
+        1899.174,
+        2227.567
       ],
       "cash": [
-        null,
-        null,
-        null,
-        null,
-        null
+        69.239,
+        77.117,
+        307.278,
+        626.498,
+        415.098
       ],
       "short_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1.597,
+        1.114,
+        1.666,
+        0.002,
+        5.171
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        5126.946,
+        4730.907,
+        2578.351,
+        2526.684,
+        2649.262
       ]
     },
     "total_assets": [
@@ -286,99 +310,99 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null
+        21.651,
+        21.651,
+        21.651,
+        21.651,
+        21.651
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
-        null,
-        null
+        182.27,
+        340.245,
+        -130.124,
+        38.025,
+        971.174
       ],
       "additional_paid_in": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "other_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        388.924,
+        390.196,
+        391.587,
+        373.346,
+        225.064
       ],
       "total_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        592.845,
+        752.092,
+        283.114,
+        433.022,
+        1217.889
       ]
     },
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        200.0
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
-        null
+        108.555,
+        111.472,
+        0.0,
+        0.0,
+        0.0
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        1071.164,
+        810.114,
+        335.079
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        108.555,
+        111.472,
+        1071.164,
+        810.114,
+        535.079
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1899.28,
+        1600.066,
+        1200.0,
+        1000.0,
+        400.0
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        4153.123,
+        4157.004,
+        2861.707,
+        2734.617,
+        2771.467
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        386.612,
+        138.417,
+        408.671,
+        503.908,
+        871.541
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        6439.015,
+        5895.487,
+        4470.378,
+        4238.525,
+        4043.008
       ]
     },
     "total_liabilities": [
@@ -402,14 +426,14 @@
       null,
       null
     ],
-    "tangible_note": "Баланс полностью null — ощутимый капитал, net_debt, коэффициенты долговой нагрузки не рассчитываемы. P/B — insufficient_data.",
+    "tangible_note": "total_equity восстановлена из ГИР БО ФНС (первичная отчётность, org_id=3472013, ИНН 7606052264) — построчный баланс форма 0710099, арифметика актив=пассив проверена.",
     "ratios": {
       "debt_to_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        11.04,
+        7.99,
+        19.57,
+        11.66,
+        3.76
       ],
       "net_debt_ebitda": [
         1.68,
@@ -419,11 +443,11 @@
         0.09
       ],
       "current_ratio": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.8,
+        0.8,
+        0.58,
+        0.6,
+        0.66
       ]
     },
     "total_equity": [
@@ -440,7 +464,7 @@
       430.735,
       764.004,
       589.651,
-      320
+      326.544
     ],
     "cfi": [
       -265.138,
@@ -769,18 +793,18 @@
   },
   "returns": {
     "roe": [
-      null,
-      null,
-      null,
-      null,
-      null
+      1.0,
+      4.92,
+      -166.14,
+      39.69,
+      76.48
     ],
     "roa": [
-      null,
-      null,
-      null,
-      null,
-      null
+      0.08,
+      0.55,
+      -8.08,
+      3.14,
+      16.07
     ],
     "roic": [
       null,
@@ -790,18 +814,18 @@
       null
     ],
     "ros": [
-      null,
-      null,
-      null,
-      null,
-      3.8
+      0.03,
+      0.18,
+      -2.22,
+      0.75,
+      3.59
     ],
     "asset_turnover": [
-      null,
-      null,
-      null,
-      null,
-      null
+      2.86,
+      3.03,
+      3.64,
+      4.16,
+      4.48
     ]
   },
   "metrics_timeseries": {
@@ -834,18 +858,18 @@
       6.86
     ],
     "roe": [
-      null,
-      null,
-      null,
-      null,
-      null
+      1.0,
+      4.92,
+      -166.14,
+      39.69,
+      76.48
     ],
     "roa": [
-      null,
-      null,
-      null,
-      null,
-      null
+      0.08,
+      0.55,
+      -8.08,
+      3.14,
+      16.07
     ],
     "roic": [
       null,
@@ -855,11 +879,11 @@
       null
     ],
     "gross_margin": [
-      null,
-      null,
-      null,
-      null,
-      null
+      43.03,
+      44.96,
+      47.33,
+      48.32,
+      48.18
     ],
     "ebitda_margin": [
       6.1,
@@ -869,18 +893,18 @@
       8.6
     ],
     "operating_margin": [
-      null,
-      null,
-      null,
-      null,
-      null
+      4.15,
+      5.45,
+      4.65,
+      5.11,
+      7.1
     ],
     "ros": [
-      null,
-      null,
-      null,
-      null,
-      3.8
+      0.03,
+      0.18,
+      -2.22,
+      0.75,
+      3.59
     ],
     "net_debt_ebitda": [
       1.68,
@@ -891,10 +915,10 @@
     ],
     "revenue_growth": [
       null,
-      0.6,
-      3.9,
-      8.6,
-      13.9
+      0.29,
+      3.53,
+      7.45,
+      13.88
     ],
     "net_profit_growth": [
       null,
@@ -1256,7 +1280,9 @@
     "YRSB: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка.",
     "meta.last_price добавлен (781.2695 ₽, уверенность: medium (только 1 метод)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price).",
     "D&A по YRSB — ОЦЕНКА (judgement): форма 0710099 ГИР БО ФНС не раскрывает амортизацию отдельной строкой; оценена по roll-forward внеоборотных активов (ППЕ+НМА): 2024≈131 млн, 2025≈138 млн (устойчивый уровень; фактический roll-forward 2025=318 млн искажён выбытием/обесценением ~180 млн ППЕ). EBITDA поэтому оценка, а не первично раскрытая величина. Совпадает с YRSBP (тот же эмитент).",
-    "D&A (амортизация) не раскрыта в форме 0710099 ГИР БО ФНС — принята ~= capex (оценка steady-state, certainty=judgement); EBITDA = operating_profit + D&A. При появлении фактической D&A из пояснений — уточнить."
+    "D&A (амортизация) не раскрыта в форме 0710099 ГИР БО ФНС — принята ~= capex (оценка steady-state, certainty=judgement); EBITDA = operating_profit + D&A. При появлении фактической D&A из пояснений — уточнить.",
+    "GAP-АУДИТ 2026-07-28: income_statement.revenue заменён на первичные данные ГИР БО ФНС (bo.nalog.gov.ru, org_id=3472013, ИНН 7606052264, форма 0710099) — прежний ряд был помечен как 'МСФО' (smart-lab, revenue 2025=23000 млн) при том, что cogs/gross_profit/operating_profit/pre_tax/income_tax уже были из РСБУ ГИР БО (revenue 2025=25958 млн) — арифметика revenue-cogs=gross_profit НЕ сходилась (мешанина двух стандартов внутри одного P&L). Теперь весь income_statement — единый источник (РСБУ ГИР БО, юрлицо YRSB). net_profit[2025] исправлен 863→931.388 млн — прежнее значение противоречило уже примененным pre_tax_profit-income_tax=1464.233-532.845=931.388 (несходящаяся арифметика внутри уже 'дозаполненного' блока). balance_sheet полностью восстановлен постатейно (non_current/current assets, equity, liabilities breakdown) из того же источника — арифметика (актив=пассив, sub-статьи=итог) проверена кодом, все года ±0. cash_flow подстатьи выровнены на точные значения ГИР БО (было cfo_2025=320 округлённо, стало 326.544). da/ebitda ОСТАВЛЕНЫ как раньше (оценка D&A≈capex, документирована в предыдущих флагах) — форма 0710099 не публикует амортизацию отдельной строкой, judgement-оценка financial-analyst не тронута.",
+    "🔴 СЛЕДУЮЩИЙ ШАГ ДЛЯ financial-analyst: multiples/valuation/forecast построены на СТАРОМ смешанном revenue (МСФО 17800-23000) — после унификации на РСБУ ГИР БО (revenue 20430-25958) EPS/P/E/PS и связанные оценочные методы (historical_pe, ev_ebitda, CAPM) требуют пересчёта по новому net_profit_2025=931.388 (было 863)."
   ],
   "segments": [],
   "cost_breakdown": [
