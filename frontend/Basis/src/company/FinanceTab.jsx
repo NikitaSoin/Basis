@@ -483,9 +483,21 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
               M("Валовая прибыль", orSum(is.gross_profit, [is.revenue, is.cogs && is.cogs.map((x) => x == null ? null : -x)]), { bold: true }),
               M("Операционные расходы", is.operating_expenses, { det: true, muted: true }),
             ]
-          : expLines.map((el) => M(el.name, el.values, { det: true, muted: true }))),
+          // Статьи моста: СНАЧАЛА актуальные (заполнен последний год), потом
+          // исторические. У компаний со сменой стандарта (Яндекс: US GAAP до
+          // 2022 → МСФО с 2023) каждая статья живёт только в своей эре — без
+          // сортировки актуальный мост перемешивался с прочерками старой эры
+          // и читался как «дыры» (владелец, 2026-07-28).
+          : [...expLines].sort((a, b) => {
+              const lastOf = (l) => { const v = l.values || []; return v[v.length - 1] != null ? 0 : 1; };
+              return lastOf(a) - lastOf(b);
+            }).map((el) => M(el.name, el.values, { det: true, muted: true }))),
         M("EBITDA", is.ebitda, { bold: true }),
-        M("Амортизация", is.da, { det: true, muted: true }),
+        // Справочная «Амортизация» — только если её НЕТ среди статей моста
+        // (при by_nature D&A обычно уже статья expense_lines — иначе дубль
+        // одной величины двумя строками, жалоба владельца 2026-07-28).
+        ...(expLines.some((el) => /аморт|износ|d&a/i.test(el.name || ""))
+          ? [] : [M("Амортизация", is.da, { det: true, muted: true })]),
         M("Операционная прибыль (EBIT)", is.operating_profit, { bold: true }),
         M("Финансовые расходы", is.finance_costs, { det: true, muted: true }),
         M("Финансовые доходы", is.finance_income, { det: true, muted: true }),
