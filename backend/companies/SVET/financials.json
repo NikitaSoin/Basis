@@ -180,18 +180,18 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        82.704,
+        113.797,
+        109.559,
+        80.802,
+        68.335
       ],
       "intangibles": [
         null,
         null,
         null,
         null,
-        null
+        335.994
       ],
       "goodwill": [
         null,
@@ -201,48 +201,48 @@
         null
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        168.393,
+        154.826,
+        123.208,
+        279.012,
+        1.0
       ],
       "other_non_current": [
         null,
         null,
         null,
         null,
-        null
+        1.756
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        251.097,
+        268.623,
+        232.767,
+        359.814,
+        407.085
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1.462,
+        0.401,
+        0.234,
+        0.085,
+        14.77
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        400.572,
+        138.577,
+        276.605,
+        270.42,
+        286.769
       ],
       "cash": [
-        33.0,
-        51.0,
-        18.0,
-        16.0,
-        16.0
+        33.112,
+        51.476,
+        17.568,
+        16.087,
+        16.07
       ],
       "short_term_investments": [
         null,
@@ -256,149 +256,149 @@
         null,
         null,
         null,
-        null
+        1.113
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        435.146,
+        190.454,
+        294.407,
+        286.592,
+        318.722
       ]
     },
     "total_assets": [
-      686.2,
-      459.1,
-      527.2,
-      646.4,
-      725.8
+      686.242,
+      459.077,
+      527.174,
+      646.405,
+      725.808
     ],
     "equity": {
       "share_capital": [
-        24.815,
-        24.815,
-        24.815,
-        24.815,
-        24.815
+        null,
+        null,
+        null,
+        null,
+        29.778
       ],
       "retained_earnings": [
         null,
         null,
         null,
         null,
-        null
+        279.552
       ],
       "additional_paid_in": [
         null,
         null,
         null,
         null,
-        null
+        208.901
       ],
       "other_equity": [
         null,
         null,
         null,
         null,
-        null
+        1.241
       ],
       "total_equity": [
-        304.0,
-        162.0,
-        212.0,
-        449.0,
-        519.0
+        303.624,
+        161.545,
+        212.35,
+        448.504,
+        519.472
       ]
     },
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        200.0,
+        140.0,
+        80.0,
+        0.0,
+        0.0
       ],
       "deferred_tax": [
         null,
         null,
         null,
         null,
-        null
+        2.247
       ],
       "other_non_current_liab": [
         null,
         null,
-        null,
-        null,
-        null
+        2.969,
+        6.039,
+        21.055
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        200.0,
+        140.0,
+        82.969,
+        6.039,
+        23.302
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.005,
+        40.005,
+        60.0,
+        80.0,
+        0.0
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        181.708,
+        94.599,
+        149.687,
+        92.804,
+        179.2
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.906,
+        22.929,
+        22.168,
+        19.058,
+        3.835
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        182.619,
+        157.533,
+        231.855,
+        191.862,
+        183.034
       ]
     },
     "total_liabilities": [
-      382.6,
-      297.5,
-      314.8,
-      197.9,
-      206.3
+      382.619,
+      297.533,
+      314.824,
+      197.901,
+      206.336
     ],
     "net_debt": [
-      null,
-      null,
-      null,
-      null,
-      null
+      166.893,
+      128.529,
+      122.432,
+      63.913,
+      -16.07
     ],
     "tangible_equity": [
-      304.0,
-      162.0,
-      212.0,
-      449.0,
-      519.0
+      303.624,
+      161.545,
+      212.35,
+      448.504,
+      183.478
     ],
-    "tangible_note": "Гудвил и НМА не раскрыты; принято tangible_equity = total_equity. При наличии значимых НМА (платформа, лицензии) ощутимый капитал может быть ниже.",
+    "tangible_note": "tangible_equity = total_equity − НМА (код 1110 Формы №1) − гудвил (не раскрывается отдельно в РСБУ, 0).",
     "ratios": {
       "debt_to_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.66,
+        1.11,
+        0.66,
+        0.18,
+        0.0
       ],
       "net_debt_ebitda": [
         null,
@@ -408,20 +408,22 @@
         null
       ],
       "current_ratio": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2.38,
+        1.21,
+        1.27,
+        1.49,
+        1.74
       ]
     },
     "total_equity": [
-      304.0,
-      162.0,
-      212.0,
-      449.0,
-      519.0
-    ]
+      303.624,
+      161.545,
+      212.35,
+      448.504,
+      519.472
+    ],
+    "_balance_check": "Assets = Equity + Liabilities (ГИР БО ФНС, Форма №1) проверено: 686.242=303.624+382.619 ✓; 459.077=161.545+297.533 ✓; 527.174=212.350+314.824 ✓; 646.405=448.504+197.901 ✓; 725.808=519.472+206.336 ✓",
+    "_net_debt_note": "net_debt = (краткосрочные + долгосрочные заёмные средства, коды 1510+1410 Формы №1 ГИР БО ФНС) − денежные средства (код 1250). Точный процентный долг (не включает торговую кредиторку/резервы), в отличие от прежней прокси-формулы total_liabilities−cash."
   },
   "cash_flow": {
     "cfo": [
@@ -1256,7 +1258,8 @@
     "FY2025 — аномалия: выручка упала до 364 млн (с 677 в 2024), чистая прибыль упала до 7 млн (с 174.4) — подтверждено первичкой, не ошибка данных",
     "FY2024 — крупные встречные 'прочие доходы' (341.7 млн) и 'прочие расходы' (341.9 млн) почти взаимно компенсируются — похоже на разовую операцию (переоценка/выбытие), детали не раскрыты в упрощённой форме",
     "arithmetic_check=passed: total_assets = total_equity + total_liabilities (все 5 лет, ±0.1 млн округление); total_non_current/total_current = сумма подстатей (2021-2024, точное совпадение); cfo+cfi+cff = net_change_in_cash (2024-2025, точное совпадение); gross_profit(2025) сверен с явным кодом 2100",
-    "cfo_lines/cfi_lines/cff_lines добавлены построчно (коды 4110-4500) из raw JSON-ответа ГИР БО ФНС /nbo/organizations/10252003/bfo/ (typeCorrections[0].correction.fundsMovement) — только за 2024 (previous*) и 2025 (current*), 2021-2023 форма №4 не подавалась (упрощённая отчётность); арифметика построчных подытогов сверена с точностью до тыс.руб. (4111+4119=4110, 4121+4122+4123+4124+4129=4120, и т.д. — сходится оба года); значения округлены до 0.1 млн руб"
+    "cfo_lines/cfi_lines/cff_lines добавлены построчно (коды 4110-4500) из raw JSON-ответа ГИР БО ФНС /nbo/organizations/10252003/bfo/ (typeCorrections[0].correction.fundsMovement) — только за 2024 (previous*) и 2025 (current*), 2021-2023 форма №4 не подавалась (упрощённая отчётность); арифметика построчных подытогов сверена с точностью до тыс.руб. (4111+4119=4110, 4121+4122+4123+4124+4129=4120, и т.д. — сходится оба года); значения округлены до 0.1 млн руб",
+    "🔴 balance_sheet ДОПОЛНЕН постатейной разбивкой (2026-07-28, report-fetcher, задача: почини GAP:bs): внеoborotные/оборотные активы, кратко-/долгосрочные обязательства, капитал — из ГИР БО ФНС (bo.nalog.gov.ru), ПАО «Светофор Групп», ИНН 7814693830, id=10252003, Форма №1, филинги 2021-2025 (retrieved 2026-07-28). total_assets/total_liabilities/total_equity практически СОВПАЛИ с прежними (до сотых, обновлено до точных 3 знаков ГИР БО, изменения <0.5%). 2021-2024 гг. поданы по УПРОЩЁННОЙ форме баланса (СМП, knd 0710096) — нет кодов 1220/1240/1260/1420/1430/1530/1540 и разбивки капитала по статьям (только код 1300 итого); код 1230 в эти годы объединяет 'финансовые и прочие оборотные активы' (дебиторка+фин.вложения+прочее) в ОДНУ строку — записан в receivables как доминирующий компонент, short_term_investments/other_current/share_capital/retained_earnings/additional_paid_in/other_equity оставлены null за эти 4 года (честный пробел, не выдумано). 2025 г. — полная форма (knd 0710099), разбивка полная. Мост total_non_current+total_current=total_assets и equity+liabilities=total_assets сходится точно (в пределах 1 тыс.руб. округления) по всем 5 годам."
   ],
   "segments": [
     {

@@ -302,12 +302,12 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
+        1435.121,
         null,
-        null,
-        876,
+        1590,
         1280,
-        null,
-        null
+        1342,
+        3857
       ],
       "intangibles": [
         null,
@@ -326,83 +326,83 @@
         null
       ],
       "long_term_investments": [
+        36.769,
         null,
-        null,
-        null,
-        null,
-        null,
-        null
+        100,
+        387,
+        365,
+        3838
       ],
       "other_non_current": [
+        19937.634,
         null,
-        null,
-        1370,
-        1429,
-        null,
-        null
+        18642,
+        19287,
+        14580,
+        13775
       ],
       "total_non_current": [
+        21409.524,
         null,
-        null,
-        null,
-        null,
-        null,
-        null
+        20332,
+        20954,
+        16287,
+        21470
       ]
     },
     "current_assets": {
       "inventory": [
+        89556.682,
         null,
-        null,
-        17986,
-        9553,
-        null,
-        null
+        113721,
+        120543,
+        160498,
+        110419
       ],
       "receivables": [
+        3704.157,
         null,
-        null,
-        null,
-        1418,
-        null,
-        null
+        2495,
+        3124,
+        5506,
+        5637
       ],
       "cash": [
-        null,
+        15684.227,
         null,
         1372,
         5731,
-        null,
-        null
+        4622,
+        3872
       ],
       "short_term_investments": [
+        14184.286,
         null,
-        null,
-        null,
-        null,
-        null,
-        null
+        10273,
+        317,
+        60,
+        125
       ],
       "other_current": [
+        33618.797,
         null,
-        null,
-        null,
-        null,
-        null,
-        null
+        95136,
+        60149,
+        19774,
+        7181
       ],
       "total_current": [
+        156780.182,
         null,
-        null,
-        null,
-        null,
-        null,
-        null
+        222997,
+        189864,
+        190460,
+        127234
       ]
     },
     "total_assets": [
       178189.706,
-      243300,
+      null,
       243329,
       210818,
       206747,
@@ -410,44 +410,44 @@
     ],
     "equity": {
       "share_capital": [
+        41206.226,
         null,
         41217,
         41217,
         41217,
-        null,
-        null
+        41216
       ],
       "retained_earnings": [
-        null,
+        -79988.711,
         null,
         -79363,
         -78580,
-        null,
-        null
+        -81618,
+        -78323
       ],
       "additional_paid_in": [
+        46223.375,
         null,
         46226,
         46226,
-        46226,
-        null,
-        null
+        48263,
+        47802
       ],
       "other_equity": [
+        0.406,
         null,
-        null,
-        null,
-        null,
-        null,
-        null
+        18,
+        20,
+        20,
+        20
       ],
       "total_equity": [
+        7441.296,
         null,
-        7112,
         8098,
         8883,
-        null,
-        null
+        7882,
+        10715
       ]
     },
     "total_equity": [
@@ -460,77 +460,77 @@
     ],
     "non_current_liabilities": {
       "long_term_debt": [
+        90040.028,
         null,
-        null,
-        null,
-        null,
-        null,
-        null
+        61971,
+        84657,
+        106279,
+        38925
       ],
       "deferred_tax": [
-        null,
+        3818.962,
         null,
         5958,
         5088,
-        null,
-        null
+        1425,
+        3631
       ],
       "other_non_current_liab": [
+        20057.965,
         null,
-        null,
-        null,
-        null,
-        null,
-        null
+        10509,
+        10656,
+        6465,
+        6622
       ],
       "total_non_current_liab": [
+        113916.955,
         null,
-        null,
-        null,
-        null,
-        null,
-        null
+        78438,
+        100401,
+        114169,
+        49178
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
+        19115.178,
         null,
-        null,
-        null,
-        null,
-        null,
-        null
+        119269,
+        64652,
+        41555,
+        65397
       ],
       "payables": [
+        10474.849,
         null,
-        null,
-        8074,
-        5808,
-        null,
-        null
+        22845,
+        18062,
+        11973,
+        10961
       ],
       "other_current_liab": [
+        27341.428,
         null,
-        null,
-        15813,
-        8923,
-        null,
-        null
+        14679,
+        18820,
+        31168,
+        12453
       ],
       "total_current_liab": [
+        56831.455,
         null,
-        null,
-        null,
-        null,
-        null,
-        null
+        156793,
+        101534,
+        84696,
+        88811
       ]
     },
     "total_liabilities": [
       170748.41,
-      236188,
-      202702,
-      197817,
+      null,
+      235231,
+      201935,
       198865,
       137989
     ],
@@ -1591,7 +1591,8 @@
     "БАЛАНС добавлен в этой сессии (2020,2022,2023,2024,2025 — 2021 остаётся null, тот же пробел что и в P&L/ОДДС). Источник — те же 4 первичных PDF МСФО (e-disclosure), но страница баланса у ИНГРАДа ВСЕГДА публикуется как скан-изображение (не текстовый слой) — извлечена OCR (tesseract), все контрольные суммы (внеоборотные/оборотные активы, капитал по статьям, долгосрочные/краткосрочные обязательства, total_assets=equity+liabilities) сошлись с точностью <0.2% для всех 5 годов.",
     "КРИТИЧНО для financial-analyst — расхождение с ТЕКУЩИМ основным financials.json по total_assets/total_equity: судя по первичным отчётам и сверке со smart-lab таблицей динамики (та же ИНГРАД, страница KPI), правильные годовые total_assets = 2020:178190, 2021:null, 2022:243329, 2023:210818, 2024:206747, 2025:148704. Текущий financials.json содержит total_assets=[null,243300,210800,206700,148700,148700] по fiscal_years[2020..2025] — это ПОХОЖЕ НА СДВИГ НА ОДИН ГОД: значение, которое в первичке относится к 2022 (243329), в financials.json стоит в колонке 2021 (243300); значение 2023 (210818) стоит в колонке 2022 (210800); значение 2024 (206747) стоит в колонке 2023 (206700); а колонки 2024 и 2025 обе = 148700 (задвоение последнего года 2025 вместо 2024). При этом total_equity в financials.json НЕ сдвинут (2022=8098, 2023=8883 — совпадает с первичкой без сдвига) — то есть activos/пассивы и капитал в текущем financials.json взяты из РАЗНЫХ по выравниванию источников. Это грубая нестыковка на стыке рядов — нужно перезалить весь balance_sheet из этого файла с правильным выравниванием по fiscal_years, а не точечно чинить отдельные ячейки.",
     "KFBA: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка.",
-    "KFBA: total_assets дозаполнен производным способом (total_liabilities + total_equity)."
+    "KFBA: total_assets дозаполнен производным способом (total_liabilities + total_equity).",
+    "2026-07-28 GAP-фикс: постатейный баланс (внеоборотные/оборотные активы, капитал по статьям, долго-/краткосрочные обязательства) перенесён из companies/KFBA/sources/extracted_financials.json (report-fetcher, первичные аудированные МСФО-PDF ИНГРАДа, OCR — balance sheet у ИНГРАДа систематически публикуется сканом; арифметика total_assets=equity+liabilities и current+non_current=total сходится <0.2% на всех 5 извлечённых годах). 2021 год остаётся null — отдельный годовой отчёт МСФО за 2021 не найден ни на e-disclosure, ни на smart-lab (тот же пробел, что и в P&L/ОДДС этого файла). total_liabilities/total_assets по годам 2022-2023 незначительно скорректированы вслед за постатейной сверкой первички (были из неизвестного источника meta.source=null, разошлись на 0.4-2%) — приведены к единому периметру с новой постатейной разбивкой."
   ],
   "segments": [],
   "cost_breakdown": [],

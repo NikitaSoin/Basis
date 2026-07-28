@@ -192,18 +192,18 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        9851.2,
+        10485.5,
+        11409.3,
+        11143.9,
+        11199.4
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        10.7,
+        24.6,
+        15.1,
+        11.7
       ],
       "goodwill": [
         null,
@@ -213,48 +213,48 @@
         null
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.1,
+        22.5,
+        53.0,
+        18.1,
+        35.5
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        39.9,
+        4.0,
+        2.9,
+        330.6,
+        287.7
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        9891.2,
+        10522.6,
+        11489.8,
+        11507.8,
+        11534.3
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        354.0,
+        316.5,
+        321.8,
+        240.2,
+        466.8
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        31.0,
+        169.9,
+        331.8,
+        84.9,
+        91.8
       ],
       "cash": [
-        902,
-        1360,
-        4600,
-        6320,
-        6640
+        902.4,
+        1359.0,
+        4594.1,
+        6322.2,
+        6641.4
       ],
       "short_term_investments": [
         null,
@@ -264,18 +264,18 @@
         null
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        167.8,
+        167.2,
+        160.1,
+        223.0,
+        602.5
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1455.3,
+        2012.6,
+        5407.8,
+        6870.3,
+        7802.5
       ]
     },
     "total_assets": [
@@ -287,106 +287,106 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null
+        67.6,
+        67.6,
+        67.6,
+        67.6,
+        67.6
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
-        null,
-        null
+        9144.9,
+        11112.5,
+        13016.7,
+        15808.6,
+        17470.2
       ],
       "additional_paid_in": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        265.5
       ],
       "other_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        -0.0,
+        0.0
       ],
       "total_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        9212.5,
+        11180.1,
+        13084.3,
+        15876.2,
+        17803.3
       ]
     },
     "total_equity": [
       9212.5,
       11180.1,
-      13084.2,
+      13084.3,
       15876.2,
       17803.3
     ],
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        338.0,
+        22.5,
+        646.7,
+        0.0,
+        0.0
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
-        null
+        268.2,
+        305.5,
+        288.3,
+        439.8,
+        596.3
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        124.2,
+        63.8,
+        59.0,
+        38.8,
+        38.1
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        730.4,
+        391.8,
+        994.0,
+        478.6,
+        634.4
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        883.0,
+        338.0,
+        22.4,
+        102.3,
+        0.0
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        345.7,
+        337.8,
+        2502.3,
+        1654.8,
+        496.7
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        174.8,
+        287.4,
+        294.6,
+        266.2,
+        402.4
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1403.5,
+        963.3,
+        2819.4,
+        2023.3,
+        899.1
       ]
     },
     "total_liabilities": [
@@ -1296,7 +1296,8 @@
     "Арифметика баланса проверена по всем 5 годам: total_non_current+total_current=total_assets; сумма компонентов капитала=total_equity; total_non_current_liab+total_current_liab=total_liabilities; total_equity+total_liabilities=total_assets — сходится ТОЧНО (до тыс.руб) по всем годам, включая OCR-годы (2021,2022,2025).",
     "revenue и total_assets сверены с действующим financials.json — совпадают в пределах округления (financials.json содержит грубые круглые оценки, extracted даёт точные построчные суммы из первички).",
     "NKHP: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка.",
-    "meta.last_price добавлен (515.5465 ₽, уверенность: medium (только 1 метод)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price)."
+    "meta.last_price добавлен (515.5465 ₽, уверенность: medium (только 1 метод)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price).",
+    "2026-07-28 GAP-фикс: постатейная разбивка баланса (внеоборотные/оборотные активы, капитал по статьям, долго-/краткосрочные обязательства) перенесена из companies/NKHP/sources/extracted_financials.json (report-fetcher, 2026-07-06, первичные консолидированные МСФО-отчёты novoroskhp.ru, pdftotext/OCR) за все 5 лет (2021-2025); арифметика (total_assets=non_current+current; total_liabilities=non_current_liab+current_liab; total_assets=liabilities+equity) перепроверена кодом перед переносом, ±2%."
   ],
   "segments": [
     {

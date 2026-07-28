@@ -209,18 +209,18 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        100269.568,
+        102626.844,
+        108901.174,
+        121769.257,
+        132823.02
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2345.248,
+        2451.676,
+        3253.483,
+        2623.924,
+        3052.632
       ],
       "goodwill": [
         null,
@@ -230,48 +230,48 @@
         null
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        194.019,
+        98.731,
+        806.883,
+        132.688,
+        110.008
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        8735.314,
+        8368.067,
+        9247.461,
+        10075.499,
+        8690.574
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        111544.149,
+        113545.318,
+        122209.001,
+        134601.368,
+        144676.234
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        3531.119,
+        4254.62,
+        4380.625,
+        4934.329,
+        5543.426
       ],
       "receivables": [
-        null,
-        null,
-        16565.5,
-        13793.4,
-        12595.9
+        11871.775,
+        12911.015,
+        11222.21,
+        11001.141,
+        12156.862
       ],
       "cash": [
-        null,
-        3400,
-        6600,
-        7800,
-        5100
+        1881.546,
+        6505.927,
+        7809.829,
+        5088.988,
+        7672.356
       ],
       "short_term_investments": [
         null,
@@ -281,18 +281,18 @@
         null
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1521.122,
+        2586.927,
+        3132.623,
+        3252.605,
+        3950.539
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        18805.562,
+        26258.489,
+        26545.287,
+        24277.063,
+        29323.183
       ]
     },
     "total_assets": [
@@ -304,18 +304,18 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null
+        4221.794,
+        4221.794,
+        4221.794,
+        4221.794,
+        4221.794
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
-        null,
-        null
+        46743.299,
+        48899.818,
+        56308.288,
+        60439.076,
+        69218.349
       ],
       "additional_paid_in": [
         null,
@@ -325,78 +325,78 @@
         null
       ],
       "other_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        256.404,
+        -275.043,
+        114.398,
+        157.265,
+        -202.181
       ],
       "total_equity": [
-        50200,
-        52400,
-        60200,
-        64800,
-        73900
+        51221.497,
+        52846.569,
+        60644.48,
+        64818.135,
+        73237.962
       ]
     },
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        39271.378,
+        27270.749,
+        33660.449,
+        38191.541,
+        29403.487
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
-        null
+        3685.504,
+        4179.036,
+        4681.431,
+        7029.459,
+        8638.016
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        5372.821,
+        5263.409,
+        6959.192,
+        5357.81,
+        6718.952
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        48329.703,
+        36713.194,
+        45301.072,
+        50578.81,
+        44760.455
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        9735.896,
+        18779.921,
+        11783.286,
+        6074.152,
+        14743.423
       ],
       "payables": [
-        null,
-        null,
-        31863.3,
-        33515.6,
-        39564.3
+        12863.392,
+        17147.176,
+        18184.806,
+        22741.077,
+        25003.031
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        8199.223,
+        14316.947,
+        12840.644,
+        14666.257,
+        16254.546
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        30798.511,
+        50244.044,
+        42808.736,
+        43481.486,
+        56001.0
       ]
     },
     "total_liabilities": [
@@ -407,49 +407,49 @@
       100761.455
     ],
     "net_debt": [
-      45600,
-      39500,
-      37600,
-      39200,
-      36500
+      47125.728,
+      39544.743,
+      37633.906,
+      39176.705,
+      36474.554
     ],
     "tangible_equity": [
-      50200,
-      52400,
-      60200,
-      64800,
-      73900
+      48876.249,
+      50394.893,
+      57390.997,
+      62194.211,
+      70185.33
     ],
-    "tangible_note": "Goodwill и НМА не выделены в источнике (data_quality medium); tangible_equity принята равной total_equity консервативно. Подробный баланс недоступен.",
+    "tangible_note": "tangible_equity = total_equity - intangibles (goodwill не раскрыт в отчёте отдельной строкой, не выделен и не вычтен). Пересчитано 2026-07-28 из первичных PDF-балансов (mrsk-1.ru), полная разбивка баланса заменяет прежние оценочные значения.",
     "ratios": {
       "debt_to_equity": [
-        null,
-        0.98,
-        0.88,
-        0.75,
-        0.68
+        0.957,
+        0.871,
+        0.749,
+        0.683,
+        0.603
       ],
       "net_debt_ebitda": [
-        null,
-        1.98,
-        1.6,
+        2.047,
+        1.604,
         1.28,
-        1.2
+        1.203,
+        0.885
       ],
       "current_ratio": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.611,
+        0.523,
+        0.62,
+        0.558,
+        0.524
       ]
     },
     "total_equity": [
-      50200,
-      52400,
-      60200,
-      64800,
-      73900
+      51221.497,
+      52846.569,
+      60644.48,
+      64818.135,
+      73237.962
     ]
   },
   "cash_flow": {
@@ -489,11 +489,11 @@
       -26227.866
     ],
     "fcf": [
-      null,
-      null,
-      null,
-      2600,
-      3300
+      4999.263,
+      9456.197,
+      4005.665,
+      2597.128,
+      3232.003
     ],
     "cfo_lines": [
       {
@@ -983,25 +983,25 @@
     ],
     "ratios": {
       "fcf_margin": [
-        null,
-        null,
-        null,
-        null,
-        1.88
+        4.62,
+        8.25,
+        3.12,
+        1.88,
+        2.11
       ],
       "cfo_to_capex": [
-        null,
-        null,
-        null,
-        null,
-        1.11
+        1.312,
+        1.653,
+        1.199,
+        1.107,
+        1.123
       ],
       "capex_to_revenue": [
-        null,
-        null,
-        null,
-        null,
-        17.6
+        14.84,
+        12.64,
+        15.67,
+        17.58,
+        17.15
       ]
     }
   },
@@ -1530,7 +1530,8 @@
     "finance_costs/finance_income — фактические значения из Note 11 (через add-back в ОДДС), ЗАМЕНЯЮТ ранее сохранённые оценочные значения в предыдущей версии файла (434.2/581.0/1643.8 для finance_income были явно помечены как 'estimated from EBITDA formula' и не совпадают с аудированными цифрами Note 11: 927.8/1578.0/1947.5).",
     "goodwill и short_term_investments не раскрываются в балансе компании отдельной строкой — оставлены null (не 0, т.к. могут быть включены в other-строки, но не идентифицированы явно).",
     "expense_lines — агрегированные суб-статьи из Note 9 'Операционные расходы' (материальные расходы, работы и услуги произв. характера, прочие услуги — даны как итоговые суммы под-компонентов, не как отдельные микро-статьи типа 'услуги связи'/'охрана' по отдельности, чтобы не перегружать список; сумма по expense_lines сходится ТОЧНО с итогом 'Операционные расходы' по каждому году).",
-    "Все PDF-источники: mrsk-1.ru/upload/documents/FS_IFRS_PJSC_Rosseti_Centre_{2022,2023,2024,2025}_Ru.pdf — скачаны напрямую без Cloudflare/капчи, текстовый слой извлечён pdftotext -layout без проблем (не сканы)."
+    "Все PDF-источники: mrsk-1.ru/upload/documents/FS_IFRS_PJSC_Rosseti_Centre_{2022,2023,2024,2025}_Ru.pdf — скачаны напрямую без Cloudflare/капчи, текстовый слой извлечён pdftotext -layout без проблем (не сканы).",
+    "2026-07-28 (report-fetcher, GAP-хвост MRKC — разбивка баланса): balance_sheet ПОЛНОСТЬЮ заменён построчной разбивкой из sources/extracted_financials.json (первичные PDF mrsk-1.ru, arithmetic_check=passed уже на этапе экстракции) — non_current_assets (ppe/intangibles/long_term_investments/other), current_assets (inventory/receivables/cash/other), equity (share_capital/retained_earnings/other_equity/total_equity), non_current_liabilities и current_liabilities по статьям, для всех 5 лет (2021-2025). Мост total_non_current+total_current=total_assets, total_non_current_liab+total_current_liab=total_liabilities, сумма статей equity=total_equity — сходится ТОЧНО (<0.01%) по всем годам (перепроверено программно перед переносом). ОБНАРУЖЕН И ИСПРАВЛЕН off-by-one сдвиг: прежние значения cash/tangible_equity/debt_to_equity/net_debt_ebitda/current_ratio/fcf_margin/cfo_to_capex/capex_to_revenue были сдвинуты на один год относительно fiscal_years [2021..2025] (унаследовано от прежнего окна 2020-2024 при 'v3' пере-якорении на факт 2025, сдвинуты были не все массивы) — напр. старый cash[2022]=3400 фактически соответствовал 2021 или другому году, не 2022. net_debt (45600/39500/37600/39200/36500) был выровнен верно и почти совпал с пересчитанным (47126/39545/37634/39177/36475) — оставлен подтверждающим ориентиром. Все производные (net_debt, tangible_equity, debt_to_equity, net_debt_ebitda, current_ratio) пересчитаны заново из выверенной построчной разбивки для полной внутренней согласованности. cash_flow.fcf и ratios (fcf_margin/cfo_to_capex/capex_to_revenue) добор для 2021-2023 (ранее null) и пересчёт 2024-2025 для согласованности — та же формула fcf=cfo+capex (capex хранится отрицательным), применённая ко всем 5 годам единообразно; 2024 пересчитанное значение (2597.1) практически совпало со старым (2600), подтверждая метод."
   ],
   "segments": [
     {
