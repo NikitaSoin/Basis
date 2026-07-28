@@ -681,6 +681,32 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
     return "created"
 
 
+def _classify_standard(headline: str, blob_l: str) -> tuple[str, bool]:
+    """Различить МСФО/РСБУ/операционные результаты/отчётность по тексту.
+    🔴 Найдено на бою 2026-07-28 (жалоба владельца, кейс ГАЗПРОМ): наивный
+    порядок «МСФО, иначе РСБУ» по всему телу текста ломается, когда статья
+    упоминает ОБА стандарта — реальный текст: заголовок и цифры «Чистая
+    прибыль... по РСБУ», но попутно поясняется, что дивиденды считаются по
+    МСФО ("Отчётность по РСБУ, а не по МСФО" — так LLM же и написал в risks,
+    а standard всё равно сохранился как "МСФО", потому что "мсфо" тоже
+    встретилось где-то в тексте). Заголовок почти всегда точно называет,
+    ЧЬИ ИМЕННО цифры несёт это конкретное событие — если там указан только
+    один стандарт, доверяем ему; на оба сразу в заголовке (редкость) —
+    fallback на старую логику по всему блобу."""
+    headline_l = headline.lower()
+    has_fin_standard = "мсфо" in blob_l or "рсбу" in blob_l
+    is_operational = not has_fin_standard and any(
+        k in blob_l for k in ("операцион", "пассажиропоток", "добыч", "производств", "выпуск"))
+    if "рсбу" in headline_l and "мсфо" not in headline_l:
+        standard = "РСБУ"
+    elif "мсфо" in headline_l and "рсбу" not in headline_l:
+        standard = "МСФО"
+    else:
+        standard = "МСФО" if "мсфо" in blob_l else "РСБУ" if "рсбу" in blob_l else (
+            "операционные результаты" if is_operational else "отчётность")
+    return standard, is_operational
+
+
 def _stale_needs_source(existing: EarningsReport) -> bool:
     """True — существующая needs_source-запись ещё в окне ретрая (см.
     _RETRY_WINDOW_DAYS), стоит удалить и попробовать источник заново. Записи
@@ -776,16 +802,11 @@ def process_news_item(db: Session, item: dict, company: Company, market_cap: flo
         nearby_is_financial = (nearby.standard or "").upper() in ("МСФО", "РСБУ")
         if not (cand_is_financial and not nearby_is_financial):
             return "exists"  # то же событие уже накрыто MOEX-путём (process_event)
-    # 🔴 Найдено на бою 2026-07-14: явный финансовый стандарт (МСФО/РСБУ) должен
-    # ПЕРЕВЕШИВАТЬ операционные ключевые слова — релиз Роснефти «РЕЗУЛЬТАТЫ... ПО МСФО»
-    # содержит «ДОБЫЧА» как попутный контекст, но это финотчёт с выручкой/EBITDA/прибылью
-    # в тексте; без приоритета is_operational=True уводил его в operational-путь и терял
-    # реальные финансовые цифры, которые были прямо в тексте.
-    has_fin_standard = "мсфо" in blob_l or "рсбу" in blob_l
-    is_operational = not has_fin_standard and any(
-        k in blob_l for k in ("операцион", "пассажиропоток", "добыч", "производств", "выпуск"))
-    standard = "МСФО" if "мсфо" in blob_l else "РСБУ" if "рсбу" in blob_l else (
-        "операционные результаты" if is_operational else "отчётность")
+    # Классификация стандарта/операционности — см. _classify_standard (МСФО/РСБУ
+    # по заголовку в приоритете; операционные ключевые слова только если явного
+    # финансового стандарта нигде нет — см. докстринг функции, кейсы Роснефти и
+    # ГАЗПРОМа).
+    standard, is_operational = _classify_standard(headline_blob, blob_l)
     # Период — ТОЛЬКО из заголовка (headline_blob), не из полного текста статьи
     # (см. комментарий выше). Паттерн расширен: «в первом полугодии» / «за 1П» /
     # «в I полугодии» — реальный заголовок Северстали «Прибыль... снизилась на 89%
@@ -841,16 +862,9 @@ def process_company_rss_item(db: Session, item: dict, company: Company, market_c
     ticker = item["ticker"]
     text_blob = item["text"]
     blob_l = text_blob.lower()
-    # 🔴 Найдено на бою 2026-07-14: явный финансовый стандарт (МСФО/РСБУ) должен
-    # ПЕРЕВЕШИВАТЬ операционные ключевые слова — релиз Роснефти «РЕЗУЛЬТАТЫ... ПО МСФО»
-    # содержит «ДОБЫЧА» как попутный контекст, но это финотчёт с выручкой/EBITDA/прибылью
-    # в тексте; без приоритета is_operational=True уводил его в operational-путь и терял
-    # реальные финансовые цифры, которые были прямо в тексте.
-    has_fin_standard = "мсфо" in blob_l or "рсбу" in blob_l
-    is_operational = not has_fin_standard and any(
-        k in blob_l for k in ("операцион", "пассажиропоток", "добыч", "производств", "выпуск"))
-    standard = "МСФО" if "мсфо" in blob_l else "РСБУ" if "рсбу" in blob_l else (
-        "операционные результаты" if is_operational else "отчётность")
+    # Классификация — см. _classify_standard; заголовок здесь заменяет первая
+    # строка RSS-текста (нет отдельного title/summary, как у Ленты новостей).
+    standard, is_operational = _classify_standard(text_blob.split("\n", 1)[0], blob_l)
     m = re.search(r"за\s+(\d+\s*кв(?:артал)?\.?|\d+\s*мес\.?|\d{4}(?:\s*г(?:од)?)?|1 пол\.?|полугодие)",
                  text_blob, re.IGNORECASE)
     period = m.group(1).strip() if m else date.today().isoformat()
