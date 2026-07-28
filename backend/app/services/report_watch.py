@@ -600,6 +600,15 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
         elif not is_operational and not fig_raw:
             opd = _extract_operational(text_blob, company.name)
         if opd:
+            # 🔴 Найдено на бою 2026-07-28 (жалоба владельца, кейс GMKN): фоллбэк на
+            # операционный разбор МЕНЯЕТ, какой экстрактор реально сработал, но не
+            # чинил report.standard/report_type, заданные заранее по (возможно
+            # неверной) классификации ДО того, как виден текст — GMKN сохранился с
+            # standard="МСФО" при чисто операционном содержимом (объёмы производства
+            # металлов, ни одной финансовой цифры). Раз в БД реально лёг операционный
+            # дайджест — ярлык должен соответствовать содержимому, а не догадке.
+            report.standard = "операционные результаты"
+            report.report_type = "operating"
             db.add(report); db.flush()
             db.add(EarningsFigures(report_id=report.id, extracted_fields=opd))
             db.add(EarningsDigest(
@@ -609,6 +618,15 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
             report.status = "processed"
             db.commit()
             return "created"
+        if is_operational and fig_raw:
+            # Зеркальный случай: изначально классифицировали как операционный релиз
+            # (report.standard="операционные результаты"), но реально сохраняем
+            # финансовые цифры (fig_raw) — текст не содержал явного «МСФО»/«РСБУ»
+            # (иначе has_fin_standard не пустил бы is_operational=True с самого
+            # начала), поэтому честный ярлык — общее «отчётность», а не оставшееся
+            # от неверной догадки «операционные результаты».
+            report.standard = "отчётность"
+            report.report_type = "quarter" if report.report_type == "operating" else report.report_type
     else:
         fig_raw = fig_override
     if not fig_raw:

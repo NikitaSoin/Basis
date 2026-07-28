@@ -919,6 +919,39 @@ def debug_purge_news_junk_reports(dry_run: bool = True, report_id: int | None = 
         db.close()
 
 
+@router.post("/debug/fix-mislabeled-operational-reports")
+def debug_fix_mislabeled_operational_reports(dry_run: bool = True):
+    """Ретроактивный фикс: до правки report_watch._store_report (2026-07-28,
+    жалоба владельца — кейс GMKN, объёмы производства металлов сохранились с
+    standard='МСФО') фоллбэк на операционный разбор МЕНЯЛ, какой экстрактор
+    реально сработал, но НЕ чинил report.standard/report_type — они оставались
+    такими, какими их угадали ДО того, как стал виден текст. Признак записи с
+    этим багом — EarningsFigures.extracted_fields содержит ключ 'kpis'
+    (уникальная сигнатура _extract_operational, у _extract_financial такого
+    ключа нет вообще), но standard при этом НЕ 'операционные результаты' —
+    новый код (см. report_watch.py) больше так не создаёт записи, но старые
+    остаются неисправленными без этого прогона. dry_run=True (дефолт) —
+    только показать, что будет исправлено."""
+    from app.db.session import SessionLocal
+    from app.models.earnings import EarningsReport, EarningsFigures
+    db = SessionLocal()
+    try:
+        rows = (db.query(EarningsReport, EarningsFigures)
+                .join(EarningsFigures, EarningsFigures.report_id == EarningsReport.id)
+                .filter(EarningsReport.standard != "операционные результаты").all())
+        mismatched = [(r, f) for r, f in rows if isinstance(f.extracted_fields, dict) and "kpis" in f.extracted_fields]
+        out = [{"id": r.id, "ticker": r.ticker, "period": r.period,
+                "old_standard": r.standard, "old_report_type": r.report_type} for r, _ in mismatched]
+        if not dry_run:
+            for r, _ in mismatched:
+                r.standard = "операционные результаты"
+                r.report_type = "operating"
+            db.commit()
+        return {"dry_run": dry_run, "matched": len(out), "reports": out}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-company-rss")
 def debug_trigger_company_rss(days_back: int = 90, force_reset: bool = False):
     """Точечный запуск ТОЛЬКО company_rss-пути (см. _COMPANY_RSS) — в обход дорогого
