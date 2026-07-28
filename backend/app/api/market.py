@@ -1014,7 +1014,7 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
     # приоритет по стандарту (МСФО/РСБУ > прочее), затем по богатству разбора
     # (есть digest.highlights > нет).
     def _quality(row):
-        r, dg, fig, _ = row
+        r, dg, fig, _, _ = row
         std_rank = 2 if (r.standard or "").upper() in ("МСФО", "РСБУ") else \
                    0 if "операцион" in (r.standard or "").lower() else 1
         rich = 1 if (dg is not None and dg.highlights is not None) else 0
