@@ -991,7 +991,7 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
     # - старше 45 дней — архив (сюда попадала пачка ГИР БО-записей с
     #   published_at Feb-Apr, см. комментарий про сортировку выше).
     _today = _date.today()
-    q = (db.query(EarningsReport, EarningsDigest, EarningsFigures, Company.sector)
+    q = (db.query(EarningsReport, EarningsDigest, EarningsFigures, Company.sector, Company.name)
          .outerjoin(EarningsDigest, EarningsDigest.report_id == EarningsReport.id)
          .outerjoin(EarningsFigures, EarningsFigures.report_id == EarningsReport.id)
          .outerjoin(Company, Company.ticker == EarningsReport.ticker)
@@ -1038,7 +1038,7 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
         return round((float(now) / float(prev) - 1) * 100, 1)
 
     out = []
-    for r, dg, fig, sector in rows:
+    for r, dg, fig, sector, company_name in rows:
         # Богатый разбор (report_watch._digest_rich, реальный текст источника) —
         # предпочитаем, если есть; иначе деградируем на узкий путь (маркеры ✅/❌/❗️
         # только по 3 цифрам — Path A из financials.json, или LLM-сбой богатого пути).
@@ -1056,7 +1056,7 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
             positives, risks = _split_markers(dg.what_report_showed if dg else None)
         prev = (fig.prev or {}) if fig else {}
         out.append({
-            "ticker": r.ticker, "period": r.period, "standard": r.standard,
+            "ticker": r.ticker, "company": company_name, "period": r.period, "standard": r.standard,
             "report_type": r.report_type, "status": r.status,
             "published_at": r.published_at.isoformat() if r.published_at else None,
             "sector": sector,

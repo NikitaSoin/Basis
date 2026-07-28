@@ -457,10 +457,15 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
             const period = [r.period, r.standard || r.report_type, r.sector].filter(Boolean).join(" · ");
             return (
               <div key={i} className="obs-rep-card">
-                {/* Header: ticker · period · importance badge */}
+                {/* Header: лого + название компании + тикер/период · бейдж важности —
+                   раньше был только тикер (владелец: «сложнее разобраться, что за
+                   компания»); лого — тот же CompanyLogo, что и «Лидеры дня» Обзора рынка. */}
                 <div className="obs-rep-card-head">
-                  <span className="obs-rep-ticker">{r.ticker}</span>
-                  <span className="obs-rep-period">{period}</span>
+                  <CompanyLogo ticker={r.ticker} name={r.company} size={34} />
+                  <div className="obs-rep-co-id">
+                    <div className="obs-rep-co-name">{r.company || r.ticker}</div>
+                    <div className="obs-rep-co-meta"><b>{r.ticker}</b> · {period}</div>
+                  </div>
                   {r.importance === "high"
                     ? <span className="obs-tag-judgment" style={{ marginLeft: "auto" }}>важно</span>
                     : <span className="obs-tag-fact" style={{ marginLeft: "auto" }}>средне</span>
@@ -538,10 +543,12 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
                           ))}
                         </div>
                       )}
+                      {/* «Вывод» — самое важное на карточке, раньше визуально той же
+                         силы, что и остальные блоки (владелец: сложно понять, к чему
+                         всё это). Тот же каллаут-«печать», что в статьях Макро/Гео/
+                         Институтов — один язык по всему Обозревателю. */}
                       {r.conclusion && (
-                        <div className="obs-rep-conclusion">
-                          <b>Вывод.</b> {r.conclusion}
-                        </div>
+                        <ObsArtCallout label="Вывод" icon={_ICON_BOLT}>{r.conclusion}</ObsArtCallout>
                       )}
                       {r.data_gaps && (
                         <div className="obs-rep-gaps">
