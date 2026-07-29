@@ -3438,6 +3438,25 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
     // оценки рынка) — иначе разброс вроде «2817 vs 5460» сбивает без объяснения.
     const mVals = methodRows.map((r) => r.value).filter((v) => typeof v === "number" && v > 0);
     const methodsDiverge = mVals.length >= 2 && Math.max(...mVals) / Math.min(...mVals) > 1.6;
+    // Ни BFV, ни исторических P/E и P/B — блок раньше просто исчезал, и «Обзор» молча
+    // оставался без главной цены (36 бумаг из 265 отдают status != ok; у части из них —
+    // MVID, BLNG, CHGZ, ZVEZ — нет и методов). Молчание читается как «забыли», поэтому
+    // говорим честно, что посчитать не удалось, и почему (ОТК 2026-07-30).
+    const bfvFailed = bfv && bfv.status && bfv.status !== "ok";
+    const bfvFailReason = bfvFailed && Array.isArray(bfv.warnings) && bfv.warnings.length > 0 ? bfv.warnings[0] : null;
+    const basisFairPriceEmpty = !bfvOk && methodRows.length === 0 && bfvFailed && (
+      <Card>
+        <div className="tw-flex tw-items-center tw-gap-2 tw-text-text-secondary tw-font-semibold tw-mb-2">
+          <Target size={18} />
+          <span>Справедливая цена по методике Basis</span>
+        </div>
+        <div className="tw-text-[13px] tw-text-text-tertiary tw-leading-snug">
+          Не рассчитана — не хватает входных данных{bfvFailReason ? ` (${bfvFailReason})` : ""}. Исторические
+          ориентиры P/E и P/B по этой бумаге тоже недоступны. Оценку смотрите во вкладке «Финансы»
+          и учитывайте, что модельной цены здесь нет.
+        </div>
+      </Card>
+    );
     const basisFairPriceCard = (bfvOk || methodRows.length > 0) && (
       <Card className="tw-shadow-md dark:tw-shadow-none tw-ring-1 tw-ring-accent-soft">
         <div className="tw-flex tw-items-center tw-justify-between tw-mb-3 tw-flex-wrap tw-gap-2">
@@ -3570,6 +3589,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
           <div className="tw-flex tw-flex-col tw-gap-4">
             {earningsCard}
             {basisFairPriceCard}
+            {basisFairPriceEmpty}
             {analysis.analyst_note && (
               <Card>
                 <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-mb-3">
@@ -3623,6 +3643,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
         <div className="tw-flex tw-flex-col tw-gap-4">
           {earningsCard}
           {basisFairPriceCard}
+          {basisFairPriceEmpty}
           <Card className="tw-text-center">
             <Info size={48} className="tw-mx-auto tw-text-text-tertiary tw-mb-4" />
             <h3 className="tw-text-[20px] tw-text-text-primary tw-font-medium tw-mb-2">Анализ готовится</h3>
