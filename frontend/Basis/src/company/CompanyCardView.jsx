@@ -3468,7 +3468,9 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
 
         {bfvRev ? (
           <>
-            <div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug tw-mb-2">{bfvRev.note}</div>
+            {/* «Ловушка стоимости» — сильный сигнал, а при переносе из «Финансов» заметка
+                потеряла акцентную левую рамку и сравнялась с обычной прозой. Вернули. */}
+            <div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug tw-mb-2 tw-pl-3 tw-border-l-[3px] tw-border-accent">{bfvRev.note}</div>
             <div className="tw-font-display tw-font-light tw-text-text-tertiary tw-tabular-nums" style={{ fontSize: "30px", lineHeight: "1" }}>
               ≈ {formatMoney(Math.round(bfvFair), { decimals: 0 })} <span className="tw-text-[13px] tw-text-text-tertiary">(прямая оценка · справочно)</span>
             </div>
