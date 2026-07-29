@@ -63,7 +63,7 @@ def metric_of(name):
     hard_skip = ("до мсфо", "до ifrs", "pre-ifrs", "без аренды", "на акцию",
                  "lfl", "маржа", "сегмент", "с учетом доли", "динамика",
                  "eps", "dps", "продолж", "прекращ", "пао", "соло",
-                 "головн")
+                 "головн", "ниокр", "полный")
     if any(w in n for w in hard_skip):
         return None
     if any(w in n for w in ("нормализ", "скорр", "adjusted")):
