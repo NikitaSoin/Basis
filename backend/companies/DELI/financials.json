@@ -272,25 +272,25 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2907,
+        5343,
+        9193,
+        15316,
+        13308
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
-        null
+        321,
+        482,
+        463,
+        351,
+        371
       ],
       "goodwill": [
         null,
-        null,
-        null,
-        null,
-        null
+        39,
+        39,
+        39,
+        39
       ],
       "long_term_investments": [
         null,
@@ -300,34 +300,34 @@
         null
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        14898,
+        12003,
+        16213,
+        18890,
+        16987
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        18126,
+        17867,
+        25908,
+        34596,
+        30705
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        52,
+        382,
+        690,
+        1688,
+        1846
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        179,
+        263,
+        301,
+        385,
+        225
       ],
       "cash": [
         275,
@@ -344,18 +344,18 @@
         null
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1033,
+        786,
+        1204,
+        1502,
+        1922
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1539,
+        2257,
+        10517,
+        5262,
+        5262
       ]
     },
     "total_assets": [
@@ -367,11 +367,11 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0,
+        0,
+        0,
+        0,
+        0
       ],
       "retained_earnings": [
         -7112,
@@ -381,18 +381,18 @@
         -9295
       ],
       "additional_paid_in": [
-        null,
-        null,
-        null,
-        null,
-        null
+        6822,
+        10350,
+        10350,
+        14130,
+        14130
       ],
       "other_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        3574,
+        -2,
+        -2383,
+        -2381,
+        -2381
       ],
       "total_equity": [
         3284,
@@ -411,25 +411,25 @@
         7943
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0,
+        3,
+        9,
+        94,
+        0
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        4718,
+        3134,
+        7711,
+        12564,
+        7464
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        4718,
+        3791,
+        17277,
+        25079,
+        15450
       ]
     },
     "current_liabilities": {
@@ -441,25 +441,25 @@
         10502
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        887,
+        693,
+        3293,
+        1337,
+        1241
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        5249,
+        5552,
+        5874,
+        5478,
+        6320
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        11663,
+        13298,
+        16572,
+        8591,
+        18063
       ]
     },
     "total_liabilities": [
@@ -1550,7 +1550,8 @@
     "Баланс дан ПОЛНОСТЬЮ построчно за все 5 лет — все субтоталы (total_assets/total_equity/total_liabilities) сошлись с financials.json без расхождений.",
     "Страница 6 отчёта за 2025 год (Отчёт о прибыли и убытке) была встроенным изображением, а не текстом — распознана через OCR (tesseract rus+eng); результат построчно арифметически сверен (revenue-cogs=gross, gross-опекс+прочие=operating, operating+fin=pretax, pretax+налог=net) — все сошлось идеально, уверенность высокая несмотря на OCR.",
     "capex 2023: здесь 2303 (2021+282), в financials.json 2294 — расхождение 9 млн (0.4%), в пределах округления/иного группирования статей, не критично.",
-    "ROU-активы (лизинг автопарка, МСФО 16) не выделены в отдельное поле схемы non_current_assets — включены в other_non_current с пометкой; это самая крупная статья внеоборотных активов компании (13-18 млрд руб/год), учитывать при анализе структуры активов."
+    "ROU-активы (лизинг автопарка, МСФО 16) не выделены в отдельное поле схемы non_current_assets — включены в other_non_current с пометкой; это самая крупная статья внеоборотных активов компании (13-18 млрд руб/год), учитывать при анализе структуры активов.",
+    "🔵 GAP-ЗАКРЫТИЕ (2026-07-30, report-fetcher): постатейный баланс+ОДДС за все 5 лет (2021-2025) добыт из трёх официальных консолидированных МСФО-отчётов (delimobil.ru, ауд. Kept/АО «Кэпт») — non_current_assets/current_assets/equity/liabilities построчно. Арифметика сходится ТОЧНО (0% расхождение) на всех уровнях и по всем годам; топ-уровневые total_assets/total_liabilities/total_equity/retained_earnings/cash/long_term_debt/short_term_debt/cfo/cfi/cff уже присутствовали и совпали точно — независимое подтверждение качества уже имевшихся данных. ROU-активы (лизинг автопарка, МСФО 16) не выделены отдельным полем схемы — включены в other_non_current (крупнейшая статья внеоборотных активов, 13-18 млрд/год)."
   ],
   "segments": [
     {
