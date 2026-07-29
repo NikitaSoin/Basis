@@ -227,16 +227,16 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
+        335466,
+        398027,
         null,
         null,
         null,
         null
       ],
       "intangibles": [
-        null,
-        null,
+        2988,
+        2811,
         null,
         null,
         null,
@@ -251,24 +251,24 @@
         null
       ],
       "long_term_investments": [
-        null,
-        null,
+        238,
+        498,
         null,
         null,
         null,
         null
       ],
       "other_non_current": [
-        null,
-        null,
+        4247,
+        5619,
         null,
         null,
         null,
         null
       ],
       "total_non_current": [
-        null,
-        null,
+        342939,
+        406955,
         null,
         null,
         null,
@@ -277,16 +277,16 @@
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
+        83345,
+        119311,
         null,
         null,
         null,
         null
       ],
       "receivables": [
-        null,
-        null,
+        44804,
+        88515,
         null,
         null,
         null,
@@ -301,24 +301,24 @@
         38107
       ],
       "short_term_investments": [
-        null,
-        null,
+        15308,
+        39234,
         null,
         null,
         null,
         null
       ],
       "other_current": [
-        null,
-        null,
+        3827,
+        5136,
         null,
         null,
         null,
         null
       ],
       "total_current": [
-        null,
-        null,
+        210636,
+        314845,
         null,
         null,
         null,
@@ -335,8 +335,8 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
+        9483,
+        9483,
         null,
         null,
         null,
@@ -351,16 +351,16 @@
         605562
       ],
       "additional_paid_in": [
-        null,
-        null,
+        23754,
+        23754,
         null,
         null,
         null,
         null
       ],
       "other_equity": [
-        null,
-        null,
+        27706,
+        28388,
         null,
         null,
         null,
@@ -393,24 +393,24 @@
         15513
       ],
       "deferred_tax": [
-        null,
-        null,
+        26944,
+        33806,
         null,
         null,
         null,
         null
       ],
       "other_non_current_liab": [
-        null,
-        null,
+        11221,
+        8797,
         null,
         null,
         null,
         null
       ],
       "total_non_current_liab": [
-        null,
-        null,
+        78681,
+        81828,
         null,
         null,
         null,
@@ -427,24 +427,24 @@
         22801
       ],
       "payables": [
-        null,
-        null,
+        102209,
+        131537,
         null,
         null,
         null,
         null
       ],
       "other_current_liab": [
-        null,
-        null,
+        2485,
+        6021,
         null,
         null,
         null,
         null
       ],
       "total_current_liab": [
-        null,
-        null,
+        135066,
+        169758,
         null,
         null,
         null,
@@ -513,16 +513,16 @@
       80472
     ],
     "cfi": [
-      -50350,
-      -83106,
+      -61572,
+      -104799,
       -79477,
       -94859,
       -101244,
       -113463
     ],
     "cff": [
-      null,
-      -116441,
+      -37239,
+      -94723,
       18393,
       -2391,
       -59593,
@@ -1303,7 +1303,9 @@
     "cff_lines: Debt repayment component estimated from balance sheet debt changes. Interest paid, dividend payments, and other financing items are null — not fully itemized. ММК не выплачивала дивиденды в 2024-2025.",
     "pre_tax_profit и income_tax: reconstructed from operating_profit + finance_income - finance_costs - net_profit formula. ETR varies (15-33%) due to non-operational items and potential loss carry-forwards.",
     "net_change_in_cash: Calculated from balance sheet cash positions: 2023-2024 = -47,374 млн; 2024-2025 = -76,328 млн. Match check: CFO + CFI + CFF ≈ net_change_in_cash (with rounding tolerance ~±1%).",
-    "Arithmetic check: cash_2024 (114,435) = cash_2023 (161,809) + net_change (-47,374) ✓; similar for other years."
+    "Arithmetic check: cash_2024 (114,435) = cash_2023 (161,809) + net_change (-47,374) ✓; similar for other years.",
+    "🔵 GAP-ЗАКРЫТИЕ (2026-07-30, report-fetcher): постатейный баланс 2020-2021 добыт из полного аудированного консолидированного МСФО (mmk.ru, ауд. PwC) — non_current_assets/current_assets/equity/liabilities построчно, арифметика сходится ТОЧНО (0%) на всех уровнях; топ-уровневые total_assets/total_liabilities/total_equity/retained_earnings/cash/long_term_debt/short_term_debt уже присутствовали и совпали точно.",
+    "ИСПРАВЛЕНО (2026-07-30): cash_flow.cfi[2020/2021] был ПЛЕЙСХОЛДЕРОМ (=−capex, только capex, без прочих инвестиционных статей — cfi_lines файла подтверждают, там кроме capex всё null) — заменён на полный cfi из первички (-61572/-104799 вместо -50350/-83106). cff[2020/2021] был null/грубой оценкой (-116441 за 2021 не подтверждался собственными cff_lines файла, где только 1 строка почти пустая) — заменён на -37239/-94723. Проверено: cfo+cfi+cff теперь точно = net_change_in_cash обоих лет. Полная построчная разбивка (8 статей cfi, 6 статей cff, 13 статей cfo из первички) лежит в sources/extracted_financials.json — не влита в существующие 4-строчные cfi_lines/cff_lines шаблоны файла (другая, более полная детализация) для будущего расширения. 2022-2025: баланс/ОДДС остаются как были (первичка для этих лет НЕ добыта в этом заходе — годовые отчёты 2023-2025 либо РСБУ-соло, либо не найдены; следующий заход по MAGN должен сфокусироваться именно на 2022-2025)."
   ],
   "segments": [
     {
