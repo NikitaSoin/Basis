@@ -18,6 +18,7 @@ v0 / предварительная методика: считается из Ф
 """
 from __future__ import annotations
 import json
+import logging
 import os
 import threading
 import time
@@ -25,6 +26,8 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.services.live_multiples import live_scale_multiples
+
+logger = logging.getLogger(__name__)
 
 COMPANIES_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "companies")
 
@@ -97,7 +100,7 @@ def _load_financials() -> dict:
     return out
 
 
-def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding):
+def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding, fv_entry=None):
     """Сырые метрики тикера + флаги достоверности. cm — строка company_metrics (dict)."""
     j = fin.get(ticker.upper()) or {}
     meta = j.get("meta") or {}
@@ -116,8 +119,18 @@ def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding):
     cf = j.get("cash_flow") or {}
     bank_m = j.get("bank_metrics") or {}
 
-    fair_base = _num(fr.get("base"))
-    upside = ((fair_base - price) / price * 100.0) if (fair_base and price) else None
+    # Справедливая цена — из единого аксессора (app/services/fair_value.py): методика
+    # Basis (BFV), с фолбэком на оценку аналитика, когда движок не посчитал или не прошёл
+    # санити-гейт. Владелец 2026-07-30: «везде на платформе — наша новая методика».
+    # fr.get("base") остаётся страховкой, если аксессор почему-то не отдал запись.
+    fair_base = _num((fv_entry or {}).get("fair_price"))
+    fair_source = (fv_entry or {}).get("source")
+    if fair_base is None:
+        fair_base = _num(fr.get("base"))
+        fair_source = "analyst" if fair_base is not None else None
+    upside = _num((fv_entry or {}).get("upside_pct"))
+    if upside is None:
+        upside = ((fair_base - price) / price * 100.0) if (fair_base and price) else None
     fcf = _num(_last(cf.get("fcf")))
     # financials в млн → в рубли; market_cap в рублях
     fcf_yield = (fcf * 1e6 / market_cap * 100.0) if (fcf is not None and market_cap) else None
@@ -153,7 +166,7 @@ def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding):
     }
     if raw["div_yield"] is not None:
         raw["div_yield"] = min(raw["div_yield"], CONFIG["div_yield_cap"])
-    return raw, profile, dq, anomaly, suspect, fair_base
+    return raw, profile, dq, anomaly, suspect, fair_base, fair_source
 
 
 def _valid_for_pool(metric, raw, suspect):
@@ -230,6 +243,18 @@ def _compute_universe(db: Session, universe: str = "all", sector: str | None = N
     metrics_rows = {r._mapping["ticker"]: dict(r._mapping)
                     for r in db.execute(text("SELECT * FROM company_metrics"))}
 
+    # Справедливые цены пачкой ОДИН раз на всю вселенную: наивный вызов на тикер дал бы
+    # ~265×(5 файлов + 3 SQL) на пересчёт и положил бы бэк. Внутри аксессора кривая ОФЗ,
+    # барометр, цены и беты берутся по разу (app/services/fair_value.py).
+    from app.services.fair_value import get_fair_values_batch
+    fair_map = {}
+    try:
+        fair_map = get_fair_values_batch(db, [dict(r._mapping)["ticker"] for r in rows])
+    except Exception:  # noqa: BLE001
+        # скринер не должен падать целиком из-за движка оценки — деградируем к
+        # оценкам аналитика внутри _extract_raw
+        logger.warning("screener: батч справедливых цен не удался — фолбэк на analyst", exc_info=True)
+
     base = []
     for r in rows:
         d = dict(r._mapping)
@@ -241,11 +266,12 @@ def _compute_universe(db: Session, universe: str = "all", sector: str | None = N
         # только акции с метриками (есть строка company_metrics) и ценой
         if t not in metrics_rows or price is None:
             continue
-        raw, profile, dq, anomaly, suspect, fair = _extract_raw(t, fin, cm, price, mcap, shares)
+        raw, profile, dq, anomaly, suspect, fair, fair_src = _extract_raw(
+            t, fin, cm, price, mcap, shares, fair_map.get(t))
         base.append({"ticker": t, "name": d.get("name"), "sector": d.get("sector"),
                      "profile": profile, "data_quality": dq, "anomaly": anomaly,
                      "suspect": suspect, "price": price, "market_cap": mcap,
-                     "fair_value": fair, "raw": raw})
+                     "fair_value": fair, "fair_value_source": fair_src, "raw": raw})
 
     # ── фильтр вселенной ──
     if sector:

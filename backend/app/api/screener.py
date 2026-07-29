@@ -116,12 +116,30 @@ def screener_portfolio_picks(db: Session = Depends(get_db)):
 def screener_stocks(db: Session = Depends(get_db)):
     """Все акции с метриками + текущей ценой + апсайдом к справедливой цене.
     Фильтрация/сортировка — на фронте (данные готовые, отдаём целиком)."""
+    rows = [dict(r._mapping) for r in db.execute(_Q)]
+    # Справедливая цена — из единого аксессора (методика Basis / BFV, фолбэк на оценку
+    # аналитика), а не застывшее company_metrics.fair_value: иначе список акций
+    # показывал бы не то же число, что карточка и карты рынка (владелец 2026-07-30).
+    from app.services.fair_value import get_fair_values_batch
+    try:
+        fair_map = get_fair_values_batch(db, [d.get("ticker") for d in rows])
+    except Exception:  # noqa: BLE001
+        import logging
+        logging.getLogger(__name__).warning(
+            "screener/stocks: батч справедливых цен не удался — остаётся company_metrics", exc_info=True)
+        fair_map = {}
+
     out = []
-    for r in db.execute(_Q):
-        d = dict(r._mapping)
+    for d in rows:
         for k, v in d.items():
             if hasattr(v, "real") and not isinstance(v, (int, float, bool)) and v is not None:
                 d[k] = float(v)
+        entry = fair_map.get((d.get("ticker") or "").upper()) or {}
+        if entry.get("fair_price") is not None:
+            d["fair_value"] = entry["fair_price"]
+            d["fair_value_source"] = entry.get("source")
+        else:
+            d["fair_value_source"] = "analyst" if d.get("fair_value") else None
         # апсайд к справедливой цене (оценка): fair_value / price − 1
         fv, px = d.get("fair_value"), d.get("price")
         d["upside_pct"] = round((fv / px - 1) * 100, 1) if fv and px else None

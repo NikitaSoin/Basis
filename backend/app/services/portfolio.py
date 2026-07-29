@@ -1,3 +1,4 @@
+import logging
 import math
 from datetime import date as date_cls, timedelta
 from decimal import Decimal
@@ -8,6 +9,8 @@ from app.models.company import Company, Quote
 from app.models.company_metrics import CompanyMetrics
 from app.models.portfolio import Portfolio, PortfolioPosition, PortfolioTransaction
 from app.schemas.portfolio import PortfolioCreate, PositionCreate, TradeCreate
+
+logger = logging.getLogger(__name__)
 
 
 def get_all_portfolios(db: Session) -> list[Portfolio]:
@@ -628,14 +631,31 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int, compare_period: st
     # Светофор недооценена/справедливо/переоценена — НАШ порог (не поле из файла:
     # verdict_word/confidence заполнены менее чем в 1% карточек), поэтому тоже
     # помечен "суждение".
+    # Справедливая цена — из единого аксессора (методика Basis / BFV, с фолбэком на
+    # оценку аналитика), а не напрямую из financials.json: иначе таблица портфеля
+    # показывала бы по бумаге не то же число, что её карточка (владелец 2026-07-30).
+    from app.services.fair_value import get_fair_values_batch
+    _fv_map = {}
+    try:
+        _fv_map = get_fair_values_batch(
+            db, [p["ticker"] for p in positions if p.get("instrument_type") == "equity"])
+    except Exception:  # noqa: BLE001
+        logger.warning("portfolio: батч справедливых цен не удался — фолбэк на analyst", exc_info=True)
+
     for p in positions:
         if p["instrument_type"] != "equity" or not p.get("price"):
             p["upside_to_fair_pct"] = None
             p["valuation_flag"] = None
             p["fair_value_as_of"] = None
+            p["fair_value_source"] = None
             continue
         fin = _load_financials_json(p["ticker"])
-        base = ((fin or {}).get("valuation") or {}).get("fair_value_range", {}).get("base") if fin else None
+        _fv = _fv_map.get(p["ticker"].upper()) or {}
+        base = _fv.get("fair_price")
+        p["fair_value_source"] = _fv.get("source")
+        if base is None:   # аксессор не отдал — старая цена как страховка
+            base = ((fin or {}).get("valuation") or {}).get("fair_value_range", {}).get("base") if fin else None
+            p["fair_value_source"] = "analyst" if base is not None else None
         if base is None:
             p["upside_to_fair_pct"] = None
             p["valuation_flag"] = None

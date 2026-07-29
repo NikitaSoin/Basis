@@ -8,13 +8,15 @@
 Источники (переиспользуем готовое, без дублирования методики):
 - live-цена и дневное изменение — tinkoff_quotes (как в /quotes/realtime, с кэшем);
 - история закрытий (неделя/месяц) — таблица quotes (дневные close, глубина с 2016);
-- справедливая цена — financials.json карточки (valuation.fair_value_range.base),
-  тот же файл, что рендерит блок «Финансы»; апсайд считается ЖИВЬЁМ от текущей цены;
+- справедливая цена — единый аксессор app/services/fair_value.py (методика Basis / BFV,
+  с фолбэком на оценку аналитика из financials.json), тот же источник, что у карточки и
+  скринера; апсайд считается ЖИВЬЁМ от текущей цены;
 - сектор и капитализация — таблица companies.
 """
 from __future__ import annotations
 
 import json
+import logging
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -23,6 +25,8 @@ from sqlalchemy.orm import Session
 
 from app.models.company import Company
 from app.services import tinkoff_quotes
+
+logger = logging.getLogger(__name__)
 
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 _PERIOD_DAYS = {"week": 7, "month": 30}
@@ -142,11 +146,24 @@ def valuation(db: Session, tickers_filter: set[str] | None = None) -> dict:
     live = _live_prices()
     latest = _latest_closes(db)
 
+    # Справедливые цены пачкой из единого аксессора (методика Basis / BFV, фолбэк на
+    # оценку аналитика) — чтобы карта показывала по бумаге то же число, что карточка и
+    # скринер (владелец 2026-07-30). Один вызов на всю карту, не на компанию.
+    from app.services.fair_value import get_fair_values_batch
+    companies = list(_companies(db, tickers_filter))
+    try:
+        fair_map = get_fair_values_batch(db, [c.ticker for c in companies])
+    except Exception:  # noqa: BLE001
+        logger.warning("market_maps: батч справедливых цен не удался — фолбэк на analyst", exc_info=True)
+        fair_map = {}
+
     by_sector: dict[str, list] = {}
     uncovered: list = []
-    for c in _companies(db, tickers_filter):
+    for c in companies:
         cap = float(c.market_cap) if c.market_cap is not None else None
-        fair = _fair_value(c.ticker)
+        fair = (fair_map.get(c.ticker.upper()) or {}).get("fair_price")
+        if fair is None:
+            fair = _fair_value(c.ticker)   # страховка, если аксессор не отдал запись
         price = _now_price(c.ticker, live, latest)
         if fair is None or price is None or price <= 0:
             uncovered.append({"ticker": c.ticker, "name": c.name,
