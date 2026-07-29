@@ -6830,7 +6830,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
       // fairBase/_upside доступны через замыкание (объявлены ниже, но renderGeoTab
       // вызывается в JSX уже после их инициализации) — GeoTab рисует свой гео-рейл,
       // строка «модельная цена» связывает гео-оверлей с финансовой оценкой.
-      return <GeoTab geoJson={geoJson} geoMd={geoMd} onNavigateTab={setTab} fairBase={_fairBase} upside={_upside} />;
+      return <GeoTab geoJson={geoJson} geoMd={geoMd} onNavigateTab={setTab} fairBase={_fairBaseMoney} upside={_upside} />;
     }
     return renderGeo();
   };
@@ -7362,9 +7362,11 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
   _pushM("EV/EBITDA", _num1(_cur.ev_ebitda), "×", "estimate");
   _pushM("ROE", _num1(_lastNN(_ret.roe)), "%", "fact");
   _pushM("Потенциал к справ.", _upside != null ? (_upside > 0 ? "+" : "") + Math.round(_upside).toLocaleString("ru-RU") : null, "%", "judgment");
-  // formatNumber, а НЕ formatMoney: рейл дорисовывает валюту отдельным span (neo.jsx),
-  // с formatMoney получалось «340,1 ₽ ₽» (пре-существующий дефект, найден на ОТК).
+  // Два формата одного числа: рейл (neo.jsx) дорисовывает валюту отдельным span — туда
+  // идёт голое число, иначе получается «340,1 ₽ ₽» (пре-существующий дефект, найден на
+  // ОТК). GeoTab печатает «Модельная цена {…}» без своей валюты — туда с «₽».
   const _fairBase = typeof _railFair === "number" ? formatNumber(_railFair) : null;
+  const _fairBaseMoney = typeof _railFair === "number" ? formatMoney(_railFair) : null;
   const _sources = Array.isArray(_fin.sources) ? _fin.sources.length : null;
   const _conf = { high: "высокая", medium: "средняя", low: "низкая" }[finMeta.data_quality] || null;
   const _price = livePrice ?? company.price;
