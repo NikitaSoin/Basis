@@ -1,1706 +1,1714 @@
 {
-  "meta": {
-    "ticker": "SOFL",
-    "name": "ПАО Софтлайн",
-    "sector": "IT",
-    "profile": "standard",
-    "currency": "RUB",
-    "unit": "млн",
-    "reporting_standard": "МСФО",
-    "converted_years": [],
-    "conversion_note": "Все данные в рублях. 2020-2021 — период под Softline Holding (LSE). 2022-2025 — ПАО Софтлайн после реорганизации из Noventiq. Данные по выручке МСФО (не оборот/гросс).",
-    "fiscal_years": [
-      2020,
-      2021,
-      2022,
-      2023,
-      2024,
-      2025
-    ],
-    "shares_outstanding": 400002000,
-    "last_price": 66.582,
-    "price_date": "2026-06-13",
-    "data_quality": "medium",
-    "anomaly_flag": true,
-    "anomaly_note": "Три кластера аномалий: (1) ЧП 2022 = 6434 млн — разовый доход от реорганизации/выделения из Noventiq; ЧП 2023-2024 — разовые M&A-доходы при операционно отрицательном pre_tax_proxy. (2) CFO 2024-2025 отрицательный (-3251, -1534) — M&A-нагрузка на оборотный капитал; нормализован. (3) Число акций: 200→324→400 млн (2022→2023→2024) через допэмиссии — дилюция EPS. Оборот (брутто) 2025 = 131.9 млрд vs выручка МСФО = 95.5 млрд; используется МСФО-выручка.",
-    "adjustments_aggressive": false
-  },
-  "income_statement": {
-    "cost_format": "by_function",
-    "revenue": [
-      69342,
-      66532,
-      56246,
-      73181,
-      80723,
-      95472
-    ],
-    "cogs": [
-      null,
-      null,
-      43946,
-      49405,
-      43999,
-      48543
-    ],
-    "gross_profit": [
-      null,
-      null,
-      12300,
-      23776,
-      36724,
-      46929
-    ],
-    "expense_lines": [],
-    "operating_profit": [
-      2028,
-      1969,
-      875,
-      1534,
-      2149,
-      4019
-    ],
-    "da": [
-      761,
-      1003,
-      1256,
-      1709,
-      3184,
-      4147
-    ],
-    "ebitda": [
-      2789,
-      2972,
-      2131,
-      3243,
-      5333,
-      8166
-    ],
-    "finance_costs": [
-      974,
-      1325,
-      1147,
-      2435,
-      5041,
-      6043
-    ],
-    "finance_income": [
-      null,
-      null,
-      null,
-      449,
-      1227,
-      2959
-    ],
-    "pre_tax_profit": [
-      null,
-      null,
-      null,
-      3763,
-      4345,
-      1772
-    ],
-    "income_tax": [
-      null,
-      null,
-      null,
-      -685,
-      -639,
-      76
-    ],
-    "net_profit": [
-      863,
-      1207,
-      6434,
-      2997,
-      3264,
-      288
-    ],
-    "margins": {
-      "gross_margin": [
-        null,
-        null,
-        0.219,
-        0.325,
-        0.457,
-        0.488
-      ],
-      "ebitda_margin": [
-        0.04,
-        0.045,
-        0.038,
-        0.044,
-        0.066,
-        0.086
-      ],
-      "operating_margin": [
-        0.029,
-        0.03,
-        0.016,
-        0.021,
-        0.027,
-        0.042
-      ],
-      "ros": [
-        0.012,
-        0.018,
-        0.114,
-        0.041,
-        0.04,
-        0.003
-      ]
-    }
-  },
-  "adjusted": {
-    "net_profit_adj": [
-      863,
-      1207,
-      0,
-      0,
-      0,
-      1888
-    ],
-    "ebitda_adj": [
-      2789,
-      2972,
-      2131,
-      3243,
-      5333,
-      8166
-    ],
-    "fcf_normalized": [
-      2014,
-      1999,
-      1449,
-      5109,
-      1723,
-      2038
-    ],
-    "wc_adjustment": [
-      0,
-      0,
-      0,
-      0,
-      7373,
-      6409
-    ],
-    "capex_sustainable_mln": null,
-    "capex_note": "Устойчивый capex = медиана(capex/revenue) за 6 лет × revenue = 3.0% × revenue. Фактический capex/rev: 1.1%, 2.0%, 2.6%, 3.3%, 5.4%, 5.1% — медиана 3.0%. В abs 2025: 3.0% × 95472 = 2838 млн (vs reported 4880 млн). При нормализации CFO использован устойчивый capex 3.0%.",
-    "etr_reported": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "etr_sustainable": 25.0,
-    "bridge": [
-      {
-        "year": 2020,
-        "item": "Систематический чек-лист: обесценения — не обнаружены; курсовые — не обнаружены; разовые продажи — не обнаружены; аномальная ETR — нет данных. Adjusted = Reported.",
-        "amount": 0,
-        "added_back": false,
-        "certainty": "logic",
-        "source_ref": "src_2"
-      },
-      {
-        "year": 2021,
-        "item": "Систематический чек-лист: одноразовых не обнаружено. Adjusted = Reported.",
-        "amount": 0,
-        "added_back": false,
-        "certainty": "logic",
-        "source_ref": "src_2"
-      },
-      {
-        "year": 2022,
-        "item": "Разовый доход от реорганизации (выделение из Softline Holding / Noventiq): ЧП reported = 6434 млн при операционно убыточном pre_tax_proxy (EBITDA 2131 − DA 1256 − fin_costs 1147 = −272 млн). Разовый доход реорганизации ≈ 6434 млн. Исключён полностью. Adj ЧП = 0.",
-        "amount": -6434,
-        "added_back": false,
-        "certainty": "judgement",
-        "source_ref": "src_2"
-      },
-      {
-        "year": 2023,
-        "item": "Разовый M&A доход (bargain purchase/переоценка при поглощениях): ЧП reported = 2997 млн при pre_tax_proxy = EBITDA 3243 − DA 1709 − fin_costs 2435 = −901 млн. Разовый M&A доход ≈ 2997 млн. Исключён. Adj ЧП = 0.",
-        "amount": -2997,
-        "added_back": false,
-        "certainty": "judgement",
-        "source_ref": "src_2"
-      },
-      {
-        "year": 2024,
-        "item": "Разовый M&A доход: ЧП reported = 3264 млн при pre_tax_proxy = 5333 − 3184 − 5041 = −2892 млн. Разовый доход от сделок ~3264 млн. Исключён. Adj ЧП = 0.",
-        "amount": -3264,
-        "added_back": false,
-        "certainty": "judgement",
-        "source_ref": "src_2"
-      },
-      {
-        "year": 2025,
-        "item": "Убыток от прекращённой деятельности (ликвидация дочек Сойка и Робовойс, Q4 2025): разовый убыток −1600 млн (fact, пресс-релиз компании). Добавлен обратно. Adj ЧП = 288 + 1600 = 1888 млн.",
-        "amount": 1600,
-        "added_back": true,
-        "certainty": "fact",
-        "source_ref": "src_1"
-      },
-      {
-        "year": 2025,
-        "item": "Нормализация CFO 2025: CFO_reported = −1534 млн (аномальный, 3.2× ниже нормы). CFO_norm = 5.1% × 95472 = 4875 млн. Δ = +6409 млн → wc_adjustment. FCF_norm = 4875 − 2838 (sustain capex) = 2038 млн.",
-        "amount": 6409,
-        "added_back": true,
-        "certainty": "logic",
-        "source_ref": "src_2"
-      },
-      {
-        "year": 2024,
-        "item": "Нормализация CFO 2024: CFO_reported = −3251 млн (аномальный, 1.79× vs норма 4117 млн). Δ = +7373 млн → wc_adjustment. FCF_norm = 4117 − 2399 (sustain capex) = 1723 млн.",
-        "amount": 7373,
-        "added_back": true,
-        "certainty": "logic",
-        "source_ref": "src_2"
-      }
-    ],
-    "bridge_note": "2022-2024 adj ЧП = 0 из-за judgement-корректировок: при операционно отрицательном pre_tax_proxy вся reported прибыль объясняется разовыми M&A/реорганизационными доходами. Без детального первичного отчёта — judgement. Отчётные цифры (6434/2997/3264 млн) в income_statement. ЧП 2025 extracted=21 млн vs верифицированное 288 млн — принято 288 млн (Ведомости/Коммерсант/пресс-релиз)."
-  },
-  "balance_sheet": {
-    "non_current_assets": {
-      "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "intangibles": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "goodwill": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "long_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ]
-    },
-    "current_assets": {
-      "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "cash": [
-        3838,
-        4022,
-        13363,
-        13767,
-        10683,
-        13134
-      ],
-      "short_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ]
-    },
-    "total_assets": [
-      32298,
-      33939,
-      44773,
-      74517,
-      100927,
-      117749
-    ],
-    "equity": {
-      "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "retained_earnings": [
-        3354,
-        322,
-        6788,
-        9785,
-        11887,
-        10940
-      ],
-      "additional_paid_in": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "other_equity": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "total_equity": [
-        4383,
-        1765,
-        9795,
-        8516,
-        24159,
-        29544
-      ]
-    },
-    "non_current_liabilities": {
-      "long_term_debt": [
-        5689,
-        6487,
-        3116,
-        7545,
-        7310,
-        2256
-      ],
-      "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ]
-    },
-    "current_liabilities": {
-      "short_term_debt": [
-        1323,
-        2926,
-        10824,
-        12396,
-        14125,
-        25687
-      ],
-      "payables": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ]
-    },
-    "total_liabilities": [
-      27915,
-      32174,
-      34978,
-      66001,
-      76768,
-      88205
-    ],
-    "net_debt": [
-      3174,
-      5391,
-      577,
-      6174,
-      10752,
-      14809
-    ],
-    "tangible_equity": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "tangible_note": "Гудвил и НМА от M&A не раскрыты постатейно → tangible_equity = null. Активы выросли с 32 до 117 млрд за 5 лет при M&A; значительная часть — предположительно гудвил. P/B посчитан от балансового капитала (балансовый 73.86 ₽/акцию, P/B = 0.90) — может быть завышен, если ощутимый капитал существенно ниже. Требует проверки по первичной отчётности.",
-    "ratios": {
-      "debt_to_equity": [
-        1.6,
-        5.32,
-        1.43,
-        2.33,
-        0.89,
-        0.95
-      ],
-      "net_debt_ebitda": [
-        1.14,
-        1.81,
-        0.27,
-        1.9,
-        2.02,
-        1.81
-      ],
-      "current_ratio": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ]
-    },
-    "total_equity": [
-      4383,
-      1765,
-      9795,
-      8516,
-      24159,
-      29544
-    ]
-  },
-  "cash_flow": {
-    "cfo": [
-      2808,
-      3328,
-      2931,
-      7531,
-      -3251,
-      -1534
-    ],
-    "cfi": [
-      null,
-      null,
-      null,
-      -10069,
-      -8860,
-      -715
-    ],
-    "cff": [
-      null,
-      null,
-      null,
-      2780,
-      9459,
-      4804
-    ],
-    "net_change_in_cash": [
-      null,
-      null,
-      null,
-      404,
-      -3073,
-      2451
-    ],
-    "capex": [
-      794,
-      1329,
-      1482,
-      2422,
-      4384,
-      4880
-    ],
-    "fcf": [
-      2014,
-      1999,
-      1449,
-      5109,
-      -7635,
-      -6414
-    ],
-    "cfo_lines": [
-      {
-        "name": "Прибыль до налогообложения от продолжающейся деятельности",
-        "values": [
-          null,
-          null,
-          null,
-          3763,
-          3304,
-          1772
-        ]
-      },
-      {
-        "name": "Убыток до налогообложения от прекращённой деятельности",
-        "values": [
-          null,
-          null,
-          null,
-          null,
-          null,
-          -1577
-        ]
-      },
-      {
-        "name": "Амортизация основных средств и нематериальных активов",
-        "values": [
-          null,
-          null,
-          null,
-          1709,
-          2943,
-          4147
-        ]
-      },
-      {
-        "name": "Убыток от выбытия внеоборотных активов",
-        "values": [
-          null,
-          null,
-          null,
-          54,
-          58,
-          33
-        ]
-      },
-      {
-        "name": "Убыток/(прибыль) по курсовым разницам",
-        "values": [
-          null,
-          null,
-          null,
-          -95,
-          260,
-          207
-        ]
-      },
-      {
-        "name": "Отражение недостач запасов",
-        "values": [
-          null,
-          null,
-          null,
-          312,
-          779,
-          90
-        ]
-      },
-      {
-        "name": "Движение резерва под ожидаемые кредитные убытки",
-        "values": [
-          null,
-          null,
-          null,
-          130,
-          33,
-          -503
-        ]
-      },
-      {
-        "name": "Финансовые расходы",
-        "values": [
-          null,
-          null,
-          null,
-          2435,
-          5114,
-          6248
-        ]
-      },
-      {
-        "name": "Финансовые доходы",
-        "values": [
-          null,
-          null,
-          null,
-          -449,
-          -1227,
-          -2959
-        ]
-      },
-      {
-        "name": "Выплаты на основе акций",
-        "values": [
-          null,
-          null,
-          null,
-          null,
-          827,
-          1033
-        ]
-      },
-      {
-        "name": "Изменение справедливой стоимости финансовых инструментов",
-        "values": [
-          null,
-          null,
-          null,
-          -3185,
-          -2863,
-          -1539
-        ]
-      },
-      {
-        "name": "Расходы/(доходы) за вычетом расходов по операциям с финансовыми инструментами",
-        "values": [
-          null,
-          null,
-          null,
-          -935,
-          234,
-          -22
-        ]
-      },
-      {
-        "name": "Доход от выгодной покупки",
-        "values": [
-          null,
-          null,
-          null,
-          null,
-          -2193,
-          null
-        ]
-      },
-      {
-        "name": "(Доход)/расход от инвестиций в совместные предприятия",
-        "values": [
-          null,
-          null,
-          null,
-          null,
-          -11,
-          3
-        ]
-      },
-      {
-        "name": "Расходы от выбытия дочерней компании",
-        "values": [
-          null,
-          null,
-          null,
-          null,
-          34,
-          null
-        ]
-      },
-      {
-        "name": "Обесценение гудвила",
-        "values": [
-          null,
-          null,
-          null,
-          null,
-          null,
-          516
-        ]
-      },
-      {
-        "name": "Прочие неденежные операции",
-        "values": [
-          null,
-          null,
-          null,
-          2,
-          100,
-          54
-        ]
-      },
-      {
-        "name": "Денежные потоки от операционной деятельности до изменения оборотного капитала",
-        "values": [
-          null,
-          null,
-          null,
-          3741,
-          7392,
-          7503
-        ]
-      },
-      {
-        "name": "(Увеличение)/уменьшение запасов",
-        "values": [
-          null,
-          null,
-          null,
-          -3166,
-          -2239,
-          -1695
-        ]
-      },
-      {
-        "name": "(Увеличение)/уменьшение выданных авансов, торговой и прочей дебиторской задолженности",
-        "values": [
-          null,
-          null,
-          null,
-          -7874,
-          -7578,
-          -14161
-        ]
-      },
-      {
-        "name": "Увеличение/(уменьшение) контрактных обязательств, торговой и прочей кредиторской задолженности",
-        "values": [
-          null,
-          null,
-          null,
-          15620,
-          -428,
-          7171
-        ]
-      },
-      {
-        "name": "Потоки денежных средств от/(использованные в) операционной деятельности до уплаты налога на прибыль",
-        "values": [
-          null,
-          null,
-          null,
-          8321,
-          -2853,
-          -1182
-        ]
-      },
-      {
-        "name": "Уплаченный налог на прибыль",
-        "values": [
-          null,
-          null,
-          null,
-          -790,
-          -398,
-          -352
-        ]
-      }
-    ],
-    "cfi_lines": [
-      {
-        "name": "Приобретение основных средств",
-        "values": [
-          null,
-          null,
-          null,
-          -954,
-          -1089,
-          -1230
-        ]
-      },
-      {
-        "name": "Создание и приобретение нематериальных активов",
-        "values": [
-          null,
-          null,
-          null,
-          -1468,
-          -3295,
-          -3650
-        ]
-      },
-      {
-        "name": "Приобретение дочерних компаний, за вычетом полученных денежных средств",
-        "values": [
-          null,
-          null,
-          null,
-          -4718,
-          -7644,
-          -1015
-        ]
-      },
-      {
-        "name": "Финансовые вложения",
-        "values": [
-          null,
-          null,
-          null,
-          -2014,
-          6076,
-          2916
-        ]
-      },
-      {
-        "name": "Поступления от финансовой аренды",
-        "values": [
-          null,
-          null,
-          null,
-          120,
-          324,
-          109
-        ]
-      },
-      {
-        "name": "Полученные процентные доходы",
-        "values": [
-          null,
-          null,
-          null,
-          237,
-          411,
-          2104
-        ]
-      },
-      {
-        "name": "Погашение займов выданных",
-        "values": [
-          null,
-          null,
-          null,
-          2806,
-          1771,
-          5191
-        ]
-      },
-      {
-        "name": "Выдача займов",
-        "values": [
-          null,
-          null,
-          null,
-          -4078,
-          -5414,
-          -5113
-        ]
-      },
-      {
-        "name": "Выбытие дочерней компании (денежные средства)",
-        "values": [
-          null,
-          null,
-          null,
-          null,
-          null,
-          -27
-        ]
-      }
-    ],
-    "cff_lines": [
-      {
-        "name": "Погашение кредитов и займов",
-        "values": [
-          null,
-          null,
-          null,
-          -31349,
-          -28736,
-          -32552
-        ]
-      },
-      {
-        "name": "Поступление кредитов и займов",
-        "values": [
-          null,
-          null,
-          null,
-          36003,
-          36304,
-          39326
-        ]
-      },
-      {
-        "name": "Оплата основной части обязательств по аренде",
-        "values": [
-          null,
-          null,
-          null,
-          -509,
-          -638,
-          -731
-        ]
-      },
-      {
-        "name": "Выплаченные проценты",
-        "values": [
-          null,
-          null,
-          null,
-          -1925,
-          -3720,
-          -5119
-        ]
-      },
-      {
-        "name": "Поступления от продажи собственных акций",
-        "values": [
-          null,
-          null,
-          null,
-          null,
-          6957,
-          5028
-        ]
-      },
-      {
-        "name": "Покупка собственных акций",
-        "values": [
-          null,
-          null,
-          null,
-          null,
-          -708,
-          -1148
-        ]
-      },
-      {
-        "name": "Вторичное размещение акций",
-        "values": [
-          null,
-          null,
-          null,
-          560,
-          null,
-          null
-        ]
-      }
-    ],
-    "ratios": {
-      "fcf_margin": [
-        0.029,
-        0.03,
-        0.026,
-        0.07,
-        -0.095,
-        -0.067
-      ],
-      "cfo_to_capex": [
-        3.53,
-        2.5,
-        1.98,
-        3.11,
-        -0.74,
-        -0.31
-      ],
-      "capex_to_revenue": [
-        0.011,
-        0.02,
-        0.026,
-        0.033,
-        0.054,
-        0.051
-      ]
-    },
-    "fx_effect_on_cash": [
-      null,
-      null,
-      null,
-      162,
-      -421,
-      -104
-    ]
-  },
-  "returns": {
-    "roe": [
-      0.197,
-      0.393,
-      0.0,
-      0.0,
-      0.0,
-      0.07
-    ],
-    "roa": [
-      0.027,
-      0.036,
-      0.0,
-      0.0,
-      0.0,
-      0.017
-    ],
-    "roic": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "ros": [
-      0.012,
-      0.018,
-      0.0,
-      0.0,
-      0.0,
-      0.02
-    ],
-    "asset_turnover": [
-      2.15,
-      1.96,
-      1.26,
-      0.98,
-      0.8,
-      0.81
-    ]
-  },
-  "metrics_timeseries": {
-    "pe": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      92.5
-    ],
-    "pb": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      0.9
-    ],
-    "ps": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      0.28
-    ],
-    "ev_ebitda": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      5.1
-    ],
-    "roe": [
-      0.197,
-      0.393,
-      0.0,
-      0.0,
-      0.0,
-      0.07
-    ],
-    "roa": [
-      0.027,
-      0.036,
-      0.0,
-      0.0,
-      0.0,
-      0.017
-    ],
-    "roic": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "gross_margin": [
-      null,
-      null,
-      0.219,
-      0.325,
-      0.457,
-      0.488
-    ],
-    "ebitda_margin": [
-      0.04,
-      0.045,
-      0.038,
-      0.044,
-      0.066,
-      0.086
-    ],
-    "operating_margin": [
-      0.029,
-      0.03,
-      0.016,
-      0.021,
-      0.027,
-      0.042
-    ],
-    "ros": [
-      0.012,
-      0.018,
-      0.0,
-      0.0,
-      0.0,
-      0.02
-    ],
-    "net_debt_ebitda": [
-      1.14,
-      1.81,
-      0.27,
-      1.9,
-      2.02,
-      1.81
-    ],
-    "revenue_growth": [
-      null,
-      -0.041,
-      -0.154,
-      0.301,
-      0.103,
-      0.182
-    ],
-    "net_profit_growth": [
-      null,
-      0.399,
-      4.331,
-      -0.534,
-      0.089,
-      -0.912
-    ]
-  },
-  "multiples": {
-    "pe": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      92.5
-    ],
-    "ps": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      0.28
-    ],
-    "pb": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      0.9
-    ],
-    "ev_ebitda": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      5.1
-    ],
-    "pe_adj": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      14.1
-    ],
-    "current": {
-      "pe": 92.5,
-      "pe_adj": 14.1,
-      "ps": 0.28,
-      "pb": 0.9,
-      "ev_ebitda": 5.1,
-      "as_of": "2026-06-13"
-    },
-    "historical_avg": {
-      "pe_basis": "not_applicable — adj ЧП = 0 в 2022-2024 из-за разовых M&A-доходов; исторический ряд только 2020-2021 (нерепрезентативный период под Noventiq/LSE)",
-      "pe_value": null,
-      "pe_adj_value": null,
-      "pb_value": null,
-      "period": "2020-2025"
-    }
-  },
-  "forecast": {
-    "source_type": "mechanical",
-    "providers": [
-      "Компания (гайданс 2026)"
-    ],
-    "revenue_growth_pct": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "net_profit_growth_pct": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "note": "Компания гайдит оборот 2026 = 145-155 млрд (+10-17% к обороту 131.9 млрд). EBITDA гайданс 9-9.5 млрд. Для выручки МСФО применяем консервативный рост 10% (105 млрд). Forward EPS adj 2026 ненадёжен: при fin_costs ~5500 млн и EBITDA 9000 млн pre_tax ≈ -1000 → убыток → мультипликаторы P/E на прогнозный год не применяются. Консенсус брокеров не получен (пэйвол)."
-  },
-  "valuation": {
-    "methods": [
-      {
-        "method": "DCF",
-        "fair_value_per_share": null,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "fcf1_mln": 2205,
-          "r": 0.193,
-          "g": 0.03,
-          "tax_rate_used": 25.0,
-          "fcf_base": "adjusted",
-          "implied_exit_multiple": 1.7
-        },
-        "status": "insufficient_data",
-        "explain": {
-          "inputs": {
-            "fcf1_mln": "2205 млн ₽ — FCF₁ 2026 = CFO_norm(5.1% × rev_2026 105019) − capex_sust(3.0% × 105019) = 5356 − 3151; CFO_norm_pct = медиана CFO/rev 2020-2023 = 5.1% [logic, расчёт кодом]",
-            "WACC": "19.3% = (26633/54576) × 28.1% + (27943/54576) × 14.5% × (1−0.25); структура: equity 26633 (market_cap), debt 27943 (lt 2256 + st 25687) [расчёт кодом]",
-            "Ke": "28.1% = Rf(14.6%) + β(1.5) × ERP(9.0%) [config market_params.json; β=1.5 — judgement для IT-реселлера с высоким долгом и отрицательным reported CFO]",
-            "g": "3.0% — консервативный терминальный рост, ≤3.5% по конфигу, < WACC",
-            "net_debt": "14809 млн ₽ = lt_debt(2256) + st_debt(25687) − cash(13134) [баланс 2025; расхождение с пресс-релизом 16300 млн задокументировано в data_flags]"
-          },
-          "steps": [
-            "FCF₁ = (5.1% − 3.0%) × 105019 = 2.1% × 105019 = 2205 млн ₽",
-            "EV_dcf = FCF₁ / (WACC − g) = 2205 / (0.193 − 0.030) = 2205 / 0.163 = 13527 млн ₽",
-            "equity_dcf = EV_dcf − net_debt = 13527 − 14809 = −1282 млн ₽ (ОТРИЦАТЕЛЬНАЯ)",
-            "Implied EV/EBITDA из DCF = 13527 / 8166 = 1.7x — аномально низко (сектор 5-10x), подтверждает несостоятельность DCF при данном долге",
-            "Вывод: нормализованный FCF_margin 2.1% капитализируется в EV 13527 млн, что МЕНЬШЕ чистого долга 14809 млн → equity отрицательная → акционерная стоимость в DCF-модели = 0",
-            "Sensitivity при WACC 17.3% (−2pp): EV = 2205/0.143 = 15420, equity = 611, цена = 1.5 ₽ — всё равно нерабочий результат",
-            "Sensitivity при WACC 15.3%: EV = 2205/0.123 = 17927, equity = 3118, цена = 7.8 ₽ — потребовалось бы снижение WACC на 4pp + рост FCF_margin"
-          ],
-          "caveats": [
-            "DCF — insufficient_data, НЕ not_applicable: метод технически применим, но отрицательная equity означает, что текущая долговая нагрузка поглощает всю капитализированную стоимость нормализованных потоков",
-            "Сенситивность: при FCF_margin 4% (удвоение) и WACC 15% → цена ≈ 30 ₽ — всё равно ниже рынка; DCF начинает работать только при значимом снижении долга или росте маржи",
-            "В пользу мультипликаторных методов: EBITDA 8166 млн устойчива, рынок оценивает бизнес по EBITDA-multiple, а не по FCF при высоких ставках"
-          ]
-        }
-      },
-      {
-        "method": "relative_ev_ebitda",
-        "fair_value_per_share": 105.9,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "multiple_used": 7.0,
-          "multiple_basis": "peer_median_it_ru_base",
-          "ebitda_base": "ebitda_adj_2025",
-          "ebitda_value_mln": 8166,
-          "net_debt_mln": 14809,
-          "shares": 400002000
-        },
-        "status": "ok",
-        "explain": {
-          "inputs": {
-            "ebitda_adj_2025": "8166 млн ₽ — скорр. EBITDA 2025; совпадает с reported, т.к. компания публикует adj EBITDA; подтверждён пресс-релизом [src_1]",
-            "peer_ev_ebitda_median": "7.0x — базовый ориентир IT-сектора РФ (реселлер + собственные продукты); Яндекс/Позитив/Астра: 8-15x; SOFL со скидкой за долг, смешанный профиль, нестабильную прибыль [judgement, src_3]",
-            "net_debt": "14809 млн ₽ = lt(2256) + st(25687) − cash(13134) [баланс 2025]",
-            "shares": "400002000 — из market_context.py [src_6]"
-          },
-          "steps": [
-            "EV_target = peer_median × ebitda_adj = 7.0 × 8166 = 57162 млн ₽",
-            "equity = EV_target − net_debt = 57162 − 14809 = 42353 млн ₽",
-            "цена = 42353 / 400002 × 10^6 = 105.9 ₽",
-            "Текущая EV/EBITDA = 41442 / 8166 = 5.1x — рынок торгует с дисконтом к 7x; апсайд есть если дисконт сузится",
-            "Проверка при net_debt 16300 (пресс-релиз): equity = 57162 − 16300 = 40862 → цена = 102.2 ₽"
-          ],
-          "caveats": [
-            "7x — judgement; обосновано для компании с ростом EBITDA (+14-15% г/г) и гайдансом 9-9.5 млрд в 2026; при EBITDA 9250 и 7x → цена = 120.5 ₽",
-            "При ухудшении долговой нагрузки: каждые +1000 млн долга = −2.5 ₽ к цене; риск роста краткосрочного долга (25687 млн st_debt уже высок)",
-            "Мультипликатор выбран EV/EBITDA (не P/E) согласно маршрутизации: adj ЧП нестабильна, P/E нерабочий"
-          ]
-        }
-      },
-      {
-        "method": "relative_ev_ebitda_conservative",
-        "fair_value_per_share": 65.1,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "multiple_used": 5.0,
-          "multiple_basis": "conservative_discount_debt_and_earnings_quality",
-          "ebitda_base": "ebitda_adj_2025",
-          "ebitda_value_mln": 8166,
-          "net_debt_mln": 14809,
-          "shares": 400002000
-        },
-        "status": "ok",
-        "explain": {
-          "inputs": {
-            "ebitda_adj_2025": "8166 млн ₽ [src_1]",
-            "multiple_used": "5.0x — консервативный дисконт за: (a) adj ЧП = 0 в 2022-2024, (b) reported FCF отрицательный 2024-2025, (c) net_debt/EBITDA 1.8x при ставке 14.5%, (d) риск допэмиссий, (e) low free float 16%, (f) убыток от прекращённой деятельности в 2025 [judgement]",
-            "net_debt": "14809 млн ₽"
-          },
-          "steps": [
-            "EV_cons = 5.0 × 8166 = 40830 млн ₽",
-            "equity_cons = 40830 − 14809 = 26021 млн ₽",
-            "цена_cons = 26021 / 400002 × 10^6 = 65.1 ₽",
-            "При EBITDA 2026 = 9250 и 5x: EV = 46250, equity = 31441, цена = 78.6 ₽"
-          ],
-          "caveats": [
-            "5x — нижняя разумная граница для растущего IT-бизнеса; EBITDA растёт (+14-15% г/г) — ниже 5x только при кредитном стрессе",
-            "Пересечение с текущей ценой (66.6 ₽) говорит: рынок торгует в консервативном сценарии, 5x уже заложен"
-          ]
-        }
-      },
-      {
-        "method": "relative_ev_sales",
-        "fair_value_per_share": 82.3,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "multiple_used": 0.5,
-          "multiple_basis": "peer_median_it_reseller_ru",
-          "revenue_base": "revenue_ifrs_2025",
-          "revenue_value_mln": 95472,
-          "net_debt_mln": 14809,
-          "shares": 400002000
-        },
-        "status": "ok",
-        "explain": {
-          "inputs": {
-            "revenue_ifrs_2025": "95472 млн ₽ — МСФО-выручка 2025 (НЕ оборот 131900 млн); при ошибочном использовании оборота цена завышается на ~80% [data_flag, src_1]",
-            "ev_sales_median": "0.5x — нижняя медиана для IT-реселлеров/интеграторов РФ; чистые разработчики ПО: 1-3x; реселлеры: 0.3-0.7x [judgement]",
-            "net_debt": "14809 млн ₽"
-          },
-          "steps": [
-            "EV_target = 0.5 × 95472 = 47736 млн ₽",
-            "equity = 47736 − 14809 = 32927 млн ₽",
-            "цена = 32927 / 400002 × 10^6 = 82.3 ₽",
-            "Проверка при EV/Sales 0.4x (пессимизм): EV = 38189, equity = 23380, цена = 58.4 ₽",
-            "При revenue 2026 = 105019 и 0.5x: цена = (52510-14809)/400002×10^6 = 94.3 ₽"
-          ],
-          "caveats": [
-            "EV/Sales — вспомогательный метод; у SOFL маржа EBITDA 8.6% (растёт), EV/Sales 0.5x корреспондирует с EV/EBITDA ≈ 5.8x при текущей марже",
-            "ВАЖНО: выручка МСФО vs оборот — ключевая ловушка для инвестора, все расчёты на МСФО"
-          ]
-        }
-      },
-      {
-        "method": "historical_pe",
-        "fair_value_per_share": null,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "pe_used": null,
-          "basis": "insufficient_data",
-          "eps_forward": null,
-          "eps_forward_source": "none",
-          "eps_backward_ref": 0.72
-        },
-        "status": "insufficient_data",
-        "explain": {
-          "inputs": {},
-          "steps": [
-            "adj ЧП = 0 в 2022-2024 → P/E adj undefined для трёх из шести лет",
-            "2020-2021 — период Softline Holding (LSE), нерепрезентативны для текущей структуры ПАО",
-            "Forward EPS adj 2026: EBITDA_гайданс 9000 − DA_est 4500 − fin_costs_est 5500 = pre_tax ≈ −1000 → убыток → forward P/E не применим",
-            "Backward P/E reported 2025 = 66.582 / 0.72 = 92.5 — бессодержателен при чистой прибыли 0.3% рентабельности",
-            "Текущий P/E adj (единственная точка) = 66.582 / 4.72 = 14.1x — при EBITDA-марже 8.6% и продолжении нормализации это умеренно"
-          ],
-          "caveats": [
-            "Метод восстановится при устойчивой adj прибыли 2-3 года подряд; в 2026-2027 — перспектива при снижении ставок",
-            "P/E adj 14.1x при текущей цене — справочный ориентир, не основание для таргета"
-          ]
-        }
-      },
-      {
-        "method": "historical_pb",
-        "fair_value_per_share": null,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "pb_used": null,
-          "basis": "not_applicable",
-          "book_value_per_share_used": 73.86,
-          "equity_basis": "balance",
-          "cv": null
-        },
-        "status": "not_applicable",
-        "explain": {
-          "inputs": {},
-          "steps": [],
-          "caveats": [
-            "Маршрутизация IT: historical_pb → not_applicable. Балансовая стоимость не отражает ценность IT-компании; гудвил от M&A не раскрыт → ощутимый капитал неизвестен.",
-            "Справочно: P/B текущий = 0.90 (балансовый BVPS = 73.86 ₽); цена ниже балансовой — нетипично для IT, отражает рыночное недоверие к качеству активов"
-          ]
-        }
-      },
-      {
-        "method": "CAPM",
-        "fair_value_per_share": null,
-        "horizon": "12m",
-        "key_assumptions": {
-          "rf": 0.146,
-          "beta": 1.5,
-          "erp": 0.09,
-          "ke": 0.281
-        },
-        "status": "insufficient_data",
-        "explain": {
-          "inputs": {
-            "rf": "14.6% — доходность 10-летних ОФЗ, конец мая 2026 [config market_params.json]",
-            "erp": "9.0% — премия за риск рынка акций РФ [config]",
-            "beta": "1.5 — judgement: IT-реселлер с высоким долгом (D/E ≈ 1x), отрицательным reported CFO, систематическими допэмиссиями, low free float 16%",
-            "governance_discount_pp": "+3.0 п.п. к ставке (Ke 28.1% → 31.1%) — за: контроль основателя через непрозрачный ЗПИФ (severity high), хроническое размытие капитала допэмиссиями под M&A (severity high), related-party выкуп допвыпуска дочкой «Софтлайн Проджектс», free float 16%, прерывистый дивиденд [из governance.json: governance_discount=+3пп, related_party_signal=повышенный]",
-            "div_yield_2026": "~0.03% — СД рекомендовал дивиденд за 2025 = 0.18 ₽/акция (всего ~72 млн = 25% ЧП по МСФО 288 млн, отсечка ~09.07.2026); символический, на оценку не влияет [WebSearch 2026-06]"
-          },
-          "steps": [
-            "Ke = Rf + β × ERP = 14.6% + 1.5 × 9.0% = 28.1%",
-            "Fair P/E по CAPM = 1 / Ke = 1 / 0.281 = 3.6x",
-            "При adj EPS 2025 = 4.72 ₽: CAPM_таргет = 3.6 × 4.72 = 17.0 ₽ — сильно расходится с мультипликаторными методами",
-            "При adj EPS 2026 ≈ 0 (возможный убыток): CAPM-таргет не применим",
-            "12м таргет через формулу expected return: при div_yield = 0% и Ke = 28.1% — акция должна вырасти на 28.1% за год для компенсации риска → таргет = 66.6 × 1.281 = 85.3 ₽ (только как ориентир ожидаемой доходности)"
-          ],
-          "caveats": [
-            "CAPM-таргет 85.3 ₽ — не оценка стоимости, а ожидаемая доходность при заданном риске; фактически говорит, что при Ke 28.1% акция должна расти на 28% в год чтобы компенсировать риск",
-            "Ke 28.1% = высокая барьерная ставка; снижение КС до 10% → Ke ≈ 22% → CAPM-таргет снижается, но долговая нагрузка также облегчается",
-            "Статус insufficient_data: при нулевом дивиденде и нестабильном EPS CAPM не даёт самостоятельного таргета"
-          ]
-        }
-      },
-      {
-        "method": "dividend",
-        "fair_value_per_share": null,
-        "horizon": "intrinsic_now",
-        "status": "not_applicable",
-        "explain": {
-          "inputs": {},
-          "steps": [],
-          "caveats": [
-            "Дивиденд за 2025: СД рекомендовал 0.18 ₽/акция (~72 млн = 25% ЧП МСФО 288 млн, отсечка ~09.07.2026, доходность ~0.03%) — символический, политика 25% соблюдена формально, но при ЧП≈0 выплата ничтожна [WebSearch 2026-06]. DPS за 2024 = 2.5 ₽. Истории регулярных значимых выплат нет → дивидендная модель Гордона не применима. Дивиденд реконсилирует ЧП МСФО 288 млн (0.18×400М=72М=25%×288М) — подтверждает выбор 288 млн как policy-base."
-          ]
-        }
-      }
-    ],
-    "methods_divergence_note": "Расхождение основных методов > 30%: EV/EBITDA 5x → 65.1 ₽, EV/Sales 0.5x → 82.3 ₽, EV/EBITDA 7x → 105.9 ₽; DCF → insufficient. Коридор намеренно широкий. Причины: (1) неопределённость справедливого мультипликатора (реселлер vs разработчик: 5-7x диапазон); (2) долговая нагрузка: ±1000 млн долга = ±2.5 ₽; (3) качество прибыли (adj ЧП = 0 три года — judgement-корректировки); (4) нормализованный FCF не покрывает долг в DCF. Широкий коридор честно отражает неопределённость инвестиционного кейса.",
-    "fair_value_range": {
-      "conservative": 58,
-      "base": 94,
-      "optimistic": 126
-    },
-    "sensitivity": {
-      "r_grid": [
-        5.0,
-        6.0,
-        7.0,
-        8.0
-      ],
-      "g_grid": [
-        12000,
-        14809,
-        18000
-      ],
-      "matrix_note": "EV/EBITDA multiple (строки: 5x, 6x, 7x, 8x) × net_debt сценарий (столбцы: 12000, 14809, 18000 млн) → цена акции ₽. EBITDA база = 8166 млн, акций = 400002000.",
-      "matrix": [
-        [
-          72.1,
-          65.1,
-          57.1
-        ],
-        [
-          92.5,
-          85.5,
-          77.5
-        ],
-        [
-          112.9,
-          105.9,
-          97.9
-        ],
-        [
-          133.3,
-          126.3,
-          118.3
-        ]
-      ]
-    }
-  },
-  "sources": [
-    {
-      "id": "src_1",
-      "type": "press_release",
-      "title": "Softline — Финансовые результаты за 2025 год (пресс-релиз, февраль 2026)",
-      "url": "https://softlinegroup.com/investors/pdf/Softline_2025_релиз_final.pdf",
-      "reliability": "high"
-    },
-    {
-      "id": "src_2",
-      "type": "analyst",
-      "title": "Extracted financials (haiku agent) + ручная сверка Коммерсант/Ведомости/ТАСС",
-      "url": "companies/SOFL/sources/extracted_financials.json",
-      "reliability": "medium"
-    },
-    {
-      "id": "src_3",
-      "type": "peer_comparison",
-      "title": "Пир-мультипликаторы IT РФ — judgement на основе публичных данных Яндекс/Позитив/Астра (5-15x EV/EBITDA)",
-      "url": "",
-      "reliability": "medium"
-    },
-    {
-      "id": "src_4",
-      "type": "media",
-      "title": "Коммерсант — годовая отчётность Softline 2025",
-      "url": "https://www.kommersant.ru/doc/8551318",
-      "reliability": "high"
-    },
-    {
-      "id": "src_5",
-      "type": "media",
-      "title": "Ведомости — ЧП Softline 288 млн за 2025",
-      "url": "https://www.vedomosti.ru/investments/news/2026/03/30/1186424-chistaya-pribil-softlaina",
-      "reliability": "high"
-    },
-    {
-      "id": "src_6",
-      "type": "market_context",
-      "title": "rates.csv / market_context.py — цена 66.582 ₽, акций 400002000, капитализация 26.63 млрд",
-      "url": "backend/scripts/market_context.py",
-      "reliability": "high"
-    },
-    {
-      "id": "src_7",
-      "type": "official",
-      "title": "Smart-Lab SOFL МСФО — число акций по годам (200→324→400 млн)",
-      "url": "https://smart-lab.ru/q/SOFL/MSFO/number_of_shares/",
-      "reliability": "high"
-    }
+ "meta": {
+  "ticker": "SOFL",
+  "name": "ПАО Софтлайн",
+  "sector": "IT",
+  "profile": "standard",
+  "currency": "RUB",
+  "unit": "млн",
+  "reporting_standard": "МСФО",
+  "converted_years": [],
+  "conversion_note": "Все данные в рублях. 2020-2021 — период под Softline Holding (LSE). 2022-2025 — ПАО Софтлайн после реорганизации из Noventiq. Данные по выручке МСФО (не оборот/гросс).",
+  "fiscal_years": [
+   2020,
+   2021,
+   2022,
+   2023,
+   2024,
+   2025
   ],
-  "data_flags": [
-    "ОБОРОТ vs ВЫРУЧКА МСФО: Пресс-релизы публикуют оборот (гросс) 2025 = 131.9 млрд ₽. В JSON — выручка МСФО = 95.5 млрд ₽. Разница 1.38x: методология признания дохода реселлера (нетто vs брутто). Все мультипликаторы от МСФО-выручки.",
-    "ДИЛЮЦИЯ: акции 200→200→200→324→400→400 млн (2020-2025). Допэмиссии 2023 (+62%) и 2024 (+23%) — M&A-финансирование. EPS исторически несопоставим. Текущий расчёт: 400002000 акций.",
-    "ЧИСТЫЙ ДОЛГ расхождение: баланс = 14809 млн; пресс-релиз компании = 16300 млн. Разница ~1500 млн — вероятно МСФО-16 аренда не в извлечённых данных. Оценки на 14809 млн.",
-    "ЧП 2025 расхождение источников: extracted_financials = 21 млн; финальные данные (пресс-релиз + Ведомости + Коммерсант) = 288 млн. Причина: extracted брал промежуточный отчёт. Принято 288 млн.",
-    "ГУДВИЛ НЕИЗВЕСТЕН: активы 32→117 млрд за 5 лет при M&A (9 сделок в 2024). Гудвил и НМА постатейно не раскрыты → tangible_equity = null. P/B посчитан от балансового капитала и может быть завышен.",
-    "КАЧЕСТВО ПРИБЫЛИ: adj ЧП = 0 в 2022-2024 — judgement-корректировки на разовые M&A/реорганизационные доходы при операционно отрицательном pre_tax_proxy. Без детального первичного отчёта точная верификация невозможна. data_quality = medium.",
-    "CFO ОТРИЦАТЕЛЬНЫЙ 2024-2025: reported FCF = −7635 и −6414 млн. Нормализован к CFO_margin 5.1% (медиана 2020-2023). FCF_norm = 1723/2038 млн. М&A создаёт давление на оборотный капитал.",
-    "ИСК MERLION 01.2025: структура Merlion инициировала иск о банкротстве; обеспечительные меры обжалованы компанией. Мониторинг.",
-    "ДОПЭМИССИИ РИСК: free float 16%; квазиказначейский пакет у дочки не раскрыт; возможны дальнейшие допэмиссии под M&A.",
-    "БАЛАНС НЕПОЛНЫЙ: ППЕ, НМА, гудвил, дебиторка, кредиторка, CFI, CFF не извлечены. Валовая прибыль 2020-2021 = null. pre_tax и income_tax = null для всех лет.",
-    "ВАЖНО ДЛЯ РЕСЕЛЛЕРА ПО: Пресс-релизы публикуют ОБОРОТ (гросс, включая переплаты с КП), финотчёты по МСФО показывают ВЫРУЧКУ (по признанию). 2024: Оборот 120.6 млрд, но Выручка (в JSON) 80.7 млрд по МСФО консолидированной отчётности. Различие ~1.5x связано с методологией признания дохода и консолидацией операций.",
-    "Валовая прибыль 2020-2021 не найдена в открытых источниках",
-    "Операционные расходы по статьям (коммерческие, общехоз., административные) не распарсены из PDF",
-    "Детальные статьи активов/пассивов (ППЕ, НМА, гудвил, дебиторская/кредиторская ЗЗ) не извлечены",
-    "М&A 2023-2024: компания совершила 9 сделок в 2024, 2023 — реорганизация из Noventiq",
-    "Отрицательный CFO 2024-2025 после M&A и инвестиций; требует анализа оборотного капитала",
-    "Чистая прибыль 2025 = 21 млн (в главном financials.json чистая прибыль 2025 указана как 288 — вероятно относится к доле неконтролирующих акционеров/итого капитал vs акционеры головной компании; расхождение не устранено в этом прогоне, требует сверки с отчётом о совокупном доходе)",
-    "2020-2022: постатейная детализация ОДДС (cfi_lines/cff_lines) НЕ извлечена — полные МСФО за эти годы не найдены за отведённый бюджет запросов; cfi/cff за эти годы = null",
-    "income_tax (начисленный расход по налогу на прибыль из P&L) не извлечён — только кассовый 'уплаченный налог на прибыль' из ОДДС (2023=790, 2024=398, 2025=352), это другая величина",
-    "pre_tax_profit 2025 не заполнен из-за разбивки на продолжающуюся (1772) и прекращённую (-1577) деятельность в ОДДС — совокупная величина требует сверки с самим отчётом о прибылях и убытках",
-    "🔵 GAP-АУДИТ (2026-07-28, report-fetcher): pre_tax_profit и income_tax дозаполнены из ПОЛНОГО аудированного годового отчёта МСФО за 2025 г. (скачан с softlinegroup.com/investors/pdf/ГО 2025-сжатый.pdf → сохранён в sources/Softline_2025_Annual_Report.pdf, 154 стр., \"Консолидированный отчёт о прибыли или убытке\" на печатной/PDF-странице 50): 2025 — прибыль до налогообложения ОТ ПРОДОЛЖАЮЩЕЙСЯ ДЕЯТЕЛЬНОСТИ = 1772, налог на прибыль = +76 (налоговая ВЫГОДА, не расход); 2024 (ПЕРЕСЧИТАНО, Примечание 3 — реклассификация прекращённой деятельности) — pre_tax=4345, income_tax=-639. 2023 — pre_tax=3763 (уже было в файле, подтверждено — не пересчитано, т.к. отчёт за 2025 г. не даёт пересчитанную колонку для 2023), income_tax=-685 (дозаполнен) — оба взяты из ПЕРВОГО (неперевыпущенного) годового отчёта 2024 г. (sources/Softline_2024_Annual_Report.pdf, стр.43), где 2023 — оригинальная колонка.",
-    "🔵 ИСПРАВЛЕНИЕ ВНУТРЕННЕЙ НЕСОГЛАСОВАННОСТИ (2026-07-28): pre_tax_profit[2024] был 3304 — это цифра из ПЕРВОНАЧАЛЬНОГО (неперевыпущенного) отчёта за 2024 г., тогда как operating_profit[2024]=2149, finance_costs[2024]=5041, finance_income[2024]=1227 и net_profit[2024]=3264 в этом же файле уже были взяты из ПЕРЕСЧИТАННОЙ (restated, Примечание 3) колонки отчёта за 2025 год — то есть pre_tax_profit «выпадал» из общего моста. Исправлено на pre_tax_profit[2024]=4345 (пересчитанный) для консистентности. Мост ТОЧНО сходится (не просто ±2%): 2149(operating)+0(обесценение гудвила, «-» в отчёте)-258(FX)+3425(доход от выгодной покупки)+1227(fin.income)-5041(fin.costs)+3078(изм.справ.ст-ти фин.инстр.)-235(доходы за вычетом расходов по фин.инстр.)=4345=pre_tax_profit(2024) ТОЧНО. Аналогично 2025: 4019(operating)-516(обесценение гудвила)-208(FX)+2959(fin.income)-6043(fin.costs)+1539(изм.справ.ст-ти)+22(доходы по фин.инстр.)=1772=pre_tax_profit(2025) ТОЧНО. Заодно скорректированы cogs/gross_profit 2024 (43823→43999 / 36900→36724) и 2025 (48872→48543 / 46600→46929) — прежние значения (вероятно из smart-lab) отличались на 0.4-0.7% от точных цифр аудированного P&L; revenue/operating_profit/net_profit НЕ трогал — уже совпадали с первичкой ТОЧНО.",
-    "🟡 ВАЖНО (не устранено, зона financial-analyst): pre_tax_profit/income_tax заполнены НА БАЗЕ ПРОДОЛЖАЮЩЕЙСЯ ДЕЯТЕЛЬНОСТИ (continuing operations) — это ЕДИНСТВЕННЫЙ уровень, на котором компания раскрывает прибыль до налога и налог отдельными строками. \"Прекращённая деятельность\" показана ОДНОЙ строкой НЕТТО (после налога, без разбивки): убыток -1560 (2025), -50 (2024 restated) — из-за этого pre_tax_profit(continuing) − income_tax(continuing) ≠ net_profit(total company): 2025: 1772+76=1848 (чистая прибыль ОТ ПРОДОЛЖАЮЩЕЙСЯ) vs net_profit[2025]=288 в файле (=1848 continuing − 1560 discontinued, ТОЧНО сходится с учётом прекращённой деятельности, но НЕ является прямым мостом pretax-tax=net при чтении построчно без этого контекста). Это НЕ ошибка, а следствие отсутствия отдельного поля \"discontinued_operations\" в схеме — financial-analyst должен учитывать эту оговорку при использовании pre_tax_profit/income_tax в расчётах эффективной ставки налога и т.п. ДОПОЛНИТЕЛЬНО подтверждена ранее известная нестыковка (см. флаг \"ЧП 2025 расхождение источников\" выше): net_profit[2025]=288 в файле — это TOTAL (континьюинг 1848 − прекращённая 1560 = 288, включая долю НКУ 267), тогда как net_profit[2023]=2997 и net_profit[2024]=3264 — это доля СОБСТВЕННИКОВ ГРУППЫ (без НКУ; 2025 доля собственников = всего 21 млн, НКУ = 267 млн — подтверждено первичкой стр.50 отчёта за 2025 год). Конвенция поля net_profit НЕПОСЛЕДОВАТЕЛЬНА между 2023-2024 (owners-only) и 2025 (total incl. NCI) — не исправлял (изменение net_profit каскадно влияет на EPS/маржи/мультипликаторы ниже по цепочке, вне мандата report-fetcher). Рекомендация: привести net_profit[2025] к 21 (owners-only, для консистентности с 2023-2024) ЛИБО пересчитать net_profit[2023]/[2024] на total-basis — решение за financial-analyst."
+  "shares_outstanding": 400002000,
+  "last_price": 66.582,
+  "price_date": "2026-06-13",
+  "data_quality": "medium",
+  "anomaly_flag": true,
+  "anomaly_note": "Три кластера аномалий: (1) ЧП 2022 = 6434 млн — разовый доход от реорганизации/выделения из Noventiq; ЧП 2023-2024 — разовые M&A-доходы при операционно отрицательном pre_tax_proxy. (2) CFO 2024-2025 отрицательный (-3251, -1534) — M&A-нагрузка на оборотный капитал; нормализован. (3) Число акций: 200→324→400 млн (2022→2023→2024) через допэмиссии — дилюция EPS. Оборот (брутто) 2025 = 131.9 млрд vs выручка МСФО = 95.5 млрд; используется МСФО-выручка.",
+  "adjustments_aggressive": false
+ },
+ "income_statement": {
+  "cost_format": "by_function",
+  "revenue": [
+   69342,
+   66532,
+   56246,
+   73181,
+   80723,
+   95472
   ],
-  "segments": [
-    {
-      "name": "Собственные решения",
-      "pct": 32.0,
-      "note": "Высокая маржа, дают >67% валовой прибыли"
-    },
-    {
-      "name": "Сторонние решения (дистрибуция/реселлинг)",
-      "pct": 68.0,
-      "note": "Низкая наценка, тонкая маржа"
-    }
+  "cogs": [
+   null,
+   null,
+   43946,
+   49405,
+   43999,
+   48543
   ],
-  "cost_breakdown": [
-    {
-      "name": "Себестоимость продаж (закупка стороннего ПО и оборудования)",
-      "pct": 64.6,
-      "type": "variable"
-    },
-    {
-      "name": "Операционные расходы (персонал, коммерческие, административные, консол",
-      "pct": 29.3,
-      "type": "fixed"
-    }
+  "gross_profit": [
+   null,
+   null,
+   12300,
+   23776,
+   36724,
+   46929
   ],
-  "key_facts": [
-    {
-      "label": "Основатель и контроль",
-      "value": "Игорь Боровиков, структуры основателя — крупнейшие акционеры"
-    },
-    {
-      "label": "Тип акций",
-      "value": "Обыкновенные, free-float на Московской бирже"
-    },
-    {
-      "label": "Штаб-квартира",
-      "value": "Россия"
-    },
-    {
-      "label": "Суть бизнеса",
-      "value": "Крупнейший российский поставщик IT-решений и услуг, переходит от перепродажи к собственным продуктам"
-    },
-    {
-      "label": "Доля рынка",
-      "value": "Один из лидеров российского рынка IT-услуг и импортозамещения"
-    }
+  "expense_lines": [],
+  "operating_profit": [
+   2028,
+   1969,
+   875,
+   1534,
+   2149,
+   4019
   ],
-  "geo_split": [
-    {
-      "region": "Россия",
-      "pct": 95.0
-    },
-    {
-      "region": "Зарубежные рынки (СНГ, дружественные страны)",
-      "pct": 5.0
-    }
+  "da": [
+   761,
+   1003,
+   1256,
+   1709,
+   3184,
+   4147
+  ],
+  "ebitda": [
+   2789,
+   2972,
+   2131,
+   3243,
+   5333,
+   8166
+  ],
+  "finance_costs": [
+   974,
+   1325,
+   1147,
+   2435,
+   5041,
+   6043
+  ],
+  "finance_income": [
+   null,
+   null,
+   null,
+   449,
+   1227,
+   2959
+  ],
+  "pre_tax_profit": [
+   null,
+   null,
+   null,
+   3763,
+   4345,
+   1772
+  ],
+  "income_tax": [
+   null,
+   null,
+   null,
+   -685,
+   -639,
+   76
+  ],
+  "net_profit": [
+   863,
+   1207,
+   6434,
+   2997,
+   3264,
+   288
+  ],
+  "margins": {
+   "gross_margin": [
+    null,
+    null,
+    0.219,
+    0.325,
+    0.457,
+    0.488
+   ],
+   "ebitda_margin": [
+    0.04,
+    0.045,
+    0.038,
+    0.044,
+    0.066,
+    0.086
+   ],
+   "operating_margin": [
+    0.029,
+    0.03,
+    0.016,
+    0.021,
+    0.027,
+    0.042
+   ],
+   "ros": [
+    0.012,
+    0.018,
+    0.114,
+    0.041,
+    0.04,
+    0.003
+   ]
+  }
+ },
+ "adjusted": {
+  "net_profit_adj": [
+   863,
+   1207,
+   0,
+   0,
+   0,
+   1888
+  ],
+  "ebitda_adj": [
+   2789,
+   2972,
+   2131,
+   3243,
+   5333,
+   8166
+  ],
+  "fcf_normalized": [
+   2014,
+   1999,
+   1449,
+   5109,
+   1723,
+   2038
+  ],
+  "wc_adjustment": [
+   0,
+   0,
+   0,
+   0,
+   7373,
+   6409
+  ],
+  "capex_sustainable_mln": null,
+  "capex_note": "Устойчивый capex = медиана(capex/revenue) за 6 лет × revenue = 3.0% × revenue. Фактический capex/rev: 1.1%, 2.0%, 2.6%, 3.3%, 5.4%, 5.1% — медиана 3.0%. В abs 2025: 3.0% × 95472 = 2838 млн (vs reported 4880 млн). При нормализации CFO использован устойчивый capex 3.0%.",
+  "etr_reported": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "etr_sustainable": 25.0,
+  "bridge": [
+   {
+    "year": 2020,
+    "item": "Систематический чек-лист: обесценения — не обнаружены; курсовые — не обнаружены; разовые продажи — не обнаружены; аномальная ETR — нет данных. Adjusted = Reported.",
+    "amount": 0,
+    "added_back": false,
+    "certainty": "logic",
+    "source_ref": "src_2"
+   },
+   {
+    "year": 2021,
+    "item": "Систематический чек-лист: одноразовых не обнаружено. Adjusted = Reported.",
+    "amount": 0,
+    "added_back": false,
+    "certainty": "logic",
+    "source_ref": "src_2"
+   },
+   {
+    "year": 2022,
+    "item": "Разовый доход от реорганизации (выделение из Softline Holding / Noventiq): ЧП reported = 6434 млн при операционно убыточном pre_tax_proxy (EBITDA 2131 − DA 1256 − fin_costs 1147 = −272 млн). Разовый доход реорганизации ≈ 6434 млн. Исключён полностью. Adj ЧП = 0.",
+    "amount": -6434,
+    "added_back": false,
+    "certainty": "judgement",
+    "source_ref": "src_2"
+   },
+   {
+    "year": 2023,
+    "item": "Разовый M&A доход (bargain purchase/переоценка при поглощениях): ЧП reported = 2997 млн при pre_tax_proxy = EBITDA 3243 − DA 1709 − fin_costs 2435 = −901 млн. Разовый M&A доход ≈ 2997 млн. Исключён. Adj ЧП = 0.",
+    "amount": -2997,
+    "added_back": false,
+    "certainty": "judgement",
+    "source_ref": "src_2"
+   },
+   {
+    "year": 2024,
+    "item": "Разовый M&A доход: ЧП reported = 3264 млн при pre_tax_proxy = 5333 − 3184 − 5041 = −2892 млн. Разовый доход от сделок ~3264 млн. Исключён. Adj ЧП = 0.",
+    "amount": -3264,
+    "added_back": false,
+    "certainty": "judgement",
+    "source_ref": "src_2"
+   },
+   {
+    "year": 2025,
+    "item": "Убыток от прекращённой деятельности (ликвидация дочек Сойка и Робовойс, Q4 2025): разовый убыток −1600 млн (fact, пресс-релиз компании). Добавлен обратно. Adj ЧП = 288 + 1600 = 1888 млн.",
+    "amount": 1600,
+    "added_back": true,
+    "certainty": "fact",
+    "source_ref": "src_1"
+   },
+   {
+    "year": 2025,
+    "item": "Нормализация CFO 2025: CFO_reported = −1534 млн (аномальный, 3.2× ниже нормы). CFO_norm = 5.1% × 95472 = 4875 млн. Δ = +6409 млн → wc_adjustment. FCF_norm = 4875 − 2838 (sustain capex) = 2038 млн.",
+    "amount": 6409,
+    "added_back": true,
+    "certainty": "logic",
+    "source_ref": "src_2"
+   },
+   {
+    "year": 2024,
+    "item": "Нормализация CFO 2024: CFO_reported = −3251 млн (аномальный, 1.79× vs норма 4117 млн). Δ = +7373 млн → wc_adjustment. FCF_norm = 4117 − 2399 (sustain capex) = 1723 млн.",
+    "amount": 7373,
+    "added_back": true,
+    "certainty": "logic",
+    "source_ref": "src_2"
+   }
+  ],
+  "bridge_note": "2022-2024 adj ЧП = 0 из-за judgement-корректировок: при операционно отрицательном pre_tax_proxy вся reported прибыль объясняется разовыми M&A/реорганизационными доходами. Без детального первичного отчёта — judgement. Отчётные цифры (6434/2997/3264 млн) в income_statement. ЧП 2025 extracted=21 млн vs верифицированное 288 млн — принято 288 млн (Ведомости/Коммерсант/пресс-релиз)."
+ },
+ "balance_sheet": {
+  "non_current_assets": {
+   "ppe": [
+    null,
+    null,
+    null,
+    2050,
+    7282,
+    6660
+   ],
+   "intangibles": [
+    null,
+    null,
+    null,
+    5301,
+    10319,
+    12017
+   ],
+   "goodwill": [
+    null,
+    null,
+    null,
+    9415,
+    13156,
+    13114
+   ],
+   "long_term_investments": [
+    null,
+    null,
+    null,
+    0,
+    53,
+    874
+   ],
+   "other_non_current": [
+    null,
+    null,
+    null,
+    2234,
+    3901,
+    4096
+   ],
+   "total_non_current": [
+    null,
+    null,
+    null,
+    19000,
+    34711,
+    36761
+   ],
+   "note": "Постатейно из аудированной консолидированной МСФО: 2023 — Softline_2024_Annual_Report.pdf (стр.44, столбец 31.12.2023, НЕ пересчитан); 2024/2025 — Softline_2025_Annual_Report.pdf (стр.50, 2024 ПЕРЕСЧИТАНО Прим.3 — реклассификация прекращённой деятельности + финализация PPA). Обе страницы — скан без текстового слоя, извлечено визуальным построчным чтением (300-600 dpi). other_non_current = активы в форме права пользования (ROU) + долгосрочные займы выданные + отложенные налоговые активы + (2023: прочие внеоборотные активы; 2024/2025: долгосрочные активы по договорам финансовой аренды). long_term_investments = инвестиции в ассоциированные и совместные предприятия. 2020-2022: постатейной разбивки нет в доступных источниках."
+  },
+  "current_assets": {
+   "inventory": [
+    null,
+    null,
+    null,
+    6050,
+    9623,
+    11585
+   ],
+   "receivables": [
+    null,
+    null,
+    null,
+    18894,
+    29366,
+    41460
+   ],
+   "cash": [
+    3838,
+    4022,
+    13363,
+    13767,
+    10683,
+    13134
+   ],
+   "short_term_investments": [
+    null,
+    null,
+    null,
+    8924,
+    6030,
+    3119
+   ],
+   "other_current": [
+    null,
+    null,
+    null,
+    7882,
+    10514,
+    11690
+   ],
+   "total_current": [
+    null,
+    null,
+    null,
+    55517,
+    66216,
+    80988
+   ],
+   "note": "receivables = торговая дебиторская задолженность + прочая дебиторская задолженность. other_current = авансы выданные и прочие оборотные активы + авансы по налогу на прибыль + краткосрочные займы выданные + (2024/2025: активы прекращённой деятельности, Прим.35)."
+  },
+  "total_assets": [
+   32298,
+   33939,
+   44773,
+   74517,
+   100927,
+   117749
+  ],
+  "equity": {
+   "share_capital": [
+    null,
+    null,
+    null,
+    0,
+    1,
+    1
+   ],
+   "retained_earnings": [
+    3354,
+    322,
+    6788,
+    9785,
+    11887,
+    10940
+   ],
+   "additional_paid_in": [
+    null,
+    null,
+    null,
+    2643,
+    12874,
+    18737
+   ],
+   "other_equity": [
+    null,
+    null,
+    null,
+    -3912,
+    -603,
+    -134
+   ],
+   "total_equity": [
+    4383,
+    1765,
+    9795,
+    8516,
+    24159,
+    29544
+   ],
+   "note": "other_equity = переоценка финансовых инструментов по справедливой стоимости через ПСД + резерв по выплатам на основе акций + резерв на собственные выкупленные акции + резерв на пересчёт в валюту представления + (2024/2025: резервы, относящиеся к прекращённой деятельности) + неконтролирующие доли участия (total_equity в этом файле — ИТОГО КАПИТАЛ ВКЛЮЧАЯ НКД, конвенция отличается от некоторых других компаний — см. sources note)."
+  },
+  "non_current_liabilities": {
+   "long_term_debt": [
+    5689,
+    6487,
+    3116,
+    7545,
+    7310,
+    2256
+   ],
+   "deferred_tax": [
+    null,
+    null,
+    null,
+    154,
+    1234,
+    537
+   ],
+   "other_non_current_liab": [
+    null,
+    null,
+    null,
+    4515,
+    11759,
+    10611
+   ],
+   "total_non_current_liab": [
+    null,
+    null,
+    null,
+    12214,
+    20303,
+    13404
+   ],
+   "note": "other_non_current_liab = долгосрочные обязательства по договорам финансовой аренды + долгосрочное отложенное возмещение за приобретение дочерних компаний + долгосрочное условное вознаграждение + прочая долгосрочная кредиторская задолженность + выпущенные финансовые гарантии + обязательства по опционным соглашениям."
+  },
+  "current_liabilities": {
+   "short_term_debt": [
+    1323,
+    2926,
+    10824,
+    12396,
+    14125,
+    25687
+   ],
+   "payables": [
+    null,
+    null,
+    null,
+    27957,
+    29276,
+    36148
+   ],
+   "other_current_liab": [
+    null,
+    null,
+    null,
+    13434,
+    13064,
+    12966
+   ],
+   "total_current_liab": [
+    null,
+    null,
+    null,
+    53787,
+    56465,
+    74801
+   ],
+   "note": "other_current_liab = прочие налоги к уплате + обязательства по договорам с покупателями + краткосрочные обязательства по договорам финансовой аренды + краткосрочное отложенное возмещение + краткосрочное условное вознаграждение + налог на прибыль к уплате + (2024/2025: обязательства прекращённой деятельности, Прим.35)."
+  },
+  "total_liabilities": [
+   27915,
+   32174,
+   34978,
+   66001,
+   76768,
+   88205
+  ],
+  "net_debt": [
+   3174,
+   5391,
+   577,
+   6174,
+   10752,
+   14809
+  ],
+  "tangible_equity": [
+   null,
+   null,
+   null,
+   -6200,
+   684,
+   4413
+  ],
+  "tangible_note": "tangible_equity = total_equity − goodwill − intangibles, теперь считается напрямую из постатейной разбивки (была null). ВАЖНОЕ ЗАКРЫТИЕ ФЛАГА: гудвил+НМА раскрыты — 2023: гудвил 9415 + НМА 5301 (tangible_equity ОТРИЦАТЕЛЬНЫЙ −6200 — весь капитал и даже больше состоит из гудвила/НМА от M&A-роллапа Noventiq→Softline); 2024 (пересчитано): гудвил 13156 + НМА 10319, tangible_equity символический +684 (2.8% от total_equity); 2025: гудвил 13114 + НМА 12017, tangible_equity 4413 (15% от total_equity). P/B от балансового капитала — ДЕЙСТВИТЕЛЬНО завышен относительно осязаемого капитала, как и предполагалось в прежнем флаге; используйте tangible_equity для консервативной оценки.",
+  "ratios": {
+   "debt_to_equity": [
+    1.6,
+    5.32,
+    1.43,
+    2.34,
+    0.89,
+    0.95
+   ],
+   "net_debt_ebitda": [
+    1.14,
+    1.81,
+    0.27,
+    1.9,
+    2.02,
+    1.81
+   ],
+   "current_ratio": [
+    null,
+    null,
+    null,
+    1.03,
+    1.17,
+    1.08
+   ]
+  },
+  "total_equity": [
+   4383,
+   1765,
+   9795,
+   8516,
+   24159,
+   29544
   ]
+ },
+ "cash_flow": {
+  "cfo": [
+   2808,
+   3328,
+   2931,
+   7531,
+   -3251,
+   -1534
+  ],
+  "cfi": [
+   null,
+   null,
+   null,
+   -10069,
+   -8860,
+   -715
+  ],
+  "cff": [
+   null,
+   null,
+   null,
+   2780,
+   9459,
+   4804
+  ],
+  "net_change_in_cash": [
+   null,
+   null,
+   null,
+   404,
+   -3073,
+   2451
+  ],
+  "capex": [
+   794,
+   1329,
+   1482,
+   2422,
+   4384,
+   4880
+  ],
+  "fcf": [
+   2014,
+   1999,
+   1449,
+   5109,
+   -7635,
+   -6414
+  ],
+  "cfo_lines": [
+   {
+    "name": "Прибыль до налогообложения от продолжающейся деятельности",
+    "values": [
+     null,
+     null,
+     null,
+     3763,
+     3304,
+     1772
+    ]
+   },
+   {
+    "name": "Убыток до налогообложения от прекращённой деятельности",
+    "values": [
+     null,
+     null,
+     null,
+     null,
+     null,
+     -1577
+    ]
+   },
+   {
+    "name": "Амортизация основных средств и нематериальных активов",
+    "values": [
+     null,
+     null,
+     null,
+     1709,
+     2943,
+     4147
+    ]
+   },
+   {
+    "name": "Убыток от выбытия внеоборотных активов",
+    "values": [
+     null,
+     null,
+     null,
+     54,
+     58,
+     33
+    ]
+   },
+   {
+    "name": "Убыток/(прибыль) по курсовым разницам",
+    "values": [
+     null,
+     null,
+     null,
+     -95,
+     260,
+     207
+    ]
+   },
+   {
+    "name": "Отражение недостач запасов",
+    "values": [
+     null,
+     null,
+     null,
+     312,
+     779,
+     90
+    ]
+   },
+   {
+    "name": "Движение резерва под ожидаемые кредитные убытки",
+    "values": [
+     null,
+     null,
+     null,
+     130,
+     33,
+     -503
+    ]
+   },
+   {
+    "name": "Финансовые расходы",
+    "values": [
+     null,
+     null,
+     null,
+     2435,
+     5114,
+     6248
+    ]
+   },
+   {
+    "name": "Финансовые доходы",
+    "values": [
+     null,
+     null,
+     null,
+     -449,
+     -1227,
+     -2959
+    ]
+   },
+   {
+    "name": "Выплаты на основе акций",
+    "values": [
+     null,
+     null,
+     null,
+     null,
+     827,
+     1033
+    ]
+   },
+   {
+    "name": "Изменение справедливой стоимости финансовых инструментов",
+    "values": [
+     null,
+     null,
+     null,
+     -3185,
+     -2863,
+     -1539
+    ]
+   },
+   {
+    "name": "Расходы/(доходы) за вычетом расходов по операциям с финансовыми инструментами",
+    "values": [
+     null,
+     null,
+     null,
+     -935,
+     234,
+     -22
+    ]
+   },
+   {
+    "name": "Доход от выгодной покупки",
+    "values": [
+     null,
+     null,
+     null,
+     null,
+     -2193,
+     null
+    ]
+   },
+   {
+    "name": "(Доход)/расход от инвестиций в совместные предприятия",
+    "values": [
+     null,
+     null,
+     null,
+     null,
+     -11,
+     3
+    ]
+   },
+   {
+    "name": "Расходы от выбытия дочерней компании",
+    "values": [
+     null,
+     null,
+     null,
+     null,
+     34,
+     null
+    ]
+   },
+   {
+    "name": "Обесценение гудвила",
+    "values": [
+     null,
+     null,
+     null,
+     null,
+     null,
+     516
+    ]
+   },
+   {
+    "name": "Прочие неденежные операции",
+    "values": [
+     null,
+     null,
+     null,
+     2,
+     100,
+     54
+    ]
+   },
+   {
+    "name": "Денежные потоки от операционной деятельности до изменения оборотного капитала",
+    "values": [
+     null,
+     null,
+     null,
+     3741,
+     7392,
+     7503
+    ]
+   },
+   {
+    "name": "(Увеличение)/уменьшение запасов",
+    "values": [
+     null,
+     null,
+     null,
+     -3166,
+     -2239,
+     -1695
+    ]
+   },
+   {
+    "name": "(Увеличение)/уменьшение выданных авансов, торговой и прочей дебиторской задолженности",
+    "values": [
+     null,
+     null,
+     null,
+     -7874,
+     -7578,
+     -14161
+    ]
+   },
+   {
+    "name": "Увеличение/(уменьшение) контрактных обязательств, торговой и прочей кредиторской задолженности",
+    "values": [
+     null,
+     null,
+     null,
+     15620,
+     -428,
+     7171
+    ]
+   },
+   {
+    "name": "Потоки денежных средств от/(использованные в) операционной деятельности до уплаты налога на прибыль",
+    "values": [
+     null,
+     null,
+     null,
+     8321,
+     -2853,
+     -1182
+    ]
+   },
+   {
+    "name": "Уплаченный налог на прибыль",
+    "values": [
+     null,
+     null,
+     null,
+     -790,
+     -398,
+     -352
+    ]
+   }
+  ],
+  "cfi_lines": [
+   {
+    "name": "Приобретение основных средств",
+    "values": [
+     null,
+     null,
+     null,
+     -954,
+     -1089,
+     -1230
+    ]
+   },
+   {
+    "name": "Создание и приобретение нематериальных активов",
+    "values": [
+     null,
+     null,
+     null,
+     -1468,
+     -3295,
+     -3650
+    ]
+   },
+   {
+    "name": "Приобретение дочерних компаний, за вычетом полученных денежных средств",
+    "values": [
+     null,
+     null,
+     null,
+     -4718,
+     -7644,
+     -1015
+    ]
+   },
+   {
+    "name": "Финансовые вложения",
+    "values": [
+     null,
+     null,
+     null,
+     -2014,
+     6076,
+     2916
+    ]
+   },
+   {
+    "name": "Поступления от финансовой аренды",
+    "values": [
+     null,
+     null,
+     null,
+     120,
+     324,
+     109
+    ]
+   },
+   {
+    "name": "Полученные процентные доходы",
+    "values": [
+     null,
+     null,
+     null,
+     237,
+     411,
+     2104
+    ]
+   },
+   {
+    "name": "Погашение займов выданных",
+    "values": [
+     null,
+     null,
+     null,
+     2806,
+     1771,
+     5191
+    ]
+   },
+   {
+    "name": "Выдача займов",
+    "values": [
+     null,
+     null,
+     null,
+     -4078,
+     -5414,
+     -5113
+    ]
+   },
+   {
+    "name": "Выбытие дочерней компании (денежные средства)",
+    "values": [
+     null,
+     null,
+     null,
+     null,
+     null,
+     -27
+    ]
+   }
+  ],
+  "cff_lines": [
+   {
+    "name": "Погашение кредитов и займов",
+    "values": [
+     null,
+     null,
+     null,
+     -31349,
+     -28736,
+     -32552
+    ]
+   },
+   {
+    "name": "Поступление кредитов и займов",
+    "values": [
+     null,
+     null,
+     null,
+     36003,
+     36304,
+     39326
+    ]
+   },
+   {
+    "name": "Оплата основной части обязательств по аренде",
+    "values": [
+     null,
+     null,
+     null,
+     -509,
+     -638,
+     -731
+    ]
+   },
+   {
+    "name": "Выплаченные проценты",
+    "values": [
+     null,
+     null,
+     null,
+     -1925,
+     -3720,
+     -5119
+    ]
+   },
+   {
+    "name": "Поступления от продажи собственных акций",
+    "values": [
+     null,
+     null,
+     null,
+     null,
+     6957,
+     5028
+    ]
+   },
+   {
+    "name": "Покупка собственных акций",
+    "values": [
+     null,
+     null,
+     null,
+     null,
+     -708,
+     -1148
+    ]
+   },
+   {
+    "name": "Вторичное размещение акций",
+    "values": [
+     null,
+     null,
+     null,
+     560,
+     null,
+     null
+    ]
+   }
+  ],
+  "ratios": {
+   "fcf_margin": [
+    0.029,
+    0.03,
+    0.026,
+    0.07,
+    -0.095,
+    -0.067
+   ],
+   "cfo_to_capex": [
+    3.53,
+    2.5,
+    1.98,
+    3.11,
+    -0.74,
+    -0.31
+   ],
+   "capex_to_revenue": [
+    0.011,
+    0.02,
+    0.026,
+    0.033,
+    0.054,
+    0.051
+   ]
+  },
+  "fx_effect_on_cash": [
+   null,
+   null,
+   null,
+   162,
+   -421,
+   -104
+  ]
+ },
+ "returns": {
+  "roe": [
+   0.197,
+   0.393,
+   0.0,
+   0.0,
+   0.0,
+   0.07
+  ],
+  "roa": [
+   0.027,
+   0.036,
+   0.0,
+   0.0,
+   0.0,
+   0.017
+  ],
+  "roic": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "ros": [
+   0.012,
+   0.018,
+   0.0,
+   0.0,
+   0.0,
+   0.02
+  ],
+  "asset_turnover": [
+   2.15,
+   1.96,
+   1.26,
+   0.98,
+   0.8,
+   0.81
+  ]
+ },
+ "metrics_timeseries": {
+  "pe": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   92.5
+  ],
+  "pb": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   0.9
+  ],
+  "ps": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   0.28
+  ],
+  "ev_ebitda": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   5.1
+  ],
+  "roe": [
+   0.197,
+   0.393,
+   0.0,
+   0.0,
+   0.0,
+   0.07
+  ],
+  "roa": [
+   0.027,
+   0.036,
+   0.0,
+   0.0,
+   0.0,
+   0.017
+  ],
+  "roic": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "gross_margin": [
+   null,
+   null,
+   0.219,
+   0.325,
+   0.457,
+   0.488
+  ],
+  "ebitda_margin": [
+   0.04,
+   0.045,
+   0.038,
+   0.044,
+   0.066,
+   0.086
+  ],
+  "operating_margin": [
+   0.029,
+   0.03,
+   0.016,
+   0.021,
+   0.027,
+   0.042
+  ],
+  "ros": [
+   0.012,
+   0.018,
+   0.0,
+   0.0,
+   0.0,
+   0.02
+  ],
+  "net_debt_ebitda": [
+   1.14,
+   1.81,
+   0.27,
+   1.9,
+   2.02,
+   1.81
+  ],
+  "revenue_growth": [
+   null,
+   -0.041,
+   -0.154,
+   0.301,
+   0.103,
+   0.182
+  ],
+  "net_profit_growth": [
+   null,
+   0.399,
+   4.331,
+   -0.534,
+   0.089,
+   -0.912
+  ]
+ },
+ "multiples": {
+  "pe": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   92.5
+  ],
+  "ps": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   0.28
+  ],
+  "pb": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   0.9
+  ],
+  "ev_ebitda": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   5.1
+  ],
+  "pe_adj": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   14.1
+  ],
+  "current": {
+   "pe": 92.5,
+   "pe_adj": 14.1,
+   "ps": 0.28,
+   "pb": 0.9,
+   "ev_ebitda": 5.1,
+   "as_of": "2026-06-13"
+  },
+  "historical_avg": {
+   "pe_basis": "not_applicable — adj ЧП = 0 в 2022-2024 из-за разовых M&A-доходов; исторический ряд только 2020-2021 (нерепрезентативный период под Noventiq/LSE)",
+   "pe_value": null,
+   "pe_adj_value": null,
+   "pb_value": null,
+   "period": "2020-2025"
+  }
+ },
+ "forecast": {
+  "source_type": "mechanical",
+  "providers": [
+   "Компания (гайданс 2026)"
+  ],
+  "revenue_growth_pct": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "net_profit_growth_pct": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "note": "Компания гайдит оборот 2026 = 145-155 млрд (+10-17% к обороту 131.9 млрд). EBITDA гайданс 9-9.5 млрд. Для выручки МСФО применяем консервативный рост 10% (105 млрд). Forward EPS adj 2026 ненадёжен: при fin_costs ~5500 млн и EBITDA 9000 млн pre_tax ≈ -1000 → убыток → мультипликаторы P/E на прогнозный год не применяются. Консенсус брокеров не получен (пэйвол)."
+ },
+ "valuation": {
+  "methods": [
+   {
+    "method": "DCF",
+    "fair_value_per_share": null,
+    "horizon": "intrinsic_now",
+    "key_assumptions": {
+     "fcf1_mln": 2205,
+     "r": 0.193,
+     "g": 0.03,
+     "tax_rate_used": 25.0,
+     "fcf_base": "adjusted",
+     "implied_exit_multiple": 1.7
+    },
+    "status": "insufficient_data",
+    "explain": {
+     "inputs": {
+      "fcf1_mln": "2205 млн ₽ — FCF₁ 2026 = CFO_norm(5.1% × rev_2026 105019) − capex_sust(3.0% × 105019) = 5356 − 3151; CFO_norm_pct = медиана CFO/rev 2020-2023 = 5.1% [logic, расчёт кодом]",
+      "WACC": "19.3% = (26633/54576) × 28.1% + (27943/54576) × 14.5% × (1−0.25); структура: equity 26633 (market_cap), debt 27943 (lt 2256 + st 25687) [расчёт кодом]",
+      "Ke": "28.1% = Rf(14.6%) + β(1.5) × ERP(9.0%) [config market_params.json; β=1.5 — judgement для IT-реселлера с высоким долгом и отрицательным reported CFO]",
+      "g": "3.0% — консервативный терминальный рост, ≤3.5% по конфигу, < WACC",
+      "net_debt": "14809 млн ₽ = lt_debt(2256) + st_debt(25687) − cash(13134) [баланс 2025; расхождение с пресс-релизом 16300 млн задокументировано в data_flags]"
+     },
+     "steps": [
+      "FCF₁ = (5.1% − 3.0%) × 105019 = 2.1% × 105019 = 2205 млн ₽",
+      "EV_dcf = FCF₁ / (WACC − g) = 2205 / (0.193 − 0.030) = 2205 / 0.163 = 13527 млн ₽",
+      "equity_dcf = EV_dcf − net_debt = 13527 − 14809 = −1282 млн ₽ (ОТРИЦАТЕЛЬНАЯ)",
+      "Implied EV/EBITDA из DCF = 13527 / 8166 = 1.7x — аномально низко (сектор 5-10x), подтверждает несостоятельность DCF при данном долге",
+      "Вывод: нормализованный FCF_margin 2.1% капитализируется в EV 13527 млн, что МЕНЬШЕ чистого долга 14809 млн → equity отрицательная → акционерная стоимость в DCF-модели = 0",
+      "Sensitivity при WACC 17.3% (−2pp): EV = 2205/0.143 = 15420, equity = 611, цена = 1.5 ₽ — всё равно нерабочий результат",
+      "Sensitivity при WACC 15.3%: EV = 2205/0.123 = 17927, equity = 3118, цена = 7.8 ₽ — потребовалось бы снижение WACC на 4pp + рост FCF_margin"
+     ],
+     "caveats": [
+      "DCF — insufficient_data, НЕ not_applicable: метод технически применим, но отрицательная equity означает, что текущая долговая нагрузка поглощает всю капитализированную стоимость нормализованных потоков",
+      "Сенситивность: при FCF_margin 4% (удвоение) и WACC 15% → цена ≈ 30 ₽ — всё равно ниже рынка; DCF начинает работать только при значимом снижении долга или росте маржи",
+      "В пользу мультипликаторных методов: EBITDA 8166 млн устойчива, рынок оценивает бизнес по EBITDA-multiple, а не по FCF при высоких ставках"
+     ]
+    }
+   },
+   {
+    "method": "relative_ev_ebitda",
+    "fair_value_per_share": 105.9,
+    "horizon": "intrinsic_now",
+    "key_assumptions": {
+     "multiple_used": 7.0,
+     "multiple_basis": "peer_median_it_ru_base",
+     "ebitda_base": "ebitda_adj_2025",
+     "ebitda_value_mln": 8166,
+     "net_debt_mln": 14809,
+     "shares": 400002000
+    },
+    "status": "ok",
+    "explain": {
+     "inputs": {
+      "ebitda_adj_2025": "8166 млн ₽ — скорр. EBITDA 2025; совпадает с reported, т.к. компания публикует adj EBITDA; подтверждён пресс-релизом [src_1]",
+      "peer_ev_ebitda_median": "7.0x — базовый ориентир IT-сектора РФ (реселлер + собственные продукты); Яндекс/Позитив/Астра: 8-15x; SOFL со скидкой за долг, смешанный профиль, нестабильную прибыль [judgement, src_3]",
+      "net_debt": "14809 млн ₽ = lt(2256) + st(25687) − cash(13134) [баланс 2025]",
+      "shares": "400002000 — из market_context.py [src_6]"
+     },
+     "steps": [
+      "EV_target = peer_median × ebitda_adj = 7.0 × 8166 = 57162 млн ₽",
+      "equity = EV_target − net_debt = 57162 − 14809 = 42353 млн ₽",
+      "цена = 42353 / 400002 × 10^6 = 105.9 ₽",
+      "Текущая EV/EBITDA = 41442 / 8166 = 5.1x — рынок торгует с дисконтом к 7x; апсайд есть если дисконт сузится",
+      "Проверка при net_debt 16300 (пресс-релиз): equity = 57162 − 16300 = 40862 → цена = 102.2 ₽"
+     ],
+     "caveats": [
+      "7x — judgement; обосновано для компании с ростом EBITDA (+14-15% г/г) и гайдансом 9-9.5 млрд в 2026; при EBITDA 9250 и 7x → цена = 120.5 ₽",
+      "При ухудшении долговой нагрузки: каждые +1000 млн долга = −2.5 ₽ к цене; риск роста краткосрочного долга (25687 млн st_debt уже высок)",
+      "Мультипликатор выбран EV/EBITDA (не P/E) согласно маршрутизации: adj ЧП нестабильна, P/E нерабочий"
+     ]
+    }
+   },
+   {
+    "method": "relative_ev_ebitda_conservative",
+    "fair_value_per_share": 65.1,
+    "horizon": "intrinsic_now",
+    "key_assumptions": {
+     "multiple_used": 5.0,
+     "multiple_basis": "conservative_discount_debt_and_earnings_quality",
+     "ebitda_base": "ebitda_adj_2025",
+     "ebitda_value_mln": 8166,
+     "net_debt_mln": 14809,
+     "shares": 400002000
+    },
+    "status": "ok",
+    "explain": {
+     "inputs": {
+      "ebitda_adj_2025": "8166 млн ₽ [src_1]",
+      "multiple_used": "5.0x — консервативный дисконт за: (a) adj ЧП = 0 в 2022-2024, (b) reported FCF отрицательный 2024-2025, (c) net_debt/EBITDA 1.8x при ставке 14.5%, (d) риск допэмиссий, (e) low free float 16%, (f) убыток от прекращённой деятельности в 2025 [judgement]",
+      "net_debt": "14809 млн ₽"
+     },
+     "steps": [
+      "EV_cons = 5.0 × 8166 = 40830 млн ₽",
+      "equity_cons = 40830 − 14809 = 26021 млн ₽",
+      "цена_cons = 26021 / 400002 × 10^6 = 65.1 ₽",
+      "При EBITDA 2026 = 9250 и 5x: EV = 46250, equity = 31441, цена = 78.6 ₽"
+     ],
+     "caveats": [
+      "5x — нижняя разумная граница для растущего IT-бизнеса; EBITDA растёт (+14-15% г/г) — ниже 5x только при кредитном стрессе",
+      "Пересечение с текущей ценой (66.6 ₽) говорит: рынок торгует в консервативном сценарии, 5x уже заложен"
+     ]
+    }
+   },
+   {
+    "method": "relative_ev_sales",
+    "fair_value_per_share": 82.3,
+    "horizon": "intrinsic_now",
+    "key_assumptions": {
+     "multiple_used": 0.5,
+     "multiple_basis": "peer_median_it_reseller_ru",
+     "revenue_base": "revenue_ifrs_2025",
+     "revenue_value_mln": 95472,
+     "net_debt_mln": 14809,
+     "shares": 400002000
+    },
+    "status": "ok",
+    "explain": {
+     "inputs": {
+      "revenue_ifrs_2025": "95472 млн ₽ — МСФО-выручка 2025 (НЕ оборот 131900 млн); при ошибочном использовании оборота цена завышается на ~80% [data_flag, src_1]",
+      "ev_sales_median": "0.5x — нижняя медиана для IT-реселлеров/интеграторов РФ; чистые разработчики ПО: 1-3x; реселлеры: 0.3-0.7x [judgement]",
+      "net_debt": "14809 млн ₽"
+     },
+     "steps": [
+      "EV_target = 0.5 × 95472 = 47736 млн ₽",
+      "equity = 47736 − 14809 = 32927 млн ₽",
+      "цена = 32927 / 400002 × 10^6 = 82.3 ₽",
+      "Проверка при EV/Sales 0.4x (пессимизм): EV = 38189, equity = 23380, цена = 58.4 ₽",
+      "При revenue 2026 = 105019 и 0.5x: цена = (52510-14809)/400002×10^6 = 94.3 ₽"
+     ],
+     "caveats": [
+      "EV/Sales — вспомогательный метод; у SOFL маржа EBITDA 8.6% (растёт), EV/Sales 0.5x корреспондирует с EV/EBITDA ≈ 5.8x при текущей марже",
+      "ВАЖНО: выручка МСФО vs оборот — ключевая ловушка для инвестора, все расчёты на МСФО"
+     ]
+    }
+   },
+   {
+    "method": "historical_pe",
+    "fair_value_per_share": null,
+    "horizon": "intrinsic_now",
+    "key_assumptions": {
+     "pe_used": null,
+     "basis": "insufficient_data",
+     "eps_forward": null,
+     "eps_forward_source": "none",
+     "eps_backward_ref": 0.72
+    },
+    "status": "insufficient_data",
+    "explain": {
+     "inputs": {},
+     "steps": [
+      "adj ЧП = 0 в 2022-2024 → P/E adj undefined для трёх из шести лет",
+      "2020-2021 — период Softline Holding (LSE), нерепрезентативны для текущей структуры ПАО",
+      "Forward EPS adj 2026: EBITDA_гайданс 9000 − DA_est 4500 − fin_costs_est 5500 = pre_tax ≈ −1000 → убыток → forward P/E не применим",
+      "Backward P/E reported 2025 = 66.582 / 0.72 = 92.5 — бессодержателен при чистой прибыли 0.3% рентабельности",
+      "Текущий P/E adj (единственная точка) = 66.582 / 4.72 = 14.1x — при EBITDA-марже 8.6% и продолжении нормализации это умеренно"
+     ],
+     "caveats": [
+      "Метод восстановится при устойчивой adj прибыли 2-3 года подряд; в 2026-2027 — перспектива при снижении ставок",
+      "P/E adj 14.1x при текущей цене — справочный ориентир, не основание для таргета"
+     ]
+    }
+   },
+   {
+    "method": "historical_pb",
+    "fair_value_per_share": null,
+    "horizon": "intrinsic_now",
+    "key_assumptions": {
+     "pb_used": null,
+     "basis": "not_applicable",
+     "book_value_per_share_used": 73.86,
+     "equity_basis": "balance",
+     "cv": null
+    },
+    "status": "not_applicable",
+    "explain": {
+     "inputs": {},
+     "steps": [],
+     "caveats": [
+      "Маршрутизация IT: historical_pb → not_applicable. Балансовая стоимость не отражает ценность IT-компании; гудвил от M&A не раскрыт → ощутимый капитал неизвестен.",
+      "Справочно: P/B текущий = 0.90 (балансовый BVPS = 73.86 ₽); цена ниже балансовой — нетипично для IT, отражает рыночное недоверие к качеству активов"
+     ]
+    }
+   },
+   {
+    "method": "CAPM",
+    "fair_value_per_share": null,
+    "horizon": "12m",
+    "key_assumptions": {
+     "rf": 0.146,
+     "beta": 1.5,
+     "erp": 0.09,
+     "ke": 0.281
+    },
+    "status": "insufficient_data",
+    "explain": {
+     "inputs": {
+      "rf": "14.6% — доходность 10-летних ОФЗ, конец мая 2026 [config market_params.json]",
+      "erp": "9.0% — премия за риск рынка акций РФ [config]",
+      "beta": "1.5 — judgement: IT-реселлер с высоким долгом (D/E ≈ 1x), отрицательным reported CFO, систематическими допэмиссиями, low free float 16%",
+      "governance_discount_pp": "+3.0 п.п. к ставке (Ke 28.1% → 31.1%) — за: контроль основателя через непрозрачный ЗПИФ (severity high), хроническое размытие капитала допэмиссиями под M&A (severity high), related-party выкуп допвыпуска дочкой «Софтлайн Проджектс», free float 16%, прерывистый дивиденд [из governance.json: governance_discount=+3пп, related_party_signal=повышенный]",
+      "div_yield_2026": "~0.03% — СД рекомендовал дивиденд за 2025 = 0.18 ₽/акция (всего ~72 млн = 25% ЧП по МСФО 288 млн, отсечка ~09.07.2026); символический, на оценку не влияет [WebSearch 2026-06]"
+     },
+     "steps": [
+      "Ke = Rf + β × ERP = 14.6% + 1.5 × 9.0% = 28.1%",
+      "Fair P/E по CAPM = 1 / Ke = 1 / 0.281 = 3.6x",
+      "При adj EPS 2025 = 4.72 ₽: CAPM_таргет = 3.6 × 4.72 = 17.0 ₽ — сильно расходится с мультипликаторными методами",
+      "При adj EPS 2026 ≈ 0 (возможный убыток): CAPM-таргет не применим",
+      "12м таргет через формулу expected return: при div_yield = 0% и Ke = 28.1% — акция должна вырасти на 28.1% за год для компенсации риска → таргет = 66.6 × 1.281 = 85.3 ₽ (только как ориентир ожидаемой доходности)"
+     ],
+     "caveats": [
+      "CAPM-таргет 85.3 ₽ — не оценка стоимости, а ожидаемая доходность при заданном риске; фактически говорит, что при Ke 28.1% акция должна расти на 28% в год чтобы компенсировать риск",
+      "Ke 28.1% = высокая барьерная ставка; снижение КС до 10% → Ke ≈ 22% → CAPM-таргет снижается, но долговая нагрузка также облегчается",
+      "Статус insufficient_data: при нулевом дивиденде и нестабильном EPS CAPM не даёт самостоятельного таргета"
+     ]
+    }
+   },
+   {
+    "method": "dividend",
+    "fair_value_per_share": null,
+    "horizon": "intrinsic_now",
+    "status": "not_applicable",
+    "explain": {
+     "inputs": {},
+     "steps": [],
+     "caveats": [
+      "Дивиденд за 2025: СД рекомендовал 0.18 ₽/акция (~72 млн = 25% ЧП МСФО 288 млн, отсечка ~09.07.2026, доходность ~0.03%) — символический, политика 25% соблюдена формально, но при ЧП≈0 выплата ничтожна [WebSearch 2026-06]. DPS за 2024 = 2.5 ₽. Истории регулярных значимых выплат нет → дивидендная модель Гордона не применима. Дивиденд реконсилирует ЧП МСФО 288 млн (0.18×400М=72М=25%×288М) — подтверждает выбор 288 млн как policy-base."
+     ]
+    }
+   }
+  ],
+  "methods_divergence_note": "Расхождение основных методов > 30%: EV/EBITDA 5x → 65.1 ₽, EV/Sales 0.5x → 82.3 ₽, EV/EBITDA 7x → 105.9 ₽; DCF → insufficient. Коридор намеренно широкий. Причины: (1) неопределённость справедливого мультипликатора (реселлер vs разработчик: 5-7x диапазон); (2) долговая нагрузка: ±1000 млн долга = ±2.5 ₽; (3) качество прибыли (adj ЧП = 0 три года — judgement-корректировки); (4) нормализованный FCF не покрывает долг в DCF. Широкий коридор честно отражает неопределённость инвестиционного кейса.",
+  "fair_value_range": {
+   "conservative": 58,
+   "base": 94,
+   "optimistic": 126
+  },
+  "sensitivity": {
+   "r_grid": [
+    5.0,
+    6.0,
+    7.0,
+    8.0
+   ],
+   "g_grid": [
+    12000,
+    14809,
+    18000
+   ],
+   "matrix_note": "EV/EBITDA multiple (строки: 5x, 6x, 7x, 8x) × net_debt сценарий (столбцы: 12000, 14809, 18000 млн) → цена акции ₽. EBITDA база = 8166 млн, акций = 400002000.",
+   "matrix": [
+    [
+     72.1,
+     65.1,
+     57.1
+    ],
+    [
+     92.5,
+     85.5,
+     77.5
+    ],
+    [
+     112.9,
+     105.9,
+     97.9
+    ],
+    [
+     133.3,
+     126.3,
+     118.3
+    ]
+   ]
+  }
+ },
+ "sources": [
+  {
+   "id": "src_1",
+   "type": "press_release",
+   "title": "Softline — Финансовые результаты за 2025 год (пресс-релиз, февраль 2026)",
+   "url": "https://softlinegroup.com/investors/pdf/Softline_2025_релиз_final.pdf",
+   "reliability": "high"
+  },
+  {
+   "id": "src_2",
+   "type": "analyst",
+   "title": "Extracted financials (haiku agent) + ручная сверка Коммерсант/Ведомости/ТАСС",
+   "url": "companies/SOFL/sources/extracted_financials.json",
+   "reliability": "medium"
+  },
+  {
+   "id": "src_3",
+   "type": "peer_comparison",
+   "title": "Пир-мультипликаторы IT РФ — judgement на основе публичных данных Яндекс/Позитив/Астра (5-15x EV/EBITDA)",
+   "url": "",
+   "reliability": "medium"
+  },
+  {
+   "id": "src_4",
+   "type": "media",
+   "title": "Коммерсант — годовая отчётность Softline 2025",
+   "url": "https://www.kommersant.ru/doc/8551318",
+   "reliability": "high"
+  },
+  {
+   "id": "src_5",
+   "type": "media",
+   "title": "Ведомости — ЧП Softline 288 млн за 2025",
+   "url": "https://www.vedomosti.ru/investments/news/2026/03/30/1186424-chistaya-pribil-softlaina",
+   "reliability": "high"
+  },
+  {
+   "id": "src_6",
+   "type": "market_context",
+   "title": "rates.csv / market_context.py — цена 66.582 ₽, акций 400002000, капитализация 26.63 млрд",
+   "url": "backend/scripts/market_context.py",
+   "reliability": "high"
+  },
+  {
+   "id": "src_7",
+   "type": "official",
+   "title": "Smart-Lab SOFL МСФО — число акций по годам (200→324→400 млн)",
+   "url": "https://smart-lab.ru/q/SOFL/MSFO/number_of_shares/",
+   "reliability": "high"
+  }
+ ],
+ "data_flags": [
+  "ОБОРОТ vs ВЫРУЧКА МСФО: Пресс-релизы публикуют оборот (гросс) 2025 = 131.9 млрд ₽. В JSON — выручка МСФО = 95.5 млрд ₽. Разница 1.38x: методология признания дохода реселлера (нетто vs брутто). Все мультипликаторы от МСФО-выручки.",
+  "ДИЛЮЦИЯ: акции 200→200→200→324→400→400 млн (2020-2025). Допэмиссии 2023 (+62%) и 2024 (+23%) — M&A-финансирование. EPS исторически несопоставим. Текущий расчёт: 400002000 акций.",
+  "ЧИСТЫЙ ДОЛГ расхождение: баланс = 14809 млн; пресс-релиз компании = 16300 млн. Разница ~1500 млн — вероятно МСФО-16 аренда не в извлечённых данных. Оценки на 14809 млн.",
+  "ЧП 2025 расхождение источников: extracted_financials = 21 млн; финальные данные (пресс-релиз + Ведомости + Коммерсант) = 288 млн. Причина: extracted брал промежуточный отчёт. Принято 288 млн.",
+  "ГУДВИЛ НЕИЗВЕСТЕН: активы 32→117 млрд за 5 лет при M&A (9 сделок в 2024). Гудвил и НМА постатейно не раскрыты → tangible_equity = null. P/B посчитан от балансового капитала и может быть завышен.",
+  "КАЧЕСТВО ПРИБЫЛИ: adj ЧП = 0 в 2022-2024 — judgement-корректировки на разовые M&A/реорганизационные доходы при операционно отрицательном pre_tax_proxy. Без детального первичного отчёта точная верификация невозможна. data_quality = medium.",
+  "CFO ОТРИЦАТЕЛЬНЫЙ 2024-2025: reported FCF = −7635 и −6414 млн. Нормализован к CFO_margin 5.1% (медиана 2020-2023). FCF_norm = 1723/2038 млн. М&A создаёт давление на оборотный капитал.",
+  "ИСК MERLION 01.2025: структура Merlion инициировала иск о банкротстве; обеспечительные меры обжалованы компанией. Мониторинг.",
+  "ДОПЭМИССИИ РИСК: free float 16%; квазиказначейский пакет у дочки не раскрыт; возможны дальнейшие допэмиссии под M&A.",
+  "БАЛАНС НЕПОЛНЫЙ: ППЕ, НМА, гудвил, дебиторка, кредиторка, CFI, CFF не извлечены. Валовая прибыль 2020-2021 = null. pre_tax и income_tax = null для всех лет.",
+  "ВАЖНО ДЛЯ РЕСЕЛЛЕРА ПО: Пресс-релизы публикуют ОБОРОТ (гросс, включая переплаты с КП), финотчёты по МСФО показывают ВЫРУЧКУ (по признанию). 2024: Оборот 120.6 млрд, но Выручка (в JSON) 80.7 млрд по МСФО консолидированной отчётности. Различие ~1.5x связано с методологией признания дохода и консолидацией операций.",
+  "Валовая прибыль 2020-2021 не найдена в открытых источниках",
+  "Операционные расходы по статьям (коммерческие, общехоз., административные) не распарсены из PDF",
+  "Детальные статьи активов/пассивов (ППЕ, НМА, гудвил, дебиторская/кредиторская ЗЗ) не извлечены",
+  "М&A 2023-2024: компания совершила 9 сделок в 2024, 2023 — реорганизация из Noventiq",
+  "Отрицательный CFO 2024-2025 после M&A и инвестиций; требует анализа оборотного капитала",
+  "Чистая прибыль 2025 = 21 млн (в главном financials.json чистая прибыль 2025 указана как 288 — вероятно относится к доле неконтролирующих акционеров/итого капитал vs акционеры головной компании; расхождение не устранено в этом прогоне, требует сверки с отчётом о совокупном доходе)",
+  "2020-2022: постатейная детализация ОДДС (cfi_lines/cff_lines) НЕ извлечена — полные МСФО за эти годы не найдены за отведённый бюджет запросов; cfi/cff за эти годы = null",
+  "income_tax (начисленный расход по налогу на прибыль из P&L) не извлечён — только кассовый 'уплаченный налог на прибыль' из ОДДС (2023=790, 2024=398, 2025=352), это другая величина",
+  "pre_tax_profit 2025 не заполнен из-за разбивки на продолжающуюся (1772) и прекращённую (-1577) деятельность в ОДДС — совокупная величина требует сверки с самим отчётом о прибылях и убытках",
+  "🔵 GAP-АУДИТ (2026-07-28, report-fetcher): pre_tax_profit и income_tax дозаполнены из ПОЛНОГО аудированного годового отчёта МСФО за 2025 г. (скачан с softlinegroup.com/investors/pdf/ГО 2025-сжатый.pdf → сохранён в sources/Softline_2025_Annual_Report.pdf, 154 стр., \"Консолидированный отчёт о прибыли или убытке\" на печатной/PDF-странице 50): 2025 — прибыль до налогообложения ОТ ПРОДОЛЖАЮЩЕЙСЯ ДЕЯТЕЛЬНОСТИ = 1772, налог на прибыль = +76 (налоговая ВЫГОДА, не расход); 2024 (ПЕРЕСЧИТАНО, Примечание 3 — реклассификация прекращённой деятельности) — pre_tax=4345, income_tax=-639. 2023 — pre_tax=3763 (уже было в файле, подтверждено — не пересчитано, т.к. отчёт за 2025 г. не даёт пересчитанную колонку для 2023), income_tax=-685 (дозаполнен) — оба взяты из ПЕРВОГО (неперевыпущенного) годового отчёта 2024 г. (sources/Softline_2024_Annual_Report.pdf, стр.43), где 2023 — оригинальная колонка.",
+  "🔵 ИСПРАВЛЕНИЕ ВНУТРЕННЕЙ НЕСОГЛАСОВАННОСТИ (2026-07-28): pre_tax_profit[2024] был 3304 — это цифра из ПЕРВОНАЧАЛЬНОГО (неперевыпущенного) отчёта за 2024 г., тогда как operating_profit[2024]=2149, finance_costs[2024]=5041, finance_income[2024]=1227 и net_profit[2024]=3264 в этом же файле уже были взяты из ПЕРЕСЧИТАННОЙ (restated, Примечание 3) колонки отчёта за 2025 год — то есть pre_tax_profit «выпадал» из общего моста. Исправлено на pre_tax_profit[2024]=4345 (пересчитанный) для консистентности. Мост ТОЧНО сходится (не просто ±2%): 2149(operating)+0(обесценение гудвила, «-» в отчёте)-258(FX)+3425(доход от выгодной покупки)+1227(fin.income)-5041(fin.costs)+3078(изм.справ.ст-ти фин.инстр.)-235(доходы за вычетом расходов по фин.инстр.)=4345=pre_tax_profit(2024) ТОЧНО. Аналогично 2025: 4019(operating)-516(обесценение гудвила)-208(FX)+2959(fin.income)-6043(fin.costs)+1539(изм.справ.ст-ти)+22(доходы по фин.инстр.)=1772=pre_tax_profit(2025) ТОЧНО. Заодно скорректированы cogs/gross_profit 2024 (43823→43999 / 36900→36724) и 2025 (48872→48543 / 46600→46929) — прежние значения (вероятно из smart-lab) отличались на 0.4-0.7% от точных цифр аудированного P&L; revenue/operating_profit/net_profit НЕ трогал — уже совпадали с первичкой ТОЧНО.",
+  "🟡 ВАЖНО (не устранено, зона financial-analyst): pre_tax_profit/income_tax заполнены НА БАЗЕ ПРОДОЛЖАЮЩЕЙСЯ ДЕЯТЕЛЬНОСТИ (continuing operations) — это ЕДИНСТВЕННЫЙ уровень, на котором компания раскрывает прибыль до налога и налог отдельными строками. \"Прекращённая деятельность\" показана ОДНОЙ строкой НЕТТО (после налога, без разбивки): убыток -1560 (2025), -50 (2024 restated) — из-за этого pre_tax_profit(continuing) − income_tax(continuing) ≠ net_profit(total company): 2025: 1772+76=1848 (чистая прибыль ОТ ПРОДОЛЖАЮЩЕЙСЯ) vs net_profit[2025]=288 в файле (=1848 continuing − 1560 discontinued, ТОЧНО сходится с учётом прекращённой деятельности, но НЕ является прямым мостом pretax-tax=net при чтении построчно без этого контекста). Это НЕ ошибка, а следствие отсутствия отдельного поля \"discontinued_operations\" в схеме — financial-analyst должен учитывать эту оговорку при использовании pre_tax_profit/income_tax в расчётах эффективной ставки налога и т.п. ДОПОЛНИТЕЛЬНО подтверждена ранее известная нестыковка (см. флаг \"ЧП 2025 расхождение источников\" выше): net_profit[2025]=288 в файле — это TOTAL (континьюинг 1848 − прекращённая 1560 = 288, включая долю НКУ 267), тогда как net_profit[2023]=2997 и net_profit[2024]=3264 — это доля СОБСТВЕННИКОВ ГРУППЫ (без НКУ; 2025 доля собственников = всего 21 млн, НКУ = 267 млн — подтверждено первичкой стр.50 отчёта за 2025 год). Конвенция поля net_profit НЕПОСЛЕДОВАТЕЛЬНА между 2023-2024 (owners-only) и 2025 (total incl. NCI) — не исправлял (изменение net_profit каскадно влияет на EPS/маржи/мультипликаторы ниже по цепочке, вне мандата report-fetcher). Рекомендация: привести net_profit[2025] к 21 (owners-only, для консистентности с 2023-2024) ЛИБО пересчитать net_profit[2023]/[2024] на total-basis — решение за financial-analyst.",
+  "2026-07-29: балансовая разбивка (2023/2024-пересчитано/2025) добавлена постатейно из ДВУХ полных аудированных годовых отчётов, уже лежавших в sources/ (Softline_2024_Annual_Report.pdf стр.44 для 2023 неперевыпущенного; Softline_2025_Annual_Report.pdf стр.50-51 для 2024-restated/2025). Обе страницы балансов — скан без текстового слоя (tesseract OCR давал систематические ошибки на мелких цифрах, напр. 'Гудвил' читался как 15156 вместо верных 13156 — перепроверено ПРЯМЫМ визуальным чтением изображения при 600dpi, не OCR). Итоговые значения на 100% сверены арифметикой с уже существовавшими в файле total_assets/total_liabilities/total_equity/net_debt/short_term_debt/long_term_debt/retained_earnings за все 3 года (расхождение 0 — эти поля НЕ менял).",
+  "ЗАКРЫТ старый флаг 'ГУДВИЛ НЕИЗВЕСТЕН': гудвил и НМА теперь раскрыты постатейно за 2023-2025 (гудвил 9415→13156→13114; НМА 5301→10319→12017). tangible_equity пересчитан из null — 2023 ОТРИЦАТЕЛЬНЫЙ (−6200), 2024 символический (+684), 2025 умеренный (4413) — подтверждает опасение из старого флага, что P/B от балансового капитала завышен относительно осязаемого капитала.",
+  "2020-2022: постатейной разбивки баланса нет в доступных источниках (только cash/some debt/retained_earnings/total_equity/total_assets/total_liabilities, как и раньше)."
+ ],
+ "segments": [
+  {
+   "name": "Собственные решения",
+   "pct": 32.0,
+   "note": "Высокая маржа, дают >67% валовой прибыли"
+  },
+  {
+   "name": "Сторонние решения (дистрибуция/реселлинг)",
+   "pct": 68.0,
+   "note": "Низкая наценка, тонкая маржа"
+  }
+ ],
+ "cost_breakdown": [
+  {
+   "name": "Себестоимость продаж (закупка стороннего ПО и оборудования)",
+   "pct": 64.6,
+   "type": "variable"
+  },
+  {
+   "name": "Операционные расходы (персонал, коммерческие, административные, консол",
+   "pct": 29.3,
+   "type": "fixed"
+  }
+ ],
+ "key_facts": [
+  {
+   "label": "Основатель и контроль",
+   "value": "Игорь Боровиков, структуры основателя — крупнейшие акционеры"
+  },
+  {
+   "label": "Тип акций",
+   "value": "Обыкновенные, free-float на Московской бирже"
+  },
+  {
+   "label": "Штаб-квартира",
+   "value": "Россия"
+  },
+  {
+   "label": "Суть бизнеса",
+   "value": "Крупнейший российский поставщик IT-решений и услуг, переходит от перепродажи к собственным продуктам"
+  },
+  {
+   "label": "Доля рынка",
+   "value": "Один из лидеров российского рынка IT-услуг и импортозамещения"
+  }
+ ],
+ "geo_split": [
+  {
+   "region": "Россия",
+   "pct": 95.0
+  },
+  {
+   "region": "Зарубежные рынки (СНГ, дружественные страны)",
+   "pct": 5.0
+  }
+ ]
 }
