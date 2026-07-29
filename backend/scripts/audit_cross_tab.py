@@ -124,9 +124,17 @@ CCY_TABLE_RE = re.compile(r"\$|USD|долл|€|EUR", re.I)
 
 
 def check_tables(md_text, years, facts, fname, file_ccy="RUB", file_std=""):
-    # строка таблицы, явно подписанная ДРУГИМ стандартом отчётности, — не стык
-    other_std = ("мсфо" if "рсбу" in file_std.lower()
-                 else "рсбу" if "мсфо" in file_std.lower() else None)
+    # строка таблицы, явно подписанная ДРУГИМ стандартом отчётности, — не стык.
+    # Первичный стандарт файла — тот, что упомянут ПЕРВЫМ в meta (в скобках
+    # часто поясняют второй).
+    s = file_std.lower()
+    pi, pr = s.find("мсфо"), s.find("рсбу")
+    if pi < 0 and pr < 0:
+        other_std = None
+    elif pr < 0 or (0 <= pi < pr):
+        other_std = "рсбу"   # файл МСФО → пропускаем строки «РСБУ»
+    else:
+        other_std = "мсфо"
     findings = []
     lines = md_text.splitlines()
     i = 0
@@ -177,6 +185,11 @@ def check_tables(md_text, years, facts, fname, file_ccy="RUB", file_std=""):
                                 (abs(val * m - fact) / max(abs(fact), 1e-9)
                                  for m in (1, 1000, 0.001)),
                             )
+                            # оба значения у нуля (<20 млн) — округление, не стык
+                            if abs(fact) < 0.02 and min(
+                                    abs(val * m - fact)
+                                    for m in (1, 1000, 0.001)) < 0.02:
+                                best = 0
                             if best > t:
                                 findings.append({
                                     "file": fname, "year": year, "metric": metric,
