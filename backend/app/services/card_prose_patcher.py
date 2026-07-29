@@ -55,7 +55,8 @@ _SIGNAL_TAB_TO_PROSE = {
     "macro": "macro", "geo": "geo", "institutions": "institutions",
 }
 
-_MAX_EDITS = 6
+_MAX_EDITS = 4          # мало правок за раз → вывод агента не упирается в 1600 токенов
+_MAX_FIND_LEN = 200     # якорь find — КОРОТКИЙ (≤ предложение): против обрезки/экранирования JSON
 _FRESH_DAYS = 10
 _BATCH_CAP = 5
 
@@ -84,15 +85,21 @@ find/replace, меняющие ТОЛЬКО устаревший факт. НЕ 
   ],
   "note": "если confirmed=false — почему; иначе краткое резюме правок"
 }
-Правила: `find` — ДОСЛОВНАЯ подстрока из текста (скопируй точно), встречается один
-раз; в `replace` меняй МИНИМУМ (только факт), новые числа бери из сигнала; 1-6 правок."""
+Правила: `find` — КОРОТКАЯ дословная подстрока из текста (скопируй ТОЧНО), максимум
+ОДНО предложение, ≤200 символов, встречается в тексте РОВНО раз (выбери минимальный
+уникальный фрагмент вокруг устаревшего факта — НЕ целый абзац); в `replace` меняй
+МИНИМУМ (только сам факт), новые числа бери из сигнала; 1-4 правки. Не копируй
+длинные куски — только точечный фрагмент с фактом."""
 
 _INTERP_SYS = """Ты — редактор-аналитик платформы Basis (не брокер, без «купить/
 продать» и таргетов). Тебе дан ТЕКСТ разбора вкладки и СВОДКА входного потока за
 неделю (что произошло). Задача: НЕ перегенерировать разбор, а точечно скорректировать
 ТОЛЬКО те места, где поток реально изменил картину (сдвиг тренда/риска/позиции). Не
-изменилось — confirmed=false, ничего не трогаем. Меняй абзацами через find/replace,
+изменилось — confirmed=false, ничего не трогаем. Правь ТОЧЕЧНО через find/replace,
 сохраняя стиль и эпистемические теги; без прогнозов цен и сигналов сделок.
+🔴 `find` — КОРОТКИЙ дословный фрагмент (одна фраза/предложение, ≤200 символов),
+встречается РОВНО раз; НЕ копируй целые абзацы (иначе ответ обрежется). Несколько
+мелких правок лучше одной большой; максимум 1-4 правки.
 Финальный ответ — строго JSON того же формата, что у факт-редактора (confirmed/edits/
 note), certainty у правок: оценка|суждение."""
 
@@ -150,6 +157,8 @@ def _apply_and_gate(prose: str, result: dict, signal_text: str) -> tuple[str | N
         repl = e.get("replace") or ""
         if not find or not repl:
             notes.append(f"edit{i}:empty"); continue
+        if len(find) > _MAX_FIND_LEN:
+            notes.append(f"edit{i}:find_too_long({len(find)})"); continue
         cnt = patched.count(find)
         if cnt == 0:
             notes.append(f"edit{i}:find_not_in_prose")
@@ -203,13 +212,19 @@ def _run_patch(db: Session, ticker: str, tab: str, *, sys: str, task_builder,
         patched, notes = None, [f"no_result:{run['stopped_reason']}"]
     ok = patched is not None
     parent = current_overlay(db, ticker, tab)
+    # диагностика: stopped_reason всегда; сырой финал агента — только при провале
+    # (чтобы unparseable/гейт-отказы были видны в сырье, а не додумывались)
+    evidence = {"prose_source": src, "stopped_reason": run.get("stopped_reason"),
+                **(evidence_extra or {})}
+    if not ok and run.get("final_raw"):
+        evidence["final_raw_tail"] = run["final_raw"][:700]
     row = CardProseOverlay(
         ticker=ticker, tab=tab, kind=kind,
         status="published" if ok else "rejected",
         patched_md=patched if ok else None,
         original_md=prose if ok else None,
         change_note=(result or {}).get("note") if isinstance(result, dict) else None,
-        evidence={"prose_source": src, **(evidence_extra or {})},
+        evidence=evidence,
         gate_notes=notes or None, source_signal_id=source_signal_id,
         parent_id=parent.id if (ok and parent) else None,
         model_used="deepseek", tokens_used=run["tokens_used"],

@@ -78,7 +78,10 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
             except json.JSONDecodeError:
                 result = None
             trace.append({"step": step, "event": "final", "parsed": result is not None})
+            # final_raw — сырой финал агента (для диагностики unparseable-падений;
+            # аддитивно, не ломает существующих потребителей run_agent)
             return {"result": result, "trace": trace, "tokens_used": tokens_used,
+                    "final_raw": content[:1500],
                     "stopped_reason": "final" if result is not None else "unparseable_final"}
 
         # исполняем вызовы инструментов и кладём результаты в диалог.

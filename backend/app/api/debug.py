@@ -1423,7 +1423,7 @@ def debug_trigger_prose_patcher(signal_id: int | None = None, kind: str = "fact"
             return {"result": "skipped/cooldown (нет прозы / уже отражено / не мапится)"}
         return {"status": row.status, "tab": row.tab, "kind": row.kind,
                 "change_note": row.change_note, "gate_notes": row.gate_notes,
-                "tokens": row.tokens_used,
+                "tokens": row.tokens_used, "evidence": row.evidence,
                 "patched_preview": (row.patched_md or "")[:400] if row.status == "published" else None}
     try:
         if ticker and tab:
