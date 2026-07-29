@@ -7445,9 +7445,9 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
   return (
     <div className={NEO ? "cc-root tw-space-y-6" : "space-y-6"}>
       {NEO ? (
-        <div className="tw-rounded-[14px] tw-px-7 tw-py-8" style={{ background: "var(--cc-panel)", border: "1px solid var(--cc-line)" }}>
-          <button type="button" onClick={onBack} className="cc-eyebrow tw-mb-5 tw-inline-flex tw-items-center tw-gap-1.5 tw-bg-transparent tw-border-0 tw-cursor-pointer" style={{ color: "var(--cc-ink-3)" }}>← Назад к рынку</button>
-          <div className="tw-flex tw-items-start tw-justify-between tw-gap-6 tw-flex-wrap">
+        <div className="tw-rounded-[14px] tw-px-7 tw-py-8 cc-header-panel" style={{ background: "var(--cc-panel)", border: "1px solid var(--cc-line)" }}>
+          <button type="button" onClick={onBack} className="cc-eyebrow tw-mb-5 tw-inline-flex tw-items-center tw-gap-1.5 tw-bg-transparent tw-border-0 tw-cursor-pointer cc-header-back" style={{ color: "var(--cc-ink-3)" }}>← Назад к рынку</button>
+          <div className="tw-flex tw-items-start tw-justify-between tw-gap-6 tw-flex-wrap cc-header-row">
             <CompanyIdentityBlock logo={<CompanyLogo ticker={company.ticker} name={company.name} size={60} />} name={company.name} ticker={company.ticker} sector={company.sector} marketOpen />
             <PricePanel price={_price == null ? null : _price.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} changePct={_change} changeAbs={_changeAbs} marketCap={formatMarketCap(company.combined_market_cap ?? company.market_cap)} asOf={finMeta.price_date || "сейчас"} />
           </div>
@@ -7590,7 +7590,11 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
         // «Геополитика» (богатая схема v0.9) тоже рисует СВОЙ гео-рейл внутри GeoTab (2026-07-21) —
         // общий Decision-rail (справедливая цена) на ней не показываем, иначе дублируется. Старая схема
         // гео своего рейла не имеет → остаётся на общем Decision-rail до миграции.
-        (tab === "finance" || tab === "governance" || tab === "markets" || tab === "macro" ||
+        // «Обзор» и «Бизнес-модель» — тоже на всю ширину (владелец, 2026-07-30): в «Обзоре»
+        // справедливая цена теперь живёт в теле вкладки (блок BFV), и рейл рядом дублировал
+        // её вторым числом; в «Бизнес-модели» цена не по теме.
+        (tab === "overview" || tab === "business" ||
+         tab === "finance" || tab === "governance" || tab === "markets" || tab === "macro" ||
          (tab === "geo" && Array.isArray(geoJson?.gre_profile) && geoJson.gre_profile.length > 0)) ? (
           <div className="tw-min-w-0">{tabBody}</div>
         ) : (
