@@ -207,7 +207,7 @@ function FootCell({ label, children, tone }) {
 }
 
 // ── Decision support rail (sticky right; decision support, not advice) ──
-export function DecisionSupportRail({ tone, fairBase, upside, currency = "₽", confidence, sourcesCount, asOf, onCheckIdea, onScenarios }) {
+export function DecisionSupportRail({ tone, fairBase, upside, currency = "₽", method, confidence, sourcesCount, asOf, onCheckIdea, onScenarios }) {
   return (
     <aside className="tw-sticky tw-top-[80px] tw-self-start tw-w-full">
       <div className={cx(panel, "tw-overflow-hidden")}>
@@ -220,7 +220,9 @@ export function DecisionSupportRail({ tone, fairBase, upside, currency = "₽", 
               <span className="cc-num tw-text-[13px]" style={{ color: "var(--cc-ink-3)" }}>{currency}</span>
               {upside != null && <span className="tw-ml-auto"><NeoDelta value={upside} suffix="%" decimals={0} /></span>}
             </div>
-            <div className="tw-text-[11px] tw-mt-1" style={{ color: "var(--cc-ink-3)" }}>потенциал к модельной цене (живьём)</div>
+            <div className="tw-text-[11px] tw-mt-1" style={{ color: "var(--cc-ink-3)" }}>
+              потенциал к модельной цене (живьём){method ? ` · ${method}` : ""}
+            </div>
           </div>
         )}
         <div className="tw-px-5 tw-py-3 tw-text-[12px] tw-flex tw-flex-col tw-gap-1.5" style={{ color: "var(--cc-ink-3)" }}>

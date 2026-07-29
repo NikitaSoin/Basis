@@ -34,9 +34,13 @@ const yoy = (a) => {
   return typeof c === "number" && typeof p === "number" && p !== 0 ? ((c - p) / Math.abs(p)) * 100 : null;
 };
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
-const Delta = ({ v, d = 1, pp = false }) =>
+// neutral — для показателей, где знак не равен «лучше/хуже» (чистый долг: рост долга не
+// всегда негатив, снижение не всегда позитив). Глиф ▲/▼ остаётся, цвет снимается: иначе
+// получалось, что бар мы уже нейтрализовали, а дельта рядом всё ещё красит рост долга
+// зелёным (ОТК 2026-07-29).
+const Delta = ({ v, d = 1, pp = false, neutral = false }) =>
   v == null || isNaN(v) ? null : (
-    <span className={`delta ${v >= 0 ? "up" : "dn"}`} style={{ fontSize: 11 }}>
+    <span className={`delta${neutral ? "" : v >= 0 ? " up" : " dn"}`} style={neutral ? { fontSize: 11, color: "var(--ink-3)" } : { fontSize: 11 }}>
       {v >= 0 ? "▲" : "▼"} {num(Math.abs(v), d)} {pp ? "пп" : "%"}
     </span>
   );
@@ -239,6 +243,10 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const [detOpen, setDetOpen] = useState(false);
   const [peerYear, setPeerYear] = useState(null);
   const [period, setPeriod] = useState("annual"); // "annual" | "interim" — переключатель периодичности таблиц
+  // На мобильном (≤1020px) правый рейл «Заметка аналитика» больше не стекает в конец
+  // вкладки — открывается выезжающей справа панелью (паттерн Скринера, sc-drawer),
+  // триггер — компактный тизер вверху dash. На десктопе rail всегда открыт (sticky).
+  const [railOpen, setRailOpen] = useState(false);
   // Прогнозная финмодель (пилот 3-5 компаний) — отдельный эндпоинт, 404 = модели нет
   // (секция ниже просто не рендерится). Самостоятельный fetch, не завязан на fin.
   const [model, setModel] = useState(null);
@@ -401,7 +409,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     { l: "Выручка", a: is.revenue, d: revYoy }, { l: "EBITDA", a: is.ebitda, d: ebYoy },
     { l: "Чистая прибыль", a: is.net_profit, d: npYoy }, { l: "FCF", a: cf.fcf, d: yoy(cf.fcf) },
     { l: "Маржа EBITDA", pctv: ebMargin, d: (ebMargin != null && prevN(margins.ebitda_margin) != null) ? ebMargin - prevN(margins.ebitda_margin) : null, isPP: true },
-    { l: "Чистый долг", a: bs.net_debt, d: yoy(bs.net_debt) },
+    { l: "Чистый долг", a: bs.net_debt, d: yoy(bs.net_debt), neutral: true },
   ];
   const sm = sectorMult && company && company.sector && sectorMult[company.sector] && sectorMult[company.sector].n >= 4 ? sectorMult[company.sector] : null;
   const npLast = lastN(is.net_profit);
@@ -658,13 +666,13 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
      млрд ₽, при масштабе > 1000 млрд подписи в трлн (иначе 5-значные числа не читаются). */
   const fmtN0 = (v) => num(v, 0), fmtN2 = (v) => num(v, 2);
   const bnScale = (a) => sl(a).map((v) => (v == null ? null : v * U / 1000));   // → млрд ₽
-  const moneyChart = (l, arr, color, head, d) => {
+  const moneyChart = (l, arr, color, head, d, neutralDelta = false) => {
     if (!sl(arr).some((x) => x != null)) return null;
     const b = bnScale(arr);
     const mx = Math.max(0, ...b.filter((x) => x != null).map((x) => Math.abs(x)));
     const tri = mx >= 1000;
     return { l, data: tri ? b.map((x) => (x == null ? null : x / 1000)) : b,
-             color, fmt: tri ? fmtN2 : fmtN0, head, d, cap: tri ? "трлн ₽" : "млрд ₽" };
+             color, fmt: tri ? fmtN2 : fmtN0, head, d, neutralDelta, cap: tri ? "трлн ₽" : "млрд ₽" };
   };
   const kfiCharts = (isBank ? [
     moneyChart("Чистый процентный доход", bNipArr, "var(--accent)", B(lastN(bNipArr)), bNipYoy),
@@ -678,7 +686,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     moneyChart("FCF", cf.fcf, "var(--accent)", B(lastN(cf.fcf)), yoy(cf.fcf)),
     // чистый долг: чистый кэш (≤0) — зелёный (позитив), реальный долг — нейтральный
     // (не красный: рост долга ≠ всегда плохо, а красный при чистом кэше вводил в заблуждение)
-    moneyChart("Чистый долг", bs.net_debt, (lastN(bs.net_debt) != null && lastN(bs.net_debt) <= 0) ? "var(--pos)" : "var(--ink-3)", B(lastN(bs.net_debt)), yoy(bs.net_debt)),
+    moneyChart("Чистый долг", bs.net_debt, (lastN(bs.net_debt) != null && lastN(bs.net_debt) <= 0) ? "var(--pos)" : "var(--ink-3)", B(lastN(bs.net_debt)), yoy(bs.net_debt), true),
   ]).filter(Boolean);
 
   /* нормализация (последние 2 года, отчётная → норм.) */
@@ -803,6 +811,17 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
               самому свежему сигналу; прошлые разборы не теряются — история в
               /earnings/archive (см. CompanyCardView renderOverview). */}
 
+          {/* Тизер-триггер «Заметка аналитика» — виден только на мобильном (≤1020px,
+              CSS). На десктопе rail открыт всегда рядом (sticky), тизер там не нужен. */}
+          <button type="button" className="fv-rail-teaser" onClick={() => setRailOpen(true)}>
+            <span className="fv-rail-teaser-ic">✎</span>
+            <span className="fv-rail-teaser-body">
+              <span className="fv-rail-teaser-t">Заметка аналитика{railVerdict ? ` — ${railVerdict}` : ""}</span>
+              {base != null && <span className="fv-rail-teaser-v">{num(base, base >= 100 ? 0 : 1)} {ccy}{upside != null && <span className={`delta ${upside >= 0 ? "up" : "dn"}`} style={{ marginLeft: 8 }}>{upside >= 0 ? "▲" : "▼"} {num(Math.abs(upside), 0)} %</span>}</span>}
+            </span>
+            <span className="fv-rail-teaser-chev">›</span>
+          </button>
+
           {/* 1. Разбор отчёта */}
           {rows.length > 0 && (
             <div className="card">
@@ -825,7 +844,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
             <h3>Ключевые показатели и мультипликаторы <span className="tag tag-fact">факт</span><span className="hmeta">{livePrice ? `цена ${num(livePrice, 2)} ${ccy} · ` : ""}позиция к {sm ? "среднему по сектору" : "своей 5-летней норме"}</span></h3>
             <p className="sub">Масштаб бизнеса — абсолютные показатели за {lastYr} ({std})</p>
             <div className="kfi">
-              {kfi.map((k, i) => { const b = k.pctv != null ? { v: num(k.pctv, 1), u: "%" } : B(lastN(k.a)); return (<div className="kf" key={i}><span className="kf-l">{k.l}</span><span className="kf-v">{b.v}<s> {b.u}</s></span><span className="kf-d">{k.d != null && <Delta v={k.d} pp={k.isPP} />}</span></div>); })}
+              {kfi.map((k, i) => { const b = k.pctv != null ? { v: num(k.pctv, 1), u: "%" } : B(lastN(k.a)); return (<div className="kf" key={i}><span className="kf-l">{k.l}</span><span className="kf-v">{b.v}<s> {b.u}</s></span><span className="kf-d">{k.d != null && <Delta v={k.d} pp={k.isPP} neutral={k.neutral} />}</span></div>); })}
             </div>
             {kfiCharts.length > 0 && (<>
               <p className="sub" style={{ marginTop: 16 }}>Динамика {yslice[0]}–{lastYr} — как менялись главные показатели</p>
@@ -833,7 +852,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                 {kfiCharts.map((d, i) => (
                   <div className="d" key={i}>
                     <div className="dl">{d.l}</div>
-                    <div className="dv">{d.head.v}<s> {d.head.u}</s> {d.d != null && <Delta v={d.d} pp={d.isPP} />}</div>
+                    <div className="dv">{d.head.v}<s> {d.head.u}</s> {d.d != null && <Delta v={d.d} pp={d.isPP} neutral={d.neutralDelta} />}</div>
                     <BarChart data={d.data} color={d.color} fmt={d.fmt} />
                     <div className="bc-cap">{d.cap}{d.cap.endsWith("· ") ? "" : " · "}{yslice[0]}–{lastYr}</div>
                   </div>
@@ -1232,8 +1251,14 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
 
         </div>
 
-        {/* правый рейл — Заметка аналитика */}
-        <aside className="fv-rail">
+        {/* правый рейл — Заметка аналитика. На мобильном (≤1020px) — выезжающая справа
+            панель поверх контента (открывается тизером выше), на десктопе — как раньше,
+            sticky-сайдбар, всегда открыт (railOpen не влияет на CSS выше брейкпоинта). */}
+        {railOpen && <div className="fv-rail-scrim" onClick={() => setRailOpen(false)} />}
+        <aside className={`fv-rail${railOpen ? " fv-rail--open" : ""}`}>
+          <button type="button" className="fv-rail-x" onClick={() => setRailOpen(false)} aria-label="Закрыть">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+          </button>
           <div className="eyebrow">Заметка аналитика</div>
           {base && <div className="an-fv"><span className="b">{num(base, base >= 100 ? 0 : 1)}<s> {ccy}</s></span>{upside != null && <span className={`u delta ${upside >= 0 ? "up" : "dn"}`}>{upside >= 0 ? "▲" : "▼"} {num(Math.abs(upside), 0)} %</span>}</div>}
           <div className="an-meta">Справедливая стоимость{cons != null && base != null && <> · коридор <b>{num(cons, 0)}–{num(base, 0)} {ccy}</b></>} · уверенность <b>{conf}</b>{sourcesCount ? <> · {sourcesCount} источн.</> : null}</div>

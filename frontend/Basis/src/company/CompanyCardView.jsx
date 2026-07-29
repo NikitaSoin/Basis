@@ -3419,8 +3419,10 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
     const bfvCur = bfvOk && typeof bfv.current_price === "number" ? bfv.current_price : (livePrice ?? company?.price ?? null);
     const methodRows = [];
     if (bfvFair != null) methodRows.push({ label: "Методика Basis на основе DCF", value: bfvFair, main: true });
-    if (mFair(peM) != null) methodRows.push({ label: "Исторический P/E", value: mFair(peM) });
-    if (mFair(pbM) != null) methodRows.push({ label: "Исторический P/B", value: mFair(pbM) });
+    // «Оценка по …», а не «Исторический P/E»: в колонке стоит ЦЕНА в рублях, а голый
+    // «P/E» рядом с рублёвым числом читается как сам мультипликатор (ОТК 2026-07-29).
+    if (mFair(peM) != null) methodRows.push({ label: "Оценка по историческому P/E", value: mFair(peM) });
+    if (mFair(pbM) != null) methodRows.push({ label: "Оценка по историческому P/B", value: mFair(pbM) });
     // расхождение методов: если крайние значения различаются > 1.6×, поясняем почему
     // (Basis требователен к порогу ОФЗ ~15%, исторические P/E и P/B отражают прошлые
     // оценки рынка) — иначе разброс вроде «2817 vs 5460» сбивает без объяснения.
@@ -3429,15 +3431,29 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
     const basisFairPriceCard = (bfvOk || methodRows.length > 0) && (
       <Card className="tw-shadow-md dark:tw-shadow-none tw-ring-1 tw-ring-accent-soft">
         <div className="tw-flex tw-items-center tw-justify-between tw-mb-3 tw-flex-wrap tw-gap-2">
-          <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold">
+          <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-flex-wrap">
             <Target size={18} />
             <span>Справедливая цена по методике Basis</span>
-          </div>
-          {bfv && bfv.engine && (
-            <span className="tw-text-[11px] tw-font-medium tw-px-2 tw-py-0.5 tw-rounded-full tw-border tw-border-border-subtle tw-text-text-secondary">
-              метод: {engineLabel}
+            {/* эпистемический тег: число — МОДЕЛЬ, а не факт. Был у заголовка в старом
+                блоке «Финансов» (tag-model «тест · модель») и потерялся при переносе —
+                вернули (ОТК 2026-07-29): дисклеймер 11px внизу карточки этот слой не
+                закрывает, его не читают до принятия решения. */}
+            <span className="tw-inline-block tw-text-[10px] tw-font-semibold tw-px-1.5 tw-py-px tw-rounded-xs tw-border tw-uppercase tw-tracking-wide tw-bg-info-soft tw-text-info tw-border-info" style={{ letterSpacing: "0.05em" }}>
+              модель · тест
             </span>
-          )}
+          </div>
+          <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+            {bfvOk && bfv.reliability === "low" && (
+              <span className="tw-text-[11px] tw-font-semibold tw-px-2 tw-py-0.5 tw-rounded-full tw-border tw-border-warning tw-bg-warning-soft tw-text-warning">
+                надёжность низкая
+              </span>
+            )}
+            {bfv && bfv.engine && (
+              <span className="tw-text-[11px] tw-font-medium tw-px-2 tw-py-0.5 tw-rounded-full tw-border tw-border-border-subtle tw-text-text-secondary">
+                метод: {engineLabel}
+              </span>
+            )}
+          </div>
         </div>
 
         {bfvRev ? (
@@ -3471,13 +3487,31 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
 
         {bfvOk && !bfvRev && bfv.verdict && (
           <div className={`tw-inline-flex tw-items-center tw-gap-2 tw-mt-3 tw-px-3 tw-py-1.5 tw-rounded-md tw-text-[13px] tw-font-medium tw-bg-bg-base tw-border tw-border-border-subtle ${bfv.verdict === "проходит" ? "tw-text-success" : "tw-text-danger"}`}>
-            {bfv.verdict === "проходит" ? "✓" : "•"} {bfv.verdict}
+            {/* «проходит ПОРОГ доходности», а не «покупать» — платформа принципиально не даёт
+                сигналов купить/продать, а голое «проходит / не проходит» читалось как сигнал. */}
+            {bfv.verdict === "проходит" ? "✓" : "•"} {bfv.verdict} порог доходности
             {typeof bfv.expected_return_pct === "number" && typeof bfv.hurdle_pct === "number" && (
               <span className="tw-text-text-tertiary tw-font-normal">
                 · доходность {bfvBound === "below" ? "< 0,5" : bfvBound === "above" ? "> 200" : Math.round(bfv.expected_return_pct)} % vs порог {Math.round(bfv.hurdle_pct)} %
               </span>
             )}
           </div>
+        )}
+
+        {/* Слой «доказательство + надёжность» из 4 слоёв чтения. Бэкенд отдаёт warnings
+            (напр. «компания убыточна, поток отрицателен», «поток не окупает цену даже при
+            ~0%») — до переноса они рендерились в «Финансах» (fc-warn) и потерялись. Без них
+            MTLR показывает 1,19 ₽ против цены 36,95 ₽ (▼97%) без единого пояснения, откуда
+            такое число, — читается как поломка и убивает доверие к методике (ОТК 2026-07-29). */}
+        {bfvOk && Array.isArray(bfv.warnings) && bfv.warnings.length > 0 && (
+          <ul className="tw-mt-3 tw-mb-0 tw-pl-0 tw-list-none tw-flex tw-flex-col tw-gap-1">
+            {bfv.warnings.map((w, i) => (
+              <li key={i} className="tw-text-[12px] tw-text-text-tertiary tw-leading-snug tw-flex tw-gap-1.5">
+                <span className="tw-text-warning tw-shrink-0">!</span>
+                <span>{w}</span>
+              </li>
+            ))}
+          </ul>
         )}
 
         {methodRows.length > 0 && (
@@ -7308,7 +7342,17 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
   const _fmtBig = (v) => { if (typeof v !== "number") return null; const a = Math.abs(v); if (a >= 1e6) return (v / 1e6).toLocaleString("ru-RU", { maximumFractionDigits: 2 }); if (a >= 1e3) return (v / 1e3).toLocaleString("ru-RU", { maximumFractionDigits: 1 }); return Math.round(v).toLocaleString("ru-RU"); };
   const _num1 = (v) => typeof v === "number" ? v.toLocaleString("ru-RU", { maximumFractionDigits: 1 }) : null;
   const _liveCurp = livePrice ?? company.price ?? null;
-  const _upside = (typeof _fvr.base === "number" && typeof _liveCurp === "number" && _liveCurp > 0) ? ((_fvr.base - _liveCurp) / _liveCurp) * 100 : null;
+  // 🔴 ЕДИНОЕ ЧИСЛО НА ЭКРАНЕ (ОТК 2026-07-29). Раньше рейл всегда показывал
+  // valuation.fair_value_range.base из financials.json (классическая методика: DCF/CAPM/
+  // секторный EV/EBITDA), а тело «Обзора» после переноса BFV — bfv.fair_price. На одном
+  // экране получались ПРОТИВОПОЛОЖНЫЕ выводы (GAZP: тело ▼11%, рейл ▲89%; LKOH: ▼60% vs
+  // ▲6%). Владелец назначил главной методикой BFV → рейл идёт за ней, когда она посчиталась
+  // (кроме reverse-режима: там прямая оценка справочная). Фолбэк на классическую базу
+  // остаётся, но подписан своей методикой, чтобы источник числа был явным.
+  const _bfvOkRail = bfv && bfv.status === "ok" && !bfv.reverse && typeof bfv.fair_price === "number";
+  const _railFair = _bfvOkRail ? bfv.fair_price : (typeof _fvr.base === "number" ? _fvr.base : null);
+  const _railMethod = _bfvOkRail ? "методика Basis (BFV)" : (typeof _fvr.base === "number" ? "классическая (DCF / мультипликаторы)" : null);
+  const _upside = (typeof _railFair === "number" && typeof _liveCurp === "number" && _liveCurp > 0) ? ((_railFair - _liveCurp) / _liveCurp) * 100 : null;
   const neoMetrics = [];
   const _pushM = (caption, value, unit, level) => { if (value != null && value !== "") neoMetrics.push({ caption, value, unit, level }); };
   (() => { const v = _lastNN(_fin.income_statement?.revenue); if (v != null) _pushM("Выручка", _fmtBig(v), Math.abs(v) >= 1e6 ? "трлн" : Math.abs(v) >= 1e3 ? "млрд" : "млн", "fact"); })();
@@ -7318,7 +7362,9 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
   _pushM("EV/EBITDA", _num1(_cur.ev_ebitda), "×", "estimate");
   _pushM("ROE", _num1(_lastNN(_ret.roe)), "%", "fact");
   _pushM("Потенциал к справ.", _upside != null ? (_upside > 0 ? "+" : "") + Math.round(_upside).toLocaleString("ru-RU") : null, "%", "judgment");
-  const _fairBase = typeof _fvr.base === "number" ? formatMoney(_fvr.base) : null;
+  // formatNumber, а НЕ formatMoney: рейл дорисовывает валюту отдельным span (neo.jsx),
+  // с formatMoney получалось «340,1 ₽ ₽» (пре-существующий дефект, найден на ОТК).
+  const _fairBase = typeof _railFair === "number" ? formatNumber(_railFair) : null;
   const _sources = Array.isArray(_fin.sources) ? _fin.sources.length : null;
   const _conf = { high: "высокая", medium: "средняя", low: "низкая" }[finMeta.data_quality] || null;
   const _price = livePrice ?? company.price;
@@ -7501,7 +7547,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
         ) : (
           <div className="tw-grid tw-gap-[26px] tw-items-start tw-grid-cols-1 lg:tw-grid-cols-[minmax(0,1fr)_332px]">
             <div className="tw-min-w-0 tw-space-y-6">{tabBody}</div>
-            <DecisionSupportRail fairBase={_fairBase} upside={_upside} confidence={_conf} sourcesCount={_sources} asOf={finMeta.price_date} onCheckIdea={() => setTab("finance")} onScenarios={() => setTab("geo")} />
+            <DecisionSupportRail fairBase={_fairBase} upside={_upside} method={_railMethod} confidence={_conf} sourcesCount={_sources} asOf={finMeta.price_date} onCheckIdea={() => setTab("finance")} onScenarios={() => setTab("geo")} />
           </div>
         )
       ) : (
