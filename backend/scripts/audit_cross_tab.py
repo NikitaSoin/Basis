@@ -62,7 +62,8 @@ def metric_of(name):
     # другой базис/периметр — не сверяем вовсе
     hard_skip = ("до мсфо 16", "до ifrs", "pre-ifrs", "без аренды", "на акцию",
                  "lfl", "маржа", "сегмент", "с учетом доли", "динамика",
-                 "eps", "dps", "продолж", "прекращ")
+                 "eps", "dps", "продолж", "прекращ", "пао", "соло",
+                 "головн")
     if any(w in n for w in hard_skip):
         return None
     if any(w in n for w in ("нормализ", "скорр", "adjusted")):
@@ -122,7 +123,10 @@ def load_facts(fin):
 CCY_TABLE_RE = re.compile(r"\$|USD|долл|€|EUR", re.I)
 
 
-def check_tables(md_text, years, facts, fname, file_ccy="RUB"):
+def check_tables(md_text, years, facts, fname, file_ccy="RUB", file_std=""):
+    # строка таблицы, явно подписанная ДРУГИМ стандартом отчётности, — не стык
+    other_std = ("мсфо" if "рсбу" in file_std.lower()
+                 else "рсбу" if "мсфо" in file_std.lower() else None)
     findings = []
     lines = md_text.splitlines()
     i = 0
@@ -144,6 +148,8 @@ def check_tables(md_text, years, facts, fname, file_ccy="RUB"):
                 while j < len(lines) and lines[j].lstrip().startswith("|"):
                     row = [c.strip() for c in lines[j].strip().strip("|").split("|")]
                     mi = metric_of(row[0]) if row else None
+                    if mi and other_std and other_std in row[0].lower():
+                        mi = None
                     if mi:
                         metric, tol, negate = mi
                         fs = facts.get("ebitda" if metric == "ebitda_adj"
@@ -215,7 +221,8 @@ def check_prose(md_text, years, facts, fname):
             continue
         ctx = md_text[max(0, m.start() - 60):m.end() + 20]
         if re.search(r"нормализ|скорр|adjust|прогноз|сценар|консенсус|ожида|"
-                     r"около|порядка|~|≈|достиг|превыс|более|свыше|до \d|целев",
+                     r"около|порядка|~|≈|достиг|превыс|более|свыше|до \d|целев|"
+                     r"прежн|замен|устар|не подтвер|агрегатор|рсбу|пао|соло",
                      ctx, re.I):
             continue
         val = float(NUM_CLEAN_RE.sub("", m.group(3)).replace(",", "."))
@@ -263,14 +270,16 @@ def audit_company(tdir, with_warn=True):
     years, facts = load_facts(fin)
     if not years:
         return []
-    file_ccy = ((fin.get("meta") or {}).get("currency") or "RUB").upper()
+    meta = fin.get("meta") or {}
+    file_ccy = (meta.get("currency") or "RUB").upper()
+    file_std = meta.get("reporting_standard") or ""
     out = []
     for fname in ("business_model.md", "financials_summary.md"):
         p = tdir / fname
         if not p.exists():
             continue
         text = p.read_text()
-        out += check_tables(text, years, facts, fname, file_ccy)
+        out += check_tables(text, years, facts, fname, file_ccy, file_std)
         if with_warn:
             out += check_prose(text, years, facts, fname)
     return out
