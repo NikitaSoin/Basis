@@ -3421,6 +3421,11 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
     if (bfvFair != null) methodRows.push({ label: "Методика Basis на основе DCF", value: bfvFair, main: true });
     if (mFair(peM) != null) methodRows.push({ label: "Исторический P/E", value: mFair(peM) });
     if (mFair(pbM) != null) methodRows.push({ label: "Исторический P/B", value: mFair(pbM) });
+    // расхождение методов: если крайние значения различаются > 1.6×, поясняем почему
+    // (Basis требователен к порогу ОФЗ ~15%, исторические P/E и P/B отражают прошлые
+    // оценки рынка) — иначе разброс вроде «2817 vs 5460» сбивает без объяснения.
+    const mVals = methodRows.map((r) => r.value).filter((v) => typeof v === "number" && v > 0);
+    const methodsDiverge = mVals.length >= 2 && Math.max(...mVals) / Math.min(...mVals) > 1.6;
     const basisFairPriceCard = (bfvOk || methodRows.length > 0) && (
       <Card className="tw-shadow-md dark:tw-shadow-none tw-ring-1 tw-ring-accent-soft">
         <div className="tw-flex tw-items-center tw-justify-between tw-mb-3 tw-flex-wrap tw-gap-2">
@@ -3484,6 +3489,11 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
                 <span className={`tw-tabular-nums ${r.main ? "tw-text-accent tw-font-semibold" : "tw-text-text-secondary"}`}>{formatMoney(Math.round(r.value), { decimals: 0 })}</span>
               </div>
             ))}
+            {methodsDiverge && (
+              <div className="tw-text-[12px] tw-text-text-tertiary tw-leading-snug tw-mt-1">
+                Методы расходятся: Basis требователен к порогу (ОФЗ ~15% + премия за риск), а исторические P/E и P/B отражают прошлые оценки рынка. Совпадение методов — сильный сигнал, расхождение — повод разобраться в причинах.
+              </div>
+            )}
           </div>
         )}
 

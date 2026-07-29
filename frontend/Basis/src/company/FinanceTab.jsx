@@ -676,7 +676,9 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     moneyChart("EBITDA", is.ebitda, "var(--pos)", B(lastN(is.ebitda)), ebYoy),
     moneyChart("Чистая прибыль", is.net_profit, "var(--amber)", B(lastN(is.net_profit)), npYoy),
     moneyChart("FCF", cf.fcf, "var(--accent)", B(lastN(cf.fcf)), yoy(cf.fcf)),
-    moneyChart("Чистый долг", bs.net_debt, "var(--neg)", B(lastN(bs.net_debt)), yoy(bs.net_debt)),
+    // чистый долг: чистый кэш (≤0) — зелёный (позитив), реальный долг — нейтральный
+    // (не красный: рост долга ≠ всегда плохо, а красный при чистом кэше вводил в заблуждение)
+    moneyChart("Чистый долг", bs.net_debt, (lastN(bs.net_debt) != null && lastN(bs.net_debt) <= 0) ? "var(--pos)" : "var(--ink-3)", B(lastN(bs.net_debt)), yoy(bs.net_debt)),
   ]).filter(Boolean);
 
   /* нормализация (последние 2 года, отчётная → норм.) */
