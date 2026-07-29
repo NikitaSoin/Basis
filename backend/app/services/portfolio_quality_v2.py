@@ -373,23 +373,32 @@ def _compute_v(equity: list[dict], fair_map: dict | None = None) -> dict | None:
         fv = (fin.get("valuation") or {}).get("fair_value_range") or {}
         data_quality = (fin.get("meta") or {}).get("data_quality")
         entry = (fair_map or {}).get(p["ticker"].upper()) or {}
+
+        def _analyst_conf() -> float:
+            """Прежняя оценка уверенности (v2.1) — коридор + расхождение методов + dq."""
+            base_v = fv.get("base")
+            methods = (fin.get("valuation") or {}).get("methods") or []
+            vals = [m.get("fair_value_per_share") for m in methods
+                    if isinstance(m.get("fair_value_per_share"), (int, float))]
+            divergence_pct = ((max(vals) - min(vals)) / base_v * 100) if len(vals) >= 2 and base_v else None
+            return _v_confidence(fv, divergence_pct, data_quality)
+
         # v2.2: потенциал берём из единого аксессора — методика Basis (BFV) от ЖИВОЙ цены.
         # В v2.1 здесь стояли base и fv.current_price ИЗ ФАЙЛА, то есть потенциал был
         # застывшим дважды: и справедливая цена, и цена рынка на дату прогона аналитика.
         if entry.get("upside_pct") is not None:
             upside = entry["upside_pct"] / 100.0
+            # цена от движка — уверенность по его reliability; цена аналитика (фолбэк
+            # внутри аксессора) — прежняя формула целиком, вместе со штрафом за
+            # расхождение методов, иначе фолбэк молча оценивался бы мягче, чем в v2.1
             confidence = (_bfv_confidence(entry.get("reliability"), data_quality)
-                          if entry.get("source") == "bfv"
-                          else _v_confidence(fv, None, data_quality))
+                          if entry.get("source") == "bfv" else _analyst_conf())
         else:
             base, price = fv.get("base"), fv.get("current_price")
             if base is None or not price:
                 continue
             upside = (base - price) / price
-            methods = (fin.get("valuation") or {}).get("methods") or []
-            vals = [m.get("fair_value_per_share") for m in methods if isinstance(m.get("fair_value_per_share"), (int, float))]
-            divergence_pct = ((max(vals) - min(vals)) / base * 100) if len(vals) >= 2 and base else None
-            confidence = _v_confidence(fv, divergence_pct, data_quality)
+            confidence = _analyst_conf()
         rau = upside * confidence
         num += p["value"] * rau
         covered_w += p["value"]
