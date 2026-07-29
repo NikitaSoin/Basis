@@ -85,10 +85,17 @@ export function PricePanel({ price, currency = "₽", changePct, changeAbs, mark
 }
 
 // ── Metric strip (headline KPIs, mono values + FEJ tag) ──
+// Владелец, 2026-07-29 (реальный телефон): шапка карточки — «на пол-экрана
+// только плитка-заголовок», просил показать эти показатели «маленькими
+// цифрами справа». cc-metric-grid (карточки 26px-числами) остаётся для
+// десктопа; ≤640px — компактный список cc-metric-list (подпись слева,
+// значение справа, как остальные мобильные списки этой сессии), прячется/
+// показывается через CSS (styles/finance.css), не JS.
 export function MetricStrip({ metrics = [] }) {
   if (!metrics.length) return null;
   return (
-    <div className="tw-grid tw-gap-3 tw-mt-7" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
+    <>
+      <div className="cc-metric-grid tw-grid tw-gap-3 tw-mt-7" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
       {metrics.map((m, i) => (
         <div key={i} className={cx(panel, "tw-p-[15px] tw-relative")}>
           {m.level && <span className="tw-absolute tw-top-2.5 tw-right-2.5"><FEJTag level={m.level} /></span>}
@@ -100,7 +107,23 @@ export function MetricStrip({ metrics = [] }) {
           {m.delta != null && <div className="tw-mt-1"><NeoDelta value={m.delta} suffix={m.deltaSuffix || "%"} decimals={1} /></div>}
         </div>
       ))}
-    </div>
+      </div>
+      <div className="cc-metric-list tw-mt-5">
+        {metrics.map((m, i) => (
+          <div key={i} className="cc-metric-list-row">
+            <span className="cc-metric-list-lbl">
+              {m.caption}
+              {m.level && <FEJTag level={m.level} />}
+            </span>
+            <span className="cc-metric-list-val">
+              <span className="cc-num" style={{ color: "var(--cc-ink)" }}>{m.value}</span>
+              {m.unit && <span className="cc-num" style={{ color: "var(--cc-ink-3)", marginLeft: 3 }}>{m.unit}</span>}
+              {m.delta != null && <NeoDelta value={m.delta} suffix={m.deltaSuffix || "%"} decimals={1} />}
+            </span>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 

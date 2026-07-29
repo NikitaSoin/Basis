@@ -421,3 +421,27 @@
 .cc-root .cc-eyebrow { font-family: var(--cc-sans); font-size: 11px; font-weight: 600;
   letter-spacing: 0.14em; text-transform: uppercase; color: var(--cc-ink-3); }
 .cc-root .cc-num { font-family: var(--cc-mono); font-variant-numeric: tabular-nums lining-nums; }
+
+/* MetricStrip мобильный список (owner, 2026-07-29, реальный телефон: шапка
+   карточки — «на пол-экрана только плитка-заголовок», просил показать
+   показатели «маленькими цифрами справа»). cc-metric-grid (карточки, 26px
+   числа) — десктоп; cc-metric-list (подпись слева / значение справа,
+   компактно) — ≤640px, переключение через media query, без JS. */
+.cc-root .cc-metric-list { display: none; }
+.cc-root .cc-metric-list-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--cc-line);
+}
+.cc-root .cc-metric-list-row:last-child { border-bottom: none; }
+.cc-root .cc-metric-list-lbl {
+  font-family: var(--cc-sans); font-size: 12.5px; color: var(--cc-ink-2);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.cc-root .cc-metric-list-val {
+  display: inline-flex; align-items: baseline; gap: 6px; flex-shrink: 0;
+  font-size: 15px; font-weight: 600;
+}
+@media (max-width: 640px) {
+  .cc-root .cc-metric-grid { display: none; }
+  .cc-root .cc-metric-list { display: block; }
+}

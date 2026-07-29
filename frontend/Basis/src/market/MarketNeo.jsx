@@ -431,32 +431,58 @@ function StockRows({ stocks, onOpen, Logo }) {
   if (!stocks.length) return <div className="mk-empty">Ничего не найдено. Измените запрос или сектор.</div>;
   const sorted = [...stocks].sort((a, b) => (b.mcap || 0) - (a.mcap || 0)); // по капитализации
   return (
-    <div className="mk-tablewrap" style={{ marginTop: 18 }}>
-      <table className="mk-table mk-rows">
-        <thead><tr><th className="l">Бумага</th><th>Цена</th><th>За день</th><th>Капитализация</th><th className="l">К справедливой цене</th></tr></thead>
-        <tbody>
-          {sorted.map(s => {
-            const fv = s.upside == null ? null : Math.round(s.upside), tc = fv == null ? "var(--ink-3)" : fvColor(fv);
-            const n = s.conf === "high" ? 3 : s.conf === "medium" ? 2 : 1;
-            return (
-              <tr key={s.t} onClick={() => onOpen(s)} style={{ cursor: "pointer" }}>
-                <td className="l">
-                  <div className="mk-row-id">
-                    <span className="mk-tonebar" style={{ background: tc }} title="Тон Basis" />
-                    {Logo ? <Logo ticker={s.t} name={s.n} size={30} /> : <Mono t={s.t} color={secColor(s.sec)} sm />}
-                    <span className="mk-bond-id"><b>{s.n}</b><span className="mk-sub">{s.t} · {s.sec}</span></span>
-                  </div>
-                </td>
-                <td className="num">{num(s.price, 2)}{NB}₽</td>
-                <td className="num"><Delta pct={s.chg} /></td>
-                <td className="num dim">{money(s.mcap)}</td>
-                <td className="l"><span className="mk-row-tone"><span className="mk-tone-dot" style={{ background: tc }} /><span style={{ color: tc, fontWeight: 600, fontSize: 13, fontFamily: "'JetBrains Mono',monospace" }}>{fv == null ? "—" : (fv > 0 ? "+" : "") + fv + "%"}</span><span className="mk-conf">{[0, 1, 2].map(i => <i key={i} className={i < n ? "on" : ""} />)}</span></span></td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <div className="mk-tablewrap" style={{ marginTop: 18 }}>
+        <table className="mk-table mk-rows">
+          <thead><tr><th className="l">Бумага</th><th>Цена</th><th>За день</th><th>Капитализация</th><th className="l">К справедливой цене</th></tr></thead>
+          <tbody>
+            {sorted.map(s => {
+              const fv = s.upside == null ? null : Math.round(s.upside), tc = fv == null ? "var(--ink-3)" : fvColor(fv);
+              const n = s.conf === "high" ? 3 : s.conf === "medium" ? 2 : 1;
+              return (
+                <tr key={s.t} onClick={() => onOpen(s)} style={{ cursor: "pointer" }}>
+                  <td className="l">
+                    <div className="mk-row-id">
+                      <span className="mk-tonebar" style={{ background: tc }} title="Тон Basis" />
+                      {Logo ? <Logo ticker={s.t} name={s.n} size={30} /> : <Mono t={s.t} color={secColor(s.sec)} sm />}
+                      <span className="mk-bond-id"><b>{s.n}</b><span className="mk-sub">{s.t} · {s.sec}</span></span>
+                    </div>
+                  </td>
+                  <td className="num">{num(s.price, 2)}{NB}₽</td>
+                  <td className="num"><Delta pct={s.chg} /></td>
+                  <td className="num dim">{money(s.mcap)}</td>
+                  <td className="l"><span className="mk-row-tone"><span className="mk-tone-dot" style={{ background: tc }} /><span style={{ color: tc, fontWeight: 600, fontSize: 13, fontFamily: "'JetBrains Mono',monospace" }}>{fv == null ? "—" : (fv > 0 ? "+" : "") + fv + "%"}</span><span className="mk-conf">{[0, 1, 2].map(i => <i key={i} className={i < n ? "on" : ""} />)}</span></span></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      {/* Мобильный список (≤640px, market.css) — 5-колоночная таблица выше
+         обрезалась на телефоне (владелец, 2026-07-29: цена/капитализация/
+         апсайд уходили за правый край, апсайда вообще не было видно без
+         свайпа вбок). Та же строка, что и mk-card-mini: лого+имя+тикер
+         слева, цена+дельта+апсайд справа. */}
+      <div className="mk-rows-mobile">
+        {sorted.map(s => {
+          const fv = s.upside == null ? null : Math.round(s.upside), tc = fv == null ? "var(--ink-3)" : fvColor(fv);
+          return (
+            <button key={s.t} type="button" className="mk-rowm" style={{ borderLeftColor: tc }} onClick={() => onOpen(s)}>
+              {Logo ? <Logo ticker={s.t} name={s.n} size={32} /> : <Mono t={s.t} color={secColor(s.sec)} sm />}
+              <span className="mk-rowm-id">
+                <b>{s.n}</b>
+                <span className="mk-rowm-sub">{s.t} · {s.sec}</span>
+              </span>
+              <span className="mk-rowm-val">
+                <span className="mk-rowm-px">{num(s.price, 2)}{NB}₽</span>
+                <Delta pct={s.chg} />
+                {fv != null && <span className="mk-rowm-fv" style={{ color: tc }}>{fv > 0 ? "+" : ""}{fv}% к справедл.</span>}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </>
   );
 }
 

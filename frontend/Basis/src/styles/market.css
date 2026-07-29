@@ -305,6 +305,8 @@
 @media(max-width:880px){ .mk-screen .mk-pulse{grid-template-columns:1fr;} .mk-screen .mk-movers{grid-template-columns:1fr;} }
 @media(max-width:680px){ .mk-screen .mk-page-title{font-size:28px;} }
 
+.mk-screen .mk-rows-mobile { display: none; }
+
 /* ============================================================
    MOBILE ≤640px — карточки классов активов (вкладка «Карточки»).
    Владелец, 2026-07-21: «одна карточка — треть экрана на телефоне,
@@ -410,7 +412,27 @@
      тот же вывод, что и для .mk-tone-cap выше в этом файле). Короткая цифра
      тем же цветом возвращает контекст без отдельной строки-подписи. */
   .mk-screen .mk-card-mini .mk-mini-fv { font-family: "IBM Plex Mono", monospace; font-size: 9.5px; font-weight: 600; flex-shrink: 0; }
+
+  /* «Лента» (StockRows) — 5-колоночная таблица обрезалась на телефоне
+     (владелец, 2026-07-29: цена/капитализация/апсайд уходили за правый
+     край, апсайда вообще не видно без свайпа). Список вместо таблицы.
+     🔴 display:none БАЗОВОГО правила должен идти ДО media query (одна
+     специфичность → побеждает последний по исходному коду) — писал
+     наоборот первым заходом, override внутри media query тихо проигрывал. */
+  .mk-screen .mk-tablewrap { display: none; }
+  .mk-screen .mk-rows-mobile { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
 }
+.mk-screen .mk-rowm {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--line);
+  border-radius: 12px; padding: 10px 12px; cursor: pointer; text-align: left; font: inherit; color: inherit;
+}
+.mk-screen .mk-rowm-id { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.mk-screen .mk-rowm-id b { font-size: 13px; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mk-screen .mk-rowm-sub { font-size: 10.5px; color: var(--ink-3); font-family: "IBM Plex Mono", monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mk-screen .mk-rowm-val { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.mk-screen .mk-rowm-px { font-family: "IBM Plex Mono", monospace; font-size: 13px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.mk-screen .mk-rowm-fv { font-family: "IBM Plex Mono", monospace; font-size: 10px; font-weight: 600; }
 /* ОТК (WARNING): на 320px (доступно под текст ~63px) 4-5-значные цены с
    копейками (Фосагро/Лукойл/Яндекс ~4-7 тыс. ₽) могли обрезаться ellipsis'ом
    — обрезание ЦЕНЫ хуже, чем имени (финансовые данные, не просто узнаваемость).

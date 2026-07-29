@@ -859,9 +859,19 @@
 .pf-mtable-card { padding: 12px 2px; border-bottom: 1px solid var(--pf-line); }
 .pf-mtable-card:last-child { border-bottom: none; }
 .pf-mtable-head { font-family: var(--font-sans); font-size: 13.5px; font-weight: 600; color: var(--pf-ink); margin-bottom: 6px; }
-.pf-mtable-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 3px 0; font-size: 12.5px; }
-.pf-mtable-lbl { color: var(--pf-ink-3); flex-shrink: 0; }
-.pf-mtable-val { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--pf-ink); text-align: right; }
+/* align-items:flex-start (не center) — «Апсайд к цели»+тег «суждение» иногда
+   переносится на 2 строки; center вертикально центрирует значение и оно
+   наезжает на вторую строку лейбла (владелец: «всё плывёт»). flex-start
+   держит значение у ПЕРВОЙ строки лейбла всегда. */
+.pf-mtable-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 5px 0; font-size: 12.5px; }
+/* column.label здесь — та же JSX, что уходит в <th> десктоп-таблицы
+   (pfColLabel(): кнопка-«i» НАД текстом НАД тегом, tw-flex-col, для узкой
+   шапки колонки). Переиспользуем как inline-лейбл строки — без переопределения
+   получаем вертикальный стек «кнопка / текст / тег» ВНУТРИ строки, отсюда
+   «всё плывёт» (владелец, 2026-07-29). Разворачиваем обратно в строку. */
+.pf-mtable-lbl { color: var(--pf-ink-3); flex-shrink: 1; min-width: 0; padding-top: 1px; }
+.pf-mtable-lbl > span { display: inline-flex !important; flex-direction: row !important; flex-wrap: wrap !important; align-items: center !important; gap: 6px !important; row-gap: 4px !important; }
+.pf-mtable-val { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--pf-ink); text-align: right; flex-shrink: 0; padding-top: 1px; }
 
 @media (max-width: 640px) {
   .pf-pos-mobile-list { display: block; }
