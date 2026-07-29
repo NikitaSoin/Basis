@@ -23,6 +23,11 @@
 .fin-hybrid .layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start;}
 @media(max-width:1020px){.fin-hybrid .layout{grid-template-columns:1fr;}}
 .fin-hybrid .dash{display:flex;flex-direction:column;gap:16px;min-width:0;}
+/* тизер (открывает рейл-панель) и крестик закрытия — элементы мобильного режима,
+   на десктопе рейл открыт всегда (sticky) — базовые правила ДО media query. */
+.fin-hybrid .fv-rail-teaser{display:none;}
+.fin-hybrid .fv-rail-x{display:none;}
+.fin-hybrid .fv-rail-scrim{display:none;}
 .fin-hybrid .mono{font-family:var(--mono);}
 /* epistemic tags */
 .fin-hybrid .tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:5px;vertical-align:middle;}
@@ -221,7 +226,34 @@
 
 /* ── правый рейл «Заметка аналитика» ── */
 .fin-hybrid .fv-rail{position:sticky;top:16px;align-self:start;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 18px 20px;}
-@media(max-width:1020px){.fin-hybrid .fv-rail{position:static;}}
+/* ≤1020px: рейл больше не стекает в конец вкладки — выезжает справа поверх контента
+   (паттерн Скринера, sc-drawer), открывается тизером вверху dash (fv-rail-teaser). */
+@media(max-width:1020px){
+  .fin-hybrid .fv-rail-teaser{
+    display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:inherit;
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);
+    padding:13px 15px;cursor:pointer;
+  }
+  .fin-hybrid .fv-rail-teaser-ic{font-size:16px;color:var(--accent-2);flex-shrink:0;}
+  .fin-hybrid .fv-rail-teaser-body{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;}
+  .fin-hybrid .fv-rail-teaser-t{font-size:12.5px;color:var(--ink-2);}
+  .fin-hybrid .fv-rail-teaser-v{font-family:var(--mono);font-size:17px;font-weight:600;color:var(--ink);}
+  .fin-hybrid .fv-rail-teaser-chev{margin-left:auto;color:var(--ink-3);font-size:18px;flex-shrink:0;}
+  .fin-hybrid .fv-rail-scrim{display:block;position:fixed;inset:0;background:rgba(8,8,12,.42);z-index:80;}
+  .fin-hybrid .fv-rail{
+    position:fixed;top:0;right:0;bottom:0;left:auto;width:400px;max-width:92vw;
+    background:var(--cc-bg);border:0;border-left:1px solid var(--line-2);border-radius:0;
+    z-index:81;padding:56px 24px calc(22px + 68px + env(safe-area-inset-bottom,0px));
+    overflow-y:auto;box-shadow:-20px 0 50px rgba(0,0,0,.2);
+    transform:translateX(100%);transition:transform .28s ease;
+  }
+  .fin-hybrid .fv-rail.fv-rail--open{transform:translateX(0);}
+  .fin-hybrid .fv-rail-x{
+    display:flex;position:absolute;top:18px;right:18px;background:var(--panel-2);
+    border:1px solid var(--line-2);border-radius:8px;color:var(--ink-2);cursor:pointer;padding:7px;
+  }
+  .fin-hybrid .fv-rail-x:hover{color:var(--ink);}
+}
 .fin-hybrid .eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-2);margin-bottom:4px;}
 .fin-hybrid .an-fv{display:flex;align-items:baseline;gap:8px;margin:6px 0 2px;}
 .fin-hybrid .an-fv .b{font-family:var(--mono);font-size:30px;font-weight:500;line-height:1;}
