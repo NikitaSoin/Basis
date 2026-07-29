@@ -190,11 +190,17 @@ def issuer_capital(db: Session, ticker: str, fin: dict,
     # чем (например, NNSB: 664 тыс. акций при классах 3,92 млн и 1,06 млн), значит
     # разъехалось что-то ещё — база капитала, единицы, — и «поправка» разнесёт чужую
     # ошибку дальше. Тогда молчим: у неверного числа не должно появляться уверенного вида.
-    implied_shares = mcap_analyst / frozen_price
+    # Пробуем не только цену САМОЙ бумаги: у пар «обычка/преф» аналитик часто
+    # копирует в файл префа мультипликаторы эмитента, посчитанные по цене обычки
+    # (у MFGSP и MFGS записан один и тот же P/B 0,235). Тогда деление на цену префа
+    # даёт бессмыслицу, а на цену обычки — ровно выпуск обыкновенных. Без этого
+    # правился только один тикер пары, и бумаги одного эмитента разъезжались между
+    # собой — то самое расхождение на стыках, ради которого всё и затевалось.
     near = lambda a, b: bool(a and b and abs(a / b - 1.0) < 0.12)  # noqa: E731
-    recognised = (near(implied_shares, total)
-                  or any(near(implied_shares, _num(c.get("count"))) for c in classes)
-                  or entry.get("verified_shares"))
+    cand_prices = [frozen_price] + [_num(c.get("snapshot_price")) for c in classes]
+    counts = [total] + [_num(c.get("count")) for c in classes]
+    recognised = bool(entry.get("verified_shares")) or any(
+        near(mcap_analyst / p, n) for p in cand_prices if p and p > 0 for n in counts)
     if not recognised:
         return None
     listed = [c for c in classes if c.get("listed") and c.get("ticker")]
