@@ -60,7 +60,7 @@ def metric_of(name):
     """→ (metric_key, tolerance, negate_if_positive) | None"""
     n = name.strip().lower().replace("ё", "е")
     # другой базис/периметр — не сверяем вовсе
-    hard_skip = ("до мсфо 16", "до ifrs", "pre-ifrs", "без аренды", "на акцию",
+    hard_skip = ("до мсфо", "до ifrs", "pre-ifrs", "без аренды", "на акцию",
                  "lfl", "маржа", "сегмент", "с учетом доли", "динамика",
                  "eps", "dps", "продолж", "прекращ", "пао", "соло",
                  "головн")
@@ -212,9 +212,17 @@ def check_prose(md_text, years, facts, fname):
     seen = set()
     for m in PROSE_RE.finditer(md_text):
         line_start = md_text.rfind("\n", 0, m.start()) + 1
-        if md_text[line_start:line_start + 2].lstrip().startswith("|"):
+        head = md_text[line_start:line_start + 4].lstrip()
+        if head.startswith("|"):
             continue  # таблицы сверяет check_tables
+        if head.startswith(("- [", "* [", "[")):
+            continue  # заголовки ссылок-источников (квартальные цифры и т.п.)
         kw = m.group(1).lower()
+        # между ключевым словом и числом упомянута ДРУГАЯ метрика — не наш стык
+        mid = md_text[m.end(1):m.start(3)]
+        if re.search(r"долг|capex|капзатр|актив|капитал|дивиденд|cfo|денежн|"
+                     r"маржа|расход|прибыл|убыт|выручк|ebitda", mid, re.I):
+            continue
         metric = next((v for k, v in PROSE_METRIC.items() if k in kw), None)
         fs = facts.get(metric)
         if fs is None:
