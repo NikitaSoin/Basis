@@ -66,7 +66,7 @@ def metric_of(name):
                  "головн", "ниокр", "полный")
     if any(w in n for w in hard_skip):
         return None
-    if any(w in n for w in ("нормализ", "скорр", "adjusted")):
+    if any(w in n for w in ("нормализ", "скорр", "adjusted", "adj")):
         # скорректированная EBITDA против отчётной — только WARN, законный базис
         if "ebitda" in n and "/" not in n and "долг" not in n:
             return ("ebitda_adj", 0.15, False)
