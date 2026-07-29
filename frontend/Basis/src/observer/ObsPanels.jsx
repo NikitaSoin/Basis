@@ -383,8 +383,9 @@ function ObsNewsCardItem({ n, unread, onSeen, onSelectCompany }) {
 // ObsReports — «Отчёты» точно по прототипу observer-sidebar-v2.html
 // Карточки с метрик-чипами (Выручка/EBITDA/Прибыль, цвет по знаку),
 // вердикт, разворот с секциями positives/risks/conclusion.
-// Данные: GET /api/market/earnings (поля: revenue_pct, ebitda_pct,
-// profit_pct, positives[], risks[], conclusion, sector, importance).
+// Данные: GET /api/market/earnings (поля: revenue_abs/ebitda_abs/profit_abs —
+// абсолют, форматированная строка «Х млрд ₽»; revenue_pct/ebitda_pct/profit_pct —
+// рост г/г, число; positives[], risks[], conclusion, sector, importance).
 // =============================================================
 
 function ObsReports({ token, portfolioOnly, onSelectCompany }) {
@@ -472,25 +473,43 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
                   }
                 </div>
 
-                {/* Metric chips — shown only if structured pct fields present */}
-                {(r.revenue_pct || r.ebitda_pct || r.profit_pct) && (
+                {/* Metric chips — единый стандарт (владелец 2026-07-29: «кто в лес кто
+                   по дрова» — где-то абсолют, где-то только рост): абсолютное значение
+                   ВСЕГДА первично (rm-val), рост г/г — рядом мельче (rm-delta), с
+                   глифом ▲/▼ (см. дизайн-конституцию — дельты не только цветом). */}
+                {(r.revenue_abs || r.ebitda_abs || r.profit_abs) && (
                   <div className="obs-rep-metrics">
-                    {r.revenue_pct && (
+                    {r.revenue_abs && (
                       <div className="obs-rep-metric">
                         <span className="rm-lbl">Выручка</span>
-                        <span className="rm-val" style={{ color: metricColor(r.revenue_pct) }}>{r.revenue_pct}</span>
+                        <span className="rm-val">{r.revenue_abs}</span>
+                        {r.revenue_pct != null && (
+                          <span className="rm-delta" style={{ color: metricColor(r.revenue_pct) }}>
+                            {r.revenue_pct >= 0 ? "▲" : "▼"} {Math.abs(r.revenue_pct)}% г/г
+                          </span>
+                        )}
                       </div>
                     )}
-                    {r.ebitda_pct && (
+                    {r.ebitda_abs && (
                       <div className="obs-rep-metric">
                         <span className="rm-lbl">EBITDA</span>
-                        <span className="rm-val" style={{ color: metricColor(r.ebitda_pct) }}>{r.ebitda_pct}</span>
+                        <span className="rm-val">{r.ebitda_abs}</span>
+                        {r.ebitda_pct != null && (
+                          <span className="rm-delta" style={{ color: metricColor(r.ebitda_pct) }}>
+                            {r.ebitda_pct >= 0 ? "▲" : "▼"} {Math.abs(r.ebitda_pct)}% г/г
+                          </span>
+                        )}
                       </div>
                     )}
-                    {r.profit_pct && (
+                    {r.profit_abs && (
                       <div className="obs-rep-metric">
                         <span className="rm-lbl">Чистая прибыль</span>
-                        <span className="rm-val" style={{ color: metricColor(r.profit_pct) }}>{r.profit_pct}</span>
+                        <span className="rm-val">{r.profit_abs}</span>
+                        {r.profit_pct != null && (
+                          <span className="rm-delta" style={{ color: metricColor(r.profit_pct) }}>
+                            {r.profit_pct >= 0 ? "▲" : "▼"} {Math.abs(r.profit_pct)}% г/г
+                          </span>
+                        )}
                       </div>
                     )}
                   </div>

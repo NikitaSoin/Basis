@@ -947,6 +947,21 @@ def market_macro_digest(limit: int = Query(30, ge=1, le=100), db: Session = Depe
     return {"articles": [_digest_dict(a) for a in rows]}
 
 
+def _fmt_abs_rub(value_mln) -> str | None:
+    """Форматирует абсолютное значение (хранится в млн ₽, см. report_watch._store_report
+    unit="млн") в читаемую строку — млрд при >=1000 млн, иначе млн. Единый формат для
+    всех плиток «Отчётов» (владелец 2026-07-29: «кто в лес кто по дрова» — где-то
+    абсолют, где-то только рост; нужен ОДИН стандарт: абсолют всегда, рост рядом мельче)."""
+    if value_mln is None:
+        return None
+    v = float(value_mln)
+    sign = "−" if v < 0 else ""
+    av = abs(v)
+    if av >= 1000:
+        return f"{sign}{av / 1000:.1f}".replace(".", ",") + " млрд ₽"
+    return f"{sign}{av:.0f} млн ₽"
+
+
 def _split_markers(markers) -> tuple[list, list]:
     """Разбивает what_report_showed на positives (✅) и risks (❌/❗)."""
     if not markers:
@@ -1070,6 +1085,12 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
             "revenue_pct": _yoy_pct(fig.revenue_ttm if fig else None, prev.get("revenue")),
             "ebitda_pct": _yoy_pct(fig.ebitda if fig else None, prev.get("ebitda")),
             "profit_pct": _yoy_pct(fig.net_profit_ttm if fig else None, prev.get("net_profit")),
+            # 🔴 Абсолютные значения — владелец 2026-07-29: плитки показывали ТОЛЬКО %
+            # роста (а когда его не было — не показывали вообще ничего); единый
+            # стандарт теперь на фронте — абсолют всегда, рост рядом мельче.
+            "revenue_abs": _fmt_abs_rub(fig.revenue_ttm if fig else None),
+            "ebitda_abs": _fmt_abs_rub(fig.ebitda if fig else None),
+            "profit_abs": _fmt_abs_rub(fig.net_profit_ttm if fig else None),
         })
     return {"count": len(out), "reports": out}
 
