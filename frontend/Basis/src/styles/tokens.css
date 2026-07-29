@@ -443,5 +443,39 @@
 }
 @media (max-width: 640px) {
   .cc-root .cc-metric-grid { display: none; }
-  .cc-root .cc-metric-list { display: block; }
+  .cc-root .cc-metric-list { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 14px; }
+  /* Ячейка сетки — подпись (может перенестись на 2 строки) НАД значением, а не
+     слева-направо (space-between): при 2 колонках ~165px ширины подпись+тег
+     («Чист. долг / EBITDA» + «ФАКТ») не оставляли места значению — оно
+     выталкивалось за край экрана. Вертикальная укладка — без overflow. */
+  .cc-root .cc-metric-list-row { flex-direction: column; align-items: flex-start; padding: 8px 0; gap: 3px; }
+  .cc-root .cc-metric-list-lbl { font-size: 10.5px; }
+  .cc-root .cc-metric-list-val { font-size: 14px; }
+}
+
+/* Шапка карточки на телефоне (owner, 2026-07-30, реальный экран: «на пол-экрана
+   только плитка-заголовок») — логотип и имя компании меньше, цена держится
+   СПРАВА от названия (не переносится под шапку на всю ширину, см. PricePanel
+   в neo.jsx), метрики — компактная сетка 2 колонки (см. cc-metric-list выше).
+   cc-header-row: identity получает flex:1 (сжимается, имя — эллипсис), price —
+   flex:0 auto (свой размер) — БЕЗ этого браузер не сжимает имя, а целиком
+   переносит price-панель на новую строку (первый заход, поймал скриншотом). */
+@media (max-width: 640px) {
+  .cc-root .cc-header-panel { padding: 18px 16px; }
+  .cc-root .cc-header-back { margin-bottom: 12px; font-size: 11px; }
+  .cc-root .cc-header-row { gap: 10px; flex-wrap: nowrap; }
+  .cc-root .cc-identity { flex: 1 1 0%; min-width: 0; }
+  .cc-root .cc-identity-logo img,
+  .cc-root .cc-identity-logo span { width: 34px !important; height: 34px !important; }
+  .cc-root .cc-identity-name {
+    font-size: 15.5px !important; line-height: 1.2 !important;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block;
+  }
+  .cc-root .cc-identity-meta { font-size: 10px; margin-top: 5px; gap: 5px !important; }
+  .cc-root .cc-price-panel { flex: 0 0 auto; }
+  .cc-root .cc-price-val { font-size: 21px !important; }
+  .cc-root .cc-price-ccy { font-size: 12px !important; }
+  /* капитализация/обновлено — друг ПОД другом (не в ряд): в ряд эти две строки
+     шире, чем нужно price-панели, и снова тянули перенос всей шапки. */
+  .cc-root .cc-price-meta { font-size: 9.5px; margin-top: 6px; flex-direction: column; align-items: flex-end; gap: 2px !important; }
 }
