@@ -400,6 +400,35 @@ def get_bfv_endpoint(ticker: str, spread_pp: float | None = None, db: Session = 
     return JSONResponse(content=res)
 
 
+@router.get("/companies/by-ticker/{ticker}/earnings/archive")
+def get_earnings_archive(ticker: str, db: Session = Depends(get_db)):
+    """История разборов «вышел отчёт» по компании (Направление 3) — владелец
+    2026-07-29: карточка «Свежее событие» убрана из вкладки «Финансы» (дублировала
+    выверенный «Разбор отчёта» и путала), последний разбор теперь в «Обзоре»
+    (см. get_latest_earnings), а ПРОШЛЫЕ разборы не удаляются (в earnings_reports
+    и раньше ничего не чистилось — report_watch.py трогает только свежие
+    needs_source-заглушки при ретрае, processed-записи не трогает никогда),
+    просто не были доступны глазами — этот эндпоинт открывает историю. Самый
+    свежий (тот же, что вернёт get_latest_earnings — ЛЮБОГО статуса, не
+    только processed) исключаем по id, а не позицией: если latest окажется
+    needs_source/extract_failed (карточка «последнего» в Обзоре его тогда не
+    покажет вовсе), «просто пропустить первый processed» тихо потерял бы самый
+    свежий РЕАЛЬНЫЙ разбор — ни в «последнем», ни в архиве."""
+    from app.models.earnings import EarningsReport, EarningsDigest
+    t = _safe(ticker).upper()
+    latest = (db.query(EarningsReport).filter(EarningsReport.ticker == t)
+             .order_by(EarningsReport.created_at.desc()).first())
+    rows = (db.query(EarningsReport, EarningsDigest)
+            .outerjoin(EarningsDigest, EarningsDigest.report_id == EarningsReport.id)
+            .filter(EarningsReport.ticker == t, EarningsReport.status == "processed")
+            .order_by(EarningsReport.created_at.desc()).all())
+    return {"items": [{
+        "period": r.period, "standard": r.standard, "report_type": r.report_type,
+        "published_at": r.published_at.isoformat() if r.published_at else None,
+        "one_liner": dg.one_liner if dg else None,
+    } for r, dg in rows if not latest or r.id != latest.id]}
+
+
 @router.get("/companies/by-ticker/{ticker}/earnings/latest")
 def get_latest_earnings(ticker: str, db: Session = Depends(get_db)):
     """Разбор последнего отчёта для карточки (Направление 3): метрики + блок «Разбор отчёта».

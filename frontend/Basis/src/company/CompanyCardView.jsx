@@ -14,6 +14,7 @@ import {
   Globe,
   Info,
   Layers,
+  Newspaper,
   PieChart,
   RefreshCw,
   Scale,
@@ -3037,6 +3038,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
   const [sectorMult, setSectorMult] = useState(null);  // медианы мультипликаторов по секторам
   const [peersMultiples, setPeersMultiples] = useState(null);  // конкуренты по годам (вкладка Финансы)
   const [earnings, setEarnings] = useState(null);
+  const [earningsArchive, setEarningsArchive] = useState(null);  // null=не запрошен, []=пусто, [...]=загружен
   const [govMd, setGovMd] = useState(null);
   const [govJson, setGovJson] = useState(null);
   const [govLoading, setGovLoading] = useState(true);
@@ -3258,6 +3260,14 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
     </Card>
   );
 
+  const loadEarningsArchive = () => {
+    if (earningsArchive !== null) return;  // уже загружено — не дублируем запрос
+    fetch(`${apiBase()}/api/companies/by-ticker/${company.ticker}/earnings/archive`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setEarningsArchive(d?.items || []))
+      .catch(() => setEarningsArchive([]));
+  };
+
   const renderOverview = () => {
     if (!company.overview) {
       if (analysisLoading) {
@@ -3446,6 +3456,79 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
           ))}
         </div>
       </Card>
+
+      {/* «Свежее событие: вышел отчёт» (report_watch.py) — перенесено сюда из
+         вкладки «Финансы» 2026-07-29 (владелец: там дублировало выверенный
+         «Разбор отчёта» и путало). Самый свежий разбор — здесь, рядом со
+         справедливой ценой; прошлые не теряются — раскрываются по клику
+         («Прошлые разборы») из /earnings/archive, ничего не удаляется. */}
+      {earnings && (earnings.digest || earnings.status === "needs_source" || earnings.status === "extract_failed") && (
+        <Card>
+          <div className="tw-flex tw-items-center tw-justify-between tw-mb-3 tw-flex-wrap tw-gap-2">
+            <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold">
+              <Newspaper size={18} />
+              <span>Вышел отчёт</span>
+            </div>
+            <span className="tw-text-[12px] tw-text-text-tertiary">
+              {earnings.period}{earnings.standard ? ` · ${earnings.standard}` : ""}
+            </span>
+          </div>
+          {earnings.status === "extract_failed" ? (
+            <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">
+              Отчёт вышел — цифры на проверке, разбор появится после сверки источника.
+            </p>
+          ) : earnings.status === "needs_source" ? (
+            <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">
+              Отчёт вышел {earnings.published_at || ""} — источник с цифрами ещё не найден, разбор появится по мере поступления данных.
+            </p>
+          ) : (
+            <div className="tw-flex tw-flex-col tw-gap-2">
+              {earnings.digest.one_liner && (
+                <p className="tw-text-[14px] tw-font-medium tw-text-text-primary tw-m-0">{earnings.digest.one_liner}</p>
+              )}
+              {Array.isArray(earnings.digest.what_report_showed) && (
+                <ul className="tw-list-none tw-p-0 tw-m-0 tw-flex tw-flex-col tw-gap-1">
+                  {earnings.digest.what_report_showed.map((x, i) => (
+                    <li key={i} className="tw-flex tw-items-start tw-gap-2 tw-text-[13px] tw-text-text-secondary">
+                      <span aria-hidden="true" className={`tw-mt-0.5 tw-shrink-0 ${x.startsWith("❌") ? "tw-text-danger" : x.startsWith("❗") ? "tw-text-warning" : "tw-text-success"}`}>
+                        {x.startsWith("❌") ? "✗" : x.startsWith("❗") ? "!" : "✓"}
+                      </span>
+                      <span>{x.replace(/^[✅❌❗️]+\s*/, "")}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {earnings.digest.summary && <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">{earnings.digest.summary}</p>}
+            </div>
+          )}
+          <p className="tw-text-[11px] tw-text-text-tertiary tw-mt-3 tw-mb-0">
+            Ознакомительный разбор события «вышел отчёт» по свежим источникам. Не является ИИР.
+          </p>
+          {earningsArchive === null ? (
+            <button
+              type="button"
+              onClick={loadEarningsArchive}
+              className="tw-text-[12px] tw-text-accent tw-mt-3 tw-p-0 tw-bg-transparent tw-border-0 tw-cursor-pointer tw-underline tw-inline-flex tw-items-center tw-gap-1"
+            >
+              <ChevronRight size={12} />Прошлые разборы
+            </button>
+          ) : earningsArchive.length > 0 ? (
+            <div className="tw-mt-3 tw-pt-3 tw-border-t tw-border-border-subtle tw-flex tw-flex-col tw-gap-2">
+              <div className="tw-text-[11px] tw-text-text-tertiary tw-font-semibold tw-uppercase tw-tracking-wide">История разборов</div>
+              {earningsArchive.map((it, i) => (
+                <div key={i} className="tw-text-[12px] tw-text-text-secondary">
+                  <span className="tw-text-text-tertiary">
+                    {it.published_at || ""}{it.standard ? ` · ${it.standard}` : ""} ·{" "}
+                  </span>
+                  {it.one_liner || it.period}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="tw-text-[12px] tw-text-text-tertiary tw-mt-3 tw-mb-0">Прошлых разборов нет.</p>
+          )}
+        </Card>
+      )}
 
       {/* SECOND TIER — context cards: "что происходит" + макро/политика */}
       <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-4">
@@ -3819,7 +3902,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
     // Всё из структурированного financials.json; коридор/методы НЕ пересчитываются.
     if (finJson) {
       const liveCurp = livePrice ?? company?.price ?? null;
-      return <FinanceTab fin={finJson} company={company} price={liveCurp} sectorMult={sectorMult} peersData={peersMultiples} finMd={finMd} earnings={earnings} />;
+      return <FinanceTab fin={finJson} company={company} price={liveCurp} sectorMult={sectorMult} peersData={peersMultiples} finMd={finMd} />;
     }
 
     const cx = (...p) => p.filter(Boolean).join(" ");
