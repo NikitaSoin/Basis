@@ -194,17 +194,17 @@
     "non_current_assets": {
       "ppe": [
         null,
-        null,
-        null,
-        null,
-        null
+        637,
+        705,
+        892,
+        1268
       ],
       "intangibles": [
         null,
-        null,
-        null,
-        null,
-        null
+        150,
+        154,
+        183,
+        233
       ],
       "goodwill": [
         null,
@@ -215,91 +215,91 @@
       ],
       "long_term_investments": [
         null,
-        null,
-        null,
-        null,
-        null
+        0,
+        3,
+        38,
+        43
       ],
       "other_non_current": [
         null,
-        null,
-        null,
-        null,
-        null
+        312,
+        329,
+        353,
+        313
       ],
       "total_non_current": [
         null,
-        null,
-        null,
-        null,
-        null
+        1099,
+        1191,
+        1466,
+        1861
       ]
     },
     "current_assets": {
       "inventory": [
         null,
-        null,
-        null,
-        null,
-        null
+        122,
+        123,
+        196,
+        161
       ],
       "receivables": [
         null,
-        null,
-        null,
-        null,
-        null
+        4005,
+        3869,
+        3749,
+        4455
       ],
       "cash": [
-        2120,
-        3040,
-        4340,
-        5300,
-        4000
+        null,
+        3044,
+        4336,
+        5298,
+        3997
       ],
       "short_term_investments": [
         null,
-        null,
-        null,
+        13,
+        24,
         null,
         null
       ],
       "other_current": [
         null,
-        null,
-        null,
-        null,
-        null
+        16,
+        41,
+        78,
+        26
       ],
       "total_current": [
         null,
-        null,
-        null,
-        null,
-        null
+        7200,
+        8394,
+        9321,
+        8718
       ]
     },
     "total_assets": [
-      7500,
-      8300,
-      9580,
-      10800,
-      10500
+      7515,
+      8299,
+      9585,
+      10787,
+      10496
     ],
     "equity": {
       "share_capital": [
         null,
-        null,
-        null,
-        null,
-        null
+        155,
+        155,
+        155,
+        155
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2181,
+        2618,
+        3633,
+        3995,
+        3390
       ],
       "additional_paid_in": [
         null,
@@ -316,93 +316,93 @@
         null
       ],
       "total_equity": [
-        2340,
-        2770,
-        3790,
+        2335,
+        2772,
+        3788,
         4150,
-        3550
+        3545
       ]
     },
     "total_equity": [
-      2340,
-      2770,
-      3790,
+      2335,
+      2772,
+      3788,
       4150,
-      3550
+      3545
     ],
     "non_current_liabilities": {
       "long_term_debt": [
-        0,
-        0,
-        0,
-        0,
-        0
+        null,
+        null,
+        null,
+        null,
+        null
       ],
       "deferred_tax": [
         null,
-        null,
-        null,
-        null,
-        null
+        102,
+        118,
+        222,
+        319
       ],
       "other_non_current_liab": [
         null,
-        null,
-        null,
-        null,
-        null
+        17,
+        6,
+        19,
+        18
       ],
       "total_non_current_liab": [
         null,
-        null,
-        null,
-        null,
-        null
+        119,
+        124,
+        241,
+        337
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        0,
-        0,
-        0,
-        0,
-        0
+        null,
+        null,
+        null,
+        null,
+        null
       ],
       "payables": [
         null,
-        null,
-        null,
-        null,
-        null
+        4195,
+        4441,
+        5042,
+        5156
       ],
       "other_current_liab": [
         null,
-        null,
-        null,
-        null,
-        null
+        1213,
+        1231,
+        1354,
+        1458
       ],
       "total_current_liab": [
         null,
-        null,
-        null,
-        null,
-        null
+        5408,
+        5672,
+        6396,
+        6614
       ]
     },
     "total_liabilities": [
-      5160,
-      5530,
-      5790,
-      6650,
-      6950
+      5179,
+      5527,
+      5797,
+      6637,
+      6951
     ],
     "net_debt": [
-      -2120,
-      -3040,
-      -4340,
-      -5300,
-      -4000
+      null,
+      -3044,
+      -4336,
+      -5298,
+      -3997
     ],
     "tangible_equity": [
       2340,
@@ -1176,7 +1176,8 @@
     "Снижение ЧП 2025 vs 2024 (2390 vs 2660 млн, -10.2%): возможная причина — снижение % дохода или рост затрат. Без ОДДС точная причина неизвестна.",
     "cash_flow скопирован из PMSB (диспетчер, 2026-07-06) — один эмитент.",
     "meta.last_price добавлен (534.9485 ₽, уверенность: high (2 независимых метода согласуются)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price).",
-    "finance_costs/finance_income/pre_tax_profit/income_tax синхронизированы с парной обыкновенной акцией PMSB (ПАО «Пермэнергосбыт» — одно юрлицо, обыкновенные+привилегированные акции; P&L идентичен для держателей обоих типов, различие только в дивидендной поляризации). Значения взяты из PMSB/financials.json (2026-07): finance_costs [1,3,2,10,8], finance_income [null,206,349,813,869], pre_tax_profit [null,1444,2145,3309,3328], income_tax [346,398,651,943] (2022-2025; знак — положительный = расход, вычитается из pre_tax для получения net_profit). 2021 год (finance_income/pre_tax_profit/income_tax) остаётся null в ОБОИХ файлах — честный пробел: отдельный аудированный МСФО-отчёт за 2021/2020 не найден на IR-сайте компании, e-disclosure отдал Cloudflare-challenge (см. флаг в PMSB); использована только company-инфографика без постатейного финрезультата за 2021."
+    "finance_costs/finance_income/pre_tax_profit/income_tax синхронизированы с парной обыкновенной акцией PMSB (ПАО «Пермэнергосбыт» — одно юрлицо, обыкновенные+привилегированные акции; P&L идентичен для держателей обоих типов, различие только в дивидендной поляризации). Значения взяты из PMSB/financials.json (2026-07): finance_costs [1,3,2,10,8], finance_income [null,206,349,813,869], pre_tax_profit [null,1444,2145,3309,3328], income_tax [346,398,651,943] (2022-2025; знак — положительный = расход, вычитается из pre_tax для получения net_profit). 2021 год (finance_income/pre_tax_profit/income_tax) остаётся null в ОБОИХ файлах — честный пробел: отдельный аудированный МСФО-отчёт за 2021/2020 не найден на IR-сайте компании, e-disclosure отдал Cloudflare-challenge (см. флаг в PMSB); использована только company-инфографика без постатейного финрезультата за 2021.",
+    "GAP-добор 2026-07-29 (report-fetcher): balance_sheet перенесён ИЗ sources/extracted_financials.json (первичная МСФО ПАО «Пермэнергосбыт», permenergosbyt.ru ZIP-архивы, arithmetic_check=passed для 2022-2025) — PPE/НМА/запасы/дебиторка/кредиторка/капитал по составу теперь раскрыты за 2022-2025. 2021 год ЧЕСТНО ОСТАВЛЕН ЧАСТИЧНЫМ (только total_assets/retained_earnings/total_equity из company-инфографики) — отдельный аудированный МСФО-отчёт за 2021/2020 на сайте компании не найден, e-disclosure отдавал Cloudflare-challenge (см. предыдущие флаги); долг=0 подтверждён 2022-2025 (нет кредитов/займов банков), net_debt=-cash соответственно."
   ],
   "segments": [
     {

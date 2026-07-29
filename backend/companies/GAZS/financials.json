@@ -6,7 +6,7 @@
     "profile": "holding",
     "currency": "RUB",
     "unit": "млн",
-    "reporting_standard": "МСФО",
+    "reporting_standard": "РСБУ",
     "converted_years": [],
     "conversion_note": "",
     "fiscal_years": [
@@ -226,11 +226,11 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.233
       ],
       "intangibles": [
         null,
@@ -247,25 +247,25 @@
         null
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        6156.032,
+        6156.032,
+        6156.035,
+        6156.042,
+        6156.045
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1286.319,
+        1284.961,
+        1271.867,
+        1267.799,
+        1541.44
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        7442.351,
+        7440.993,
+        7427.902,
+        7423.841,
+        7697.718
       ]
     },
     "current_assets": {
@@ -277,39 +277,39 @@
         null
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.918,
+        3.374,
+        3.246,
+        5.663,
+        32.081
       ],
       "cash": [
-        null,
-        null,
-        null,
-        null,
-        1260
+        0.398,
+        1.396,
+        1.475,
+        1.477,
+        432.609
       ],
       "short_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        29478.408,
+        29491.274,
+        29719.484,
+        29591.784,
+        29785.684
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.013,
+        0.008,
+        0.003,
+        0.0,
+        0.0
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        29479.737,
+        29496.052,
+        29724.208,
+        29598.924,
+        30250.374
       ]
     },
     "total_assets": [
@@ -317,51 +317,51 @@
       36937.045,
       37152.11,
       37022.765,
-      71300
+      37948.092
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2065.09,
+        2065.09,
+        2065.09,
+        2065.09,
+        2065.09
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
-        null,
-        null
+        213.911,
+        228.385,
+        445.019,
+        316.398,
+        1234.169
       ],
       "additional_paid_in": [
-        null,
-        null,
-        null,
-        null,
-        null
+        34537.061,
+        34537.061,
+        34537.061,
+        34537.061,
+        34537.061
       ],
       "other_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        103.255,
+        103.255,
+        103.255,
+        103.255,
+        103.255
       ],
       "total_equity": [
-        null,
-        null,
-        null,
-        null,
-        71200
+        36919.317,
+        36933.791,
+        37150.425,
+        37021.804,
+        37939.575
       ]
     },
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
-        null,
+        0,
+        0,
+        0,
+        0,
         0
       ],
       "deferred_tax": [
@@ -379,41 +379,41 @@
         null
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
-        null,
+        0,
+        0,
+        0,
+        0,
         0
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1.676,
+        2.427,
+        0.656,
+        0.015,
+        7.252
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1.095,
+        0.827,
+        1.029,
+        0.946,
+        1.265
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2.771,
+        3.254,
+        1.685,
+        0.961,
+        8.517
       ]
     },
     "total_liabilities": [
@@ -421,14 +421,14 @@
       3.254,
       1.685,
       0.961,
-      100
+      8.517
     ],
     "net_debt": [
-      null,
-      null,
-      null,
-      null,
-      -1260
+      -0.4,
+      -1.4,
+      -1.48,
+      -1.48,
+      -432.61
     ],
     "tangible_equity": [
       null,
@@ -466,7 +466,7 @@
       36933.791,
       37150.425,
       37021.804,
-      71200
+      37939.575
     ]
   },
   "cash_flow": {
@@ -1109,7 +1109,9 @@
     "cfo/cfi/cff_lines: суммы сходятся идеально (арифметика: cfo+cfi+cff=net_change_in_cash для всех 5 лет, максимальное отклонение 0).",
     "ppe (стр.1150) заполнена только с 2024 (233 тыс=0.233 млн), 2020-2023 — реально 0/не заполнялось в форме (оставлено 0 через default).",
     "GAZS: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка.",
-    "2026-07-27: op_bridge закрыт из первичного ФНС ГИР БФО (форма 2, тот же источник, что уже давал pre_tax_profit/income_tax/net_profit в этом файле — теперь домержены operating_profit и expense_lines). operating_profit[2024] исправлен с ошибочного агрегатного −26 на точное −17.585 (revenue 0 − управленческие расходы 17.585). Мост revenue→operating_profit→pre_tax_profit→net_profit сходится ТОЧНО (0% расхождение) для 2024 г. net_profit[2024] уточнён с округлённого 3880 до точного 3882.355."
+    "2026-07-27: op_bridge закрыт из первичного ФНС ГИР БФО (форма 2, тот же источник, что уже давал pre_tax_profit/income_tax/net_profit в этом файле — теперь домержены operating_profit и expense_lines). operating_profit[2024] исправлен с ошибочного агрегатного −26 на точное −17.585 (revenue 0 − управленческие расходы 17.585). Мост revenue→operating_profit→pre_tax_profit→net_profit сходится ТОЧНО (0% расхождение) для 2024 г. net_profit[2024] уточнён с округлённого 3880 до точного 3882.355.",
+    "GAP-добор 2026-07-29 (report-fetcher): balance_sheet полностью перенесён ИЗ sources/extracted_financials.json (ГИР БО ФНС, РСБУ ПАО «ГАЗ-Сервис», arithmetic_check=passed все 5 лет) — ЗНАЧИМАЯ ПЕРЕОЦЕНКА МАСШТАБА: total_assets/total_equity теперь ~37-38 млрд (историческая балансовая стоимость пакета акций Газпромбанка ~16.22%, стр.1170), а НЕ ~71.3 млрд, как было ранее в файле (то значение, судя по всему, было look-through/справедливой стоимостью доли в капитале ГПБ, а не балансовой РСБУ-стоимостью) — 2024 total_assets скорректирован с 71300 на 37022.765 (2024, последний год в РСБУ-ряду 2020-2024, ряд короче основного meta.fiscal_years на 1 год, см. отдельный флаг). capex и finance_costs ОСТАЮТСЯ null — подтверждено первичным источником: компания-холдинг без капвложений и без раскрытой строки 'проценты к уплате' (долг=0 все годы, финансовые расходы отсутствуют по существу, а не как пробел раскрытия).",
+    "meta.reporting_standard исправлен с 'МСФО' на 'РСБУ' (2026-07-29) — фактический источник всех числовых рядов (P&L и теперь balance_sheet) это ГИР БО ФНС, индивидуальная РСБУ-отчётность юрлица-холдинга, не консолидированная МСФО (компания не готовит МСФО)."
   ],
   "segments": [],
   "cost_breakdown": [],

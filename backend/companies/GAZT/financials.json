@@ -6,7 +6,7 @@
     "profile": "holding",
     "currency": "RUB",
     "unit": "млн",
-    "reporting_standard": "МСФО",
+    "reporting_standard": "РСБУ",
     "converted_years": [],
     "conversion_note": "",
     "fiscal_years": [
@@ -240,20 +240,20 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.215,
+        0.444
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "goodwill": [
         null,
@@ -264,138 +264,138 @@
         null
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        48588.225,
-        null
+        48504.828,
+        48504.828,
+        48504.828,
+        48504.828,
+        48504.828,
+        48504.828
       ],
       "long_term_investments_note": "Портфель ценных бумаг 2024: 48 588.225 млн (Годовой отчёт 2024). Основной актив — акции Газпромбанка и компаний группы Газпром.",
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        0.274,
+        0.261,
+        0.313,
+        0.639,
+        1.352,
+        0.479
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        48505.102,
+        48505.089,
+        48505.141,
+        48505.467,
+        48506.395,
+        48505.751
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        1.853,
+        3.72,
+        3.79,
+        5.006,
+        28.535,
+        7.369
       ],
       "cash": [
-        null,
-        null,
-        560.0,
-        567.0,
-        792.0,
-        2440.0
+        0.188,
+        1.398,
+        0.353,
+        0.096,
+        67.08,
+        0.681
       ],
       "short_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        526.551,
+        558.718,
+        633.367,
+        644.403,
+        781.397,
+        2537.454
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        528.592,
+        563.836,
+        637.51,
+        649.505,
+        877.012,
+        2545.504
       ]
     },
     "total_assets": [
       49033.694,
-      40500.0,
-      36300.0,
-      38100.0,
-      42900.0,
-      46200.0
+      49068.925,
+      49142.651,
+      49154.972,
+      49383.407,
+      51051.255
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
         47142.83,
-        null
+        47142.83,
+        47142.83,
+        47142.83,
+        47142.83,
+        47142.83
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        684.402,
+        680.969,
+        728.523,
+        682.775,
+        885.522,
+        834.413
       ],
       "additional_paid_in": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        1029.935,
+        1029.935,
+        1029.935,
+        1029.935,
+        1029.935,
+        1029.935
       ],
       "other_equity": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        174.339,
+        212.401,
+        236.323,
+        296.965,
+        298.346,
+        410.146
       ],
       "total_equity": [
-        null,
-        40500.0,
-        36300.0,
-        38100.0,
-        42800.0,
-        44500.0
+        49031.506,
+        49066.135,
+        49137.611,
+        49152.505,
+        49356.633,
+        49417.324
       ]
     },
     "total_equity": [
       49031.506,
-      40500.0,
-      36300.0,
-      38100.0,
-      42800.0,
-      44500.0
+      49066.135,
+      49137.611,
+      49152.505,
+      49356.633,
+      49417.324
     ],
     "nav_reported": [
       null,
@@ -408,70 +408,70 @@
     "nav_reported_note": "NAV (чистые активы) из официального Годового отчёта ГАЗ-ТЕК. Выше total_equity (smart-lab 42 800 млн 2024) из-за учёта портфеля по справедливой стоимости в МСФО (разница ~6 557 млн — резерв переоценки OCI). NAV — приоритетная метрика для оценки инвестхолдинга.",
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.325
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.325
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        0.817,
+        1.488,
+        4.167,
+        1.314,
+        24.82,
+        1630.691
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        1.371,
+        1.302,
+        0.873,
+        1.153,
+        1.954,
+        1.915
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        2.188,
+        2.79,
+        5.04,
+        2.467,
+        26.774,
+        1632.606
       ]
     },
     "total_liabilities": [
@@ -479,17 +479,17 @@
       2.79,
       5.04,
       2.467,
-      100.0,
-      1700.0
+      26.774,
+      1633.931
     ],
     "total_liabilities_note": "Implied: Total Assets - Total Equity. 2024: 42900-42800=100 млн; 2025: 46200-44500=1700 млн. Детальная разбивка не распарсена.",
     "net_debt": [
-      null,
-      null,
-      -560.0,
-      -567.0,
-      -792.0,
-      -2440.0
+      -0.19,
+      -1.4,
+      -0.35,
+      -0.1,
+      -67.08,
+      -0.68
     ],
     "net_debt_note": "Долг = 0 (не выявлен). Net Debt = -Cash (отрицательный: кэша больше долга).",
     "tangible_equity": [
@@ -1325,7 +1325,9 @@
     "CFI и CFF не распарсены из МСФО — ОДДС неполна; net_change_in_cash implied из остатков кэша.",
     "cost_format=by_function формально (есть стр.2100/2120), но для инвестхолдинга ключевой доход — income_from_participation (дивиденды, стр.2310), а не выручка (стр.2110).",
     "P&L 2023 не раскрыт постатейно в исходной подаче ГИР БО ФНС; net_profit 2023 восстановлен из формы капитала (см. meta.data_flags).",
-    "GAZT: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка."
+    "GAZT: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка.",
+    "GAP-добор 2026-07-29 (report-fetcher): balance_sheet полностью перенесён ИЗ sources/extracted_financials.json (ГИР БО ФНС, РСБУ ПАО «ГАЗ-Тек», arithmetic_check=passed все 6 лет 2020-2025) — компания-инвестхолдинг: основной актив 'long_term_investments' ~48.5 млрд руб (портфель акций, преим. ГПБ/группа Газпром, учтён по исторической стоимости, не переоценивался все годы), обязательства практически нулевые. Долг=0 все годы -> net_debt=-cash.",
+    "meta.reporting_standard исправлен с 'МСФО' на 'РСБУ' (2026-07-29) — фактический источник всех числовых рядов (P&L и теперь balance_sheet) это ГИР БО ФНС, индивидуальная РСБУ-отчётность юрлица-холдинга, не консолидированная МСФО (компания не готовит МСФО)."
   ],
   "segments": [],
   "cost_breakdown": [],
