@@ -411,7 +411,9 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     const p = j == null ? null : a[j];
     return typeof p === "number" && p !== 0 ? ((a[i] - p) / Math.abs(p)) * 100 : null;
   };
-  // подпись сопоставления для шапки «Разбора отчёта» в интерим-режиме
+  // Подпись сопоставления периодов в интерим-режиме («6М 2025 к 6М 2024»). Стояла в шапке
+  // «Разбора отчёта»; плитку убрали 2026-07-30, а дельты YoY остались в диаграммах динамики —
+  // подпись переехала туда же, к ним, иначе непонятно, с чем сравнивается период.
   const yoyPairLabel = (() => {
     if (!yoyIdx) return null;
     const src = (interim.bank_pnl || {}).net_profit || (interim.income_statement || {}).net_profit || null;
@@ -506,27 +508,9 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const revYoy = yoyAt(is.revenue), npYoy = yoyAt(is.net_profit), ebYoy = yoyAt(is.ebitda);
   const bNipYoy = isBank ? yoyAt(bNipArr) : null;
   const bNpYoy  = isBank ? yoyAt(bNpArr)  : null;
-  const rows = [];
-  if (isBank) {
-    if (lastN(bNipArr) != null) { const b = B(lastN(bNipArr)); rows.push({ ic: bNipYoy >= 0 ? "ok" : "warn", t: <>ЧПД {bNipYoy != null ? <><b>{bNipYoy >= 0 ? "+" : "−"}{num(Math.abs(bNipYoy), 1)} %</b> </> : ""}до {b.v} {b.u}</> }); }
-    if (lastN(bNpArr) != null) { const b = B(lastN(bNpArr)); rows.push({ ic: bNpYoy >= 0 ? "ok" : "warn", t: <>Чистая прибыль {bNpYoy != null ? <><b>{bNpYoy >= 0 ? "+" : "−"}{num(Math.abs(bNpYoy), 1)} %</b> </> : ""}до {b.v} {b.u}</> }); }
-    const roeVal = lastN(bRoeArr); if (roeVal != null) { const tone = roeVal >= 15 ? "ok" : roeVal >= 8 ? "warn" : "no"; rows.push({ ic: tone, t: <>ROE <b>{num(roeVal, 1)} %</b> — {roeVal >= 15 ? "высокая" : roeVal >= 8 ? "умеренная" : "низкая"} рентабельность капитала</> }); }
-    const n10Val = lastN(bN10Arr); if (n10Val != null) { const tone = n10Val >= 12 ? "ok" : n10Val >= 8 ? "warn" : "no"; rows.push({ ic: tone, t: <>Достаточность капитала Н1.0 <b>{num(n10Val, 1)} %</b> — {n10Val >= 12 ? "выше нормы" : n10Val >= 8 ? "у минимума" : "ниже нормы"}</> }); }
-  } else {
-    // дельта может отсутствовать (в интерим-режиме нет сопоставимого периода
-    // прошлого года) — тогда показываем только уровень, без «выросла на 0,0 %»
-    if (lastN(is.revenue) != null) { const b = B(lastN(is.revenue)); rows.push({ ic: "ok", t: revYoy == null ? <>Выручка {b.v} {b.u}</> : <>Выручка {revYoy >= 0 ? "выросла" : "снизилась"} на <b>{num(Math.abs(revYoy), 1)} %</b> до {b.v} {b.u}</> }); }
-    if (lastN(is.ebitda) != null) { const b = B(lastN(is.ebitda)); rows.push({ ic: "ok", t: <>EBITDA {ebYoy == null ? <>{b.v} {b.u}</> : <>{ebYoy >= 0 ? "выросла" : "снизилась"} на <b>{num(Math.abs(ebYoy), 1)} %</b> до {b.v} {b.u}</>}{ebMargin != null && <>; рентабельность <b>{num(ebMargin, 1)} %</b></>}</> }); }
-    if (lastN(is.net_profit) != null) { const b = B(lastN(is.net_profit)); rows.push({ ic: npYoy == null ? "ok" : npYoy >= 0 ? "ok" : "warn", t: <>Чистая прибыль {npYoy != null && <><b>{npYoy >= 0 ? "+" : "−"}{num(Math.abs(npYoy), 1)} %</b> до </>}{b.v} {b.u}</> }); }
-    if (nde != null) { const tone = nde < 1.5 ? "ok" : nde <= 3 ? "warn" : "no"; const word = nde < 1.5 ? "низкая" : nde <= 3 ? "умеренная" : "повышенная"; const nd = lastN(bs.net_debt); rows.push({ ic: tone, t: <>{nd != null && <>Чистый долг {B(nd).v} {B(nd).u}, </>}<b>ND/EBITDA {num(nde, 2)}×</b> — {word} долговая нагрузка</> }); }
-  }
-  const verdictHead = isBank
-    ? (bNpYoy != null
-        ? `Чистая прибыль ${bNpYoy >= 0 ? "выросла" : "снизилась"} на ${num(Math.abs(bNpYoy), 0)} %${bNipYoy != null ? ` при ${bNipYoy >= 0 ? "росте" : "снижении"} ЧПД на ${num(Math.abs(bNipYoy), 1)} %` : ""}`
-        : `Итоги ${lastYr} · ${std}`)
-    : ((npYoy != null && revYoy != null)
-        ? `Чистая прибыль ${npYoy >= 0 ? "выросла" : "снизилась"} на ${num(Math.abs(npYoy), 0)} % при ${revYoy >= 0 ? "росте" : "снижении"} выручки на ${num(Math.abs(revYoy), 1)} %`
-        : `Итоги ${lastYr} · ${std}`);
+  // rows / verdictHead (тезисы «Разбора отчёта» и его шапка) удалены вместе с плиткой
+  // 2026-07-30 — больше не читались никем. Годовые дельты выше (revYoy/npYoy/ebYoy,
+  // bNipYoy/bNpYoy) НЕ трогать: на них стоят диаграммы динамики ниже.
 
   /* 2. Справедливой стоимости из financials.json во вкладке БОЛЬШЕ НЕТ. Блок «как
      сходятся методы» уехал в «Обзор» (2026-07-29), а шапка «Заметки аналитика»
@@ -967,18 +951,11 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
             <span className="fv-rail-teaser-chev">›</span>
           </button>
 
-          {/* 1. Разбор отчёта */}
-          {rows.length > 0 && (
-            <div className="card">
-              <h3>Разбор отчёта <span className="tag tag-fact">факт</span><span className="hmeta">{lastYr} · {std}{yoyPairLabel ? ` · динамика ${yoyPairLabel}` : ""}</span></h3>
-              <div className="verdict" style={{ marginTop: 14 }}>
-                <div className="vh">{verdictHead}</div>
-                {rows.map((r, i) => (
-                  <div className="vrow" key={i}><span className={`ic ${r.ic}`}>{r.ic === "ok" ? "✓" : r.ic === "warn" ? "!" : "✕"}</span><span>{r.t}</span></div>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* «Разбор отчёта» убран отсюда 2026-07-30 (владелец): плитка открывала вкладку
+              и повторяла то, что вкладка и так раскрывает ниже подробно. Сам разбор живёт
+              в «Обзоре» (renderOverview, CompanyCardView.jsx) — там ему место как ответу
+              сверху. Тезисы rows/verdictHead удалены выше вместе с плиткой (их больше
+              никто не читал). */}
 
           {/* 2. Справедливая стоимость и BFV перенесены во вкладку «Обзор»
               (владелец 2026-07-29): главная цена = «Справедливая цена по методике
@@ -987,12 +964,13 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
           {/* 3. Ключевые показатели и мультипликаторы */}
           <div className="card">
             <h3>Ключевые показатели и мультипликаторы <span className="tag tag-fact">факт</span><span className="hmeta">{livePrice ? `цена ${num(livePrice, 2)} ${ccy} · ` : ""}позиция к {sm ? "среднему по сектору" : "своей 5-летней норме"}</span></h3>
-            <p className="sub">Масштаб бизнеса — абсолютные показатели за {lastYr} ({std})</p>
-            <div className="kfi">
-              {kfi.map((k, i) => { const b = k.pctv != null ? { v: num(k.pctv, 1), u: "%" } : B(lastN(k.a)); return (<div className="kf" key={i}><span className="kf-l">{k.l}</span><span className="kf-v">{b.v}<s> {b.u}</s></span><span className="kf-d">{k.d != null && <Delta v={k.d} pp={k.isPP} neutral={k.neutral} />}</span></div>); })}
-            </div>
+            {/* Сетка «Масштаб бизнеса — абсолютные показатели за <год>» убрана 2026-07-30
+                (владелец): те же Выручка / EBITDA / Чистая прибыль / FCF / Чистый долг за
+                последний год уже стоят в заголовках диаграмм динамики ниже — числа
+                дублировались один в один. Массив kfi оставлен: на нём считаются ряды и
+                дельты для самих диаграмм. */}
             {kfiCharts.length > 0 && (<>
-              <p className="sub" style={{ marginTop: 16 }}>Динамика {yslice[0]}–{lastYr} — как менялись главные показатели</p>
+              <p className="sub">Динамика {yslice[0]}–{lastYr} — как менялись главные показатели ({std}){yoyPairLabel ? ` · сравнение ${yoyPairLabel}` : ""}</p>
               <div className="fc-dyn">
                 {kfiCharts.map((d, i) => (
                   <div className="d" key={i}>

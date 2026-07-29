@@ -447,6 +447,70 @@ def get_run_rate_endpoint(ticker: str, db: Session = Depends(get_db)):
     return JSONResponse(content=get_run_rate(db, _safe(ticker).upper()))
 
 
+def _period_end(period: str | None, published_at) -> date | None:
+    """Конец периода, который ПОКРЫВАЕТ отчёт — по нему и определяется «самый свежий».
+
+    Владелец, 2026-07-30: в «Обзоре» Роснефти висел разбор за 1 кв 2025, хотя есть
+    годовой 2025. Причина — сортировка по `created_at` (когда запись попала в БД) и
+    `published_at` (когда бот НАШЁЛ отчёт, у ROSN это 2026-07-13 для отчёта за 1 кв
+    2025). Обе даты про наш пайплайн, а не про сам отчёт, поэтому старый отчёт,
+    добранный позже, обгонял свежий.
+
+    `period` пишется эвристикой из заголовка и разнороден: «2025», «1П2026»,
+    «1 КВ.» (без года — у ROSN), «2026-07-27». Год достаём регуляркой; если года в
+    строке нет, возвращаем None — такие записи считаем недоказуемо свежими и
+    ставим НИЖЕ тех, где период известен (иначе «1 КВ.» неизвестного года снова
+    обгонит годовой отчёт).
+    """
+    s = (period or "").strip()
+    if not s:
+        return None
+    m = re.search(r"(19|20)\d{2}", s)
+    if not m:
+        return None
+    year = int(m.group(0))
+    # «2026-07-27» — в period попала дата публикации, она же и конец периода
+    iso = re.match(r"^(\d{4})-(\d{2})-(\d{2})$", s)
+    if iso:
+        try:
+            return date(int(iso.group(1)), int(iso.group(2)), int(iso.group(3)))
+        except ValueError:
+            return None
+    low = s.lower().replace(" ", "")
+    # полугодие: «1П2026» / «2П2025»
+    mh = re.search(r"([12])п", low)
+    if mh:
+        return date(year, 6, 30) if mh.group(1) == "1" else date(year, 12, 31)
+    # 9 месяцев
+    if "9м" in low or "9мес" in low:
+        return date(year, 9, 30)
+    # квартал: «1кв2026», «1 КВ. 2025»
+    mq = re.search(r"([1-4])кв", low)
+    if mq:
+        return {"1": date(year, 3, 31), "2": date(year, 6, 30),
+                "3": date(year, 9, 30), "4": date(year, 12, 31)}[mq.group(1)]
+    # только год — годовой отчёт
+    return date(year, 12, 31)
+
+
+def _earnings_sort_key(r):
+    """Ключ «свежести» отчёта: сначала известный конец периода, потом наш published_at,
+    потом порядок попадания в БД (id монотонен — created_at брать не нужно, к тому же
+    он timezone-aware и не сравнится с date в одном кортеже). date.min для неизвестного
+    периода — чтобы такие записи не выигрывали у отчётов с явным периодом."""
+    pe = _period_end(r.period, r.published_at)
+    return (pe or date.min, r.published_at or date.min, r.id or 0)
+
+
+def _latest_earnings_row(db: Session, ticker: str):
+    """Самый свежий отчёт по СУТИ (покрываемому периоду), любого статуса."""
+    from app.models.earnings import EarningsReport
+    rows = db.query(EarningsReport).filter(EarningsReport.ticker == ticker).all()
+    if not rows:
+        return None
+    return sorted(rows, key=_earnings_sort_key)[-1]
+
+
 @router.get("/companies/by-ticker/{ticker}/earnings/archive")
 def get_earnings_archive(ticker: str, db: Session = Depends(get_db)):
     """История разборов «вышел отчёт» по компании (Направление 3) — владелец
@@ -463,12 +527,13 @@ def get_earnings_archive(ticker: str, db: Session = Depends(get_db)):
     свежий РЕАЛЬНЫЙ разбор — ни в «последнем», ни в архиве."""
     from app.models.earnings import EarningsReport, EarningsDigest
     t = _safe(ticker).upper()
-    latest = (db.query(EarningsReport).filter(EarningsReport.ticker == t)
-             .order_by(EarningsReport.created_at.desc()).first())
+    latest = _latest_earnings_row(db, t)
     rows = (db.query(EarningsReport, EarningsDigest)
             .outerjoin(EarningsDigest, EarningsDigest.report_id == EarningsReport.id)
             .filter(EarningsReport.ticker == t, EarningsReport.status == "processed")
-            .order_by(EarningsReport.created_at.desc()).all())
+            .all())
+    # тот же порядок «по покрываемому периоду», что и у latest, а не по времени записи
+    rows = sorted(rows, key=lambda rd: _earnings_sort_key(rd[0]), reverse=True)
     return {"items": [{
         "period": r.period, "standard": r.standard, "report_type": r.report_type,
         "published_at": r.published_at.isoformat() if r.published_at else None,
@@ -480,9 +545,8 @@ def get_earnings_archive(ticker: str, db: Session = Depends(get_db)):
 def get_latest_earnings(ticker: str, db: Session = Depends(get_db)):
     """Разбор последнего отчёта для карточки (Направление 3): метрики + блок «Разбор отчёта».
     Состояния: нет отчёта (404), отчёт без разбора (status=extract_failed)."""
-    from app.models.earnings import EarningsReport, EarningsFigures, EarningsDigest
-    r = (db.query(EarningsReport).filter(EarningsReport.ticker == _safe(ticker).upper())
-         .order_by(EarningsReport.created_at.desc()).first())
+    from app.models.earnings import EarningsFigures, EarningsDigest
+    r = _latest_earnings_row(db, _safe(ticker).upper())
     if not r:
         raise HTTPException(status_code=404, detail="Нет разобранных отчётов")
     fig = db.query(EarningsFigures).filter_by(report_id=r.id).first()
