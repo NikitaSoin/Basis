@@ -3417,6 +3417,16 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
     const bfvBound = bfvOk ? bfv.return_bound : null;
     const engineLabel = bfv && bfv.engine === "BFV-F" ? "денежный поток" : "дивиденды и книга";
     const bfvCur = bfvOk && typeof bfv.current_price === "number" ? bfv.current_price : (livePrice ?? company?.price ?? null);
+    // Технические предупреждения движка отсеиваем: «нет живой беты — порог по β=1.0»
+    // приходит по ВСЕМ бумагам (проверено на выборке 16/16) и на 262 карточках превратился
+    // бы в шум, который заглушает содержательные («компания убыточна», «поток не окупает
+    // цену»). Это настройка модели, а не факт об этой бумаге.
+    const bfvWarnings = (bfvOk && Array.isArray(bfv.warnings) ? bfv.warnings : []).filter((w) => !/нет живой беты/i.test(String(w)));
+    // Модель вышла за пределы применимости: доходность упёрлась в границу расчёта либо
+    // потенциал абсурден (SGZH на 2026-07-30: цена 0,53 ₽ и выручка 4266 млрд во входных
+    // данных → ▲10929 % и «проходит»). Такое число нельзя подавать как обычную оценку —
+    // помечаем явно, но НЕ прячем (пользователь должен видеть, что выдала модель).
+    const bfvAbsurd = bfvOk && typeof bfv.upside_pct === "number" && Math.abs(bfv.upside_pct) >= 300;
     const methodRows = [];
     if (bfvFair != null) methodRows.push({ label: "Методика Basis на основе DCF", value: bfvFair, main: true });
     // «Оценка по …», а не «Исторический P/E»: в колонке стоит ЦЕНА в рублях, а голый
@@ -3503,9 +3513,17 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
             ~0%») — до переноса они рендерились в «Финансах» (fc-warn) и потерялись. Без них
             MTLR показывает 1,19 ₽ против цены 36,95 ₽ (▼97%) без единого пояснения, откуда
             такое число, — читается как поломка и убивает доверие к методике (ОТК 2026-07-29). */}
-        {bfvOk && Array.isArray(bfv.warnings) && bfv.warnings.length > 0 && (
+        {bfvAbsurd && (
+          <div className="tw-mt-3 tw-px-3 tw-py-2 tw-rounded-md tw-border tw-border-warning tw-bg-warning-soft tw-text-[12px] tw-text-text-secondary tw-leading-snug">
+            <b className="tw-text-warning">Оценка вне разумного диапазона.</b> Расхождение с рынком в разы обычно означает
+            проблему во входных данных (цена, выручка, число акций), а не реальную недооценку. Считайте это сигналом
+            перепроверить бумагу вручную, а не оценкой.
+          </div>
+        )}
+
+        {bfvWarnings.length > 0 && (
           <ul className="tw-mt-3 tw-mb-0 tw-pl-0 tw-list-none tw-flex tw-flex-col tw-gap-1">
-            {bfv.warnings.map((w, i) => (
+            {bfvWarnings.map((w, i) => (
               <li key={i} className="tw-text-[12px] tw-text-text-tertiary tw-leading-snug tw-flex tw-gap-1.5">
                 <span className="tw-text-warning tw-shrink-0">!</span>
                 <span>{w}</span>
