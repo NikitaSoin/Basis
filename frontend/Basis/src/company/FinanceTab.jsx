@@ -255,22 +255,8 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     return () => { alive = false; };
   }, [company?.ticker]);
 
-  // BFV-D — новая дивидендная методика (тестовая): справедливая цена + ожидаемая
-  // доходность, пересчёт на каждый запрос от живых цены/кривой/беты. status=ok →
-  // рендерим; иначе (no_data/no_rate) секция не показывается.
-  const [bfv, setBfv] = useState(null);
-  useEffect(() => {
-    setBfv(null);
-    const ticker = company?.ticker;
-    if (!ticker) return;
-    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
-    let alive = true;
-    fetch(`${apiUrl}/api/companies/by-ticker/${ticker}/bfv`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { if (alive) setBfv(d && d.status ? d : null); })
-      .catch(() => { if (alive) setBfv(null); });
-    return () => { alive = false; };
-  }, [company?.ticker]);
+  // Справедливая цена по методике Basis (BFV) переехала в Обзор (renderOverview в
+  // CompanyCardView.jsx), 2026-07-29 — здесь больше не грузится и не рендерится.
   if (!fin) return null;
 
   const meta = fin.meta || {};
@@ -396,25 +382,12 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
         ? `Чистая прибыль ${npYoy >= 0 ? "выросла" : "снизилась"} на ${num(Math.abs(npYoy), 0)} % при ${revYoy >= 0 ? "росте" : "снижении"} выручки на ${num(Math.abs(revYoy), 1)} %`
         : `Итоги ${lastYr} · ${std}`);
 
-  /* 2. Справедливая стоимость */
+  /* 2. Справедливая стоимость — base/cons/upside оставлены для «Заметки аналитика»
+     (an-fv / an-meta ниже) и Decision-rail; блок «как сходятся методы» и BFV
+     перенесены в Обзор (renderOverview в CompanyCardView.jsx), 2026-07-29. */
   const base = typeof fvr.base === "number" ? fvr.base : null;
   const cons = typeof fvr.conservative === "number" ? fvr.conservative : null;
   const upside = base && livePrice ? (base / livePrice - 1) * 100 : (typeof fvr.upside_downside_pct === "number" ? fvr.upside_downside_pct : null);
-  const methods = (val.methods || []).filter((m) => typeof m.fair_value_per_share === "number" && m.fair_value_per_share > 0 && !["not_applicable", "insufficient_data"].includes(m.status));
-  /* fair_value_per_share_live — пересчёт формулы метода от ЖИВОЙ ставки ОФЗ-10л
-     (см. backend/app/services/live_wacc.py), а не застывшей на дату анализа;
-     fair_value_per_share остаётся исходным для прозрачности (показываем оба). */
-  const mv = (m) => (typeof m.fair_value_per_share_live === "number" ? m.fair_value_per_share_live : m.fair_value_per_share);
-  const isLive = (m) => typeof m.fair_value_per_share_live === "number";
-  const sortedM = [...methods].sort((a, b2) => mv(a) - mv(b2));
-  const ffVals = [...methods.map(mv), base].filter((x) => typeof x === "number" && x > 0);
-  const lo = ffVals.length ? Math.min(...ffVals) * 0.9 : 0;
-  const hi = ffVals.length ? Math.max(...ffVals) * 1.04 : 1;
-  const ffspan = hi - lo || 1;
-  const fpos = (v) => clamp(((v - lo) / ffspan) * 100, 0, 100);
-  const isAnchor = (m) => (m.horizon && m.horizon !== "intrinsic_now") ? true : (base ? (mv(m) < base * 0.6 || mv(m) > base * 1.5) : false);
-  const toneVsPrice = (v) => (livePrice ? (v > livePrice * 1.05 ? "var(--pos)" : v < livePrice * 0.95 ? "var(--neg)" : "var(--ink-3)") : "var(--accent)");
-  const divergenceNote = val.methods_divergence_note;
 
   /* 3. Ключевые показатели + мультипликаторы */
   const kfi = isBank ? [
@@ -679,12 +652,32 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   };
   const unitNote = curTab === "mult" ? "×, %" : "млрд ₽";
 
-  /* динамика */
-  const fmtT = (v) => num(v / 1000, 2), fmtN = (v) => num(v, 0), fmtP = (v) => num(v, 0);
-  const dyn = [];
-  if (sl(is.revenue).some((x) => x != null)) dyn.push({ l: "Выручка", data: sl(is.revenue).map((v) => v == null ? null : v * U / 1000), color: "var(--accent)", fmt: fmtT, head: B(lastN(is.revenue)), d: revYoy, cap: "трлн ₽" });
-  if (sl(is.net_profit).some((x) => x != null)) dyn.push({ l: "Чистая прибыль", data: sl(is.net_profit).map((v) => v == null ? null : v * U / 1000), color: "var(--amber)", fmt: fmtN, head: B(lastN(is.net_profit)), d: npYoy, cap: "млрд ₽" });
-  if (sl(margins.ebitda_margin).some((x) => x != null)) dyn.push({ l: "Маржа EBITDA", data: sl(margins.ebitda_margin), color: "var(--pos)", fmt: fmtP, head: { v: num(ebMargin, 1), u: "%" }, d: (ebMargin != null && prevN(margins.ebitda_margin) != null) ? ebMargin - prevN(margins.ebitda_margin) : null, isPP: true, cap: "% · " });
+  /* динамика — столбчатые диаграммы ключевых показателей (рендерятся в блоке
+     «Ключевые показатели и мультипликаторы»; владелец 2026-07-29: диаграммы динамики
+     переехали из «Прибыли и рентабельности» сюда, к своим же числам). Деньги — в
+     млрд ₽, при масштабе > 1000 млрд подписи в трлн (иначе 5-значные числа не читаются). */
+  const fmtN0 = (v) => num(v, 0), fmtN2 = (v) => num(v, 2);
+  const bnScale = (a) => sl(a).map((v) => (v == null ? null : v * U / 1000));   // → млрд ₽
+  const moneyChart = (l, arr, color, head, d) => {
+    if (!sl(arr).some((x) => x != null)) return null;
+    const b = bnScale(arr);
+    const mx = Math.max(0, ...b.filter((x) => x != null).map((x) => Math.abs(x)));
+    const tri = mx >= 1000;
+    return { l, data: tri ? b.map((x) => (x == null ? null : x / 1000)) : b,
+             color, fmt: tri ? fmtN2 : fmtN0, head, d, cap: tri ? "трлн ₽" : "млрд ₽" };
+  };
+  const kfiCharts = (isBank ? [
+    moneyChart("Чистый процентный доход", bNipArr, "var(--accent)", B(lastN(bNipArr)), bNipYoy),
+    moneyChart("Чистая прибыль", bNpArr, "var(--amber)", B(lastN(bNpArr)), bNpYoy),
+    moneyChart("Кредитный портфель", bLoanArr, "var(--pos)", B(lastN(bLoanArr)), yoy(bLoanArr)),
+    moneyChart("Средства клиентов", bDepArr, "var(--ink-3)", B(lastN(bDepArr)), yoy(bDepArr)),
+  ] : [
+    moneyChart("Выручка", is.revenue, "var(--accent)", B(lastN(is.revenue)), revYoy),
+    moneyChart("EBITDA", is.ebitda, "var(--pos)", B(lastN(is.ebitda)), ebYoy),
+    moneyChart("Чистая прибыль", is.net_profit, "var(--amber)", B(lastN(is.net_profit)), npYoy),
+    moneyChart("FCF", cf.fcf, "var(--accent)", B(lastN(cf.fcf)), yoy(cf.fcf)),
+    moneyChart("Чистый долг", bs.net_debt, "var(--neg)", B(lastN(bs.net_debt)), yoy(bs.net_debt)),
+  ]).filter(Boolean);
 
   /* нормализация (последние 2 года, отчётная → норм.) */
   const normYears = [];
@@ -821,195 +814,10 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
             </div>
           )}
 
-          {/* 2. Справедливая стоимость */}
-          {(base || methods.length > 0) && (
-            <div className="card">
-              <h3>Справедливая стоимость — как сходятся методы <span className="tag tag-judg">суждение</span></h3>
-              <p className="sub">«Поле оценок»: каждый метод даёт свою цену; коридор строим по центральному кластеру, крайние методы — внешние якоря</p>
-              {base && (
-                <div className="fair">
-                  <div><div className="big">{num(base, base >= 100 ? 0 : 1)}<s> {ccy}</s></div><div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 4 }}>база · модельная цена</div></div>
-                  {upside != null && <div className={`ud delta ${upside >= 0 ? "up" : "dn"}`}>{upside >= 0 ? "▲" : "▼"} {num(Math.abs(upside), 1)} % {upside >= 0 ? "апсайд" : "даунсайд"}</div>}
-                  <div className="corr">коридор<br /><b>{cons != null ? `${num(cons, 0)} – ${num(base, 0)} ${ccy}` : `${num(base, 0)} ${ccy}`}</b>{livePrice && <><br /><span style={{ fontSize: 11 }}>тек. {num(livePrice, 2)} {ccy}</span></>}</div>
-                </div>
-              )}
-              {sortedM.length > 0 && (
-                <div className="ff">
-                  {base != null && <div className="ff-scale"><span className="ff-faircap" style={{ left: `${fpos(base)}%` }}>справ. {num(base, 0)} {ccy}</span></div>}
-                  {sortedM.map((m, i) => {
-                    const v = mv(m), anchor = isAnchor(m), dv = livePrice ? (v / livePrice - 1) * 100 : null;
-                    return (
-                      <div className="ff-row" key={i}>
-                        <span className="ff-nm"><span className={anchor ? "anch" : "clust"} />{methodName(m.method)}{isLive(m) && <span className="tag tag-est" style={{ marginLeft: 6 }} title={`Живой пересчёт от текущей ставки ОФЗ-10л · на дату анализа: ${num(m.fair_value_per_share, m.fair_value_per_share >= 100 ? 0 : 2)} ${ccy}`}>живое</span>}</span>
-                        <span className="ff-track">{base != null && <span className="curl" style={{ left: `${fpos(base)}%` }} />}<span className="ff-dot" style={{ left: `${fpos(v)}%`, background: toneVsPrice(v) }} /></span>
-                        <span className="ff-val"><span className="pv">{num(v, v >= 100 ? 1 : 1)}</span>{dv != null && <span className={`pd delta ${dv >= 0 ? "up" : "dn"}`}>{dv >= 0 ? "+" : "−"}{num(Math.abs(dv), 0)} %</span>}</span>
-                      </div>
-                    );
-                  })}
-                  <div className="ff-axis"><span style={{ left: 0, transform: "translateX(0)" }}>{num(lo, 0)} {ccy}</span><span style={{ left: "50%" }}>{num((lo + hi) / 2, 0)} {ccy}</span><span style={{ left: "100%", transform: "translateX(-100%)" }}>{num(hi, 0)} {ccy}</span></div>
-                </div>
-              )}
-              {divergenceNote && <div className="ff-note"><div className="nh">Честно · почему методы расходятся</div>{divergenceNote}</div>}
-              {sortedM.length > 0 && (
-                <>
-                  <div className="subh" style={{ marginTop: 20 }}>Выводы по методам · раскройте любой</div>
-                  <div className="methods">
-                    {sortedM.map((m, i) => {
-                      const v = mv(m), anchor = isAnchor(m), dv = livePrice ? (v / livePrice - 1) * 100 : null, ex = m.explain || {};
-                      const inputs = ex.inputs && typeof ex.inputs === "object" ? Object.entries(ex.inputs) : [];
-                      const ka = (!inputs.length && m.key_assumptions && typeof m.key_assumptions === "object") ? Object.entries(m.key_assumptions) : [];
-                      const steps = Array.isArray(ex.steps) ? ex.steps : [];
-                      const cav = Array.isArray(ex.caveats) ? ex.caveats : [];
-                      return (
-                        <details className="m-acc" key={i}>
-                          <summary>
-                            <span className="mn"><span className={anchor ? "anch" : "clust"} />{methodName(m.method)}{m.horizon && m.horizon !== "intrinsic_now" && <s>горизонт {m.horizon}</s>}{isLive(m) && <span className="tag tag-est" style={{ marginLeft: 6 }}>живое</span>}</span>
-                            <span className="mv" style={{ color: toneVsPrice(v) }}>{num(v, v >= 100 ? 1 : 2)} {ccy}</span>
-                            {dv != null ? <span className={`md delta ${dv >= 0 ? "up" : "dn"}`}>{dv >= 0 ? "+" : "−"}{num(Math.abs(dv), 0)} %</span> : <span className="md" />}
-                            <span className="chev">▾</span>
-                          </summary>
-                          <div className="m-body">
-                            {isLive(m) && (
-                              <>
-                                <div className="fc-note" style={{ marginBottom: 10 }}>Пересчитано от живой доходности ОФЗ-10л (текущая ставка вместо замороженной на дату анализа). Выкладка ниже (входные данные/шаги) — как считал аналитик на дату анализа, при цене {num(m.fair_value_per_share, m.fair_value_per_share >= 100 ? 0 : 2)} {ccy}.</div>
-                                <div className="subh">Живые входные данные</div>
-                                <div className="fc-kv">
-                                  <span className="k">Rf (ОФЗ-10л), живая</span><span className="v">{num(m.live_rf_used_pct, 2)} %</span>
-                                  {typeof m.live_beta === "number" && <><span className="k">β, живая{m.live_beta_source === "moex" ? " (MOEX)" : m.live_beta_source === "calc" ? " (расчёт)" : ""}</span><span className="v">{num(m.live_beta, 2)}</span></>}
-                                  {typeof m.live_rate_pct === "number" && <><span className="k">Ставка в формуле (Ke/r), живая</span><span className="v">{num(m.live_rate_pct, 2)} %</span></>}
-                                </div>
-                              </>
-                            )}
-                            {(inputs.length > 0 || ka.length > 0) && <><div className="subh">Входные данные на дату анализа</div><div className="fc-kv">{(inputs.length ? inputs : ka).map(([k, vv], j) => (<React.Fragment key={j}><span className="k">{k}</span><span className="v">{String(vv)}</span></React.Fragment>))}</div></>}
-                            {steps.length > 0 && <><div className="subh">Решение по шагам</div><ol className="fc-steps">{steps.map((s, j) => <li key={j}>{s}</li>)}</ol></>}
-                            {cav.length > 0 && <><div className="subh">Оговорки</div>{cav.map((c, j) => <div className="fc-warn" key={j}>{c}</div>)}</>}
-                            {!inputs.length && !ka.length && !steps.length && !cav.length && <div className="fc-note">Выкладка метода не детализирована.</div>}
-                          </div>
-                        </details>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-
-          {/* 2b. Справедливая цена по НОВОЙ методике (BFV) — сразу под классической
-              оценкой, «к остальным» (по запросу владельца). Маршрутизация v1.1:
-              движок выбирается ПОД класс бизнеса (BFV-D дивиденды/книга или BFV-F
-              денежный поток) — «для этого класса применяется другой метод», а не
-              «ненадёжно». Обратный режим — для ловушек стоимости; границы доходности
-              (<0.5% / >200%) подписываются честно. */}
-          {bfv && bfv.status === "ok" && (() => {
-            const isF = bfv.engine === "BFV-F";
-            const rev = bfv.reverse;
-            const bound = bfv.return_bound; // 'below' | 'above' | null
-            const engineLabel = isF ? "денежный поток" : "дивиденды и книга";
-            const expRetText = bound === "below" ? "< 0,5 %" : bound === "above" ? "> 200 %" : num(bfv.expected_return_pct, 1) + " %";
-            return (
-            <div className="card">
-              <h3>Справедливая цена — новая методика (BFV) <span className="tag tag-model">тест · модель</span>
-                <span className="tag" style={{ marginLeft: 6, background: isF ? "var(--bs-copper, #C97A4A)" : "var(--ink-2, #555)", color: "#fff" }}>метод: {engineLabel}</span>
-              </h3>
-              <p className="sub">
-                {isF
-                  ? "Для растущего / asset-light бизнеса подключается метод денежного потока (BFV-F): оценка от будущей выручки и её конвертации в поток акционеру, а не от текущих дивидендов."
-                  : "Дивидендно-балансовый метод (BFV-D): оценка «за миноритария» от прогноза дивидендов и роста книги."}
-                {" "}Пересчитывается живьём от цены, кривой ОФЗ и беты. <b>Экспертные параметры
-                без калибровки на росс. данных</b> — сравнивать бумаги между собой надёжнее,
-                чем читать абсолютный вердикт.
-              </p>
-
-              {rev && (
-                <div className="ff-note" style={{ marginBottom: 14, borderLeft: "3px solid var(--bs-copper, #C97A4A)" }}>
-                  <div className="nh">Обратное прочтение — вероятная ловушка стоимости</div>
-                  {rev.note}
-                </div>
-              )}
-
-              <div className="fair">
-                <div>
-                  <div className="big" style={rev ? { opacity: 0.5 } : null}>
-                    {rev ? "≈ " : ""}{num(bfv.fair_price, bfv.fair_price >= 100 ? 0 : 2)}<s> {ccy}</s>
-                  </div>
-                  <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 4 }}>
-                    {rev ? "прямая оценка (справочно) · " : "справедливая цена BFV · "}
-                    при спреде {num(bfv.required_spread_pp, 1)} п.п. к ОФЗ
-                  </div>
-                </div>
-                {!rev && typeof bfv.upside_pct === "number" && (
-                  <div className={`ud delta ${bfv.upside_pct >= 0 ? "up" : "dn"}`}>
-                    {bfv.upside_pct >= 0 ? "▲" : "▼"} {num(Math.abs(bfv.upside_pct), 0)} % {bfv.upside_pct >= 0 ? "апсайд" : "даунсайд"}
-                  </div>
-                )}
-                <div className="corr">
-                  живая цена<br /><b>{num(bfv.current_price, 2)} {ccy}</b>
-                </div>
-              </div>
-
-              <div className="fm-scen-row" style={{ marginTop: 14 }}>
-                <div className="fm-scen-chip fm-scen-base">
-                  <span className="fm-scen-lbl">ожидаемая доходность</span>
-                  <span className="fm-scen-val">{expRetText}</span>
-                </div>
-                <div className="fm-scen-chip">
-                  <span className="fm-scen-lbl">требуемый порог</span>
-                  <span className="fm-scen-val">{num(bfv.hurdle_pct, 1)} %</span>
-                </div>
-                <div className="fm-scen-chip">
-                  <span className="fm-scen-lbl">вердикт</span>
-                  <span className="fm-scen-val" style={{ color: bfv.verdict === "проходит" ? "var(--up, #1a7f4b)" : "var(--dn, #b23)" }}>
-                    {bfv.verdict}
-                  </span>
-                </div>
-                <div className="fm-scen-chip">
-                  <span className="fm-scen-lbl">{isF ? "поток к акционеру 1-й год" : "див. дох. 1-го года"}</span>
-                  <span className="fm-scen-val">{num(bfv.div_yield_y1_pct, 1)} %</span>
-                </div>
-              </div>
-
-              <div className="ff-note" style={{ marginTop: 14 }}>
-                <div className="nh">Как читать</div>
-                «Ожидаемая доходность {expRetText}» — что вы заработаете при текущей цене по прогнозу
-                {isF ? " денежного потока (выручка → маржа → распределение акционеру)" : " дивидендов и роста книги"}.
-                «Порог {num(bfv.hurdle_pct, 1)} %» — доходность ОФЗ на дюрации потока
-                ({num(bfv.effective_duration_y, 1)} лет, {num(bfv.z_dur_pct, 1)} %) плюс требуемая
-                премия {num(bfv.required_spread_pp, 1)} п.п. Проходит порог → бумага даёт больше,
-                чем ОФЗ с той же дюрацией с запасом на риск.
-                {typeof bfv.holding_return_pct === "number" && (
-                  <> Доходность удержания 10 лет (без ставки на переоценку рынком): <b>{num(bfv.holding_return_pct, 1)} %</b>.</>
-                )}
-              </div>
-
-              {Array.isArray(bfv.warnings) && bfv.warnings.length > 0 && (
-                <div style={{ marginTop: 12 }}>
-                  {bfv.warnings.map((w, i) => <div className="fc-warn" key={i}>{w}</div>)}
-                </div>
-              )}
-              <div className="fc-note" style={{ marginTop: 10 }}>{bfv.method}</div>
-            </div>
-            );
-          })()}
-          {bfv && bfv.status && bfv.status !== "ok" && (
-            <div className="card">
-              <h3>Справедливая цена — новая методика (BFV) <span className="tag tag-model">тест · модель</span></h3>
-              <p className="sub" style={{ marginBottom: 0 }}>
-                {bfv.status === "no_data"
-                  ? "Неприменима к этой бумаге: "
-                  : bfv.status === "no_price"
-                  ? "Нет живой цены для расчёта."
-                  : "Расчёт недоступен. "}
-                {(bfv.warnings && bfv.warnings[0]) || (bfv.reason || "")}
-                {bfv.status === "no_data" && (
-                  <> Оба движка (дивидендно-балансовый и денежного потока) требуют информативного
-                     потока к акционеру; для этой бумаги поток отрицательный или нулевой (убыточна /
-                     раздаёт из долга), поэтому осмысленное число модель не даёт — это честный отказ,
-                     не пропуск данных.</>
-                )}
-              </p>
-            </div>
-          )}
-
+          {/* 2. Справедливая стоимость и BFV перенесены во вкладку «Обзор»
+              (владелец 2026-07-29): главная цена = «Справедливая цена по методике
+              Base» (движок BFV), рядом исторические P/E и P/B. Обычный DCF / CAPM /
+              секторный EV/EBITDA убраны. См. renderOverview в CompanyCardView.jsx. */}
           {/* 3. Ключевые показатели и мультипликаторы */}
           <div className="card">
             <h3>Ключевые показатели и мультипликаторы <span className="tag tag-fact">факт</span><span className="hmeta">{livePrice ? `цена ${num(livePrice, 2)} ${ccy} · ` : ""}позиция к {sm ? "среднему по сектору" : "своей 5-летней норме"}</span></h3>
@@ -1017,6 +825,19 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
             <div className="kfi">
               {kfi.map((k, i) => { const b = k.pctv != null ? { v: num(k.pctv, 1), u: "%" } : B(lastN(k.a)); return (<div className="kf" key={i}><span className="kf-l">{k.l}</span><span className="kf-v">{b.v}<s> {b.u}</s></span><span className="kf-d">{k.d != null && <Delta v={k.d} pp={k.isPP} />}</span></div>); })}
             </div>
+            {kfiCharts.length > 0 && (<>
+              <p className="sub" style={{ marginTop: 16 }}>Динамика {yslice[0]}–{lastYr} — как менялись главные показатели</p>
+              <div className="fc-dyn">
+                {kfiCharts.map((d, i) => (
+                  <div className="d" key={i}>
+                    <div className="dl">{d.l}</div>
+                    <div className="dv">{d.head.v}<s> {d.head.u}</s> {d.d != null && <Delta v={d.d} pp={d.isPP} />}</div>
+                    <BarChart data={d.data} color={d.color} fmt={d.fmt} />
+                    <div className="bc-cap">{d.cap}{d.cap.endsWith("· ") ? "" : " · "}{yslice[0]}–{lastYr}</div>
+                  </div>
+                ))}
+              </div>
+            </>)}
             <p className="sub" style={{ marginTop: 16 }}>Мультипликаторы — не просто число, а позиция относительно {sm ? "среднего по сектору" : "собственной 5-летней нормы"}</p>
             <div className="mcards">{mcards.map((m, i) => <MCard key={i} {...m} />)}</div>
           </div>
@@ -1024,22 +845,8 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
           {/* 4. Прибыль и рентабельность */}
           {tabsAvail.length > 0 && (
             <details className="disc" open>
-              <summary><div><div className="dt">Прибыль и рентабельность по годам</div><div className="dd">Графики динамики · отчётность за {yslice.length} лет · нормализация прибыли</div></div><span className="tag tag-fact" style={{ marginLeft: 8 }}>факт</span><span className="tag tag-est">оценка</span><span className="chev">▾</span></summary>
+              <summary><div><div className="dt">Прибыль и рентабельность по годам</div><div className="dd">Отчётность за {yslice.length} лет · мультипликаторы · нормализация прибыли</div></div><span className="tag tag-fact" style={{ marginLeft: 8 }}>факт</span><span className="tag tag-est">оценка</span><span className="chev">▾</span></summary>
               <div className="disc-body">
-                {dyn.length > 0 && (<>
-                  <div className="subh">Динамика {yslice[0]}–{lastYr}</div>
-                  <div className="fc-dyn">
-                    {dyn.map((d, i) => (
-                      <div className="d" key={i}>
-                        <div className="dl">{d.l}</div>
-                        <div className="dv">{d.head.v}<s> {d.head.u}</s> {d.d != null && <Delta v={d.d} pp={d.isPP} />}</div>
-                        <BarChart data={d.data} color={d.color} fmt={d.fmt} />
-                        <div className="bc-cap">{d.cap}{d.cap.endsWith("· ") ? "" : " · "}{yslice[0]}–{lastYr}</div>
-                      </div>
-                    ))}
-                  </div>
-                </>)}
-
                 <div className="subh">Отчётность и мультипликаторы</div>
                 <div className="mtbar">
                   <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
