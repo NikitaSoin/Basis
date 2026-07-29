@@ -2981,9 +2981,59 @@ const AgentAddendaStrip = ({ ticker }) => {
     return () => { alive = false; };
   }, [ticker]);
   if (!items.length) return null;
-  const latest = items[0];
+  // приоритет — свежайшая СИГНАЛЬНАЯ плашка (реальная фича: точный сигнал →
+  // гейтованный addendum); макро-пилот (демо) показываем, только если сигнальных нет.
+  const latest = items.find((x) => x.kind === "signal_addendum") || items[0];
   const c = latest.content || {};
+  const isSignal = latest.kind === "signal_addendum";
   const dt = latest.created_at ? new Date(latest.created_at).toLocaleDateString("ru-RU") : "";
+
+  // ── сигнальная плашка (consumer-агент: rating_action/earnings от офиц. источника) ──
+  if (isSignal) {
+    const hasBody = c.event || c.so_what;
+    return (
+      <div className="tw-rounded-md tw-border tw-border-accent-border tw-bg-accent-soft tw-px-4 tw-py-3">
+        <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-flex-wrap">
+          <div className="tw-text-[13px] tw-text-text-primary">
+            <span className="tw-font-semibold">🤖 Свежее по компании ({dt}):</span>{" "}
+            {c.headline || "обновление"}
+          </div>
+          {hasBody && (
+            <button type="button" onClick={() => setOpen(!open)}
+              className="tw-text-[12.5px] tw-font-semibold tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer">
+              {open ? "Свернуть ▴" : "Подробнее ▾"}
+            </button>
+          )}
+        </div>
+        {open && hasBody && (
+          <div className="tw-mt-3 tw-flex tw-flex-col tw-gap-2.5">
+            {c.event && (
+              <div className="tw-text-[12.5px] tw-text-text-secondary tw-leading-snug">
+                <b className="tw-text-text-primary">Что произошло:</b> {c.event}
+              </div>
+            )}
+            {c.so_what && (
+              <div className="tw-text-[12.5px] tw-text-text-secondary tw-leading-snug">
+                <b className="tw-text-text-primary">Что это значит:</b> {c.so_what}
+                {c.certainty && <span className="tw-ml-1.5 tw-text-[10.5px] tw-uppercase tw-text-text-tertiary">[{c.certainty}]</span>}
+              </div>
+            )}
+            <div className="tw-text-[11px] tw-text-text-tertiary">
+              {c.source_url ? (
+                <a href={c.source_url} target="_blank" rel="noopener noreferrer" className="tw-text-accent tw-underline">
+                  Источник: {(c.source_key || "источник").toUpperCase()}
+                </a>
+              ) : (c.source_key ? `Источник: ${c.source_key.toUpperCase()}` : null)}
+              {c.event_date && <span> · событие от {c.event_date}</span>}
+              <span> · автообновление по официальному сигналу, прошло проверку качества; не заменяет разбор аналитика.</span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── макро-пилот (демо) — прежний рендер ──
   return (
     <div className="tw-rounded-md tw-border tw-border-accent-border tw-bg-accent-soft tw-px-4 tw-py-3">
       <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-flex-wrap">
