@@ -3472,7 +3472,13 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
             </span>
           </div>
           <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
-            {bfvOk && bfv.reliability === "low" && (
+            {/* при плашке «оценка вне разумного диапазона» чип надёжности не показываем:
+                оба говорят «не верь числу», но плашка конкретнее (называет причину и что
+                делать). Три сигнала подряд читались как паника, а не как честность
+                (повторный ОТК). Обратно чип НЕ убираем совсем — у DATA (+316 %)
+                reliability = normal и содержательных предупреждений нет, там плашка
+                оказывается единственным сигналом. */}
+            {bfvOk && bfv.reliability === "low" && !bfvAbsurd && (
               <span className="tw-text-[11px] tw-font-semibold tw-px-2 tw-py-0.5 tw-rounded-full tw-border tw-border-warning tw-bg-warning-soft tw-text-warning">
                 надёжность низкая
               </span>
