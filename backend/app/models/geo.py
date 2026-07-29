@@ -242,3 +242,33 @@ class CompanySignal(Base):
     consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))  # когда агент отработал сигнал
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class CardProseOverlay(Base):
+    """Версионный ОВЕРЛЕЙ авто-патчей прозы вкладок карточки (авто-свежесть,
+    docs/prose-freshness-plan.md). Файлы на Timeweb ЭФЕМЕРНЫ (контейнер
+    пересобирается при деплое, крон не коммитит в git) → патчи живут в БД, а
+    summary-эндпоинты читают «оверлей → фолбэк файл».
+
+    Хранит ПОЛНУЮ патченую прозу вкладки (не дифф) + оригинал, от которого
+    патчили (для отката/мердж-бэка/сверки). kind: fact (дневной) | interpretation
+    (недельный). status: published|rejected (без draft — владелец 2026-07-29).
+    Витрина показывает последний published на (ticker, tab) — supersede."""
+    __tablename__ = "card_prose_overlays"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ticker: Mapped[str] = mapped_column(String(20), index=True)
+    tab: Mapped[str] = mapped_column(String(20))          # business|finance|governance|markets|macro|geo|institutions
+    kind: Mapped[str] = mapped_column(String(16))          # fact | interpretation
+    status: Mapped[str] = mapped_column(String(16))        # published | rejected
+    patched_md: Mapped[str | None] = mapped_column(Text)   # патченая проза (что отдаём)
+    original_md: Mapped[str | None] = mapped_column(Text)  # проза, от которой патчили (откат/мердж-бэк)
+    change_note: Mapped[str | None] = mapped_column(Text)  # что изменилось (человекочитаемо)
+    evidence: Mapped[dict | None] = mapped_column(JSONB)   # источники (signal_ids/структурные)
+    gate_notes: Mapped[list | None] = mapped_column(JSONB)
+    source_signal_id: Mapped[int | None] = mapped_column(Integer)
+    parent_id: Mapped[int | None] = mapped_column(Integer)  # цепочка supersede
+    model_used: Mapped[str | None] = mapped_column(String(64))
+    tokens_used: Mapped[int | None] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

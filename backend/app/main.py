@@ -756,6 +756,27 @@ async def _card_consumer_job():
         logger.exception("Ошибка consumer-агента карточек: %s", e)
 
 
+async def _prose_patcher_job():
+    """Авто-свежесть ПРОЗЫ вкладок — дневной проход ФАКТОВ (владелец 2026-07-29,
+    docs/prose-freshness-plan.md). Очередь из входного потока (значимые офиц.
+    сигналы) → точечный факт-патч прозы под код-гейтом (find/replace, число из
+    источника), пишет в БД-оверлей (сразу published, без черновика). НЕ слепой
+    прогон всех карточек. После company_signals/rating_agencies/card_consumer."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.card_prose_patcher import run_daily_facts
+        db = SessionLocal()
+        try:
+            return run_daily_facts(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Патчер прозы (факты): %s", res)
+    except Exception as e:
+        logger.exception("Ошибка патчера прозы: %s", e)
+
+
 async def _barometer_expert_reimport_startup():
     """При старте: если экспертный файл барометра обновился (субагент + git push
     + деплой), апсертить его как новую source=expert/published версию в БД —
@@ -1063,6 +1084,7 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("company_signals", _company_signals_job), "cron", minute=35, id="company_signals")  # шина: после news(5)+geo_digest(10), их выход = вход
         scheduler.add_job(_with_heartbeat("rating_agencies", _rating_agencies_job), "cron", hour=20, minute=55, id="rating_agencies")  # рейтинговые действия АКРА/НКР → сигналы + освежение agency_rating бумаг
         scheduler.add_job(_with_heartbeat("card_consumer", _card_consumer_job), "cron", hour=21, minute=15, id="card_consumer")  # consumer-агент: точные сигналы → addendum вкладки (гейт); после rating_agencies(20:55)+company_signals(:35)
+        scheduler.add_job(_with_heartbeat("prose_patcher", _prose_patcher_job), "cron", hour=21, minute=35, id="prose_patcher")  # авто-свежесть прозы: дневной факт-патч из входного потока (гейт, БД-оверлей)
         scheduler.add_job(_with_heartbeat("agent_pilot", _agent_pilot_job), "cron", hour=7, minute=40, id="agent_pilot")  # автономный агент-пилот (macro addendum)
         scheduler.add_job(_with_heartbeat("chronicle_maintenance", _chronicle_maintenance_job), "cron", hour=5, minute=20, id="chronicle_maintenance")  # летопись: бэкфилл + ретеншен Ленты
         logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo/geo_digest)")

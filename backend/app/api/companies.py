@@ -18,6 +18,27 @@ def _safe(name: str) -> str:
     if not _SAFE_NAME.fullmatch(name or ""):
         raise HTTPException(status_code=404, detail="Not found")
     return name
+
+
+def _prose_or_overlay(path) -> str:
+    """Проза вкладки: авто-патч из БД-ОВЕРЛЕЯ (если есть published) → иначе файл.
+    Оверлей переживает эфемерность файлов на Timeweb (авто-свежесть прозы, см.
+    app/services/card_prose_patcher.py). При любой ошибке — грациозно читаем файл."""
+    try:
+        from app.services.card_prose_patcher import _TAB_FILE, current_overlay
+        from app.db.session import SessionLocal
+        tab = next((t for t, fn in _TAB_FILE.items() if fn == path.name), None)
+        if tab:
+            db = SessionLocal()
+            try:
+                ov = current_overlay(db, path.parent.name, tab)
+                if ov and ov.patched_md:
+                    return ov.patched_md
+            finally:
+                db.close()
+    except Exception:  # noqa: BLE001 — оверлей не должен ронять отдачу прозы
+        pass
+    return path.read_text(encoding="utf-8")
 from app.db.session import get_db
 from app.auth import require_ops_token
 from app.models.company_profile import CompanyProfile
@@ -310,7 +331,7 @@ async def get_business_model_md(ticker: str):
     if not path.exists():
         raise HTTPException(status_code=404, detail="Business model not found")
     return PlainTextResponse(
-        content=path.read_text(encoding="utf-8"),
+        content=_prose_or_overlay(path),
         media_type="text/markdown; charset=utf-8",
     )
 
@@ -470,7 +491,7 @@ async def get_financials_summary_md(ticker: str):
     if not path.exists():
         raise HTTPException(status_code=404, detail="Financials summary not found")
     return PlainTextResponse(
-        content=path.read_text(encoding="utf-8"),
+        content=_prose_or_overlay(path),
         media_type="text/markdown; charset=utf-8",
     )
 
@@ -565,7 +586,7 @@ async def get_governance_summary_md(ticker: str):
     if not path.exists():
         raise HTTPException(status_code=404, detail="Governance summary not found")
     return PlainTextResponse(
-        content=path.read_text(encoding="utf-8"),
+        content=_prose_or_overlay(path),
         media_type="text/markdown; charset=utf-8",
     )
 
@@ -586,7 +607,7 @@ async def get_market_summary_md(ticker: str):
     if not path.exists():
         raise HTTPException(status_code=404, detail="Market summary not found")
     return PlainTextResponse(
-        content=path.read_text(encoding="utf-8"),
+        content=_prose_or_overlay(path),
         media_type="text/markdown; charset=utf-8",
     )
 
@@ -614,7 +635,7 @@ async def get_macro_summary_md(ticker: str):
     if not path.exists():
         raise HTTPException(status_code=404, detail="Macro summary not found")
     return PlainTextResponse(
-        content=path.read_text(encoding="utf-8"),
+        content=_prose_or_overlay(path),
         media_type="text/markdown; charset=utf-8",
     )
 
@@ -635,7 +656,7 @@ async def get_geo_summary_md(ticker: str):
     if not path.exists():
         raise HTTPException(status_code=404, detail="Geo summary not found")
     return PlainTextResponse(
-        content=path.read_text(encoding="utf-8"),
+        content=_prose_or_overlay(path),
         media_type="text/markdown; charset=utf-8",
     )
 
@@ -658,7 +679,7 @@ async def get_institutions_summary_md(ticker: str):
     if not path.exists():
         raise HTTPException(status_code=404, detail="Institutions summary not found")
     return PlainTextResponse(
-        content=path.read_text(encoding="utf-8"),
+        content=_prose_or_overlay(path),
         media_type="text/markdown; charset=utf-8",
     )
 

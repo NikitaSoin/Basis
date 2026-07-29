@@ -1403,6 +1403,35 @@ def debug_card_consumer_addenda(ticker: str | None = None, limit: int = 20):
         db.close()
 
 
+@router.post("/debug/trigger-prose-patcher")
+def debug_trigger_prose_patcher(signal_id: int | None = None, kind: str = "fact"):
+    """Ручной прогон патчера прозы (авто-свежесть). Без параметров — дневной проход
+    ФАКТОВ (очередь из входного потока → факт-патч прозы под гейтом, БД-оверлей).
+    signal_id — прогнать на КОНКРЕТНОМ сигнале (пред-полёт качества); kind=fact|
+    interpretation. Возвращает статус/заметки гейта/что изменилось."""
+    from app.db.session import SessionLocal
+    from app.services.card_prose_patcher import run_daily_facts, run_for_signal
+    from app.models.geo import CompanySignal
+    db = SessionLocal()
+    try:
+        if signal_id is not None:
+            sig = db.query(CompanySignal).get(signal_id)
+            if not sig:
+                return {"error": "signal not found"}
+            row = run_for_signal(db, sig, kind=kind)
+            if row is None:
+                return {"result": "skipped (нет прозы вкладки / уже отражено / не мапится)"}
+            return {"status": row.status, "tab": row.tab, "change_note": row.change_note,
+                    "gate_notes": row.gate_notes, "tokens": row.tokens_used,
+                    "patched_preview": (row.patched_md or "")[:400] if row.status == "published" else None}
+        return run_daily_facts(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-prose-patcher: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-barometer-reviser")
 def debug_trigger_barometer_reviser(force: bool = True):
     """Ручной прогон автономного ревизора барометров (SHADOW — пишет draft/
