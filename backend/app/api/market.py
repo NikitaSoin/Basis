@@ -64,6 +64,19 @@ def market_index_detail(
     return detail
 
 
+@router.get("/market/indices/{ticker}/constituents")
+def market_index_constituents(ticker: str):
+    """Реальный состав индекса (тикеры + официальные free-float веса) — напрямую
+    с MOEX ISS, для ЛЮБОГО индекса (главные и отраслевые MOEXxx). Раньше карточка
+    индекса на фронте показывала подмену (топ компаний Basis по капитализации /
+    по внутреннему сектору) — см. app/services/indices.get_index_constituents."""
+    from app.services.indices import get_index_constituents
+    data = get_index_constituents(ticker)
+    if data is None:
+        raise HTTPException(status_code=404, detail="Состав индекса недоступен")
+    return {"ticker": ticker.upper(), "constituents": data}
+
+
 @router.get("/market/pulse")
 def market_pulse(db: Session = Depends(get_db)):
     """Блок «Обзор рынка» Обозревателя: индексы (IMOEX/МПД/РТС/RGBI), секторальные

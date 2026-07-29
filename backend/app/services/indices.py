@@ -4,13 +4,19 @@ Live-значение — MOEX ISS (рынок index, без ключей; см.
 Спарклайн и фолбэк уровня — из index_history (наполняется дневным джобом
 catch_up_history). Лёгкий TTL-кэш, чтобы не дёргать ISS на каждый рендер страницы.
 """
+import json
+import logging
+import ssl
 import time
+import urllib.request
 from datetime import date, timedelta
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.services.moex_history import BENCHMARK_TICKERS, fetch_index_live
+
+logger = logging.getLogger(__name__)
 
 INDEX_NAMES = {
     "IMOEX": "Индекс МосБиржи",
@@ -142,3 +148,65 @@ def get_index_detail(db: Session, ticker: str, period: str = "3y") -> dict | Non
         "year_change_pct": _change_since(365),
         "volume_today": float(last_volume[0]) if last_volume and last_volume[0] is not None else None,
     }
+
+
+# ────────────────────── реальный состав индекса (MOEX ISS) ──────────────────────
+# До 2026-07-30 карточка индекса на фронте показывала ПОДМЕНУ вместо состава: топ-N
+# компаний из своей базы Basis по капитализации (для IMOEX) или отфильтрованных по
+# внутреннему полю Company.sector (для отраслевых MOEXxx) — ни то ни другое не было
+# настоящим списком бумаг индекса с официальными весами. Официальный состав + вес
+# каждой бумаги отдаёт сам MOEX ISS без ключей:
+#   /iss/statistics/engines/stock/markets/index/analytics/{indexid}.json
+# Проверено вручную по всем индексам из SECTOR_INDEX_NAMES (market_pulse.py) + IMOEX/
+# RTSI/RGBI — везде отдаёт реальные тикеры/веса. Исключение — MCFTR (индекс полной
+# доходности): свой расчёт состава в ISS не публикует, т.к. состав идентичен IMOEX
+# (те же акции, разница только в реинвестировании дивидендов) — берём состав IMOEX.
+_CONSTITUENTS_SOURCE = {"MCFTR": "IMOEX"}
+_CONSTITUENTS_URL = ("https://iss.moex.com/iss/statistics/engines/stock/markets/index/"
+                     "analytics/{indexid}.json?limit=100&iss.meta=off")
+_CONSTITUENTS_TTL = 3600  # сек — состав/веса меняются не внутри дня (пересмотр раз в квартал)
+_constituents_cache: dict[str, dict] = {}
+
+_iss_ssl_ctx = ssl.create_default_context()
+_iss_ssl_ctx.check_hostname = False
+_iss_ssl_ctx.verify_mode = ssl.CERT_NONE
+_ISS_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Accept": "application/json"}
+
+
+def get_index_constituents(ticker: str) -> list[dict] | None:
+    """[{ticker, name, weight}] — реальный состав индекса с весами, напрямую с MOEX
+    ISS (не оценка/приближение Basis). Отсортировано по весу по убыванию. TTL-кэш на
+    час. None — индекс не найден на ISS или сеть недоступна и кэша ещё нет
+    (честная деградация, не выдумываем состав)."""
+    ticker = (ticker or "").upper()
+    src = _CONSTITUENTS_SOURCE.get(ticker, ticker)
+
+    cached = _constituents_cache.get(src)
+    now = time.time()
+    if cached and now - cached["ts"] < _CONSTITUENTS_TTL:
+        return cached["data"]
+
+    try:
+        req = urllib.request.Request(_CONSTITUENTS_URL.format(indexid=src), headers=_ISS_HEADERS)
+        with urllib.request.urlopen(req, timeout=15, context=_iss_ssl_ctx) as r:
+            payload = json.loads(r.read())
+    except Exception:
+        logger.warning("MOEX ISS: состав индекса %s недоступен", src, exc_info=True)
+        return cached["data"] if cached else None
+
+    block = payload.get("analytics", {})
+    columns = block.get("columns", [])
+    rows = block.get("data", [])
+    if not rows or "secids" not in columns or "weight" not in columns:
+        return cached["data"] if cached else None
+
+    i_ticker = columns.index("secids")
+    i_name = columns.index("shortnames")
+    i_weight = columns.index("weight")
+    result = sorted(
+        ({"ticker": r[i_ticker], "name": r[i_name], "weight": round(float(r[i_weight]), 2)} for r in rows),
+        key=lambda c: c["weight"], reverse=True,
+    )
+    _constituents_cache[src] = {"ts": now, "data": result}
+    return result

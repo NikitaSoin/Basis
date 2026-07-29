@@ -25,23 +25,6 @@ import "../styles/indices.css";
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 const MAIN_TICKERS = ["IMOEX", "MCFTR", "RTSI"];
 
-// Коды секторных индексов MOEX -> внутренняя классификация Basis (Company.sector).
-// ДВЕ РАЗНЫЕ таксономии (официальная MOEX vs внутренняя Basis) — совпадают не
-// везде (напр. MOEXMM «Металлы и добыча» vs наша «Металлургия»), отсюда явная
-// карта соответствия, а не текстовое сравнение имён.
-const SECTOR_TO_INTERNAL = {
-  MOEXOG: "Нефть и газ",
-  MOEXEU: "Электроэнергетика",
-  MOEXTL: "Телеком",
-  MOEXCH: "Химия",
-  MOEXMM: "Металлургия",
-  MOEXFN: "Финансы",
-  MOEXCN: "Потребительский сектор",
-  MOEXIT: "IT-сектор",
-  MOEXTN: "Транспорт и логистика",
-  MOEXRE: "Девелопмент",
-};
-
 const INDEX_EXPLAIN = {
   IMOEX: {
     title: "Что показывает индекс Мосбиржи простыми словами",
@@ -194,8 +177,21 @@ export function IndexDetailView({ ticker, onOpenHub, onSelectCompany, onBackToOv
   const [detail, setDetail] = useState(null);
   const [pulse, setPulse] = useState(null);
   const [scored, setScored] = useState(null);
+  const [constituents, setConstituents] = useState(null);
 
   useEffect(() => { setDetail(null); }, [ticker]);
+
+  // Реальный состав индекса (тикеры + официальные free-float веса) — MOEX ISS,
+  // не приближение Basis (см. app/services/indices.get_index_constituents).
+  useEffect(() => {
+    setConstituents(null);
+    const api = apiBase();
+    let alive = true;
+    fetch(`${api}/api/market/indices/${ticker}/constituents`)
+      .then((r) => (r.ok ? r.json() : null)).catch(() => null)
+      .then((d) => { if (alive) setConstituents(d?.constituents || []); });
+    return () => { alive = false; };
+  }, [ticker]);
 
   useEffect(() => {
     if (!isMain) return;
@@ -227,7 +223,6 @@ export function IndexDetailView({ ticker, onOpenHub, onSelectCompany, onBackToOv
   const sectorEntry = !isMain
     ? [...(pulse?.sectors || []), ...(pulse?.indices || [])].find((s) => s.ticker === ticker)
     : null;
-  const sectorInternalName = SECTOR_TO_INTERNAL[ticker];
 
   const drivers = useMemo(() => {
     if (!isMain || !pulse?.sectors) return [];
@@ -237,14 +232,26 @@ export function IndexDetailView({ ticker, onOpenHub, onSelectCompany, onBackToOv
       .slice(0, 6);
   }, [pulse, isMain]);
 
+  // Состав индекса = реальные тикеры+веса с MOEX (constituents), обогащённые
+  // данными Basis по тикеру (капитализация/сектор/BASIS-балл), если компания есть
+  // в базе. Бумаги индекса вне покрытия Basis показываем как есть, без обогащения
+  // и без перехода на карточку.
   const companies = useMemo(() => {
-    if (!scored) return [];
-    if (isMain) return [...scored].sort((a, b) => (b.market_cap || 0) - (a.market_cap || 0)).slice(0, 8);
-    return scored
-      .filter((c) => c.sector === sectorInternalName)
-      .sort((a, b) => (b.market_cap || 0) - (a.market_cap || 0))
-      .slice(0, 12);
-  }, [scored, isMain, sectorInternalName]);
+    if (!constituents) return [];
+    const byTicker = new Map((scored || []).map((c) => [c.ticker, c]));
+    return constituents.map((c) => {
+      const s = byTicker.get(c.ticker);
+      return {
+        ticker: c.ticker,
+        name: s?.name || c.name,
+        weight: c.weight,
+        sector: s?.sector ?? null,
+        market_cap: s?.market_cap ?? null,
+        basis: s?.basis ?? null,
+        known: Boolean(s),
+      };
+    });
+  }, [constituents, scored]);
 
   const backBtn = onBackToOverview && <button className="idx-back-btn" onClick={onBackToOverview}>← Вернуться к обзору</button>;
   if (isMain && !detail) return <div className="idx-screen">{backBtn}<div className="idx-loading">Загрузка индекса…</div></div>;
@@ -351,30 +358,34 @@ export function IndexDetailView({ ticker, onOpenHub, onSelectCompany, onBackToOv
       {companies.length > 0 && (
         <div className="idx-panel">
           <div className="idx-tbl-head">
-            <span className="idx-eyebrow">{isMain ? "Крупнейшие компании индекса" : `Компании сектора «${sectorInternalName}» в Basis`}</span>
-            <span className="idx-tag idx-tag--est" style={{ marginLeft: 8 }}>
-              {isMain ? "оценка — приближение Basis, не официальные веса" : "классификация Basis, не официальные веса индекса"}
-            </span>
+            <span className="idx-eyebrow">Состав индекса</span>
+            <span className="idx-tag idx-tag--fact" style={{ marginLeft: 8 }}>факт — состав и веса от Мосбиржи</span>
           </div>
           <table className="idx-companies-tbl">
             <thead>
               <tr>
                 <th>Компания</th>
                 {!isMain ? null : <th>Сектор</th>}
+                <th>Вес в индексе</th>
                 <th>Капитализация</th>
                 <th>BASIS-балл</th>
               </tr>
             </thead>
             <tbody>
               {companies.map((c) => (
-                <tr key={c.ticker} onClick={() => onSelectCompany && onSelectCompany(c.ticker)}>
+                <tr
+                  key={c.ticker}
+                  onClick={() => c.known && onSelectCompany && onSelectCompany(c.ticker)}
+                  style={{ cursor: c.known ? "pointer" : "default" }}
+                >
                   <td>
                     <div className="idx-co-asset">
                       <CompanyLogo ticker={c.ticker} name={c.name} size={28} />
                       {c.name}
                     </div>
                   </td>
-                  {!isMain ? null : <td style={{ textAlign: "left", color: "var(--text-tertiary)" }}>{c.sector}</td>}
+                  {!isMain ? null : <td style={{ textAlign: "left", color: "var(--text-tertiary)" }}>{c.sector || "—"}</td>}
+                  <td>{c.weight != null ? `${num(c.weight, 2)}%` : "—"}</td>
                   <td>{c.market_cap != null ? money(c.market_cap) : "—"}</td>
                   <td>{c.basis ?? "—"}</td>
                 </tr>
