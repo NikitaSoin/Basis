@@ -327,8 +327,9 @@ def run_interp_for_tab(db: Session, ticker: str, tab: str,
     if db.query(CardProseOverlay.id).filter(
             CardProseOverlay.ticker == ticker.upper(), CardProseOverlay.tab == tab,
             CardProseOverlay.kind == "interpretation",
+            CardProseOverlay.status == "published",  # rejected/no-op не вызывает cooldown
             CardProseOverlay.created_at >= since).first():
-        return None  # cooldown
+        return None  # cooldown: недавно УЖЕ меняли интерпретацию этой вкладки
     flow_txt = "\n".join(
         f"- {r.published_at} [{r.source_key}] {r.title}: {(r.summary or '')[:160]}"
         for r in flow_rows)
