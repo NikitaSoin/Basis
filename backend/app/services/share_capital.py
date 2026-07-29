@@ -38,7 +38,14 @@ from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
-_CONFIG = Path(__file__).parent.parent.parent.parent / "config" / "share_classes.json"
+# Два места: корневой config/ (там же governance_mapping.json) и backend/config/
+# (там geo_barometer.json). Dockerfile делает `COPY . .` от своего контекста сборки,
+# и какой именно каталог окажется внутри образа — зависит от того, что Timeweb
+# считает корнем приложения. Проверяем оба, чтобы поправка не отключилась молча.
+_CONFIG_PATHS = [
+    Path(__file__).parent.parent.parent.parent / "config" / "share_classes.json",
+    Path(__file__).parent.parent.parent / "config" / "share_classes.json",
+]
 _CACHE: dict = {"data": None}
 
 # 🔴 ОТ ЧЕГО СЧИТАЛ АНАЛИТИК — ВОССТАНАВЛИВАЕМ, А НЕ УГАДЫВАЕМ.
@@ -58,11 +65,18 @@ _K_MIN, _K_MAX = 0.1, 50.0
 
 def _registry() -> dict:
     if _CACHE["data"] is None:
-        try:
-            _CACHE["data"] = json.loads(_CONFIG.read_text(encoding="utf-8")).get("issuers") or {}
-        except Exception:  # noqa: BLE001 — без реестра просто работаем как раньше
-            logger.warning("share_classes.json недоступен — капитализация по одному классу")
-            _CACHE["data"] = {}
+        data = {}
+        for path in _CONFIG_PATHS:
+            try:
+                data = json.loads(path.read_text(encoding="utf-8")).get("issuers") or {}
+                if data:
+                    break
+            except Exception:  # noqa: BLE001
+                continue
+        if not data:
+            logger.warning("share_classes.json недоступен (%s) — капитализация по одному классу",
+                           ", ".join(str(p) for p in _CONFIG_PATHS))
+        _CACHE["data"] = data
     return _CACHE["data"]
 
 

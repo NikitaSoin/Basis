@@ -33,7 +33,10 @@ from pathlib import Path
 
 BASE = Path(__file__).parent.parent
 RATES = BASE / "data" / "rates.csv"
-OUT = BASE.parent / "config" / "share_classes.json"
+# 🔴 backend/config, а НЕ корневой config/: Dockerfile собирается из контекста
+# backend/ (WORKDIR /app + COPY . . + uvicorn app.main:app), поэтому корневой
+# каталог config/ в образ не попадает и реестр там молча не читался бы.
+OUT = BASE / "config" / "share_classes.json"
 
 # ── Классы БЕЗ листинга: в rates.csv/ISS их нет, ведём руками ──────────────────
 # valuation: how_priced — по какой цене оценивать неторгуемый класс.
