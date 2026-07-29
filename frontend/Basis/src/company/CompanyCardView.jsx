@@ -7188,7 +7188,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
   const NEO_TABS = [
     { id: "overview", label: "Обзор" }, { id: "business", label: "Бизнес-модель" },
     { id: "finance", label: "Финансы и оценка" }, { id: "governance", label: "Корп. управление" },
-    { id: "markets", label: "Рынки" }, { id: "macro", label: "Макро" }, { id: "geo", label: "Геополитика" },
+    { id: "markets", label: "Рынки" }, { id: "macro", label: "Макроэкономика" }, { id: "geo", label: "Геополитика" },
     { id: "institutions", label: "Институты" },
   ];
   const REVIEWABLE_TABS = ["business", "finance", "governance", "markets", "macro", "geo", "institutions"];
@@ -7277,7 +7277,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
           { id: "finance", label: "Финансы" },
           { id: "governance", label: "Корп. управление" },
           { id: "markets", label: "Рынки" },
-          { id: "macro", label: "Макро" },
+          { id: "macro", label: "Макроэкономика" },
           { id: "geo", label: "Геополитика" },
           { id: "institutions", label: "Институты" },
         ];
