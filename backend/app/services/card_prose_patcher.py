@@ -155,6 +155,18 @@ def _numbers(s: str) -> list[str]:
     return re.findall(r"\d+[.,]?\d*", s or "")
 
 
+# нормализация для ПОИСКА find в прозе — 1:1 (длина сохраняется, чтобы индексы
+# совпадали): виды тире → «-», неразрывные/узкие пробелы → обычный. Иначе валидная
+# правка не находит место из-за «–» vs «-» и т.п.
+_MATCH_NORM = str.maketrans({
+    "–": "-", "—": "-", "−": "-", "‑": "-", " ": " ", " ": " ", " ": " ",
+})
+
+
+def _norm_match(s: str) -> str:
+    return s.translate(_MATCH_NORM)
+
+
 def _apply_and_gate(prose: str, result: dict, signal_text: str) -> tuple[str | None, list[str]]:
     """→ (patched_md|None, notes). Применяет find/replace и проверяет каждую правку."""
     notes: list[str] = []
@@ -166,7 +178,10 @@ def _apply_and_gate(prose: str, result: dict, signal_text: str) -> tuple[str | N
     if not isinstance(edits, list) or not edits or len(edits) > _MAX_EDITS:
         return None, ["edits_invalid"]
 
-    src_nums = set(_numbers(signal_text.replace(",", ".")))
+    # число «обосновано», если есть в тексте сигнала ИЛИ уже в самой прозе
+    # (аналитик его туда внёс) — иначе это выдуманное агентом число.
+    allowed_nums = (set(_numbers(signal_text.replace(",", ".")))
+                    | set(_numbers(prose.replace(",", "."))))
     patched = prose
     for i, e in enumerate(edits):
         if not isinstance(e, dict):
@@ -177,7 +192,10 @@ def _apply_and_gate(prose: str, result: dict, signal_text: str) -> tuple[str | N
             notes.append(f"edit{i}:empty"); continue
         if len(find) > _MAX_FIND_LEN:
             notes.append(f"edit{i}:find_too_long({len(find)})"); continue
-        cnt = patched.count(find)
+        # поиск find толерантно к тире/пробелам (1:1 нормализация сохраняет длину →
+        # индекс в нормализованной = индекс в оригинале)
+        n_patched, n_find = _norm_match(patched), _norm_match(find)
+        cnt = n_patched.count(n_find)
         if cnt == 0:
             notes.append(f"edit{i}:find_not_in_prose")
             continue
@@ -190,13 +208,14 @@ def _apply_and_gate(prose: str, result: dict, signal_text: str) -> tuple[str | N
         if _FORBIDDEN.search(repl):
             notes.append(f"edit{i}:forbidden")
             continue
-        # число в replace, которого НЕТ в find, обязано быть в тексте сигнала
+        # число в replace, которого НЕТ в find, обязано быть обосновано (сигнал/проза)
         new_nums = set(_numbers(repl.replace(",", "."))) - set(_numbers(find.replace(",", ".")))
-        ungrounded = [n for n in new_nums if n not in src_nums]
+        ungrounded = [n for n in new_nums if n not in allowed_nums]
         if ungrounded:
             notes.append(f"edit{i}:ungrounded_numbers:{ungrounded[:3]}")
             continue
-        patched = patched.replace(find, repl, 1)
+        idx = n_patched.find(n_find)  # применяем правку по оригинальному span
+        patched = patched[:idx] + repl + patched[idx + len(find):]
 
     if notes:
         return None, notes
