@@ -182,41 +182,25 @@ def _apply_and_gate(prose: str, result: dict, signal_text: str) -> tuple[str | N
     return patched, []
 
 
-# ----------------------------- ПРОГОН -----------------------------
-def run_for_signal(db: Session, signal: CompanySignal, kind: str = "fact") -> CardProseOverlay | None:
-    """Один сигнал → патч прозы соответствующей вкладки (published|rejected) или
-    None если нет прозы/уже отражено."""
-    ticker = signal.ticker.upper()
-    tab = _SIGNAL_TAB_TO_PROSE.get(signal.card_tab or "")
-    if not tab:
-        return None
-    # уже патчили этим сигналом?
-    if db.query(CardProseOverlay.id).filter(
-            CardProseOverlay.source_signal_id == signal.id).first():
-        return None
+# ----------------------------- ПРОГОН (общее ядро) -----------------------------
+def _run_patch(db: Session, ticker: str, tab: str, *, sys: str, task_builder,
+               grounding_text: str, kind: str, source_signal_id: int | None = None,
+               evidence_extra: dict | None = None) -> CardProseOverlay | None:
+    """Ядро патча: прочитать прозу (оверлей-first) → агент правит find/replace →
+    код-гейт → published|rejected-оверлей. grounding_text — источник, в котором
+    обязаны присутствовать новые числа (сигнал для фактов / сводка потока для
+    интерпретации). Нетронутая проза дословна по построению."""
     prose, src = read_prose(db, ticker, tab)
     if not prose:
         return None
-
-    sys = _FACT_SYS if kind == "fact" else _INTERP_SYS
-    task = (
-        f"Компания: {ticker}. Вкладка: {tab}. Сегодня "
-        f"{datetime.now(timezone.utc).date().isoformat()}.\n\n"
-        f"СИГНАЛ (тип {signal.signal_type}, источник {signal.source_key}, "
-        f"дата {signal.published_at}):\nЗаголовок: {signal.title}\n"
-        f"Содержание: {(signal.summary or '')[:600]}\n"
-        f"Первоисточник: {signal.source_url or '—'}\n\n"
-        f"ТЕКСТ РАЗБОРА ВКЛАДКИ (правь точечно find/replace):\n<<<\n{prose[:8000]}\n>>>"
-    )
-    run = run_agent(db, system_prompt=sys, task=task, tools_schema=[WEB_TOOLS_SCHEMA[1]],
-                    allowed_ticker=ticker, max_steps=5, max_tokens_total=30_000, web_call_cap=1)
+    run = run_agent(db, system_prompt=sys, task=task_builder(prose),
+                    tools_schema=[WEB_TOOLS_SCHEMA[1]], allowed_ticker=ticker,
+                    max_steps=5, max_tokens_total=30_000, web_call_cap=1)
     result = run["result"]
-    signal_text = f"{signal.title or ''} {signal.summary or ''}"
     if result is not None:
-        patched, notes = _apply_and_gate(prose, result, signal_text)
+        patched, notes = _apply_and_gate(prose, result, grounding_text)
     else:
         patched, notes = None, [f"no_result:{run['stopped_reason']}"]
-
     ok = patched is not None
     parent = current_overlay(db, ticker, tab)
     row = CardProseOverlay(
@@ -225,9 +209,8 @@ def run_for_signal(db: Session, signal: CompanySignal, kind: str = "fact") -> Ca
         patched_md=patched if ok else None,
         original_md=prose if ok else None,
         change_note=(result or {}).get("note") if isinstance(result, dict) else None,
-        evidence={"signal_id": signal.id, "source_key": signal.source_key,
-                  "source_url": signal.source_url, "prose_source": src},
-        gate_notes=notes or None, source_signal_id=signal.id,
+        evidence={"prose_source": src, **(evidence_extra or {})},
+        gate_notes=notes or None, source_signal_id=source_signal_id,
         parent_id=parent.id if (ok and parent) else None,
         model_used="deepseek", tokens_used=run["tokens_used"],
     )
@@ -237,6 +220,35 @@ def run_for_signal(db: Session, signal: CompanySignal, kind: str = "fact") -> Ca
     logger.info("card_prose_patcher %s/%s [%s]: %s (гейт: %s; токены %s)",
                 ticker, tab, kind, row.status, notes or "чисто", run["tokens_used"])
     return row
+
+
+# ----------------------------- ФАКТЫ (дневной, по сигналу) -----------------------------
+def run_for_signal(db: Session, signal: CompanySignal, kind: str = "fact") -> CardProseOverlay | None:
+    """Один сигнал → факт-патч прозы вкладки. None если нет прозы/уже отражено."""
+    ticker = signal.ticker.upper()
+    tab = _SIGNAL_TAB_TO_PROSE.get(signal.card_tab or "")
+    if not tab:
+        return None
+    if db.query(CardProseOverlay.id).filter(
+            CardProseOverlay.source_signal_id == signal.id).first():
+        return None  # уже патчили этим сигналом
+
+    def _tb(prose: str) -> str:
+        return (
+            f"Компания: {ticker}. Вкладка: {tab}. Сегодня "
+            f"{datetime.now(timezone.utc).date().isoformat()}.\n\n"
+            f"СИГНАЛ (тип {signal.signal_type}, источник {signal.source_key}, "
+            f"дата {signal.published_at}):\nЗаголовок: {signal.title}\n"
+            f"Содержание: {(signal.summary or '')[:600]}\n"
+            f"Первоисточник: {signal.source_url or '—'}\n\n"
+            f"ТЕКСТ РАЗБОРА ВКЛАДКИ (правь точечно find/replace):\n<<<\n{prose[:8000]}\n>>>")
+
+    return _run_patch(
+        db, ticker, tab, sys=_FACT_SYS, task_builder=_tb,
+        grounding_text=f"{signal.title or ''} {signal.summary or ''}", kind="fact",
+        source_signal_id=signal.id,
+        evidence_extra={"signal_id": signal.id, "source_key": signal.source_key,
+                        "source_url": signal.source_url})
 
 
 def _fact_queue(db: Session) -> list[CompanySignal]:
@@ -268,4 +280,85 @@ def run_daily_facts(db: Session) -> dict:
         else:
             stats[row.status] = stats.get(row.status, 0) + 1
     logger.info("card_prose_patcher.run_daily_facts: %s", stats)
+    return stats
+
+
+# ----------------------------- ИНТЕРПРЕТАЦИЯ (недельный, по потоку) -----------------------------
+_INTERP_COOLDOWN_DAYS = 6   # не переинтерпретировать вкладку чаще раза в ~неделю
+_INTERP_FLOW_DAYS = 8       # окно «входного потока за неделю»
+_INTERP_BATCH_CAP = 6       # (тикер, вкладка) за прогон
+
+
+def _week_flow(db: Session, ticker: str, prose_tab: str) -> list[CompanySignal]:
+    """Входной поток за неделю для (тикер, прозная вкладка): сигналы company_signals
+    по тикеру, мапящиеся на эту вкладку."""
+    since = datetime.now(timezone.utc).date() - timedelta(days=_INTERP_FLOW_DAYS)
+    sig_tabs = [st for st, pt in _SIGNAL_TAB_TO_PROSE.items() if pt == prose_tab]
+    return (db.query(CompanySignal)
+            .filter(CompanySignal.ticker == ticker.upper(),
+                    CompanySignal.card_tab.in_(sig_tabs),
+                    CompanySignal.published_at >= since)
+            .order_by(CompanySignal.published_at.desc()).limit(12).all())
+
+
+def run_interp_for_tab(db: Session, ticker: str, tab: str,
+                       flow_rows: list[CompanySignal]) -> CardProseOverlay | None:
+    """Дельта-правка ИНТЕРПРЕТАЦИИ вкладки по входному потоку недели: агент меняет
+    только те места, где поток изменил картину (не перегенерация). Cooldown на
+    (тикер, вкладка)."""
+    if not flow_rows:
+        return None
+    since = datetime.now(timezone.utc) - timedelta(days=_INTERP_COOLDOWN_DAYS)
+    if db.query(CardProseOverlay.id).filter(
+            CardProseOverlay.ticker == ticker.upper(), CardProseOverlay.tab == tab,
+            CardProseOverlay.kind == "interpretation",
+            CardProseOverlay.created_at >= since).first():
+        return None  # cooldown
+    flow_txt = "\n".join(
+        f"- {r.published_at} [{r.source_key}] {r.title}: {(r.summary or '')[:160]}"
+        for r in flow_rows)
+
+    def _tb(prose: str) -> str:
+        return (
+            f"Компания: {ticker}. Вкладка: {tab}. Сегодня "
+            f"{datetime.now(timezone.utc).date().isoformat()}.\n\n"
+            f"ВХОДНОЙ ПОТОК ЗА НЕДЕЛЮ (что пришло):\n{flow_txt}\n\n"
+            f"ТЕКСТ РАЗБОРА (правь точечно find/replace ТОЛЬКО там, где поток "
+            f"изменил картину; не изменил — confirmed=false):\n<<<\n{prose[:8000]}\n>>>")
+
+    return _run_patch(db, ticker, tab, sys=_INTERP_SYS, task_builder=_tb,
+                      grounding_text=flow_txt, kind="interpretation",
+                      evidence_extra={"flow_signal_ids": [r.id for r in flow_rows]})
+
+
+def run_weekly_interp(db: Session) -> dict:
+    """Недельный проход: (тикер, вкладка) с потоком за неделю → дельта-правка
+    интерпретации по потоку. НЕ перегенерация, НЕ слепой прогон всех карточек."""
+    since = datetime.now(timezone.utc).date() - timedelta(days=_INTERP_FLOW_DAYS)
+    # только значимый поток (high/medium) — не жечь бюджет на шумовых новостях
+    # широкого маппинга Ленты (§8 observer-source-map)
+    rows = (db.query(CompanySignal)
+            .filter(CompanySignal.internal.is_(False),
+                    CompanySignal.importance.in_(("high", "medium")),
+                    CompanySignal.card_tab.in_(list(_SIGNAL_TAB_TO_PROSE)),
+                    CompanySignal.published_at >= since)
+            .order_by(CompanySignal.published_at.desc()).all())
+    # приоритет пар по «активности»: есть high → выше, затем по числу сигналов
+    score: dict = {}
+    for s in rows:
+        pt = _SIGNAL_TAB_TO_PROSE.get(s.card_tab or "")
+        if not pt:
+            continue
+        key = (s.ticker.upper(), pt)
+        w = 10 if s.importance == "high" else 1
+        score[key] = score.get(key, 0) + w
+    pairs = [k for k, _ in sorted(score.items(), key=lambda kv: kv[1], reverse=True)][:_INTERP_BATCH_CAP]
+    stats = {"pairs": len(pairs), "published": 0, "rejected": 0, "skipped": 0}
+    for tk, pt in pairs:
+        row = run_interp_for_tab(db, tk, pt, _week_flow(db, tk, pt))
+        if row is None:
+            stats["skipped"] += 1
+        else:
+            stats[row.status] = stats.get(row.status, 0) + 1
+    logger.info("card_prose_patcher.run_weekly_interp: %s", stats)
     return stats

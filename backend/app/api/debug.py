@@ -1404,26 +1404,37 @@ def debug_card_consumer_addenda(ticker: str | None = None, limit: int = 20):
 
 
 @router.post("/debug/trigger-prose-patcher")
-def debug_trigger_prose_patcher(signal_id: int | None = None, kind: str = "fact"):
+def debug_trigger_prose_patcher(signal_id: int | None = None, kind: str = "fact",
+                                weekly: bool = False, ticker: str | None = None,
+                                tab: str | None = None):
     """Ручной прогон патчера прозы (авто-свежесть). Без параметров — дневной проход
-    ФАКТОВ (очередь из входного потока → факт-патч прозы под гейтом, БД-оверлей).
-    signal_id — прогнать на КОНКРЕТНОМ сигнале (пред-полёт качества); kind=fact|
-    interpretation. Возвращает статус/заметки гейта/что изменилось."""
+    ФАКТОВ. weekly=true — недельный интерпретационный проход по входному потоку.
+    signal_id — факт-патч на КОНКРЕТНОМ сигнале (пред-полёт). ticker+tab —
+    интерпретация одной вкладки по её недельному потоку (пред-полёт качества)."""
     from app.db.session import SessionLocal
-    from app.services.card_prose_patcher import run_daily_facts, run_for_signal
+    from app.services.card_prose_patcher import (
+        run_daily_facts, run_for_signal, run_weekly_interp,
+        run_interp_for_tab, _week_flow)
     from app.models.geo import CompanySignal
     db = SessionLocal()
+
+    def _row(row):
+        if row is None:
+            return {"result": "skipped/cooldown (нет прозы / уже отражено / не мапится)"}
+        return {"status": row.status, "tab": row.tab, "kind": row.kind,
+                "change_note": row.change_note, "gate_notes": row.gate_notes,
+                "tokens": row.tokens_used,
+                "patched_preview": (row.patched_md or "")[:400] if row.status == "published" else None}
     try:
+        if ticker and tab:
+            return _row(run_interp_for_tab(db, ticker, tab, _week_flow(db, ticker, tab)))
         if signal_id is not None:
             sig = db.query(CompanySignal).get(signal_id)
             if not sig:
                 return {"error": "signal not found"}
-            row = run_for_signal(db, sig, kind=kind)
-            if row is None:
-                return {"result": "skipped (нет прозы вкладки / уже отражено / не мапится)"}
-            return {"status": row.status, "tab": row.tab, "change_note": row.change_note,
-                    "gate_notes": row.gate_notes, "tokens": row.tokens_used,
-                    "patched_preview": (row.patched_md or "")[:400] if row.status == "published" else None}
+            return _row(run_for_signal(db, sig, kind=kind))
+        if weekly:
+            return run_weekly_interp(db)
         return run_daily_facts(db)
     except Exception as e:  # noqa: BLE001
         logger.exception("debug trigger-prose-patcher: %s", e)
