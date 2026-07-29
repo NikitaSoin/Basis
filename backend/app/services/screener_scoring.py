@@ -336,6 +336,10 @@ def _compute_universe(db: Session, universe: str = "all", sector: str | None = N
             "profile": b["profile"], "data_quality": b["data_quality"], "anomaly": b["anomaly"],
             "price": round(b["price"], 4) if b["price"] else None,
             "market_cap": b["market_cap"], "fair_value": b["fair_value"],
+            # чем посчитана цена: "bfv" — методика Basis, "analyst" — оценка аналитика
+            # (движок не дал числа или оно не прошло санити-гейт). Без этого сортировка
+            # по потенциалу молча смешивала бы две методики.
+            "fair_value_source": b.get("fair_value_source"),
             "raw": {k: (round(v, 2) if isinstance(v, float) else v) for k, v in b["raw"].items()},
             "percentiles": b["percentiles"], "subindices": b["subindices"],
             "basis": b["basis"], "low_confidence": b["low_confidence"],

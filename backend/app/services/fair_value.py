@@ -155,6 +155,17 @@ def get_fair_values_batch(db: Session, tickers: list[str],
             continue
         price = prices.get(t) or (fin.get("meta") or {}).get("last_price")
         base = _analyst_base(fin)
+        # 🔴 Капитализация по ВСЕМ классам акций эмитента — та же поправка, что делает
+        # bfv/service.get_bfv для карточки. Здесь она обязательна: аксессор зовёт
+        # compute_bfv напрямую (ради батча) и без этого вызова обошёл бы фикс — скринер
+        # и карты считали бы по заниженной капитализации, а карточка по правильной, и
+        # экраны снова разошлись бы. У TRNFP занижение давало P/B 0,07 вместо 0,34.
+        # try/except: модуль появился в параллельной работе, до его вливания просто нет.
+        try:
+            from app.services.share_capital import apply_issuer_capital
+            apply_issuer_capital(db, t, fin)
+        except Exception:  # noqa: BLE001
+            pass
         try:
             res = compute_bfv(
                 fin,

@@ -41,7 +41,7 @@ const METRICS = {
   mcap:          { label: "Капитализация", unit: "", dir: "high", dom: [0, 9e12], dec: 0, money: true, group: "Размер",
     hint: "Рыночная стоимость всех акций компании — цена акции умноженная на число акций в обращении." },
 };
-const FAIR_VALUE_HINT = "Расчётная стоимость акции по методике Basis (DCF/мультипликаторы/аналоги — маршрут зависит от сектора). Это ОЦЕНКА по модели с допущениями, не гарантированная цена — сверяйте с потенциалом и уровнем уверенности расчёта.";
+const FAIR_VALUE_HINT = "Справедливая цена по методике Basis — тот же расчёт, что в карточке компании: поток к акционеру (дивиденды и книга либо денежный поток) против требуемой доходности от кривой ОФЗ. Это ОЦЕНКА ПО МОДЕЛИ с допущениями, а не гарантированная цена. Пометка «а» у числа означает, что по этой бумаге модель не рассчиталась и показана оценка аналитика — такие числа не сравнимы напрямую с остальными.";
 const GROUPS = ["Оценка", "Качество", "Устойчивость", "Размер"];
 const TABLE_METRICS = ["fair_value", "pe", "ev_ebitda", "roe", "nd_ebitda", "div_yield", "mcap"];
 const COL_LABEL = (k) => k === "fair_value" ? "Справ. цена" : METRICS[k].label;
@@ -131,10 +131,20 @@ function PctBar({ pct, big }) {
   const Tag = big ? "div" : "span";
   return <Tag className={big ? "sc-dr-stat-bar" : "sc-cellbar"}><i className={pct >= 80 ? "strong" : ""} style={{ width: Math.max(4, pct) + "%" }} /><span className="med" /></Tag>;
 }
-function MetricCell({ mkey, v, pct }) {
+function MetricCell({ mkey, v, pct, fvSource }) {
   if (v == null) return <td className="sc-td sc-num sc-na">—</td>;
   const noBar = mkey === "mcap" || mkey === "fair_value";
-  return <td className="sc-td sc-num"><span className="sc-cellval">{fmtMetric(mkey, v)}</span>{!noBar && <PctBar pct={pct} />}</td>;
+  // Справедливая цена может быть посчитана двумя разными способами (методика Basis или
+  // оценка аналитика, когда движок не дал числа). Сортировка по колонке смешивает их,
+  // поэтому источник помечаем прямо в ячейке — «а» у чисел от аналитика.
+  const analyst = mkey === "fair_value" && fvSource === "analyst";
+  return (
+    <td className="sc-td sc-num" title={analyst ? "Оценка аналитика: методика Basis по этой бумаге не рассчиталась" : undefined}>
+      <span className="sc-cellval">{fmtMetric(mkey, v)}</span>
+      {analyst && <sup style={{ marginLeft: 3, fontSize: 9, opacity: 0.6 }}>а</sup>}
+      {!noBar && <PctBar pct={pct} />}
+    </td>
+  );
 }
 
 function SortHead({ label, k, sort, setSort, align = "right", title, hint }) {
@@ -171,7 +181,7 @@ function ResultsTable({ rows, sort, setSort, density, onPick, picked, secColor, 
                 <span className="sc-idtext"><b>{r.n}</b><span className="sc-idsub">{r.t} · {r.sec}</span></span>
               </td>
               <td className="sc-td sc-num"><span className="sc-scorewrap"><ScoreBadge s={r.basis} dim={r.low_confidence} /><ConfDots level={r.conf} /></span></td>
-              {TABLE_METRICS.map((k) => <MetricCell key={k} mkey={k} v={k === "mcap" ? r.mcap : k === "fair_value" ? r.fair_value : r.raw[k]} pct={r.percentiles[k]} />)}
+              {TABLE_METRICS.map((k) => <MetricCell key={k} mkey={k} v={k === "mcap" ? r.mcap : k === "fair_value" ? r.fair_value : r.raw[k]} pct={r.percentiles[k]} fvSource={r.fair_value_source} />)}
             </tr>
           ))}
         </tbody>
@@ -534,7 +544,8 @@ export default function ScreenerNeo({ onOpenCompany, Logo, token, onAuthRequired
   // нормализация серверных строк
   const rows = useMemo(() => (data?.rows || []).map((r) => ({
     t: r.ticker, n: r.name, sec: r.sector || "—", price: r.price, mcap: r.market_cap,
-    basis: r.basis, low_confidence: r.low_confidence, anomaly: r.anomaly, reduced_set: r.reduced_set, fair_value: r.fair_value,
+    basis: r.basis, low_confidence: r.low_confidence, anomaly: r.anomaly, reduced_set: r.reduced_set,
+    fair_value: r.fair_value, fair_value_source: r.fair_value_source,
     conf: r.low_confidence ? "low" : (r.data_quality === "medium" ? "medium" : "high"),
     raw: { ...(r.raw || {}), mcap: r.market_cap }, percentiles: r.percentiles || {}, subindices: r.subindices || {},
   })), [data]);
