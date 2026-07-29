@@ -759,8 +759,12 @@ def process_news_item(db: Session, item: dict, company: Company, market_cap: flo
     Доп. защита от дублей с MOEX-путём: если для этого тикера уже есть отчёт с
     published_at в пределах недели — считаем то же самое событие, пропускаем."""
     mu_id = item["market_update_id"]
-    if db.query(EarningsReport).filter_by(market_update_id=mu_id).first():
-        return "exists"
+    existing_mu = db.query(EarningsReport).filter_by(market_update_id=mu_id).first()
+    if existing_mu:
+        if not _stale_needs_source(existing_mu):
+            return "exists"
+        db.delete(existing_mu)
+        db.commit()
     ticker = item["ticker"]
     pub_date = item["published_at"]
     text_blob = f"{item['title']}\n{item.get('summary') or ''}\n{item.get('impact_comment') or ''}".strip()
@@ -789,19 +793,31 @@ def process_news_item(db: Session, item: dict, company: Company, market_cap: flo
                       EarningsReport.published_at <= pub_date + timedelta(days=4))
               .first())
     if nearby:
-        # 🔴 Дедуп ±4 дня НЕ должен считать операционную/мусорную запись эквивалентом
-        # ФИНАНСОВОГО отчёта (найдено на бою 2026-07-25): у НОВАТЭКа запись
-        # «операционные результаты» от 22.07 (на деле — мусор от общестрановой
-        # новости «Добыча газа в РФ») заблокировала настоящий МСФО-отчёт от 24.07;
-        # у Северстали smart-lab-запись «операционные результаты» блокировала
-        # МСФО-версию. Если новый кандидат несёт явный финансовый стандарт
-        # (МСФО/РСБУ), а существующая рядом запись — НЕ финансовая, пропускаем его
-        # дальше: страховка от реального дубля остаётся на уникальном индексе
-        # (ticker, period, standard) — IntegrityError ниже.
-        cand_is_financial = "мсфо" in blob_l or "рсбу" in blob_l
-        nearby_is_financial = (nearby.standard or "").upper() in ("МСФО", "РСБУ")
-        if not (cand_is_financial and not nearby_is_financial):
-            return "exists"  # то же событие уже накрыто MOEX-путём (process_event)
+        # 🔴 Найдено на бою 2026-07-29 (жалоба владельца — Сбер/Яндекс отчёты весь
+        # день не разбирались, «у всех уже всё разобрано, у нас пусто»): ПУСТАЯ
+        # needs_source-заглушка (из более раннего тика крона, ещё до того, как
+        # новость реально вышла) блокировала ЛЮБОЙ более поздний, содержательный
+        # кандидат через этот же дедуп ±4 дня — новая статья с реальными цифрами
+        # получала "exists" против записи без единой цифры внутри. Свежую (см.
+        # _stale_needs_source) заглушку удаляем и даём кандидату шанс создать
+        # НАСТОЯЩУЮ запись — не ждём следующего тика крона, как раньше.
+        if _stale_needs_source(nearby):
+            db.delete(nearby)
+            db.commit()
+        else:
+            # 🔴 Дедуп ±4 дня НЕ должен считать операционную/мусорную запись эквивалентом
+            # ФИНАНСОВОГО отчёта (найдено на бою 2026-07-25): у НОВАТЭКа запись
+            # «операционные результаты» от 22.07 (на деле — мусор от общестрановой
+            # новости «Добыча газа в РФ») заблокировала настоящий МСФО-отчёт от 24.07;
+            # у Северстали smart-lab-запись «операционные результаты» блокировала
+            # МСФО-версию. Если новый кандидат несёт явный финансовый стандарт
+            # (МСФО/РСБУ), а существующая рядом запись — НЕ финансовая, пропускаем его
+            # дальше: страховка от реального дубля остаётся на уникальном индексе
+            # (ticker, period, standard) — IntegrityError ниже.
+            cand_is_financial = "мсфо" in blob_l or "рсбу" in blob_l
+            nearby_is_financial = (nearby.standard or "").upper() in ("МСФО", "РСБУ")
+            if not (cand_is_financial and not nearby_is_financial):
+                return "exists"  # то же событие уже накрыто MOEX-путём (process_event)
     # Классификация стандарта/операционности — см. _classify_standard (МСФО/РСБУ
     # по заголовку в приоритете; операционные ключевые слова только если явного
     # финансового стандарта нигде нет — см. докстринг функции, кейсы Роснефти и

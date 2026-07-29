@@ -225,6 +225,44 @@ async def _news_job():
         logger.exception("Ошибка прогона ленты новостей: %s", e)
         from app.services.job_heartbeat import hb_err
         hb_err("news_feed", e)
+        return
+    # 🔴 Найдено на бою 2026-07-29 (жалоба владельца — Сбер/Яндекс отчитались с
+    # утра, разбора на платформе не было весь день): раньше report_watch ждал
+    # СВОЙ следующий суточный тик крона, даже если новость о вышедшем отчёте
+    # только что легла в Ленту. Теперь — сразу после каждого прогона Ленты
+    # (раз в час) проверяем, не появилось ли в ЭТОМ прогоне что-то похожее на
+    # новость об отчётности (тот же строгий детект-паттерн, что у report_watch),
+    # и если да — запускаем report_watch НЕМЕДЛЕННО, не дожидаясь его планового
+    # тика (см. также report_watch cron — теперь раз в 2 часа, а не раз в сутки,
+    # как второй, независимый слой защиты от той же гонки).
+    try:
+        await _maybe_trigger_report_watch_now()
+    except Exception as e:  # noqa: BLE001
+        logger.exception("Ошибка мгновенного триггера report_watch по Ленте: %s", e)
+
+
+async def _maybe_trigger_report_watch_now():
+    def _check_and_run():
+        from datetime import datetime, timezone, timedelta
+        from app.db.session import SessionLocal
+        from app.models.market import MarketUpdate
+        from app.services.report_watch import _NEWS_REPORT_DETECT_RE, refresh
+        db = SessionLocal()
+        try:
+            cutoff = datetime.now(timezone.utc) - timedelta(minutes=90)
+            rows = (db.query(MarketUpdate)
+                    .filter(MarketUpdate.status == "published", MarketUpdate.created_at >= cutoff)
+                    .all())
+            hit = any(_NEWS_REPORT_DETECT_RE.search(f"{r.title} {r.summary or ''}") for r in rows)
+            if not hit:
+                return None
+            logger.info("Лента новостей: похоже на новость об отчётности — запускаю report_watch немедленно")
+            return refresh(db, days_back=2)
+        finally:
+            db.close()
+    res = await asyncio.get_event_loop().run_in_executor(None, _check_and_run)
+    if res is not None:
+        logger.info("report_watch (мгновенный запуск по свежей новости): %s", res)
 
 
 def _wait_for_db(max_attempts: int = 6, delay_seconds: float = 5.0) -> bool:
@@ -475,8 +513,11 @@ async def _report_watch_job():
     """Автообнаружение вышедших отчётов (report_watch.py) — НЕЗАВИСИМО от _earnings_job:
     тот видит новый период только после РУЧНОГО обновления financials.json, этот детектит
     сам факт выхода отчёта по MOEX ir-calendar и разбирает по тексту из Ленты/СКРИН, без
-    ожидания аналитика. Раз в сутки, после Ленты новостей (19:30) и календаря (06:45) —
-    нужен свежий market_updates для фетча текста отчёта."""
+    ожидания аналитика. Раз в 2 часа (было раз в сутки — владелец 2026-07-29, см.
+    _maybe_trigger_report_watch_now для мгновенного триггера по свежей новости) —
+    второй, независимый слой защиты от гонки «новость об отчёте вышла позже, чем
+    успел проверить крон» для путей, которые не идут через Ленту (MOEX ir-calendar,
+    ГИР БО)."""
     def _run():
         from app.db.session import SessionLocal
         from app.services.report_watch import refresh
@@ -1009,7 +1050,12 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("macro_verification", _macro_verification_job), "cron", hour=18, minute=30, id="macro_verification")  # «ОТК данных» — вечером, после всех синков
         scheduler.add_job(_with_heartbeat("macro_interpretation", _macro_interpretation_job), "cron", hour=7, minute=15, id="macro_interpretation")
         scheduler.add_job(_with_heartbeat("earnings_digest", _earnings_job), "cron", hour=20, minute=30, id="earnings_digest")
-        scheduler.add_job(_with_heartbeat("report_watch", _report_watch_job), "cron", hour=20, minute=45, id="report_watch")
+        # 🔴 Было раз в сутки (20:45) — владелец 2026-07-29: Сбер/Яндекс отчитались с
+        # утра, разбора не было весь день (не считая мгновенного триггера по Ленте,
+        # см. _maybe_trigger_report_watch_now). Раз в 2 часа — второй, независимый
+        # слой защиты от той же гонки (напр. если новость пришла НЕ через Ленту, а
+        # только через MOEX ir-calendar/ГИР БО, которые этот триггер не покрывает).
+        scheduler.add_job(_with_heartbeat("report_watch", _report_watch_job), "cron", hour="*/2", minute=45, id="report_watch")
         scheduler.add_job(_with_heartbeat("geopolitics", _geo_job), "cron", hour=21, minute=0, id="geopolitics")
         scheduler.add_job(_with_heartbeat("situation_overlay", _situation_overlay_job), "cron", hour=21, minute=20, id="situation_overlay")  # оверлей ситуации гео/институты — после geopolitics (тот же дневной digest)
         scheduler.add_job(_with_heartbeat("barometer_reviser", _barometer_reviser_job), "cron", hour=21, minute=40, id="barometer_reviser")  # SHADOW-ревизор барометров — после оверлея (его вердикт = триггер); cooldown 5 дней внутри
