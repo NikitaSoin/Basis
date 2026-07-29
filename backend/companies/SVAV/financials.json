@@ -247,61 +247,61 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
+        23147,
+        21472,
+        18389,
+        21681,
         null
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
+        6326,
+        6935,
+        4117,
+        5627,
         null
       ],
       "goodwill": [
-        null,
-        null,
-        null,
-        null,
+        1484,
+        1484,
+        1484,
+        1484,
         null
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
-        null,
+        1986,
+        1594,
+        2194,
+        1832,
         null
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
+        1257,
+        1398,
+        2812,
+        3448,
         null
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
+        34200,
+        32883,
+        28996,
+        34072,
         null
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
+        6700,
+        8609,
+        12032,
+        14449,
         null
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
+        15383,
+        14905,
+        9789,
+        18053,
         null
       ],
       "cash": [
@@ -314,22 +314,22 @@
       "short_term_investments": [
         null,
         null,
-        null,
-        null,
+        1606,
+        376,
         null
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
+        1443,
+        502,
+        8875,
+        2989,
         null
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
+        33351,
+        39359,
+        41615,
+        44167,
         null
       ]
     },
@@ -342,10 +342,10 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
+        530,
+        530,
+        495,
+        495,
         null
       ],
       "retained_earnings": [
@@ -356,17 +356,17 @@
         9302
       ],
       "additional_paid_in": [
-        null,
-        null,
-        null,
-        null,
+        5976,
+        5976,
+        6280,
+        6280,
         null
       ],
       "other_equity": [
-        null,
-        null,
-        null,
-        null,
+        8606,
+        8676,
+        9012,
+        9018,
         null
       ],
       "total_equity": [
@@ -386,24 +386,24 @@
         10610
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
+        400,
+        229,
+        192,
+        942,
         null
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
+        2345,
+        2303,
+        3309,
+        4195,
         null
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
+        8284,
+        4437,
+        8596,
+        12537,
         null
       ]
     },
@@ -416,24 +416,24 @@
         5550
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
+        19470,
+        23750,
+        20340,
+        18551,
         null
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
+        7800,
+        8420,
+        10415,
+        15315,
         null
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
+        34036,
+        40075,
+        37944,
+        40700,
         null
       ]
     },
@@ -1266,7 +1266,8 @@
     "cogs 2025 уточнён: 50136 млн (точное значение из отчёта), в предыдущей версии стояла оценка 50100 млн из пресс-релиза",
     "capex = ОС + капитализированные НИОКР (сумма двух строк ОДДС) — сохранена методология предыдущего извлечения, сверено и подтверждено по всем 5 годам",
     "Разовые события, видимые в CFO-корректировках: 2023 — прибыль от приобретения дочерней компании -2540 млн (неденежная, исключена из CFO); 2025 — прибыль от приобретения контроля над ООО «АПТ» (бывш. Mazda Sollers) -1041-1041 млн (переоценка доли + прибыль от приобретения, тот же разовый эффект, что уже учтён в bridge главного financials.json)",
-    "GAP-АУДИТ 2026-07-29 (report-fetcher): попытка добрать постатейный balance_sheet НЕ удалась в рамках бюджета — локальный PDF в sources/ (СОЛЛЕРС МСФО 2025, 20 стр.) является инвестор-инфографикой без 'Отчёта о финансовом положении' (как и в TTLK); архив company_ir (sollers-auto.com/investors-and-shareholders/consolidated-reporting-under-IFRS/) содержит полные годовые отчёты только ПО 31.12.2023 включительно — отчётов за 2024/2025 (два из пяти нужных года: 2024, 2025) на этой странице НЕТ, вероятно перенесены в другой раздел сайта. total_assets/total_equity/total_liabilities/cash/долг уже заполнены и арифметически сходятся (из предыдущих проходов), детализация (PPE/запасы/дебиторка/кредиторка) остаётся честным пробелом. Для устранения нужна ручная загрузка полных годовых МСФО PDF (2020,2021,2023,2024,2025) в sources/ либо доступ к e-disclosure через браузер."
+    "GAP-АУДИТ 2026-07-29 (report-fetcher): попытка добрать постатейный balance_sheet НЕ удалась в рамках бюджета — локальный PDF в sources/ (СОЛЛЕРС МСФО 2025, 20 стр.) является инвестор-инфографикой без 'Отчёта о финансовом положении' (как и в TTLK); архив company_ir (sollers-auto.com/investors-and-shareholders/consolidated-reporting-under-IFRS/) содержит полные годовые отчёты только ПО 31.12.2023 включительно — отчётов за 2024/2025 (два из пяти нужных года: 2024, 2025) на этой странице НЕТ, вероятно перенесены в другой раздел сайта. total_assets/total_equity/total_liabilities/cash/долг уже заполнены и арифметически сходятся (из предыдущих проходов), детализация (PPE/запасы/дебиторка/кредиторка) остаётся честным пробелом. Для устранения нужна ручная загрузка полных годовых МСФО PDF (2020,2021,2023,2024,2025) в sources/ либо доступ к e-disclosure через браузер.",
+    "🔵 GAP-ЗАКРЫТИЕ (2026-07-30, report-fetcher): постатейный баланс за 2020-2024 (4 из 5 лет) добыт из первичных МСФО-отчётов (sollers-auto.com/information-disclosure) — non_current_assets/current_assets/equity/liabilities построчно. Арифметика сходится ТОЧНО по всем 4 годам; топ-уровневые total_assets/total_liabilities/total_equity/retained_earnings/cash/long_term_debt/short_term_debt/cfo/cfi/cff уже присутствовали и совпали точно. 2022: не публиковался компанией (структурный пробел, уже отражён в fiscal_years). 2025: годовой отчёт ещё не опубликован на момент сбора."
   ],
   "segments": [
     {
