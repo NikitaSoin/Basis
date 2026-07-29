@@ -61,6 +61,12 @@ function BarChart({ data, color, fmt }) {
   const pB = 14, plotH = h - 20 - pB, slot = w / n, bw = slot * 0.5;
   const xi = (i) => i * slot + slot / 2;
   const yi = (v) => h - pB - (5 + ((v - mn) / r) * plotH);
+  // 🔴 Владелец 2026-07-29: диапазон лет расширен (не резать до 5/8 периодов) —
+  // при n>6 слот (w/n) у 9px моно-шрифта подписей уже недостаточен, соседние
+  // подписи налезают друг на друга. Оставляем подпись только у первой и
+  // последней точки (сам ряд столбиков всё равно показывает тренд высотой) —
+  // подписывать каждую точку не нужно, если их больше шести.
+  const showLabel = (i) => n <= 6 || i === 0 || i === n - 1;
   return (
     <svg viewBox={`0 0 ${w} ${h}`} width="100%" style={{ display: "block", overflow: "visible" }}>
       {xs.map((v, i) => {
@@ -69,7 +75,7 @@ function BarChart({ data, color, fmt }) {
       })}
       {xs.map((v, i) => {
         const last = i === n - 1;
-        return <text key={i} className="bc-v" x={xi(i)} y={(yi(v) - 5).toFixed(1)} textAnchor="middle" style={last ? { fill: color, fontWeight: 600 } : undefined}>{fmt(v)}</text>;
+        return showLabel(i) && <text key={i} className="bc-v" x={xi(i)} y={(yi(v) - 5).toFixed(1)} textAnchor="middle" style={last ? { fill: color, fontWeight: 600 } : undefined}>{fmt(v)}</text>;
       })}
     </svg>
   );
@@ -445,9 +451,15 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   ];
 
   /* 4. Таблицы по годам — ПОЛНЫЕ статьи (как в прежнем рендере). kind: money|pct|ratio|x|rub.
-        det:true — деталь (скрыта до «Детализация статей»). */
-  const yslice = years.slice(usingInterim ? -8 : -5);
-  const sl = (a) => (Array.isArray(a) ? a.slice(usingInterim ? -8 : -5) : []);
+        det:true — деталь (скрыта до «Детализация статей»).
+     🔴 Раньше искусственно резалось до последних 5 (год)/8 (интерим) периодов —
+     владелец 2026-07-29: данные по некоторым компаниям собраны с 2016 года (17/264
+     компаний имеют полную историю 2016-2025, остальные — короче, самая частая
+     точка старта 2021 — 108/264), а вкладка «Финансы» их не показывала, обрезая
+     историю визуально до 2021. Таблицы уже вёрстаны со скроллом (.tbl-scroll,
+     overflow-x:auto) — показываем ВСЮ доступную историю, не резервируем число. */
+  const yslice = years;
+  const sl = (a) => (Array.isArray(a) ? a : []);
   const M = (l, a, o = {}) => ({ l, a, kind: "money", ...o });
   const pnlRows = isBank
     ? [
