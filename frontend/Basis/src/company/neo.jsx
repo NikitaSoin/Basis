@@ -57,18 +57,25 @@ export function CompanyIdentityBlock({ logo, name, ticker, exchange = "MOEX", se
 }
 
 // ── Price panel (mono 52px + delta + cap/updated/tone) ──
+// tw-min-w-0 обязателен: без него flex-item отказывается сжиматься ниже
+// intrinsic-ширины своего контента (классический флекс-гочка) — на мобильном
+// весь блок вываливался за правый край экрана (владелец: «бесконечно
+// листать»), т.к. родитель — flex-wrap, а этот item был tw-shrink-0 БЕЗ
+// min-w-0. tw-text-right/justify-end сохраняем только от sm и выше — на
+// мобильном (после переноса на новую строку) якорим по левому краю, иначе
+// те же span'ы «Капитализация»/«Обновлено» продолжают жаться к несуществующему правому краю.
 export function PricePanel({ price, currency = "₽", changePct, changeAbs, marketCap, asOf, tone }) {
   return (
-    <div className="tw-text-right tw-shrink-0">
-      <div className="tw-flex tw-items-baseline tw-justify-end tw-gap-1.5">
-        <span className="cc-num tw-text-[clamp(34px,4.6vw,52px)] tw-font-medium tw-leading-none" style={{ color: "var(--cc-ink)", letterSpacing: "-0.02em" }}>{price == null ? "—" : price}</span>
+    <div className="tw-text-left sm:tw-text-right tw-min-w-0 tw-w-full sm:tw-w-auto sm:tw-shrink-0">
+      <div className="tw-flex tw-items-baseline tw-flex-wrap tw-justify-start sm:tw-justify-end tw-gap-1.5">
+        <span className="cc-num tw-text-[clamp(28px,8vw,52px)] tw-font-medium tw-leading-none" style={{ color: "var(--cc-ink)", letterSpacing: "-0.02em" }}>{price == null ? "—" : price}</span>
         <span className="cc-num tw-text-[20px]" style={{ color: "var(--cc-ink-3)" }}>{currency}</span>
       </div>
-      <div className="tw-mt-2 tw-flex tw-items-center tw-justify-end tw-gap-2">
+      <div className="tw-mt-2 tw-flex tw-items-center tw-justify-start sm:tw-justify-end tw-gap-2">
         <NeoDelta value={changePct} suffix="%" />
         {changeAbs != null && <span className="cc-num tw-text-[12px]" style={{ color: "var(--cc-ink-3)" }}>за день</span>}
       </div>
-      <div className="tw-mt-3 tw-flex tw-flex-wrap tw-items-center tw-justify-end tw-gap-x-4 tw-gap-y-1 tw-text-[11px]" style={{ color: "var(--cc-ink-3)" }}>
+      <div className="tw-mt-3 tw-flex tw-flex-wrap tw-items-center tw-justify-start sm:tw-justify-end tw-gap-x-4 tw-gap-y-1 tw-text-[11px]" style={{ color: "var(--cc-ink-3)" }}>
         {marketCap && <span><span className="cc-eyebrow tw-mr-1">Капитализация</span><span className="cc-num" style={{ color: "var(--cc-ink-2)" }}>{marketCap}</span></span>}
         {asOf && <span><span className="cc-eyebrow tw-mr-1">Обновлено</span><span className="cc-num" style={{ color: "var(--cc-ink-2)" }}>{asOf}</span></span>}
         {tone && <span className="tw-inline-flex tw-items-center tw-rounded-full tw-px-2 tw-py-0.5 tw-text-[11px] tw-font-medium" style={{ color: "var(--cc-amber)", background: "var(--cc-amber-soft)" }}>{tone}</span>}

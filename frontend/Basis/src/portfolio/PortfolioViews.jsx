@@ -1809,25 +1809,46 @@ const pfColLabel = (metricKey, text, tagClass) => (
 // просто с произвольным набором колонок. Не абстрагирует стиль — рендерит
 // ДОСЛОВНЫЙ <table className="pf-pos-table"> с теми же классами/тегами,
 // что и остальные таблицы вкладки.
+// Мобильный фолбэк (≤640px, styles/portfolio-v2.css .pf-mtable-*) — общий для
+// ВСЕХ таблиц на PfMetricTable (5 мест: дивиденды/доходность/риск), поэтому
+// не кастомизирован под конкретные колонки: первая колонка = заголовок
+// карточки, остальные — пары «подпись: значение». Менее нарядно, чем
+// специальный список «Состава портфеля», зато закрывает разом все 5 таблиц
+// без бесконечного горизонтального скролла на телефоне (владелец, 2026-07-29).
 const PfMetricTable = ({ columns, rows }) => (
-  <div style={{ overflowX: "auto" }}>
-    <table className="pf-pos-table" style={{ minWidth: 720 }}>
-      <thead>
-        <tr>
-          {columns.map((c) => <th key={c.key}>{c.label}</th>)}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row, i) => (
-          <tr key={row.key ?? row.ticker ?? i} style={row._isTotal ? { fontWeight: 700 } : undefined}>
-            {columns.map((c) => (
-              <td key={c.key}>{c.render ? c.render(row[c.key], row) : (row[c.key] ?? "—")}</td>
-            ))}
+  <>
+    <div className="pf-pos-table-wrap" style={{ overflowX: "auto" }}>
+      <table className="pf-pos-table" style={{ minWidth: 720 }}>
+        <thead>
+          <tr>
+            {columns.map((c) => <th key={c.key}>{c.label}</th>)}
           </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr key={row.key ?? row.ticker ?? i} style={row._isTotal ? { fontWeight: 700 } : undefined}>
+              {columns.map((c) => (
+                <td key={c.key}>{c.render ? c.render(row[c.key], row) : (row[c.key] ?? "—")}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="pf-mtable-list">
+      {rows.map((row, i) => (
+        <div key={row.key ?? row.ticker ?? i} className="pf-mtable-card">
+          <div className="pf-mtable-head">{columns[0].render ? columns[0].render(row[columns[0].key], row) : (row[columns[0].key] ?? "—")}</div>
+          {columns.slice(1).map((c) => (
+            <div key={c.key} className="pf-mtable-row">
+              <span className="pf-mtable-lbl">{c.label}</span>
+              <span className="pf-mtable-val">{c.render ? c.render(row[c.key], row) : (row[c.key] ?? "—")}</span>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  </>
 );
 
 // Флаг оценки Basis (см. valuation_flag в positions[]) — порог ±15% апсайда.
@@ -2768,7 +2789,44 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
               + Добавить позицию
             </div>
           </div>
-          <div style={{ overflowX: "auto" }}>
+          {/* Мобильный список (≤640px, styles/portfolio-v2.css) — тот же приём, что
+             в T-Инвестициях (лого+имя слева, стоимость+результат справа), вместо
+             7-колоночной таблицы, которую на телефоне пришлось бы листать вбок
+             (владелец, 2026-07-29: «либо бесконечно что-то надо листать»). Таблица
+             ниже остаётся для десктопа, спрятана на мобильном через CSS. */}
+          <div className="pf-pos-mobile-list">
+            {holdingRows.map((r) => (
+              <div
+                key={r.id ?? r.ticker}
+                className="pf-pos-mobile-row"
+                role="button" tabIndex={0}
+                onClick={() => { if (r.id != null) setEditPosition(r); }}
+              >
+                <div
+                  className="pf-pos-logo"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (r.company_id != null && onOpenCompany) {
+                      onOpenCompany({ id: r.company_id, ticker: r.ticker, name: r.name, sector: r.sector });
+                    }
+                  }}
+                >
+                  <HoldingLogo r={r} size={38} />
+                </div>
+                <div className="pf-pos-mobile-id">
+                  <b>{r.name || r.ticker}</b>
+                  <span>{fmtNumber(r.shares)} шт · {formatMoney(r.avgPrice, { decimals: 1 })}</span>
+                </div>
+                <div className="pf-pos-mobile-val">
+                  <b>{formatMoney(r.value, { decimals: 0 })}</b>
+                  <span style={{ color: r.profitRub >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>
+                    <span aria-hidden="true">{r.profitRub >= 0 ? "▲" : "▼"}</span> {formatMoney(Math.abs(r.profitRub), { decimals: 0 })} · <Delta value={r.profitPct} />
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="pf-pos-table-wrap" style={{ overflowX: "auto" }}>
             <table className="pf-pos-table">
               <thead>
                 <tr>
