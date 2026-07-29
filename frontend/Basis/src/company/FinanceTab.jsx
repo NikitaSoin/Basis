@@ -238,6 +238,104 @@ function parseSections(md) {
   }).filter((x) => x.body);
 }
 
+/* Разделы заметки режем по СМЫСЛУ заголовка, а не по порядку в файле.
+   `financials_summary.md` писал субагент свободными заголовками (одна и та же тема —
+   «Дорого/дёшево», «Дорого / дёшево», «Дорого или дёшево», «Мультипликаторы»), а
+   число разделов гуляет 4–9, поэтому прежний slice(0,6) молча выбрасывал хвост у
+   половины компаний. Владелец 2026-07-30: из заметки убрать оценку и мультипликаторы
+   (единственная цена карточки — BFV сверху), прогноз-прозу заменить прикидкой по
+   темпу, отчётность (выручка + баланс + ОДДС) слить в ОДИН пункт. */
+// Порядок проверок важен: сначала оценка (её убираем всегда), потом честные
+// оговорки (иначе «Ключевые риски ОЦЕНКИ» уехали бы в мусор), потом процессные
+// отчёты агента, а всё остальное — содержательное, идёт в разбор отчётности.
+const SEC_VALUATION = /справедлив|дорого|дёшев|дешев|мультипликатор|коридор|прогноз/i;
+const SEC_TAIL = /риск|ограничен|оговорк|аномал|ненадёжн|не верить|надёжност|статус данных|качество (данных|показателей)/i;
+const SEC_PROCESS = /^(отчёт|итог|data)|чек-лист|методическ|методолог|резюме для аналитика|данные-флаги|связность|синтез|расхождение методов|\bоценк/i;
+
+function groupSections(md) {
+  const facts = [], tail = [];
+  parseSections(md).forEach((s) => {
+    if (SEC_VALUATION.test(s.title)) return;
+    if (SEC_TAIL.test(s.title)) { tail.push(s); return; }
+    if (SEC_PROCESS.test(s.title)) return;
+    facts.push(s);
+  });
+  const join = (list) => list.map((s) => `### ${s.title}\n\n${s.body}`).join("\n\n");
+  const out = [];
+  if (facts.length) out.push({ title: "Что показывают отчёты", body: join(facts) });
+  if (tail.length) out.push({ title: "Чему тут не верить", body: join(tail) });
+  return out;
+}
+
+/* ── Прикидка «если темп удержится» (эндпоинт /run-rate, движок run_rate.py) ──
+   НЕ прогноз аналитика и НЕ вторая справедливая цена: закрытая часть года ×
+   историческая сезонная доля → годовой итог → форвардные мультипликаторы к живой
+   цене. Коридор — фактический разброс доли за прошлые годы, не «±5 п.п.». */
+const RR_COL = { low: "медленнее", mid: "текущий темп", high: "быстрее" };
+const RR_UNIT = { "млн": 1, "млрд": 1000, "тыс": 0.001, "тысячи": 0.001, "тыс. руб.": 0.001 };
+
+function RunRateBlock({ rr }) {
+  if (!rr || rr.status !== "ok") return null;
+  const sc = rr.scenarios || {};
+  const mid = sc.mid;
+  if (!mid) return null;
+  const cols = ["low", "mid", "high"].filter((k) => sc[k]);
+  const u = RR_UNIT[rr.unit] ?? 1;
+  // Единица — на СТРОКУ, а не общая: у банка ЧПД может быть в трлн, а прибыль в млрд.
+  // Общая единица в шапке соврала бы в 1000× (те же грабли, что у таблицы финмодели).
+  const rowUnit = (key) => {
+    const nums = cols.map((k) => sc[k][key]).filter((v) => typeof v === "number" && !isNaN(v)).map(Math.abs);
+    const maxMlrd = (nums.length ? Math.max(...nums) : 0) * u / 1000;
+    return maxMlrd >= 1000
+      ? { div: 1e6 / u, dec: 2, l: "трлн ₽" }
+      : { div: 1e3 / u, dec: maxMlrd >= 100 ? 0 : 1, l: "млрд ₽" };
+  };
+  const uTop = rowUnit("revenue"), uProfit = rowUnit("profit");
+  const money = (v, un) => (typeof v === "number" ? num(v / un.div, un.dec) : "—");
+  const gp = rr.growth?.profit_pct;
+  const rows = [
+    { l: `${rr.top_label}, ${uTop.l}`, f: (s) => money(s.revenue, uTop) },
+    { l: `Чистая прибыль, ${uProfit.l}`, f: (s) => money(s.profit, uProfit), bold: true },
+    { l: "Прибыль на акцию, ₽", f: (s) => (s.eps == null ? "—" : num(s.eps, s.eps >= 100 ? 0 : 2)) },
+    { l: "P/E", f: (s) => (s.pe == null ? "—" : num(s.pe, 2)), bold: true },
+    { l: "P/B", f: (s) => (s.pb == null ? "—" : num(s.pb, 2)), skip: mid.pb == null },
+    { l: `Дивиденд, ₽${rr.payout_pct ? ` (payout ${num(rr.payout_pct, 0)} %)` : ""}`, f: (s) => (s.dps == null ? "—" : num(s.dps, 2)), skip: mid.dps == null },
+    { l: "Дивдоходность", f: (s) => (s.div_yield_pct == null ? "—" : `${num(s.div_yield_pct, 1)} %`), bold: true, skip: mid.div_yield_pct == null },
+  ].filter((r) => !r.skip);
+
+  return (
+    <div className="rr">
+      <div className="rr-h">Если темп удержится <span className="tag tag-model">модель</span></div>
+      <div className="rr-lead">
+        {gp != null && <>Прибыль <b>{gp >= 0 ? "+" : "−"}{num(Math.abs(gp), 1)} %</b> г/г за {rr.period.word} {rr.year}. </>}
+        При таком темпе до конца года: <b>P/E {num(mid.pe, 2)}</b>
+        {mid.div_yield_pct != null && <> · дивдоходность <b>{num(mid.div_yield_pct, 1)} %</b></>}
+      </div>
+      <div className="rr-tw">
+        <table className="rr-t">
+          <thead><tr><th />{cols.map((k) => <th key={k} className={k === "mid" ? "me" : ""}>{RR_COL[k]}</th>)}</tr></thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr key={i}>
+                <td className={r.bold ? "l b" : "l"}>{r.l}</td>
+                {cols.map((k) => <td key={k} className={`v${k === "mid" ? " me" : ""}${r.bold ? " b" : ""}`}>{r.f(sc[k])}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="rr-note">
+        Сезонность учтена по истории: {rr.period.word} даёт <b>{num(rr.period.closed_share_pct, 1)} %</b> годовой прибыли
+        {rr.period.share_years > 1 ? <> (медиана {rr.period.share_years} прошлых лет, коридор — их фактический разброс)</> : <> (один прошлый год — коридор не строится)</>}.
+        {" "}{rr.disclaimer}
+      </div>
+      {(rr.warnings || []).length > 0 && (
+        <div className="an-flags rr-w">{rr.warnings.map((w, i) => <div className="an-flag" key={i}>{w}</div>)}</div>
+      )}
+    </div>
+  );
+}
+
 export default function FinanceTab({ fin, company, price, sectorMult, peersData, finMd }) {
   const [tab, setTab] = useState("pnl");
   const [detOpen, setDetOpen] = useState(false);
@@ -250,21 +348,30 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   // Прогнозная финмодель (пилот 3-5 компаний) — отдельный эндпоинт, 404 = модели нет
   // (секция ниже просто не рендерится). Самостоятельный fetch, не завязан на fin.
   const [model, setModel] = useState(null);
+  // Шапка заметки — справедливая цена по методике Basis (BFV, тот же эндпоинт и то же
+  // число, что в «Обзоре»): владелец 2026-07-30 — сверху ТОЛЬКО она, без коридора,
+  // уверенности и счётчика источников. Прежде здесь стояла старая мульти-методная
+  // оценка из financials.json — из-за этого на карточке было ДВЕ разные цены.
+  const [bfv, setBfv] = useState(null);
+  // Прикидка «если темп удержится» — /run-rate, тело всегда со status (не ok → блока нет)
+  const [runRate, setRunRate] = useState(null);
   useEffect(() => {
-    setModel(null);
+    setModel(null); setBfv(null); setRunRate(null);
     const ticker = company?.ticker;
     if (!ticker) return;
     const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    const base = `${apiUrl}/api/companies/by-ticker/${ticker}`;
     let alive = true;
-    fetch(`${apiUrl}/api/companies/by-ticker/${ticker}/financial-model`)
+    const get = (path, set) => fetch(`${base}${path}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { if (alive) setModel(d); })
-      .catch(() => { if (alive) setModel(null); });
+      .then((d) => { if (alive) set(d); })
+      .catch(() => { if (alive) set(null); });
+    get("/financial-model", setModel);
+    get("/bfv", setBfv);
+    get("/run-rate", setRunRate);
     return () => { alive = false; };
   }, [company?.ticker]);
 
-  // Справедливая цена по методике Basis (BFV) переехала в Обзор (renderOverview в
-  // CompanyCardView.jsx), 2026-07-29 — здесь больше не грузится и не рендерится.
   if (!fin) return null;
 
   const meta = fin.meta || {};
@@ -286,6 +393,35 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const std = meta.reporting_standard || "МСФО";
   const lastYr = years[years.length - 1] || "";
   const ccy = "₽";
+
+  // 🔴 Динамика на ПРОМЕЖУТОЧНЫХ периодах — только к СОПОСТАВИМОМУ периоду прошлого
+  // года. В interim.periods перемешаны разные по длине периоды (ROSN: 6М·9М·3М·6М·9М·3М),
+  // и общий yoy() «последнее ÷ предыдущее» сравнивал квартал с девятью месяцами —
+  // выходило бессмысленное «−63 % г/г». Пару считает бэкенд (interim_periods.py) и
+  // отдаёт готовым индексом interim.yoy_idx; нет пары в ряду — дельты нет (пусто
+  // честнее ложного числа). На годовых рядах поведение прежнее.
+  const yoyIdx = usingInterim && Array.isArray(interim.yoy_idx) ? interim.yoy_idx : null;
+  const yoyAt = (a) => {
+    if (!yoyIdx) return yoy(a);
+    if (!Array.isArray(a)) return null;
+    let i = -1;
+    for (let k = a.length - 1; k >= 0; k--) { if (a[k] != null) { i = k; break; } }
+    if (i < 0) return null;
+    const j = yoyIdx[i];
+    const p = j == null ? null : a[j];
+    return typeof p === "number" && p !== 0 ? ((a[i] - p) / Math.abs(p)) * 100 : null;
+  };
+  // подпись сопоставления для шапки «Разбора отчёта» в интерим-режиме
+  const yoyPairLabel = (() => {
+    if (!yoyIdx) return null;
+    const src = (interim.bank_pnl || {}).net_profit || (interim.income_statement || {}).net_profit || null;
+    if (!Array.isArray(src)) return null;
+    let i = -1;
+    for (let k = src.length - 1; k >= 0; k--) { if (src[k] != null) { i = k; break; } }
+    const j = i >= 0 ? yoyIdx[i] : null;
+    const ps = interim.periods || [];
+    return j != null && ps[i] && ps[j] ? `${ps[i].label} к ${ps[j].label}` : null;
+  })();
 
   const livePrice = typeof price === "number" ? price : (fvr.current_price ?? meta.last_price ?? null);
   const ndeArr = (bs.ratios && bs.ratios.net_debt_ebitda) || mt.net_debt_ebitda;
@@ -367,9 +503,9 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const rosArr = (margins.ros && margins.ros.some && margins.ros.some((x) => x != null)) ? margins.ros : margins.net_margin;
 
   /* 1. Разбор отчёта */
-  const revYoy = yoy(is.revenue), npYoy = yoy(is.net_profit), ebYoy = yoy(is.ebitda);
-  const bNipYoy = isBank ? yoy(bNipArr) : null;
-  const bNpYoy  = isBank ? yoy(bNpArr)  : null;
+  const revYoy = yoyAt(is.revenue), npYoy = yoyAt(is.net_profit), ebYoy = yoyAt(is.ebitda);
+  const bNipYoy = isBank ? yoyAt(bNipArr) : null;
+  const bNpYoy  = isBank ? yoyAt(bNpArr)  : null;
   const rows = [];
   if (isBank) {
     if (lastN(bNipArr) != null) { const b = B(lastN(bNipArr)); rows.push({ ic: bNipYoy >= 0 ? "ok" : "warn", t: <>ЧПД {bNipYoy != null ? <><b>{bNipYoy >= 0 ? "+" : "−"}{num(Math.abs(bNipYoy), 1)} %</b> </> : ""}до {b.v} {b.u}</> }); }
@@ -377,9 +513,11 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     const roeVal = lastN(bRoeArr); if (roeVal != null) { const tone = roeVal >= 15 ? "ok" : roeVal >= 8 ? "warn" : "no"; rows.push({ ic: tone, t: <>ROE <b>{num(roeVal, 1)} %</b> — {roeVal >= 15 ? "высокая" : roeVal >= 8 ? "умеренная" : "низкая"} рентабельность капитала</> }); }
     const n10Val = lastN(bN10Arr); if (n10Val != null) { const tone = n10Val >= 12 ? "ok" : n10Val >= 8 ? "warn" : "no"; rows.push({ ic: tone, t: <>Достаточность капитала Н1.0 <b>{num(n10Val, 1)} %</b> — {n10Val >= 12 ? "выше нормы" : n10Val >= 8 ? "у минимума" : "ниже нормы"}</> }); }
   } else {
-    if (lastN(is.revenue) != null) { const b = B(lastN(is.revenue)); rows.push({ ic: "ok", t: <>Выручка {revYoy >= 0 ? "выросла" : "снизилась"} на <b>{num(Math.abs(revYoy), 1)} %</b> до {b.v} {b.u}</> }); }
-    if (lastN(is.ebitda) != null) { const b = B(lastN(is.ebitda)); rows.push({ ic: "ok", t: <>EBITDA {ebYoy >= 0 ? "выросла" : "снизилась"} на <b>{num(Math.abs(ebYoy), 1)} %</b> до {b.v} {b.u}{ebMargin != null && <>; рентабельность <b>{num(ebMargin, 1)} %</b></>}</> }); }
-    if (lastN(is.net_profit) != null) { const b = B(lastN(is.net_profit)); rows.push({ ic: npYoy >= 0 ? "ok" : "warn", t: <>Чистая прибыль <b>{npYoy >= 0 ? "+" : "−"}{num(Math.abs(npYoy), 1)} %</b> до {b.v} {b.u}</> }); }
+    // дельта может отсутствовать (в интерим-режиме нет сопоставимого периода
+    // прошлого года) — тогда показываем только уровень, без «выросла на 0,0 %»
+    if (lastN(is.revenue) != null) { const b = B(lastN(is.revenue)); rows.push({ ic: "ok", t: revYoy == null ? <>Выручка {b.v} {b.u}</> : <>Выручка {revYoy >= 0 ? "выросла" : "снизилась"} на <b>{num(Math.abs(revYoy), 1)} %</b> до {b.v} {b.u}</> }); }
+    if (lastN(is.ebitda) != null) { const b = B(lastN(is.ebitda)); rows.push({ ic: "ok", t: <>EBITDA {ebYoy == null ? <>{b.v} {b.u}</> : <>{ebYoy >= 0 ? "выросла" : "снизилась"} на <b>{num(Math.abs(ebYoy), 1)} %</b> до {b.v} {b.u}</>}{ebMargin != null && <>; рентабельность <b>{num(ebMargin, 1)} %</b></>}</> }); }
+    if (lastN(is.net_profit) != null) { const b = B(lastN(is.net_profit)); rows.push({ ic: npYoy == null ? "ok" : npYoy >= 0 ? "ok" : "warn", t: <>Чистая прибыль {npYoy != null && <><b>{npYoy >= 0 ? "+" : "−"}{num(Math.abs(npYoy), 1)} %</b> до </>}{b.v} {b.u}</> }); }
     if (nde != null) { const tone = nde < 1.5 ? "ok" : nde <= 3 ? "warn" : "no"; const word = nde < 1.5 ? "низкая" : nde <= 3 ? "умеренная" : "повышенная"; const nd = lastN(bs.net_debt); rows.push({ ic: tone, t: <>{nd != null && <>Чистый долг {B(nd).v} {B(nd).u}, </>}<b>ND/EBITDA {num(nde, 2)}×</b> — {word} долговая нагрузка</> }); }
   }
   const verdictHead = isBank
@@ -390,26 +528,25 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
         ? `Чистая прибыль ${npYoy >= 0 ? "выросла" : "снизилась"} на ${num(Math.abs(npYoy), 0)} % при ${revYoy >= 0 ? "росте" : "снижении"} выручки на ${num(Math.abs(revYoy), 1)} %`
         : `Итоги ${lastYr} · ${std}`);
 
-  /* 2. Справедливая стоимость — base/cons/upside оставлены для «Заметки аналитика»
-     (an-fv / an-meta ниже) и Decision-rail; блок «как сходятся методы» и BFV
-     перенесены в Обзор (renderOverview в CompanyCardView.jsx), 2026-07-29. */
-  const base = typeof fvr.base === "number" ? fvr.base : null;
-  const cons = typeof fvr.conservative === "number" ? fvr.conservative : null;
-  const upside = base && livePrice ? (base / livePrice - 1) * 100 : (typeof fvr.upside_downside_pct === "number" ? fvr.upside_downside_pct : null);
+  /* 2. Справедливой стоимости из financials.json во вкладке БОЛЬШЕ НЕТ. Блок «как
+     сходятся методы» уехал в «Обзор» (2026-07-29), а шапка «Заметки аналитика»
+     переведена на BFV (2026-07-30): пока она показывала fair_value_range.base,
+     на одной карточке жили ДВЕ разные справедливые цены — цена методики Basis в
+     «Обзоре» и старая мульти-методная в заметке. Единственная цена — BFV. */
 
   /* 3. Ключевые показатели + мультипликаторы */
   const kfi = isBank ? [
     { l: "Чистый процентный доход", a: bNipArr,  d: bNipYoy },
     { l: "Чистая прибыль",          a: bNpArr,   d: bNpYoy },
-    { l: "ROE",        pctv: lastN(bRoeArr), d: yoy(bRoeArr),  isPP: true },
-    { l: "ЧПМ (NIM)", pctv: lastN(bNimArr), d: yoy(bNimArr),  isPP: true },
-    { l: "Кредитный портфель", a: bLoanArr, d: yoy(bLoanArr) },
-    { l: "Средства клиентов",  a: bDepArr,  d: yoy(bDepArr)  },
+    { l: "ROE",        pctv: lastN(bRoeArr), d: yoyAt(bRoeArr),  isPP: true },
+    { l: "ЧПМ (NIM)", pctv: lastN(bNimArr), d: yoyAt(bNimArr),  isPP: true },
+    { l: "Кредитный портфель", a: bLoanArr, d: yoyAt(bLoanArr) },
+    { l: "Средства клиентов",  a: bDepArr,  d: yoyAt(bDepArr)  },
   ] : [
     { l: "Выручка", a: is.revenue, d: revYoy }, { l: "EBITDA", a: is.ebitda, d: ebYoy },
-    { l: "Чистая прибыль", a: is.net_profit, d: npYoy }, { l: "FCF", a: cf.fcf, d: yoy(cf.fcf) },
+    { l: "Чистая прибыль", a: is.net_profit, d: npYoy }, { l: "FCF", a: cf.fcf, d: yoyAt(cf.fcf) },
     { l: "Маржа EBITDA", pctv: ebMargin, d: (ebMargin != null && prevN(margins.ebitda_margin) != null) ? ebMargin - prevN(margins.ebitda_margin) : null, isPP: true },
-    { l: "Чистый долг", a: bs.net_debt, d: yoy(bs.net_debt), neutral: true },
+    { l: "Чистый долг", a: bs.net_debt, d: yoyAt(bs.net_debt), neutral: true },
   ];
   const sm = sectorMult && company && company.sector && sectorMult[company.sector] && sectorMult[company.sector].n >= 4 ? sectorMult[company.sector] : null;
   const npLast = lastN(is.net_profit);
@@ -677,16 +814,16 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const kfiCharts = (isBank ? [
     moneyChart("Чистый процентный доход", bNipArr, "var(--accent)", B(lastN(bNipArr)), bNipYoy),
     moneyChart("Чистая прибыль", bNpArr, "var(--amber)", B(lastN(bNpArr)), bNpYoy),
-    moneyChart("Кредитный портфель", bLoanArr, "var(--pos)", B(lastN(bLoanArr)), yoy(bLoanArr)),
-    moneyChart("Средства клиентов", bDepArr, "var(--ink-3)", B(lastN(bDepArr)), yoy(bDepArr)),
+    moneyChart("Кредитный портфель", bLoanArr, "var(--pos)", B(lastN(bLoanArr)), yoyAt(bLoanArr)),
+    moneyChart("Средства клиентов", bDepArr, "var(--ink-3)", B(lastN(bDepArr)), yoyAt(bDepArr)),
   ] : [
     moneyChart("Выручка", is.revenue, "var(--accent)", B(lastN(is.revenue)), revYoy),
     moneyChart("EBITDA", is.ebitda, "var(--pos)", B(lastN(is.ebitda)), ebYoy),
     moneyChart("Чистая прибыль", is.net_profit, "var(--amber)", B(lastN(is.net_profit)), npYoy),
-    moneyChart("FCF", cf.fcf, "var(--accent)", B(lastN(cf.fcf)), yoy(cf.fcf)),
+    moneyChart("FCF", cf.fcf, "var(--accent)", B(lastN(cf.fcf)), yoyAt(cf.fcf)),
     // чистый долг: чистый кэш (≤0) — зелёный (позитив), реальный долг — нейтральный
     // (не красный: рост долга ≠ всегда плохо, а красный при чистом кэше вводил в заблуждение)
-    moneyChart("Чистый долг", bs.net_debt, (lastN(bs.net_debt) != null && lastN(bs.net_debt) <= 0) ? "var(--pos)" : "var(--ink-3)", B(lastN(bs.net_debt)), yoy(bs.net_debt), true),
+    moneyChart("Чистый долг", bs.net_debt, (lastN(bs.net_debt) != null && lastN(bs.net_debt) <= 0) ? "var(--pos)" : "var(--ink-3)", B(lastN(bs.net_debt)), yoyAt(bs.net_debt), true),
   ]).filter(Boolean);
 
   /* нормализация (последние 2 года, отчётная → норм.) */
@@ -718,10 +855,18 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const hasAnomalyShown = peerRows.some((p) => p.anomaly);
 
   /* рейл «Заметка аналитика» */
-  const conf = ({ high: "высокая", medium: "средняя", low: "низкая" })[meta.data_quality] || "средняя";
-  const sourcesCount = Array.isArray(fin.sources) ? fin.sources.length : null;
-  const railSections = parseSections(finMd).slice(0, 6);
-  const railVerdict = upside == null ? "" : Math.abs(upside) < 10 ? "оценён справедливо" : upside > 0 ? "есть потенциал роста" : "оценён с премией к модели";
+  const railSections = groupSections(finMd);
+  // Шапка — BFV. status ≠ ok (отрицательный капитал, ROE ниже терминального роста и
+  // прочие зоны неприменимости, см. docs/bfv_limitations.md) → числа НЕТ, вместо него
+  // честная причина. Старую оценку из financials.json сюда не подставляем — именно
+  // подмена одной методики другой и рождала две разные цены на карточке.
+  const bfvOk = !!(bfv && bfv.status === "ok" && typeof bfv.fair_price === "number");
+  const bfvFair = bfvOk ? bfv.fair_price : null;
+  const bfvUpside = bfvOk && typeof bfv.upside_pct === "number" ? bfv.upside_pct : null;
+  const bfvWhy = bfv && bfv.status !== "ok"
+    ? ((Array.isArray(bfv.warnings) && bfv.warnings[0]) || "методика к этой компании неприменима")
+    : null;
+  const railVerdict = bfvUpside == null ? "" : Math.abs(bfvUpside) < 10 ? "оценён справедливо" : bfvUpside > 0 ? "есть потенциал роста" : "оценён с премией к модели";
   const caveats = [];
   (val.methods || []).forEach((m) => { const cs = (m.explain && m.explain.caveats) || []; cs.forEach((c) => { if (caveats.length < 3 && c && !caveats.includes(c)) caveats.push(c); }); });
 
@@ -817,7 +962,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
             <span className="fv-rail-teaser-ic">✎</span>
             <span className="fv-rail-teaser-body">
               <span className="fv-rail-teaser-t">Заметка аналитика{railVerdict ? ` — ${railVerdict}` : ""}</span>
-              {base != null && <span className="fv-rail-teaser-v">{num(base, base >= 100 ? 0 : 1)} {ccy}{upside != null && <span className={`delta ${upside >= 0 ? "up" : "dn"}`} style={{ marginLeft: 8 }}>{upside >= 0 ? "▲" : "▼"} {num(Math.abs(upside), 0)} %</span>}</span>}
+              {bfvFair != null && <span className="fv-rail-teaser-v">{num(bfvFair, bfvFair >= 100 ? 0 : 1)} {ccy}{bfvUpside != null && <span className={`delta ${bfvUpside >= 0 ? "up" : "dn"}`} style={{ marginLeft: 8 }}>{bfvUpside >= 0 ? "▲" : "▼"} {num(Math.abs(bfvUpside), 0)} %</span>}</span>}
             </span>
             <span className="fv-rail-teaser-chev">›</span>
           </button>
@@ -825,7 +970,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
           {/* 1. Разбор отчёта */}
           {rows.length > 0 && (
             <div className="card">
-              <h3>Разбор отчёта <span className="tag tag-fact">факт</span><span className="hmeta">{lastYr} · {std}</span></h3>
+              <h3>Разбор отчёта <span className="tag tag-fact">факт</span><span className="hmeta">{lastYr} · {std}{yoyPairLabel ? ` · динамика ${yoyPairLabel}` : ""}</span></h3>
               <div className="verdict" style={{ marginTop: 14 }}>
                 <div className="vh">{verdictHead}</div>
                 {rows.map((r, i) => (
@@ -1260,14 +1405,15 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
           </button>
           <div className="eyebrow">Заметка аналитика</div>
-          {base && <div className="an-fv"><span className="b">{num(base, base >= 100 ? 0 : 1)}<s> {ccy}</s></span>{upside != null && <span className={`u delta ${upside >= 0 ? "up" : "dn"}`}>{upside >= 0 ? "▲" : "▼"} {num(Math.abs(upside), 0)} %</span>}</div>}
-          <div className="an-meta">Справедливая стоимость{cons != null && base != null && <> · коридор <b>{num(cons, 0)}–{num(base, 0)} {ccy}</b></>} · уверенность <b>{conf}</b>{sourcesCount ? <> · {sourcesCount} источн.</> : null}</div>
-          {(railVerdict || (npYoy != null && revYoy != null)) && <div className="hx-vsub"><b>{railVerdict ? railVerdict.charAt(0).toUpperCase() + railVerdict.slice(1) + "." : ""}</b>{npYoy != null && revYoy != null && <> Прибыль {npYoy >= 0 ? "+" : "−"}{num(Math.abs(npYoy), 0)} % при выручке {revYoy >= 0 ? "+" : "−"}{num(Math.abs(revYoy), 1)} %.</>}</div>}
+          {bfvFair != null && <div className="an-fv"><span className="b">{num(bfvFair, bfvFair >= 100 ? 0 : 1)}<s> {ccy}</s></span>{bfvUpside != null && <span className={`u delta ${bfvUpside >= 0 ? "up" : "dn"}`}>{bfvUpside >= 0 ? "▲" : "▼"} {num(Math.abs(bfvUpside), 0)} %</span>}</div>}
+          <div className="an-meta">{bfvFair != null ? "Справедливая цена по методике Basis" : <>Справедливая цена по методике Basis не считается — {bfvWhy || "нет данных"}</>}</div>
+
+          <RunRateBlock rr={runRate} />
 
           {railSections.length > 0 && <>
             <div className="an-sec">Разбор по разделам</div>
             {railSections.map((s, i) => (
-              <details className="an-note" key={i} open={i === 0}>
+              <details className="an-note" key={i}>
                 <summary><span className="nn">{i + 1}</span><span className="nt">{s.title}</span><span className="nc">▾</span></summary>
                 <div className="an-body"><ReactMarkdown remarkPlugins={[remarkGfm]} components={RAIL_MD}>{s.body}</ReactMarkdown></div>
               </details>

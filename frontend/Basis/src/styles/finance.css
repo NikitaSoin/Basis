@@ -278,6 +278,28 @@
 .fin-hybrid .an-flag::before{content:"⚠";color:var(--amber);flex-shrink:0;}
 .fin-hybrid .fv-note{font-size:11px;color:var(--ink-3);line-height:1.5;margin:14px 0 0;}
 
+/* ── Прикидка «если темп удержится» в рейле заметки (движок run_rate.py) ──
+   Ответ сверху: строка-сигнал (P/E и дивдоходность прописью) → таблица сценариев →
+   как считалось. Колонка «текущий темп» выделена — она главная, боковые лишь
+   показывают фактический исторический разброс. Цвет — только в данных: у чисел
+   моноширинный шрифт и tabular-nums, хром монохромный (канон дизайн-системы). */
+.fin-hybrid .rr{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);}
+.fin-hybrid .rr-h{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);display:flex;align-items:center;gap:7px;margin-bottom:7px;}
+.fin-hybrid .rr-lead{font-size:12px;line-height:1.55;color:var(--ink-2);margin-bottom:10px;}
+.fin-hybrid .rr-lead b{color:var(--ink);font-weight:600;font-family:var(--mono);font-variant-numeric:tabular-nums;}
+.fin-hybrid .rr-tw{overflow-x:auto;}
+.fin-hybrid .rr-t{width:100%;border-collapse:collapse;font-size:11.5px;}
+.fin-hybrid .rr-t th{font-size:10px;font-weight:600;color:var(--ink-3);text-align:right;padding:0 0 5px 8px;white-space:nowrap;}
+.fin-hybrid .rr-t th.me{color:var(--ink-2);}
+.fin-hybrid .rr-t td{padding:4px 0 4px 8px;border-top:1px solid var(--line);}
+.fin-hybrid .rr-t td.l{padding-left:0;color:var(--ink-2);text-align:left;line-height:1.35;}
+.fin-hybrid .rr-t td.v{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;color:var(--ink-2);white-space:nowrap;}
+.fin-hybrid .rr-t td.me{color:var(--ink);}
+.fin-hybrid .rr-t td.b{font-weight:600;color:var(--ink);}
+.fin-hybrid .rr-note{font-size:10.5px;line-height:1.5;color:var(--ink-3);margin-top:9px;}
+.fin-hybrid .rr-note b{color:var(--ink-2);font-weight:600;}
+.fin-hybrid .rr-w{margin-top:9px;}
+
 /* ── 6. Финансовая модель (прогноз) — пилот, /financial-model ──
    Тег «модель» — канон --bs-estimate (синий), а не локальный --cyan алиас (тот уже
    занят «оценкой» дальше по вкладке) — отличает «модельное число, живьём пересчитанное»

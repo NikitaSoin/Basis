@@ -363,6 +363,19 @@ def _normalize_financials(fin: dict) -> dict:
         if src is not None:
             bs["total_equity"] = src
             fin["balance_sheet"] = bs
+
+    # Интерим: индекс СОПОСТАВИМОГО периода прошлого года для каждого периода.
+    # В ряду перемешаны 3М/6М/9М/кварталы (ROSN: 6М·9М·3М·6М·9М·3М…), поэтому
+    # «последнее ÷ предыдущее» давало динамику квартала к девяти месяцам. Считаем
+    # пару здесь один раз, витрина берёт готовый индекс (см. interim_periods.py).
+    interim = fin.get("interim")
+    if isinstance(interim, dict) and isinstance(interim.get("periods"), list):
+        try:
+            from app.services.interim_periods import build_yoy_index, canon_periods
+            interim["yoy_idx"] = build_yoy_index(interim["periods"])
+            interim["canon"] = canon_periods(interim["periods"])
+        except Exception:  # noqa: BLE001 — обогащение не должно ронять отдачу
+            pass
     return fin
 
 
@@ -419,6 +432,19 @@ def get_bfv_endpoint(ticker: str, spread_pp: float | None = None, db: Session = 
     if res is None:
         raise HTTPException(status_code=404, detail="Компания не найдена")
     return JSONResponse(content=res)
+
+
+@router.get("/companies/by-ticker/{ticker}/run-rate")
+def get_run_rate_endpoint(ticker: str, db: Session = Depends(get_db)):
+    """«Если темп удержится» — форвардные мультипликаторы от ТЕКУЩЕГО темпа года.
+
+    Не прогноз аналитика и НЕ ещё одна справедливая цена (единственная цена
+    карточки — BFV): закрытая часть года × историческая сезонная доля → годовой
+    итог → P/E, P/B, дивиденд к живой цене. Считается на каждый запрос.
+    Тело всегда со `status`; не ok (year_closed / loss / no_seasonality / stale /
+    no_interim) — фронт просто не рисует блок."""
+    from app.services.run_rate import get_run_rate
+    return JSONResponse(content=get_run_rate(db, _safe(ticker).upper()))
 
 
 @router.get("/companies/by-ticker/{ticker}/earnings/archive")
