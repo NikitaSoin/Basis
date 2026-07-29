@@ -268,7 +268,20 @@ def get_run_rate(db: Session, ticker: str) -> dict:
     if not price or price <= 0:
         return {"status": "no_price", "year": year}
 
-    shares, shares_src, shares_ok = _implied_shares(fin)
+    # 🔴 Если поправка капитализации отработала, число акций берём ТОЧНОЕ — из реестра
+    # классов, а не выводим из мультипликатора. Вывод через P/B тут уже НЕЛЬЗЯ: после
+    # поправки P/B пересчитан на ЖИВУЮ цену, а _implied_shares делит на цену снапшота
+    # (meta.last_price) — базы разъезжаются на всё движение цены, и forward P/E выходит
+    # заниженным (у ВТБ на бою было 1,24 вместо ~2,0).
+    cap_basis = (fin.get("multiples") or {}).get("capital_basis") or {}
+    total_pieces = _num(cap_basis.get("total_shares"))
+    unit_factor = {"млн": 1e6, "млрд": 1e9, "тыс": 1e3, "тысячи": 1e3, "тыс. руб.": 1e3}.get(
+        meta.get("unit"), 1e6)
+    if total_pieces:
+        # в единицах файла: EPS = прибыль_файла / (штуки / множитель единиц)
+        shares, shares_src, shares_ok = total_pieces / unit_factor, "реестр классов акций", True
+    else:
+        shares, shares_src, shares_ok = _implied_shares(fin)
     if not shares:
         return {"status": "no_anchor", "year": year}
 
