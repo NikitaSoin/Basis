@@ -294,7 +294,7 @@ function RunRateBlock({ rr }) {
   const money = (v, un) => (typeof v === "number" ? num(v / un.div, un.dec) : "—");
   const gp = rr.growth?.profit_pct;
   const rows = [
-    { l: `${rr.top_label}, ${uTop.l}`, f: (s) => money(s.revenue, uTop) },
+    { l: `${rr.top_label}, ${uTop.l}`, f: (s) => money(s.revenue, uTop), skip: mid.revenue == null },
     { l: `Чистая прибыль, ${uProfit.l}`, f: (s) => money(s.profit, uProfit), bold: true },
     { l: "Прибыль на акцию, ₽", f: (s) => (s.eps == null ? "—" : num(s.eps, s.eps >= 100 ? 0 : 2)) },
     { l: "P/E", f: (s) => (s.pe == null ? "—" : num(s.pe, 2)), bold: true },
