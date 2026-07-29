@@ -12,8 +12,10 @@ docs/Basis_методика_индекса_качества_портфеля_v2.
     для непокрытых компаний FQ(i) считается на доступных FS+Gov с
     перенормировкой весов (честная деградация, не молчаливый ноль);
     coverage_note различает "хотя бы одна компонента" и "полное покрытие".
-  - V   (Запас прочности) — Confidence кодом (ширина коридора/расхождение
-    методов/data_quality) × Upside к fair_value_range.base → RAU.
+  - V   (Запас прочности) — Confidence × Upside → RAU. С v2.2 потенциал берётся из
+    общего аксессора fair_value.py (методика Basis / BFV от живой цены), а Confidence
+    при этом источнике считается по reliability движка + data_quality; для бумаг, где
+    движок не дал числа, остаётся прежний путь (коридор/расхождение методов).
   - MGI (Сценарная устойчивость) — через общий факторный движок
     (factor_engine.py): StressLoss + BearLoss по 4 сценариям (§3.3-3.4).
   - ERR — исторический слой (альфа Дженсена) + форвардный слой (сценарная
@@ -31,6 +33,7 @@ MVP-охват — раздел 12 методики: акции + кэш. Обл
 from __future__ import annotations
 
 import json
+import logging
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -41,7 +44,15 @@ from app.models.company import Quote
 from app.services.portfolio import _lin_score, _clamp01
 from app.services import factor_exposures, factor_engine
 
-METHODOLOGY_VERSION = "v2.1-phase2"
+logger = logging.getLogger(__name__)
+
+# v2.2 (владелец, 2026-07-30): потенциал к справедливой цене — в RAU и в форвардном слое
+# ERR — считается методикой Basis (движок BFV) от ЖИВОЙ цены через общий аксессор
+# app/services/fair_value.py. В v2.1 оба модуля брали valuation.fair_value_range.base и
+# fv.current_price ИЗ ФАЙЛА, то есть потенциал был застывшим дважды (и оценка, и рыночная
+# цена — на дату прогона аналитика). Версия поднята сознательно: индексы уже посчитанных
+# портфелей изменятся, и это должно быть видно в ответе, а не произойти молча.
+METHODOLOGY_VERSION = "v2.2-bfv"
 
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 
@@ -331,7 +342,24 @@ def _v_confidence(fv: dict, divergence_pct: float | None, data_quality: str | No
     return max(0.2, conf)
 
 
-def _compute_v(equity: list[dict]) -> dict | None:
+def _bfv_confidence(reliability: str | None, data_quality: str | None) -> float:
+    """Confidence для цены, посчитанной движком BFV (методика v2.2).
+
+    У BFV нет коридора conservative/base и нет набора альтернативных методов, на которых
+    строилась старая оценка уверенности, зато он сам возвращает `reliability`. Поэтому
+    ширину коридора и расхождение методов заменяет его собственная пометка надёжности;
+    штраф за data_quality карточки остаётся прежним, пол тот же (0.2), чтобы шкала RAU
+    не поехала относительно v2.1.
+    """
+    conf = 0.9
+    if (reliability or "").lower() == "low":
+        conf -= 0.30
+    dq_penalty = {"high": 0.0, "medium": 0.10, "low": 0.25}.get((data_quality or "").lower(), 0.10)
+    conf -= dq_penalty
+    return max(0.2, conf)
+
+
+def _compute_v(equity: list[dict], fair_map: dict | None = None) -> dict | None:
     """V — запас прочности. RAU(i) = Upside_base × Confidence; PortfolioRAU —
     взвешенное среднее по покрытым (методика §7)."""
     total_w = sum(p["value"] for p in equity)
@@ -343,22 +371,40 @@ def _compute_v(equity: list[dict]) -> dict | None:
         if not fin:
             continue
         fv = (fin.get("valuation") or {}).get("fair_value_range") or {}
-        base, price = fv.get("base"), fv.get("current_price")
-        if base is None or not price:
-            continue
-        upside = (base - price) / price
-        methods = (fin.get("valuation") or {}).get("methods") or []
-        vals = [m.get("fair_value_per_share") for m in methods if isinstance(m.get("fair_value_per_share"), (int, float))]
-        divergence_pct = ((max(vals) - min(vals)) / base * 100) if len(vals) >= 2 and base else None
         data_quality = (fin.get("meta") or {}).get("data_quality")
-        confidence = _v_confidence(fv, divergence_pct, data_quality)
+        entry = (fair_map or {}).get(p["ticker"].upper()) or {}
+        # v2.2: потенциал берём из единого аксессора — методика Basis (BFV) от ЖИВОЙ цены.
+        # В v2.1 здесь стояли base и fv.current_price ИЗ ФАЙЛА, то есть потенциал был
+        # застывшим дважды: и справедливая цена, и цена рынка на дату прогона аналитика.
+        if entry.get("upside_pct") is not None:
+            upside = entry["upside_pct"] / 100.0
+            confidence = (_bfv_confidence(entry.get("reliability"), data_quality)
+                          if entry.get("source") == "bfv"
+                          else _v_confidence(fv, None, data_quality))
+        else:
+            base, price = fv.get("base"), fv.get("current_price")
+            if base is None or not price:
+                continue
+            upside = (base - price) / price
+            methods = (fin.get("valuation") or {}).get("methods") or []
+            vals = [m.get("fair_value_per_share") for m in methods if isinstance(m.get("fair_value_per_share"), (int, float))]
+            divergence_pct = ((max(vals) - min(vals)) / base * 100) if len(vals) >= 2 and base else None
+            confidence = _v_confidence(fv, divergence_pct, data_quality)
         rau = upside * confidence
         num += p["value"] * rau
         covered_w += p["value"]
     if covered_w <= 0:
         return None
     portfolio_rau = num / covered_w
-    v_score = _lin_score(portfolio_rau * 100, best=25, worst=-10)
+    # Нижний якорь расширен с −10 % до −90 % (v2.2). Причина не в желании «поднять баллы»:
+    # метрика под шкалой стала ДРУГОЙ. Потенциал теперь считает движок BFV, требовательный
+    # к порогу доходности (кривая ОФЗ + премия), и по рынку 2026-07-30 медиана потенциала
+    # −44 %, 10-й перцентиль −97 % (замер по всем 259 бумагам скринера). На старой шкале
+    # [−10; +25] две трети бумаг упирались бы в 0, и модуль перестал бы РАЗЛИЧАТЬ портфели
+    # — сломан, а не строг. Верхний якорь +25 % оставлен как в методике владельца: смысл
+    # «апсайд +25 % = отличный запас прочности» не изменился.
+    # 🔴 Якоря — продуктовое решение и ждут приёмки владельца (см. docs/status.md).
+    v_score = _lin_score(portfolio_rau * 100, best=25, worst=-90)
     if v_score is None:
         return None
     coverage_pct = round(covered_w / total_w * 100)
@@ -445,6 +491,17 @@ def compute_quality_index_v2(
     cash_value = sum(p["value"] for p in positions if p.get("instrument_type") == "cash" and p.get("value"))
     if not equity:
         return None
+
+    # Справедливые цены пачкой — ОДИН раз на весь индекс: их потребляют два модуля
+    # (RAU в «Фундаментальном качестве» и форвардный слой ERR). Берём из общего
+    # аксессора, чтобы индекс качества считал тем же числом, что карточка, скринер и
+    # таблица портфеля (владелец 2026-07-30: перевести и индекс тоже).
+    from app.services.fair_value import get_fair_values_batch
+    try:
+        fair_map = get_fair_values_batch(db, [p["ticker"] for p in equity])
+    except Exception:  # noqa: BLE001
+        logger.warning("quality v2: батч справедливых цен не удался — фолбэк на файлы", exc_info=True)
+        fair_map = {}
 
     def band(score: int) -> str:
         return ("Сильный" if score >= 75 else "Умеренный" if score >= 60
@@ -543,12 +600,18 @@ def compute_quality_index_v2(
     rf = rf_row[0] / 100 if rf_row else None
     upside_by_ticker, div_by_ticker = {}, {}
     for p in equity:
-        fin = _load_company_json(p["ticker"], "financials.json")
-        if fin:
-            fv = (fin.get("valuation") or {}).get("fair_value_range") or {}
-            base, price = fv.get("base"), fv.get("current_price")
-            if base is not None and price:
-                upside_by_ticker[p["ticker"]] = (base - price) / price
+        # тот же источник потенциала, что и в RAU выше (v2.2) — иначе два модуля одного
+        # индекса считали бы разными методиками
+        _e = (fair_map or {}).get(p["ticker"].upper()) or {}
+        if _e.get("upside_pct") is not None:
+            upside_by_ticker[p["ticker"]] = _e["upside_pct"] / 100.0
+        else:
+            fin = _load_company_json(p["ticker"], "financials.json")
+            if fin:
+                fv = (fin.get("valuation") or {}).get("fair_value_range") or {}
+                base, price = fv.get("base"), fv.get("current_price")
+                if base is not None and price:
+                    upside_by_ticker[p["ticker"]] = (base - price) / price
         gov = _load_company_json(p["ticker"], "governance.json")
         if gov:
             hist_div = ((gov.get("dividends") or {}).get("history") or [])
@@ -597,7 +660,7 @@ def compute_quality_index_v2(
     fq = _compute_fq(equity)
     if fq is not None:
         subindices.append(fq)
-    v = _compute_v(equity)
+    v = _compute_v(equity, fair_map)
     if v is not None:
         subindices.append(v)
     mgi = _compute_mgi(weights_eq)
@@ -629,7 +692,12 @@ def compute_quality_index_v2(
         "weights": {s["key"]: OVERALL_WEIGHTS[s["key"]] for s in subindices},
         "methodology_version": METHODOLOGY_VERSION,
         "phase_note": (
-            "Все 7 модулей методики v2.1 считаются по полной формуле. «Фундаментальное "
+            "v2.2: запас прочности и форвардная доходность считаются от справедливой цены "
+            "по методике Basis (тот же движок, что в карточке компании), пересчитанной от "
+            "живой рыночной цены. До v2.1 включительно обе величины брались из файла "
+            "карточки вместе с ценой на дату прогона аналитика, поэтому запас прочности мог "
+            "быть многомесячной давности. Индексы, посчитанные ранее, из-за этого изменятся. "
+            "Все 7 модулей методики считаются по полной формуле. «Фундаментальное "
             "качество» использует все 5 компонент (BM/FS/Gov/MP/CA) там, где по компании "
             "уже прогнан субагент quality-scorer (см. quality_scores.json) — раскатка идёт "
             "постепенно по компаниям, не на все 262 сразу; для ещё не раскатанных компаний "
