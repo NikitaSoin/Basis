@@ -205,6 +205,14 @@ def get_run_rate(db: Session, ticker: str) -> dict:
     fin = _load(cdir / "financials.json")
     if not fin:
         return {"status": "no_company"}
+    # число акций тут выводится из мультипликатора снапшота (см. _implied_shares),
+    # поэтому капитализацию сперва приводим к ЭМИТЕНТУ по всем классам — иначе у
+    # TRNFP/VTBR прикидка наследует заниженный P/B и рисует P/E ~1
+    try:
+        from app.services.share_capital import apply_issuer_capital
+        apply_issuer_capital(db, ticker, fin)
+    except Exception:  # noqa: BLE001
+        pass
 
     meta = fin.get("meta") or {}
     interim = fin.get("interim") or {}

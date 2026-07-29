@@ -100,7 +100,8 @@ def _load_financials() -> dict:
     return out
 
 
-def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding, fv_entry=None):
+def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding, fv_entry=None,
+                 db=None, prices=None):
     """Сырые метрики тикера + флаги достоверности. cm — строка company_metrics (dict)."""
     j = fin.get(ticker.upper()) or {}
     meta = j.get("meta") or {}
@@ -112,7 +113,22 @@ def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding, fv_entr
     fr = ((j.get("valuation") or {}).get("fair_value_range") or {})
     # P/E и EV/EBITDA — от ЖИВОЙ капы (тот же live_scale_multiples, что и карточка
     # компании), а не застывший снимок аналитика на дату его прогона.
-    cur = live_scale_multiples(j, market_cap, shares_outstanding)
+    # 🔴 Капитализация — по ВСЕМ классам акций эмитента (share_capital.py), иначе в
+    # скрининге у TRNFP/VTBR/BSPBP стоят P/E ~1 и они всплывают в топ «дешёвых» по
+    # чисто счётной причине. Кэш _load_financials общий на все тикеры, поэтому НЕ
+    # мутируем j: берём поправку и отдаём её в live_scale_multiples отдельным числом.
+    cap = None
+    if db is not None:
+        try:
+            from app.services.share_capital import issuer_capital
+            cap = issuer_capital(db, ticker, j, prices=prices)
+        except Exception:  # noqa: BLE001 — скринер не должен падать из-за поправки
+            cap = None
+    if cap:
+        cur = live_scale_multiples(j, cap["mcap_live"], cap["shares_used"])
+        market_cap = cap["mcap_live"]
+    else:
+        cur = live_scale_multiples(j, market_cap, shares_outstanding)
     ret = j.get("returns") or {}
     rat = ((j.get("balance_sheet") or {}).get("ratios") or {})
     marg = ((j.get("income_statement") or {}).get("margins") or {})
@@ -166,7 +182,9 @@ def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding, fv_entr
     }
     if raw["div_yield"] is not None:
         raw["div_yield"] = min(raw["div_yield"], CONFIG["div_yield_cap"])
-    return raw, profile, dq, anomaly, suspect, fair_base, fair_source
+    # market_cap возвращаем ПОПРАВЛЕННЫЙ: по нему строятся эшелоны и он же
+    # показывается в таблице — иначе TRNFP попал бы в третий эшелон
+    return raw, profile, dq, anomaly, suspect, fair_base, fair_source, market_cap
 
 
 def _valid_for_pool(metric, raw, suspect):
@@ -242,6 +260,10 @@ def _compute_universe(db: Session, universe: str = "all", sector: str | None = N
     """)).fetchall()
     metrics_rows = {r._mapping["ticker"]: dict(r._mapping)
                     for r in db.execute(text("SELECT * FROM company_metrics"))}
+    # цены всей вселенной уже загружены выше — отдаём их в поправку капитализации,
+    # чтобы она не ходила в БД по каждому тикеру отдельно
+    price_map = {dict(r._mapping)["ticker"]: float(dict(r._mapping)["price"])
+                 for r in rows if dict(r._mapping).get("price") is not None}
 
     # Справедливые цены пачкой ОДИН раз на всю вселенную: наивный вызов на тикер дал бы
     # ~265×(5 файлов + 3 SQL) на пересчёт и положил бы бэк. Внутри аксессора кривая ОФЗ,
@@ -266,8 +288,8 @@ def _compute_universe(db: Session, universe: str = "all", sector: str | None = N
         # только акции с метриками (есть строка company_metrics) и ценой
         if t not in metrics_rows or price is None:
             continue
-        raw, profile, dq, anomaly, suspect, fair, fair_src = _extract_raw(
-            t, fin, cm, price, mcap, shares, fair_map.get(t))
+        raw, profile, dq, anomaly, suspect, fair, fair_src, mcap = _extract_raw(
+            t, fin, cm, price, mcap, shares, fair_map.get(t), db=db, prices=price_map)
         base.append({"ticker": t, "name": d.get("name"), "sector": d.get("sector"),
                      "profile": profile, "data_quality": dq, "anomaly": anomaly,
                      "suspect": suspect, "price": price, "market_cap": mcap,

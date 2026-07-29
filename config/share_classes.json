@@ -1,0 +1,4010 @@
+{
+ "_doc": "Классы акций эмитентов. Листингованные — сгенерированы из rates.csv по группировке EMITENTCAPITALIZATION; нелистингованные — ручной реестр в scripts/build_share_classes.py (там же источники). Используется app/services/share_capital.py для расчёта капитализации ЭМИТЕНТА.",
+ "_generated_by": "backend/scripts/build_share_classes.py",
+ "issuers": {
+  "ABIO": {
+   "classes": [
+    {
+     "ticker": "ABIO",
+     "count": 92645451,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 55.96
+    }
+   ],
+   "total_listed_shares": 92645451,
+   "total_shares": 92645451
+  },
+  "ABRD": {
+   "classes": [
+    {
+     "ticker": "ABRD",
+     "count": 108889117,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 145.2
+    }
+   ],
+   "total_listed_shares": 108889117,
+   "total_shares": 108889117
+  },
+  "AFKS": {
+   "classes": [
+    {
+     "ticker": "AFKS",
+     "count": 9650000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 11.245
+    }
+   ],
+   "total_listed_shares": 9650000000,
+   "total_shares": 9650000000
+  },
+  "AFLT": {
+   "classes": [
+    {
+     "ticker": "AFLT",
+     "count": 3975771215,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 48.63
+    }
+   ],
+   "total_listed_shares": 3975771215,
+   "total_shares": 3975771215
+  },
+  "AKRN": {
+   "classes": [
+    {
+     "ticker": "AKRN",
+     "count": 36757156,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 19950.0
+    }
+   ],
+   "total_listed_shares": 36757156,
+   "total_shares": 36757156
+  },
+  "ALRS": {
+   "classes": [
+    {
+     "ticker": "ALRS",
+     "count": 7364965630,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 28.72
+    }
+   ],
+   "total_listed_shares": 7364965630,
+   "total_shares": 7364965630
+  },
+  "AMEZ": {
+   "classes": [
+    {
+     "ticker": "AMEZ",
+     "count": 498454822,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 68.05
+    }
+   ],
+   "total_listed_shares": 498454822,
+   "total_shares": 498454822
+  },
+  "APRI": {
+   "classes": [
+    {
+     "ticker": "APRI",
+     "count": 1115439217,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 15.7
+    }
+   ],
+   "total_listed_shares": 1115439217,
+   "total_shares": 1115439217
+  },
+  "APTK": {
+   "classes": [
+    {
+     "ticker": "APTK",
+     "count": 7630433826,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 7.27
+    }
+   ],
+   "total_listed_shares": 7630433826,
+   "total_shares": 7630433826
+  },
+  "AQUA": {
+   "classes": [
+    {
+     "ticker": "AQUA",
+     "count": 87876649,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 402.5
+    }
+   ],
+   "total_listed_shares": 87876649,
+   "total_shares": 87876649
+  },
+  "ARSA": {
+   "classes": [
+    {
+     "ticker": "ARSA",
+     "count": 123817165,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 7.86
+    }
+   ],
+   "total_listed_shares": 123817165,
+   "total_shares": 123817165
+  },
+  "ASSB": {
+   "classes": [
+    {
+     "ticker": "ASSB",
+     "count": 773900078,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 3.18
+    }
+   ],
+   "total_listed_shares": 773900078,
+   "total_shares": 773900078
+  },
+  "ASTR": {
+   "classes": [
+    {
+     "ticker": "ASTR",
+     "count": 210000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 276.85
+    }
+   ],
+   "total_listed_shares": 210000000,
+   "total_shares": 210000000
+  },
+  "AVAN": {
+   "classes": [
+    {
+     "ticker": "AVAN",
+     "count": 80700000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 623.0
+    }
+   ],
+   "total_listed_shares": 80700000,
+   "total_shares": 80700000
+  },
+  "BANE": {
+   "classes": [
+    {
+     "ticker": "BANE",
+     "count": 147846489,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1448.0
+    },
+    {
+     "ticker": "BANEP",
+     "count": 29788012,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 1018.0
+    }
+   ],
+   "total_listed_shares": 177634501,
+   "total_shares": 177634501
+  },
+  "BANEP": {
+   "classes": [
+    {
+     "ticker": "BANE",
+     "count": 147846489,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1448.0
+    },
+    {
+     "ticker": "BANEP",
+     "count": 29788012,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 1018.0
+    }
+   ],
+   "total_listed_shares": 177634501,
+   "total_shares": 177634501
+  },
+  "BAZA": {
+   "classes": [
+    {
+     "ticker": "BAZA",
+     "count": 165000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 121.2
+    }
+   ],
+   "total_listed_shares": 165000000,
+   "total_shares": 165000000
+  },
+  "BELU": {
+   "classes": [
+    {
+     "ticker": "BELU",
+     "count": 126400000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 358.0
+    }
+   ],
+   "total_listed_shares": 126400000,
+   "total_shares": 126400000
+  },
+  "BISVP": {
+   "classes": [
+    {
+     "ticker": "BISVP",
+     "count": 36165270,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 10.48
+    }
+   ],
+   "total_listed_shares": 36165270,
+   "total_shares": 36165270
+  },
+  "BLNG": {
+   "classes": [
+    {
+     "ticker": "BLNG",
+     "count": 1150000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 10.67
+    }
+   ],
+   "total_listed_shares": 1150000000,
+   "total_shares": 1150000000
+  },
+  "BRZL": {
+   "classes": [
+    {
+     "ticker": "BRZL",
+     "count": 7027270,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1568.0
+    }
+   ],
+   "total_listed_shares": 7027270,
+   "total_shares": 7027270
+  },
+  "BSPB": {
+   "classes": [
+    {
+     "ticker": "BSPB",
+     "count": 445368521,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 322.67
+    },
+    {
+     "ticker": "BSPBP",
+     "count": 20100000,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 52.75
+    }
+   ],
+   "total_listed_shares": 465468521,
+   "total_shares": 465468521
+  },
+  "BSPBP": {
+   "classes": [
+    {
+     "ticker": "BSPB",
+     "count": 445368521,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 322.67
+    },
+    {
+     "ticker": "BSPBP",
+     "count": 20100000,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 52.75
+    }
+   ],
+   "total_listed_shares": 465468521,
+   "total_shares": 465468521
+  },
+  "BTBR": {
+   "classes": [
+    {
+     "ticker": "BTBR",
+     "count": 178770100,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 130.35
+    }
+   ],
+   "total_listed_shares": 178770100,
+   "total_shares": 178770100
+  },
+  "CARM": {
+   "classes": [
+    {
+     "ticker": "CARM",
+     "count": 2917616015,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1.1365
+    }
+   ],
+   "total_listed_shares": 2917616015,
+   "total_shares": 2917616015
+  },
+  "CBOM": {
+   "classes": [
+    {
+     "ticker": "CBOM",
+     "count": 33429709866,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 6.116
+    }
+   ],
+   "total_listed_shares": 33429709866,
+   "total_shares": 33429709866
+  },
+  "CHGZ": {
+   "classes": [
+    {
+     "ticker": "CHGZ",
+     "count": 26771420,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 115.6
+    }
+   ],
+   "total_listed_shares": 26771420,
+   "total_shares": 26771420
+  },
+  "CHKZ": {
+   "classes": [
+    {
+     "ticker": "CHKZ",
+     "count": 600216,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 16600.0
+    }
+   ],
+   "total_listed_shares": 600216,
+   "total_shares": 600216
+  },
+  "CHMF": {
+   "classes": [
+    {
+     "ticker": "CHMF",
+     "count": 837718660,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 758.4
+    }
+   ],
+   "total_listed_shares": 837718660,
+   "total_shares": 837718660
+  },
+  "CHMK": {
+   "classes": [
+    {
+     "ticker": "CHMK",
+     "count": 3161965,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 4010.0
+    }
+   ],
+   "total_listed_shares": 3161965,
+   "total_shares": 3161965
+  },
+  "CNRU": {
+   "classes": [
+    {
+     "ticker": "CNRU",
+     "count": 77670490,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 645.8
+    }
+   ],
+   "total_listed_shares": 77670490,
+   "total_shares": 77670490
+  },
+  "CNTL": {
+   "classes": [
+    {
+     "ticker": "CNTL",
+     "count": 166167000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 9.06
+    },
+    {
+     "ticker": "CNTLP",
+     "count": 55389000,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 5.48
+    }
+   ],
+   "total_listed_shares": 221556000,
+   "total_shares": 221556000
+  },
+  "CNTLP": {
+   "classes": [
+    {
+     "ticker": "CNTL",
+     "count": 166167000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 9.06
+    },
+    {
+     "ticker": "CNTLP",
+     "count": 55389000,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 5.48
+    }
+   ],
+   "total_listed_shares": 221556000,
+   "total_shares": 221556000
+  },
+  "DATA": {
+   "classes": [
+    {
+     "ticker": "DATA",
+     "count": 218021202,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 97.3
+    }
+   ],
+   "total_listed_shares": 218021202,
+   "total_shares": 218021202
+  },
+  "DELI": {
+   "classes": [
+    {
+     "ticker": "DELI",
+     "count": 175849057,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 77.9
+    }
+   ],
+   "total_listed_shares": 175849057,
+   "total_shares": 175849057
+  },
+  "DIAS": {
+   "classes": [
+    {
+     "ticker": "DIAS",
+     "count": 10500000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1413.0
+    }
+   ],
+   "total_listed_shares": 10500000,
+   "total_shares": 10500000
+  },
+  "DIOD": {
+   "classes": [
+    {
+     "ticker": "DIOD",
+     "count": 91500000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 9.38
+    }
+   ],
+   "total_listed_shares": 91500000,
+   "total_shares": 91500000
+  },
+  "DOMRF": {
+   "classes": [
+    {
+     "ticker": "DOMRF",
+     "count": 179888718,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2296.0
+    }
+   ],
+   "total_listed_shares": 179888718,
+   "total_shares": 179888718
+  },
+  "DVEC": {
+   "classes": [
+    {
+     "ticker": "DVEC",
+     "count": 17223107804,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1.752
+    }
+   ],
+   "total_listed_shares": 17223107804,
+   "total_shares": 17223107804
+  },
+  "DZRD": {
+   "classes": [
+    {
+     "ticker": "DZRD",
+     "count": 343407,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2175.0
+    },
+    {
+     "ticker": "DZRDP",
+     "count": 114469,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 2080.0
+    }
+   ],
+   "total_listed_shares": 457876,
+   "total_shares": 457876
+  },
+  "DZRDP": {
+   "classes": [
+    {
+     "ticker": "DZRD",
+     "count": 343407,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2175.0
+    },
+    {
+     "ticker": "DZRDP",
+     "count": 114469,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 2080.0
+    }
+   ],
+   "total_listed_shares": 457876,
+   "total_shares": 457876
+  },
+  "EELT": {
+   "classes": [
+    {
+     "ticker": "EELT",
+     "count": 551813000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 8.44
+    }
+   ],
+   "total_listed_shares": 551813000,
+   "total_shares": 551813000
+  },
+  "ELFV": {
+   "classes": [
+    {
+     "ticker": "ELFV",
+     "count": 35371898370,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.48
+    }
+   ],
+   "total_listed_shares": 35371898370,
+   "total_shares": 35371898370
+  },
+  "ELMT": {
+   "classes": [
+    {
+     "ticker": "ELMT",
+     "count": 469725539040,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.1396
+    }
+   ],
+   "total_listed_shares": 469725539040,
+   "total_shares": 469725539040
+  },
+  "ENPG": {
+   "classes": [
+    {
+     "ticker": "ENPG",
+     "count": 638848896,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 404.45
+    }
+   ],
+   "total_listed_shares": 638848896,
+   "total_shares": 638848896
+  },
+  "ETLN": {
+   "classes": [
+    {
+     "ticker": "ETLN",
+     "count": 783179820,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 28.28
+    }
+   ],
+   "total_listed_shares": 783179820,
+   "total_shares": 783179820
+  },
+  "EUTR": {
+   "classes": [
+    {
+     "ticker": "EUTR",
+     "count": 159148665,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 83.7
+    }
+   ],
+   "total_listed_shares": 159148665,
+   "total_shares": 159148665
+  },
+  "FEES": {
+   "classes": [
+    {
+     "ticker": "FEES",
+     "count": 2113460101477,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.06988
+    }
+   ],
+   "total_listed_shares": 2113460101477,
+   "total_shares": 2113460101477
+  },
+  "FESH": {
+   "classes": [
+    {
+     "ticker": "FESH",
+     "count": 2951250000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 64.96
+    }
+   ],
+   "total_listed_shares": 2951250000,
+   "total_shares": 2951250000
+  },
+  "FIXR": {
+   "classes": [
+    {
+     "ticker": "FIXR",
+     "count": 100000000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.6724
+    }
+   ],
+   "total_listed_shares": 100000000000,
+   "total_shares": 100000000000
+  },
+  "FLOT": {
+   "classes": [
+    {
+     "ticker": "FLOT",
+     "count": 2374993901,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 80.0
+    }
+   ],
+   "total_listed_shares": 2374993901,
+   "total_shares": 2374993901
+  },
+  "GAZA": {
+   "classes": [
+    {
+     "ticker": "GAZA",
+     "count": 18520260,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 443.0
+    },
+    {
+     "ticker": "GAZAP",
+     "count": 1453500,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 381.0
+    }
+   ],
+   "total_listed_shares": 19973760,
+   "total_shares": 19973760
+  },
+  "GAZAP": {
+   "classes": [
+    {
+     "ticker": "GAZA",
+     "count": 18520260,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 443.0
+    },
+    {
+     "ticker": "GAZAP",
+     "count": 1453500,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 381.0
+    }
+   ],
+   "total_listed_shares": 19973760,
+   "total_shares": 19973760
+  },
+  "GAZC": {
+   "classes": [
+    {
+     "ticker": "GAZC",
+     "count": 225381601,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 659.0
+    }
+   ],
+   "total_listed_shares": 225381601,
+   "total_shares": 225381601
+  },
+  "GAZP": {
+   "classes": [
+    {
+     "ticker": "GAZP",
+     "count": 23673512900,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 123.83
+    }
+   ],
+   "total_listed_shares": 23673512900,
+   "total_shares": 23673512900
+  },
+  "GAZS": {
+   "classes": [
+    {
+     "ticker": "GAZS",
+     "count": 206508967,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 839.0
+    }
+   ],
+   "total_listed_shares": 206508967,
+   "total_shares": 206508967
+  },
+  "GAZT": {
+   "classes": [
+    {
+     "ticker": "GAZT",
+     "count": 471428300,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1739.0
+    }
+   ],
+   "total_listed_shares": 471428300,
+   "total_shares": 471428300
+  },
+  "GCHE": {
+   "classes": [
+    {
+     "ticker": "GCHE",
+     "count": 42222042,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 3533.0
+    }
+   ],
+   "total_listed_shares": 42222042,
+   "total_shares": 42222042
+  },
+  "GECO": {
+   "classes": [
+    {
+     "ticker": "GECO",
+     "count": 90000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 19.83
+    }
+   ],
+   "total_listed_shares": 90000000,
+   "total_shares": 90000000
+  },
+  "GEMA": {
+   "classes": [
+    {
+     "ticker": "GEMA",
+     "count": 14929920,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 126.7
+    }
+   ],
+   "total_listed_shares": 14929920,
+   "total_shares": 14929920
+  },
+  "GEMC": {
+   "classes": [
+    {
+     "ticker": "GEMC",
+     "count": 90000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 799.5
+    }
+   ],
+   "total_listed_shares": 90000000,
+   "total_shares": 90000000
+  },
+  "GLRX": {
+   "classes": [
+    {
+     "ticker": "GLRX",
+     "count": 282812500,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 56.96
+    }
+   ],
+   "total_listed_shares": 282812500,
+   "total_shares": 282812500
+  },
+  "GMKN": {
+   "classes": [
+    {
+     "ticker": "GMKN",
+     "count": 15286339700,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 132.86
+    }
+   ],
+   "total_listed_shares": 15286339700,
+   "total_shares": 15286339700
+  },
+  "GTRK": {
+   "classes": [
+    {
+     "ticker": "GTRK",
+     "count": 58462120,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 75.2
+    }
+   ],
+   "total_listed_shares": 58462120,
+   "total_shares": 58462120
+  },
+  "HEAD": {
+   "classes": [
+    {
+     "ticker": "HEAD",
+     "count": 47184918,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2702.0
+    }
+   ],
+   "total_listed_shares": 47184918,
+   "total_shares": 47184918
+  },
+  "HIMCP": {
+   "classes": [
+    {
+     "ticker": "HIMCP",
+     "count": 229631402,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 18.56
+    }
+   ],
+   "total_listed_shares": 229631402,
+   "total_shares": 229631402
+  },
+  "HNFG": {
+   "classes": [
+    {
+     "ticker": "HNFG",
+     "count": 40444445,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 402.6
+    }
+   ],
+   "total_listed_shares": 40444445,
+   "total_shares": 40444445
+  },
+  "HYDR": {
+   "classes": [
+    {
+     "ticker": "HYDR",
+     "count": 444793377038,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.3983
+    }
+   ],
+   "total_listed_shares": 444793377038,
+   "total_shares": 444793377038
+  },
+  "IGST": {
+   "classes": [
+    {
+     "ticker": "IGST",
+     "count": 800729,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 4140.0
+    },
+    {
+     "ticker": "IGSTP",
+     "count": 266910,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 3360.0
+    }
+   ],
+   "total_listed_shares": 1067639,
+   "total_shares": 1067639
+  },
+  "IGSTP": {
+   "classes": [
+    {
+     "ticker": "IGST",
+     "count": 800729,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 4140.0
+    },
+    {
+     "ticker": "IGSTP",
+     "count": 266910,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 3360.0
+    }
+   ],
+   "total_listed_shares": 1067639,
+   "total_shares": 1067639
+  },
+  "IRAO": {
+   "classes": [
+    {
+     "ticker": "IRAO",
+     "count": 104400000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 3.204
+    }
+   ],
+   "total_listed_shares": 104400000000,
+   "total_shares": 104400000000
+  },
+  "IRKT": {
+   "classes": [
+    {
+     "ticker": "IRKT",
+     "count": 12051279624,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 21.92
+    }
+   ],
+   "total_listed_shares": 12051279624,
+   "total_shares": 12051279624
+  },
+  "IVAT": {
+   "classes": [
+    {
+     "ticker": "IVAT",
+     "count": 100000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 125.5
+    }
+   ],
+   "total_listed_shares": 100000000,
+   "total_shares": 100000000
+  },
+  "JNOS": {
+   "classes": [
+    {
+     "ticker": "JNOS",
+     "count": 932654723,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 34.3
+    },
+    {
+     "ticker": "JNOSP",
+     "count": 310884574,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 14.82
+    }
+   ],
+   "total_listed_shares": 1243539297,
+   "total_shares": 1243539297
+  },
+  "JNOSP": {
+   "classes": [
+    {
+     "ticker": "JNOS",
+     "count": 932654723,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 34.3
+    },
+    {
+     "ticker": "JNOSP",
+     "count": 310884574,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 14.82
+    }
+   ],
+   "total_listed_shares": 1243539297,
+   "total_shares": 1243539297
+  },
+  "KAZT": {
+   "classes": [
+    {
+     "ticker": "KAZT",
+     "count": 176582530,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 413.0
+    },
+    {
+     "ticker": "KAZTP",
+     "count": 3204795,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 416.5
+    }
+   ],
+   "total_listed_shares": 179787325,
+   "total_shares": 179787325
+  },
+  "KAZTP": {
+   "classes": [
+    {
+     "ticker": "KAZT",
+     "count": 176582530,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 413.0
+    },
+    {
+     "ticker": "KAZTP",
+     "count": 3204795,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 416.5
+    }
+   ],
+   "total_listed_shares": 179787325,
+   "total_shares": 179787325
+  },
+  "KBSB": {
+   "classes": [
+    {
+     "ticker": "KBSB",
+     "count": 17869440,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 834.0
+    }
+   ],
+   "total_listed_shares": 17869440,
+   "total_shares": 17869440
+  },
+  "KCHE": {
+   "classes": [
+    {
+     "ticker": "KCHE",
+     "count": 58294409860,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.364
+    },
+    {
+     "ticker": "KCHEP",
+     "count": 183062052,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 0.675
+    }
+   ],
+   "total_listed_shares": 58477471912,
+   "total_shares": 58477471912
+  },
+  "KCHEP": {
+   "classes": [
+    {
+     "ticker": "KCHE",
+     "count": 58294409860,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.364
+    },
+    {
+     "ticker": "KCHEP",
+     "count": 183062052,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 0.675
+    }
+   ],
+   "total_listed_shares": 58477471912,
+   "total_shares": 58477471912
+  },
+  "KFBA": {
+   "classes": [
+    {
+     "ticker": "KFBA",
+     "count": 41220793,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1780.0
+    }
+   ],
+   "total_listed_shares": 41220793,
+   "total_shares": 41220793
+  },
+  "KGKC": {
+   "classes": [
+    {
+     "ticker": "KGKC",
+     "count": 122453406,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 43.2
+    },
+    {
+     "ticker": "KGKCP",
+     "count": 14393052,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 51.2
+    }
+   ],
+   "total_listed_shares": 136846458,
+   "total_shares": 136846458
+  },
+  "KGKCP": {
+   "classes": [
+    {
+     "ticker": "KGKC",
+     "count": 122453406,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 43.2
+    },
+    {
+     "ticker": "KGKCP",
+     "count": 14393052,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 51.2
+    }
+   ],
+   "total_listed_shares": 136846458,
+   "total_shares": 136846458
+  },
+  "KLSB": {
+   "classes": [
+    {
+     "ticker": "KLSB",
+     "count": 91487347,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 19.24
+    }
+   ],
+   "total_listed_shares": 91487347,
+   "total_shares": 91487347
+  },
+  "KLVZ": {
+   "classes": [
+    {
+     "ticker": "KLVZ",
+     "count": 921052700,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2.762
+    }
+   ],
+   "total_listed_shares": 921052700,
+   "total_shares": 921052700
+  },
+  "KMAZ": {
+   "classes": [
+    {
+     "ticker": "KMAZ",
+     "count": 707229559,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 68.5
+    }
+   ],
+   "total_listed_shares": 707229559,
+   "total_shares": 707229559
+  },
+  "KMEZ": {
+   "classes": [
+    {
+     "ticker": "KMEZ",
+     "count": 3764600,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1070.0
+    }
+   ],
+   "total_listed_shares": 3764600,
+   "total_shares": 3764600
+  },
+  "KOGK": {
+   "classes": [
+    {
+     "ticker": "KOGK",
+     "count": 25012600,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 305.4
+    }
+   ],
+   "total_listed_shares": 25012600,
+   "total_shares": 25012600
+  },
+  "KRKN": {
+   "classes": [
+    {
+     "ticker": "KRKN",
+     "count": 748012,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 10450.0
+    },
+    {
+     "ticker": "KRKNP",
+     "count": 249337,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 6840.0
+    }
+   ],
+   "total_listed_shares": 997349,
+   "total_shares": 997349
+  },
+  "KRKNP": {
+   "classes": [
+    {
+     "ticker": "KRKN",
+     "count": 748012,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 10450.0
+    },
+    {
+     "ticker": "KRKNP",
+     "count": 249337,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 6840.0
+    }
+   ],
+   "total_listed_shares": 997349,
+   "total_shares": 997349
+  },
+  "KRKOP": {
+   "classes": [
+    {
+     "ticker": "KRKOP",
+     "count": 71086000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 15.48
+    }
+   ],
+   "total_listed_shares": 71086000,
+   "total_shares": 71086000
+  },
+  "KROT": {
+   "classes": [
+    {
+     "ticker": "KROT",
+     "count": 9217583,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1147.0
+    },
+    {
+     "ticker": "KROTP",
+     "count": 1474549,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 475.0
+    }
+   ],
+   "total_listed_shares": 10692132,
+   "total_shares": 10692132
+  },
+  "KROTP": {
+   "classes": [
+    {
+     "ticker": "KROT",
+     "count": 9217583,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1147.0
+    },
+    {
+     "ticker": "KROTP",
+     "count": 1474549,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 475.0
+    }
+   ],
+   "total_listed_shares": 10692132,
+   "total_shares": 10692132
+  },
+  "KRSB": {
+   "classes": [
+    {
+     "ticker": "KRSB",
+     "count": 596039612,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 22.46
+    },
+    {
+     "ticker": "KRSBP",
+     "count": 168993328,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 23.02
+    }
+   ],
+   "total_listed_shares": 765032940,
+   "total_shares": 765032940
+  },
+  "KRSBP": {
+   "classes": [
+    {
+     "ticker": "KRSB",
+     "count": 596039612,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 22.46
+    },
+    {
+     "ticker": "KRSBP",
+     "count": 168993328,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 23.02
+    }
+   ],
+   "total_listed_shares": 765032940,
+   "total_shares": 765032940
+  },
+  "KUZB": {
+   "classes": [
+    {
+     "ticker": "KUZB",
+     "count": 22503490875,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.0307
+    }
+   ],
+   "total_listed_shares": 22503490875,
+   "total_shares": 22503490875
+  },
+  "KZOS": {
+   "classes": [
+    {
+     "ticker": "KZOS",
+     "count": 1785114000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 58.8
+    },
+    {
+     "ticker": "KZOSP",
+     "count": 119596000,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 14.61
+    }
+   ],
+   "total_listed_shares": 1904710000,
+   "total_shares": 1904710000
+  },
+  "KZOSP": {
+   "classes": [
+    {
+     "ticker": "KZOS",
+     "count": 1785114000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 58.8
+    },
+    {
+     "ticker": "KZOSP",
+     "count": 119596000,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 14.61
+    }
+   ],
+   "total_listed_shares": 1904710000,
+   "total_shares": 1904710000
+  },
+  "LEAS": {
+   "classes": [
+    {
+     "ticker": "LEAS",
+     "count": 120000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 653.5
+    }
+   ],
+   "total_listed_shares": 120000000,
+   "total_shares": 120000000
+  },
+  "LENT": {
+   "classes": [
+    {
+     "ticker": "LENT",
+     "count": 115985197,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1813.0
+    }
+   ],
+   "total_listed_shares": 115985197,
+   "total_shares": 115985197
+  },
+  "LIFE": {
+   "classes": [
+    {
+     "ticker": "LIFE",
+     "count": 440394854,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2.845
+    }
+   ],
+   "total_listed_shares": 440394854,
+   "total_shares": 440394854
+  },
+  "LKOH": {
+   "classes": [
+    {
+     "ticker": "LKOH",
+     "count": 692865762,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 5248.5
+    }
+   ],
+   "total_listed_shares": 692865762,
+   "total_shares": 692865762
+  },
+  "LMBZ": {
+   "classes": [
+    {
+     "ticker": "LMBZ",
+     "count": 20752219,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 453.0
+    }
+   ],
+   "total_listed_shares": 20752219,
+   "total_shares": 20752219
+  },
+  "LNZL": {
+   "classes": [
+    {
+     "ticker": "LNZL",
+     "count": 1140300,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1260.0
+    },
+    {
+     "ticker": "LNZLP",
+     "count": 347700,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 184.0
+    }
+   ],
+   "total_listed_shares": 1488000,
+   "total_shares": 1488000
+  },
+  "LNZLP": {
+   "classes": [
+    {
+     "ticker": "LNZL",
+     "count": 1140300,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1260.0
+    },
+    {
+     "ticker": "LNZLP",
+     "count": 347700,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 184.0
+    }
+   ],
+   "total_listed_shares": 1488000,
+   "total_shares": 1488000
+  },
+  "LPSB": {
+   "classes": [
+    {
+     "ticker": "LPSB",
+     "count": 155521950,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 60.3
+    }
+   ],
+   "total_listed_shares": 155521950,
+   "total_shares": 155521950
+  },
+  "LSNG": {
+   "classes": [
+    {
+     "ticker": "LSNG",
+     "count": 8523785320,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 17.31
+    },
+    {
+     "ticker": "LSNGP",
+     "count": 93264311,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 376.55
+    }
+   ],
+   "total_listed_shares": 8617049631,
+   "total_shares": 8617049631
+  },
+  "LSNGP": {
+   "classes": [
+    {
+     "ticker": "LSNG",
+     "count": 8523785320,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 17.31
+    },
+    {
+     "ticker": "LSNGP",
+     "count": 93264311,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 376.55
+    }
+   ],
+   "total_listed_shares": 8617049631,
+   "total_shares": 8617049631
+  },
+  "LSRG": {
+   "classes": [
+    {
+     "ticker": "LSRG",
+     "count": 103030215,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 626.2
+    }
+   ],
+   "total_listed_shares": 103030215,
+   "total_shares": 103030215
+  },
+  "LVHK": {
+   "classes": [
+    {
+     "ticker": "LVHK",
+     "count": 52940000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 24.6
+    }
+   ],
+   "total_listed_shares": 52940000,
+   "total_shares": 52940000
+  },
+  "MAGE": {
+   "classes": [
+    {
+     "ticker": "MAGE",
+     "count": 463838268,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2.86
+    },
+    {
+     "ticker": "MAGEP",
+     "count": 145673254,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 2.305
+    }
+   ],
+   "total_listed_shares": 609511522,
+   "total_shares": 609511522
+  },
+  "MAGEP": {
+   "classes": [
+    {
+     "ticker": "MAGE",
+     "count": 463838268,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2.86
+    },
+    {
+     "ticker": "MAGEP",
+     "count": 145673254,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 2.305
+    }
+   ],
+   "total_listed_shares": 609511522,
+   "total_shares": 609511522
+  },
+  "MAGN": {
+   "classes": [
+    {
+     "ticker": "MAGN",
+     "count": 11174330000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 26.2
+    }
+   ],
+   "total_listed_shares": 11174330000,
+   "total_shares": 11174330000
+  },
+  "MBNK": {
+   "classes": [
+    {
+     "ticker": "MBNK",
+     "count": 37526637,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1302.0
+    }
+   ],
+   "total_listed_shares": 37526637,
+   "total_shares": 37526637
+  },
+  "MDMG": {
+   "classes": [
+    {
+     "ticker": "MDMG",
+     "count": 75125010,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1353.2
+    }
+   ],
+   "total_listed_shares": 75125010,
+   "total_shares": 75125010
+  },
+  "MFGS": {
+   "classes": [
+    {
+     "ticker": "MFGS",
+     "count": 99474705,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 393.0
+    },
+    {
+     "ticker": "MFGSP",
+     "count": 33056875,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 271.0
+    }
+   ],
+   "total_listed_shares": 132531580,
+   "total_shares": 132531580
+  },
+  "MFGSP": {
+   "classes": [
+    {
+     "ticker": "MFGS",
+     "count": 99474705,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 393.0
+    },
+    {
+     "ticker": "MFGSP",
+     "count": 33056875,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 271.0
+    }
+   ],
+   "total_listed_shares": 132531580,
+   "total_shares": 132531580
+  },
+  "MGKL": {
+   "classes": [
+    {
+     "ticker": "MGKL",
+     "count": 1268545000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2.4915
+    }
+   ],
+   "total_listed_shares": 1268545000,
+   "total_shares": 1268545000
+  },
+  "MGNT": {
+   "classes": [
+    {
+     "ticker": "MGNT",
+     "count": 101911355,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2542.5
+    }
+   ],
+   "total_listed_shares": 101911355,
+   "total_shares": 101911355
+  },
+  "MGNZ": {
+   "classes": [
+    {
+     "ticker": "MGNZ",
+     "count": 398272,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 7440.0
+    }
+   ],
+   "total_listed_shares": 398272,
+   "total_shares": 398272
+  },
+  "MGTS": {
+   "classes": [
+    {
+     "ticker": "MGTS",
+     "count": 79708751,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1086.0
+    },
+    {
+     "ticker": "MGTSP",
+     "count": 15514042,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 752.0
+    }
+   ],
+   "total_listed_shares": 95222793,
+   "total_shares": 95222793
+  },
+  "MGTSP": {
+   "classes": [
+    {
+     "ticker": "MGTS",
+     "count": 79708751,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1086.0
+    },
+    {
+     "ticker": "MGTSP",
+     "count": 15514042,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 752.0
+    }
+   ],
+   "total_listed_shares": 95222793,
+   "total_shares": 95222793
+  },
+  "MISB": {
+   "classes": [
+    {
+     "ticker": "MISB",
+     "count": 121847780,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 52.1
+    },
+    {
+     "ticker": "MISBP",
+     "count": 10652220,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 56.3
+    }
+   ],
+   "total_listed_shares": 132500000,
+   "total_shares": 132500000
+  },
+  "MISBP": {
+   "classes": [
+    {
+     "ticker": "MISB",
+     "count": 121847780,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 52.1
+    },
+    {
+     "ticker": "MISBP",
+     "count": 10652220,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 56.3
+    }
+   ],
+   "total_listed_shares": 132500000,
+   "total_shares": 132500000
+  },
+  "MOEX": {
+   "classes": [
+    {
+     "ticker": "MOEX",
+     "count": 2276401458,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 172.44
+    }
+   ],
+   "total_listed_shares": 2276401458,
+   "total_shares": 2276401458
+  },
+  "MRKC": {
+   "classes": [
+    {
+     "ticker": "MRKC",
+     "count": 42217941468,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.9308
+    }
+   ],
+   "total_listed_shares": 42217941468,
+   "total_shares": 42217941468
+  },
+  "MRKK": {
+   "classes": [
+    {
+     "ticker": "MRKK",
+     "count": 2093354170,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 19.78
+    }
+   ],
+   "total_listed_shares": 2093354170,
+   "total_shares": 2093354170
+  },
+  "MRKP": {
+   "classes": [
+    {
+     "ticker": "MRKP",
+     "count": 112697817043,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.6633
+    }
+   ],
+   "total_listed_shares": 112697817043,
+   "total_shares": 112697817043
+  },
+  "MRKS": {
+   "classes": [
+    {
+     "ticker": "MRKS",
+     "count": 94815163249,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.5345
+    }
+   ],
+   "total_listed_shares": 94815163249,
+   "total_shares": 94815163249
+  },
+  "MRKU": {
+   "classes": [
+    {
+     "ticker": "MRKU",
+     "count": 87430485711,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.626
+    }
+   ],
+   "total_listed_shares": 87430485711,
+   "total_shares": 87430485711
+  },
+  "MRKV": {
+   "classes": [
+    {
+     "ticker": "MRKV",
+     "count": 188307958732,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.20065
+    }
+   ],
+   "total_listed_shares": 188307958732,
+   "total_shares": 188307958732
+  },
+  "MRKY": {
+   "classes": [
+    {
+     "ticker": "MRKY",
+     "count": 692279563680,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.0854
+    }
+   ],
+   "total_listed_shares": 692279563680,
+   "total_shares": 692279563680
+  },
+  "MRKZ": {
+   "classes": [
+    {
+     "ticker": "MRKZ",
+     "count": 95785923138,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.17215
+    }
+   ],
+   "total_listed_shares": 95785923138,
+   "total_shares": 95785923138
+  },
+  "MRSB": {
+   "classes": [
+    {
+     "ticker": "MRSB",
+     "count": 1345037710,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.874
+    }
+   ],
+   "total_listed_shares": 1345037710,
+   "total_shares": 1345037710
+  },
+  "MSNG": {
+   "classes": [
+    {
+     "ticker": "MSNG",
+     "count": 39749359700,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1.9425
+    }
+   ],
+   "total_listed_shares": 39749359700,
+   "total_shares": 39749359700
+  },
+  "MSRS": {
+   "classes": [
+    {
+     "ticker": "MSRS",
+     "count": 48707091574,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2.051
+    }
+   ],
+   "total_listed_shares": 48707091574,
+   "total_shares": 48707091574
+  },
+  "MSTT": {
+   "classes": [
+    {
+     "ticker": "MSTT",
+     "count": 282215500,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 103.2
+    }
+   ],
+   "total_listed_shares": 282215500,
+   "total_shares": 282215500
+  },
+  "MTLR": {
+   "classes": [
+    {
+     "ticker": "MTLR",
+     "count": 416270745,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 56.65
+    },
+    {
+     "ticker": "MTLRP",
+     "count": 138756915,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 54.0
+    }
+   ],
+   "total_listed_shares": 555027660,
+   "total_shares": 555027660
+  },
+  "MTLRP": {
+   "classes": [
+    {
+     "ticker": "MTLR",
+     "count": 416270745,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 56.65
+    },
+    {
+     "ticker": "MTLRP",
+     "count": 138756915,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 54.0
+    }
+   ],
+   "total_listed_shares": 555027660,
+   "total_shares": 555027660
+  },
+  "MTSS": {
+   "classes": [
+    {
+     "ticker": "MTSS",
+     "count": 1998381575,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 221.8
+    }
+   ],
+   "total_listed_shares": 1998381575,
+   "total_shares": 1998381575
+  },
+  "MVID": {
+   "classes": [
+    {
+     "ticker": "MVID",
+     "count": 179768227,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 61.65
+    }
+   ],
+   "total_listed_shares": 179768227,
+   "total_shares": 179768227
+  },
+  "NAUK": {
+   "classes": [
+    {
+     "ticker": "NAUK",
+     "count": 11789500,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 511.5
+    }
+   ],
+   "total_listed_shares": 11789500,
+   "total_shares": 11789500
+  },
+  "NFAZ": {
+   "classes": [
+    {
+     "ticker": "NFAZ",
+     "count": 8038896,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 240.0
+    }
+   ],
+   "total_listed_shares": 8038896,
+   "total_shares": 8038896
+  },
+  "NKHP": {
+   "classes": [
+    {
+     "ticker": "NKHP",
+     "count": 67597000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 524.5
+    }
+   ],
+   "total_listed_shares": 67597000,
+   "total_shares": 67597000
+  },
+  "NKNC": {
+   "classes": [
+    {
+     "ticker": "NKNC",
+     "count": 1611256000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 71.35
+    },
+    {
+     "ticker": "NKNCP",
+     "count": 218983750,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 53.0
+    }
+   ],
+   "total_listed_shares": 1830239750,
+   "total_shares": 1830239750
+  },
+  "NKNCP": {
+   "classes": [
+    {
+     "ticker": "NKNC",
+     "count": 1611256000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 71.35
+    },
+    {
+     "ticker": "NKNCP",
+     "count": 218983750,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 53.0
+    }
+   ],
+   "total_listed_shares": 1830239750,
+   "total_shares": 1830239750
+  },
+  "NKSH": {
+   "classes": [
+    {
+     "ticker": "NKSH",
+     "count": 63731171,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 38.6
+    }
+   ],
+   "total_listed_shares": 63731171,
+   "total_shares": 63731171
+  },
+  "NLMK": {
+   "classes": [
+    {
+     "ticker": "NLMK",
+     "count": 5993227240,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 86.08
+    }
+   ],
+   "total_listed_shares": 5993227240,
+   "total_shares": 5993227240
+  },
+  "NMTP": {
+   "classes": [
+    {
+     "ticker": "NMTP",
+     "count": 19259815400,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 8.41
+    }
+   ],
+   "total_listed_shares": 19259815400,
+   "total_shares": 19259815400
+  },
+  "NNSB": {
+   "classes": [
+    {
+     "ticker": "NNSB",
+     "count": 3919400,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 3930.0
+    },
+    {
+     "ticker": "NNSBP",
+     "count": 1063512,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 1410.0
+    }
+   ],
+   "total_listed_shares": 4982912,
+   "total_shares": 4982912
+  },
+  "NNSBP": {
+   "classes": [
+    {
+     "ticker": "NNSB",
+     "count": 3919400,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 3930.0
+    },
+    {
+     "ticker": "NNSBP",
+     "count": 1063512,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 1410.0
+    }
+   ],
+   "total_listed_shares": 4982912,
+   "total_shares": 4982912
+  },
+  "NSVZ": {
+   "classes": [
+    {
+     "ticker": "NSVZ",
+     "count": 15701562,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 236.5
+    }
+   ],
+   "total_listed_shares": 15701562,
+   "total_shares": 15701562
+  },
+  "NVTK": {
+   "classes": [
+    {
+     "ticker": "NVTK",
+     "count": 3036306000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1160.1
+    }
+   ],
+   "total_listed_shares": 3036306000,
+   "total_shares": 3036306000
+  },
+  "OGKB": {
+   "classes": [
+    {
+     "ticker": "OGKB",
+     "count": 136207331098,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.2983
+    }
+   ],
+   "total_listed_shares": 136207331098,
+   "total_shares": 136207331098
+  },
+  "OMZZP": {
+   "classes": [
+    {
+     "ticker": "OMZZP",
+     "count": 2750000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 10440.0
+    }
+   ],
+   "total_listed_shares": 2750000,
+   "total_shares": 2750000
+  },
+  "OZON": {
+   "classes": [
+    {
+     "ticker": "OZON",
+     "count": 216413733,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 4305.5
+    }
+   ],
+   "total_listed_shares": 216413733,
+   "total_shares": 216413733
+  },
+  "OZPH": {
+   "classes": [
+    {
+     "ticker": "OZPH",
+     "count": 1167690558,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 48.67
+    }
+   ],
+   "total_listed_shares": 1167690558,
+   "total_shares": 1167690558
+  },
+  "PAZA": {
+   "classes": [
+    {
+     "ticker": "PAZA",
+     "count": 1567904,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 8940.0
+    }
+   ],
+   "total_listed_shares": 1567904,
+   "total_shares": 1567904
+  },
+  "PHOR": {
+   "classes": [
+    {
+     "ticker": "PHOR",
+     "count": 129500000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 6890.0
+    }
+   ],
+   "total_listed_shares": 129500000,
+   "total_shares": 129500000
+  },
+  "PIKK": {
+   "classes": [
+    {
+     "ticker": "PIKK",
+     "count": 660497344,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 538.6
+    }
+   ],
+   "total_listed_shares": 660497344,
+   "total_shares": 660497344
+  },
+  "PLZL": {
+   "classes": [
+    {
+     "ticker": "PLZL",
+     "count": 1360694001,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2182.4
+    }
+   ],
+   "total_listed_shares": 1360694001,
+   "total_shares": 1360694001
+  },
+  "PMSB": {
+   "classes": [
+    {
+     "ticker": "PMSB",
+     "count": 36210960,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 532.5
+    },
+    {
+     "ticker": "PMSBP",
+     "count": 11353500,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 572.0
+    }
+   ],
+   "total_listed_shares": 47564460,
+   "total_shares": 47564460
+  },
+  "PMSBP": {
+   "classes": [
+    {
+     "ticker": "PMSB",
+     "count": 36210960,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 532.5
+    },
+    {
+     "ticker": "PMSBP",
+     "count": 11353500,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 572.0
+    }
+   ],
+   "total_listed_shares": 47564460,
+   "total_shares": 47564460
+  },
+  "POSI": {
+   "classes": [
+    {
+     "ticker": "POSI",
+     "count": 71214000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1036.4
+    }
+   ],
+   "total_listed_shares": 71214000,
+   "total_shares": 71214000
+  },
+  "PRFN": {
+   "classes": [
+    {
+     "ticker": "PRFN",
+     "count": 838287450,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 3.84
+    }
+   ],
+   "total_listed_shares": 838287450,
+   "total_shares": 838287450
+  },
+  "PRMB": {
+   "classes": [
+    {
+     "ticker": "PRMB",
+     "count": 250000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 24400.0
+    }
+   ],
+   "total_listed_shares": 250000,
+   "total_shares": 250000
+  },
+  "PRMD": {
+   "classes": [
+    {
+     "ticker": "PRMD",
+     "count": 212500000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 403.15
+    }
+   ],
+   "total_listed_shares": 212500000,
+   "total_shares": 212500000
+  },
+  "RAGR": {
+   "classes": [
+    {
+     "ticker": "RAGR",
+     "count": 958749600,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 109.24
+    }
+   ],
+   "total_listed_shares": 958749600,
+   "total_shares": 958749600
+  },
+  "RASP": {
+   "classes": [
+    {
+     "ticker": "RASP",
+     "count": 665733918,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 133.45
+    }
+   ],
+   "total_listed_shares": 665733918,
+   "total_shares": 665733918
+  },
+  "RBCM": {
+   "classes": [
+    {
+     "ticker": "RBCM",
+     "count": 365631010,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 9.21
+    }
+   ],
+   "total_listed_shares": 365631010,
+   "total_shares": 365631010
+  },
+  "RDRB": {
+   "classes": [
+    {
+     "ticker": "RDRB",
+     "count": 27492735,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 116.8
+    }
+   ],
+   "total_listed_shares": 27492735,
+   "total_shares": 27492735
+  },
+  "RENI": {
+   "classes": [
+    {
+     "ticker": "RENI",
+     "count": 556952780,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 86.8
+    }
+   ],
+   "total_listed_shares": 556952780,
+   "total_shares": 556952780
+  },
+  "RGSS": {
+   "classes": [
+    {
+     "ticker": "RGSS",
+     "count": 489503740915,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.1934
+    }
+   ],
+   "total_listed_shares": 489503740915,
+   "total_shares": 489503740915
+  },
+  "RKKE": {
+   "classes": [
+    {
+     "ticker": "RKKE",
+     "count": 1842049,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 14410.0
+    }
+   ],
+   "total_listed_shares": 1842049,
+   "total_shares": 1842049
+  },
+  "RNFT": {
+   "classes": [
+    {
+     "ticker": "RNFT",
+     "count": 294120000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 106.3
+    },
+    {
+     "class": "привилегированные",
+     "count": 98032000,
+     "how_priced": "reference_class",
+     "holder": "структуры ВТБ / основного акционера",
+     "listed": false
+    }
+   ],
+   "total_listed_shares": 294120000,
+   "total_shares": 392152000,
+   "note": "Уставный капитал 392 152 000 акций: 294 120 000 обыкновенных (торгуются) + 98 032 000 привилегированных (на бирже НЕ обращаются). Весь дивидендный поток компании идёт на префы, по обыкновенным выплат нет с IPO-2016 — оценка префов по цене обыкновенной является ДОПУЩЕНИЕМ (скорее занижает их стоимость), поэтому пометка reliability=low.",
+   "source": "Раскрытие ПАО НК «РуссНефть»; companies/RNFT/financials.json key_facts",
+   "reliability": "low"
+  },
+  "ROLO": {
+   "classes": [
+    {
+     "ticker": "ROLO",
+     "count": 30001000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.4132
+    }
+   ],
+   "total_listed_shares": 30001000000,
+   "total_shares": 30001000000
+  },
+  "ROSN": {
+   "classes": [
+    {
+     "ticker": "ROSN",
+     "count": 10598177817,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 415.0
+    }
+   ],
+   "total_listed_shares": 10598177817,
+   "total_shares": 10598177817
+  },
+  "ROST": {
+   "classes": [
+    {
+     "ticker": "ROST",
+     "count": 16305334,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 80.2
+    }
+   ],
+   "total_listed_shares": 16305334,
+   "total_shares": 16305334
+  },
+  "RTGZ": {
+   "classes": [
+    {
+     "ticker": "RTGZ",
+     "count": 120246,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 41200.0
+    }
+   ],
+   "total_listed_shares": 120246,
+   "total_shares": 120246
+  },
+  "RTKM": {
+   "classes": [
+    {
+     "ticker": "RTKM",
+     "count": 3282997929,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 53.28
+    },
+    {
+     "ticker": "RTKMP",
+     "count": 209565147,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 56.65
+    }
+   ],
+   "total_listed_shares": 3492563076,
+   "total_shares": 3492563076
+  },
+  "RTKMP": {
+   "classes": [
+    {
+     "ticker": "RTKM",
+     "count": 3282997929,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 53.28
+    },
+    {
+     "ticker": "RTKMP",
+     "count": 209565147,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 56.65
+    }
+   ],
+   "total_listed_shares": 3492563076,
+   "total_shares": 3492563076
+  },
+  "RTSB": {
+   "classes": [
+    {
+     "ticker": "RTSB",
+     "count": 8128764676,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 3.185
+    },
+    {
+     "ticker": "RTSBP",
+     "count": 925737256,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 1.502
+    }
+   ],
+   "total_listed_shares": 9054501932,
+   "total_shares": 9054501932
+  },
+  "RTSBP": {
+   "classes": [
+    {
+     "ticker": "RTSB",
+     "count": 8128764676,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 3.185
+    },
+    {
+     "ticker": "RTSBP",
+     "count": 925737256,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 1.502
+    }
+   ],
+   "total_listed_shares": 9054501932,
+   "total_shares": 9054501932
+  },
+  "RUAL": {
+   "classes": [
+    {
+     "ticker": "RUAL",
+     "count": 15193014862,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 39.085
+    }
+   ],
+   "total_listed_shares": 15193014862,
+   "total_shares": 15193014862
+  },
+  "RUSI": {
+   "classes": [
+    {
+     "ticker": "RUSI",
+     "count": 109000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 67.6
+    }
+   ],
+   "total_listed_shares": 109000000,
+   "total_shares": 109000000
+  },
+  "RZSB": {
+   "classes": [
+    {
+     "ticker": "RZSB",
+     "count": 206940220,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 38.9
+    }
+   ],
+   "total_listed_shares": 206940220,
+   "total_shares": 206940220
+  },
+  "SAGO": {
+   "classes": [
+    {
+     "ticker": "SAGO",
+     "count": 3480630296,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2.665
+    },
+    {
+     "ticker": "SAGOP",
+     "count": 364918444,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 2.59
+    }
+   ],
+   "total_listed_shares": 3845548740,
+   "total_shares": 3845548740
+  },
+  "SAGOP": {
+   "classes": [
+    {
+     "ticker": "SAGO",
+     "count": 3480630296,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2.665
+    },
+    {
+     "ticker": "SAGOP",
+     "count": 364918444,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 2.59
+    }
+   ],
+   "total_listed_shares": 3845548740,
+   "total_shares": 3845548740
+  },
+  "SARE": {
+   "classes": [
+    {
+     "ticker": "SARE",
+     "count": 4865127996,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.788
+    },
+    {
+     "ticker": "SAREP",
+     "count": 1493316000,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 0.425
+    }
+   ],
+   "total_listed_shares": 6358443996,
+   "total_shares": 6358443996
+  },
+  "SAREP": {
+   "classes": [
+    {
+     "ticker": "SARE",
+     "count": 4865127996,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.788
+    },
+    {
+     "ticker": "SAREP",
+     "count": 1493316000,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 0.425
+    }
+   ],
+   "total_listed_shares": 6358443996,
+   "total_shares": 6358443996
+  },
+  "SBER": {
+   "classes": [
+    {
+     "ticker": "SBER",
+     "count": 21586948000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 325.29
+    },
+    {
+     "ticker": "SBERP",
+     "count": 1000000000,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 325.4
+    }
+   ],
+   "total_listed_shares": 22586948000,
+   "total_shares": 22586948000
+  },
+  "SBERP": {
+   "classes": [
+    {
+     "ticker": "SBER",
+     "count": 21586948000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 325.29
+    },
+    {
+     "ticker": "SBERP",
+     "count": 1000000000,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 325.4
+    }
+   ],
+   "total_listed_shares": 22586948000,
+   "total_shares": 22586948000
+  },
+  "SELG": {
+   "classes": [
+    {
+     "ticker": "SELG",
+     "count": 1030000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 46.75
+    }
+   ],
+   "total_listed_shares": 1030000000,
+   "total_shares": 1030000000
+  },
+  "SFIN": {
+   "classes": [
+    {
+     "ticker": "SFIN",
+     "count": 48622391,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1027.0
+    }
+   ],
+   "total_listed_shares": 48622391,
+   "total_shares": 48622391
+  },
+  "SGZH": {
+   "classes": [
+    {
+     "ticker": "SGZH",
+     "count": 78450000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.8965
+    }
+   ],
+   "total_listed_shares": 78450000000,
+   "total_shares": 78450000000
+  },
+  "SIBN": {
+   "classes": [
+    {
+     "ticker": "SIBN",
+     "count": 4741299639,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 516.8
+    }
+   ],
+   "total_listed_shares": 4741299639,
+   "total_shares": 4741299639
+  },
+  "SLEN": {
+   "classes": [
+    {
+     "ticker": "SLEN",
+     "count": 2237123773,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 3.595
+    }
+   ],
+   "total_listed_shares": 2237123773,
+   "total_shares": 2237123773
+  },
+  "SMLT": {
+   "classes": [
+    {
+     "ticker": "SMLT",
+     "count": 61579358,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 577.4
+    }
+   ],
+   "total_listed_shares": 61579358,
+   "total_shares": 61579358
+  },
+  "SNGS": {
+   "classes": [
+    {
+     "ticker": "SNGS",
+     "count": 35725994705,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 20.02
+    },
+    {
+     "ticker": "SNGSP",
+     "count": 7701998235,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 41.77
+    }
+   ],
+   "total_listed_shares": 43427992940,
+   "total_shares": 43427992940
+  },
+  "SNGSP": {
+   "classes": [
+    {
+     "ticker": "SNGS",
+     "count": 35725994705,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 20.02
+    },
+    {
+     "ticker": "SNGSP",
+     "count": 7701998235,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 41.77
+    }
+   ],
+   "total_listed_shares": 43427992940,
+   "total_shares": 43427992940
+  },
+  "SOFL": {
+   "classes": [
+    {
+     "ticker": "SOFL",
+     "count": 400002000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 66.54
+    }
+   ],
+   "total_listed_shares": 400002000,
+   "total_shares": 400002000
+  },
+  "SPBE": {
+   "classes": [
+    {
+     "ticker": "SPBE",
+     "count": 132843907,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 214.9
+    }
+   ],
+   "total_listed_shares": 132843907,
+   "total_shares": 132843907
+  },
+  "STSB": {
+   "classes": [
+    {
+     "ticker": "STSB",
+     "count": 859074636,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 3.81
+    },
+    {
+     "ticker": "STSBP",
+     "count": 262100364,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 4.895
+    }
+   ],
+   "total_listed_shares": 1121175000,
+   "total_shares": 1121175000
+  },
+  "STSBP": {
+   "classes": [
+    {
+     "ticker": "STSB",
+     "count": 859074636,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 3.81
+    },
+    {
+     "ticker": "STSBP",
+     "count": 262100364,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 4.895
+    }
+   ],
+   "total_listed_shares": 1121175000,
+   "total_shares": 1121175000
+  },
+  "SVAV": {
+   "classes": [
+    {
+     "ticker": "SVAV",
+     "count": 31486001,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 471.0
+    }
+   ],
+   "total_listed_shares": 31486001,
+   "total_shares": 31486001
+  },
+  "SVCB": {
+   "classes": [
+    {
+     "ticker": "SVCB",
+     "count": 22516228905,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 12.39
+    }
+   ],
+   "total_listed_shares": 22516228905,
+   "total_shares": 22516228905
+  },
+  "SVET": {
+   "classes": [
+    {
+     "ticker": "SVET",
+     "count": 22333500,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 12.16
+    },
+    {
+     "ticker": "SVETP",
+     "count": 2481500,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 23.15
+    }
+   ],
+   "total_listed_shares": 24815000,
+   "total_shares": 24815000
+  },
+  "SVETP": {
+   "classes": [
+    {
+     "ticker": "SVET",
+     "count": 22333500,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 12.16
+    },
+    {
+     "ticker": "SVETP",
+     "count": 2481500,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 23.15
+    }
+   ],
+   "total_listed_shares": 24815000,
+   "total_shares": 24815000
+  },
+  "T": {
+   "classes": [
+    {
+     "ticker": "T",
+     "count": 2682747860,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 315.24
+    }
+   ],
+   "total_listed_shares": 2682747860,
+   "total_shares": 2682747860
+  },
+  "TASB": {
+   "classes": [
+    {
+     "ticker": "TASB",
+     "count": 1525986880,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2.0
+    },
+    {
+     "ticker": "TASBP",
+     "count": 217961420,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 1.058
+    }
+   ],
+   "total_listed_shares": 1743948300,
+   "total_shares": 1743948300
+  },
+  "TASBP": {
+   "classes": [
+    {
+     "ticker": "TASB",
+     "count": 1525986880,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2.0
+    },
+    {
+     "ticker": "TASBP",
+     "count": 217961420,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 1.058
+    }
+   ],
+   "total_listed_shares": 1743948300,
+   "total_shares": 1743948300
+  },
+  "TATN": {
+   "classes": [
+    {
+     "ticker": "TATN",
+     "count": 2178690700,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 594.8
+    },
+    {
+     "ticker": "TATNP",
+     "count": 147508500,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 562.4
+    }
+   ],
+   "total_listed_shares": 2326199200,
+   "total_shares": 2326199200
+  },
+  "TATNP": {
+   "classes": [
+    {
+     "ticker": "TATN",
+     "count": 2178690700,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 594.8
+    },
+    {
+     "ticker": "TATNP",
+     "count": 147508500,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 562.4
+    }
+   ],
+   "total_listed_shares": 2326199200,
+   "total_shares": 2326199200
+  },
+  "TGKA": {
+   "classes": [
+    {
+     "ticker": "TGKA",
+     "count": 3854341416571,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.006298
+    }
+   ],
+   "total_listed_shares": 3854341416571,
+   "total_shares": 3854341416571
+  },
+  "TGKB": {
+   "classes": [
+    {
+     "ticker": "TGKB",
+     "count": 1458404850747,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.00667
+    },
+    {
+     "ticker": "TGKBP",
+     "count": 16500533681,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 0.00953
+    }
+   ],
+   "total_listed_shares": 1474905384428,
+   "total_shares": 1474905384428
+  },
+  "TGKBP": {
+   "classes": [
+    {
+     "ticker": "TGKB",
+     "count": 1458404850747,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.00667
+    },
+    {
+     "ticker": "TGKBP",
+     "count": 16500533681,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 0.00953
+    }
+   ],
+   "total_listed_shares": 1474905384428,
+   "total_shares": 1474905384428
+  },
+  "TGKN": {
+   "classes": [
+    {
+     "ticker": "TGKN",
+     "count": 1357945609114,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.0055
+    }
+   ],
+   "total_listed_shares": 1357945609114,
+   "total_shares": 1357945609114
+  },
+  "TNSE": {
+   "classes": [
+    {
+     "ticker": "TNSE",
+     "count": 13668239,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 3800.0
+    }
+   ],
+   "total_listed_shares": 13668239,
+   "total_shares": 13668239
+  },
+  "TORS": {
+   "classes": [
+    {
+     "ticker": "TORS",
+     "count": 3819315580,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.942
+    },
+    {
+     "ticker": "TORSP",
+     "count": 576693000,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 0.644
+    }
+   ],
+   "total_listed_shares": 4396008580,
+   "total_shares": 4396008580
+  },
+  "TORSP": {
+   "classes": [
+    {
+     "ticker": "TORS",
+     "count": 3819315580,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.942
+    },
+    {
+     "ticker": "TORSP",
+     "count": 576693000,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 0.644
+    }
+   ],
+   "total_listed_shares": 4396008580,
+   "total_shares": 4396008580
+  },
+  "TRMK": {
+   "classes": [
+    {
+     "ticker": "TRMK",
+     "count": 1052000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 92.3
+    }
+   ],
+   "total_listed_shares": 1052000000,
+   "total_shares": 1052000000
+  },
+  "TRNFP": {
+   "classes": [
+    {
+     "ticker": "TRNFP",
+     "count": 155487500,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 1388.4
+    },
+    {
+     "class": "обыкновенные",
+     "count": 569446800,
+     "how_priced": "reference_class",
+     "holder": "Росимущество (100%)",
+     "listed": false
+    }
+   ],
+   "total_listed_shares": 155487500,
+   "total_shares": 724934300,
+   "note": "Уставный капитал 724 934 300 акций: 569 446 800 обыкновенных + 155 487 500 привилегированных (после дробления 1:100 в феврале 2024). На бирже торгуются ТОЛЬКО привилегированные. Дивиденд на все классы равный, поэтому обыкновенные оцениваем по цене префа.",
+   "source": "Устав ПАО «Транснефть»; структура акционерного капитала эмитента; подтверждено ключевыми фактами в companies/TRNFP/financials.json"
+  },
+  "TTLK": {
+   "classes": [
+    {
+     "ticker": "TTLK",
+     "count": 20843976400,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.5995
+    }
+   ],
+   "total_listed_shares": 20843976400,
+   "total_shares": 20843976400
+  },
+  "TUZA": {
+   "classes": [
+    {
+     "ticker": "TUZA",
+     "count": 8220000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 104.6
+    }
+   ],
+   "total_listed_shares": 8220000,
+   "total_shares": 8220000
+  },
+  "UGLD": {
+   "classes": [
+    {
+     "ticker": "UGLD",
+     "count": 222778849052,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.714
+    }
+   ],
+   "total_listed_shares": 222778849052,
+   "total_shares": 222778849052
+  },
+  "UKUZ": {
+   "classes": [
+    {
+     "ticker": "UKUZ",
+     "count": 36149002,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 724.0
+    }
+   ],
+   "total_listed_shares": 36149002,
+   "total_shares": 36149002
+  },
+  "UNAC": {
+   "classes": [
+    {
+     "ticker": "UNAC",
+     "count": 1009366990290,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.397
+    }
+   ],
+   "total_listed_shares": 1009366990290,
+   "total_shares": 1009366990290
+  },
+  "UNKL": {
+   "classes": [
+    {
+     "ticker": "UNKL",
+     "count": 599737,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 4140.0
+    }
+   ],
+   "total_listed_shares": 599737,
+   "total_shares": 599737
+  },
+  "UPRO": {
+   "classes": [
+    {
+     "ticker": "UPRO",
+     "count": 63048706145,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 1.4135
+    }
+   ],
+   "total_listed_shares": 63048706145,
+   "total_shares": 63048706145
+  },
+  "URKZ": {
+   "classes": [
+    {
+     "ticker": "URKZ",
+     "count": 54776100,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 264.8
+    }
+   ],
+   "total_listed_shares": 54776100,
+   "total_shares": 54776100
+  },
+  "USBN": {
+   "classes": [
+    {
+     "ticker": "USBN",
+     "count": 360134697357,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.122
+    }
+   ],
+   "total_listed_shares": 360134697357,
+   "total_shares": 360134697357
+  },
+  "UTAR": {
+   "classes": [
+    {
+     "ticker": "UTAR",
+     "count": 7896123268,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 10.82
+    }
+   ],
+   "total_listed_shares": 7896123268,
+   "total_shares": 7896123268
+  },
+  "UWGN": {
+   "classes": [
+    {
+     "ticker": "UWGN",
+     "count": 2905885544,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 25.44
+    }
+   ],
+   "total_listed_shares": 2905885544,
+   "total_shares": 2905885544
+  },
+  "VEON-RX": {
+   "classes": [
+    {
+     "ticker": "VEON-RX",
+     "count": 1749127404,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 64.1
+    }
+   ],
+   "total_listed_shares": 1749127404,
+   "total_shares": 1749127404
+  },
+  "VGSB": {
+   "classes": [
+    {
+     "ticker": "VGSB",
+     "count": 319595965,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 17.4
+    },
+    {
+     "ticker": "VGSBP",
+     "count": 80499134,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 13.6
+    }
+   ],
+   "total_listed_shares": 400095099,
+   "total_shares": 400095099
+  },
+  "VGSBP": {
+   "classes": [
+    {
+     "ticker": "VGSB",
+     "count": 319595965,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 17.4
+    },
+    {
+     "ticker": "VGSBP",
+     "count": 80499134,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 13.6
+    }
+   ],
+   "total_listed_shares": 400095099,
+   "total_shares": 400095099
+  },
+  "VJGZ": {
+   "classes": [
+    {
+     "ticker": "VJGZ",
+     "count": 18091110,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 3515.0
+    },
+    {
+     "ticker": "VJGZP",
+     "count": 5883050,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 1494.0
+    }
+   ],
+   "total_listed_shares": 23974160,
+   "total_shares": 23974160
+  },
+  "VJGZP": {
+   "classes": [
+    {
+     "ticker": "VJGZ",
+     "count": 18091110,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 3515.0
+    },
+    {
+     "ticker": "VJGZP",
+     "count": 5883050,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 1494.0
+    }
+   ],
+   "total_listed_shares": 23974160,
+   "total_shares": 23974160
+  },
+  "VKCO": {
+   "classes": [
+    {
+     "ticker": "VKCO",
+     "count": 572904180,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 240.5
+    }
+   ],
+   "total_listed_shares": 572904180,
+   "total_shares": 572904180
+  },
+  "VLHZ": {
+   "classes": [
+    {
+     "ticker": "VLHZ",
+     "count": 5005605,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 167.6
+    }
+   ],
+   "total_listed_shares": 5005605,
+   "total_shares": 5005605
+  },
+  "VRSB": {
+   "classes": [
+    {
+     "ticker": "VRSB",
+     "count": 56151024,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 353.5
+    },
+    {
+     "ticker": "VRSBP",
+     "count": 18716678,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 161.8
+    }
+   ],
+   "total_listed_shares": 74867702,
+   "total_shares": 74867702
+  },
+  "VRSBP": {
+   "classes": [
+    {
+     "ticker": "VRSB",
+     "count": 56151024,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 353.5
+    },
+    {
+     "ticker": "VRSBP",
+     "count": 18716678,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 161.8
+    }
+   ],
+   "total_listed_shares": 74867702,
+   "total_shares": 74867702
+  },
+  "VSEH": {
+   "classes": [
+    {
+     "ticker": "VSEH",
+     "count": 500000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 73.24
+    }
+   ],
+   "total_listed_shares": 500000000,
+   "total_shares": 500000000
+  },
+  "VSMO": {
+   "classes": [
+    {
+     "ticker": "VSMO",
+     "count": 11529538,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 26880.0
+    }
+   ],
+   "total_listed_shares": 11529538,
+   "total_shares": 11529538
+  },
+  "VSYD": {
+   "classes": [
+    {
+     "ticker": "VSYD",
+     "count": 2829795,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 9300.0
+    },
+    {
+     "ticker": "VSYDP",
+     "count": 51839,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 7050.0
+    }
+   ],
+   "total_listed_shares": 2881634,
+   "total_shares": 2881634
+  },
+  "VSYDP": {
+   "classes": [
+    {
+     "ticker": "VSYD",
+     "count": 2829795,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 9300.0
+    },
+    {
+     "ticker": "VSYDP",
+     "count": 51839,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 7050.0
+    }
+   ],
+   "total_listed_shares": 2881634,
+   "total_shares": 2881634
+  },
+  "VTBR": {
+   "classes": [
+    {
+     "ticker": "VTBR",
+     "count": 12927766416,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 93.59
+    }
+   ],
+   "total_listed_shares": 12927766416,
+   "total_shares": 12927766416,
+   "note": "После конвертации привилегированных акций первого и второго типа (завершена 29.04.2026) у ВТБ 12,93 млрд обыкновенных акций номиналом 50 ₽; привилегированных больше нет. Коэффициент конвертации — по средневзвешенной цене обыкновенной акции за 2025 год (82,67 ₽).",
+   "source": "Сообщение ВТБ о завершении конвертации (апрель 2026); ISSUESIZE rates.csv",
+   "verified_shares": true
+  },
+  "WTCM": {
+   "classes": [
+    {
+     "ticker": "WTCM",
+     "count": 1083000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 14.28
+    },
+    {
+     "ticker": "WTCMP",
+     "count": 162000000,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 12.78
+    }
+   ],
+   "total_listed_shares": 1245000000,
+   "total_shares": 1245000000
+  },
+  "WTCMP": {
+   "classes": [
+    {
+     "ticker": "WTCM",
+     "count": 1083000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 14.28
+    },
+    {
+     "ticker": "WTCMP",
+     "count": 162000000,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 12.78
+    }
+   ],
+   "total_listed_shares": 1245000000,
+   "total_shares": 1245000000
+  },
+  "WUSH": {
+   "classes": [
+    {
+     "ticker": "WUSH",
+     "count": 111382432,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 80.04
+    }
+   ],
+   "total_listed_shares": 111382432,
+   "total_shares": 111382432
+  },
+  "X5": {
+   "classes": [
+    {
+     "ticker": "X5",
+     "count": 271572872,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 2391.5
+    }
+   ],
+   "total_listed_shares": 271572872,
+   "total_shares": 271572872
+  },
+  "YAKG": {
+   "classes": [
+    {
+     "ticker": "YAKG",
+     "count": 826919375,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 42.25
+    }
+   ],
+   "total_listed_shares": 826919375,
+   "total_shares": 826919375
+  },
+  "YDEX": {
+   "classes": [
+    {
+     "ticker": "YDEX",
+     "count": 394967916,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 4135.5
+    }
+   ],
+   "total_listed_shares": 394967916,
+   "total_shares": 394967916
+  },
+  "YKEN": {
+   "classes": [
+    {
+     "ticker": "YKEN",
+     "count": 10187741424,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.389
+    },
+    {
+     "ticker": "YKENP",
+     "count": 1332635125,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 0.306
+    }
+   ],
+   "total_listed_shares": 11520376549,
+   "total_shares": 11520376549
+  },
+  "YKENP": {
+   "classes": [
+    {
+     "ticker": "YKEN",
+     "count": 10187741424,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 0.389
+    },
+    {
+     "ticker": "YKENP",
+     "count": 1332635125,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 0.306
+    }
+   ],
+   "total_listed_shares": 11520376549,
+   "total_shares": 11520376549
+  },
+  "YRSB": {
+   "classes": [
+    {
+     "ticker": "YRSB",
+     "count": 17143584,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 820.0
+    },
+    {
+     "ticker": "YRSBP",
+     "count": 4507320,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 230.0
+    }
+   ],
+   "total_listed_shares": 21650904,
+   "total_shares": 21650904
+  },
+  "YRSBP": {
+   "classes": [
+    {
+     "ticker": "YRSB",
+     "count": 17143584,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 820.0
+    },
+    {
+     "ticker": "YRSBP",
+     "count": 4507320,
+     "listed": true,
+     "type": "преф",
+     "snapshot_price": 230.0
+    }
+   ],
+   "total_listed_shares": 21650904,
+   "total_shares": 21650904
+  },
+  "ZAYM": {
+   "classes": [
+    {
+     "ticker": "ZAYM",
+     "count": 100000000,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 148.55
+    }
+   ],
+   "total_listed_shares": 100000000,
+   "total_shares": 100000000
+  },
+  "ZILL": {
+   "classes": [
+    {
+     "ticker": "ZILL",
+     "count": 2659962,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 4490.0
+    }
+   ],
+   "total_listed_shares": 2659962,
+   "total_shares": 2659962
+  },
+  "ZVEZ": {
+   "classes": [
+    {
+     "ticker": "ZVEZ",
+     "count": 562020480,
+     "listed": true,
+     "type": "обыкновенные",
+     "snapshot_price": 6.54
+    }
+   ],
+   "total_listed_shares": 562020480,
+   "total_shares": 562020480
+  }
+ }
+}

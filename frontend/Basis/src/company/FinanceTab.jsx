@@ -838,6 +838,14 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const pcell = (v, isRoe) => v == null ? "—" : num(v, 2) + (isRoe ? " %" : "");
   const hasAnomalyShown = peerRows.some((p) => p.anomaly);
 
+  // база капитализации (backend/app/services/share_capital.py): по каким классам
+  // акций посчитаны P/E и P/B — приходит только когда поправка применилась
+  const capBasis = (fin.multiples || {}).capital_basis || null;
+  const shareCnt = (n) => (n >= 1e9 ? `${num(n / 1e9, 2)} млрд` : n >= 1e6 ? `${num(n / 1e6, 1)} млн` : num(n, 0));
+  const capClassLine = capBasis && Array.isArray(capBasis.classes) && capBasis.classes.length > 1
+    ? capBasis.classes.map((c) => `${c.ticker || c.class} ${shareCnt(c.count || 0)} шт${c.listed === false ? " (вне биржи)" : ""}`).join(" + ")
+    : null;
+
   /* рейл «Заметка аналитика» */
   const railSections = groupSections(finMd);
   // Шапка — BFV. status ≠ ok (отрицательный капитал, ROE ниже терминального роста и
@@ -964,6 +972,18 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
           {/* 3. Ключевые показатели и мультипликаторы */}
           <div className="card">
             <h3>Ключевые показатели и мультипликаторы <span className="tag tag-fact">факт</span><span className="hmeta">{livePrice ? `цена ${num(livePrice, 2)} ${ccy} · ` : ""}позиция к {sm ? "среднему по сектору" : "своей 5-летней норме"}</span></h3>
+            {/* База капитализации. У эмитентов с несколькими классами акций (а у
+                Транснефти обыкновенные вообще не торгуются) P/E и P/B считаются от
+                капитализации ЭМИТЕНТА — иначе они занижены в разы. Показываем это
+                только там, где поправка реально сработала, чтобы не шуметь. */}
+            {capBasis && Math.abs((capBasis.factor ?? 1) - 1) > 0.05 && (
+              <div className="cap-basis">
+                <b>{capBasis.basis}</b>
+                {capClassLine && <> — {capClassLine}</>}
+                {capBasis.reliability === "low" && <> · надёжность оценки неторгуемого класса низкая</>}
+                {(capBasis.warnings || []).map((w, i) => <div className="cb-w" key={i}>{w}</div>)}
+              </div>
+            )}
             {/* Сетка «Масштаб бизнеса — абсолютные показатели за <год>» убрана 2026-07-30
                 (владелец): те же Выручка / EBITDA / Чистая прибыль / FCF / Чистый долг за
                 последний год уже стоят в заголовках диаграмм динамики ниже — числа

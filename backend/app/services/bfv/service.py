@@ -84,6 +84,14 @@ def get_bfv(db: Session, ticker: str, required_spread: float = DEFAULT_REQUIRED_
     if not (cdir / "financials.json").exists():
         return None
     fin = _load_json(cdir / "financials.json")
+    # 🔴 Капитализация — по всем классам акций эмитента (share_capital.py). BFV берёт
+    # BVPS как «цена / P/B», поэтому заниженная капитализация задирала BVPS и вместе с
+    # ним справедливую цену: у TRNFP P/B 0,07 вместо 0,34 — почти впятеро.
+    try:
+        from app.services.share_capital import apply_issuer_capital
+        apply_issuer_capital(db, ticker, fin)
+    except Exception:  # noqa: BLE001
+        pass
     gov = _load_json(cdir / "governance.json")
     inst = _load_json(cdir / "institutions.json")
     market = _load_json(cdir / "market.json")   # valuation_inputs (архетип/рост/маржа) для BFV-F

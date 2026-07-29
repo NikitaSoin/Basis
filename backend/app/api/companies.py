@@ -392,9 +392,20 @@ async def get_financials_json(ticker: str, db: Session = Depends(get_db)):
         text("SELECT market_cap, shares_outstanding FROM companies WHERE ticker = :t"),
         {"t": _safe(ticker).upper()},
     ).first()
-    if row is not None and fin.get("multiples", {}).get("current"):
-        live_cur = live_scale_multiples(fin, row[0], row[1])
-        fin.setdefault("multiples", {})["current"] = live_cur
+    # 🔴 Капитализация — по ВСЕМ классам акций эмитента, а не по одной торгуемой
+    # бумаге (share_capital.py). Иначе у TRNFP (обыкновенные вне биржи), VTBR
+    # (устаревшее число до конвертации префов), BSPBP/LSNGP/KCHEP и ещё ~65 тикеров
+    # P/E и P/B занижены в разы, а через P/B кривда уезжает дальше — в BFV и в
+    # прикидку run-rate. companies.market_cap считается по ОДНОМУ классу, поэтому
+    # он тут только резерв.
+    if fin.get("multiples", {}).get("current"):
+        from app.services.share_capital import apply_issuer_capital
+        before = fin["multiples"]["current"]
+        apply_issuer_capital(db, _safe(ticker).upper(), fin)
+        if fin["multiples"]["current"] is before and row is not None:
+            # поправка не применилась (нет реестра / база аналитика не опознана) —
+            # прежнее поведение: живая цена по капитализации одного класса
+            fin["multiples"]["current"] = live_scale_multiples(fin, row[0], row[1])
     if fin.get("valuation", {}).get("methods"):
         shares_outstanding = row[1] if row is not None else None
         live_price = None

@@ -278,6 +278,12 @@
 .fin-hybrid .an-flag::before{content:"⚠";color:var(--amber);flex-shrink:0;}
 .fin-hybrid .fv-note{font-size:11px;color:var(--ink-3);line-height:1.5;margin:14px 0 0;}
 
+/* База капитализации — по каким классам акций считаются P/E и P/B (share_capital.py).
+   Служебная сноска: приглушённая, без цвета — цвет только в данных. */
+.fin-hybrid .cap-basis{margin-top:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:11px;line-height:1.5;color:var(--ink-3);}
+.fin-hybrid .cap-basis b{color:var(--ink-2);font-weight:600;}
+.fin-hybrid .cap-basis .cb-w{margin-top:4px;}
+
 /* ── Прикидка «если темп удержится» в рейле заметки (движок run_rate.py) ──
    Ответ сверху: строка-сигнал (P/E и дивдоходность прописью) → таблица сценариев →
    как считалось. Колонка «текущий темп» выделена — она главная, боковые лишь
