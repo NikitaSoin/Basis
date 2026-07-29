@@ -220,22 +220,26 @@ def _run_patch(db: Session, ticker: str, tab: str, *, sys: str, task_builder,
     prose, src = read_prose(db, ticker, tab)
     if not prose:
         return None
-    run = run_agent(db, system_prompt=sys, task=task_builder(prose),
-                    tools_schema=[WEB_TOOLS_SCHEMA[1]], allowed_ticker=ticker,
-                    max_steps=5, max_tokens_total=30_000, web_call_cap=1)
-    result = run["result"]
-    if result is not None:
+    # json_mode: провайдер ФОРСИТ валидный JSON (DeepSeek иначе уходит в reasoning-
+    # прозу вместо JSON — боевой сбой). Прямой complete вместо tool-loop: патчеру
+    # инструменты почти не нужны (grounding — в задаче), а json_mode устойчивее.
+    from app.services.llm import complete, LLMError
+    stopped = "final"
+    try:
+        result = complete(sys, task_builder(prose), json_mode=True,
+                          max_tokens=2000, temperature=0.1)
+    except LLMError as e:
+        result, stopped = None, f"llm_error:{str(e)[:60]}"
+    if isinstance(result, dict):
         patched, notes = _apply_and_gate(prose, result, grounding_text)
     else:
-        patched, notes = None, [f"no_result:{run['stopped_reason']}"]
+        patched, notes = None, [f"no_result:{stopped}"]
     ok = patched is not None
     parent = current_overlay(db, ticker, tab)
-    # диагностика: stopped_reason всегда; сырой финал агента — только при провале
-    # (чтобы unparseable/гейт-отказы были видны в сырье, а не додумывались)
-    evidence = {"prose_source": src, "stopped_reason": run.get("stopped_reason"),
-                **(evidence_extra or {})}
-    if not ok and run.get("final_raw"):
-        evidence["final_raw_tail"] = run["final_raw"][:700]
+    # диагностика: stopped_reason всегда; сырой результат — при провале
+    evidence = {"prose_source": src, "stopped_reason": stopped, **(evidence_extra or {})}
+    if not ok:
+        evidence["raw_result_tail"] = str(result)[:700]
     row = CardProseOverlay(
         ticker=ticker, tab=tab, kind=kind,
         status="published" if ok else "rejected",
@@ -245,13 +249,13 @@ def _run_patch(db: Session, ticker: str, tab: str, *, sys: str, task_builder,
         evidence=evidence,
         gate_notes=notes or None, source_signal_id=source_signal_id,
         parent_id=parent.id if (ok and parent) else None,
-        model_used="deepseek", tokens_used=run["tokens_used"],
+        model_used="deepseek", tokens_used=None,
     )
     db.add(row)
     db.commit()
     db.refresh(row)
-    logger.info("card_prose_patcher %s/%s [%s]: %s (гейт: %s; токены %s)",
-                ticker, tab, kind, row.status, notes or "чисто", run["tokens_used"])
+    logger.info("card_prose_patcher %s/%s [%s]: %s (гейт: %s)",
+                ticker, tab, kind, row.status, notes or "чисто")
     return row
 
 
