@@ -3005,6 +3005,47 @@ const AgentAddendaStrip = ({ ticker }) => {
 };
 
 
+// Живой «макрофон сейчас» — чип ставка ЦБ / инфляция в шапке вкладки
+// Макроэкономика. Факт БИНДИТСЯ к живым данным (/market/macro/rate), НЕ запекается
+// в прозу → не устаревает (одно из решений плана авто-свежести, docs/
+// prose-freshness-plan.md: самый массовый устаревающий факт снимаем без LLM).
+const LiveMacroBackdropChip = () => {
+  const [d, setD] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    fetch(`${apiBase()}/api/market/macro/rate`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((x) => { if (alive && x) setD(x); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  if (!d) return null;
+  const rate = d.key_rate?.value;
+  const infl = d.inflation_yoy?.value;
+  if (rate == null && infl == null) return null;
+  const asOf = d.key_rate?.as_of ? new Date(d.key_rate.as_of).toLocaleDateString("ru-RU") : "";
+  const fmt = (n) => n == null ? "—" : n.toLocaleString("ru-RU", { maximumFractionDigits: 2 });
+  return (
+    <div className="tw-mb-4 tw-rounded-md tw-border tw-border-border-subtle tw-px-4 tw-py-2.5 tw-flex tw-items-center tw-gap-x-5 tw-gap-y-1 tw-flex-wrap">
+      <span className="tw-text-[11px] tw-uppercase tw-tracking-wide tw-text-text-tertiary">Макрофон сейчас</span>
+      {rate != null && (
+        <span className="tw-text-[13px] tw-text-text-primary">
+          <span className="tw-text-text-secondary">Ставка ЦБ</span>{" "}
+          <b className="tw-font-mono tw-tabular-nums">{fmt(rate)}%</b>
+        </span>
+      )}
+      {infl != null && (
+        <span className="tw-text-[13px] tw-text-text-primary">
+          <span className="tw-text-text-secondary">Инфляция</span>{" "}
+          <b className="tw-font-mono tw-tabular-nums">{fmt(infl)}%</b>{" "}
+          <span className="tw-text-text-tertiary">г/г</span>
+        </span>
+      )}
+      <span className="tw-text-[10.5px] tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-ml-auto">факт · живое{asOf ? ` · на ${asOf}` : ""}</span>
+    </div>
+  );
+};
+
 const CompanyCard = ({ company, onBack, initialTab }) => {
   // initialTab — deep-link из статических SEO-страниц (/company/T/finance/ →
   // /?company=T&tab=finance): открыть карточку сразу на нужной вкладке.
@@ -3028,6 +3069,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
   const [stressScenario, setStressScenario] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [analysisLoading, setAnalysisLoading] = useState(true);
+  const [bfv, setBfv] = useState(null);   // справедливая цена по методике Basis (BFV) — главная в Обзоре
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [bmMd, setBmMd] = useState(null);
@@ -3119,6 +3161,20 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
       .then(d => { setAnalysis(Array.isArray(d) && d.length > 0 ? d[0] : null); setAnalysisLoading(false); })
       .catch(() => setAnalysisLoading(false));
   }, [company.id]);
+
+  useEffect(() => {
+    // Справедливая цена по методике Basis (BFV) — пересчитывается живьём на бэке от
+    // цены/кривой ОФЗ/беты. Главная цена в Обзоре (владелец 2026-07-29).
+    setBfv(null);
+    if (!company.ticker) return;
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    let alive = true;
+    fetch(`${apiUrl}/api/companies/by-ticker/${company.ticker}/bfv`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => { if (alive) setBfv(d && d.status ? d : null); })
+      .catch(() => { if (alive) setBfv(null); });
+    return () => { alive = false; };
+  }, [company.ticker]);
 
   useEffect(() => {
     const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
@@ -3344,6 +3400,99 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
         )}
       </Card>
     );
+
+    // «Справедливая цена по методике Basis» (BFV) — ГЛАВНАЯ цена в Обзоре
+    // (владелец 2026-07-29: перенесена из Финансов, движок BFV — основной метод).
+    // Методики рядом: «Методика Basis на основе DCF» (главная) + исторические P/E и P/B
+    // (обычный DCF / CAPM / секторный EV/EBITDA убраны по просьбе владельца). Данные
+    // P/E и P/B — из уже загруженного finJson.valuation.methods (без лишних запросов).
+    const vMethods = (finJson && finJson.valuation && Array.isArray(finJson.valuation.methods)) ? finJson.valuation.methods : [];
+    const mFair = (m) => (m ? (typeof m.fair_value_per_share_live === "number" ? m.fair_value_per_share_live : (typeof m.fair_value_per_share === "number" ? m.fair_value_per_share : null)) : null);
+    const findMethod = (keys) => vMethods.find((m) => keys.includes(String(m.method || "").toLowerCase()) && mFair(m) != null && mFair(m) > 0);
+    const peM = findMethod(["historical_pe", "pe"]);
+    const pbM = findMethod(["historical_pb", "pb"]);
+    const bfvOk = bfv && bfv.status === "ok";
+    const bfvFair = bfvOk && typeof bfv.fair_price === "number" ? bfv.fair_price : null;
+    const bfvRev = bfvOk ? bfv.reverse : null;
+    const bfvBound = bfvOk ? bfv.return_bound : null;
+    const engineLabel = bfv && bfv.engine === "BFV-F" ? "денежный поток" : "дивиденды и книга";
+    const bfvCur = bfvOk && typeof bfv.current_price === "number" ? bfv.current_price : (livePrice ?? company?.price ?? null);
+    const methodRows = [];
+    if (bfvFair != null) methodRows.push({ label: "Методика Basis на основе DCF", value: bfvFair, main: true });
+    if (mFair(peM) != null) methodRows.push({ label: "Исторический P/E", value: mFair(peM) });
+    if (mFair(pbM) != null) methodRows.push({ label: "Исторический P/B", value: mFair(pbM) });
+    const basisFairPriceCard = (bfvOk || methodRows.length > 0) && (
+      <Card className="tw-shadow-md dark:tw-shadow-none tw-ring-1 tw-ring-accent-soft">
+        <div className="tw-flex tw-items-center tw-justify-between tw-mb-3 tw-flex-wrap tw-gap-2">
+          <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold">
+            <Target size={18} />
+            <span>Справедливая цена по методике Basis</span>
+          </div>
+          {bfv && bfv.engine && (
+            <span className="tw-text-[11px] tw-font-medium tw-px-2 tw-py-0.5 tw-rounded-full tw-border tw-border-border-subtle tw-text-text-secondary">
+              метод: {engineLabel}
+            </span>
+          )}
+        </div>
+
+        {bfvRev ? (
+          <>
+            <div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug tw-mb-2">{bfvRev.note}</div>
+            <div className="tw-font-display tw-font-light tw-text-text-tertiary tw-tabular-nums" style={{ fontSize: "30px", lineHeight: "1" }}>
+              ≈ {formatMoney(Math.round(bfvFair), { decimals: 0 })} <span className="tw-text-[13px] tw-text-text-tertiary">(прямая оценка · справочно)</span>
+            </div>
+          </>
+        ) : bfvFair != null ? (
+          <>
+            <div className="tw-flex tw-items-end tw-gap-3 tw-flex-wrap">
+              <span className="tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums" style={{ fontSize: "44px", lineHeight: "1", letterSpacing: "-1px" }}>
+                <FinCountUp value={bfvFair} gate={ovwCountGate} render={(n) => (typeof n === "number" && !Number.isNaN(n) ? formatMoney(Math.round(n), { decimals: 0 }) : `${bfvFair} ₽`)} />
+              </span>
+              {typeof bfv.upside_pct === "number" && (
+                <span className={`tw-text-[15px] tw-font-semibold tw-tabular-nums ${bfv.upside_pct >= 0 ? "tw-text-success" : "tw-text-danger"}`}>
+                  {bfv.upside_pct >= 0 ? "▲" : "▼"} {Math.abs(Math.round(bfv.upside_pct))}% {bfv.upside_pct >= 0 ? "потенциал" : "даунсайд"}
+                </span>
+              )}
+            </div>
+            {bfvCur != null && (
+              <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-1">живая цена {formatMoney(Math.round(bfvCur), { decimals: 0 })}</div>
+            )}
+          </>
+        ) : (
+          <div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug">
+            Метод денежного потока к этой бумаге неприменим (поток к акционеру неинформативен — убыточна или платит из долга). Ниже — исторические ориентиры.
+          </div>
+        )}
+
+        {bfvOk && !bfvRev && bfv.verdict && (
+          <div className={`tw-inline-flex tw-items-center tw-gap-2 tw-mt-3 tw-px-3 tw-py-1.5 tw-rounded-md tw-text-[13px] tw-font-medium tw-bg-bg-base tw-border tw-border-border-subtle ${bfv.verdict === "проходит" ? "tw-text-success" : "tw-text-danger"}`}>
+            {bfv.verdict === "проходит" ? "✓" : "•"} {bfv.verdict}
+            {typeof bfv.expected_return_pct === "number" && typeof bfv.hurdle_pct === "number" && (
+              <span className="tw-text-text-tertiary tw-font-normal">
+                · доходность {bfvBound === "below" ? "< 0,5" : bfvBound === "above" ? "> 200" : Math.round(bfv.expected_return_pct)} % vs порог {Math.round(bfv.hurdle_pct)} %
+              </span>
+            )}
+          </div>
+        )}
+
+        {methodRows.length > 0 && (
+          <div className="tw-mt-4 tw-pt-3 tw-border-t tw-border-border-subtle tw-flex tw-flex-col tw-gap-1.5">
+            <div className="tw-text-[11px] tw-text-text-tertiary tw-font-semibold tw-uppercase tw-tracking-wide tw-mb-1">Методики</div>
+            {methodRows.map((r, i) => (
+              <div key={i} className="tw-flex tw-items-center tw-justify-between tw-text-[13px]">
+                <span className={r.main ? "tw-text-text-primary tw-font-medium" : "tw-text-text-secondary"}>{r.label}</span>
+                <span className={`tw-tabular-nums ${r.main ? "tw-text-accent tw-font-semibold" : "tw-text-text-secondary"}`}>{formatMoney(Math.round(r.value), { decimals: 0 })}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <p className="tw-text-[11px] tw-text-text-tertiary tw-mt-3 tw-mb-0">
+          Метод денежного потока Basis (тестовая версия, экспертные параметры без калибровки). Пересчитывается живьём от цены, кривой ОФЗ и беты. Не является ИИР.
+        </p>
+      </Card>
+    );
+
     if (!company.overview) {
       if (analysisLoading) {
         return (
@@ -3356,28 +3505,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
         return (
           <div className="tw-flex tw-flex-col tw-gap-4">
             {earningsCard}
-            {analysis.fair_price && (
-              <Card className="tw-shadow-md dark:tw-shadow-none">
-                <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-mb-3">
-                  <Target size={18} />
-                  <span>Справедливая цена</span>
-                </div>
-                <div
-                  className="tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums"
-                  style={{ fontSize: "44px", lineHeight: "1", letterSpacing: "-1px" }}
-                >
-                  <FinCountUp
-                    value={typeof analysis.fair_price === "number" ? analysis.fair_price : Number(analysis.fair_price)}
-                    gate={ovwCountGate}
-                    render={(n) =>
-                      typeof n === "number" && !Number.isNaN(n)
-                        ? formatMoney(Math.round(n), { decimals: 0 })
-                        : `${analysis.fair_price} ₽`
-                    }
-                  />
-                </div>
-              </Card>
-            )}
+            {basisFairPriceCard}
             {analysis.analyst_note && (
               <Card>
                 <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-mb-3">
@@ -3430,6 +3558,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
       return (
         <div className="tw-flex tw-flex-col tw-gap-4">
           {earningsCard}
+          {basisFairPriceCard}
           <Card className="tw-text-center">
             <Info size={48} className="tw-mx-auto tw-text-text-tertiary tw-mb-4" />
             <h3 className="tw-text-[20px] tw-text-text-primary tw-font-medium tw-mb-2">Анализ готовится</h3>
@@ -7199,7 +7328,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
       {tab === "finance" && renderFinancials()}
       {tab === "governance" && renderGovernance()}
       {tab === "markets" && renderMarket()}
-      {tab === "macro" && renderMacro()}
+      {tab === "macro" && (<><LiveMacroBackdropChip />{renderMacro()}</>)}
       {tab === "geo" && renderGeoTab()}
       {tab === "institutions" && renderInstitutions()}
       {tab === "deep" && (company.overview ? renderDeepDive() : renderComingSoon("Глубокий разбор"))}
