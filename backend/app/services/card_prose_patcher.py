@@ -5,6 +5,12 @@
 задача НЕ перегенерить, а поправить ТОЛЬКО там, где входной поток показал
 изменение. Дизайн ревью advisor.
 
+🔴 ФОРМАТ ОТВЕТА (общий для обоих режимов, добавляется к промпту): модель обязана
+вернуть ТОЛЬКО валидный JSON и ничего больше — без рассуждений/анализа/markdown, по-
+русски, первый символ `{`. Реальный боевой сбой (SBER/markets): DeepSeek ушёл в
+reasoning-прозу на английском вместо JSON → unparseable_final (гейт отклонил, fail-
+closed, проза цела). Лечится жёсткой директивой формата + примером (_JSON_ONLY).
+
 МЕХАНИКА (безопасность — кодовая):
 - Патч выражается как точечные find/replace правки прозы. Нетронутый текст
   ДОСЛОВЕН ПО ПОСТРОЕНИЮ (меняются только совпавшие подстроки) — это надёжнее
@@ -102,6 +108,18 @@ _INTERP_SYS = """Ты — редактор-аналитик платформы B
 мелких правок лучше одной большой; максимум 1-4 правки.
 Финальный ответ — строго JSON того же формата, что у факт-редактора (confirmed/edits/
 note), certainty у правок: оценка|суждение."""
+
+
+# жёсткая директива формата — против reasoning-прозы вместо JSON (боевой сбой DeepSeek)
+_JSON_ONLY = (
+    "\n\n🔴 КРИТИЧНО — ФОРМАТ ОТВЕТА. Верни РОВНО ОДИН валидный JSON-объект и БОЛЬШЕ "
+    "НИЧЕГО: без рассуждений, без анализа, без пояснений, без markdown и без какого-либо "
+    "текста до или после. ПЕРВЫЙ символ ответа — `{`, ПОСЛЕДНИЙ — `}`. Всё по-русски. "
+    "Не пиши «Let me analyze» и подобное — сразу JSON. Если менять нечего — верни "
+    '{"confirmed": false, "edits": [], "note": "изменений нет"}. Пример валидного ответа: '
+    '{"confirmed": true, "edits": [{"find": "выручка 100 млрд руб.", "replace": '
+    '"выручка 120 млрд руб.", "why": "новый отчёт за 2025", "certainty": "факт"}], '
+    '"note": "обновил выручку по свежему отчёту"}')
 
 
 # ----------------------------- ЧТЕНИЕ ПРОЗЫ (оверлей-first) -----------------------------
@@ -259,7 +277,7 @@ def run_for_signal(db: Session, signal: CompanySignal, kind: str = "fact") -> Ca
             f"ТЕКСТ РАЗБОРА ВКЛАДКИ (правь точечно find/replace):\n<<<\n{prose[:8000]}\n>>>")
 
     return _run_patch(
-        db, ticker, tab, sys=_FACT_SYS, task_builder=_tb,
+        db, ticker, tab, sys=_FACT_SYS + _JSON_ONLY, task_builder=_tb,
         grounding_text=f"{signal.title or ''} {signal.summary or ''}", kind="fact",
         source_signal_id=signal.id,
         evidence_extra={"signal_id": signal.id, "source_key": signal.source_key,
@@ -342,7 +360,7 @@ def run_interp_for_tab(db: Session, ticker: str, tab: str,
             f"ТЕКСТ РАЗБОРА (правь точечно find/replace ТОЛЬКО там, где поток "
             f"изменил картину; не изменил — confirmed=false):\n<<<\n{prose[:8000]}\n>>>")
 
-    return _run_patch(db, ticker, tab, sys=_INTERP_SYS, task_builder=_tb,
+    return _run_patch(db, ticker, tab, sys=_INTERP_SYS + _JSON_ONLY, task_builder=_tb,
                       grounding_text=flow_txt, kind="interpretation",
                       evidence_extra={"flow_signal_ids": [r.id for r in flow_rows]})
 
