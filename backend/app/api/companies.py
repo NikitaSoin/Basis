@@ -400,9 +400,10 @@ async def get_financials_json(ticker: str, db: Session = Depends(get_db)):
     # он тут только резерв.
     if fin.get("multiples", {}).get("current"):
         from app.services.share_capital import apply_issuer_capital
-        before = fin["multiples"]["current"]
         apply_issuer_capital(db, _safe(ticker).upper(), fin)
-        if fin["multiples"]["current"] is before and row is not None:
+        # признак применённой поправки — capital_basis (а не сравнение объектов:
+        # live_scale_multiples возвращает тот же dict, когда масштабировать нечем)
+        if not fin["multiples"].get("capital_basis") and row is not None:
             # поправка не применилась (нет реестра / база аналитика не опознана) —
             # прежнее поведение: живая цена по капитализации одного класса
             fin["multiples"]["current"] = live_scale_multiples(fin, row[0], row[1])
