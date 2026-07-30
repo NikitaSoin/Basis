@@ -20,7 +20,7 @@ import {
   Globe, Cpu, Landmark, Swords, Percent, Eye, ShieldAlert, TrendingUp,
   TrendingDown, Activity, MapPin, Ship, Banknote, Users, Package, Info,
 } from "lucide-react";
-import { KeyTakeaway } from "../design/textblocks";
+import { KeyTakeaway, ExpandableText } from "../design/textblocks";
 import "../styles/geo.css";
 
 /* ── чистка внутренней нотации методики, протекающей в прозу (жалоба владельца
@@ -291,7 +291,7 @@ function Channel({ eyebrow, def, items }) {
             <div className="gcitem" key={i}>
               <div className="gcitem-effect">{shortText(it.effect, 110)}</div>
               {it.magnitude && <div className="gcitem-mag">{shortText(it.magnitude, 90)}</div>}
-              {it.rationale && <div className="gcitem-rationale">{shortProse(it.rationale, 160)}</div>}
+              {it.rationale && <div className="gcitem-rationale">{<ExpandableText full={cleanText(it.rationale)} short={shortProse(it.rationale, 160)} />}</div>}
             </div>
           ))}
       </div>
@@ -360,7 +360,7 @@ function OverlapCard({ d }) {
           <div className="gdis-vs-v">{shortText(d.inst_value, 150)}</div>
         </div>
       </div>
-      {d.resolution && <div className="gdis-resolution">{shortProse(d.resolution, 260)}</div>}
+      {d.resolution && <div className="gdis-resolution">{<ExpandableText full={cleanText(d.resolution)} short={shortProse(d.resolution, 260)} />}</div>}
       <span className="gdis-open">открытый методологический вопрос</span>
     </div>
   );
@@ -607,10 +607,10 @@ export default function GeoTab({ geoJson, geoMd, onNavigateTab, fairBase, upside
               </div>
               {(dcc.within_channels || dcc.vs_macro_rate || dcc.vs_inst || dcc.vs_market_price || instOwned.length > 0) && (
                 <div className="gdcc">
-                  {dcc.within_channels && <p><b>Между каналами A/B/C:</b> {shortProse(dcc.within_channels, 260)}</p>}
-                  {dcc.vs_macro_rate && <p><b>Против общей ставки/курса:</b> {shortProse(dcc.vs_macro_rate, 260)}</p>}
-                  {dcc.vs_inst && <p><b>Против вкладки «Институты»:</b> {shortProse(dcc.vs_inst, 300)}</p>}
-                  {dcc.vs_market_price && <p><b>Против рыночной цены:</b> {shortProse(dcc.vs_market_price, 260)}</p>}
+                  {dcc.within_channels && <p><b>Между каналами A/B/C:</b> {<ExpandableText full={cleanText(dcc.within_channels)} short={shortProse(dcc.within_channels, 260)} />}</p>}
+                  {dcc.vs_macro_rate && <p><b>Против общей ставки/курса:</b> {<ExpandableText full={cleanText(dcc.vs_macro_rate)} short={shortProse(dcc.vs_macro_rate, 260)} />}</p>}
+                  {dcc.vs_inst && <p><b>Против вкладки «Институты»:</b> {<ExpandableText full={cleanText(dcc.vs_inst)} short={shortProse(dcc.vs_inst, 300)} />}</p>}
+                  {dcc.vs_market_price && <p><b>Против рыночной цены:</b> {<ExpandableText full={cleanText(dcc.vs_market_price)} short={shortProse(dcc.vs_market_price, 260)} />}</p>}
                   {instOwned.length > 0 && (
                     <p><b>Не в этих каналах (владение «Институты»):</b> {instOwned.map((v) => shortText(v.effect, 90)).join("; ")}</p>
                   )}
@@ -645,7 +645,7 @@ export default function GeoTab({ geoJson, geoMd, onNavigateTab, fairBase, upside
           {attrTotal > 0 && Math.abs(attrTotal - 100) > 8 && (
             <div className="gcard-sub" style={{ marginTop: 8, marginBottom: 0 }}>Сумма каналов ≈ {Math.round(attrTotal)}% (округление методики, не 100% буквально).</div>
           )}
-          {attr.conclusion && <div className="gattr-concl">{shortProse(attr.conclusion, 380)}</div>}
+          {attr.conclusion && <div className="gattr-concl">{<ExpandableText full={cleanText(attr.conclusion)} short={shortProse(attr.conclusion, 380)} />}</div>}
         </div>
       )}
 
@@ -672,7 +672,7 @@ export default function GeoTab({ geoJson, geoMd, onNavigateTab, fairBase, upside
                   <span className="gsens-g">{s.g_index}</span>
                   <span className="gsens-mech">{shortText(s.mechanism, 180)}</span>
                 </div>
-                {s.elasticity && <div className="gsens-elast">{shortProse(s.elasticity, 200)}</div>}
+                {s.elasticity && <div className="gsens-elast">{<ExpandableText full={cleanText(s.elasticity)} short={shortProse(s.elasticity, 200)} />}</div>}
                 {s.source && <div className="gsens-src">{shortText(s.source, 120)}</div>}
               </div>
             ))}
@@ -720,10 +720,10 @@ export default function GeoTab({ geoJson, geoMd, onNavigateTab, fairBase, upside
           <h3><Swords size={16} aria-hidden="true" />Асимметрия война/мир <Tag type="judg" /></h3>
           <p className="gcard-sub">Куда бумага выпукла сильнее — к миру или к эскалации</p>
           <div className="gasym">
-            <div className="gasym-cell"><div className="gasym-h peace"><TrendingUp size={12} />Мир — выигрыш</div><div className="gasym-txt">{shortProse(asym.peace_gains, 260)}</div></div>
-            <div className="gasym-cell"><div className="gasym-h peace"><TrendingDown size={12} />Мир — издержки</div><div className="gasym-txt">{shortProse(asym.peace_losses, 260)}</div></div>
-            <div className="gasym-cell"><div className="gasym-h esc"><TrendingUp size={12} />Эскалация — выигрыш</div><div className="gasym-txt">{shortProse(asym.escalation_gains, 260)}</div></div>
-            <div className="gasym-cell"><div className="gasym-h esc"><TrendingDown size={12} />Эскалация — издержки</div><div className="gasym-txt">{shortProse(asym.escalation_losses, 260)}</div></div>
+            <div className="gasym-cell"><div className="gasym-h peace"><TrendingUp size={12} />Мир — выигрыш</div><div className="gasym-txt">{<ExpandableText full={cleanText(asym.peace_gains)} short={shortProse(asym.peace_gains, 260)} />}</div></div>
+            <div className="gasym-cell"><div className="gasym-h peace"><TrendingDown size={12} />Мир — издержки</div><div className="gasym-txt">{<ExpandableText full={cleanText(asym.peace_losses)} short={shortProse(asym.peace_losses, 260)} />}</div></div>
+            <div className="gasym-cell"><div className="gasym-h esc"><TrendingUp size={12} />Эскалация — выигрыш</div><div className="gasym-txt">{<ExpandableText full={cleanText(asym.escalation_gains)} short={shortProse(asym.escalation_gains, 260)} />}</div></div>
+            <div className="gasym-cell"><div className="gasym-h esc"><TrendingDown size={12} />Эскалация — издержки</div><div className="gasym-txt">{<ExpandableText full={cleanText(asym.escalation_losses)} short={shortProse(asym.escalation_losses, 260)} />}</div></div>
           </div>
         </div>
       )}
@@ -796,9 +796,9 @@ export default function GeoTab({ geoJson, geoMd, onNavigateTab, fairBase, upside
           <p className="gcard-sub">Открытая методическая прозрачность: где гео и другие блоки спорят о владении фактором риска</p>
           <div className="gdisagree">
             {disagreements.map((d, i) => {
-              if (typeof d === "string") return <p className="gdis-prose" key={i}>{shortProse(d, 320)}</p>;
+              if (typeof d === "string") return <p className="gdis-prose" key={i}>{<ExpandableText full={cleanText(d)} short={shortProse(d, 320)} />}</p>;
               if (d && d.type === "inst_overlap") return <OverlapCard d={d} key={i} />;
-              if (d && d.text) return <p className="gdis-prose" key={i}>{shortProse(d.text, 320)}</p>;
+              if (d && d.text) return <p className="gdis-prose" key={i}>{<ExpandableText full={cleanText(d.text)} short={shortProse(d.text, 320)} />}</p>;
               return null;
             })}
           </div>

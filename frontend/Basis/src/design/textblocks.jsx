@@ -207,6 +207,34 @@ export function Disclosure({ summary, children, defaultOpen = false, className =
 }
 
 /* =============================================================
+   4b. ExpandableText — короткая версия (usually shortProse(text, N)
+   в вызывающем файле — GovernanceTab/GeoTab/InstitutionsTab, три
+   независимые копии одной и той же функции-усекателя) рендерилась
+   БЕЗ способа увидеть остальное — реальный аналитический текст
+   («…») терялся молча (владелец, 2026-07-30, реальный пример —
+   LKOH governance_quality_note: полное предложение в данных, урезано
+   на экране без возможности раскрыть). full===short (усечения не
+   было) → рендерим просто текст, без лишней кнопки.
+   ============================================================= */
+export function ExpandableText({ full, short, className = "" }) {
+  const [open, setOpen] = React.useState(false);
+  if (!full) return null;
+  if (!short || short === full) return <span className={className}>{full}</span>;
+  return (
+    <span className={className}>
+      {open ? full : short}{" "}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="tw-inline tw-bg-transparent tw-border-0 tw-p-0 tw-m-0 tw-text-accent tw-text-[0.93em] tw-font-medium tw-cursor-pointer tw-underline tw-underline-offset-2 hover:tw-text-accent-hover focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded-xs"
+      >
+        {open ? "свернуть" : "читать полностью"}
+      </button>
+    </span>
+  );
+}
+
+/* =============================================================
    5. StatInline — a number pulled out of prose into a mini-visual:
    large tabular figure + unit + caption, optional semantic tone.
    Use it to DUPLICATE a figure buried in text so the eye catches

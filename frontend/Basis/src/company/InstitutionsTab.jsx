@@ -19,7 +19,7 @@
    раскладка (проверено), для остальных — содержательно корректный. */
 import React from "react";
 import { Scale, Globe, Landmark, Percent, TrendingUp, Eye, ShieldAlert } from "lucide-react";
-import { KeyTakeaway } from "../design/textblocks";
+import { KeyTakeaway, ExpandableText } from "../design/textblocks";
 import "../styles/institutions.css";
 
 /* ── текст: очистка markdown-эмфазы/ссылок + безопасная обрезка (порт приёма
@@ -97,12 +97,15 @@ function splitH2(md) {
 }
 // Заголовок финальной секции формулируется РАЗНО у разных компаний (SBER — с тире
 // «— одной фразой», GAZP — без тире «одной фразой») — обязателен regex.
+// Возвращает {full, short} — было: только short (обрезанный "…"), без
+// способа увидеть остальное (владелец, 2026-07-30: та же жалоба, что на
+// «Из чего складывается балл» в Управлении — реальный текст терялся).
 function extractVerdict(md) {
   const secs = splitH2(md);
   const final = secs.find((s) => /Итоговая\s+институциональн[а-яё]*\s+поправк/i.test(s.heading));
-  if (final && final.body) return shortText(final.body, 220);
+  if (final && final.body) return { full: cleanText(final.body), short: shortText(final.body, 220) };
   const sut = secs.find((s) => /^суть/i.test(s.heading));
-  if (sut && sut.body) return shortProse(sut.body, 180);
+  if (sut && sut.body) return { full: cleanText(sut.body), short: shortProse(sut.body, 180) };
   return null;
 }
 
@@ -195,7 +198,7 @@ function Channel({ eyebrow, def, point, sign, unit, range, note }) {
           {dotPos != null && <span className="ichannel-dot" style={{ left: `${dotPos}%` }} />}
         </div>
       )}
-      {note && <div className="ichannel-note">{shortProse(note, 130)}</div>}
+      {note && <div className="ichannel-note">{<ExpandableText full={cleanText(note)} short={shortProse(note, 130)} />}</div>}
     </div>
   );
 }
@@ -298,7 +301,7 @@ export default function InstitutionsTab({ instJson, instMd, onNavigateTab }) {
           {asOf && <span className="ihero-asof">на {asOf}</span>}
         </div>
 
-        {verdict && <p className="ihero-verdict">{verdict}</p>}
+        {verdict && <p className="ihero-verdict"><ExpandableText full={verdict.full} short={verdict.short} /></p>}
 
         {attr.note && (
           <div className="ihero-note">
@@ -339,7 +342,7 @@ export default function InstitutionsTab({ instJson, instMd, onNavigateTab }) {
             {ATTR5.map((c) => (
               <div className={`iof${c.acc ? " acc" : ""}`} key={c.key}>
                 <div className="iofl">{c.label}</div>
-                <div className="iofv">{shortProse(attr[c.key], 100)}</div>
+                <div className="iofv">{<ExpandableText full={cleanText(attr[c.key])} short={shortProse(attr[c.key], 100)} />}</div>
               </div>
             ))}
           </div>
@@ -416,7 +419,7 @@ export default function InstitutionsTab({ instJson, instMd, onNavigateTab }) {
               <div className="isverka-row" key={it.key}>
                 <span className="isverka-name">{it.label}</span>
                 <span className="isverka-score" style={{ color: scoreColor(it.score) }}>{it.score ?? "—"}<s>/5</s></span>
-                <span className="isverka-why">{it.rationale ? shortProse(it.rationale, 90) : ""}</span>
+                <span className="isverka-why">{it.rationale ? <ExpandableText full={cleanText(it.rationale)} short={shortProse(it.rationale, 90)} /> : ""}</span>
               </div>
             ))}
           </div>

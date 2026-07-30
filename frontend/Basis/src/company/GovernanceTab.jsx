@@ -6,6 +6,7 @@
    governance_discount.premium_to_wacc_pp_computed (считает бэк по конфигу). Служебные
    поля (data_flags, ключи факторов, source_ref) в UI не выводятся. */
 import React from "react";
+import { ExpandableText } from "../design/textblocks";
 import "../styles/governance.css";
 
 const fmt1 = (x) => (x == null || isNaN(x) ? "—" : Number(x).toLocaleString("ru-RU", { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
@@ -142,8 +143,8 @@ export default function GovernanceTab({ gov, finJson }) {
                 <div className="gv-score"><b>{fmt1(overall)}</b><s>из 5</s></div>
                 <div className="gv-txt">
                   <span className="gv-badge">{flag.t}</span>
-                  {meta.governance_quality_note && <div className="gv-h">{shortProse(meta.governance_quality_note, 180)}</div>}
-                  {gd.rationale && <div className="gv-s">{shortProse(gd.rationale, 150)}</div>}
+                  {meta.governance_quality_note && <div className="gv-h"><ExpandableText full={cleanProse(meta.governance_quality_note)} short={shortProse(meta.governance_quality_note, 180)} /></div>}
+                  {gd.rationale && <div className="gv-s"><ExpandableText full={cleanProse(gd.rationale)} short={shortProse(gd.rationale, 150)} /></div>}
                 </div>
               </div>
               {premium != null && (
@@ -189,7 +190,7 @@ export default function GovernanceTab({ gov, finJson }) {
                       <SegBar score={f.score} dx />
                       <span className="dxval">{f.score}<s>/5</s></span>
                     </div>
-                    {f.rationale && <div className="dxwhy"><b>Почему {f.score}:</b> {shortProse(f.rationale, 210)}</div>}
+                    {f.rationale && <div className="dxwhy"><b>Почему {f.score}:</b> <ExpandableText full={cleanProse(f.rationale)} short={shortProse(f.rationale, 210)} /></div>}
                   </div>
                 ))}
               </div>
@@ -273,7 +274,7 @@ export default function GovernanceTab({ gov, finJson }) {
                 {board.independent_count != null && <div className="mf"><b>{board.independent_count}</b>независимых директоров</div>}
                 {gq.transparency && <div className="mf"><b>{/закрыл|частич/i.test(gq.transparency) ? "частично" : "есть"}</b>раскрытие</div>}
               </div>
-              {board.real_independence_note && <p className="sub" style={{ margin: "0 0 14px" }}>{shortProse(board.real_independence_note, 220)}</p>}
+              {board.real_independence_note && <p className="sub" style={{ margin: "0 0 14px" }}><ExpandableText full={cleanProse(board.real_independence_note)} short={shortProse(board.real_independence_note, 220)} /></p>}
               <div className="grisks">
                 {risks.map((r, i) => {
                   const sev = SEV[r.severity] || SEV.medium;
