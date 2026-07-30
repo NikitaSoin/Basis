@@ -3,7 +3,6 @@ import { FAIR_VALUE_NOTE } from "../fairValueNote";
 import { createRoot } from "react-dom/client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 // MapLibre грузит воркер (парсинг тайлов) через import.meta.url относительно
@@ -13,7 +12,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
 // рендерятся — пустой белый холст, без явной ошибки в консоли). Явно
 // указываем URL воркера на статическую копию в public/ (см. её же
 // maplibre-gl-shared.js рядом — воркер импортирует его относительным путём).
-maplibregl.setWorkerUrl(`${process.env.PUBLIC_URL}/maplibre-gl-worker.js`);
 import {
   Newspaper,
   Activity,
@@ -2994,6 +2992,25 @@ function ObsGeoTheaterBrief({ theater, data }) {
 // каждый. См. заголовочный комментарий раздела выше (unionGeoBounds).
 // =========================
 function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
+  // 🔴 MapLibre грузится ПО ТРЕБОВАНИЮ, а не статическим импортом (дробление бандла,
+  // владелец 2026-07-30). Библиотека тяжёлая и нужна ровно одному экрану — гео-картам,
+  // но статический импорт затягивал её в главный бандл ВСЕМ: человеку, открывшему из
+  // поиска карточку компании, она приезжала вместе с остальным, хотя карт он не видит.
+  // Тело эффекта инициализации не тронуто — имя переменной то же, добавлен лишь guard.
+  const [maplibregl, setMaplibregl] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    import("maplibre-gl").then((m) => {
+      if (!alive) return;
+      // У maplibre-gl 6.x default-экспорта НЕТ — Map/setWorkerUrl лежат прямо в
+      // пространстве имён (проверено на установленной версии). Берём namespace, если
+      // Map там есть, иначе default: так правка переживёт смену мажора в любую сторону.
+      const lib = (m && typeof m.Map === "function") ? m : (m && m.default) || m;
+      try { lib.setWorkerUrl(`${process.env.PUBLIC_URL}/maplibre-gl-worker.js`); } catch {}
+      setMaplibregl(lib);
+    }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
   const [styleLoaded, setStyleLoaded] = useState(false);
   const [activeType, setActiveType] = useState("all");
   const [focus, setFocus] = useState("world"); // "world" | theaterKey
@@ -3221,7 +3238,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
   // осядут), поэтому эффект гарантированно монтирует карту с полным набором
   // источников/слоёв сразу, без «дозагрузки» очагов на лету.
   useEffect(() => {
-    if (!containerRef.current || mapRef.current || !unionBounds) return;
+    if (!containerRef.current || mapRef.current || !unionBounds || !maplibregl) return;
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: GEOMAP_TILE_STYLE_URL,
@@ -3331,7 +3348,9 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
       map.remove();
       mapRef.current = null;
     };
-  }, []);
+   }, [maplibregl]);   // зависимость обязательна: библиотека приезжает асинхронно,
+   // и без неё эффект отработал бы один раз с maplibregl=null — карта не создалась бы
+   // никогда. Повторной инициализации не будет: выше стоит guard mapRef.current.
 
   // --- Автофокус камеры по внешнему activeTheater (владелец, 2026-07-27:
   // фильтр очагов теперь есть и в «Оценке ситуации», карта должна перелетать

@@ -54,9 +54,16 @@ import { WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor
 import { CompanyLogo } from "./design/CompanyLogo";
 import { Prose, LeadStatement, KeyTakeaway, Disclosure, ANALYST_MD } from "./design/textblocks";
 import { CompanyIdentityBlock, PricePanel, MetricStrip, ResearchTabs as NeoResearchTabs, DecisionSupportRail } from "./company/neo";
-import ScreenerNeo from "./screener/ScreenerNeo";
-import BondScreenerNeo from "./screener/BondScreenerNeo";
-import MarketNeo from "./market/MarketNeo";
+// ─── ДРОБЛЕНИЕ БАНДЛА (владелец, 2026-07-30) ───────────────────────────────────
+// Бандл был 3,0 МБ ОДНИМ куском: человеку, пришедшему из поиска на карточку одной
+// компании, отдавалась вся платформа разом — портфель, скринеры, стресс-тест, карты.
+// Замер с боя: 2,2 с только на скачивание, плюс парсинг. Бьёт и по впечатлению
+// («открывается медленно»), и по ранжированию — скорость входит в оценку страницы.
+// Ленивыми сделаны разделы, которые НЕ нужны для просмотра карточки; сама карточка и
+// лендинг остаются в основном бандле — именно на них приходят из поиска.
+const ScreenerNeo = React.lazy(() => import("./screener/ScreenerNeo"));
+const BondScreenerNeo = React.lazy(() => import("./screener/BondScreenerNeo"));
+const MarketNeo = React.lazy(() => import("./market/MarketNeo"));
 import { IndexHubView, IndexDetailView, FearGreedDetailView } from "./market/IndexViews";
 import "./market/market-m5.css";
 import LandingNeo from "./market/LandingNeo";
@@ -93,15 +100,15 @@ import {
   EarningsFeed,
   CalendarView,
 } from "./observer/ObsLegacyViews";
-import { PortfolioV2 } from "./portfolio/PortfolioViews";
-import StressTestView from "./portfolio/StressTestView";
+const PortfolioV2 = React.lazy(() => import("./portfolio/PortfolioViews").then((m) => ({ default: m.PortfolioV2 })));
+const StressTestView = React.lazy(() => import("./portfolio/StressTestView"));
 import { AuthModal } from "./account/AccountPanels";
 import PricingView from "./account/PricingView";
 import ProfileView from "./account/ProfileView";
 import { CompanyCard, CompaniesView, NEO_CARD, BondCard, FuturesCard, FundCard, SpotCard } from "./company/CompanyCardView";
 import AssistantView from "./AssistantView";
 import "./styles/compare.css";
-import ScreenerCompareView from "./screener/ScreenerCompareShell";
+const ScreenerCompareView = React.lazy(() => import("./screener/ScreenerCompareShell"));
 import "./styles/mobile-nav.css";
 import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop } from "./design/MobileSidebarDrawer";
 
@@ -1138,7 +1145,12 @@ export default function App() {
         ) : (
           <main className="app-main-top">
             <ViewErrorBoundary routeKey={`${activeTab}:${selectedCompany ? "card" : "list"}`}>
-              {renderView()}
+              {/* Suspense обязателен для ленивых разделов: пока грузится чанк, показываем
+                  спокойную заглушку вместо срыва рендера. Текст нейтральный — раздел
+                  может быть любым (портфель, скринер, карты). */}
+              <React.Suspense fallback={<div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-animate-pulse">Загружаем раздел…</div>}>
+                {renderView()}
+              </React.Suspense>
             </ViewErrorBoundary>
           </main>
         )}
