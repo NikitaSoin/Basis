@@ -241,58 +241,58 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
+        132963,
+        225278,
         189409,
         236539
       ],
       "intangibles": [
-        null,
-        null,
+        1354,
+        21525,
         12354,
         11865
       ],
       "goodwill": [
-        null,
-        null,
+        3067,
+        49392,
         35787,
         40853
       ],
       "long_term_investments": [
-        null,
-        null,
+        100,
+        439,
         7485,
         9600
       ],
       "other_non_current": [
-        null,
-        null,
+        50530,
+        49501,
         null,
         null
       ],
       "total_non_current": [
-        null,
-        null,
+        188014,
+        346135,
         272399,
         330397
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
+        61805,
+        114437,
         113438,
         103333
       ],
       "receivables": [
-        null,
-        null,
+        71857,
+        100777,
         108618,
         119923
       ],
       "cash": [
-        null,
-        null,
+        73036,
+        96340,
         69572,
         120996
       ],
@@ -303,14 +303,14 @@
         null
       ],
       "other_current": [
-        null,
-        null,
+        24454,
+        36888,
         null,
         null
       ],
       "total_current": [
-        null,
-        null,
+        231152,
+        348442,
         312475,
         362516
       ]
@@ -323,26 +323,26 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
+        10331,
+        10331,
         10331,
         10520
       ],
       "retained_earnings": [
-        null,
-        null,
+        35661,
+        14345,
         57464,
         23568
       ],
       "additional_paid_in": [
-        null,
-        null,
+        14744,
+        14842,
         14780,
         18754
       ],
       "other_equity": [
-        null,
-        null,
+        11021,
+        10383,
         null,
         null
       ],
@@ -355,52 +355,52 @@
     },
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
+        125962,
+        236563,
         170515,
         259465
       ],
       "deferred_tax": [
-        null,
-        null,
+        6217,
+        20379,
         14790,
         18878
       ],
       "other_non_current_liab": [
-        null,
-        null,
+        60439,
+        70195,
         null,
         null
       ],
       "total_non_current_liab": [
-        null,
-        null,
+        192618,
+        327137,
         198503,
         306251
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
+        74315,
+        95509,
         149058,
         122269
       ],
       "payables": [
-        null,
-        null,
+        51717,
+        99649,
         100363,
         136472
       ],
       "other_current_liab": [
-        null,
-        null,
+        28759,
+        122381,
         null,
         null
       ],
       "total_current_liab": [
-        null,
-        null,
+        154791,
+        317539,
         299657,
         329422
       ]
@@ -1397,7 +1397,8 @@
     "cost_format=by_function подтверждён по обоим первичным отчётам (Себестоимость/Валовая прибыль присутствуют — не переизвлекались повторно, взяты из старого extracted_financials.json без изменений).",
     "da (амортизация) расхождение: главный financials.json содержит [12651, 17799, 36459, 56043], первичный ОДДС (report-fetcher) даёт [12651, 17799, 22560, 25773] за 2023/2024 — вероятно, в главном смешана амортизация с обесценением/др. корректировками EBITDA. НЕ заменено молча, нужна проверка аналитиком.",
     "TRMK: total_assets дозаполнен производным способом (total_liabilities + total_equity).",
-    "meta.last_price добавлен (93.5863 ₽, уверенность: medium (только 1 метод)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price)."
+    "meta.last_price добавлен (93.5863 ₽, уверенность: medium (только 1 метод)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price).",
+    "🔵 GAP-ЗАКРЫТИЕ (2026-07-30, report-fetcher): постатейный баланс 2020-2021 добыт из аудированного консолидированного МСФО-отчёта (tmk-group.ru) — non_current_assets/current_assets/equity/liabilities построчно, арифметика сходится точно. Топ-уровневые total_assets/total_liabilities/total_equity/cfo/cfi/cff/capex уже присутствовали и совпали точно."
   ],
   "segments": [
     {
