@@ -412,9 +412,40 @@ def _net_margin(fin: dict) -> float | None:
     return float(median(margins[-4:]))
 
 
-def _revenue_growth0(fin: dict) -> float | None:
-    """Стартовый рост выручки: медиана недавних темпов (metrics_timeseries.revenue_growth,
-    единицы нормализованы к доле), иначе CAGR по ряду выручки. Кап [0; 0.5]."""
+def _forecast_growth0(market: dict) -> float | None:
+    """Стартовый рост выручки из ПРОГНОЗА аналитика:
+    `valuation_inputs.explicit_horizon.scenarios.base.revenue_growth[0]`, середина
+    коридора low_pct/high_pct (номинал — та же рамка, что у terminal_growth).
+
+    Прогноз заполнен у 262 компаний из 264, и до 2026-07-30 движок его НЕ ЧИТАЛ вовсе:
+    стартовый рост брался экстраполяцией прошлого. Для циклического сырьевика это
+    ловит пик цикла — у PLZL медиана прошлых темпов дала 53,4 % (ралли золота 2024–2025),
+    упёрлась в кап 50 % и разогнала справедливую цену до 3547 ₽ при рынке 1319 ₽ и
+    последнем фактическом росте +2,6 %. В market.json у той же PLZL база на 2026 — 8–18 %.
+    Прошлое как якорь роста тем хуже, чем сильнее цикличность — а прогноз аналитик
+    заполняет именно для этого.
+    """
+    sc = (((market.get("valuation_inputs") or {}).get("explicit_horizon") or {})
+          .get("scenarios") or {}).get("base") or {}
+    rows = sc.get("revenue_growth")
+    if not isinstance(rows, list) or not rows:
+        return None
+    first = rows[0] if isinstance(rows[0], dict) else {}
+    lo, hi = first.get("low_pct"), first.get("high_pct")
+    vals = [v for v in (lo, hi) if isinstance(v, (int, float))]
+    if not vals:
+        return None
+    return sum(vals) / len(vals) / 100.0
+
+
+def _revenue_growth0(fin: dict, market: dict | None = None) -> float | None:
+    """Стартовый рост выручки. Приоритет: прогноз аналитика (базовый сценарий из
+    market.json) → медиана недавних фактических темпов → CAGR по ряду выручки.
+    Кап [0; 0.5] — только на исторических путях: прогноз аналитика не режем, он и так
+    в разумных границах, а кап тут скрывал бы его осознанное суждение."""
+    g = _forecast_growth0(market or {})
+    if g is not None:
+        return max(-0.5, min(0.5, g))
     g = _recent_median((fin.get("metrics_timeseries", {}) or {}).get("revenue_growth"), n=3)
     if g is not None:
         g = g if abs(g) < 1.5 else g / 100.0   # единицы: доля vs проценты
@@ -460,10 +491,12 @@ def compile_params_f(fin: dict, gov: dict, inst: dict, barometer: dict, market: 
                 "warnings": ["нет чистой маржи для BFV-F"]}
     if margin0 <= 0:
         warn.append(f"чистая маржа ≤ 0 ({margin0:.1%}) — компания убыточна, поток отрицателен")
-    g_rev0 = _revenue_growth0(fin)
+    g_rev0 = _revenue_growth0(fin, market)
     if g_rev0 is None:
         g_rev0 = 0.08
         warn.append("нет темпа роста выручки — по умолчанию 8%")
+    elif _forecast_growth0(market or {}) is None:
+        warn.append("рост выручки — по прошлым темпам (прогноза в разборе рынка нет)")
     g_terminal = _terminal_growth(fin, market)
 
     # маржа_терминал: направление из margin_trajectory (EBITDA from→to), масштаб к чистой
