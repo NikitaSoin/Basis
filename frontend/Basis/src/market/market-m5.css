@@ -342,3 +342,9 @@
 .m5-cmx-macrolink:focus-visible{outline:none;box-shadow:0 0 0 3px var(--m5-accent-soft);}
 @media(prefers-reduced-motion:reduce){.m5-cmx-macrolink{transition:none;}}
 .m5-deepbox .dx{font-size:12.5px;line-height:1.5;color:var(--m5-ink-2);}
+
+/* Пояснение к «% к справедл.» над списком акций (владелец 2026-07-30): один раз над
+   сеткой, а не в каждой мини-карточке — там на телефоне нет места. */
+.mk-fv-note{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  font-size:12.5px;line-height:1.4;color:var(--cc-ink-3,#7A736B);
+  padding:2px 2px 10px;}

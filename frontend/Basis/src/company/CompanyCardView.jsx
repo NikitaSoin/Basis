@@ -31,6 +31,13 @@ import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as
 import { Prose, ANALYST_MD } from "../design/textblocks";
 import { AppearGroup, Appear } from "../design/motion";
 import { FAIR_VALUE_NOTE } from "../fairValueNote";
+import { InfoDot } from "../design/InfoDot";
+// Обёртка «Обзора» (renderOverview) в .fin-hybrid переиспользует классы отсюда
+// (.card/h3/.tag-*/.fair и т.д.) — тот же визуальный язык, что во вкладке «Финансы»
+// (FinanceTab.jsx). Явный импорт на случай изменения порядка загрузки модулей —
+// FinanceTab.jsx уже импортирует этот файл, но эта строка не даёт зависеть от чужого
+// порядка импортов.
+import "../styles/finance.css";
 import { CompanyLogo } from "../design/CompanyLogo";
 import { useCountUp } from "../design/PortfolioViz";
 import { CompanyIdentityBlock, PricePanel, MetricStrip, ResearchTabs as NeoResearchTabs, DecisionSupportRail } from "./neo";
@@ -3050,33 +3057,6 @@ const LiveMacroBackdropChip = () => {
 // Кружок «i» с пояснением — тот же приём, что в Портфеле и Обозревателе (владелец
 // 2026-07-30). Свой, а не импорт InfoTip из скринера: тот тянет за собой весь модуль
 // скринера вместе с его стилями, здесь достаточно 20 строк на токенах карточки.
-const InfoDot = ({ text, label = "Пояснение" }) => {
-  const [open, setOpen] = useState(false);
-  const wrapRef = useRef(null);
-  useEffect(() => {
-    if (!open) return;
-    const onDoc = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
-    const onEsc = (e) => { if (e.key === "Escape") setOpen(false); };
-    document.addEventListener("mousedown", onDoc);
-    document.addEventListener("keydown", onEsc);
-    return () => { document.removeEventListener("mousedown", onDoc); document.removeEventListener("keydown", onEsc); };
-  }, [open]);
-  if (!text) return null;
-  return (
-    <span ref={wrapRef} className="tw-relative tw-inline-flex tw-align-middle">
-      <button type="button" aria-label={label} aria-expanded={open}
-        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
-        className="tw-w-[15px] tw-h-[15px] tw-rounded-full tw-border tw-border-border-subtle tw-bg-bg-base tw-text-text-tertiary tw-text-[10px] tw-font-semibold tw-leading-none tw-inline-flex tw-items-center tw-justify-center tw-cursor-pointer tw-p-0 hover:tw-border-accent hover:tw-text-accent">i</button>
-      {open && (
-        <span role="tooltip"
-          className="tw-absolute tw-z-50 tw-top-[22px] tw-left-0 tw-w-[290px] max-sm:tw-w-[240px] tw-p-3 tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-elevated tw-shadow-lg tw-text-[12px] tw-leading-snug tw-text-text-secondary tw-font-normal tw-normal-case tw-tracking-normal">
-          {text}
-        </span>
-      )}
-    </span>
-  );
-};
-
 const CompanyCard = ({ company, onBack, initialTab }) => {
   // initialTab — deep-link из статических SEO-страниц (/company/T/finance/ →
   // /?company=T&tab=finance): открыть карточку сразу на нужной вкладке.
@@ -3365,61 +3345,57 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
     // хотя разбор отчёта у Роснефти есть). Прошлые разборы не теряются —
     // раскрываются по клику («Прошлые разборы») из /earnings/archive.
     const earningsCard = earnings && (earnings.digest || earnings.status === "needs_source" || earnings.status === "extract_failed") && (
-      <Card>
-        <div className="tw-flex tw-items-center tw-justify-between tw-mb-3 tw-flex-wrap tw-gap-2">
-          <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold">
-            <Newspaper size={18} />
-            <span>Вышел отчёт</span>
-          </div>
-          <span className="tw-text-[12px] tw-text-text-tertiary">
-            {earnings.period}{earnings.standard ? ` · ${earnings.standard}` : ""}
-          </span>
-        </div>
+      <div className="card">
+        <h3>
+          <Newspaper size={18} />
+          <span>Вышел отчёт</span>
+          <span className="tag tag-fact">факт</span>
+          <span className="hmeta">{earnings.period}{earnings.standard ? ` · ${earnings.standard}` : ""}</span>
+        </h3>
         {earnings.status === "extract_failed" ? (
-          <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">
+          <p style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5, margin: "10px 0 0" }}>
             Отчёт вышел — цифры на проверке, разбор появится после сверки источника.
           </p>
         ) : earnings.status === "needs_source" ? (
-          <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">
+          <p style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5, margin: "10px 0 0" }}>
             Отчёт вышел {earnings.published_at || ""} — источник с цифрами ещё не найден, разбор появится по мере поступления данных.
           </p>
         ) : (
-          <div className="tw-flex tw-flex-col tw-gap-2">
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 10 }}>
             {earnings.digest.one_liner && (
-              <p className="tw-text-[14px] tw-font-medium tw-text-text-primary tw-m-0">{earnings.digest.one_liner}</p>
+              <p style={{ fontSize: 14, fontWeight: 500, color: "var(--ink)", margin: 0 }}>{earnings.digest.one_liner}</p>
             )}
             {Array.isArray(earnings.digest.what_report_showed) && (
-              <ul className="tw-list-none tw-p-0 tw-m-0 tw-flex tw-flex-col tw-gap-1">
-                {earnings.digest.what_report_showed.map((x, i) => (
-                  <li key={i} className="tw-flex tw-items-start tw-gap-2 tw-text-[13px] tw-text-text-secondary">
-                    <span aria-hidden="true" className={`tw-mt-0.5 tw-shrink-0 ${x.startsWith("❌") ? "tw-text-danger" : x.startsWith("❗") ? "tw-text-warning" : "tw-text-success"}`}>
-                      {x.startsWith("❌") ? "✗" : x.startsWith("❗") ? "!" : "✓"}
-                    </span>
-                    <span>{x.replace(/^[✅❌❗️]+\s*/, "")}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="verdict">
+                {earnings.digest.what_report_showed.map((x, i) => {
+                  const kind = x.startsWith("❌") ? "no" : x.startsWith("❗") ? "warn" : "ok";
+                  const glyph = kind === "no" ? "✗" : kind === "warn" ? "!" : "✓";
+                  return (
+                    <div className="vrow" key={i}>
+                      <span aria-hidden="true" className={`ic ${kind}`}>{glyph}</span>
+                      <span>{x.replace(/^[✅❌❗️]+\s*/, "")}</span>
+                    </div>
+                  );
+                })}
+              </div>
             )}
-            {earnings.digest.summary && <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">{earnings.digest.summary}</p>}
+            {earnings.digest.summary && <p style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5, margin: 0 }}>{earnings.digest.summary}</p>}
           </div>
         )}
-        <p className="tw-text-[11px] tw-text-text-tertiary tw-mt-3 tw-mb-0">
+        <p className="fv-note">
           Ознакомительный разбор события «вышел отчёт» по свежим источникам. Не является ИИР.
         </p>
         {earningsArchive === null ? (
-          <button
-            type="button"
-            onClick={loadEarningsArchive}
-            className="tw-text-[12px] tw-text-accent tw-mt-3 tw-p-0 tw-bg-transparent tw-border-0 tw-cursor-pointer tw-underline tw-inline-flex tw-items-center tw-gap-1"
-          >
-            <ChevronRight size={12} />Прошлые разборы
+          <button type="button" onClick={loadEarningsArchive} className="det-toggle" style={{ marginTop: 2 }}>
+            <ChevronRight size={12} />
+            <span>Прошлые разборы</span>
           </button>
         ) : earningsArchive.length > 0 ? (
-          <div className="tw-mt-3 tw-pt-3 tw-border-t tw-border-border-subtle tw-flex tw-flex-col tw-gap-2">
-            <div className="tw-text-[11px] tw-text-text-tertiary tw-font-semibold tw-uppercase tw-tracking-wide">История разборов</div>
+          <div style={{ marginTop: 4, paddingTop: 12, borderTop: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 8 }}>
+            <div className="subh" style={{ margin: 0 }}>История разборов</div>
             {earningsArchive.map((it, i) => (
-              <div key={i} className="tw-text-[12px] tw-text-text-secondary">
-                <span className="tw-text-text-tertiary">
+              <div key={i} style={{ fontSize: 12, color: "var(--ink-2)" }}>
+                <span style={{ color: "var(--ink-3)", fontFamily: "var(--mono)" }}>
                   {it.published_at || ""}{it.standard ? ` · ${it.standard}` : ""} ·{" "}
                 </span>
                 {it.one_liner || it.period}
@@ -3427,9 +3403,9 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
             ))}
           </div>
         ) : (
-          <p className="tw-text-[12px] tw-text-text-tertiary tw-mt-3 tw-mb-0">Прошлых разборов нет.</p>
+          <p className="fv-note" style={{ marginTop: 2 }}>Прошлых разборов нет.</p>
         )}
-      </Card>
+      </div>
     );
 
     // «Справедливая цена по методике Basis» (BFV) — ГЛАВНАЯ цена в Обзоре
@@ -3480,97 +3456,102 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
     const bfvFailed = bfv && bfv.status && bfv.status !== "ok";
     const bfvFailReason = bfvFailed && Array.isArray(bfv.warnings) && bfv.warnings.length > 0 ? bfv.warnings[0] : null;
     const basisFairPriceEmpty = !bfvOk && methodRows.length === 0 && bfvFailed && (
-      <Card>
-        <div className="tw-flex tw-items-center tw-gap-2 tw-text-text-secondary tw-font-semibold tw-mb-2">
+      <div className="card">
+        <h3>
           <Target size={18} />
           <span>Справедливая цена по методике Basis</span>
           <InfoDot text={FAIR_VALUE_NOTE} label="Как читать справедливую цену" />
-        </div>
-        <div className="tw-text-[13px] tw-text-text-tertiary tw-leading-snug">
-          <span className="tw-text-text-secondary tw-font-medium">—</span> Не рассчитана: не хватает входных
+        </h3>
+        <p style={{ fontSize: 13, color: "var(--ink-3)", lineHeight: 1.5, margin: "10px 0 0" }}>
+          <span style={{ color: "var(--ink-2)", fontWeight: 600 }}>—</span> Не рассчитана: не хватает входных
           данных{bfvFailReason ? ` (${bfvFailReason})` : ""}. Исторические P/E и P/B мы здесь намеренно не
           подставляем — это прошлые оценки рынка, а не наша справедливая цена, и на месте главного числа они
           вводили бы в заблуждение. Судить о стоимости придётся по отчётности и мультипликаторам во вкладке
           «Финансы».
-        </div>
-      </Card>
+        </p>
+      </div>
     );
     const basisFairPriceCard = (bfvOk || methodRows.length > 0) && (
-      <Card className="tw-shadow-md dark:tw-shadow-none tw-ring-1 tw-ring-accent-soft">
-        <div className="tw-flex tw-items-center tw-justify-between tw-mb-3 tw-flex-wrap tw-gap-2">
-          <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-flex-wrap">
-            <Target size={18} />
-            <span>Справедливая цена по методике Basis</span>
-            <InfoDot text={FAIR_VALUE_NOTE} label="Как читать справедливую цену" />
-            {/* эпистемический тег: число — МОДЕЛЬ, а не факт. Был у заголовка в старом
-                блоке «Финансов» (tag-model «тест · модель») и потерялся при переносе —
-                вернули (ОТК 2026-07-29): дисклеймер 11px внизу карточки этот слой не
-                закрывает, его не читают до принятия решения. */}
-            <span className="tw-inline-block tw-text-[10px] tw-font-semibold tw-px-1.5 tw-py-px tw-rounded-xs tw-border tw-uppercase tw-tracking-wide tw-bg-info-soft tw-text-info tw-border-info" style={{ letterSpacing: "0.05em" }}>
-              модель · тест
-            </span>
-          </div>
-          <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
-            {/* при плашке «оценка вне разумного диапазона» чип надёжности не показываем:
-                оба говорят «не верь числу», но плашка конкретнее (называет причину и что
-                делать). Три сигнала подряд читались как паника, а не как честность
-                (повторный ОТК). Обратно чип НЕ убираем совсем — у DATA (+316 %)
-                reliability = normal и содержательных предупреждений нет, там плашка
-                оказывается единственным сигналом. */}
+      <div className="card">
+        <h3>
+          <Target size={18} />
+          <span>Справедливая цена по методике Basis</span>
+          <InfoDot text={FAIR_VALUE_NOTE} label="Как читать справедливую цену" />
+          {/* эпистемический тег: число — МОДЕЛЬ, а не факт. Был у заголовка в старом
+              блоке «Финансов» (tag-model «тест · модель») и потерялся при переносе —
+              вернули (ОТК 2026-07-29): дисклеймер 11px внизу карточки этот слой не
+              закрывает, его не читают до принятия решения. Класс tag-model — тот же,
+              которым «Финансовая модель» помечена в FinanceTab.jsx (finance.css). */}
+          <span className="tag tag-model">модель · тест</span>
+        </h3>
+        {/* при плашке «оценка вне разумного диапазона» чип надёжности не показываем:
+            оба говорят «не верь числу», но плашка конкретнее (называет причину и что
+            делать). Три сигнала подряд читались как паника, а не как честность
+            (повторный ОТК). Обратно чип НЕ убираем совсем — у DATA (+316 %)
+            reliability = normal и содержательных предупреждений нет, там плашка
+            оказывается единственным сигналом. */}
+        {((bfvOk && bfv.reliability === "low" && !bfvAbsurd) || (bfv && bfv.engine)) && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
             {bfvOk && bfv.reliability === "low" && !bfvAbsurd && (
-              <span className="tw-text-[11px] tw-font-semibold tw-px-2 tw-py-0.5 tw-rounded-full tw-border tw-border-warning tw-bg-warning-soft tw-text-warning">
+              <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 10px", borderRadius: 999, border: "1px solid var(--amber)", background: "var(--amber-soft)", color: "var(--amber)" }}>
                 надёжность низкая
               </span>
             )}
             {bfv && bfv.engine && (
-              <span className="tw-text-[11px] tw-font-medium tw-px-2 tw-py-0.5 tw-rounded-full tw-border tw-border-border-subtle tw-text-text-secondary">
+              <span style={{ fontSize: 11, fontWeight: 500, padding: "2px 10px", borderRadius: 999, border: "1px solid var(--line-2)", color: "var(--ink-2)" }}>
                 метод: {engineLabel}
               </span>
             )}
           </div>
-        </div>
+        )}
 
         {bfvRev ? (
           <>
             {/* «Ловушка стоимости» — сильный сигнал, а при переносе из «Финансов» заметка
                 потеряла акцентную левую рамку и сравнялась с обычной прозой. Вернули. */}
-            <div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug tw-mb-2 tw-pl-3 tw-border-l-[3px] tw-border-accent">{bfvRev.note}</div>
-            <div className="tw-font-display tw-font-light tw-text-text-tertiary tw-tabular-nums" style={{ fontSize: "30px", lineHeight: "1" }}>
-              ≈ {formatMoney(Math.round(bfvFair), { decimals: 0 })} <span className="tw-text-[13px] tw-text-text-tertiary">(прямая оценка · справочно)</span>
+            <div style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5, margin: "12px 0 10px", paddingLeft: 12, borderLeft: "3px solid var(--accent)" }}>{bfvRev.note}</div>
+            <div className="fair">
+              <div className="big" style={{ fontSize: 28, color: "var(--ink-3)" }}>
+                ≈ {formatMoney(Math.round(bfvFair), { decimals: 0 })}
+                <span style={{ fontSize: 13, marginLeft: 8 }}>(прямая оценка · справочно)</span>
+              </div>
             </div>
           </>
         ) : bfvFair != null ? (
-          <>
-            <div className="tw-flex tw-items-end tw-gap-3 tw-flex-wrap">
-              <span className="tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums" style={{ fontSize: "44px", lineHeight: "1", letterSpacing: "-1px" }}>
+          <div className="fair" style={{ marginTop: 12 }}>
+            <div>
+              <div className="big" style={{ fontSize: 44, letterSpacing: "-1px" }}>
                 <FinCountUp value={bfvFair} gate={ovwCountGate} render={(n) => (typeof n === "number" && !Number.isNaN(n) ? formatMoney(Math.round(n), { decimals: 0 }) : `${bfvFair} ₽`)} />
-              </span>
-              {typeof bfv.upside_pct === "number" && (
-                <span className={`tw-text-[15px] tw-font-semibold tw-tabular-nums ${bfv.upside_pct >= 0 ? "tw-text-success" : "tw-text-danger"}`}>
-                  {bfv.upside_pct >= 0 ? "▲" : "▼"} {Math.abs(Math.round(bfv.upside_pct))}% {bfv.upside_pct >= 0 ? "потенциал" : "даунсайд"}
-                </span>
-              )}
+              </div>
             </div>
-            {bfvCur != null && (
-              <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-1">живая цена {formatMoney(Math.round(bfvCur), { decimals: 0 })}</div>
+            {typeof bfv.upside_pct === "number" && (
+              <div className={`ud delta ${bfv.upside_pct >= 0 ? "up" : "dn"}`}>
+                {bfv.upside_pct >= 0 ? "▲" : "▼"} {Math.abs(Math.round(bfv.upside_pct))}% {bfv.upside_pct >= 0 ? "потенциал" : "даунсайд"}
+              </div>
             )}
-          </>
-        ) : (
-          <div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug">
-            Метод денежного потока к этой бумаге неприменим (поток к акционеру неинформативен — убыточна или платит из долга). Ниже — исторические ориентиры.
+            {bfvCur != null && (
+              <div className="corr">живая цена<br /><b>{formatMoney(Math.round(bfvCur), { decimals: 0 })}</b></div>
+            )}
           </div>
+        ) : (
+          <p style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5, margin: "12px 0 0" }}>
+            Метод денежного потока к этой бумаге неприменим (поток к акционеру неинформативен — убыточна или платит из долга). Ниже — исторические ориентиры.
+          </p>
         )}
 
         {bfvOk && !bfvRev && bfv.verdict && (
-          <div className={`tw-inline-flex tw-items-center tw-gap-2 tw-mt-3 tw-px-3 tw-py-1.5 tw-rounded-md tw-text-[13px] tw-font-medium tw-bg-bg-base tw-border tw-border-border-subtle ${bfv.verdict === "проходит" ? "tw-text-success" : "tw-text-danger"}`}>
+          <div className="vrow" style={{ marginTop: 14 }}>
             {/* «проходит ПОРОГ доходности», а не «покупать» — платформа принципиально не даёт
                 сигналов купить/продать, а голое «проходит / не проходит» читалось как сигнал. */}
-            {bfv.verdict === "проходит" ? "✓" : "•"} {bfv.verdict} порог доходности
-            {typeof bfv.expected_return_pct === "number" && typeof bfv.hurdle_pct === "number" && (
-              <span className="tw-text-text-tertiary tw-font-normal">
-                · доходность {bfvBound === "below" ? "< 0,5" : bfvBound === "above" ? "> 200" : Math.round(bfv.expected_return_pct)} % vs порог {Math.round(bfv.hurdle_pct)} %
-              </span>
-            )}
+            <span aria-hidden="true" className={`ic ${bfv.verdict === "проходит" ? "ok" : "no"}`}>{bfv.verdict === "проходит" ? "✓" : "•"}</span>
+            <span>
+              <b>{bfv.verdict} порог доходности</b>
+              {typeof bfv.expected_return_pct === "number" && typeof bfv.hurdle_pct === "number" && (
+                <span style={{ color: "var(--ink-3)", fontWeight: 400 }}>
+                  {" "}· доходность {bfvBound === "below" ? "< 0,5" : bfvBound === "above" ? "> 200" : Math.round(bfv.expected_return_pct)} % vs порог {Math.round(bfv.hurdle_pct)} %
+                </span>
+              )}
+            </span>
           </div>
         )}
 
@@ -3580,45 +3561,46 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
             MTLR показывает 1,19 ₽ против цены 36,95 ₽ (▼97%) без единого пояснения, откуда
             такое число, — читается как поломка и убивает доверие к методике (ОТК 2026-07-29). */}
         {bfvAbsurd && (
-          <div className="tw-mt-3 tw-px-3 tw-py-2 tw-rounded-md tw-border tw-border-warning tw-bg-warning-soft tw-text-[12px] tw-text-text-secondary tw-leading-snug">
-            <b className="tw-text-warning">Оценка вне разумного диапазона.</b> Расхождение с рынком в разы обычно означает
-            проблему во входных данных (цена, выручка, число акций), а не реальную недооценку. Считайте это сигналом
-            перепроверить бумагу вручную, а не оценкой.
+          <div className="ff-note" style={{ marginTop: 14 }}>
+            <div className="nh">Оценка вне разумного диапазона</div>
+            Расхождение с рынком в разы обычно означает проблему во входных данных (цена, выручка, число акций), а не реальную недооценку. Считайте это сигналом перепроверить бумагу вручную, а не оценкой.
           </div>
         )}
 
         {bfvWarnings.length > 0 && (
-          <ul className="tw-mt-3 tw-mb-0 tw-pl-0 tw-list-none tw-flex tw-flex-col tw-gap-1">
+          <div className="verdict" style={{ marginTop: 14 }}>
             {bfvWarnings.map((w, i) => (
-              <li key={i} className="tw-text-[12px] tw-text-text-tertiary tw-leading-snug tw-flex tw-gap-1.5">
-                <span className="tw-text-warning tw-shrink-0">!</span>
+              <div className="vrow" key={i}>
+                <span aria-hidden="true" className="ic warn">!</span>
                 <span>{w}</span>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
 
         {methodRows.length > 0 && (
-          <div className="tw-mt-4 tw-pt-3 tw-border-t tw-border-border-subtle tw-flex tw-flex-col tw-gap-1.5">
-            <div className="tw-text-[11px] tw-text-text-tertiary tw-font-semibold tw-uppercase tw-tracking-wide tw-mb-1">Методики</div>
+          <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid var(--line)", display: "flex", flexDirection: "column", gap: 6 }}>
+            <div className="subh" style={{ margin: 0 }}>Методики</div>
             {methodRows.map((r, i) => (
-              <div key={i} className="tw-flex tw-items-center tw-justify-between tw-text-[13px]">
-                <span className={r.main ? "tw-text-text-primary tw-font-medium" : "tw-text-text-secondary"}>{r.label}</span>
-                <span className={`tw-tabular-nums ${r.main ? "tw-text-accent tw-font-semibold" : "tw-text-text-secondary"}`}>{formatMoney(Math.round(r.value), { decimals: 0 })}</span>
+              <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 13 }}>
+                <span style={{ color: r.main ? "var(--ink)" : "var(--ink-2)", fontWeight: r.main ? 600 : 400 }}>{r.label}</span>
+                <span style={{ fontFamily: "var(--mono)", fontVariantNumeric: "tabular-nums", fontWeight: 600, color: r.main ? "var(--accent-2)" : "var(--ink-2)" }}>
+                  {formatMoney(Math.round(r.value), { decimals: 0 })}
+                </span>
               </div>
             ))}
             {methodsDiverge && (
-              <div className="tw-text-[12px] tw-text-text-tertiary tw-leading-snug tw-mt-1">
+              <p style={{ fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5, margin: "4px 0 0" }}>
                 Методы расходятся: Basis требователен к порогу (ОФЗ ~15% + премия за риск), а исторические P/E и P/B отражают прошлые оценки рынка. Совпадение методов — сильный сигнал, расхождение — повод разобраться в причинах.
-              </div>
+              </p>
             )}
           </div>
         )}
 
-        <p className="tw-text-[11px] tw-text-text-tertiary tw-mt-3 tw-mb-0">
+        <p className="fv-note">
           Метод денежного потока Basis (тестовая версия, экспертные параметры без калибровки). Пересчитывается живьём от цены, кривой ОФЗ и беты. Не является ИИР.
         </p>
-      </Card>
+      </div>
     );
 
     if (!company.overview) {
@@ -3629,74 +3611,37 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
           </div>
         );
       }
-      if (analysis) {
-        return (
-          <div className="tw-flex tw-flex-col tw-gap-4">
-            {earningsCard}
-            {basisFairPriceCard}
-            {basisFairPriceEmpty}
-            {analysis.analyst_note && (
-              <Card>
-                <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-mb-3">
-                  <Activity size={18} />
-                  <span>Аналитическая заметка</span>
-                </div>
-                <Prose>
-                  <p>{analysis.analyst_note}</p>
-                </Prose>
-              </Card>
-            )}
-            <div className="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
-              {analysis.bull_case && (
-                <Card>
-                  <div className="tw-flex tw-items-center tw-gap-2 tw-text-success tw-font-semibold tw-mb-4">
-                    <TrendingUp size={18} />
-                    <span>Аргументы ЗА</span>
-                  </div>
-                  <ul className="tw-flex tw-flex-col tw-gap-2">
-                    {(Array.isArray(analysis.bull_case) ? analysis.bull_case : [analysis.bull_case]).map((item, i) => (
-                      <li key={i} className="tw-flex tw-items-start tw-gap-2 tw-text-[14px] tw-text-text-secondary">
-                        <span aria-hidden="true" className="tw-text-success tw-mt-0.5 tw-shrink-0">✓</span>
-                        <span>{typeof item === "object" ? (item.title || JSON.stringify(item)) : item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </Card>
-              )}
-              {analysis.bear_case && (
-                <Card>
-                  <div className="tw-flex tw-items-center tw-gap-2 tw-text-danger tw-font-semibold tw-mb-4">
-                    <TrendingDown size={18} />
-                    <span>Аргументы ПРОТИВ</span>
-                  </div>
-                  <ul className="tw-flex tw-flex-col tw-gap-2">
-                    {(Array.isArray(analysis.bear_case) ? analysis.bear_case : [analysis.bear_case]).map((item, i) => (
-                      <li key={i} className="tw-flex tw-items-start tw-gap-2 tw-text-[14px] tw-text-text-secondary">
-                        <span aria-hidden="true" className="tw-text-danger tw-mt-0.5 tw-shrink-0">✗</span>
-                        <span>{typeof item === "object" ? (item.title || JSON.stringify(item)) : item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </Card>
-              )}
-            </div>
-            <ProPriceCard assetClass="share" secid={company.ticker} />
-          </div>
-        );
-      }
+      // Владелец, 2026-07-30: убраны плитки «Аргументы ЗА / ПРОТИВ» (analysis.bull_case /
+      // bear_case) и заглушка «Анализ готовится». Первые дублировали разбор, который
+      // вкладки раскрывают предметно и с эпистемическими тегами, а тезисом в одну строку
+      // «✓ / ✗» подталкивали к решению — платформа так не работает. Вторая занимала целый
+      // экран, чтобы сообщить, что смотреть нечего: если анализа нет, честнее не рисовать
+      // плитку вовсе, чем обещать «следите за обновлениями».
+      // Ветки с analysis и без него схлопнуты — после удаления они различались только
+      // этими двумя блоками.
+      // Обёртка fin-hybrid (2026-07-30, ОТК дизайна): «Обзор» приведён к тому же
+      // визуальному языку, что вкладка «Финансы» (FinanceTab.jsx/finance.css) —
+      // плитки .card, заголовки h3+Fraunces, эпистемические .tag-*, числа
+      // var(--mono) с tabular-nums вместо легаси tw-font-display (Inter Display).
       return (
-        <div className="tw-flex tw-flex-col tw-gap-4">
+        <div className="fin-hybrid tw-flex tw-flex-col tw-gap-4">
           {earningsCard}
           {basisFairPriceCard}
           {basisFairPriceEmpty}
-          <Card className="tw-text-center">
-            <Info size={48} className="tw-mx-auto tw-text-text-tertiary tw-mb-4" />
-            <h3 className="tw-text-[20px] tw-text-text-primary tw-font-medium tw-mb-2">Анализ готовится</h3>
-            <p className="tw-text-text-secondary tw-max-w-md tw-mx-auto">
-              Детальный анализ по компании <b className="tw-text-text-primary">{company.name}</b> ещё не добавлен.
-              Следите за обновлениями.
-            </p>
-          </Card>
+          {analysis && analysis.analyst_note && (
+            <div className="card">
+              <h3>
+                <Activity size={18} />
+                <span>Аналитическая заметка</span>
+                <span className="tag tag-judg">суждение</span>
+              </h3>
+              <div style={{ marginTop: 10 }}>
+                <Prose>
+                  <p>{analysis.analyst_note}</p>
+                </Prose>
+              </div>
+            </div>
+          )}
           <ProPriceCard assetClass="share" secid={company.ticker} />
         </div>
       );

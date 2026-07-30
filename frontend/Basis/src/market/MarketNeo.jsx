@@ -6,6 +6,8 @@
    /bonds, /futures, /funds, /spot, /market/instruments/sparklines (мини-графики).
    Эпистемика: котировки = факт; тон рынка и трактовка драйверов = оценка/суждение Basis. */
 import React, { useState, useEffect, useMemo } from "react";
+import { InfoDot } from "../design/InfoDot";
+import { FAIR_VALUE_NOTE } from "../fairValueNote";
 import { TrendingUp, FileText, ArrowRightLeft, Layers, Coins, Sigma } from "lucide-react";
 import { InstrumentLogo } from "../design/CompanyLogo";
 import "../styles/market.css";
@@ -354,7 +356,7 @@ function ToneChip({ upside, conf }) {
   if (upside == null) return <span className="mk-tone"><span className="mk-epi">нет оценки</span></span>;
   const fv = Math.round(upside), c = fvColor(fv);
   return (
-    <span className="mk-tone" title="Потенциал к справедливой цене (оценка Basis) — не рекомендация">
+    <span className="mk-tone" title="Потенциал к справедливой цене по методике Basis — оценка модели, не рекомендация">
       <span className="mk-tone-dot" style={{ background: c }} />
       <span className="mk-tone-l" style={{ color: c }}>{fv > 0 ? "+" : ""}{fv}%</span>
       <span className="mk-tone-cap">к справедл.</span>
@@ -418,6 +420,13 @@ function StockCards({ stocks, onOpen, Logo }) {
   if (!stocks.length) return <div className="mk-empty">Ничего не найдено. Измените запрос или сектор.</div>;
   return (
     <div className="mk-stack">
+      {/* Что означает «% к справедл.» на карточках — владелец 2026-07-30: пояснение
+          нужно не только в карточке компании, но и здесь. Один раз над списком, а не
+          в каждой плитке: в мини-карточках (3 в ряд на телефоне) места нет. */}
+      <div className="mk-fv-note">
+        <span>Потенциал «к справедл.» на карточках — к справедливой цене по методике Basis</span>
+        <InfoDot text={FAIR_VALUE_NOTE} label="Как читать справедливую цену" />
+      </div>
       {order.map(g => (
         <section key={g}>
           <div className="mk-grp-head"><span className="mk-grp-dot" style={{ background: secColor(g) }} />{g}<span className="mk-grp-n">{by[g].length}</span></div>

@@ -5,6 +5,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import "../styles/screener.css";
 import { FAIR_VALUE_NOTE } from "../fairValueNote";
+import { InfoDot } from "../design/InfoDot";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 const NN = " ", NB = " ";
@@ -172,6 +173,14 @@ function SortHead({ label, k, sort, setSort, align = "right", title, hint }) {
 
 function ResultsTable({ rows, sort, setSort, density, onPick, picked, secColor, Logo }) {
   return (
+    <>
+    {/* Пояснение к колонке «Справ. цена» строкой над таблицей: в заголовке колонки «i»
+        есть, но на телефоне заголовки не видны, а владелец смотрит с телефона
+        (2026-07-30). Дублируем доступную точку входа, текст тот же. */}
+    <div className="sc-fv-note">
+      <span>«Справ. цена» — справедливая цена по методике Basis</span>
+      <InfoDot text={FAIR_VALUE_NOTE} label="Как читать справедливую цену" />
+    </div>
     <div className={"sc-tablewrap sc-d-" + density}>
       <table className="sc-table">
         <thead>
@@ -196,6 +205,7 @@ function ResultsTable({ rows, sort, setSort, density, onPick, picked, secColor, 
       </table>
       {rows.length === 0 && <div className="sc-noresult">Ни одна бумага не проходит все условия. Ослабьте критерии слева.</div>}
     </div>
+    </>
   );
 }
 

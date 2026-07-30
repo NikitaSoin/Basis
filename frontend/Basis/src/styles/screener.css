@@ -288,3 +288,8 @@
 .sc-screen .bd-dr-badges{display:flex;align-items:center;gap:10px;margin:2px 0 16px;flex-wrap:wrap;}
 .sc-screen .bd-dr-conf{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-3);}
 .sc-screen .bd-dr-verdict{font-size:13px;line-height:1.55;color:var(--ink-2);padding:11px 14px;background:var(--panel);border:1px solid var(--line);border-left:2px solid var(--accent);border-radius:0 9px 9px 0;margin-bottom:16px;}
+
+/* Пояснение к «Справ. цена» над таблицей — доступно и на телефоне, где заголовки
+   колонок со своим «i» не видны (владелец 2026-07-30). */
+.sc-fv-note{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  font-size:12.5px;line-height:1.4;color:var(--ink-3);padding:0 2px 10px;}
