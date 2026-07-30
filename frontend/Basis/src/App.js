@@ -83,6 +83,7 @@ import {
   ObsReports,
   ObsCorporateNews,
   ObsMacroArticles,
+  ObsBusinessArticles,
   ObsGeopolitics,
   ObsInstitutions,
   ObsMarketPulse,
@@ -228,6 +229,17 @@ function ObserverV2({
               <ObsHorizonChip>горизонт актуальности: дни-недели</ObsHorizonChip>
             </div>
             <ObsMacroArticles token={token} />
+          </div>
+        );
+      case "business":
+        return (
+          <div className="obs-panel">
+            <div className="obs-sec-head">
+              <span className="obs-sec-eyebrow">Разбор</span>
+              <h2 className="obs-sec-title">Бизнес</h2>
+              <ObsHorizonChip>горизонт актуальности: дни-недели</ObsHorizonChip>
+            </div>
+            <ObsBusinessArticles />
           </div>
         );
       case "geo":

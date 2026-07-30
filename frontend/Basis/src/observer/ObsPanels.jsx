@@ -87,6 +87,7 @@ const OBS_ZONES = [
     label: "Разбор",
     items: [
       { id: "macro",        label: "Макроэкономика",          icon: BarChart2  },
+      { id: "business",     label: "Бизнес",                  icon: Factory    },
       { id: "geo",          label: "Геополитика",             icon: Globe      },
       { id: "institutions", label: "Институциональная среда", icon: ShieldCheck },
       { id: "ai",           label: "ИИ-обзор и анализ",       icon: Sparkles   },
@@ -1700,6 +1701,81 @@ function obsGeoDirColor(direction) {
   const esc = /эскалац/i.test(direction || "");
   const desc = /деэскалац/i.test(direction || "");
   return esc ? "var(--danger)" : desc ? "var(--success)" : "var(--text-tertiary)";
+}
+
+// =========================
+// OBS BUSINESS ARTICLES — Обозреватель · Разбор · Бизнес
+// Владелец (2026-07-31): «часть статей, которые публикуются в Макроэкономике,
+// вообще не макроэкономические, а бизнесовые — давай сделаем вкладку Бизнес,
+// куда будем складывать эти статьи». Разделение по СУБЪЕКТУ статьи (см. промпт
+// классификатора в geo_digest.py): экономика страны/мира целиком → macro,
+// конкретная компания/сделка/отраслевая история → business.
+// Источник — /market/business/digest (target=business), карточки те же
+// (ObsDigestCard), что у макро/институтов — единый визуальный язык лент.
+// =========================
+function ObsBusinessArticles() {
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [srcFilter, setSrcFilter] = useState("all");
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+  useEffect(() => {
+    fetch(`${apiUrl}/api/market/business/digest?limit=60`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setArticles(d.articles || []))
+      .catch(() => setArticles([]))
+      .finally(() => setLoading(false));
+  }, [apiUrl]);
+
+  // Чипы источников строим ПО ФАКТУ пришедших данных (в отличие от макро, где
+  // список источников фиксирован ЦБ/ЦМАКП): состав источников бизнес-ленты
+  // заранее не известен и меняется со временем.
+  const sources = Array.from(
+    new Map(articles.filter((a) => a.source_label).map((a) => [a.source_label, true])).keys()
+  ).sort((a, b) => a.localeCompare(b, "ru"));
+
+  const shown = srcFilter === "all" ? articles : articles.filter((a) => a.source_label === srcFilter);
+
+  return (
+    <div>
+      <p className="obs-art-desc">
+        Что происходит с конкретными компаниями и отраслями: сделки, результаты, контракты,
+        дивиденды, смена собственников. Экономика страны целиком — в «Макроэкономике».
+      </p>
+
+      {sources.length > 1 && (
+        <div className="obs-filterbar">
+          <button
+            className={`obs-chip${srcFilter === "all" ? " obs-chip--active" : ""}`}
+            onClick={() => setSrcFilter("all")}
+          >
+            Все
+          </button>
+          {sources.map((s) => (
+            <button
+              key={s}
+              className={`obs-chip${srcFilter === s ? " obs-chip--active" : ""}`}
+              onClick={() => setSrcFilter(s)}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {loading && <div className="obs-news-loading">Загружаем бизнес-ленту…</div>}
+
+      {!loading && shown.length === 0 && (
+        <div className="obs-art-empty">
+          Свежих материалов по компаниям и отраслям пока нет.
+        </div>
+      )}
+
+      <div className="obs-art-list">
+        {shown.map((a) => <ObsDigestCard key={`b-${a.id}`} a={a} />)}
+      </div>
+    </div>
+  );
 }
 
 // =========================
@@ -7097,6 +7173,7 @@ export {
   ObsReports,
   ObsCorporateNews,
   ObsMacroArticles,
+  ObsBusinessArticles,
   ObsGeopolitics,
   ObsInstitutions,
   ObsMarketPulse,

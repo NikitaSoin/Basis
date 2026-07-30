@@ -907,7 +907,7 @@ def market_geopolitics_digest(region: str, limit: int = Query(15, ge=1, le=100),
     _cap_by_source() было из чего выбирать помимо MarketTwits."""
     from app.models.geo_digest import GeoDigestArticle, GEO_DIGEST_TARGETS
     from app.services.company_signals import INTERNAL_SOURCE_KEYS
-    if region not in GEO_DIGEST_TARGETS or region in ("institutions", "macro"):
+    if region not in GEO_DIGEST_TARGETS or region in ("institutions", "macro", "business"):
         raise HTTPException(status_code=404, detail="Неизвестный регион")
     # Инсайд-каналы (moi_misli_vslukh/insider_*) — internal-only, клиентам не отдаём.
     pool = (db.query(GeoDigestArticle).filter_by(target=region)
@@ -926,6 +926,26 @@ def market_institutions_digest(limit: int = Query(15, ge=1, le=100), db: Session
     pool = (db.query(GeoDigestArticle).filter_by(target="institutions")
            .filter(GeoDigestArticle.source_key.notin_(INTERNAL_SOURCE_KEYS))
            .order_by(GeoDigestArticle.created_at.desc()).limit(limit * 4).all())
+    rows = _cap_by_source(pool, limit)
+    return {"articles": [_digest_dict(a) for a in rows]}
+
+
+@router.get("/market/business/digest")
+def market_business_digest(limit: int = Query(30, ge=1, le=100), db: Session = Depends(get_db)):
+    """Дайджест статей про КОНКРЕТНЫЙ БИЗНЕС (target=business): корпоративные события,
+    сделки, результаты компаний, отраслевые истории. Отдельный раздел «Бизнес» в
+    Обозревателе — владелец (2026-07-31): «часть статей в Макроэкономике вообще не
+    макроэкономические, а бизнесовые». Раньше такие статьи оседали в target=macro
+    (другого адресата не было) и разбавляли ленту про инфляцию/ставку/ВВП.
+    Сортировка по published_at, как у macro-дайджеста (ленты показываются вперемешку
+    с записками по дате публикации, created_at ломал бы порядок)."""
+    from app.models.geo_digest import GeoDigestArticle
+    from app.services.company_signals import INTERNAL_SOURCE_KEYS
+    pool = (db.query(GeoDigestArticle).filter_by(target="business")
+           .filter(GeoDigestArticle.source_key.notin_(INTERNAL_SOURCE_KEYS))
+           .order_by(GeoDigestArticle.published_at.desc().nullslast(),
+                     GeoDigestArticle.created_at.desc())
+           .limit(limit * 4).all())
     rows = _cap_by_source(pool, limit)
     return {"articles": [_digest_dict(a) for a in rows]}
 

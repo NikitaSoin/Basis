@@ -17,7 +17,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.session import Base
 
-GEO_DIGEST_TARGETS = ("svo", "middle_east", "atr", "institutions", "macro")
+GEO_DIGEST_TARGETS = ("svo", "middle_east", "atr", "institutions", "macro", "business")
 
 
 class GeoDigestArticle(Base):
