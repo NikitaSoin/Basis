@@ -265,15 +265,15 @@
       "other_non_current": [
         null,
         null,
-        null,
-        null,
-        null
+        47,
+        33,
+        9
       ],
       "total_non_current": [
         151,
         null,
-        null,
-        null,
+        47,
+        33,
         13
       ]
     },
@@ -288,15 +288,15 @@
       "receivables": [
         null,
         null,
-        null,
-        null,
-        null
+        4,
+        5,
+        3
       ],
       "cash": [
         23018,
         null,
-        null,
-        null,
+        1625,
+        1726,
         514
       ],
       "short_term_investments": [
@@ -309,15 +309,15 @@
       "other_current": [
         231,
         null,
-        null,
-        null,
-        null
+        10,
+        1,
+        2
       ],
       "total_current": [
         23249,
         null,
-        null,
-        null,
+        1639,
+        1732,
         514
       ]
     },
@@ -332,16 +332,16 @@
       "share_capital": [
         200,
         null,
-        null,
-        null,
+        1005,
+        1005,
         200
       ],
       "retained_earnings": [
         23075,
         null,
-        null,
-        null,
-        null
+        304,
+        366,
+        -688
       ],
       "additional_paid_in": [
         null,
@@ -360,8 +360,8 @@
       "total_equity": [
         23275,
         null,
-        null,
-        null,
+        1309,
+        1371,
         318
       ]
     },
@@ -390,9 +390,9 @@
       "total_non_current_liab": [
         0,
         null,
-        null,
-        null,
-        null
+        99,
+        99,
+        99
       ]
     },
     "current_liabilities": {
@@ -406,22 +406,22 @@
       "payables": [
         8,
         null,
-        null,
-        null,
-        null
+        274,
+        293,
+        105
       ],
       "other_current_liab": [
         null,
         null,
-        null,
-        null,
+        4,
+        2,
         209
       ],
       "total_current_liab": [
         8,
         null,
-        null,
-        null,
+        278,
+        295,
         209
       ]
     },
@@ -482,8 +482,8 @@
     "cfo": [
       null,
       null,
-      null,
-      null,
+      299,
+      125,
       77
     ],
     "cfi": [
@@ -1167,7 +1167,8 @@
     "cash_flow скопирован из LNZL (диспетчер, 2026-07-06) — один эмитент.",
     "LNZLP: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка.",
     "income_statement (revenue/operating_profit/pre_tax_profit/income_tax/net_profit) синхронизирован с исправленной версией парной обыкновенной акции LNZL (ПАО «Лензолото» — один эмитент, обыкн.+преф., идентичный P&L; LNZL был почищен report-fetcher 2026-07-06/2026-07-27: исправлена задвоенная ошибка pre_tax_profit=net_profit, восстановлен постатейный мост revenue→operating_profit, revenue[2023] исправлен с 150 на 153 по первичке len-zoloto.ru). До синхронизации LNZLP содержал СТАРУЮ ошибочную версию: pre_tax_profit=[null,null,660,256,null] (2022=660 — задвоение с net_profit, та же ошибка что была в LNZL до починки; 2023=256 не сходится ни с одним первичным источником), operating_profit не заполнен за 2024, income_tax не заполнен вообще. После синхронизации: pre_tax_profit=[null,null,825,135,97] (2022 включает разовую курсовую прибыль 522 млн, см. флаг LNZL), income_tax=[null,null,-165,-27,-49], operating_profit=[null,null,303,135,97], revenue[2023]=153. Компания в ликвидации с 25.08.2025 (profile=shell_liquidation) — все методы оценки действующего бизнеса not_applicable, релевантен только NAV.",
-    "expense_lines синхронизирован с LNZL (заменены placeholder-строки 'Операционные и административные расходы'/'Финансовые расходы' — все null — на реальный постатейный мост из первички len-zoloto.ru: 'Коммерческие и административные расходы' и 'Прочие расходы, нетто')."
+    "expense_lines синхронизирован с LNZL (заменены placeholder-строки 'Операционные и административные расходы'/'Финансовые расходы' — все null — на реальный постатейный мост из первички len-zoloto.ru: 'Коммерческие и административные расходы' и 'Прочие расходы, нетто').",
+    "🔵 GAP-ЗАКРЫТИЕ (2026-07-30, report-fetcher, общий эмитент с LNZL — пара отставала: cfo 2022-2023 были null здесь при наличии в LNZL): постатейный баланс+ОДДС синхронизирован с LNZL (та же компания, len-zoloto.ru). 2020-2021 построчно: честный пробел (отчёты старше 2023 года не публикуются на портале раскрытия)."
   ],
   "segments": [],
   "cost_breakdown": [],
