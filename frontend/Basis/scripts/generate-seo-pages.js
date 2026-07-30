@@ -55,6 +55,12 @@ const LANDINGS = [...require("./seo-landings-content"), ...require("./seo-landin
 // Владелец 2026-07-30: «человек вбивает "отчет ozon" — надо, чтобы находил у нас».
 // Отдельная страница на компанию, а не пункт внутри «Финансов»: запрос «отчёт <компания>»
 // самостоятельный и очень частый, и по нему должна находиться страница ИМЕННО про отчёт.
+// Адрес API для ЖИВОЙ подгрузки свежего разбора на статической странице. Берётся из
+// той же переменной, что и у приложения (REACT_APP_API_URL), с боевым значением по
+// умолчанию — статика собирается и вне окружения приложения.
+const API_BASE = process.env.REACT_APP_API_URL || process.env.BASIS_API
+  || "https://nikitasoin-basis-a772.twc1.net";
+
 let EARNINGS_BY_TICKER = {};
 try {
   const rows = require("./data/earnings-snapshot.json");
@@ -639,7 +645,49 @@ const esc = (v) => escapeHtml(String(v == null ? "" : v));
 // разобрано платформой; ничего не досочиняем и не даём сигналов сделок.
 function earningsHtml(c) {
   const e = EARNINGS_BY_TICKER[c.ticker];
-  if (!e) return "";
+  // Каркас страницы — годовая отчётность из financials.json. Она есть всегда и не
+  // зависит от того, вышел ли свежий отчёт: страница никогда не бывает пустой, а
+  // «тонкие» страницы поиск не любит и может вовсе не индексировать.
+  const yearly = finTableHtml(c);
+  const liveSlot = `
+<div id="live-earnings" data-ticker="${esc(c.ticker)}"></div>
+<script>
+// Свежий разбор подтягивается ЖИВЬЁМ при открытии страницы. Смысл: адрес существует
+// заранее и уже проиндексирован, поэтому новый отчёт не требует новой страницы и не
+// ждёт пересборки — он приезжает сюда сам. В HTML при сборке кладётся последний
+// известный разбор (для поисковых роботов, которые JS не исполняют), а этот скрипт
+// заменяет его свежим, если тот появился позже.
+(function () {
+  var host = document.getElementById("live-earnings");
+  if (!host || !window.fetch) return;
+  var api = ${JSON.stringify(API_BASE)};
+  var esc = function (v) { return String(v == null ? "" : v).replace(/[&<>"]/g, function (m) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]; }); };
+  fetch(api + "/api/companies/by-ticker/" + host.dataset.ticker + "/earnings/latest")
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d || !d.digest) return;
+      var snapPeriod = ${JSON.stringify((e && e.period) || "")};
+      if (d.period && snapPeriod && String(d.period) === snapPeriod) return; // уже в HTML
+      var dg = d.digest, parts = [];
+      parts.push('<h2>Свежий отчёт: ' + esc([d.period, d.standard].filter(Boolean).join(" · ")) + '</h2>');
+      if (dg.one_liner) parts.push('<p class="lead">' + esc(dg.one_liner) + '</p>');
+      if (dg.what_report_showed) parts.push('<p>' + esc(dg.what_report_showed) + '</p>');
+      if (dg.summary) parts.push('<p>' + esc(dg.summary) + '</p>');
+      host.innerHTML = parts.join("");
+    })
+    .catch(function () { /* нет сети — остаётся то, что в HTML */ });
+})();
+</script>`;
+
+  if (!e) {
+    // Разбора в снапшоте нет — страница живёт на годовой отчётности и живой подгрузке.
+    return [
+      `<p class="sub">Свежий разбор отчётности появляется здесь автоматически, как только компания публикует отчёт.</p>`,
+      yearly,
+      liveSlot,
+    ].filter(Boolean).join("\n");
+  }
   const list = (title, arr) => {
     const items = (Array.isArray(arr) ? arr : []).filter(Boolean).slice(0, 6);
     if (!items.length) return "";
@@ -656,23 +704,28 @@ function earningsHtml(c) {
   if (e.market_context) parts.push(`<h2>Контекст рынка</h2><p>${esc(e.market_context)}</p>`);
   if (e.watch_next) parts.push(`<h2>За чем следить дальше</h2><p>${esc(e.watch_next)}</p>`);
   parts.push(`<p class="sub">Ознакомительный разбор события «вышел отчёт». Не является индивидуальной инвестиционной рекомендацией.</p>`);
+  parts.push(yearly);
+  parts.push(liveSlot);
   return parts.filter(Boolean).join("\n");
 }
 
 const TAB_PAGES = [
   {
     slug: "otchet", appTab: "finance", label: "Разбор отчёта",
-    has: (c) => Boolean(EARNINGS_BY_TICKER[c.ticker]),
-    title: (c) => {
-      const e = EARNINGS_BY_TICKER[c.ticker] || {};
-      const per = e.period ? ` за ${e.period}` : "";
-      return `Отчёт ${titleName(c)} (${c.ticker})${per}: разбор — выручка, прибыль | Basis`;
-    },
+    // 🔴 Страница есть у КАЖДОЙ компании, а не только у тех, чей разбор попал в снапшот
+    // (владелец 2026-07-31: «нельзя заранее чтобы у нас были страницы — туда закидываем
+    // и выкидываем»). Так новый отчёт не требует НОВОЙ страницы: адрес уже существует и
+    // проиндексирован, в него просто приезжает свежий разбор. Пустой страница не бывает —
+    // годовая отчётность из financials.json есть у всех 264, она и составляет каркас.
+    has: (c) => finRows(c).length > 0 || Boolean(EARNINGS_BY_TICKER[c.ticker]),
+    // Тайтл НЕ зависит от свежести разбора: период в заголовке означал бы, что при каждом
+    // новом отчёте меняется тайтл уже проиндексированной страницы — поиск такое не любит.
+    title: (c) => `Отчётность ${titleName(c)} (${c.ticker}): разбор — выручка, прибыль | Basis`,
     desc: (c) => {
       const e = EARNINGS_BY_TICKER[c.ticker] || {};
       return truncate(e.one_liner
-        ? `${e.one_liner} Разбор отчётности ${c.short} (${c.ticker}) от Basis: факты, сильные стороны, риски.`
-        : `Разбор вышедшей отчётности ${c.short} (${c.ticker}): выручка, прибыль, долг — что изменилось.`, 200);
+        ? `${e.one_liner} Разбор отчётности ${c.short} (${c.ticker}): факты, сильные стороны, риски — Basis.`
+        : `Отчётность ${c.short} (${c.ticker}) по годам: выручка, прибыль, долг и денежный поток. Разборы свежих отчётов — Basis.`, 200);
     },
     content: (c) => earningsHtml(c),
   },
