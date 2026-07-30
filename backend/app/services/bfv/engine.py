@@ -457,7 +457,15 @@ def project_flows_fcfe(p: ParamsF, price_pre_event: float = 0.0) -> List[float]:
 
         rev_new = rev * (1.0 + g)
         earnings = rev_new * margin
-        reinvest = (rev_new - rev) / p.sales_to_capital
+        # 🔴 Реинвестиции не бывают отрицательными. При СЖАТИИ выручки (g < 0) формула
+        # (rev_new − rev)/sales_to_capital даёт минус, и в FCFE он ВЫЧИТАЕТСЯ, то есть
+        # превращается в приток к акционеру: модель считала, что падающий бизнес
+        # распродаёт капитал и раздаёт деньги. Классическая ловушка DCF. Вылезло
+        # 2026-07-30, когда стартовый рост стали брать из прогноза аналитика и он впервые
+        # смог быть отрицательным: у MTLR (убыток, выручка −11,5 %) справедливая цена
+        # подскочила с −97 % до +78 % к рынку. Сжимающаяся компания капитал не возвращает
+        # акционеру — она гасит долг и закрывает убытки.
+        reinvest = max(0.0, (rev_new - rev) / p.sales_to_capital)
         net_borrow = reinvest * p.net_borrow_share
         fcfe = earnings - reinvest + net_borrow
         rev = rev_new
