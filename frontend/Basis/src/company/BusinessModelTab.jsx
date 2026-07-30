@@ -7,6 +7,7 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { ANALYST_MD } from "../design/textblocks";
 import "../styles/business-model.css";
 
 const CAT = ["var(--cat-5)", "var(--cat-2)", "var(--cat-7)", "var(--cat-1)", "var(--cat-6)", "var(--cat-8)", "var(--cat-4)", "var(--cat-3)"];
@@ -42,7 +43,11 @@ function StackBar({ items, sm }) {
   );
 }
 
-const Prose = ({ md }) => md ? <div className="bm-prose"><ReactMarkdown remarkPlugins={[remarkGfm]}>{md}</ReactMarkdown></div> : null;
+// Было: ReactMarkdown без components — голые <p>/<ul>, без иерархии, лид-колаутов,
+// маркеров списка и эпистемических тегов (владелец, 2026-07-30: «текстовая простыня»).
+// ANALYST_MD — тот же канонический рендерер, что «Разбор аналитика» облигаций/
+// фьючерсов/фондов и Обозреватель.
+const Prose = ({ md }) => md ? <div className="bm-prose"><ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{md}</ReactMarkdown></div> : null;
 
 const Section = ({ title, tag, sub, children }) => (
   <div className="bm-card">

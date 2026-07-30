@@ -19,7 +19,10 @@
   --m5-pos: var(--success); --m5-pos-soft: var(--success-soft);
   --m5-neg: var(--danger);  --m5-neg-soft: var(--danger-soft);
   --m5-amber: var(--warning); --m5-amber-soft: var(--warning-soft);
-  --m5-violet: var(--accent); --m5-violet-soft: var(--accent-soft);
+  /* было var(--accent) — «модель» и «суждение» (ниже, m5-tag-judg) рендерились
+     ОДНИМ и тем же медным цветом, неразличимо. --cc-violet — настоящий отдельный
+     фиолетовый (уже используется как 4-й эпистемический уровень в neo.jsx). */
+  --m5-violet: var(--cc-violet); --m5-violet-soft: color-mix(in srgb, var(--cc-violet) 14%, transparent);
   --m5-cyan: var(--accent);
   --m5-serif: var(--cc-serif); --m5-mono: var(--font-mono); --m5-sans: var(--font-sans);
   --m5-r: 8px; --m5-r-lg: 12px;
@@ -42,7 +45,10 @@
 
 /* эпистемические теги */
 .m5-tag{font-family:var(--m5-mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:5px;white-space:nowrap;line-height:1.3;}
-.m5-tag-fact{background:var(--m5-pos-soft);color:var(--m5-pos);}
+/* было var(--m5-pos)/pos-soft (зелёный) — путало «факт» с положительной
+   дельтой (цвет в каноне зарезервирован за данными/дельтами). Нейтральный
+   серый — тот же паттерн, что .tag-fact в finance.css. */
+.m5-tag-fact{background:color-mix(in srgb, var(--m5-ink-3) 14%, transparent);color:var(--m5-ink-2);}
 .m5-tag-est{background:var(--m5-amber-soft);color:var(--m5-amber);}
 .m5-tag-model{background:var(--m5-violet-soft);color:var(--m5-violet);}
 .m5-tag-judg{background:var(--m5-accent-soft);color:var(--m5-accent-2);}

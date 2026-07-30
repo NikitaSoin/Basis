@@ -56,6 +56,10 @@
   --warning-soft:   rgba(180,83,9,0.10);
   --info:           #0284C7;
   --info-soft:      rgba(2,132,199,0.10);
+  /* 4-й эпистемический уровень (модель/сценарий) — не имел глобального (вне
+     .cc-root) эквивалента; см. --cc-violet, те же значения. */
+  --violet:         #6D28D9;
+  --violet-soft:    rgba(109,40,217,0.10);
 
   /* ---- Elevation (light = soft warm-neutral shadows).
      Layered: a tight near shadow (defines the edge) + a softer far
@@ -82,6 +86,10 @@
   --font-sans:    "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-display: "Inter Display", "Inter", system-ui, -apple-system, sans-serif;
   --font-mono:    "IBM Plex Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  /* Канон (basis-design-system.css --bs-serif) — заголовки. "display" выше —
+     легаси classic-системы (Inter Display, кобальт, JetBrains), для новых
+     заголовков используем этот токен через tw-font-serif, не tw-font-display. */
+  --font-serif:   "Fraunces", Georgia, serif;
 
   /* ---- Motion (Phase 4) — dosed, short, single base timing ---- */
   --motion-fast:  150ms;   /* hover / micro */
@@ -167,6 +175,12 @@
   --cat-7-soft: rgba(204,121,167,0.14);
   --cat-8-soft: rgba(153,153,153,0.14);
 
+  /* Текст ПОВЕРХ категорийного цвета (сегменты stacked-bar в business-model.css/
+     governance.css) — намеренно НЕ флипается между темами: --cat-* в тёмной теме
+     специально осветлены («keep contrast against near-black surface» выше), тёмный
+     текст остаётся читаемым в обеих. Было захардкожено #0b0e13 в двух файлах. */
+  --ink-on-data:   #0B0E13;
+
   color-scheme:    light;
 }
 
@@ -217,6 +231,8 @@
   --warning-soft:   rgba(245,158,11,0.14);
   --info:           #38BDF8;
   --info-soft:      rgba(56,189,248,0.14);
+  --violet:         #A78BFA;
+  --violet-soft:    rgba(167,139,250,0.16);
 
   /* ---- Elevation (dark).
      Owner wants depth in the dark theme too. So each level keeps its

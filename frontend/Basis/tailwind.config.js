@@ -71,8 +71,16 @@ module.exports = {
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        // "display" — легаси classic-системы (Inter Display), НЕ канон. Оставлен
+        // как есть (могут быть непроверенные места, где сан-серифный display —
+        // осознанный выбор); для заголовков-серифов используй tw-font-serif.
         display: ["Inter Display", "Inter", "system-ui", "-apple-system", "sans-serif"],
-        mono: ["JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+        // Было захардкожено "JetBrains Mono" (легаси, CLAUDE.md: не использовать) —
+        // var(--font-mono) уже канонически IBM Plex Mono (tokens.css), просто
+        // Tailwind на него не ссылался. Один этот фикс поправил ~74 живых места
+        // (BondCard/FuturesCard/FundCard/RiskCard/StackedOwnershipBar и др.).
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+        serif: ["var(--font-serif)", "Georgia", "serif"],
       },
       // 8pt grid (with 4pt sub-grid) from the constitution.
       spacing: {

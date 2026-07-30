@@ -7,9 +7,13 @@
 .bmx .bm-h h3 { font-family: var(--font-display, "Fraunces", Georgia, serif); font-size: 18px; font-weight: 600; margin: 0; color: var(--text-1); }
 .bmx .bm-sub { font-size: 12.5px; color: var(--text-3); margin: 0 0 14px; line-height: 1.5; }
 .bmx .bm-tag { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; padding: 2px 8px; border-radius: 6px; }
-.bmx .bm-tag.fact { color: var(--cat-3); background: var(--cat-3-soft, rgba(0,158,115,.14)); }
-.bmx .bm-tag.est { color: var(--cat-1); background: var(--cat-1-soft, rgba(230,159,0,.14)); }
-.bmx .bm-tag.judg { color: var(--cat-7); background: var(--cat-7-soft, rgba(204,121,167,.14)); }
+/* Было: произвольные категорийные цвета (зелёный/оранжевый/розовый — палитра
+   --cat-*, предназначена для рядов данных, НЕ для эпистемических уровней) —
+   не совпадали с фактом/оценкой/суждением нигде в остальном приложении
+   (neo.jsx FEJTag, finance.css .tag-*, EpistemicTag). Приведено к общей схеме. */
+.bmx .bm-tag.fact { color: var(--text-2); background: color-mix(in srgb, var(--text-3) 16%, transparent); }
+.bmx .bm-tag.est { color: var(--info); background: var(--info-soft); }
+.bmx .bm-tag.judg { color: var(--accent); background: var(--accent-soft); }
 
 /* lead + facts */
 .bmx .bm-lead { font-family: var(--font-display, "Fraunces", Georgia, serif); font-size: 16.5px; line-height: 1.55; color: var(--text-1); margin: 0 0 12px; }
@@ -34,7 +38,7 @@
 /* unified stacked bar (cascade / segments) */
 .bmx .bm-stack { display: flex; height: 42px; border-radius: 9px; overflow: hidden; gap: 2px; }
 .bmx .bm-stack.sm { height: 30px; }
-.bmx .bm-stack .seg { display: flex; flex-direction: column; justify-content: center; padding: 0 9px; min-width: 0; color: #0b0e13; font-weight: 600; }
+.bmx .bm-stack .seg { display: flex; flex-direction: column; justify-content: center; padding: 0 9px; min-width: 0; color: var(--ink-on-data, #0b0e13); font-weight: 600; }
 .bmx .bm-stack .seg .sp { font-family: var(--font-mono, "IBM Plex Mono", monospace); font-size: 12.5px; line-height: 1; }
 .bmx .bm-stack .seg .sl { font-size: 9.5px; line-height: 1.1; margin-top: 3px; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
 .bmx .bm-casc-h { display: flex; align-items: baseline; justify-content: space-between; margin: 16px 0 8px; }

@@ -286,6 +286,55 @@ const mdText = (node) => {
 // чтобы ключевой смысл не тонул в общем сером тексте.
 const LEAD_CALLOUT = /^\s*(оценк[аи] basis|наша оценка|что это значит|ключевой вывод|вывод|итог|главное|резюме|bottom\s*line)\b/i;
 
+// Инлайн-пометки уровня достоверности внутри прозы разборов («... *(факт)*»,
+// «... (оценка Basis)», «(факт/оценка)») — в сырых markdown-файлах это просто
+// текст в скобках, рендерился как обычный курсив/текст, без визуального сигнала
+// уровня, который требует методика Basis. Разбираем строку на сегменты и
+// заменяем распознанные пометки на цветной бейдж EpistemicTag (тот же язык,
+// что FEJTag в neo.jsx / .tag-* в finance.css / .m5-tag-* в market-m5.css) —
+// лишний уточняющий хвост («, MOEX 2026-06-10») внутри скобок отбрасываем,
+// оставляем короткое каноническое слово.
+const EPISTEMIC_TONE = {
+  факт: { t: "факт", c: "var(--text-secondary)", bg: "color-mix(in srgb, var(--text-tertiary) 16%, transparent)" },
+  оценка: { t: "оценка", c: "var(--info)", bg: "var(--info-soft)" },
+  суждение: { t: "суждение", c: "var(--accent)", bg: "var(--accent-soft)" },
+  модель: { t: "модель", c: "var(--violet)", bg: "var(--violet-soft)" },
+  сценарий: { t: "сценарий", c: "var(--violet)", bg: "var(--violet-soft)" },
+};
+const EPISTEMIC_RE = /\((факт\s*\/\s*оценка|оценка\s*\/\s*факт|факт|оценка(?:\s+basis)?|суждение|модель|сценарий)[^)]*\)/gi;
+function EpistemicTag({ level }) {
+  const m = EPISTEMIC_TONE[level] || EPISTEMIC_TONE.оценка;
+  return (
+    <span
+      className="tw-inline-flex tw-items-center tw-rounded-[5px] tw-px-1.5 tw-py-0.5 tw-mx-1 tw-text-[9.5px] tw-font-semibold tw-uppercase tw-tracking-[0.06em] tw-align-middle"
+      style={{ color: m.c, background: m.bg }}
+    >
+      {m.t}
+    </span>
+  );
+}
+// Разбивает СТРОКОВЫЕ дочерние узлы на текст + EpistemicTag, не трогая уже
+// готовые React-элементы (strong/em из других правил ANALYST_MD).
+function withEpistemicTags(children) {
+  return React.Children.toArray(children).flatMap((child, ci) => {
+    if (typeof child !== "string" || !EPISTEMIC_RE.test(child)) return [child];
+    EPISTEMIC_RE.lastIndex = 0;
+    const parts = [];
+    let last = 0, m, i = 0;
+    while ((m = EPISTEMIC_RE.exec(child))) {
+      if (m.index > last) parts.push(child.slice(last, m.index));
+      let key = m[1].toLowerCase().replace(/\s+/g, "");
+      if (key === "оценкаbasis") key = "оценка";
+      if (key === "оценка/факт") key = "факт/оценка";
+      const level = key === "факт/оценка" ? "оценка" : key;
+      parts.push(<EpistemicTag key={`${ci}-${i++}`} level={level} />);
+      last = m.index + m[0].length;
+    }
+    if (last < child.length) parts.push(child.slice(last));
+    return parts;
+  });
+}
+
 export const ANALYST_MD = {
   h1: () => null,
   h2: ({ children }) => <h2 className="tw-text-[15.5px] tw-font-bold tw-text-text-primary tw-mt-6 tw-mb-2.5 tw-pt-3.5 tw-border-t tw-border-border-subtle first:tw-border-0 first:tw-pt-0 first:tw-mt-0">{children}</h2>,
@@ -293,10 +342,11 @@ export const ANALYST_MD = {
   h3: ({ children }) => <h3 className="tw-flex tw-items-center tw-gap-2 tw-text-[14.5px] tw-font-bold tw-text-text-primary tw-mt-5 tw-mb-2"><span className="tw-rounded-xs tw-bg-accent tw-shrink-0" style={{ width: 3, height: 13 }} aria-hidden="true" />{children}</h3>,
   p: ({ children }) => {
     const t = mdText(children);
+    const kids = withEpistemicTags(children);
     if (LEAD_CALLOUT.test(t)) {
-      return <div className="tw-border-l-[3px] tw-border-accent tw-bg-accent-soft tw-rounded-r-md tw-pl-3.5 tw-pr-3 tw-py-2.5 tw-my-3.5 tw-text-[14.5px] tw-leading-[1.65] tw-text-text-primary">{children}</div>;
+      return <div className="tw-border-l-[3px] tw-border-accent tw-bg-accent-soft tw-rounded-r-md tw-pl-3.5 tw-pr-3 tw-py-2.5 tw-my-3.5 tw-text-[14.5px] tw-leading-[1.65] tw-text-text-primary">{kids}</div>;
     }
-    return <p className="tw-text-[14.5px] tw-leading-[1.7] tw-text-text-secondary tw-my-3">{children}</p>;
+    return <p className="tw-text-[14.5px] tw-leading-[1.7] tw-text-text-secondary tw-my-3">{kids}</p>;
   },
   ul: ({ children }) => <ul className="tw-list-none tw-pl-0 tw-my-3 tw-space-y-2">{children}</ul>,
   ol: ({ children }) => <ol className="tw-list-decimal tw-pl-5 tw-my-3 tw-space-y-2 marker:tw-text-accent marker:tw-font-semibold">{children}</ol>,
@@ -305,10 +355,12 @@ export const ANALYST_MD = {
   li: ({ children }) => (
     <li className="tw-flex tw-gap-2 tw-items-start tw-text-[14.5px] tw-leading-[1.65] tw-text-text-secondary">
       <span className="tw-text-accent tw-shrink-0 tw-mt-[3px] tw-text-[12px]" aria-hidden="true">▸</span>
-      <span className="tw-min-w-0">{children}</span>
+      <span className="tw-min-w-0">{withEpistemicTags(children)}</span>
     </li>
   ),
-  strong: ({ children }) => <strong className="tw-text-text-primary tw-font-semibold">{children}</strong>,
+  // withEpistemicTags и здесь — самый частый паттерн в реальных разборах:
+  // «**Кто это (факт):** ...» — пометка внутри жирного лид-ина, не снаружи.
+  strong: ({ children }) => <strong className="tw-text-text-primary tw-font-semibold">{withEpistemicTags(children)}</strong>,
   em: ({ children }) => <em className="tw-italic">{children}</em>,
   blockquote: ({ children }) => <blockquote className="tw-border-l-[3px] tw-border-accent tw-bg-accent-soft tw-rounded-r-md tw-pl-3.5 tw-pr-3 tw-py-2.5 tw-my-3.5 tw-text-text-primary">{children}</blockquote>,
   hr: () => <hr className="tw-my-5 tw-border-border-subtle" />,

@@ -121,7 +121,7 @@
 .gov-hybrid .rail-kv .rk .v.mono{font-family:var(--mono);}
 /* ownership */
 .gov-hybrid .own-bar{display:flex;height:40px;border-radius:9px;overflow:hidden;gap:2px;margin-bottom:14px;}
-.gov-hybrid .own-bar .s{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:600;color:#0b0e13;min-width:0;overflow:hidden;}
+.gov-hybrid .own-bar .s{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink-on-data, #0b0e13);min-width:0;overflow:hidden;}
 .gov-hybrid .own-list{display:flex;flex-direction:column;gap:13px;}
 .gov-hybrid .own-row{font-size:13px;}
 .gov-hybrid .own-rhead{display:flex;align-items:center;gap:9px;}

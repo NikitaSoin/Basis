@@ -1844,7 +1844,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
       </button>
 
       <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
-        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">{b.short_name}</h1>
+        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-serif tw-text-text-primary tw-m-0">{b.short_name}</h1>
         <Badge tone="neutral">{BOND_TYPE_LABEL[b.bond_type] || b.bond_type}</Badge>
         <Badge tone={r.tone}>{r.label}</Badge>
         {couponBadge && <Badge tone={couponBadge.tone}>{couponBadge.label}{(isFloater || b.coupon_type === "fixed") && b.coupon_formula ? ` · ${b.coupon_formula}` : ""}</Badge>}
@@ -2359,7 +2359,7 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
       </button>
 
       <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
-        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">{f.short_name}</h1>
+        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-serif tw-text-text-primary tw-m-0">{f.short_name}</h1>
         <Badge tone="neutral">{kind.label}</Badge>
         {lev != null && <Badge tone={levTone(lev)}>Плечо ~{fmtNumber(lev, { decimals: 1 })}×</Badge>}
         {f.asset_name && <span className="tw-text-[14px] tw-text-text-secondary">{f.asset_name}</span>}
@@ -2556,7 +2556,7 @@ const FundCard = ({ secid, onBack }) => {
       </button>
 
       <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
-        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">{f.short_name}</h1>
+        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-serif tw-text-text-primary tw-m-0">{f.short_name}</h1>
         <Badge tone="neutral">{t.label}</Badge>
         {f.sec_name && <span className="tw-text-[14px] tw-text-text-secondary">{f.sec_name}</span>}
         <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{f.secid}{f.isin ? ` · ${f.isin}` : ""}</span>
@@ -2636,7 +2636,7 @@ const SpotCard = ({ secid, onBack }) => {
         <ChevronRight size={16} className="tw-rotate-180" /> К списку
       </button>
       <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
-        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">{a.name}</h1>
+        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-serif tw-text-text-primary tw-m-0">{a.name}</h1>
         <Badge tone="neutral">{(SPOT_KIND[a.kind] || {}).label || a.kind}</Badge>
         <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{a.secid}</span>
       </div>
@@ -2678,7 +2678,7 @@ const OptionCard = ({ secid, onBack }) => {
         <ChevronRight size={16} className="tw-rotate-180" /> К списку опционов
       </button>
       <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
-        <h1 className="tw-text-[24px] tw-leading-[30px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">{o.asset_name}</h1>
+        <h1 className="tw-text-[24px] tw-leading-[30px] tw-font-medium tw-font-serif tw-text-text-primary tw-m-0">{o.asset_name}</h1>
         <Badge tone={isCall ? "info" : "warning"}>{o.type_label}</Badge>
         <Badge tone="neutral">страйк {fmtNumber(o.strike, { decimals: 0 })}</Badge>
         {o.days_to_expiry != null && <Badge tone={o.days_to_expiry <= 14 ? "warning" : "neutral"}>до экспирации {o.days_to_expiry} дн</Badge>}
