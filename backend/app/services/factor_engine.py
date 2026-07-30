@@ -58,6 +58,22 @@ def company_scenario_reaction(exposures: dict[str, float | None], intensities: d
     return max(_REACTION_CAP[0], min(_REACTION_CAP[1], total))
 
 
+def tax_hike_reaction(ticker: str, tax_shock: dict) -> float:
+    """Реакция цены на сценарий «массовое повышение налогов» (заказ владельца
+    2026-07-30: «доп. НДПИ как у Газпрома… или массово могут поднять на всех»).
+
+    Считается НЕ через факторные экспозиции, а прямо: канал `tax` в карточках заполнен
+    у 2 компаний из 264, а fiscal-тег кодирует текущие идиосинкразии (36% отриц /
+    37% полож) и налоговой бетой не является. Поэтому — плоский эффект на всех (налог
+    на прибыль поднимают всем) плюс усиление для фискальных доноров первой очереди:
+    прецеденты windfall-2023 и НДПИ Газпрома били именно по ним.
+    """
+    from app.services.factor_exposures import is_fiscal_donor
+    flat = float(tax_shock.get("flat_profit_hit_pct") or 0.0)
+    extra = float(tax_shock.get("donor_extra_hit_pct") or 0.0) if is_fiscal_donor(ticker) else 0.0
+    return max(_REACTION_CAP[0], -(flat + extra) / 100.0)
+
+
 def portfolio_scenario_losses(tickers_weights: dict[str, float]) -> dict:
     """Для каждого сценария — Loss = -Σ wᵢ·R(i,сценарий), только по компаниям с
     хотя бы одной покрытой экспозицией (честная деградация, доля покрытия
@@ -73,6 +89,15 @@ def portfolio_scenario_losses(tickers_weights: dict[str, float]) -> dict:
     for sc in scenarios:
         key = sc["key"]
         intensities = sc.get("intensities") or {}
+        tax_shock = sc.get("tax_shock")
+        if tax_shock:
+            # Налоговый сценарий считается прямым эффектом на прибыль, а не через
+            # факторные экспозиции — см. tax_hike_reaction.
+            reactions = {t: round(tax_hike_reaction(t, tax_shock) * 100, 1) for t in tickers_weights}
+            num = sum(w * tax_hike_reaction(t, tax_shock) for t, w in tickers_weights.items())
+            out[key] = {"loss_pct": round(-num / tot_w * 100, 1), "reaction_by_company": reactions,
+                        "coverage_pct": 100.0}
+            continue
         if not intensities:  # базовый — по определению без потерь
             out[key] = {"loss_pct": 0.0, "reaction_by_company": {}}
             continue
@@ -109,6 +134,10 @@ def expected_scenario_return(tickers_weights: dict[str, float], upside_by_ticker
     e_r_by_scenario = {}
     for sc in scenarios:
         key = sc["key"]
+        # Условные сценарии («что если» поверх основного распределения, напр. налоговый)
+        # в вероятностное взвешивание НЕ входят — иначе сумма вероятностей > 1.
+        if sc.get("conditional"):
+            continue
         intensities = sc.get("intensities") or {}
         num = 0.0
         for t, w in tickers_weights.items():
@@ -125,5 +154,6 @@ def expected_scenario_return(tickers_weights: dict[str, float], upside_by_ticker
                 r = base_r + company_scenario_reaction(per_company_exp.get(t, {}), intensities)
             num += w * r
         e_r_by_scenario[key] = num / tot_w if tot_w else None
-    e_r = sum(sc["probability"] * (e_r_by_scenario.get(sc["key"]) or 0) for sc in scenarios)
+    e_r = sum((sc.get("probability") or 0) * (e_r_by_scenario.get(sc["key"]) or 0)
+              for sc in scenarios if not sc.get("conditional"))
     return {"by_scenario": e_r_by_scenario, "expected": e_r}

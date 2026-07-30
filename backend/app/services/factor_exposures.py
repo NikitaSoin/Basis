@@ -33,23 +33,95 @@ producer/consumer — задача методики market-analyst (см. work-j
 from __future__ import annotations
 
 import json
+import logging
+import re
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 
-# Восемь факторов методики (§3.1). Ф2 объединяет три типа карточки (demand/
-# inflation/labor) — на шкале -2..+2 они неразличимы, методика сама это
-# отмечает («19 факторов черновика неразличимы»).
-FACTOR_KEYS = ["rate", "demand", "fx", "commodity", "sanctions", "conflict", "fiscal", "refinancing"]
+# Девять факторов. 🔴 «costs» отделён от «demand» 2026-07-30: раньше _MACRO_TYPE_MAP
+# сваливал demand+inflation+labor в один фактор, хотя они РАЗНОНАПРАВЛЕНЫ — спрос это
+# уровень выручки (структурно почти все его любят), а инфляция издержек и зарплаты это
+# расход (структурно все страдают от роста). Сценарий задаёт demand: -1.0 = «спрос
+# падает», и издержки внутри того же фактора читались как «издержки падают» = хорошо.
+# Плюс labor (98% факторов негативны — и это ВЕРНО) утягивал медианную demand-экспозицию
+# в -0.67, из-за чего в стрессе большинство компаний «росло». Слить с инверсией знака
+# было нельзя: в стагфляционном стрессе спрос падает, а издержки РАСТУТ одновременно.
+FACTOR_KEYS = ["rate", "demand", "costs", "fx", "commodity", "sanctions", "conflict",
+               "fiscal", "refinancing"]
 FACTOR_LABELS = {
-    "rate": "Ключевая ставка", "demand": "Внутренний спрос и инфляция",
-    "fx": "Курс рубля", "commodity": "Цены экспортного сырья",
+    "rate": "Ключевая ставка", "demand": "Внутренний спрос",
+    "costs": "Издержки: зарплаты и инфляция", "fx": "Курс рубля",
+    "commodity": "Цены экспортного сырья",
     "sanctions": "Санкции и внешние ограничения", "conflict": "Военная эскалация",
     "fiscal": "Регуляторно-налоговое давление", "refinancing": "Рефинансирование и кредитный цикл",
 }
 # type в macro.json/geo.json → наш факторный ключ
-_MACRO_TYPE_MAP = {"rate": "rate", "demand": "demand", "inflation": "demand", "labor": "demand",
+_MACRO_TYPE_MAP = {"rate": "rate", "demand": "demand", "inflation": "costs", "labor": "costs",
                     "fx": "fx", "commodity": "commodity", "fiscal": "fiscal"}
+
+# ────────────────── знак-оракул: структурная бета из quant_inputs ──────────────────
+# 🔴 Найдено 2026-07-30. `effect_sign` кодирует «как ТЕКУЩЕЕ состояние фактора влияет на
+# компанию», а сценарный движок читает его как «структурную бету к УРОВНЮ фактора». Это
+# те же грабли, что с commodity 2026-07-17, но шире. Доказательство из данных: ЛУКОЙЛ
+# fx=negative («Крепнущий рубль»), РОСНЕФТЬ fx=strong_negative («Крепкий рубль»), а ГМК
+# fx=positive («курс — главный операционный рычаг экспортёра») — три экспортёра, одна
+# экономика, противоположные знаки, потому что первые двое описывают СОСТОЯНИЕ курса, а
+# третий СТРУКТУРУ. По demand положительных было лишь 7%, хотя конвенция сценариев прямо
+# предполагает обратное; М.Видео (strong_negative = «слабый спрос бьёт по нам») движок
+# читал как «выигрывает от обвала спроса» и рисовал +15% в стрессе.
+#
+# Взамен: `quant_inputs.coefficients[канал].net_profit` — Δприбыли на единицу драйвера,
+# то есть настоящая структурная бета. Знаки по вселенной экономически верны:
+# demand 184+/4-, labor 0+/110-, cost_inflation 4+/199-, cost_of_risk 0+/16-,
+# commodity 35+/3-, fx 63+/38-, rate 96+/153- (банки при этом в плюсе — источник
+# различает даже их между собой).
+# 🔴 Берём из коэффициента ТОЛЬКО ЗНАК: сырой знак корректен всегда, а вот нормировка на
+# прибыль ломается при убытке (у Сегежи rate=-0.7 при ЧП=-88.3 млрд деление дало бы
+# +0.8% — переворот). Амплитуда остаётся из effect_sign (|значение| он передаёт разумно).
+_COEF_CHANNEL_TO_FACTOR = {
+    "rate": "rate", "nim": "rate",
+    # 🔴 cost_of_risk ведём в demand, а НЕ в rate: кредитные потери банка — функция
+    # экономического ЦИКЛА, а не цены денег. Именно это даёт корректный портрет банка,
+    # которого требовал владелец: ставка в плюс (NIM), спрос в минус (стоимость риска),
+    # и в стрессе (ставка вверх + спрос вниз) каналы честно неттингуются вместо
+    # «банк зарабатывает +9.6% на эскалации».
+    "cost_of_risk": "demand", "demand": "demand", "equity_market": "demand",
+    "collection": "demand",
+    "cost_inflation": "costs", "labor": "costs", "food_inflation": "costs",
+    "fx": "fx",
+    "commodity": "commodity", "steel_price": "commodity",
+    # tax (2 компании) сознательно НЕ маппим: налоговый шок вводится отдельным
+    # сценарием, а не фактором из карточек (покрытия для фактора нет).
+    "tariff": "fiscal",
+}
+
+# Каналы, чей драйвер движется ОБРАТНО драйверу своего фактора. Стоимость риска растёт,
+# когда цикл (ВВП) слабеет, поэтому её вклад в бету «к росту спроса» берётся с инверсией.
+_COEF_CHANNEL_INVERTED = {"cost_of_risk"}
+
+# Единичный шок по каналу — в тех же единицах, в которых задан коэффициент (`per`).
+# Калибровка по историческим эпизодам РФ (2014/2020/2022), НЕ по расстоянию от нейтрали:
+# расстояние — мера текущего дисбаланса, она разная у разных компаний и дат, нормировать
+# бету по ней нельзя. Единицы в данных почти унифицированы (проверено): 100bp == 1pp,
+# cost_of_risk везде 1bp, fx везде 1_rub, cost_inflation 1pp.
+_CHANNEL_SHOCK = {
+    "rate": 3.0, "nim": 3.0,            # ставка +300 б.п.
+    "cost_of_risk": 150.0,              # CoR +150 б.п. (в единицах 1bp)
+    "demand": 2.0,                      # ВВП ±2 п.п.
+    "equity_market": 2.0, "collection": 2.0,
+    "labor": 3.0,                       # зарплаты +3 п.п.
+    "cost_inflation": 5.0, "food_inflation": 5.0,
+    "fx": 15.0,                         # USDRUB +15 ₽ (ослабление рубля ~20%)
+    "commodity": 20.0, "steel_price": 20.0,
+    "tariff": 5.0,
+}
+# Доля капитализации, «съедаемая» единичным шоком, которая считается предельной
+# экспозицией |2|. Произвол, задокументированный: 12% стоимости на один шок — уже
+# экстремальная чувствительность.
+_EXPOSURE_FULL_SCALE = 0.12
 # 🔴 УСТАРЕЛ (2026-07-30): geo.json ключа `factors` больше не имеет — схема сменилась
 # при миграции geo-system v0.9 (коммит 2335f41ee1, 2026-07-12). Оставлен как фолбэк
 # на случай старых файлов; новый путь — gre_profile, см. _sanctions_exposure/
@@ -163,6 +235,92 @@ def _refinancing_exposure(fin: dict) -> int | None:
     return 0
 
 
+_market_caps: dict[str, float] | None = None
+
+
+def _load_market_caps() -> dict[str, float]:
+    """{ticker: капитализация в МЛРД ₽} — живая, close × число акций (как везде на
+    платформе цена берётся из quotes). Один раз на процесс."""
+    global _market_caps
+    if _market_caps is not None:
+        return _market_caps
+    try:
+        from sqlalchemy import text
+
+        from app.db.session import SessionLocal
+        db = SessionLocal()
+        try:
+            rows = db.execute(text(
+                "WITH l AS (SELECT DISTINCT ON (company_id) company_id, close FROM quotes "
+                "ORDER BY company_id, date DESC) "
+                "SELECT c.ticker, COALESCE(l.close * c.shares_outstanding, c.market_cap), "
+                "       c.historical_tickers "
+                "FROM companies c LEFT JOIN l ON l.company_id = c.id"
+            )).all()
+        finally:
+            db.close()
+        caps: dict[str, float] = {}
+        for ticker, cap, hist in rows:
+            if not ticker or not cap or float(cap) <= 0:
+                continue
+            value = float(cap) / 1e9
+            caps[ticker] = value
+            # Карточки живут под ПРЕЖНИМ тикером после редомициляции/переименования
+            # (HHRU→HEAD, AGRO→RAGR) — без этого у них не находилась капитализация и
+            # они молча оставались на старом (перевёрнутом) effect_sign.
+            for h in hist or []:
+                alias = h.get("ticker") if isinstance(h, dict) else h
+                if alias:
+                    caps.setdefault(alias, value)
+        _market_caps = caps
+    except Exception:  # noqa: BLE001
+        logger.warning("factor_exposures: капитализация недоступна, экспозиции из коэффициентов отключены",
+                       exc_info=True)
+        _market_caps = {}
+    return _market_caps
+
+
+def _exposures_from_coefficients(ticker: str, macro: dict | None) -> dict[str, float]:
+    """{factor: экспозиция} из quant_inputs.coefficients — структурная бета к РОСТУ
+    драйвера, нормированная на капитализацию.
+
+    Экспозиция = Δчистой прибыли на единичный шок ÷ капитализация, приведённая к шкале
+    -2..+2. Нормируем на капитализацию, а НЕ на прибыль: прибыль бывает отрицательной и
+    околонулевой, и деление на неё переворачивает знак (у Сегежи rate=-0.7 при ЧП=-88.3
+    млрд дало бы +0.8% — компания с долгом «выигрывала» бы от роста ставки). Капитализация
+    строго положительна, есть у всех, и Δприбыли/cap — это прямо та величина, которая
+    нужна движку: доля стоимости под ударом. Побочный эффект экономически верен —
+    убыточные и закредитованные при малой капитализации получают большую экспозицию
+    (distressed equity действительно гиперчувствителен), хвосты режет кламп.
+    """
+    coefs = ((macro or {}).get("quant_inputs") or {}).get("coefficients") or {}
+    if not coefs:
+        return {}
+    cap = _load_market_caps().get((ticker or "").upper())
+    if not cap:
+        return {}
+
+    acc: dict[str, float] = {}
+    for channel, spec in coefs.items():
+        factor = _COEF_CHANNEL_TO_FACTOR.get(channel)
+        if not factor or not isinstance(spec, dict):
+            continue
+        delta = spec.get("net_profit")
+        if not isinstance(delta, (int, float)):
+            continue
+        shock = _CHANNEL_SHOCK.get(channel)
+        if shock is None:
+            continue
+        if channel in _COEF_CHANNEL_INVERTED:
+            shock = -shock
+        acc[factor] = acc.get(factor, 0.0) + (delta * shock) / cap
+
+    return {
+        f: round(max(-2.0, min(2.0, v / _EXPOSURE_FULL_SCALE * 2)), 2)
+        for f, v in acc.items()
+    }
+
+
 def _gre_scores(geo: dict | None) -> dict[str, float]:
     """{E-ключ: score} из gre_profile. score бывает None (напр. SBER E11 — «ФЛАГ, в
     балл не конвертируется») — такие компоненты пропускаем, а не считаем нулём."""
@@ -237,7 +395,6 @@ def get_company_exposures(ticker: str) -> dict:
 
     fin = _load_json(ticker, "financials.json")
     refinancing = _refinancing_exposure(fin) if fin else None
-    sector = ((fin or {}).get("meta") or {}).get("sector") if fin else None
 
     out: dict[str, float | None] = {}
     for k in FACTOR_KEYS:
@@ -247,12 +404,20 @@ def get_company_exposures(ticker: str) -> dict:
         vals = exposures[k]
         out[k] = round(sum(vals) / len(vals), 2) if vals else None
 
-    # см. докстринг файла (2026-07-17): effect_sign — состояние сейчас, не
-    # структура. Для явных производителей (карточка вообще тегировала
-    # commodity-фактор — есть о чём говорить) берём структурный знак напрямую,
-    # тот же приём, что stress_scenarios.py уже применял точечно к нефтянке.
-    if exposures["commodity"] and _is_commodity_producer_sector(sector):
-        out["commodity"] = 2.0
+    # 🔴 ГЛАВНЫЙ ИСТОЧНИК — коэффициенты (структурная бета). effect_sign выше остаётся
+    # только фолбэком там, где канала в quant_inputs нет: он кодирует СОСТОЯНИЕ, а не
+    # структуру, и на нём знак систематически врал (см. блок про знак-оракул).
+    coef_exp = _exposures_from_coefficients(ticker, macro)
+    if coef_exp:
+        # 🔴 Значения из effect_sign по этим факторам ЗАТИРАЮТСЯ ПОЛНОСТЬЮ, а не
+        # дополняются. Иначе старая (перевёрнутая) семантика протекает в результат: у
+        # ЗИЛа так получалась costs=+1.0 — «компания выигрывает от роста издержек».
+        # Канал, не перечисленный аналитиком при заполненных quant_inputs, — это
+        # суждение «канал нематериален», то есть 0, а не дыра. Страховка от того,
+        # чтобы этим нулём не проглотить настоящую поломку, — секторные полы в
+        # контракт-тестах (tests/test_factor_exposures.py).
+        for k in ("rate", "demand", "costs", "fx", "commodity"):
+            out[k] = coef_exp.get(k, 0.0)
 
     # sanctions/conflict — из gre_profile (новая схема geo v0.9). Старый путь через
     # geo.json["factors"] выше остаётся фолбэком: если он что-то нашёл (архивный
@@ -264,6 +429,36 @@ def get_company_exposures(ticker: str) -> dict:
         if out.get("conflict") is None:
             out["conflict"] = _conflict_exposure(gre, ticker)
     return out
+
+
+_FISCAL_DONOR_RE = re.compile(r"фискальн\w*\s+донор|донор\w*\s+перв|донор первой очереди", re.I)
+_fiscal_donors: set[str] | None = None
+
+
+def is_fiscal_donor(ticker: str) -> bool:
+    """Компания — фискальный донор «первой очереди» (кого реально бьют windfall/НДПИ).
+
+    Классификация текстовым гейтом по rationale компонента E12 в geo.json, а НЕ по его
+    баллу: балл E12 двузначен — у Газпрома 5.0 означает «донор», у Яковлева 4.0
+    «бенефициар военного цикла». Тот же приём, что уже применён для conflict
+    (_WAR_BENEFICIARY_TICKERS): амплитуда из числа, направление из прозы.
+    """
+    global _fiscal_donors
+    if _fiscal_donors is None:
+        donors: set[str] = set()
+        if COMPANIES_DIR.exists():
+            for d in COMPANIES_DIR.iterdir():
+                if not d.is_dir() or d.name.startswith("."):
+                    continue
+                geo = _load_json(d.name, "geo.json")
+                for c in (geo or {}).get("gre_profile") or []:
+                    if c.get("key") != "E12":
+                        continue
+                    score, rationale = c.get("score"), c.get("rationale") or ""
+                    if isinstance(score, (int, float)) and score >= 3.0 and _FISCAL_DONOR_RE.search(rationale):
+                        donors.add(d.name.upper())
+        _fiscal_donors = donors
+    return (ticker or "").upper() in _fiscal_donors
 
 
 def get_portfolio_exposures(tickers_weights: dict[str, float]) -> dict:
