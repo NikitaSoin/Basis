@@ -268,3 +268,41 @@
 .lp-scope .flinks a:hover{color:var(--ink);}
 .lp-scope .sec-head{text-align:center;max-width:720px;margin:0 auto;}
 .lp-scope .sec-head .lead{margin-left:auto;margin-right:auto;}
+
+/* ============ v4: живая метка, цепочка передачи, диалог ассистента ============
+   Владелец 2026-07-30: лендинг должен показывать ценность разделов, и «всё живое».
+   Числа в hero-карточке действительно живые (LandingNeo тянет их каждые 8с) — но
+   раньше об этом не было сказано ни слова, доказательство лежало неподписанным.
+   Здесь — подпись с пульсирующей точкой, бегущий импульс по цепочке передачи
+   (макро → поток → дивиденд) и превью диалога ассистента.
+   Движение — только украшение: под prefers-reduced-motion всё замирает, смысл
+   не теряется (канон дизайн-системы: никаких «празднующих» анимаций). */
+.lp-scope .cc-live{display:flex;align-items:center;gap:7px;margin-top:11px;padding-top:10px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-3);}
+.lp-scope .cc-live-dot{width:6px;height:6px;border-radius:50%;background:var(--pos);flex-shrink:0;box-shadow:0 0 0 0 color-mix(in srgb,var(--pos) 60%,transparent);animation:lp-pulse 2.4s ease-out infinite;}
+@keyframes lp-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--pos) 55%,transparent);}70%{box-shadow:0 0 0 7px transparent;}100%{box-shadow:0 0 0 0 transparent;}}
+
+/* цепочка передачи: звенья подсвечиваются по очереди — видно, что оценка не
+   «одно число», а последовательность, где каждый шаг двигает следующий */
+.lp-scope .chain{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.lp-scope .ch-n{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:11.5px;color:var(--ink-2);position:relative;overflow:hidden;}
+.lp-scope .ch-a{color:var(--ink-3);font-size:12px;}
+.lp-scope .ch-end{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 30%,transparent);color:var(--accent);font-weight:600;}
+.lp-scope .rv.in .chain .ch-n::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--accent) 26%,transparent),transparent);transform:translateX(-100%);animation:lp-flow 3.6s ease-in-out infinite;}
+.lp-scope .rv.in .chain .ch-n:nth-child(3)::after{animation-delay:.35s;}
+.lp-scope .rv.in .chain .ch-n:nth-child(5)::after{animation-delay:.7s;}
+.lp-scope .rv.in .chain .ch-n:nth-child(7)::after{animation-delay:1.05s;}
+@keyframes lp-flow{0%{transform:translateX(-100%);}45%,100%{transform:translateX(100%);}}
+
+/* диалог ассистента */
+.lp-scope .chat{display:flex;flex-direction:column;gap:10px;}
+.lp-scope .ch-q{align-self:flex-end;max-width:88%;background:var(--accent-soft);color:var(--accent);border-radius:12px 12px 3px 12px;padding:9px 12px;font-size:12.5px;line-height:1.45;}
+.lp-scope .ch-r{background:var(--panel-2);border:1px solid var(--line);border-radius:12px 12px 12px 3px;padding:11px 12px;}
+.lp-scope .ch-r p{font-size:12.5px;line-height:1.5;color:var(--ink-2);margin:0 0 8px;}
+.lp-scope .ch-r p:last-of-type{margin-bottom:0;}
+.lp-scope .ch-r .tag{margin-left:5px;vertical-align:middle;}
+.lp-scope .ch-src{margin-top:9px;padding-top:8px;border-top:1px solid var(--line);font-size:10.5px;color:var(--ink-3);}
+
+@media(prefers-reduced-motion:reduce){
+  .lp-scope .cc-live-dot{animation:none;}
+  .lp-scope .rv.in .chain .ch-n::after{animation:none;display:none;}
+}

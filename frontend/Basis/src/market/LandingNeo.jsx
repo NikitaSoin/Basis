@@ -24,10 +24,14 @@ export default function LandingNeo({ onNavigate, onOpenCompany, onShowAuth, them
       if (!a) return;
       e.preventDefault();
       const r = a.getAttribute("data-route");
-      if (r === "companies") onNavigate && onNavigate("companies");
-      else if (r === "screener") onNavigate && onNavigate("screener");
-      else if (r === "rosn") onOpenCompany && onOpenCompany("ROSN");
+      if (r === "rosn") onOpenCompany && onOpenCompany("ROSN");
       else if (r === "login") onShowAuth && onShowAuth();
+      // остальные — вкладки приложения (имена совпадают с case в renderView App.js).
+      // Раньше поддерживались только companies/screener, и CTA новых разделов
+      // (обозреватель, портфель, стресс-тест, ассистент) молча никуда не вели.
+      else if (["companies", "screener", "overview", "portfolio", "stress", "ai"].includes(r)) {
+        onNavigate && onNavigate(r);
+      }
     };
     el.addEventListener("click", onClick);
     return () => el.removeEventListener("click", onClick);
