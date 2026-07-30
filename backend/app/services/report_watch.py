@@ -1045,6 +1045,60 @@ def process_company_rss_item(db: Session, item: dict, company: Company, market_c
         return "exists"
 
 
+def ingest_agent_source(db: Session, ticker: str, text_blob: str, source_url: str | None,
+                        period: str | None, standard: str | None) -> dict:
+    """Приём ПОЛНОГО текста отчётного релиза от АГЕНТА-ДОБЫТЧИКА (владелец 2026-07-31:
+    «report-fetcher же как-то добывает всё без проблем» — тот же класс агента, но по
+    расписанию: облачный агент ищет релиз там, куда curl с прод-сервера не проходит
+    (IR-сайты за анти-ботами, зеркала, полные статьи), и POST-ит текст сюда).
+
+    Дальше — РОВНО текущий конвейер (_store_report: экстракция цифр → _digest_rich с
+    контекстом платформы): агент только добывает, анализирует прод. Существующая
+    свежая запись тикера ЗАМЕНЯЕТСЯ, только если новая получилась содержательнее
+    (есть digest и добыто больше цифр) — агент не может ухудшить карточку."""
+    ticker = ticker.upper()
+    company = db.query(Company).filter(Company.ticker == ticker).first()
+    if company is None:
+        return {"error": f"компания {ticker} не найдена"}
+    if not text_blob or len(text_blob) < 300:
+        return {"error": "text слишком короткий (<300 символов)"}
+
+    per = (period or "").strip()
+    if not per:
+        m = re.search(r"за\s+(\d+\s*кв(?:артал)?\.?|\d+\s*мес\.?|\d{4}(?:\s*г(?:од)?)?|"
+                      r"1 пол\.?|полугодие)", text_blob, re.IGNORECASE)
+        per = m.group(1).strip() if m else date.today().isoformat()
+    std = (standard or "").strip() or ("МСФО" if re.search(r"МСФО|IFRS", text_blob, re.I)
+                                      else "отчётность")
+    report_type = "annual" if re.search(r"\bгод", per, re.I) else "quarter"
+
+    # старые свежие записи тикера — под замену (тот же паттерн, что redo-report)
+    olds = (db.query(EarningsReport)
+            .filter(EarningsReport.ticker == ticker,
+                    EarningsReport.published_at.isnot(None),
+                    EarningsReport.published_at >= date.today() - timedelta(days=10)).all())
+    for r in olds:
+        db.delete(r)
+    db.commit()
+
+    report = EarningsReport(
+        ticker=ticker, period=per, standard=std, report_type=report_type,
+        published_at=date.today(), source="agent_fetcher", source_url=source_url,
+        status="needs_source")
+    live, close = _live_price(ticker, db)
+    price_now = live or close
+    mcap = None
+    row = db.execute(text("SELECT market_cap FROM companies WHERE ticker=:t"), {"t": ticker}).first()
+    if row and row[0]:
+        mcap = float(row[0])
+    try:
+        res = _store_report(db, report, company, text_blob, False, price_now, mcap)
+    except IntegrityError:
+        db.rollback()
+        return {"error": "integrity (дубль period/standard)"}
+    return {"result": res, "period": per, "standard": std, "deleted_old": len(olds)}
+
+
 # ----------------------------- ГИР БО (bo.nalog.gov.ru) — годовая РСБУ-отчётность -----------------------------
 # Государственный ресурс ФНС (обязательная сдача годовой бухотчётности по 402-ФЗ) — НЕ
 # один из 5 ЦБ-аккредитованных агрегаторов раскрытия, отдельная система. Проверено вручную

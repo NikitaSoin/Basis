@@ -879,6 +879,57 @@ def debug_trigger_report_watch(days_back: int = 5, run_girbo: bool = True):
         db.close()
 
 
+@router.get("/debug/fetch-wishlist")
+def debug_fetch_wishlist(days_back: int = 2):
+    """Список «что добыть» для агента-добытчика: свежие отчётные события, где
+    (а) источник не найден (needs_source) или (б) разбор есть, но без выручки
+    (экстракция получила обрывок). Агент проходит по списку, ищет полный релиз
+    и POST-ит текст в /debug/ingest-report-source."""
+    from datetime import date as _date, timedelta as _td
+    from app.db.session import SessionLocal
+    from app.models.earnings import EarningsReport, EarningsFigures
+    db = SessionLocal()
+    try:
+        cutoff = _date.today() - _td(days=days_back)
+        rows = (db.query(EarningsReport, EarningsFigures)
+                .outerjoin(EarningsFigures, EarningsFigures.report_id == EarningsReport.id)
+                .filter(EarningsReport.published_at.isnot(None),
+                        EarningsReport.published_at >= cutoff).all())
+        out = []
+        for r, fig in rows:
+            reason = None
+            if r.status == "needs_source":
+                reason = "нет источника"
+            elif r.status == "processed" and (fig is None or fig.revenue_ttm is None):
+                reason = "разбор без выручки (обрывок источника)"
+            if reason:
+                out.append({"ticker": r.ticker, "period": r.period, "standard": r.standard,
+                            "published_at": r.published_at.isoformat(), "reason": reason})
+        return {"count": len(out), "items": out}
+    finally:
+        db.close()
+
+
+@router.post("/debug/ingest-report-source")
+def debug_ingest_report_source(payload: dict):
+    """Приём полного текста отчётного релиза от агента-добытчика (пилот, владелец
+    2026-07-31). Тело: {"ticker", "text", "source_url"?, "period"?, "standard"?}.
+    Дальше текст идёт в ТЕКУЩИЙ конвейер (экстракция цифр → богатый дайджест)."""
+    from app.db.session import SessionLocal
+    from app.services.report_watch import ingest_agent_source
+    db = SessionLocal()
+    try:
+        return ingest_agent_source(
+            db, str(payload.get("ticker") or ""), str(payload.get("text") or ""),
+            payload.get("source_url"), payload.get("period"), payload.get("standard"))
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug ingest-report-source: %s", e)
+        db.rollback()
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.get("/debug/fetch-article")
 def debug_fetch_article(url: str):
     """Проверка фетчабельности полного текста статьи С ПРОД-СЕРВЕРА (egress Timeweb ≠
