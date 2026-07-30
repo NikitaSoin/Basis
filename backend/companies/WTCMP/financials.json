@@ -265,16 +265,16 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
+        10198.631,
+        10362.237,
+        12838.769,
         null,
         null
       ],
       "intangibles": [
-        null,
-        null,
-        null,
+        80.113,
+        19.515,
+        14.991,
         null,
         null
       ],
@@ -286,39 +286,39 @@
         null
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
+        36432.628,
+        35670.665,
+        35981.584,
         null,
         null
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
+        74.072,
+        99.311,
+        32.121,
         null,
         null
       ],
       "total_non_current": [
-        46900,
-        47500,
-        52800,
+        46785.445,
+        46151.728,
+        48867.465,
         55600,
         60700
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
+        154.327,
+        164.732,
+        211.946,
         null,
         null
       ],
       "receivables": [
-        null,
-        null,
-        null,
+        46.252,
+        49.001,
+        99.384,
         null,
         null
       ],
@@ -330,23 +330,23 @@
         20700
       ],
       "short_term_investments": [
-        null,
-        null,
-        null,
+        7315.663,
+        6241.327,
+        66.968,
         null,
         null
       ],
       "other_current": [
-        null,
-        null,
-        null,
+        513.543,
+        419.991,
+        383.522,
         null,
         null
       ],
       "total_current": [
-        9100,
-        9000,
-        9600,
+        9202.502,
+        10366.954,
+        13555.415,
         12000,
         12700
       ]
@@ -360,16 +360,16 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
+        1060.901,
+        1060.901,
+        1060.901,
         null,
         null
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
+        42452.827,
+        42796.367,
+        46268.862,
         null,
         null
       ],
@@ -381,16 +381,16 @@
         null
       ],
       "other_equity": [
-        null,
-        null,
-        null,
+        3372.771,
+        3576.094,
+        5489.496,
         null,
         null
       ],
       "total_equity": [
-        46900,
-        47500,
-        52800,
+        46886.499,
+        47433.362,
+        52819.259,
         55600,
         60700
       ]
@@ -404,23 +404,23 @@
         0
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
+        7253.461,
+        7126.926,
+        7712.915,
         null,
         null
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
+        368.058,
+        276.386,
+        244.271,
         null,
         null
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
+        7621.519,
+        7403.312,
+        7957.186,
         null,
         null
       ]
@@ -434,31 +434,31 @@
         0
       ],
       "payables": [
-        null,
-        null,
-        null,
+        1329.036,
+        1264.573,
+        1475.678,
         null,
         null
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
+        150.507,
+        417.054,
+        170.376,
         null,
         null
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
+        1479.928,
+        1682.008,
+        1646.435,
         null,
         null
       ]
     },
     "total_liabilities": [
-      9100,
-      9000,
-      9600,
+      9101.448,
+      9085.32,
+      9603.621,
       12000,
       12700
     ],
@@ -1421,7 +1421,8 @@
     "Нет брокерского консенсуса (низкий free float, ограниченное покрытие). Прогноз = mechanical.",
     "data_quality=medium: агрегаторные данные без верификации по первичному PDF (сканированы). Ключевые строки (выручка, equity, cash) с высоким доверием; детальные статьи — null.",
     "cash_flow скопирован из WTCM (диспетчер, 2026-07-06) — один эмитент.",
-    "2026-07-28 GAP-фикс: finance_income/finance_costs/pre_tax_profit/income_tax заполнены значениями парного тикера WTCM (тот же эмитент ПАО ЦМТ, единая консолидированная МСФО — revenue/operating_profit/net_profit уже совпадали между WTCM и WTCMP до правки, что подтверждает единство отчётности). Источник исходных чисел — companies/WTCM/sources/extracted_financials.json (OCR первичных PDF компании, retrieved 2026-07-06, арифметика pre_tax−tax≈net_profit сходится)."
+    "2026-07-28 GAP-фикс: finance_income/finance_costs/pre_tax_profit/income_tax заполнены значениями парного тикера WTCM (тот же эмитент ПАО ЦМТ, единая консолидированная МСФО — revenue/operating_profit/net_profit уже совпадали между WTCM и WTCMP до правки, что подтверждает единство отчётности). Источник исходных чисел — companies/WTCM/sources/extracted_financials.json (OCR первичных PDF компании, retrieved 2026-07-06, арифметика pre_tax−tax≈net_profit сходится).",
+    "🔴 ИСПРАВЛЕН СПЛИТ внеоборотные/оборотные (2026-07-30, report-fetcher, 2 первичных аудированных МСФО-отчёта ЦМТ 2022/2023 годов, цифры за общий 2022 год идентичны в обоих — высокое качество): старый сплит в главном файле (non_current=[46900, 47500, 52800], current=[9100, 9000, 9600]) был грубым плейсхолдером smart-lab, где non_current≈total_equity и current≈total_liabilities (арифметически самосогласован, но концептуально неверно классифицирован) — расхождение с первичкой доходило до 3.9 млрд (~40% меньшей величины) для 2023 года. Заменено на реальный построчный сплит из первички: total_non_current/total_current/total_equity/total_liabilities 2021-2023 + полная детализация (ppe/intangibles/long_term_investments/other_non_current; inventory/receivables/short_term_investments/other_current; share_capital/retained_earnings/other_equity; deferred_tax/other_non_current_liab; payables/other_current_liab). ОБЩИЙ total_assets практически не изменился (<0.1%, старое значение сохранено как более округлённая, но верная величина) — расхождение было ИМЕННО в split, не в итоге. cash и short_term_debt(≈0) НЕ трогались — уже были верны. 2024/2025 НЕ в периметре этого прохода (нет первичных отчётов), остаются честным пробелом."
   ],
   "segments": [
     {

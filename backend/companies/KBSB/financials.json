@@ -179,18 +179,18 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1451.883,
+        1997.293,
+        2186.853,
+        2462.789,
+        2807.165
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1.52,
+        0.624,
+        0.546,
+        0.51,
+        0.297
       ],
       "goodwill": [
         null,
@@ -200,41 +200,41 @@
         null
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1572.598,
+        1463.244,
+        5191.623,
+        4574.662,
+        4783.349
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        5.613,
+        1.567,
+        10.921,
+        974.029,
+        1111.383
       ],
       "total_non_current": [
-        3462.7,
-        3031.6,
-        7389.9,
-        8012.0,
-        8702.2
+        3031.614,
+        3462.728,
+        7389.943,
+        8011.99,
+        8702.194
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        52.412,
+        10.519,
+        9.164,
+        52.341,
+        14.956
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        9242.502,
+        8332.543,
+        4222.246,
+        5494.446,
+        6607.824
       ],
       "cash": [
         356.8,
@@ -244,25 +244,25 @@
         9428.8
       ],
       "short_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        118.244,
+        339.524,
+        66.667,
+        292.667,
+        266.0
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2.969,
+        31.141,
+        46.006,
+        17.867,
+        28.813
       ],
       "total_current": [
-        9304.1,
-        9772.9,
-        6575.5,
-        10189.6,
-        16346.4
+        9772.933,
+        9304.097,
+        6575.472,
+        10189.568,
+        16346.379
       ]
     },
     "total_assets": [
@@ -311,62 +311,62 @@
     },
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
-        null
+        594.158,
+        386.458,
+        190.768,
+        0.0,
+        0.0
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "total_non_current_liab": [
-        386.5,
-        190.8,
-        190.8,
+        594.158,
+        386.458,
+        190.768,
         0.0,
         0.0
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        3700.05,
+        2760.158,
+        0.0,
+        0.0,
+        0.0
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        6602.654,
+        7216.936,
+        7634.452,
+        7345.057,
+        9167.822
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        73.684,
+        73.613,
+        684.528,
+        3628.434,
+        4367.353
       ],
       "total_current_liab": [
-        10050.7,
-        10776.4,
-        8319.0,
-        10973.5,
-        13535.2
+        10376.388,
+        10050.707,
+        8318.98,
+        10973.491,
+        13535.175
       ]
     },
     "total_liabilities": [
@@ -1176,7 +1176,8 @@
     "Единицы: исходные значения API — тыс. руб. (подтверждено сверкой total_assets 2025 = 25 048 573 тыс. = 25 048.6 млн, что близко по масштабу к total_assets в financials.json = 26 100 млн).",
     "KBSB: total_liabilities дозаполнен производным способом (total_assets - total_equity).",
     "operating_profit добавлен за 2021-2025 (1507/3036/5177/5084/5028 млн) — источник: ГИР БО ФНС (форма №2 «Отчёт о финансовых результатах», код 0710002, РСБУ), уже извлечён ранее в companies/KBSB/sources/extracted_financials.json (income_statement.operating_profit), но не был перенесён в основной файл. ВНИМАНИЕ — СМЕШЕНИЕ СТАНДАРТОВ: остальной income_statement (revenue/net_profit) в этом файле — МСФО (55400/60800/67700/75000/84800 и 74/1260/3870/2530/5370), тогда как operating_profit теперь — РСБУ (form 2). Прямой operating_margin = operating_profit/revenue(МСФО) БУДЕТ ЗАВЫШЕН (РСБУ-revenue выше МСФО в ~1.16-1.19 раза, см. флаг про соотношение 0.844-0.859). Для корректной операционной маржи по РСБУ используйте РСБУ-revenue из sources/extracted_financials.json (65666/71260/80197/88529/98699 млн): маржа РСБУ = 2.3%/4.3%/6.5%/5.7%/5.1%. cogs/gross_profit/finance_costs/finance_income/pre_tax_profit/income_tax НЕ перенесены (оставлены null) — по ранее принятому решению (см. флаг '✅ РАЗРЕШЕНО, 2026-07') income_statement сознательно держится в МСФО-масштабе, кроме operating_profit (явно запрошен отдельно, единственная строка, отсутствовавшая полностью — null во всех 5 годах, data_quality=LOW из-за ненадёжного smart-lab-агрегатора).",
-    "GAP-АУДИТ 2026-07-29 (report-fetcher), подтверждено ОКОНЧАТЕЛЬНО: pre_tax_profit/income_tax остаются null по той же причине периметра, что уже задокументирована в предыдущем флаге ('РСБУ vs МСФО... СМЕШЕНИЕ СТАНДАРТОВ') — sources/extracted_financials.json содержит полный РСБУ P&L (ГИР БО ФНС), но net_profit РСБУ (43.5/461.3/3401.8/2157.6/5177.5) расходится с net_profit МСФО, уже используемым в главном файле (74/1260/3870/2530/5370), особенно 2021 (×1.7) и 2022 (×2.7). Решение НЕ смешивать периметры подтверждено повторно — pre_tax_profit/income_tax остаются null, operating_profit уже перенесён ранее с явной оговоркой о смешении. Дальнейший поиск консолидированной МСФО-отчётности ПАО «ТНС энерго Кубань» не дал результата в предыдущих проходах (e-disclosure/company_ir) — честный пробел."
+    "GAP-АУДИТ 2026-07-29 (report-fetcher), подтверждено ОКОНЧАТЕЛЬНО: pre_tax_profit/income_tax остаются null по той же причине периметра, что уже задокументирована в предыдущем флаге ('РСБУ vs МСФО... СМЕШЕНИЕ СТАНДАРТОВ') — sources/extracted_financials.json содержит полный РСБУ P&L (ГИР БО ФНС), но net_profit РСБУ (43.5/461.3/3401.8/2157.6/5177.5) расходится с net_profit МСФО, уже используемым в главном файле (74/1260/3870/2530/5370), особенно 2021 (×1.7) и 2022 (×2.7). Решение НЕ смешивать периметры подтверждено повторно — pre_tax_profit/income_tax остаются null, operating_profit уже перенесён ранее с явной оговоркой о смешении. Дальнейший поиск консолидированной МСФО-отчётности ПАО «ТНС энерго Кубань» не дал результата в предыдущих проходах (e-disclosure/company_ir) — честный пробел.",
+    "🔴 ИСПРАВЛЕН СДВИГ ГОДА 2021/2022 в RSBU-суб-итогах баланса (2026-07-30, report-fetcher, ГИР БО ФНС raw JSON codes, двойная сверка current/previous/beforePrevious per период): предыдущий проход (2026-07-06) для части полей брал значение из соседнего периода API ('previous1100' вместо 'current1100'), что дало сдвиг/перестановку по годам для total_non_current (было [3462.7, 3031.6, 7389.9, 8012.0, 8702.2]), total_current (было [9304.1, 9772.9, 6575.5, 10189.6, 16346.4]), total_non_current_liab (было [386.5, 190.8, 190.8, 0.0, 0.0], двойной сдвиг), total_current_liab (было [10050.7, 10776.4, 8319.0, 10973.5, 13535.2], частичный сдвиг) — заменены на корректно упорядоченные и построчно детализированные (ppe/intangibles/long_term_investments/other_non_current; inventory/receivables/short_term_investments/other_current; long_term_debt/deferred_tax/other_non_current_liab; short_term_debt/payables/other_current_liab), арифметика сходится по всем 5 годам (компоненты=суб-итоги, суб-итоги=RSBU total_assets/total_liabilities ЭТОГО файла). cash НЕ трогался — уже был верно позиционирован по годам. 🔵 ПЕРИМЕТР (уже задокументированная в файле проблема, НЕ решена этим проходом): top-level total_assets/total_equity/total_liabilities (10400/-63000/73400 и т.д.) — из ДРУГОГО источника (вероятно smart-lab, МСФО-группа с реструктуризацией капитала 2021, отрицательный total_equity), НЕ совпадают по масштабу с RSBU-детализацией выше (RSBU total_assets 2021=12804.547, total_equity=+1834.001, total_liabilities=10970.546 — из этого же файла). Равно НЕ заполнялись equity-компоненты (share_capital/retained_earnings/additional_paid_in/other_equity) — заполнение RSBU-цифр под MSFO-масштабным total_equity создало бы новую путаницу вместо решения старой. Остаётся открытым вопросом для financial-analyst: либо перевести весь баланс на RSBU-периметр (пересчитав total_assets/equity/liabilities), либо найти настоящий МСФО построчный баланс."
   ],
   "segments": [],
   "cost_breakdown": [
