@@ -244,12 +244,21 @@ def _fetch_article_text(url: str | None, limit: int = 7000) -> str | None:
     except Exception as e:  # noqa: BLE001
         logger.info("report_watch: полный текст %s недоступен (%s)", url[:60], type(e).__name__)
         return None
+    # 🔴 script/style/noscript — ДО извлечения абзацев: у Коммерсанта инлайн-скрипты
+    # (window.kommersantAnalytics = {...}) попадали внутрь захвата, проходили фильтр
+    # длины и при лимите вытесняли реальный текст статьи (найдено 2026-07-31 через
+    # /debug/fetch-article: head ответа был чистым JS). Тот же приём, что в
+    # macro_cb_sync._fetch_text.
+    html_text = re.sub(r"<(script|style|noscript)[^>]*>.*?</\1>", " ",
+                       html_text, flags=re.S | re.I)
     paras = re.findall(r"<p[^>]*>(.*?)</p>", html_text, re.S | re.I)
     chunks = []
     for p in paras:
         t = re.sub(r"<[^>]+>", " ", p)
         t = _html.unescape(re.sub(r"\s+", " ", t)).strip()
-        if len(t) >= 60:  # навигация/подписи короче — режем
+        # навигация/подписи короче 60 символов — режем; остатки кода (фигурные
+        # скобки, window./function) — не текст статьи
+        if len(t) >= 60 and not re.search(r"[{}]|window\.|function\s*\(", t):
             chunks.append(t)
     text_out = "\n".join(chunks)[:limit]
     return text_out if len(text_out) >= 300 else None
