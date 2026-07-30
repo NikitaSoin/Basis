@@ -37,3 +37,29 @@ def test_thursday_expects_this_week():
 
 def test_next_monday_still_last_published_week():
     assert _expected_week_end(_dt(2026, 8, 3, 9)) == date(2026, 7, 27)
+
+
+# ── валидация извлечения: два числа релиза, независимые проверки ──────────────
+from app.services.macro_weekly_watch import _validate
+
+
+def test_validate_extracts_both_numbers():
+    out = {"found": True, "week_end": "2026-07-27", "wow": 0.04, "yoy": 5.94}
+    assert _validate(out, date(2026, 7, 27)) == {"wow": 0.04, "yoy": 5.94}
+
+
+def test_validate_keeps_yoy_when_wow_is_garbage():
+    # класс бага «цена сахара 2,6% записана как недельная инфляция»: мусорное wow
+    # отбрасывается, но годовая из того же релиза НЕ теряется
+    out = {"found": True, "week_end": "2026-07-27", "wow": 2.6, "yoy": 5.94}
+    assert _validate(out, date(2026, 7, 27)) == {"yoy": 5.94}
+
+
+def test_validate_rejects_wrong_week_entirely():
+    out = {"found": True, "week_end": "2026-07-20", "wow": 0.04, "yoy": 5.94}
+    assert _validate(out, date(2026, 7, 27)) is None
+
+
+def test_validate_accepts_partial_release():
+    out = {"found": True, "week_end": "2026-07-27", "wow": None, "yoy": 5.94}
+    assert _validate(out, date(2026, 7, 27)) == {"yoy": 5.94}

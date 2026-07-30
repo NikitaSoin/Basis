@@ -648,6 +648,32 @@ def debug_fix_inflation_expectations_jun_jul_2026():
         db.close()
 
 
+@router.post("/debug/seed-inflation-yoy-jul27-2026")
+def debug_seed_inflation_yoy_jul27_2026():
+    """Разовый сид: годовая инфляция 5,94% на 27 июля 2026 (оценка Минэка из
+    недельного релиза 29 июля; владелец 2026-07-30: «годовая тоже старая — 5,84,
+    когда сейчас 5,94»). Системно закрыто расширением macro_weekly_watch (ловец
+    теперь пишет оба числа релиза — wow и yoy), этот эндпоинт — немедленный фикс
+    точки, если релиз уже ушёл из окна Ленты. Значение подтверждено: interfax.ru/
+    business/1106356, bfm.ru/news/613610, akm.ru («годовая выросла до 5,94%»)."""
+    from datetime import date as _date
+    from app.db.session import SessionLocal
+    from app.services.macro_ingest import upsert_point
+    db = SessionLocal()
+    try:
+        res = upsert_point(db, "inflation", _date(2026, 7, 27), "yoy", 5.94,
+                           unit="%", source="Минэкономразвития (via interfax)",
+                           source_url="https://www.interfax.ru/business/1106356",
+                           ingested_via="news")
+        return {"result": res}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug seed-inflation-yoy-jul27-2026: %s", e)
+        db.rollback()
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-weekly-inflation-watch")
 def debug_trigger_weekly_inflation_watch():
     """Ручной прогон целевого ловца недельной инфляции (macro_weekly_watch.py) —
