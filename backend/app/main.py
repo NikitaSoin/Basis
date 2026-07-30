@@ -402,6 +402,27 @@ async def _macro_rate_watch_job():
         logger.exception("Ошибка почасовой проверки ставки ЦБ: %s", e)
 
 
+async def _weekly_inflation_watch_job():
+    """Целевой ловец недельной инфляции (macro_weekly_watch.py). Идемпотентен:
+    точка за ожидаемый понедельник уже есть → один SELECT и выход; нет → узкая
+    добыча из своей Ленты (только «инфляц»-новости) с жёсткой валидацией недели
+    и диапазона + фолбэк на Росстат с браузерным UA."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.macro_weekly_watch import watch_weekly_inflation
+        db = SessionLocal()
+        try:
+            return watch_weekly_inflation(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        if res.get("status") != "ok":
+            logger.info("Ловец недельной инфляции: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка ловца недельной инфляции: %s", e)
+
+
 async def _macro_verification_job():
     """«ОТК данных» Макрообзора (владелец, 2026-07-25): ежедневная проверка, что
     данные верные и свежие — календарь заседаний ЦБ, кросс-сверка с независимыми
@@ -1087,6 +1108,13 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("news_feed", _news_job), "cron", minute=5, id="news_feed")  # каждый час
         scheduler.add_job(_with_heartbeat("macro_ingest", _macro_job), "cron", hour=6, minute=30, id="macro_ingest")
         scheduler.add_job(_with_heartbeat("macro_rate_watch", _macro_rate_watch_job), "cron", minute=20, id="macro_rate_watch")  # почасово — ловит заседание ЦБ в тот же день
+        # Целевой ловец недельной инфляции (владелец 2026-07-30: публикация стабильно в
+        # среду во второй половине дня, а ряд дырявый — общая лента её пропускала).
+        # ср 16-23 + чт/пт утро-день; внутри идемпотентный guard «точка есть → no-op»,
+        # так что лишние прогоны бесплатны (один SELECT).
+        scheduler.add_job(_with_heartbeat("weekly_inflation_watch", _weekly_inflation_watch_job),
+                          "cron", day_of_week="wed,thu,fri", hour="8-23", minute=35,
+                          id="weekly_inflation_watch")
         scheduler.add_job(_with_heartbeat("macro_verification", _macro_verification_job), "cron", hour=18, minute=30, id="macro_verification")  # «ОТК данных» — вечером, после всех синков
         scheduler.add_job(_with_heartbeat("macro_interpretation", _macro_interpretation_job), "cron", hour=7, minute=15, id="macro_interpretation")
         scheduler.add_job(_with_heartbeat("earnings_digest", _earnings_job), "cron", hour=20, minute=30, id="earnings_digest")

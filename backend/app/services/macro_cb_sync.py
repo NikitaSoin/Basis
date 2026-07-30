@@ -511,7 +511,22 @@ def sync_expectations(db: Session) -> dict:
                 pass
 
     pdf_result = _expectations_from_pdf_fallback(db)
-    candidates = [c for c in (xlsx_result, pdf_result) if c]
+    # 🔴 ПРИ РАВНОМ МЕСЯЦЕ ПОБЕЖДАЕТ ДЕТЕРМИНИРОВАННЫЙ ПАРСЕР, а не LLM. Прежний
+    # max(candidates, key=дата) при равных датах брал ПЕРВЫЙ элемент — xlsx_result,
+    # то есть LLM-извлечение. На бою (2026-07-30, поймал владелец — ВТОРОЙ раз на
+    # этом же показателе): июльский бюллетень — ожидания 14,7% (рост с 12,4%; опрос
+    # инФОМ 5–16 июля, подтверждено 3+ СМИ), детерминированный _parse_infom_chart
+    # это число ДАВАЛ, но ежедневный крон 06:30 через XLSX-LLM-путь выдавал 12,5 и
+    # ПЕРЕЗАПИСЫВАЛ правильную точку — «ожидания откатились». Урок 2026-07-25 (LLM
+    # систематически путает ряды этого бюллетеня) относится и к XLSX-пути: LLM
+    # используем ТОЛЬКО когда XLSX покрывает более НОВЫЙ месяц, которого в PDF ещё нет.
+    if xlsx_result and pdf_result and xlsx_result[0] <= pdf_result[0]:
+        if abs(xlsx_result[1] - pdf_result[1]) > 0.05:
+            logger.warning("CB-sync: ожидания — XLSX-LLM (%s) расходится с детерминированным "
+                           "PDF-парсером (%s) за %s; выбран PDF",
+                           xlsx_result[1], pdf_result[1], pdf_result[0])
+        xlsx_result = None
+    candidates = [c for c in (pdf_result, xlsx_result) if c]
     if not candidates:
         return {"error": "no data"}
     d, exp, url = max(candidates, key=lambda c: c[0])

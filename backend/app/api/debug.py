@@ -615,6 +615,55 @@ def debug_seed_weekly_inflation_jul20_2026():
         db.close()
 
 
+@router.post("/debug/fix-inflation-expectations-jun-jul-2026")
+def debug_fix_inflation_expectations_jun_jul_2026():
+    """Разовый фикс: инфляционные ожидания июнь=12,4% и июль=14,7% (владелец
+    2026-07-30: «были 14,7 как и должны быть, а сейчас не то число опять»).
+    Причина отката — sync_expectations при РАВНОМ месяце предпочитал XLSX-LLM-путь
+    (стабильно выдававший 12,5) детерминированному PDF-парсеру, и ежедневный крон
+    06:30 перезаписывал верную точку; приоритет исправлен в macro_cb_sync.py, этот
+    эндпоинт возвращает корректные значения немедленно, не дожидаясь крона.
+    Значения из бюллетеня инФОМ за июль (опрос 5–16 июля): ожидаемая инфляция на
+    год вперёд 14,7% (макс. с марта 2022, +2,3 п.п. к июню 12,4%) — подтверждено
+    finance.mail.ru/article/69218843, investfuture.ru (21.07.2026), msk1.ru."""
+    from datetime import date as _date
+    from app.db.session import SessionLocal
+    from app.services.macro_ingest import upsert_point
+    db = SessionLocal()
+    try:
+        r_jun = upsert_point(db, "inflation_expectations", _date(2026, 6, 30), "level", 12.4,
+                             unit="%", source="ЦБ РФ (инФОМ)",
+                             source_url="https://www.cbr.ru/analytics/dkp/inflationary_expectations/",
+                             ingested_via="cbr")
+        r_jul = upsert_point(db, "inflation_expectations", _date(2026, 7, 31), "level", 14.7,
+                             unit="%", source="ЦБ РФ (инФОМ)",
+                             source_url="https://www.cbr.ru/analytics/dkp/inflationary_expectations/",
+                             ingested_via="cbr")
+        return {"june": r_jun, "july": r_jul}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug fix-inflation-expectations: %s", e)
+        db.rollback()
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
+@router.post("/debug/trigger-weekly-inflation-watch")
+def debug_trigger_weekly_inflation_watch():
+    """Ручной прогон целевого ловца недельной инфляции (macro_weekly_watch.py) —
+    тот же код, что гоняет крон ср/чт/пт. Идемпотентен."""
+    from app.db.session import SessionLocal
+    from app.services.macro_weekly_watch import watch_weekly_inflation
+    db = SessionLocal()
+    try:
+        return watch_weekly_inflation(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-weekly-inflation-watch: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/purge-future-macro")
 def debug_purge_future_macro():
     """Удаляет точки macro_data_points с as_of далеко в будущем (баг: LLM-извлечение

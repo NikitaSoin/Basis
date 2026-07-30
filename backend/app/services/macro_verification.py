@@ -183,21 +183,32 @@ def _check_monthly_due(db: Session, code: str, metric: str, due_day: int,
 
 
 def _check_weekly_inflation_fresh(db: Session) -> dict:
+    """Свежесть — от КАЛЕНДАРЯ ПУБЛИКАЦИИ, а не от возраста последней точки.
+
+    Прежний критерий «age ≤ 9 дней → ok» пропустил бы невышедшую среду ещё неделю:
+    в четверг после пропущенной публикации точке прошлой недели всего 10 дней.
+    Владелец заметил пропуск НА СЛЕДУЮЩИЙ ДЕНЬ (2026-07-30) — проверка обязана
+    замечать не позже него. Ожидаемый понедельник считает macro_weekly_watch
+    (публикация в среду ~16:00 МСК за неделю по понедельник этой же недели):
+    точки за него нет → warn сразу, со следующего дня → fail."""
+    from app.services.macro_weekly_watch import _expected_week_end
     key, t, title = "calendar_weekly_inflation", "calendar", "Недельная инфляция выходит по графику"
     p = _latest_point(db, "inflation_weekly", "wow")
     if p is None:
         return _res(key, t, title, "fail", "Недельная инфляция: в БД нет ни одной точки")
-    age = (date.today() - p.as_of).days
-    # Публикуется Росстатом по средам за неделю по понедельник → нормальный лаг до ~9 дней.
-    if age <= 9:
+    expected = _expected_week_end()
+    lag = (expected - p.as_of).days
+    if lag <= 0:
         status, msg = "ok", f"Последняя неделя: {p.value}% на {p.as_of.strftime('%d.%m.%Y')}"
-    elif age <= 16:
-        status, msg = "warn", (f"Недельная инфляция не обновлялась {age} дн. "
-                               f"(последняя — {p.as_of.strftime('%d.%m.%Y')})")
+    elif (date.today() - expected).days <= 3:
+        status, msg = "warn", (f"Ожидалась публикация за неделю по {expected.strftime('%d.%m.%Y')} "
+                               f"(среда, вторая половина дня) — в БД последняя точка "
+                               f"{p.as_of.strftime('%d.%m.%Y')}")
     else:
-        status, msg = "fail", (f"Недельная инфляция не обновлялась {age} дн. "
-                               f"(последняя — {p.as_of.strftime('%d.%m.%Y')}) — источник замолчал")
-    return _res(key, t, title, status, msg, db_as_of=str(p.as_of), age_days=age)
+        status, msg = "fail", (f"Недельная инфляция за неделю по {expected.strftime('%d.%m.%Y')} "
+                               f"так и не получена (последняя — {p.as_of.strftime('%d.%m.%Y')})")
+    return _res(key, t, title, status, msg, db_as_of=str(p.as_of),
+                expected_week_end=str(expected), lag_days=lag)
 
 
 # ----------------------------- cross-проверки -----------------------------
