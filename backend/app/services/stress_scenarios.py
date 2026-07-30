@@ -33,6 +33,16 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.services.factor_engine import company_scenario_reaction
+
+# 🔴 Мягкий импорт (2026-07-30). Налоговая ветка появилась в factor_engine тем же
+# заходом, но деплой Timeweb выкатил файлы НЕРАВНОМЕРНО: stress_scenarios обновился
+# раньше factor_engine, и сценарий налогового давления валился с ImportError в 500 на
+# живом сайте. Отсутствие функции не должно ронять весь сценарий — он деградирует до
+# факторной части, что видно по отсутствию «tax» в factors_covered.
+try:
+    from app.services.factor_engine import tax_hike_reaction as _tax_hike_reaction
+except ImportError:  # pragma: no cover — только на полу-выкаченном деплое
+    _tax_hike_reaction = None
 from app.services.factor_exposures import get_company_exposures, FACTOR_KEYS
 
 
@@ -163,12 +173,11 @@ def compute_impact(db: Session, intensities: dict, sector_scope: dict | None = N
                 exp["commodity"] = 2.0
         covered = [k for k in eff_intensities if exp.get(k) is not None]
         reaction = company_scenario_reaction(exp, eff_intensities) if eff_intensities else 0.0
-        if tax_shock:
+        if tax_shock and _tax_hike_reaction is not None:
             # Налоговый удар считается прямо по прибыли, а не через факторный тег —
             # см. factor_engine.tax_hike_reaction. Складывается с факторной реакцией
             # (тег fiscal ловит регуляторную специфику компании, налог — общий).
-            from app.services.factor_engine import tax_hike_reaction
-            reaction = max(-0.70, reaction + tax_hike_reaction(ticker, tax_shock))
+            reaction = max(-0.70, reaction + _tax_hike_reaction(ticker, tax_shock))
             covered = covered + ["tax"]
         out.append({
             "ticker": ticker, "name": name, "sector": sector,
