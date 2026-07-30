@@ -566,7 +566,11 @@ function BondsTab({ rows, query, onOpen, Logo }) {
   const [coupon, setCoupon] = useState("Любой купон");
   const [reli, setReli] = useState("Любая надёжность");
   const [sort, setSort] = useState({ key: "default", dir: -1 });
-  const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.bonds") || "rows"; } catch { return "rows"; } });
+  // Дефолт "cards" — владелец, 2026-07-30: базовый режим экрана «Рынок»
+  // должен быть карточками, не лентой, во всех классах активов (акции —
+  // mk.sview3 выше, здесь — облигации/фьючерсы/фонды/валюта). Сохранённый
+  // явный выбор пользователя в localStorage не переопределяется.
+  const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.bonds") || "cards"; } catch { return "cards"; } });
   const setView = (v) => { setViewRaw(v); try { localStorage.setItem("mk.view.bonds", v); } catch {} };
   const reliMap = { "Надёжные": "pos", "Средний риск": "amber", "ВДО": "neg" };
   let list = rows.filter(b => {
@@ -688,7 +692,7 @@ function FuturesTab({ rows, query, onOpen, Logo }) {
   const compact = useNarrowCards();
   const [grpf, setGrpf] = useState("Все");
   const [sort, setSort] = useState({ key: "default", dir: -1 });
-  const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.futures") || "rows"; } catch { return "rows"; } });
+  const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.futures") || "cards"; } catch { return "cards"; } });
   const setView = (v) => { setViewRaw(v); try { localStorage.setItem("mk.view.futures", v); } catch {} };
   const groupLabel = f => f.kind_label || "Прочее";
   const allGroups = useMemo(() => [...new Set(rows.map(groupLabel))], [rows]);
@@ -768,7 +772,7 @@ function FuturesTab({ rows, query, onOpen, Logo }) {
 function FundsTab({ rows, query, onOpen, sparks }) {
   const compact = useNarrowCards();
   const [grpf, setGrpf] = useState("Все");
-  const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.funds") || "rows"; } catch { return "rows"; } });
+  const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.funds") || "cards"; } catch { return "cards"; } });
   const setView = (v) => { setViewRaw(v); try { localStorage.setItem("mk.view.funds", v); } catch {} };
   const [sort, setSort] = useState({ key: "default", dir: -1 });
   const groupLabel = f => f.type_label || "Прочее";
@@ -837,7 +841,7 @@ function FundsTab({ rows, query, onOpen, sparks }) {
 // ══════════════════ ВАЛЮТА И МЕТАЛЛЫ ══════════════════
 function FxMetalsTab({ rows, onOpen }) {
   const compact = useNarrowCards();
-  const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.fx") || "rows"; } catch { return "rows"; } });
+  const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.fx") || "cards"; } catch { return "cards"; } });
   const setView = (v) => { setViewRaw(v); try { localStorage.setItem("mk.view.fx", v); } catch {} };
   const fx = rows.filter(r => r.kind === "currency");
   const metals = rows.filter(r => r.kind === "metal");
@@ -927,7 +931,11 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   const [drawerOpen, setDrawerOpen, drawerNarrow] = useMobileSidebarDrawer();
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("Все");
-  const [stockView, setStockView] = useState(() => persist("mk.sview3", "rows"));
+  // Дефолт "list" (Карточки) — владелец, 2026-07-30: базовый режим экрана
+  // «Рынок» должен быть карточками, не лентой. localStorage-ключ mk.sview3
+  // прежний — уже сохранённый выбор пользователя (в т.ч. явный выбор "rows")
+  // не переопределяем, меняется только дефолт для тех, у кого ключа ещё нет.
+  const [stockView, setStockView] = useState(() => persist("mk.sview3", "list"));
 
   const [scored, setScored] = useState([]);
   const [capByTicker, setCapByTicker] = useState({}); // combined_market_cap (обычка+преф)
