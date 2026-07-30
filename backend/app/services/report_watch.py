@@ -254,17 +254,29 @@ def _fetch_article_text(url: str | None, limit: int = 7000) -> str | None:
     html_text = re.sub(r"<(script|style|noscript)[^>]*>.*?</\1>", " ",
                        html_text, flags=re.S | re.I)
     html_text = re.sub(r"<!--.*?-->", " ", html_text, flags=re.S)
+    def _clean_lines(fragment: str) -> list[str]:
+        out = []
+        for raw_line in fragment.split("\n"):
+            t = _html.unescape(re.sub(r"\s+", " ", raw_line)).strip()
+            # навигация/подписи короче 60 символов — режем; остатки кода (фигурные
+            # скобки, window./function) — не текст статьи
+            if len(t) >= 60 and not re.search(r"[{}]|window\.|function\s*\(", t) \
+                    and re.search(r"[.,]", t):
+                out.append(t)
+        return out
+
     paras = re.findall(r"<p[^>]*>(.*?)</p>", html_text, re.S | re.I)
     chunks = []
     for p in paras:
-        t = re.sub(r"<[^>]+>", " ", p)
-        t = _html.unescape(re.sub(r"\s+", " ", t)).strip()
-        # навигация/подписи короче 60 символов — режем; остатки кода (фигурные
-        # скобки, window./function) — не текст статьи
-        if len(t) >= 60 and not re.search(r"[{}]|window\.|function\s*\(", t) \
-                and re.search(r"[.,]", t):
-            chunks.append(t)
+        chunks.extend(_clean_lines(re.sub(r"<[^>]+>", " ", p)))
     text_out = "\n".join(chunks)[:limit]
+    if len(text_out) >= 300:
+        return text_out
+    # Фолбэк для страниц, где текст НЕ в <p> (smart-lab держит тело поста в div):
+    # зачистка всех тегов с переносами по блочным элементам + те же фильтры строк.
+    rough = re.sub(r"<(?:br|/p|/div|/li|/h\d|/tr)[^>]*>", "\n", html_text, flags=re.I)
+    rough = re.sub(r"<[^>]+>", " ", rough)
+    text_out = "\n".join(_clean_lines(rough))[:limit]
     return text_out if len(text_out) >= 300 else None
 
 

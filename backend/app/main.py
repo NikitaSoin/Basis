@@ -402,6 +402,27 @@ async def _macro_rate_watch_job():
         logger.exception("Ошибка почасовой проверки ставки ЦБ: %s", e)
 
 
+async def _report_fetch_job():
+    """Прод-добытчик отчётных релизов (report_fetcher_job: код + DeepSeek, источники
+    smart-lab/Лента; владелец 2026-07-31 — «только на дипсик», облачная Claude-рутина
+    отключена). Идёт ПОСЛЕ каскадного report_watch: добирает то, что осталось без
+    источника или без выручки."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.report_fetcher_job import fetch_missing_reports
+        db = SessionLocal()
+        try:
+            return fetch_missing_reports(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        if res.get("status") != "empty":
+            logger.info("Добытчик релизов: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка добытчика релизов: %s", e)
+
+
 async def _weekly_inflation_watch_job():
     """Целевой ловец недельной инфляции (macro_weekly_watch.py). Идемпотентен:
     точка за ожидаемый понедельник уже есть → один SELECT и выход; нет → узкая
@@ -1115,6 +1136,11 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("weekly_inflation_watch", _weekly_inflation_watch_job),
                           "cron", day_of_week="wed,thu,fri", hour="8-23", minute=35,
                           id="weekly_inflation_watch")
+        # Добытчик релизов — после каскадного report_watch (:45), в сезон отчётностей
+        # добирает пропуски; вне сезона wishlist пуст и прогон = один SELECT.
+        scheduler.add_job(_with_heartbeat("report_fetch", _report_fetch_job),
+                          "cron", day_of_week="mon-fri", hour="10,17", minute=15,
+                          id="report_fetch")
         scheduler.add_job(_with_heartbeat("macro_verification", _macro_verification_job), "cron", hour=18, minute=30, id="macro_verification")  # «ОТК данных» — вечером, после всех синков
         scheduler.add_job(_with_heartbeat("macro_interpretation", _macro_interpretation_job), "cron", hour=7, minute=15, id="macro_interpretation")
         scheduler.add_job(_with_heartbeat("earnings_digest", _earnings_job), "cron", hour=20, minute=30, id="earnings_digest")

@@ -885,27 +885,28 @@ def debug_fetch_wishlist(days_back: int = 2):
     (а) источник не найден (needs_source) или (б) разбор есть, но без выручки
     (экстракция получила обрывок). Агент проходит по списку, ищет полный релиз
     и POST-ит текст в /debug/ingest-report-source."""
-    from datetime import date as _date, timedelta as _td
     from app.db.session import SessionLocal
-    from app.models.earnings import EarningsReport, EarningsFigures
+    from app.services.report_fetcher_job import build_wishlist
     db = SessionLocal()
     try:
-        cutoff = _date.today() - _td(days=days_back)
-        rows = (db.query(EarningsReport, EarningsFigures)
-                .outerjoin(EarningsFigures, EarningsFigures.report_id == EarningsReport.id)
-                .filter(EarningsReport.published_at.isnot(None),
-                        EarningsReport.published_at >= cutoff).all())
-        out = []
-        for r, fig in rows:
-            reason = None
-            if r.status == "needs_source":
-                reason = "нет источника"
-            elif r.status == "processed" and (fig is None or fig.revenue_ttm is None):
-                reason = "разбор без выручки (обрывок источника)"
-            if reason:
-                out.append({"ticker": r.ticker, "period": r.period, "standard": r.standard,
-                            "published_at": r.published_at.isoformat(), "reason": reason})
+        out = build_wishlist(db, days_back=days_back)
         return {"count": len(out), "items": out}
+    finally:
+        db.close()
+
+
+@router.post("/debug/trigger-report-fetch")
+def debug_trigger_report_fetch(max_tickers: int = 4):
+    """Ручной прогон прод-добытчика релизов (report_fetcher_job: код + DeepSeek,
+    smart-lab/Лента как источники) — тот же код, что крон. Идемпотентен."""
+    from app.db.session import SessionLocal
+    from app.services.report_fetcher_job import fetch_missing_reports
+    db = SessionLocal()
+    try:
+        return fetch_missing_reports(db, max_tickers=max_tickers)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-report-fetch: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
     finally:
         db.close()
 
