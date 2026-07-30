@@ -34,11 +34,11 @@
   "income_statement": {
     "cost_format": "by_nature",
     "revenue": [
-      26200,
-      26200,
-      29600,
-      32000,
-      35800
+      30422.5,
+      30397.6,
+      34174.4,
+      36403.3,
+      40862.6
     ],
     "cogs": [
       28249.2,
@@ -1083,7 +1083,8 @@
     "Расхождение P/E-метода и CAPM >30% — см. methods_divergence_note.",
     "Для улучшения качества нужна первичная отчётность (РСБУ/МСФО PDF из e-disclosure).",
     "VGSBP: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка.",
-    "GAP-добор 2026-07-29 (report-fetcher): balance_sheet (все статьи: PPE/НМА/запасы/дебиторка/кредиторка/долг/капитал по составу) перенесён ИЗ sources/extracted_financials.json (ГИР БО ФНС, РСБУ, arithmetic_check=passed) в главный financials.json — ранее были только total_assets/total_equity/total_liabilities без разбивки. net_debt пересчитан как short_term_debt+long_term_debt-cash по годам, где все три компонента известны (долг за все 5 лет = 200.2/0/0/null/null для краткосрочного — long_term_debt отсутствует полностью, поэтому net_debt=null там, где долг не раскрыт по обоим срокам одновременно с cash)."
+    "GAP-добор 2026-07-29 (report-fetcher): balance_sheet (все статьи: PPE/НМА/запасы/дебиторка/кредиторка/долг/капитал по составу) перенесён ИЗ sources/extracted_financials.json (ГИР БО ФНС, РСБУ, arithmetic_check=passed) в главный financials.json — ранее были только total_assets/total_equity/total_liabilities без разбивки. net_debt пересчитан как short_term_debt+long_term_debt-cash по годам, где все три компонента известны (долг за все 5 лет = 200.2/0/0/null/null для краткосрочного — long_term_debt отсутствует полностью, поэтому net_debt=null там, где долг не раскрыт по обоим срокам одновременно с cash).",
+    "🔴 ИСПРАВЛЕН gross_bridge (2026-07-30, report-fetcher, сверка с сестринским VGSB): revenue было [26200, 26200, 29600, 32000, 35800] — не сходилось с уже имеющимися cogs/gross_profit (cogs>revenue у некоторых лет). Заменено на значения, синхронизированные с VGSB (тот же эмитент) — revenue-cogs=gross_profit сходится точно на всех 5 годах."
   ],
   "segments": [
     {
