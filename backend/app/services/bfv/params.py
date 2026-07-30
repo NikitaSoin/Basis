@@ -157,6 +157,25 @@ def _governance_score(gov: dict) -> float | None:
     return float(v) if isinstance(v, (int, float)) else None
 
 
+def _dividend_pause_years(gov: dict) -> int:
+    """Сколько ближайших лет акционер не получает выплат — из governance.json
+    (`dividends.suspended_until_year`). 0, если поле не заведено.
+
+    Нужно, потому что до 2026-07-30 движок видел только СПОСОБНОСТЬ платить (ёмкость,
+    governance-балл), но не ОБЪЯВЛЕННОЕ решение не платить. У PLZL это давало
+    справедливую цену, посчитанную так, будто дивиденды идут, хотя менеджмент отказался
+    от них как минимум до 2030 г. ради Сухого Лога.
+    """
+    try:
+        y = ((gov or {}).get("dividends") or {}).get("suspended_until_year")
+        if not isinstance(y, (int, float)):
+            return 0
+        from datetime import date
+        return max(0, int(y) - date.today().year)
+    except Exception:  # noqa: BLE001
+        return 0
+
+
 def _payout0(fin: dict, gov: dict) -> float:
     """Стартовый payout (доля): медиана недавних фактических выплат; иначе политика."""
     hist = (gov or {}).get("dividends", {}).get("history", [])
@@ -300,6 +319,7 @@ def compile_params(fin: dict, gov: dict, inst: dict, barometer: dict,
         bv0=bv0, roe0=roe0, roe_terminal=roe_terminal, phi=phi,
         payout0=payout0, payout_ramp=12, g_terminal=g_terminal,
         p_willingness=willingness, payment_fraction=payment_fraction,
+        dividend_pause_years=_dividend_pause_years(gov),
         h_distress=h_distress, h_expropriation=h_exprop,
         is_bank=is_bank, cet1_ratio0=cet1_ratio0, cet1_target=cet1_target,
         rwa_growth=rwa_growth,
@@ -568,6 +588,7 @@ def compile_params_f(fin: dict, gov: dict, inst: dict, barometer: dict, market: 
         revenue0=revenue0, g_revenue0=g_rev0, g_terminal=g_terminal, fade_years=10,
         margin0=max(0.0, margin0), margin_terminal=margin_terminal, sales_to_capital=s2c,
         p_willingness=willingness, payment_fraction=payment_fraction,
+        dividend_pause_years=_dividend_pause_years(gov),
         h_distress=h_distress, h_expropriation=h_exprop,
         recovery_share_of_price=0.10,   # якорь возврата — доля цены (книга не якорь у asset-light)
     )

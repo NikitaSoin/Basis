@@ -35,6 +35,14 @@ class Params:
     roe0: float = 0.30          # стартовый ROE
     roe_terminal: float = 0.22  # терминальный ROE (суждение аналитика)
     phi: float = 0.87           # коэф. затухания спреда, φ = 0.5**(1/полураспад)
+    # Пауза выплат: сколько ПЕРВЫХ лет акционер не получает ничего (0 = выплаты идут).
+    # Заводится из governance.json (`dividends.suspended_until_year`) — например, Полюс
+    # отказался от дивидендов как минимум до 2030 г., фондируя Сухой Лог. До 2026-07-30
+    # движок такие решения не видел вовсе: он считал поток от способности платить, а не
+    # от объявленного намерения. Удержанные деньги здесь НЕ возвращаются акционеру позже
+    # — это сознательно консервативно и опирается на факт самой компании: в 2023 г. при
+    # положительных прибыли и FCF деньги ушли в спорный выкуп, а не миноритариям.
+    dividend_pause_years: int = 0
     payout0: float = 0.30       # стартовый payout
     payout_ramp: int = 12       # лет до терминального payout
     g_terminal: float = 0.035   # терминальный рост (по географии выручки)
@@ -181,6 +189,8 @@ def project_flows(p: Params) -> Tuple[List[float], List[float], List[float]]:
         recovery = q_d * p.recovery_distress + q_e * (p.alpha_recovery * book_ps)
 
         dist_ps = dist / shares
+        if t <= p.dividend_pause_years:
+            dist_ps = 0.0      # объявленная пауза выплат — акционер не получает ничего
         cf = survival * ((1.0 - q_total) * dist_ps + q_total * p.theta * dist_ps + recovery)
 
         flows.append(cf)
@@ -422,6 +432,15 @@ class ParamsF:
     ТОЛЬКО построение потока (Часть II, §5): рост берётся из ВЫРУЧКИ, а не из
     компаундирования книги — поэтому компания со 100% payout здесь может расти."""
     revenue0: float                 # выручка на акцию
+    # Пауза выплат: сколько ПЕРВЫХ лет акционер не получает ничего (0 = выплаты идут).
+    # Заводится из governance.json (`dividends.suspended_until_year`) — например, Полюс
+    # отказался от дивидендов как минимум до 2030 г., фондируя Сухой Лог. До 2026-07-30
+    # движок такие решения не видел вовсе: он считал поток от способности платить, а не
+    # от объявленного намерения. Удержанные деньги здесь НЕ возвращаются акционеру позже
+    # — это сознательно консервативно и опирается на факт самой компании: в 2023 г. при
+    # положительных прибыли и FCF деньги ушли в спорный выкуп, а не миноритариям.
+    dividend_pause_years: int = 0
+
     g_revenue0: float = 0.30        # стартовый рост выручки
     g_terminal: float = 0.035
     fade_years: int = 10            # лет до терминального роста
@@ -471,6 +490,8 @@ def project_flows_fcfe(p: ParamsF, price_pre_event: float = 0.0) -> List[float]:
         rev = rev_new
 
         dist = max(0.0, fcfe) * p.p_ability * p.p_permission * p.p_willingness * p.payment_fraction
+        if t <= p.dividend_pause_years:
+            dist = 0.0         # объявленная пауза выплат — акционер не получает ничего
 
         h_total = p.h_distress + p.h_expropriation
         q_total = 1.0 - math.exp(-h_total)
