@@ -215,15 +215,17 @@ def _from_market_updates(db: Session, ticker: str, event_date: date) -> str | No
     # и останавливаемся, как только собрали достаточно полного текста.
     fin_kw = re.compile(r"прибыл|убыт|выручк|ebitda|oibda|gmv|результат", re.I)
     fetch_order = sorted(picked, key=lambda r: (0 if fin_kw.search(r.title or "") else 1))
-    fetched = 0
+    full_parts = []
     for r in fetch_order[:6]:
-        if fetched >= 4:
+        if len(full_parts) >= 4:
             break
         full = _fetch_article_text(r.source_url)
         if full:
-            parts.append(f"[ПОЛНЫЙ ТЕКСТ] {r.title}\n{full}")
-            fetched += 1
-    return "\n\n---\n\n".join(parts)
+            full_parts.append(f"[ПОЛНЫЙ ТЕКСТ] {r.title}\n{full}")
+    # 🔴 Полные тексты — В НАЧАЛО блоба: экстрактор режет вход ([:12000]), и когда
+    # полные статьи стояли ПОСЛЕ шести выжимок, числа Коммерсанта оказывались за
+    # линией отреза — третья причина «нет выручки» в кейсе Ozon (2026-07-31).
+    return "\n\n---\n\n".join(full_parts + parts)
 
 
 _ARTICLE_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -251,6 +253,7 @@ def _fetch_article_text(url: str | None, limit: int = 7000) -> str | None:
     # macro_cb_sync._fetch_text.
     html_text = re.sub(r"<(script|style|noscript)[^>]*>.*?</\1>", " ",
                        html_text, flags=re.S | re.I)
+    html_text = re.sub(r"<!--.*?-->", " ", html_text, flags=re.S)
     paras = re.findall(r"<p[^>]*>(.*?)</p>", html_text, re.S | re.I)
     chunks = []
     for p in paras:
@@ -258,7 +261,8 @@ def _fetch_article_text(url: str | None, limit: int = 7000) -> str | None:
         t = _html.unescape(re.sub(r"\s+", " ", t)).strip()
         # навигация/подписи короче 60 символов — режем; остатки кода (фигурные
         # скобки, window./function) — не текст статьи
-        if len(t) >= 60 and not re.search(r"[{}]|window\.|function\s*\(", t):
+        if len(t) >= 60 and not re.search(r"[{}]|window\.|function\s*\(", t) \
+                and re.search(r"[.,]", t):
             chunks.append(t)
     text_out = "\n".join(chunks)[:limit]
     return text_out if len(text_out) >= 300 else None
@@ -502,8 +506,8 @@ def _extract_financial(text_blob: str, company_name: str | None = None) -> dict 
     # Гейт релевантности живёт В ТОМ ЖЕ вызове экстракции (не отдельный LLM-запрос):
     # цифры «есть» и в отраслевой статистике («Производство лекарств в РФ выросло на
     # 13,9%») — has_figures сам по себе мусор не отсекает (найдено на бою 2026-07-25).
-    user = (f"КОМПАНИЯ, по которой ищем отчётность: {company_name}\n\n{text_blob[:6000]}"
-            if company_name else text_blob[:6000])
+    user = (f"КОМПАНИЯ, по которой ищем отчётность: {company_name}\n\n{text_blob[:12000]}"
+            if company_name else text_blob[:12000])
     try:
         res = complete(_FIN_SYS + "\n" + _FIN_SPEC, user, json_mode=True,
                        max_tokens=600, temperature=0.1)
@@ -661,7 +665,7 @@ def _digest_rich(text_blob: str, fig: dict, mult: dict, platform_ctx: dict | Non
                 f"{json.dumps(platform_ctx, ensure_ascii=False)}" if platform_ctx else "")
     user = (f"ИЗВЛЕЧЁННЫЕ ЦИФРЫ (проверенные, используй как основу):\n"
             f"{json.dumps(figures_ctx, ensure_ascii=False)}{ctx_part}"
-            f"\n\n=== ТЕКСТ ИСТОЧНИКА ===\n{text_blob[:8000]}")
+            f"\n\n=== ТЕКСТ ИСТОЧНИКА ===\n{text_blob[:12000]}")
     try:
         res = complete(_RICH_SYS + "\n" + _RICH_SPEC, user, json_mode=True, max_tokens=1500, temperature=0.2)
         return res if isinstance(res, dict) else None
