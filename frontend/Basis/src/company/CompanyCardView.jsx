@@ -5736,6 +5736,15 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
     // ── helpers ──────────────────────────────────────────────────────────
     const TAG = { fact: ["m5-tag-fact", "факт"], estimate: ["m5-tag-est", "оценка"], model: ["m5-tag-model", "модель"], judgment: ["m5-tag-judg", "суждение"], robust: ["m5-tag-fact", "факт"], medium: ["m5-tag-est", "оценка"], limited: ["m5-tag-scen", "огранич."] };
     const cert = (lvl) => { const t = TAG[lvl]; return t ? <span className={`m5-tag ${t[0]}`} key={lvl}>{t[1]}</span> : null; };
+    // Слоты «крупное число» (m5-kv/m5-mv/m5-cmx-pv) жёстко заданы моноширинным
+    // шрифтом — он в каноне ТОЛЬКО для чисел/тикеров/дат. Но бэкенд кладёт в те
+    // же поля и прозу («Референс мировых хабов: TTF (европейский газовый хаб)
+    // ~€50/МВт·ч ≈ …», «Мировая торговля СПГ ~410–420 млн тонн/год (2025); …»),
+    // и она рендерилась 19–24px моноширинным — «разные шрифты вразброс»
+    // (владелец, 2026-07-30, скриншоты НОВАТЭК). numish: короткое значение с
+    // цифрой = число (моно), всё остальное = проза (sans, обычный кегль).
+    const numish = (v) => { const s = String(v ?? "").trim(); return s.length > 0 && s.length <= 28 && /\d/.test(s); };
+    const valCls = (base, v) => `${base}${numish(v) ? "" : " m5-val-prose"}`;
     const srcOf = (ref) => sources.find((s) => s.id === ref);
     const srcLink = (ref) => { const s = srcOf(ref); if (!s) return null; return s.url ? <a href={s.url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)" }}>{s.title || s.url}</a> : <span style={{ color: "var(--text-tertiary)" }}>{s.title}</span>; };
     const shareVal = (p) => (typeof p.share_pct === "number" ? p.share_pct : (typeof p.share_low === "number" && typeof p.share_high === "number" ? (p.share_low + p.share_high) / 2 : null));
@@ -5816,7 +5825,7 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
             </div>
             {it.current_price ? (
               <div className="m5-cmx-pricerow">
-                <span className="m5-cmx-pv">{typeof it.current_price.value === "number" ? it.current_price.value.toLocaleString("ru-RU") : it.current_price.value}</span>
+                <span className={valCls("m5-cmx-pv", it.current_price.value)}>{typeof it.current_price.value === "number" ? it.current_price.value.toLocaleString("ru-RU") : it.current_price.value}</span>
                 {/* строковое value (напр. «~$4 060–4 100/унц») уже несёт единицу измерения — не дублируем */}
                 {typeof it.current_price.value === "number" && it.current_price.unit && <span className="m5-cmx-pu">{it.current_price.unit}</span>}
                 {it.current_price.certainty ? cert(it.current_price.certainty) : null}
@@ -5989,7 +5998,7 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
         {pCur.company_position_note && <p className="m5-vlead" style={{ fontSize: 14 }}>{pCur.company_position_note}</p>}
         {pCur.size?.value && (
           <div className="m5-mrow">
-            <div className="m5-mcell"><div className="m5-ml">Размер рынка</div><div className="m5-mv">{pCur.size.value}</div><div className="m5-mm">{pCur.size_metric || (pCur.size.note || "")}</div></div>
+            <div className="m5-mcell"><div className="m5-ml">Размер рынка</div><div className={valCls("m5-mv", pCur.size.value)}>{pCur.size.value}</div><div className="m5-mm">{pCur.size_metric || (pCur.size.note || "")}</div></div>
             {pSelf && <div className="m5-mcell"><div className="m5-ml">Доля компании</div><div className="m5-mv" style={{ color: "var(--accent)" }}>{shareLabel(pSelf)}</div><div className="m5-mm">{POSK[pCur.company_position] || ""}</div></div>}
           </div>
         )}
@@ -6309,7 +6318,7 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
             {kpis.length > 0 && (
               <div className="m5-kstrip" style={{ gridTemplateColumns: `repeat(${Math.min(kpis.length, 4)}, 1fr)` }}>
                 {kpis.map((k, i) => (
-                  <div key={i} className="m5-k"><div className="m5-kl">{k.l}</div><div className={`m5-kv${k.acc ? " m5-acc" : ""}`}>{k.v}</div>{k.d && <div className="m5-kd" title={k.d}>{k.d}</div>}</div>
+                  <div key={i} className="m5-k"><div className="m5-kl">{k.l}</div><div className={valCls(`m5-kv${k.acc ? " m5-acc" : ""}`, k.v)}>{k.v}</div>{k.d && <div className="m5-kd" title={k.d}>{k.d}</div>}</div>
                 ))}
               </div>
             )}

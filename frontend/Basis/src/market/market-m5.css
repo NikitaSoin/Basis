@@ -304,6 +304,23 @@
 .m5-cmx-noprice{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.5;color:var(--m5-ink-3);background:var(--m5-panel-2);border:1px solid var(--m5-line);border-radius:8px;padding:9px 12px;margin-bottom:13px;}
 .m5-cmx-noprice svg{flex-shrink:0;margin-top:2px;}
 
+/* Значение-ПРОЗА в слоте, рассчитанном на число (m5-kv/m5-mv/m5-cmx-pv жёстко
+   моноширинные 19–24px). Бэкенд кладёт в те же поля целые предложения
+   («Референс мировых хабов: TTF … ≈ $16-17/MMBtu», «Мировая торговля СПГ
+   ~410–420 млн тонн/год (2025); …») — моноширинным крупным кеглем это читалось
+   как «разные шрифты вразброс» (владелец, 2026-07-30). Класс вешает JSX по
+   эвристике numish() (CompanyCardView.renderMarket) — CSS про содержимое не
+   знает. Проза → sans, обычный кегль, нормальный интерлиньяж. */
+.m5-root .m5-val-prose{
+  font-family:var(--m5-sans);
+  font-size:13.5px;
+  font-weight:500;
+  line-height:1.5;
+  letter-spacing:normal;
+  font-variant-numeric:normal;
+  max-width:52ch;
+}
+
 /* график — главный визуальный якорь: больше высоты, больше воздуха вокруг,
    чем у второстепенных элементов ниже (принцип «график первым, текст —
    свёрнутое пояснение под ним») */
