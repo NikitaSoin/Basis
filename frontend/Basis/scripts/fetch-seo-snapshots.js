@@ -65,7 +65,7 @@ function writeSnapshot(name, rows, extra) {
 async function main() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 
-  console.log(`Снимаю данные с ${API} (5 запросов с паузами)…`);
+  console.log(`Снимаю данные с ${API} (6 запросов с паузами)…`);
   const bonds = await getJson("/api/bonds");
   await sleep(PAUSE_MS);
   const screener = await getJson("/api/screener/bonds");
@@ -75,6 +75,11 @@ async function main() {
   const futures = await getJson("/api/futures");
   await sleep(PAUSE_MS);
   const spot = await getJson("/api/spot");
+  await sleep(PAUSE_MS);
+  // Разборы вышедшей отчётности (владелец 2026-07-30: «человек вбивает "отчет ozon" —
+  // надо, чтобы находил его у нас»). Одним списком, а не по компании: пер-тикерных
+  // запросов было бы 264, а лента отдаёт всё разом со всей сутью разбора.
+  const earnings = await getJson("/api/market/earnings?limit=400");
 
   // облигации: худеем до нужных полей + мёржим светофор скринера по secid
   const byId = new Map();
@@ -88,6 +93,8 @@ async function main() {
     }
     return slim;
   });
+  // ответ вида {count, reports:[…]} — ключ именно reports
+  writeSnapshot("earnings", Array.isArray(earnings) ? earnings : (earnings.reports || earnings.items || []));
   writeSnapshot("bonds", bondRows);
   writeSnapshot("funds", funds);
   writeSnapshot("futures", futures);

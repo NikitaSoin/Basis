@@ -68,12 +68,12 @@
   <url><loc>https://inbasis.ru/company/AQUA/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/AQUA/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/AQUA/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/ARSA/</loc><lastmod>2026-07-22</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://inbasis.ru/company/ARSA/business/</loc><lastmod>2026-07-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/ARSA/finance/</loc><lastmod>2026-07-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/ARSA/dividends/</loc><lastmod>2026-07-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/ARSA/macro/</loc><lastmod>2026-07-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/ARSA/geo/</loc><lastmod>2026-07-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/ARSA/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/ARSA/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/ARSA/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/ARSA/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/ARSA/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/ARSA/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ASSB/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://inbasis.ru/company/ASSB/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ASSB/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -111,12 +111,14 @@
   <url><loc>https://inbasis.ru/company/BAZA/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/BAZA/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/BELU/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/BELU/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/BELU/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/BELU/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/BELU/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/BELU/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/BELU/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/BISVP/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/BISVP/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/BISVP/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/BISVP/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/BISVP/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -159,6 +161,7 @@
   <url><loc>https://inbasis.ru/company/CARM/macro/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CARM/geo/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CBOM/</loc><lastmod>2026-07-13</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/CBOM/otchet/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CBOM/business/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CBOM/finance/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CBOM/dividends/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -171,12 +174,14 @@
   <url><loc>https://inbasis.ru/company/CHGZ/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CHGZ/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CHKZ/</loc><lastmod>2026-07-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/CHKZ/otchet/</loc><lastmod>2026-07-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CHKZ/business/</loc><lastmod>2026-07-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CHKZ/finance/</loc><lastmod>2026-07-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CHKZ/dividends/</loc><lastmod>2026-07-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CHKZ/macro/</loc><lastmod>2026-07-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CHKZ/geo/</loc><lastmod>2026-07-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CHMF/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/CHMF/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CHMF/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CHMF/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/CHMF/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -231,6 +236,7 @@
   <url><loc>https://inbasis.ru/company/DIOD/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/DIOD/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/DOMRF/</loc><lastmod>2026-07-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/DOMRF/otchet/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/DOMRF/business/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/DOMRF/finance/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/DOMRF/dividends/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -243,6 +249,7 @@
   <url><loc>https://inbasis.ru/company/DVEC/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/DVEC/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/DZRD/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/DZRD/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/DZRD/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/DZRD/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/DZRD/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -279,6 +286,7 @@
   <url><loc>https://inbasis.ru/company/ENPG/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ENPG/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ETLN/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/ETLN/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ETLN/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ETLN/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ETLN/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -291,12 +299,14 @@
   <url><loc>https://inbasis.ru/company/EUTR/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/EUTR/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FEES/</loc><lastmod>2026-07-21</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/FEES/otchet/</loc><lastmod>2026-07-21</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FEES/business/</loc><lastmod>2026-07-21</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FEES/finance/</loc><lastmod>2026-07-21</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FEES/dividends/</loc><lastmod>2026-07-21</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FEES/macro/</loc><lastmod>2026-07-21</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FEES/geo/</loc><lastmod>2026-07-21</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FESH/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/FESH/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FESH/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FESH/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FESH/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -309,6 +319,7 @@
   <url><loc>https://inbasis.ru/company/FIXR/macro/</loc><lastmod>2026-07-21</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FIXR/geo/</loc><lastmod>2026-07-21</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FLOT/</loc><lastmod>2026-07-13</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/FLOT/otchet/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FLOT/business/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FLOT/finance/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/FLOT/dividends/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -331,6 +342,7 @@
   <url><loc>https://inbasis.ru/company/GAZC/macro/</loc><lastmod>2026-07-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/GAZC/geo/</loc><lastmod>2026-07-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/GAZP/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/GAZP/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/GAZP/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/GAZP/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/GAZP/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -379,6 +391,7 @@
   <url><loc>https://inbasis.ru/company/GLRX/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/GLRX/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/GMKN/</loc><lastmod>2026-07-12</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/GMKN/otchet/</loc><lastmod>2026-07-12</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/GMKN/business/</loc><lastmod>2026-07-12</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/GMKN/finance/</loc><lastmod>2026-07-12</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/GMKN/dividends/</loc><lastmod>2026-07-12</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -409,12 +422,14 @@
   <url><loc>https://inbasis.ru/company/HIMCP/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/HIMCP/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/HNFG/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/HNFG/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/HNFG/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/HNFG/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/HNFG/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/HNFG/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/HNFG/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/HYDR/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/HYDR/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/HYDR/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/HYDR/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/HYDR/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -520,6 +535,7 @@
   <url><loc>https://inbasis.ru/company/KLVZ/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/KLVZ/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/KMAZ/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/KMAZ/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/KMAZ/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/KMAZ/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/KMAZ/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -586,6 +602,7 @@
   <url><loc>https://inbasis.ru/company/KUZB/macro/</loc><lastmod>2026-07-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/KUZB/geo/</loc><lastmod>2026-07-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/KZOS/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/KZOS/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/KZOS/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/KZOS/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/KZOS/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -616,6 +633,7 @@
   <url><loc>https://inbasis.ru/company/LIFE/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/LIFE/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/LKOH/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/LKOH/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/LKOH/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/LKOH/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/LKOH/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -639,12 +657,12 @@
   <url><loc>https://inbasis.ru/company/LNZLP/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/LNZLP/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/LNZLP/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/LPSB/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://inbasis.ru/company/LPSB/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/LPSB/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/LPSB/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/LPSB/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/LPSB/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/LPSB/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/LPSB/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/LPSB/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/LPSB/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/LPSB/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/LPSB/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/LSNG/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://inbasis.ru/company/LSNG/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/LSNG/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -669,19 +687,20 @@
   <url><loc>https://inbasis.ru/company/LVHK/dividends/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/LVHK/macro/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/LVHK/geo/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MAGE/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://inbasis.ru/company/MAGE/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MAGE/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MAGE/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MAGE/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MAGE/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MAGEP/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://inbasis.ru/company/MAGEP/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MAGEP/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MAGEP/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MAGEP/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MAGEP/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MAGE/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/MAGE/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MAGE/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MAGE/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MAGE/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MAGE/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MAGEP/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/MAGEP/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MAGEP/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MAGEP/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MAGEP/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MAGEP/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MAGN/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/MAGN/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MAGN/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MAGN/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MAGN/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -694,6 +713,7 @@
   <url><loc>https://inbasis.ru/company/MBNK/macro/</loc><lastmod>2026-07-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MBNK/geo/</loc><lastmod>2026-07-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MDMG/</loc><lastmod>2026-07-13</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/MDMG/otchet/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MDMG/business/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MDMG/finance/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MDMG/dividends/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -723,12 +743,12 @@
   <url><loc>https://inbasis.ru/company/MGNT/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MGNT/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MGNT/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MGNZ/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://inbasis.ru/company/MGNZ/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MGNZ/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MGNZ/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MGNZ/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/MGNZ/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MGNZ/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/MGNZ/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MGNZ/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MGNZ/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MGNZ/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/MGNZ/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MGTS/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://inbasis.ru/company/MGTS/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MGTS/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -754,6 +774,7 @@
   <url><loc>https://inbasis.ru/company/MISBP/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MISBP/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MOEX/</loc><lastmod>2026-07-28</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/MOEX/otchet/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MOEX/business/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MOEX/finance/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MOEX/dividends/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -850,6 +871,7 @@
   <url><loc>https://inbasis.ru/company/MTSS/macro/</loc><lastmod>2026-07-12</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MTSS/geo/</loc><lastmod>2026-07-12</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MVID/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/MVID/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MVID/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MVID/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/MVID/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -873,12 +895,14 @@
   <url><loc>https://inbasis.ru/company/NKHP/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NKHP/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NKNC/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/NKNC/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NKNC/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NKNC/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NKNC/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NKNC/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NKNC/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NKNCP/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/NKNCP/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NKNCP/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NKNCP/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NKNCP/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -891,6 +915,7 @@
   <url><loc>https://inbasis.ru/company/NKSH/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NKSH/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NLMK/</loc><lastmod>2026-07-13</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/NLMK/otchet/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NLMK/business/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NLMK/finance/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NLMK/dividends/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -921,12 +946,14 @@
   <url><loc>https://inbasis.ru/company/NSVZ/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NSVZ/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NVTK/</loc><lastmod>2026-07-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/NVTK/otchet/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NVTK/business/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NVTK/finance/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NVTK/dividends/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NVTK/macro/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/NVTK/geo/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/OGKB/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/OGKB/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/OGKB/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/OGKB/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/OGKB/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -945,6 +972,7 @@
   <url><loc>https://inbasis.ru/company/OMZZP/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/OMZZP/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/OZON/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/OZON/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/OZON/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/OZON/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/OZON/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -969,12 +997,14 @@
   <url><loc>https://inbasis.ru/company/PHOR/macro/</loc><lastmod>2026-07-12</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/PHOR/geo/</loc><lastmod>2026-07-12</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/PIKK/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/PIKK/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/PIKK/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/PIKK/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/PIKK/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/PIKK/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/PIKK/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/PLZL/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/PLZL/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/PLZL/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/PLZL/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/PLZL/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -993,6 +1023,7 @@
   <url><loc>https://inbasis.ru/company/PMSBP/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/PMSBP/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/POSI/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/POSI/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/POSI/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/POSI/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/POSI/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1077,6 +1108,7 @@
   <url><loc>https://inbasis.ru/company/ROLO/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ROLO/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ROSN/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/ROSN/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ROSN/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ROSN/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ROSN/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1160,12 +1192,14 @@
   <url><loc>https://inbasis.ru/company/SAREP/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SAREP/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SBER/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/SBER/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SBER/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SBER/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SBER/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SBER/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SBER/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SBERP/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/SBERP/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SBERP/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SBERP/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SBERP/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1190,6 +1224,7 @@
   <url><loc>https://inbasis.ru/company/SGZH/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SGZH/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SIBN/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/SIBN/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SIBN/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SIBN/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SIBN/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1202,6 +1237,7 @@
   <url><loc>https://inbasis.ru/company/SLEN/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SLEN/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SMLT/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/SMLT/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SMLT/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SMLT/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SMLT/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1220,12 +1256,14 @@
   <url><loc>https://inbasis.ru/company/SNGSP/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SNGSP/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SOFL/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/SOFL/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SOFL/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SOFL/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SOFL/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SOFL/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SOFL/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SPBE/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/SPBE/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SPBE/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SPBE/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SPBE/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1268,6 +1306,7 @@
   <url><loc>https://inbasis.ru/company/SVETP/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/SVETP/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/T/</loc><lastmod>2026-07-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/T/otchet/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/T/business/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/T/finance/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/T/dividends/</loc><lastmod>2026-07-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1286,12 +1325,14 @@
   <url><loc>https://inbasis.ru/company/TASBP/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TASBP/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TATN/</loc><lastmod>2026-07-28</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/TATN/otchet/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TATN/business/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TATN/finance/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TATN/dividends/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TATN/macro/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TATN/geo/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TATNP/</loc><lastmod>2026-07-28</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/TATNP/otchet/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TATNP/business/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TATNP/finance/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TATNP/dividends/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1303,12 +1344,12 @@
   <url><loc>https://inbasis.ru/company/TGKA/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TGKA/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TGKA/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/TGKB/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://inbasis.ru/company/TGKB/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/TGKB/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/TGKB/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/TGKB/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://inbasis.ru/company/TGKB/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/TGKB/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/TGKB/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/TGKB/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/TGKB/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/TGKB/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://inbasis.ru/company/TGKB/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TGKBP/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://inbasis.ru/company/TGKBP/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TGKBP/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1316,6 +1357,7 @@
   <url><loc>https://inbasis.ru/company/TGKBP/macro/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TGKBP/geo/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TGKN/</loc><lastmod>2026-07-28</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/TGKN/otchet/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TGKN/business/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TGKN/finance/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/TGKN/dividends/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1400,6 +1442,7 @@
   <url><loc>https://inbasis.ru/company/URKZ/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/URKZ/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/USBN/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/USBN/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/USBN/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/USBN/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/USBN/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1412,6 +1455,7 @@
   <url><loc>https://inbasis.ru/company/UTAR/macro/</loc><lastmod>2026-07-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/UTAR/geo/</loc><lastmod>2026-07-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/UWGN/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/UWGN/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/UWGN/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/UWGN/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/UWGN/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1495,6 +1539,7 @@
   <url><loc>https://inbasis.ru/company/VSYDP/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/VSYDP/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/VTBR/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/VTBR/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/VTBR/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/VTBR/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/VTBR/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1519,6 +1564,7 @@
   <url><loc>https://inbasis.ru/company/WUSH/macro/</loc><lastmod>2026-07-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/WUSH/geo/</loc><lastmod>2026-07-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/X5/</loc><lastmod>2026-07-29</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/X5/otchet/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/X5/business/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/X5/finance/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/X5/dividends/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1531,6 +1577,7 @@
   <url><loc>https://inbasis.ru/company/YAKG/macro/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/YAKG/geo/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/YDEX/</loc><lastmod>2026-07-28</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/YDEX/otchet/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/YDEX/business/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/YDEX/finance/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/YDEX/dividends/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -1561,12 +1608,14 @@
   <url><loc>https://inbasis.ru/company/YRSBP/macro/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/YRSBP/geo/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ZAYM/</loc><lastmod>2026-07-28</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/ZAYM/otchet/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ZAYM/business/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ZAYM/finance/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ZAYM/dividends/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ZAYM/macro/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ZAYM/geo/</loc><lastmod>2026-07-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ZILL/</loc><lastmod>2026-07-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://inbasis.ru/company/ZILL/otchet/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ZILL/business/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ZILL/finance/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://inbasis.ru/company/ZILL/dividends/</loc><lastmod>2026-07-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>

@@ -51,6 +51,17 @@ const { execSync } = require("child_process");
 // остальные блоки на платформе имели свои SEO-страницы».
 const LANDINGS = [...require("./seo-landings-content"), ...require("./seo-landings-observer")];
 
+// Разборы вышедшей отчётности (снапшот с прод-API, scripts/fetch-seo-snapshots.js).
+// Владелец 2026-07-30: «человек вбивает "отчет ozon" — надо, чтобы находил у нас».
+// Отдельная страница на компанию, а не пункт внутри «Финансов»: запрос «отчёт <компания>»
+// самостоятельный и очень частый, и по нему должна находиться страница ИМЕННО про отчёт.
+let EARNINGS_BY_TICKER = {};
+try {
+  const rows = require("./data/earnings-snapshot.json");
+  const list = Array.isArray(rows) ? rows : (rows.rows || rows.reports || []);
+  for (const r of list) if (r && r.ticker) EARNINGS_BY_TICKER[String(r.ticker).toUpperCase()] = r;
+} catch { EARNINGS_BY_TICKER = {}; }
+
 const _ROOT = path.resolve(__dirname, "..", "..", "..");
 const _COMPANIES_DIR = path.join(_ROOT, "backend", "companies");
 const _RATES_CSV = path.join(_ROOT, "rates.csv");
@@ -622,7 +633,49 @@ function dividendsTableHtml(c, maxRows) {
 
 /* --------------------------- страницы --------------------------- */
 
+const esc = (v) => escapeHtml(String(v == null ? "" : v));
+
+// Блок разбора отчёта: суть → факты → плюсы → риски → вывод. Ровно то, что уже
+// разобрано платформой; ничего не досочиняем и не даём сигналов сделок.
+function earningsHtml(c) {
+  const e = EARNINGS_BY_TICKER[c.ticker];
+  if (!e) return "";
+  const list = (title, arr) => {
+    const items = (Array.isArray(arr) ? arr : []).filter(Boolean).slice(0, 6);
+    if (!items.length) return "";
+    return `<h2>${esc(title)}</h2><ul>${items.map((x) => `<li>${esc(typeof x === "object" ? (x.text || x.title || JSON.stringify(x)) : x)}</li>`).join("")}</ul>`;
+  };
+  const head = [e.period, e.standard].filter(Boolean).join(" · ");
+  const parts = [];
+  parts.push(`<p class="tag">${esc(head)}${e.published_at ? " · опубликован " + esc(e.published_at) : ""}</p>`);
+  if (e.one_liner) parts.push(`<p class="lead">${esc(e.one_liner)}</p>`);
+  parts.push(list("Что показал отчёт", e.facts));
+  parts.push(list("Сильные стороны", e.positives));
+  parts.push(list("Риски и слабые места", e.risks));
+  if (e.conclusion) parts.push(`<h2>Вывод</h2><p>${esc(e.conclusion)}</p>`);
+  if (e.market_context) parts.push(`<h2>Контекст рынка</h2><p>${esc(e.market_context)}</p>`);
+  if (e.watch_next) parts.push(`<h2>За чем следить дальше</h2><p>${esc(e.watch_next)}</p>`);
+  parts.push(`<p class="sub">Ознакомительный разбор события «вышел отчёт». Не является индивидуальной инвестиционной рекомендацией.</p>`);
+  return parts.filter(Boolean).join("\n");
+}
+
 const TAB_PAGES = [
+  {
+    slug: "otchet", appTab: "finance", label: "Разбор отчёта",
+    has: (c) => Boolean(EARNINGS_BY_TICKER[c.ticker]),
+    title: (c) => {
+      const e = EARNINGS_BY_TICKER[c.ticker] || {};
+      const per = e.period ? ` за ${e.period}` : "";
+      return `Отчёт ${titleName(c)} (${c.ticker})${per}: разбор — выручка, прибыль | Basis`;
+    },
+    desc: (c) => {
+      const e = EARNINGS_BY_TICKER[c.ticker] || {};
+      return truncate(e.one_liner
+        ? `${e.one_liner} Разбор отчётности ${c.short} (${c.ticker}) от Basis: факты, сильные стороны, риски.`
+        : `Разбор вышедшей отчётности ${c.short} (${c.ticker}): выручка, прибыль, долг — что изменилось.`, 200);
+    },
+    content: (c) => earningsHtml(c),
+  },
   {
     slug: "business", appTab: "business", label: "Бизнес-модель",
     has: (c) => Boolean(c.businessMd),
@@ -703,7 +756,18 @@ const TAB_PAGES = [
 
 // Имя для <title>: длинные официальные названия режем по слову (~40 симв.),
 // иначе title уезжает за 75 символов (аудит tech-seo: максимум был 126).
-function titleName(c) { return truncate(c.short, 40); }
+function titleName(c) {
+  // Убираем латинский дубль в скобках: у 11 компаний short выглядит как
+  // «Озон» (Ozon) / «Группа Позитив» (Positive Technologies), и рядом с тикером
+  // получалось «„Озон“ (Ozon) (OZON)» — три раза одно имя, да ещё и съедало лимит
+  // тайтла в 60–70 символов. Кавычки-ёлочки тоже снимаем: в поисковой выдаче они
+  // визуально дробят название.
+  const cleaned = String(c.short || "")
+    .replace(/\s*\([A-Za-z][^)]*\)\s*$/, "")
+    .replace(/[«»"]/g, "")
+    .trim();
+  return truncate(cleaned || c.short, 40);
+}
 
 // 🔴 БОЛЬШЕ НЕ ИСПОЛЬЗУЕТСЯ В ТАЙТЛАХ (владелец, 2026-07-30). Печатала в заголовок
 // `valuation.fair_value_range.base` — оценку аналитика из файла. С переходом платформы на

@@ -216,7 +216,7 @@ function ObserverV2({
               <span className="obs-sec-eyebrow">Рынок</span>
               <h2 className="obs-sec-title">Корп. события</h2>
             </div>
-            <ObsCorporateNews token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} onOpenReports={() => setActiveSection("reports")} />
+            <ObsCorporateNews token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} onOpenReports={() => { setActiveSection("reports"); syncUrl({ view: "overview", obs: "reports" }); }} />
           </div>
         );
       case "macro":
@@ -287,7 +287,7 @@ function ObserverV2({
                 key={id}
                 type="button"
                 className={`obs-item${!inIndexMode && activeSection === id ? " obs-item--active" : ""}`}
-                onClick={() => { onCloseIndexUI(); setActiveSection(id); setDrawerOpen(false); }}
+                onClick={() => { onCloseIndexUI(); setActiveSection(id); setDrawerOpen(false); syncUrl({ view: "overview", obs: id }); }}
                 aria-current={!inIndexMode && activeSection === id ? "page" : undefined}
               >
                 <span className="obs-item__icon"><Icon size={15} aria-hidden="true" /></span>
@@ -469,12 +469,31 @@ function buildAppUrl({ company, cardTab, view, obs }) {
 // на страницу Сбербанка и перейдя в «Обозреватель», пользователь весь сеанс видит в
 // заголовке «Сбербанк (SBER)» — владелец поймал это на скриншоте 2026-07-30. Для
 // поисковых систем тайтл берётся из статики при обходе, здесь речь про живой сеанс.
+// Заголовки секций Обозревателя: владелец (2026-07-30) — «в обозревателе и везде, где
+// есть вкладки на сайдбаре, должны быть отдельные страницы и должно различаться».
+// Адрес и заголовок теперь меняются на каждой секции, а не остаются общими для всего
+// раздела: иначе «Отчёты» и «Геополитика» — одна и та же страница и для пользователя
+// (нельзя переслать ссылку на нужную), и для поиска.
+const OBS_TITLES = {
+  news: "Новости фондового рынка России — Basis",
+  economy: "Экономическая статистика России: ставка, инфляция, ВВП — Basis",
+  pulse: "Обзор рынка: индексы, ширина рынка, драйверы — Basis",
+  maps: "Карта рынка акций Мосбиржи — Basis",
+  calendar: "Календарь событий: отчётности, дивиденды, собрания — Basis",
+  reports: "Отчёты компаний: разбор вышедшей отчётности — Basis",
+  "corp-news": "Корпоративные события эмитентов — Basis",
+  macro: "Макрообзор российской экономики — Basis",
+  geo: "Геополитика и российский рынок — Basis",
+  institutions: "Институциональная среда — Basis",
+  ai: "ИИ-обзор рынка — Basis",
+};
+
 const VIEW_TITLES = {
   companies: "Рынок: акции, облигации, фонды, фьючерсы — Basis",
   overview: "Обозреватель рынка: новости, макро, отчёты — Basis",
   portfolio: "Портфель: диагностика и риски — Basis",
   screener: "Скринер акций и облигаций — Basis",
-  stress: "Стресс-тест портфеля — Basis",
+  stress: "Стресс-тестирование — Basis",
   ai: "ИИ-помощник — Basis",
   pricing: "Тарифы — Basis",
   landing: "Basis — независимый анализ российского рынка",
@@ -485,6 +504,10 @@ function syncTitle(state) {
     if (state.company) {
       const t = String(state.company).toUpperCase();
       document.title = `${t}: разбор компании — Basis`;
+      return;
+    }
+    if (state.view === "overview" && state.obs && OBS_TITLES[state.obs]) {
+      document.title = OBS_TITLES[state.obs];
       return;
     }
     document.title = VIEW_TITLES[state.view] || VIEW_TITLES.landing;
@@ -573,7 +596,7 @@ const MOBILE_TAB_ITEMS = [
   { id: "screener", label: "Скринер", icon: SlidersHorizontal },
 ];
 const MOBILE_MORE_ITEMS = [
-  { id: "stress", label: "Стресс-тест", icon: Zap },
+  { id: "stress", label: "Стресс-тестирование", icon: Zap },
   { id: "ai", label: "Ассистент", icon: Sparkles },
   { id: "pricing", label: "Тарифы", icon: CreditCard },
   { id: "profile", label: "Профиль", icon: User },
