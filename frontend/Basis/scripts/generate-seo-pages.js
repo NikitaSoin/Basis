@@ -46,7 +46,10 @@
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
-const LANDINGS = require("./seo-landings-content");
+// Два файла текстов: базовый (портфель/скрининг/оценка/облигации) и добавленный
+// 2026-07-30 по разделам Обозревателя и классам активов — владелец: «чтобы все
+// остальные блоки на платформе имели свои SEO-страницы».
+const LANDINGS = [...require("./seo-landings-content"), ...require("./seo-landings-observer")];
 
 const _ROOT = path.resolve(__dirname, "..", "..", "..");
 const _COMPANIES_DIR = path.join(_ROOT, "backend", "companies");
