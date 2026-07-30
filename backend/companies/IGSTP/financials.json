@@ -198,18 +198,18 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        6292.696,
+        6359.802,
+        6397.925,
+        6424.253,
+        6472.611
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.081,
+        0.066,
+        0.058,
+        0.05,
+        0.042
       ],
       "goodwill": [
         null,
@@ -219,48 +219,48 @@
         null
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1.7,
+        1.7,
+        1.7,
+        3.24,
+        16.047
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        159.441,
+        242.483,
+        271.533,
+        462.795,
+        487.936
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        6453.918,
+        6604.051,
+        6671.216,
+        6890.338,
+        6976.636
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        6115.412,
+        5720.068,
+        6919.217,
+        5532.485,
+        4035.74
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2719.306,
+        2484.343,
+        5464.823,
+        11519.033,
+        13187.457
       ],
       "cash": [
-        null,
-        null,
-        null,
-        null,
-        null
+        84.61,
+        2417.558,
+        357.64,
+        64.486,
+        141.44
       ],
       "short_term_investments": [
         null,
@@ -270,18 +270,18 @@
         null
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        2.723,
+        1252.781,
+        95.028,
+        2397.114
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        8919.328,
+        10624.692,
+        13994.461,
+        17211.032,
+        19761.766
       ]
     },
     "total_assets": [
@@ -293,18 +293,18 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1067.639,
+        1067.639,
+        1067.639,
+        1067.639,
+        1067.639
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
-        null,
-        null
+        -4799.985,
+        -1199.434,
+        2150.34,
+        5402.066,
+        6796.58
       ],
       "additional_paid_in": [
         null,
@@ -314,18 +314,18 @@
         null
       ],
       "other_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2501.992,
+        2524.001,
+        2501.083,
+        2587.781,
+        2841.222
       ],
       "total_equity": [
-        null,
-        -1200,
-        2390,
-        9060,
-        null
+        -1230.354,
+        2392.206,
+        5719.062,
+        9057.486,
+        10705.441
       ]
     },
     "total_equity": [
@@ -337,70 +337,70 @@
     ],
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        3873.432,
+        4439.848,
+        3138.207,
+        1998.057,
+        3034.167
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
-        null
+        591.663,
+        700.137,
+        738.992,
+        1267.445,
+        1516.096
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        357.966,
+        361.725,
+        291.725,
+        304.637,
+        291.292
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        4823.061,
+        5501.71,
+        4168.924,
+        3570.139,
+        4841.555
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2957.707,
+        2742.463,
+        4220.166,
+        4632.76,
+        6525.544
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        8670.731,
+        6440.574,
+        2697.043,
+        3517.958,
+        2605.117
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        152.101,
+        151.79,
+        3860.482,
+        3323.027,
+        2060.745
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        11780.539,
+        9334.827,
+        10777.691,
+        11473.745,
+        11191.406
       ]
     },
     "total_liabilities": [
-      null,
-      18400,
-      18310,
-      15040,
-      null
+      16603.6,
+      14836.537,
+      14946.615,
+      15043.884,
+      16032.961
     ],
     "net_debt": [
       null,
@@ -1120,7 +1120,9 @@
     "cash_flow скопирован из IGST (report-fetcher/диспетчер, 2026-07-06) — IGSTP и IGST один эмитент, финотчётность общая (подтверждено идентичным revenue/fiscal_years).",
     "GAP:op_bridge устранён + СИНХРОНИЗАЦИЯ С IGST (2026-07-27, report-fetcher): income_statement (revenue/cogs/gross_profit/expense_lines/operating_profit/net_profit/margins), adjusted.net_profit_adj, returns.ros, metrics_timeseries (gross_margin/operating_margin/ros/revenue_growth/net_profit_growth) и cash_flow.cfo/capex ПОЛНОСТЬЮ СИНХРОНИЗИРОВАНЫ с исправленным IGST (тот же эмитент, общая РСБУ-отчётность). До этой правки IGSTP хранил ЗАСТАРЕВШИЕ значения (revenue [null,27800,32900,33200,28800], net_profit [null,2520,3600,3350,1190], gross_profit с ошибкой [null,2100,8900,7800,null], cfo/capex неточные округления) — не обновлённые после правки IGST от 2026-07-06. Источник и обоснование — см. data_flags IGST (smart-lab RSBU, https://smart-lab.ru/q/IGST/RSBU/cost_of_production/).",
     "ДОБОР pre_tax_profit/income_tax 2025 (2026-07-28, report-fetcher): см. подробности в data_flags IGST (тот же эмитент, общая РСБУ-отчётность) — попытка не удалась (smart-lab структурно не содержит поле, e-disclosure заблокирован JS-challenge, checko.ru без JS не даёт построчных данных, ГИР БО API не найден). pretax_profit/income_tax остаются null, синхронизировано с IGST.",
-    "ДОБОР pre_tax_profit/income_tax (2026-07-29, report-fetcher): перенесены из sources/extracted_financials.json (IGST, OCR e-disclosure, идентичен для IGST/IGSTP — одна компания, разные классы акций) — данные там УЖЕ были извлечены (2021/2022/2024/2025), но не смёржены в главный financials.json. Мост pre_tax−tax=net_profit сходится ТОЧНО (2021: 2724.488-203.849=2520.639; 2022: 4005.109-414.172=3590.937; 2024: 3887.098-635.78=3251.318; 2025: 1790.817-342.99=1447.827). 2023 остаётся null — OCR строки нестабилен в первичном скане (см. флаг extracted_financials.json), повторный e-disclosure доступ заблокирован Cloudflare JS-challenge при прошлой попытке (2026-07-28) — не переисследовалось повторно в этом проходе (бюджет отдан на другие тикеры очереди). GAP последнего года (2025) закрыт."
+    "ДОБОР pre_tax_profit/income_tax (2026-07-29, report-fetcher): перенесены из sources/extracted_financials.json (IGST, OCR e-disclosure, идентичен для IGST/IGSTP — одна компания, разные классы акций) — данные там УЖЕ были извлечены (2021/2022/2024/2025), но не смёржены в главный financials.json. Мост pre_tax−tax=net_profit сходится ТОЧНО (2021: 2724.488-203.849=2520.639; 2022: 4005.109-414.172=3590.937; 2024: 3887.098-635.78=3251.318; 2025: 1790.817-342.99=1447.827). 2023 остаётся null — OCR строки нестабилен в первичном скане (см. флаг extracted_financials.json), повторный e-disclosure доступ заблокирован Cloudflare JS-challenge при прошлой попытке (2026-07-28) — не переисследовалось повторно в этом проходе (бюджет отдан на другие тикеры очереди). GAP последнего года (2025) закрыт.",
+    "🔵 GAP-ЗАКРЫТИЕ (2026-07-30, report-fetcher, общий эмитент с IGST): постатейный баланс за все 5 лет синхронизирован с IGST — то же юрлицо, тот же баланс.",
+    "🔴 ИСПРАВЛЕНА ОШИБКА СДВИГА ГОДА (2026-07-30, общее с IGST): equity.total_equity был [None, -1200, 2390, 9060, None], total_liabilities был [None, 18400, 18310, 15040, None] — тот же сдвиг года/несведение, что и у IGST (см. подробный разбор там). Заменено на первичные значения."
   ],
   "segments": [],
   "cost_breakdown": [],

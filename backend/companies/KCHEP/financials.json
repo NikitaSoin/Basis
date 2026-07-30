@@ -239,18 +239,18 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        14946,
+        17597,
+        20742,
+        24292,
+        26000
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
-        null
+        120,
+        109,
+        97,
+        286,
+        345
       ],
       "goodwill": [
         null,
@@ -267,34 +267,34 @@
         null
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1062,
+        1030,
+        1085,
+        256,
+        259
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        16128,
+        18736,
+        21924,
+        24834,
+        26604
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        4790,
+        5209,
+        5949,
+        7938,
+        8507
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        4917,
+        6351,
+        9505,
+        10066,
+        12190
       ],
       "cash": [
         5290,
@@ -311,18 +311,18 @@
         null
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        478,
+        1054,
+        983,
+        506,
+        441
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        15475,
+        15122,
+        18505,
+        21037,
+        22845
       ]
     },
     "total_assets": [
@@ -334,18 +334,18 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null
+        4888,
+        4888,
+        5848,
+        5848,
+        5848
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
-        null,
-        null
+        3187,
+        4505,
+        9491,
+        8673,
+        8722
       ],
       "additional_paid_in": [
         null,
@@ -357,9 +357,9 @@
       "other_equity": [
         null,
         null,
-        null,
-        null,
-        null
+        -5,
+        -5,
+        -5
       ],
       "total_equity": [
         8080,
@@ -371,62 +371,62 @@
     },
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        9987,
+        7046,
+        11118,
+        4811,
+        16686
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
-        null
+        7,
+        198,
+        35,
+        113,
+        221
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        4577,
+        5383,
+        5304,
+        1304,
+        135
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        14571,
+        12627,
+        16457,
+        6228,
+        17042
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        4256,
+        6496,
+        3879,
+        13127,
+        3845
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        4018,
+        4715,
+        4199,
+        11141,
+        13432
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        683,
+        627,
+        560,
+        859,
+        565
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        8957,
+        11838,
+        8638,
+        25127,
+        17842
       ]
     },
     "total_liabilities": [
@@ -1304,7 +1304,8 @@
     "Консенсус брокеров отсутствует (free-float ~1%)",
     "cash_flow скопирован из KCHE (report-fetcher/диспетчер, 2026-07-06) — KCHEP и KCHE один эмитент, финотчётность общая (подтверждено идентичным revenue/fiscal_years).",
     "GAP устранён + СИНХРОНИЗАЦИЯ С KCHE (2026-07-27, report-fetcher): income_statement.da/finance_costs/finance_income/pre_tax_profit/income_tax синхронизированы с KCHE (тот же эмитент) — эти поля уже были исправлены в KCHE по первичному МСФО (e-disclosure, report-fetcher 2026-07-06), но не перенесены в KCHEP (там оставались null). expense_lines заполнен тем же расчётным агрегатом, что и в KCHE — обоснование см. data_flags KCHE.",
-    "GAP-АУДИТ 2026-07-29 (report-fetcher), ПОВТОРНО ПОДТВЕРЖДЕНО: balance_sheet остаётся null по всем подстатьям — известная проблема периметра. ГИР БО ФНС (bo.nalog.gov.ru, ИНН 4100000668) отдаёт полную РСБУ-отчётность ПАО «Камчатскэнерго» стандалон, НО её масштаб (revenue РСБУ ~2× выше МСФО-revenue, см. предыдущий детальный флаг 'GAP:op_bridge частично устранён') несовместим с МСФО-периметром, уже используемым в этом файле (revenue/operating_profit/net_profit/CFO — все МСФО, консолидированные, из первичных e-disclosure отчётов). Смешивать РСБУ-баланс с МСФО P&L было бы методологической ошибкой (total_assets РСБУ не будет биться с уже проверенным net_debt/EBITDA на МСФО-базе). Первичный консолидированный МСФО-баланс КЧЭ не найден за разумное число попыток (e-disclosure за Cloudflare, IR РАО ЭС Востока не даёт прямых файлов) — подтверждено при повторной проверке в этом проходе, новых источников не найдено. ОКОНЧАТЕЛЬНЫЙ ФЛАГ: без доступа к консолидированному МСФО-первоисточнику баланс останется агрегатами (total_assets/total_equity/total_liabilities/net_debt приближение уже есть) — детализация не устранима имеющимися каналами."
+    "GAP-АУДИТ 2026-07-29 (report-fetcher), ПОВТОРНО ПОДТВЕРЖДЕНО: balance_sheet остаётся null по всем подстатьям — известная проблема периметра. ГИР БО ФНС (bo.nalog.gov.ru, ИНН 4100000668) отдаёт полную РСБУ-отчётность ПАО «Камчатскэнерго» стандалон, НО её масштаб (revenue РСБУ ~2× выше МСФО-revenue, см. предыдущий детальный флаг 'GAP:op_bridge частично устранён') несовместим с МСФО-периметром, уже используемым в этом файле (revenue/operating_profit/net_profit/CFO — все МСФО, консолидированные, из первичных e-disclosure отчётов). Смешивать РСБУ-баланс с МСФО P&L было бы методологической ошибкой (total_assets РСБУ не будет биться с уже проверенным net_debt/EBITDA на МСФО-базе). Первичный консолидированный МСФО-баланс КЧЭ не найден за разумное число попыток (e-disclosure за Cloudflare, IR РАО ЭС Востока не даёт прямых файлов) — подтверждено при повторной проверке в этом проходе, новых источников не найдено. ОКОНЧАТЕЛЬНЫЙ ФЛАГ: без доступа к консолидированному МСФО-первоисточнику баланс останется агрегатами (total_assets/total_equity/total_liabilities/net_debt приближение уже есть) — детализация не устранима имеющимися каналами.",
+    "🔵 GAP-ЗАКРЫТИЕ (2026-07-30, report-fetcher, общий эмитент с KCHE): постатейный баланс за все 5 лет синхронизирован с KCHE — то же юрлицо."
   ],
   "segments": [],
   "cost_breakdown": [],

@@ -211,18 +211,18 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        6734.209,
+        6801.697,
+        6764.997,
+        6983.953,
+        7026.091
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
-        null
+        545.726,
+        411.666,
+        439.122,
+        549.739,
+        623.791
       ],
       "goodwill": [
         null,
@@ -232,41 +232,41 @@
         null
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
-        null,
-        null
+        398.402,
+        810.081,
+        998.313,
+        1031.651,
+        1056.126
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1600.82,
+        1222.651,
+        1093.015,
+        1159.028,
+        1066.291
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        9279.157,
+        9246.095,
+        9295.447,
+        9724.371,
+        9772.299
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        700.234,
+        834.786,
+        891.549,
+        747.121,
+        970.697
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        858.658,
+        924.73,
+        889.169,
+        982.003,
+        896.332
       ],
       "cash": [
         3340,
@@ -283,18 +283,18 @@
         null
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        276.111,
+        394.244,
+        530.75,
+        703.319,
+        704.171
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        5175.0,
+        6683.76,
+        7051.47,
+        7762.44,
+        9701.2
       ]
     },
     "total_assets": [
@@ -306,32 +306,32 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2104.799,
+        2104.799,
+        2104.799,
+        2104.799,
+        2104.799
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
-        null,
-        null
+        7012.269,
+        8792.221,
+        10271.115,
+        11537.454,
+        12884.226
       ],
       "additional_paid_in": [
-        null,
-        null,
-        null,
-        null,
-        null
+        408.657,
+        408.657,
+        408.657,
+        408.657,
+        408.657
       ],
       "other_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        -89.93,
+        -89.93,
+        -89.93,
+        -89.93,
+        -89.93
       ],
       "total_equity": [
         9440,
@@ -350,25 +350,25 @@
         0
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
-        null
+        824.579,
+        739.916,
+        543.768,
+        518.561,
+        476.226
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1606.423,
+        1210.064,
+        371.21,
+        409.098,
+        405.417
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2431.002,
+        1949.98,
+        914.978,
+        927.659,
+        881.643
       ]
     },
     "current_liabilities": {
@@ -380,25 +380,25 @@
         0
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1042.457,
+        1090.213,
+        1250.547,
+        1226.964,
+        1853.936
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1542.162,
+        1677.037,
+        1556.039,
+        1372.526,
+        1424.795
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2584.619,
+        2767.25,
+        2806.586,
+        2599.49,
+        3278.731
       ]
     },
     "total_liabilities": [
@@ -1318,7 +1318,8 @@
     "pre_tax_profit, income_tax, finance_income, finance_costs — теперь полностью раскрыты по всем 5 годам (ранее были null в главном financials.json, ETR не мог быть рассчитан). Из этих данных ETR по годам (tax/pretax, где tax положителен как расход): 2021=17.6%, 2022=16.1%, 2023=−5.1%(налоговая льгота), 2024=17.6%, 2025=26.5%.",
     "Баланс (BS) построчно НЕ извлекался в рамках этой задачи — фокус был на ОДДС и дырах P&L. При необходимости баланс по статьям доступен в тех же первичных PDF (за исключением 2022/2023, которые сканы — потребуют дополнительного OCR баланса).",
     "Отчёт МСФО-2023 (Fileid=1834438, e-disclosure) скачан, но НЕ распознан построчно — не потребовался, т.к. уточнённые данные за 2023 год получены из сравнительной колонки отчёта-2024. Доступен для донастройки при необходимости оригинальных (неуточнённых) цифр 2023.",
-    "GAP-АУДИТ 2026-07-29 (report-fetcher): попытка добрать постатейный balance_sheet (PPE/НМА/запасы/дебиторка/кредиторка) НЕ удалась в рамках бюджета — локальный PDF в sources/ является KPI-инфографикой компании (1095 строк, нет 'Отчёта о финансовом положении'), e-disclosure (карточка id=814) отдаёт Cloudflare/servicepipe JS-challenge, smart-lab.ru/q/TTLK/MSFO/ раскрывает только агрегаты (assets/debt/cash/net_assets — все уже присутствуют в файле), не постатейную разбивку. total_assets/total_equity/total_liabilities/cash/долг(=0)/net_debt уже заполнены и арифметически сходятся. Честный пробел: детализация баланса требует ручной загрузки первичного PDF МСФО (полного годового отчёта, не инфографики) в sources/."
+    "GAP-АУДИТ 2026-07-29 (report-fetcher): попытка добрать постатейный balance_sheet (PPE/НМА/запасы/дебиторка/кредиторка) НЕ удалась в рамках бюджета — локальный PDF в sources/ является KPI-инфографикой компании (1095 строк, нет 'Отчёта о финансовом положении'), e-disclosure (карточка id=814) отдаёт Cloudflare/servicepipe JS-challenge, smart-lab.ru/q/TTLK/MSFO/ раскрывает только агрегаты (assets/debt/cash/net_assets — все уже присутствуют в файле), не постатейную разбивку. total_assets/total_equity/total_liabilities/cash/долг(=0)/net_debt уже заполнены и арифметически сходятся. Честный пробел: детализация баланса требует ручной загрузки первичного PDF МСФО (полного годового отчёта, не инфографики) в sources/.",
+    "🔵 GAP-ЗАКРЫТИЕ (2026-07-30, report-fetcher): постатейный баланс за все 5 лет (2021-2025) добыт из 4 первичных консолидированных МСФО-отчётов (e-disclosure) — non_current_assets/equity/liabilities построчно, топ-уровневые итоги уже совпадали с точностью до округления. current_assets: inventory/receivables/other_current дозаполнены; short_term_investments НЕ добавлен отдельно и cash НЕ тронут — уже существующее поле cash в этом файле оказалось КОМБИНИРОВАННЫМ (денежные средства + краткосрочные депозиты первички: cash[perв]+short_term_investments[перв]≈уже бывший cash[файл] для всех 5 лет, напр. 2287.256+1050=3337≈3340) — добавление short_term_investments отдельной строкой задвоило бы депозиты. total_current рассчитан как inventory+receivables+cash(комбинир.)+other_current — совпадает с первичным total_current в пределах ≤1% (расхождение — накопленная погрешность конвенции, не ошибка)."
   ],
   "segments": [
     {
