@@ -1901,9 +1901,14 @@ const RETURN_COLUMNS = [
                 if (v == null) return "—";
                 const flag = VALUATION_FLAG_META[row?.valuationFlag];
                 const asOf = row?.fairValueAsOf ? _dmy(row.fairValueAsOf) : "—";
+                const bySrc = row?.fairValueSource;
+                const tip = bySrc === "analyst"
+                  ? `Оценка аналитика (данные от ${asOf}): методика Basis по этой бумаге не рассчиталась. Такое число не сравнимо напрямую с остальными в колонке.`
+                  : "Потенциал к справедливой цене по методике Basis — пересчитывается живьём от текущей цены. Оценка по модели, не прогноз.";
                 return (
-                  <span title={`Апсайд к справедливой цене (аналитика от ${asOf}): рынок vs наша модель. Дата анализа может быть многомесячной давности — не переоценивайте точность.`}>
+                  <span title={tip}>
                     <span style={{ color: flag ? flag.color : "var(--pf-ink-2)" }}>{fmtPercent(v, { sign: true })}</span>
+                    {bySrc === "analyst" && <sup style={{ marginLeft: 3, fontSize: 9, opacity: 0.6 }}>а</sup>}
                     {flag && (
                       <span className="tw-inline-flex tw-items-center tw-gap-1 tw-ml-1.5 tw-text-[10.5px] tw-font-semibold tw-whitespace-nowrap" style={{ color: flag.color }}>
                         <span aria-hidden="true" style={{ color: "var(--pf-ink-3)" }}>●</span>{flag.label}
@@ -2667,6 +2672,10 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
         upsideToFair: m.upside_to_fair_pct ?? null,
         valuationFlag: m.valuation_flag ?? null,
         fairValueAsOf: m.fair_value_as_of ?? null,
+        // чем посчитана цена: "bfv" — методика Basis, "analyst" — оценка аналитика
+        // (движок не дал числа). Помечаем в таблице, иначе колонка молча смешивает две
+        // методики — как это уже было в скринере.
+        fairValueSource: m.fair_value_source ?? null,
       } : { ...p, weight, return3y: null, volatility: null, beta: p.beta ?? null };
     }),
     {
