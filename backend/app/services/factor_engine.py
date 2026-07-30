@@ -29,9 +29,22 @@ def load_scenarios() -> list[dict]:
 
 
 def _price_effect(exp: float) -> float:
+    """Кусочно-линейная интерполяция между якорями 0/1/2 (0% / 7% / 15%).
+
+    Было `round(abs(exp))` — округление до ближайшего якоря. Дробные экспозиции при
+    этом штатно возникают (get_company_exposures усредняет несколько тегов, gre_profile
+    даёт дробные score), и округление давало разрыв: 0.44 → 0%, 0.5 → 7%. По вселенной
+    264 компаний оно обнуляло 12% ненулевых экспозиций. Интерполяция убирает и обрыв,
+    и артефакт «маленькая экспозиция = ровно ноль эффекта» (2026-07-30).
+    """
     sign = 1 if exp >= 0 else -1
-    a = min(round(abs(exp)), 2)
-    return sign * _EFFECT_BY_ABS_EXP[a]
+    a = min(abs(exp), 2.0)
+    lo = int(a)                      # 0 или 1 (при a=2.0 → 2, верхний якорь ниже)
+    if lo >= 2:
+        return sign * _EFFECT_BY_ABS_EXP[2]
+    frac = a - lo
+    base, nxt = _EFFECT_BY_ABS_EXP[lo], _EFFECT_BY_ABS_EXP[lo + 1]
+    return sign * (base + (nxt - base) * frac)
 
 
 def company_scenario_reaction(exposures: dict[str, float | None], intensities: dict[str, float]) -> float:

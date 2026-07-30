@@ -453,11 +453,28 @@ def _compute_mgi(weights_eq: dict[str, float]) -> dict | None:
     den = sum(w for w, _ in parts)
     mgi_score = round(sum(w * s for w, s in parts) / den)
     coverage_pct = (losses.get("stress") or {}).get("coverage_pct")
+
+    # Покрытие ПО ФАКТОРАМ, а не только по компаниям. Прежняя плашка показывала долю
+    # компаний, у которых есть ХОТЬ ОДНА экспозиция, и потому рапортовала «100%» в тот
+    # момент, когда sanctions и conflict были непокрыты вообще ни у кого (2026-07-30) —
+    # ровно это и маскировало поломку. Теперь дыра в конкретном факторе видна.
+    exp_data = factor_exposures.get_portfolio_exposures(weights_eq)
+    factor_cov = exp_data.get("coverage_pct") or {}
+    scenario_factors = sorted({
+        f for sc in factor_engine.load_scenarios()
+        for f in (sc.get("intensities") or {})
+    })
+    weak = [factor_exposures.FACTOR_LABELS.get(f, f)
+            for f in scenario_factors if (factor_cov.get(f) or 0) < 50]
+    gap_note = (f" ⚠ Факторы с низким покрытием (учтены частично или не учтены): "
+                f"{', '.join(weak)}." if weak else "")
     return {
         "key": "mgi_v2", "label": "Сценарная устойчивость", "score": mgi_score,
         "confidence": "суждение",
+        "factor_coverage_pct": {f: factor_cov.get(f) for f in scenario_factors},
         "coverage_note": f"Сценарная библиотека Basis (§3.3 методики): база 55% / бычий 15% / медвежий 25% / "
-                         f"стрессовый 5%. Покрытие факторными данными: {coverage_pct}% стоимости акций.",
+                         f"стрессовый 5%. Покрытие факторными данными: {coverage_pct}% стоимости акций."
+                         + gap_note,
         "components": [
             c for c in [
                 {"name": "Потери в стрессовом сценарии (эскалация + санкции + просадка сырья/ставки)",

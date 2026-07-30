@@ -3777,11 +3777,15 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
             <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.06em" }}>
               Из чего сложился · субиндексы
             </div>
-            <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-4 lg:tw-items-start">
+            {/* items-stretch (по умолчанию), НЕ items-start: у субиндексов сильно
+                разная длина текста (limitation «Сценарной устойчивости» в разы длиннее
+                «Ликвидности»), и при items-start карточки в ряду обрывались на своей
+                натуральной высоте — сетка выглядела рваной (замечание владельца). */}
+            <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-4">
               {q.subindices.map((s) => {
                 const CONF_TONE = { "факт": "pf-tag-fact", "оценка": "pf-tag-estimate", "суждение": "pf-tag-judgment" };
                 return (
-                  <Card key={s.key}>
+                  <Card key={s.key} className="tw-h-full">
                     <div className="tw-flex tw-items-baseline tw-justify-between tw-gap-2 tw-flex-wrap tw-mb-1">
                       <span className="tw-text-[14px] tw-font-semibold tw-text-text-primary">{s.label}</span>
                       {s.confidence && <span className={CONF_TONE[s.confidence] || "pf-tag-fact"}>{s.confidence}</span>}
@@ -3806,6 +3810,15 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
                       ))}
                     </div>
                     <p className="tw-m-0 tw-text-[12.5px] tw-text-text-secondary tw-leading-snug">{s.verdict}</p>
+                    {/* Покрытие данными раньше приходило с бэка, но нигде не
+                        рендерилось — из-за этого дыра «фактор не покрыт вообще»
+                        была невидима (см. разбор MGI 2026-07-30). Строку с «⚠»
+                        показываем заметнее: это признание неполноты расчёта. */}
+                    {s.coverage_note && (
+                      <div className={`tw-flex tw-gap-1.5 tw-text-[12px] tw-mt-2 ${s.coverage_note.includes("⚠") ? "tw-text-warning" : "tw-text-text-tertiary"}`}>
+                        <span>{s.coverage_note}</span>
+                      </div>
+                    )}
                     {s.limitation && (
                       <div className="tw-flex tw-gap-1.5 tw-text-[12px] tw-text-text-tertiary tw-mt-2">
                         <ShieldAlert size={13} className="tw-shrink-0 tw-mt-0.5 tw-text-warning" />

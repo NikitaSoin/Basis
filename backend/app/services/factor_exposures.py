@@ -50,7 +50,58 @@ FACTOR_LABELS = {
 # type в macro.json/geo.json → наш факторный ключ
 _MACRO_TYPE_MAP = {"rate": "rate", "demand": "demand", "inflation": "demand", "labor": "demand",
                     "fx": "fx", "commodity": "commodity", "fiscal": "fiscal"}
+# 🔴 УСТАРЕЛ (2026-07-30): geo.json ключа `factors` больше не имеет — схема сменилась
+# при миграции geo-system v0.9 (коммит 2335f41ee1, 2026-07-12). Оставлен как фолбэк
+# на случай старых файлов; новый путь — gre_profile, см. _sanctions_exposure/
+# _conflict_exposure ниже.
 _GEO_TYPE_MAP = {"sanctions": "sanctions", "conflict": "conflict"}
+
+# ────────────────────── gre_profile → sanctions/conflict ──────────────────────
+# 🔴 Найдено 2026-07-30 (владелец: «сценарная устойчивость 100 у всех»): маппер
+# читал geo.json["factors"][].type, но миграция geo v0.9 переименовала всю схему —
+# ключа `factors` нет НИ У ОДНОЙ из 264 компаний. Код не падал: экспозиция молча
+# становилась None, «честная деградация» съедала фактор. Итог — sanctions и conflict
+# имели 0% покрытия, то есть стрессовый сценарий, подписанный в UI как «эскалация +
+# санкции», не содержал ни эскалации, ни санкций; работали только rate/demand/
+# commodity/fx. Портфель банков «зарабатывал» +9.6% в стрессе → MGI=100.
+#
+# Взамен `factors` в новой схеме есть gre_profile — 15 компонентов E1-E15 со score
+# (покрытие 264/264). Маппинг НЕ механический, знаковая безопасность разная:
+#
+# SANCTIONS — маппится прямо: все взятые компоненты монотонны в одну сторону (нет
+#   компании, которая при E1=5 выигрывает от ужесточения режима). E1 берётся с
+#   удвоенным весом (санкционный статус самого эмитента — доминирующий канал), E13
+#   («персональный слой») сознательно НЕ берётся: он уже частично сидит в E1/E9,
+#   иначе задвоение.
+# CONFLICT — знак из score НЕ извлекается, это те же грабли, что с commodity
+#   2026-07-17 (см. докстринг файла). Проверено на данных: IRKT E12=4.0 —
+#   «БЕНЕФИЦИАР военного цикла», SBER E12=4.0 — «фискальный ДОНОР»; одинаковый балл,
+#   противоположный знак. Поэтому амплитуда берётся из E14 (war/peace-бета), а знак —
+#   минус по умолчанию (согласовано с _sign_convention в quality_scenarios.json:
+#   большинство страдает от эскалации) + курируемый белый список бенефициаров.
+_SANCTION_COMPONENT_WEIGHTS = {
+    "E1": 2.0,   # санкционный статус эмитента — доминирующий канал
+    "E3": 1.0,   # экспортная логистика
+    "E4": 1.0,   # платёжные каналы
+    "E5": 1.0,   # импортозависимость (капекс/опекс)
+    "E6": 1.0,   # технологическая зависимость
+    "E10": 1.0,  # зарубежные активы
+}
+
+# Война-бенефициары НА УРОВНЕ ЦЕНЫ АКЦИИ (не выручки!). MGI меряет переоценку бумаги,
+# поэтому критерий — инвертированная equity-бета из E14, а НЕ «оборонная выручка» из
+# E12. Разница принципиальная и проверена по rationale карточек (2026-07-30): из семи
+# кандидатов с оборонной выручкой (E12≥3.5) на уровне СТОИМОСТИ война-бенефициарами
+# оказались только двое. Остальные развёрнуты самими карточками (их red-team уже это
+# отработал): ZVEZ — «ΔS1 ≈ +20…+35%, ΔS4 ≈ −20…−35%» (пис-бета по цене), CHKZ — «на
+# уровне стоимости это УМЕРЕННАЯ ПИС-БЕТА», UNAC — «EQUITY эмпирически ведёт себя как
+# ОБЫЧНАЯ risk-on бумага, НЕ инверсно», KMAZ — доминирует пис-компонента через
+# процентные расходы, RKKE — «лёгкий негативный скос к эскалации». Список ручной и
+# короткий сознательно: механический отбор по E12 ошибся бы в 5 случаях из 7.
+_WAR_BENEFICIARY_TICKERS = {
+    "IRKT",  # «РЕДКИЙ инвертированный профиль (якорь 4 = высокая ВОР-бета)»
+    "NAUK",  # «Якорь 4 = высокая ВОР-бета: бенефициар продолжения»
+}
 
 _SIGN_MAP = {"strong_negative": -2, "negative": -1, "mixed": 0, "neutral": 0,
              "positive": 1, "strong_positive": 2}
@@ -112,6 +163,58 @@ def _refinancing_exposure(fin: dict) -> int | None:
     return 0
 
 
+def _gre_scores(geo: dict | None) -> dict[str, float]:
+    """{E-ключ: score} из gre_profile. score бывает None (напр. SBER E11 — «ФЛАГ, в
+    балл не конвертируется») — такие компоненты пропускаем, а не считаем нулём."""
+    out: dict[str, float] = {}
+    for c in (geo or {}).get("gre_profile") or []:
+        key, score = c.get("key"), c.get("score")
+        if key and isinstance(score, (int, float)):
+            out[key] = float(score)
+    return out
+
+
+def _score_to_exposure(score_1_5: float) -> float:
+    """Шкала GRE (1 = нет уязвимости … 5 = максимальная) → экспозиция 0..-2."""
+    return -(score_1_5 - 1) / 4 * 2
+
+
+def _sanctions_exposure(gre: dict[str, float]) -> float | None:
+    """Санкционная экспозиция [-2; 0]: 70% доминирующий канал + 30% взвешенное среднее.
+
+    Чистое среднее здесь неверно, и это видно на данных: у Сбера E3 («экспортная
+    логистика») = 1.0 просто потому, что у внутреннего банка такого канала НЕТ — при
+    усреднении это «смягчало» его санкционный балл и размывало E1=4.0 (SDN) до -0.79.
+    Но отсутствие канала ≠ его безопасность: отключение от SWIFT нельзя усреднить
+    наличием здоровых направлений. Поэтому базу задаёт самый больной канал, а среднее
+    добавляет вклад накопления уязвимостей (Лукойл болен сразу по всем — ему хуже, чем
+    компании с одним больным каналом).
+    """
+    num = den = 0.0
+    worst = None
+    for key, w in _SANCTION_COMPONENT_WEIGHTS.items():
+        s = gre.get(key)
+        if s is None:
+            continue
+        num += w * s
+        den += w
+        worst = s if worst is None else max(worst, s)
+    if den == 0:
+        return None
+    combined = 0.7 * worst + 0.3 * (num / den)
+    return round(max(-2.0, min(0.0, _score_to_exposure(combined))), 2)
+
+
+def _conflict_exposure(gre: dict[str, float], ticker: str) -> float | None:
+    """Амплитуда — из E14 (war/peace-бета), знак — минус, кроме бенефициаров."""
+    e14 = gre.get("E14")
+    if e14 is None:
+        return None
+    magnitude = abs(_score_to_exposure(e14))
+    sign = 1.0 if ticker.upper() in _WAR_BENEFICIARY_TICKERS else -1.0
+    return round(sign * magnitude, 2)
+
+
 def get_company_exposures(ticker: str) -> dict:
     """{factor_key: exposure(-2..2) или None (дыра — компания непокрыта по фактору)}."""
     exposures: dict[str, list[int]] = {k: [] for k in FACTOR_KEYS}
@@ -150,6 +253,16 @@ def get_company_exposures(ticker: str) -> dict:
     # тот же приём, что stress_scenarios.py уже применял точечно к нефтянке.
     if exposures["commodity"] and _is_commodity_producer_sector(sector):
         out["commodity"] = 2.0
+
+    # sanctions/conflict — из gre_profile (новая схема geo v0.9). Старый путь через
+    # geo.json["factors"] выше остаётся фолбэком: если он что-то нашёл (архивный
+    # файл), не перетираем.
+    gre = _gre_scores(geo)
+    if gre:
+        if out.get("sanctions") is None:
+            out["sanctions"] = _sanctions_exposure(gre)
+        if out.get("conflict") is None:
+            out["conflict"] = _conflict_exposure(gre, ticker)
     return out
 
 
