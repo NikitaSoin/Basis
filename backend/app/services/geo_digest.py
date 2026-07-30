@@ -525,6 +525,77 @@ def backfill_strike_events(db: Session, days: int = 7, limit: int = 80) -> dict:
     return {"scanned": len(rows), "strikes_saved": strikes_saved, "claims_saved": claims_saved}
 
 
+# ------------- Разделение macro → business на УЖЕ накопленных статьях -------------
+_MACRO_SPLIT_SYS = (
+    "Ты сортируешь уже опубликованные статьи инвестиционной платформы Basis по двум "
+    "разделам. Раньше раздел был один («Макроэкономика»), и в него попадало всё подряд; "
+    "теперь появился отдельный раздел «Бизнес», и накопленное надо разложить.\n\n"
+    "ПРАВИЛО — по СУБЪЕКТУ статьи, а не по теме вообще:\n"
+    "- \"macro\" — субъект экономика СТРАНЫ или МИРА целиком либо крупный агрегат: "
+    "инфляция, ставка ЦБ, ВВП, бюджет, курс, торговый баланс, занятость, санкционное "
+    "давление на макропоказатели, состояние рынка/сектора в целом.\n"
+    "- \"business\" — субъект КОНКРЕТНАЯ компания или узкая отраслевая история: "
+    "результаты и отчётность компаний, сделки M&A, IPO, контракты, дивиденды, смена "
+    "собственника/менеджмента, инвестпроекты, конкуренция на конкретном рынке.\n\n"
+    "Примеры: «Годовая инфляция выросла до 5,84%» → macro. «Прибыль Газпромнефти выросла "
+    "на 12%» → business. «ЦБ ужесточает макропруденциальную политику» → macro. «Сбер "
+    "сохранит дивиденды 50% от прибыли» → business. «Нефть упала на 10%» → macro (цена "
+    "сырья — макрофактор). «Porsche сокращает штат на фоне падения прибыли» → business.\n\n"
+    "Если статья про компанию, но главный смысл — общеэкономический вывод (компания лишь "
+    "иллюстрация), оставляй macro. Если сомневаешься и в центре стоит название компании "
+    "или сделки — business.\n\n"
+    'Верни JSON {"items": [{"i": <индекс>, "target": "macro"|"business"}]} — ровно один '
+    "элемент на каждую входную статью."
+)
+
+
+def split_macro_business(db: Session, limit: int = 200) -> dict:
+    """Разовый догоняющий проход: разложить уже накопленные target="macro" статьи на
+    macro/business (владелец, 2026-07-31: «часть статей в Макроэкономике вообще не
+    макроэкономические, а бизнесовые»). До появления раздела "business" у
+    классификатора не было другого адресата, поэтому корпоративные сюжеты
+    (отчётность компаний, сделки, дивиденды) оседали в macro и разбавляли ленту про
+    инфляцию/ставку/ВВП. Основной пайплайн refresh() новые статьи уже раскладывает
+    правильно — этот проход закрывает ИСТОРИЮ, не трогая её.
+
+    Идемпотентен: гоняет только по target="macro", повторный запуск просто
+    подтвердит оставшиеся macro. Возвращает счётчики, ничего не удаляет."""
+    from app.services.llm import complete, LLMError
+
+    rows = (db.query(GeoDigestArticle).filter_by(target="macro")
+            .order_by(GeoDigestArticle.published_at.desc().nullslast())
+            .limit(limit).all())
+    if not rows:
+        return {"scanned": 0, "moved": 0}
+
+    moved = 0
+    # Батчами: весь хвост одним запросом упирается в лимит ответа (у каждой статьи
+    # заголовок + выжимка) — тот же приём, что в refresh().
+    BATCH = 40
+    for start in range(0, len(rows), BATCH):
+        chunk = rows[start:start + BATCH]
+        payload = {"articles": [{"i": i, "title": r.title, "summary": (r.summary or "")[:400]}
+                                for i, r in enumerate(chunk)]}
+        try:
+            res = complete(_MACRO_SPLIT_SYS, json.dumps(payload, ensure_ascii=False),
+                           json_mode=True, max_tokens=4000, temperature=0.1)
+            items = res.get("items", []) if isinstance(res, dict) else []
+        except LLMError as e:
+            logger.warning("split_macro_business: LLM недоступен (%s)", e)
+            return {"scanned": len(rows), "moved": moved, "error": str(e)}
+        for it in items:
+            idx = it.get("i")
+            if not isinstance(idx, int) or not (0 <= idx < len(chunk)):
+                continue
+            if it.get("target") == "business":
+                chunk[idx].target = "business"
+                moved += 1
+        db.commit()
+
+    logger.info("split_macro_business: просмотрено %d, переведено в business %d", len(rows), moved)
+    return {"scanned": len(rows), "moved": moved}
+
+
 # ----------------------- Удары из ОБЩЕЙ новостной ленты -----------------------
 # Владелец (2026-07-26): «недавно новость была про Тюмень, что там что-то
 # ударили — а на карте я этого не увидел». Разбор показал: удар по Тюменскому

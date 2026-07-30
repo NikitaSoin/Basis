@@ -1382,6 +1382,25 @@ def debug_trigger_geo_digest_backfill_strikes(days: int = 7):
         db.close()
 
 
+@router.post("/debug/trigger-macro-business-split")
+def debug_trigger_macro_business_split(limit: int = 200):
+    """Разовый проход geo_digest.split_macro_business() — разложить уже накопленные
+    target="macro" статьи на macro/business после появления раздела «Бизнес»
+    (владелец, 2026-07-31). Новые статьи основной пайплайн раскладывает сам;
+    этот эндпоинт нужен для ИСТОРИИ, накопленной до разделения. Идемпотентен —
+    смотрит только на target="macro", повторный запуск безопасен."""
+    from app.db.session import SessionLocal
+    from app.services.geo_digest import split_macro_business
+    db = SessionLocal()
+    try:
+        return split_macro_business(db, limit=limit)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-macro-business-split: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/sanitize-analyst-notes")
 def debug_sanitize_analyst_notes(dry_run: bool = True):
     """Комплаенс-свип (аудит 2026-07-26, персона нашла на карточке SBER
