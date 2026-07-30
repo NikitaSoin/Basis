@@ -89,8 +89,8 @@ ul{padding-left:22px}</style>
 <h3>Экономика и детали</h3>
 <p><b>Исходные данные:</b> 2024–2025 годы (МСФО). Ключевые якоря — выручка и совокупная чистая прибыль — из пресс-релиза компании и агрегатора smart-lab. Дополнительные доли расходов — оценка по типовой структуре распределительной сетевой компании (проверяется по полной годовой отчётости).</p>
 <a class="cta" href="/?company=TORSP&amp;tab=business">Продолжить в приложении: бизнес-модель «Россети Томск» (Томская распределительная компания) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TORSP/finance/">Финансы и оценка</a><a class="chip" href="/company/TORSP/dividends/">Дивиденды</a><a class="chip" href="/company/TORSP/macro/">Макроэкономика</a><a class="chip" href="/company/TORSP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TORSP/otchet/">Разбор отчёта</a><a class="chip" href="/company/TORSP/finance/">Финансы и оценка</a><a class="chip" href="/company/TORSP/dividends/">Дивиденды</a><a class="chip" href="/company/TORSP/macro/">Макроэкономика</a><a class="chip" href="/company/TORSP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -110,7 +110,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -122,8 +123,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

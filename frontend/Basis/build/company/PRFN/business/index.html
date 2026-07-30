@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Показатель</th><th>2024</th><th>2023</th><th>Δ г/г</th></tr></thead><tbody><tr><td>Выручка</td><td class="num">16,74</td><td class="num">12,10</td><td class="num">+38,4%</td></tr><tr><td>EBITDA</td><td class="num">0,66</td><td class="num">0,54</td><td class="num">+20,6%</td></tr><tr><td>Маржа EBITDA</td><td class="num">3,9%</td><td class="num">4,5%</td><td class="num">−0,6 п.п.</td></tr><tr><td>Чистая прибыль (акционеров)</td><td class="num">0,42</td><td class="num">0,26</td><td class="num">+59,8%</td></tr><tr><td>Чистая маржа</td><td class="num">2,5%</td><td class="num">2,2%</td><td class="num">+0,3 п.п.</td></tr><tr><td>CapEx</td><td class="num">0,08</td><td class="num">0,09</td><td class="num">−13,8%</td></tr><tr><td>Свободный денежный поток</td><td class="num">компания не раскрывает отдельной строкой</td><td class="num">—</td><td class="num">—</td></tr><tr><td>Чистый долг / EBITDA</td><td class="num">−0,9x (чистая денежная позиция)</td><td class="num">1,6x</td><td class="num">−2,5</td></tr></tbody></table>
 <p>Вывод из таблицы: выручка выросла на 38%, а EBITDA — только на 21%, то есть рост идёт «вширь» при тонкой марже (себестоимость съедает около 94% выручки). Бизнес низкомаржинальный: значительную часть оборота даёт перепродажа товаров аффилированной компании, которая почти не приносит маржи, но раздувает выручку. При этом за 2024 год компания вышла из чистого долга в чистую денежную позицию, что снизило процентные расходы. <i>(Якоря — выручка, EBITDA, чистая прибыль — из агрегаторов отчётности МСФО; постатейная структура ниже частично реконструирована и помечена.)</i></p>
 <a class="cta" href="/?company=PRFN&amp;tab=business">Продолжить в приложении: бизнес-модель ТЕПЛАНТ-Восток (до 04.04.2025 — ЧЗПСН-Профнастил) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/PRFN/finance/">Финансы и оценка</a><a class="chip" href="/company/PRFN/dividends/">Дивиденды</a><a class="chip" href="/company/PRFN/macro/">Макроэкономика</a><a class="chip" href="/company/PRFN/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/PRFN/otchet/">Разбор отчёта</a><a class="chip" href="/company/PRFN/finance/">Финансы и оценка</a><a class="chip" href="/company/PRFN/dividends/">Дивиденды</a><a class="chip" href="/company/PRFN/macro/">Макроэкономика</a><a class="chip" href="/company/PRFN/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

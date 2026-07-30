@@ -93,7 +93,7 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Сценарий</th><th>Цена ГКП (руб./т)</th><th>Маржа EBITDA</th><th>Чистая прибыль</th><th>Дивиденды</th></tr></thead><tbody><tr><td>Негативный (стагнация)</td><td class="num">48–52 тыс.</td><td class="num">14–16%</td><td class="num">40–60 млрд</td><td class="num">Нет</td></tr><tr><td>Базовый (восстановление)</td><td class="num">55–60 тыс.</td><td class="num">18–22%</td><td class="num">80–100 млрд</td><td class="num">Возможны</td></tr><tr><td>Позитивный (рост спроса)</td><td class="num">65–70 тыс.</td><td class="num">25–28%</td><td class="num">130–160 млрд</td><td class="num">Вероятны</td></tr></tbody></table>
 <a class="cta" href="/?company=NLMK&amp;tab=business">Продолжить в приложении: бизнес-модель НЛМК →</a>
 <h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/NLMK/otchet/">Разбор отчёта</a><a class="chip" href="/company/NLMK/finance/">Финансы и оценка</a><a class="chip" href="/company/NLMK/dividends/">Дивиденды</a><a class="chip" href="/company/NLMK/macro/">Макроэкономика</a><a class="chip" href="/company/NLMK/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -113,7 +113,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -125,8 +126,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

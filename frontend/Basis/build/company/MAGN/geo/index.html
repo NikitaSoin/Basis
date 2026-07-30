@@ -84,7 +84,7 @@ ul{padding-left:22px}</style>
 <p>Пис-бета ММК <b>умеренная и в значительной части ставочная — «не Газпром»</b>. Главный апсайд мира (S1/S2) приходит не через возврат экспортных рынков (ЕС останется закрытым/квотируемым, медленно), а через ускорение снижения КС → оживление стройки → возврат маржи с трога 13% к mid-cycle 18-20%. Вторично — де-сжатие санкционного трения на текущей экспортной отдушине. Грубо: Δ S1 ≈ +25…+40%, Δ S4 ≈ −20…−30% (conf L, порядково). Важная оговорка для финслоя: <b>значительную часть этой амплитуды нельзя трактовать как чисто-гео</b> — это переоценка на снижении ставки, которая уже живёт в безрисковой. Лучший сценарий для ММК — даже не прорыв (S1), а <b>перемирие (S2): внутренний спрос без геополитики</b> на снижающейся ставке.</p>
 <a class="cta" href="/?company=MAGN&amp;tab=geo">Продолжить в приложении: геополитика «Магнитогорский металлургический комбинат» (ММК) →</a>
 <h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MAGN/otchet/">Разбор отчёта</a><a class="chip" href="/company/MAGN/business/">Бизнес-модель</a><a class="chip" href="/company/MAGN/finance/">Финансы и оценка</a><a class="chip" href="/company/MAGN/dividends/">Дивиденды</a><a class="chip" href="/company/MAGN/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

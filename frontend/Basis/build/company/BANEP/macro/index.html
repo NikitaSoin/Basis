@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <p><b>Высокая ставка — давит через оценку, не через долг.</b> У компании долговая нагрузка низкая (чистый долг около нуля), так что дорогие кредиты бьют по ней слабо. Главный канал другой: пока депозиты и ОФЗ дают двузначную доходность, дивидендные префы привлекательны лишь относительно. <i>Факт</i> — ставка 14,5% и снижается. <i>Наше суждение</i> — умеренный минус через оценку акции, который ослабевает по мере снижения ставки и может развернуться в плюс для котировки.</p>
 <p><b>Замедление инфляции — слабый плюс.</b> Более сдержанный рост рублёвых затрат (добыча на зрелых месторождениях, ремонты, логистика) помогает марже, а заодно открывает дорогу к снижению ставки. <i>Факт</i> — инфляция ~5,4% и падает. <i>Наше суждение</i> — позитив, но второстепенный по сравнению с курсом и ценой нефти.</p>
 <a class="cta" href="/?company=BANEP&amp;tab=macro">Продолжить в приложении: макроэкономика АНК «Башнефть» →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/BANEP/business/">Бизнес-модель</a><a class="chip" href="/company/BANEP/finance/">Финансы и оценка</a><a class="chip" href="/company/BANEP/dividends/">Дивиденды</a><a class="chip" href="/company/BANEP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/BANEP/otchet/">Разбор отчёта</a><a class="chip" href="/company/BANEP/business/">Бизнес-модель</a><a class="chip" href="/company/BANEP/finance/">Финансы и оценка</a><a class="chip" href="/company/BANEP/dividends/">Дивиденды</a><a class="chip" href="/company/BANEP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

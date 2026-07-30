@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Уровень ставок и доходность ОФЗ → оценка и привлекательность дивиденда (умеренный плюс, встречный).</b> Факт: длинные ОФЗ дают ~14,6% — это планка, с которой инвестор сравнивает дивиденд префа. Механизм: ставки и требуемая доходность вниз → дивидендная доходность префа выглядит привлекательнее облигаций → переоценка вверх; плюс ниже ставка дисконтирования в оценке. Суждение: умеренный плюс, частично компенсирующий первый фактор. Но эффект приглушён низкой ликвидностью бумаги и контролем мажоритария (ТПП РФ ~51%) — переоценка может не реализоваться, пока неясна дивидендная политика.</p>
 <p><b>3. Инфляция → индексация арендных и гостиничных цен (мягкий плюс).</b> Факт: инфляция ~5,6%, ставки аренды класса А держатся около 41,6 тыс. ₽/кв.м, гостиничный ADR растёт на 6–9%. Механизм: инфляция → индексация ставок и цен номеров → номинальная выручка вверх; издержки тоже растут, но в дефицитной локации компания перекладывает их в цену. Суждение: мягкий плюс для операционного ядра. Ограничение — загрузка офисов уже у потолка (98,7%), поэтому выручка растёт только индексацией, а не новым объёмом.</p>
 <a class="cta" href="/?company=WTCMP&amp;tab=macro">Продолжить в приложении: макроэкономика «Центр международной торговли» (ЦМТ) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/WTCMP/business/">Бизнес-модель</a><a class="chip" href="/company/WTCMP/finance/">Финансы и оценка</a><a class="chip" href="/company/WTCMP/dividends/">Дивиденды</a><a class="chip" href="/company/WTCMP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/WTCMP/otchet/">Разбор отчёта</a><a class="chip" href="/company/WTCMP/business/">Бизнес-модель</a><a class="chip" href="/company/WTCMP/finance/">Финансы и оценка</a><a class="chip" href="/company/WTCMP/dividends/">Дивиденды</a><a class="chip" href="/company/WTCMP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

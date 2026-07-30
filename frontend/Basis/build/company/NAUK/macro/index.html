@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <p>2. <b>Фискальный импульс: ГОЗ + импортозамещение авиапрома.</b> Оборонный бюджет ~12,9 трлн ₽ и программа авиаотрасли (&gt;770 млрд ₽, на МС-21 замещаются 36 систем, включая продукт «Науки») держат заказы. Это ГЛАВНЫЙ драйвер спроса и он почти не зависит от ставки — отсюда защитность. Поддерживает рост выручки <b>+12…18% в 2026 (≈ +0,7…1,1 млрд ₽)</b> через объём, а не цену. Риск — не макро, а хронический перенос сроков ВС.</p>
 <p>3. <b>Зарплатная гонка в ОПК + инфляция материалов → маржа.</b> Дефицит инженеров структурный (не уйдёт при охлаждении спроса), зарплаты в оборонке +10–20% в 2026. Себестоимость ~62% выручки, переложить всё в цену нельзя (маржа ГОЗ нормируется). Оценка: ~1 п.п. непереложенного роста издержек ≈ <b>−0,03…0,05 млрд EBITDA</b>. Пик маржи 2025 (30%) вероятно локальный — нормализация к 26–28%. <b>Это главный настоящий макро-риск компании.</b></p>
 <a class="cta" href="/?company=NAUK&amp;tab=macro">Продолжить в приложении: макроэкономика НПО «Наука →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/NAUK/business/">Бизнес-модель</a><a class="chip" href="/company/NAUK/finance/">Финансы и оценка</a><a class="chip" href="/company/NAUK/dividends/">Дивиденды</a><a class="chip" href="/company/NAUK/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/NAUK/otchet/">Разбор отчёта</a><a class="chip" href="/company/NAUK/business/">Бизнес-модель</a><a class="chip" href="/company/NAUK/finance/">Финансы и оценка</a><a class="chip" href="/company/NAUK/dividends/">Дивиденды</a><a class="chip" href="/company/NAUK/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

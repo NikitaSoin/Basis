@@ -81,8 +81,8 @@ ul{padding-left:22px}</style>
 <p><b>Главная асимметрия — не гео, а ставочная (кубышка-инверсия).</b> У бумаги нет пис-беты. То, что выглядит как «сценарная качель», на деле — чувствительность к ставке: ~3,9 млрд ₽ чистого кэша дают процентный доход ≈ четверть прибыли до налога. Поэтому СНИЖЕНИЕ ставки (сопутствует миру, S1/S2) — минус по прибыли и дивиденду, хотя плюс по дисконту; а затяжной высокой ставкой (S3/S4) прибыль, парадоксально, поддержана. Гео-компонент S1–S4 для стоимости ≈ 0; грубая пара E14: ΔСтоимости в S1 ≈ +2…+6% (через дисконт, съедено кубышка-инверсией), в S4 ≈ −3…−10% (risk-off мультипликатора + фискальный хвост, компенсировано ростом процентного дохода).</p>
 <p><b>Причинная атрибуция (эталон анти-сверхатрибуции).</b> Спад чистой прибыли 2025 на −9,8% почти целиком — внутренний фискальный канал: pre-tax почти не изменился (3125→3118 млн ₽), а налог вырос на 269 млн из-за перехода ставки 20%→25% (ETR 18→27%). Внутри pre-tax сжатие операционной маржи инфляцией издержек компенсировано ростом процентного дохода на кубышку. Прямой гео-вклад ≈ 0%. Тест K1 пройден: у домашнего сбыта нет мирового цикла, приписывать спад санкциям было бы канонической ошибкой (родня K16/K27). Налог 25% — военно-фискальный фон (G12), но это широкий макро-параметр, а не company-гео-дисконт.</p>
 <a class="cta" href="/?company=KRSBP&amp;tab=geo">Продолжить в приложении: геополитика Красноярскэнергосбыт →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KRSBP/business/">Бизнес-модель</a><a class="chip" href="/company/KRSBP/finance/">Финансы и оценка</a><a class="chip" href="/company/KRSBP/dividends/">Дивиденды</a><a class="chip" href="/company/KRSBP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KRSBP/otchet/">Разбор отчёта</a><a class="chip" href="/company/KRSBP/business/">Бизнес-модель</a><a class="chip" href="/company/KRSBP/finance/">Финансы и оценка</a><a class="chip" href="/company/KRSBP/dividends/">Дивиденды</a><a class="chip" href="/company/KRSBP/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -102,7 +102,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -114,8 +115,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

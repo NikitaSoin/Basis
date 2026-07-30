@@ -508,7 +508,7 @@ const VIEW_TITLES = {
   stress: "Стресс-тестирование — Basis",
   ai: "ИИ-помощник — Basis",
   pricing: "Тарифы — Basis",
-  landing: "Basis — независимый анализ российского рынка",
+  landing: "Basis — анализ российского рынка для частного инвестора",
 };
 
 function syncTitle(state) {
@@ -535,6 +535,33 @@ function syncUrl(state) {
     syncTitle(state);
   } catch {}
 }
+
+// Человекочитаемые адреса разделов (они же — статические SEO-лендинги). Раньше раздел
+// жил на ДВУХ адресах: /karta-rynka-aktsiy/ (статика, её видит поиск) и
+// /?view=overview&obs=maps (приложение). Владелец поймал следствие: «вбиваю „карта рынка
+// basis“ — в выдаче общее название платформы, а не „Карта рынка“», потому что по
+// служебному адресу отдаётся общий index.html. Теперь адрес ОДИН: с него робот получает
+// нужный заголовок и текст, а приложение открывает соответствующий раздел.
+const LANDING_ROUTES = {
+  "analiz-portfelya": { view: "portfolio" },
+  "stress-test-portfelya": { view: "stress" },
+  "skrining-aktsiy": { view: "screener" },
+  "skrining-obligatsiy": { view: "screener" },
+  "obzor-rynka": { view: "overview", obs: "pulse" },
+  "novosti-fondovogo-rynka": { view: "overview", obs: "news" },
+  "ekonomicheskaya-statistika-rossii": { view: "overview", obs: "economy" },
+  "karta-rynka-aktsiy": { view: "overview", obs: "maps" },
+  "kalendar-otchetnostey": { view: "overview", obs: "calendar" },
+  "dividendnyy-kalendar": { view: "overview", obs: "calendar" },
+  "razbor-otchetnosti-kompaniy": { view: "overview", obs: "reports" },
+  "makroobzor-rossiyskoy-ekonomiki": { view: "overview", obs: "macro" },
+  "geopolitika-i-rossiyskiy-rynok": { view: "overview", obs: "geo" },
+  "futures-moex": { view: "companies", tab: "futures" },
+  "bpif-etf-moex": { view: "companies", tab: "funds" },
+  "kak-vybrat-ofz": { view: "companies", tab: "bonds" },
+  "vdo-obligatsii": { view: "companies", tab: "bonds" },
+  "spravedlivaya-tsena-aktsiy": { view: "companies", tab: "stocks" },
+};
 
 const SEO_SLUG_TO_TAB = {
   business: "business",
@@ -945,6 +972,19 @@ export default function App() {
         setSelectedCompany(pathMatch[1].toUpperCase());
         const mappedTab = SEO_SLUG_TO_TAB[(pathMatch[2] || "").toLowerCase()];
         if (mappedTab) setInitialCardTab(mappedTab);
+        return;
+      }
+      // Путь человекочитаемого раздела (/karta-rynka-aktsiy/ и т.п.)
+      const landing = window.location.pathname.replace(/^\/|\/$/g, "");
+      const route = LANDING_ROUTES[landing];
+      if (route) {
+        if (route.obs) setForceObsSection(route.obs);
+        if (route.tab) setForceInnerTab(route.tab);
+        setActiveTab(route.view);
+        // Сообщаем статике, что приложение взяло управление: без этого события
+        // #seo-static остался бы поверх и получилась бы двойная страница. Событие
+        // общее (не company-ready) — статика лендинга слушает оба.
+        try { window.dispatchEvent(new Event("basis:app-ready")); } catch {}
         return;
       }
       const params = new URLSearchParams(window.location.search);

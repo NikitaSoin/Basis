@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Рост цены на газ для ТЭЦ (заметный негатив для маржи).</b> <i>Факт:</i> оптовые цены на газ проиндексированы на <b>+9,6% с 1 октября 2026</b> (в 2025 для электроэнергетики газ дорожал ещё сильнее — около +11%). Газ — крупнейшая статья себестоимости ТЭЦ-1 и ТЭЦ-2. <i>Механизм:</i> дороже газ → выше себестоимость генерации → расход обгоняет ранее заложенный тариф → давление на прибыль; при дефиците газа возврат на дорогой мазут усиливает удар. <i>Наше суждение:</i> рост на ~10% по крупнейшей статье при околонулевой рентабельности весит ощутимо. Частично сглаживается тем, что топливо учитывается регулятором в тарифе, но с лагом.</p>
 <p><b>3. Снижение ключевой ставки (умеренный позитив, направление улучшается).</b> <i>Факт:</i> ставка 14,5% и постепенно снижается с пика 21%; следующее заседание ЦБ — 19 июня 2026. <i>Механизм:</i> ставка ↓ → дешевеют кредиты и рефинансирование займов (часть — под поручительство РусГидро) → процентные расходы снижаются → меньше давление на прибыль; дешевеет и финансирование капремонтов сетей и ТЭЦ. <i>Наше суждение:</i> проценты были одним из факторов, обнуливших прибыль 2024 года, поэтому смягчение ДКП — реальное облегчение. Но эффект медленный (долг переоценивается постепенно) и неполный — уровень ставки всё ещё высокий.</p>
 <a class="cta" href="/?company=KCHE&amp;tab=macro">Продолжить в приложении: макроэкономика Камчатскэнерго →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KCHE/business/">Бизнес-модель</a><a class="chip" href="/company/KCHE/finance/">Финансы и оценка</a><a class="chip" href="/company/KCHE/dividends/">Дивиденды</a><a class="chip" href="/company/KCHE/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KCHE/otchet/">Разбор отчёта</a><a class="chip" href="/company/KCHE/business/">Бизнес-модель</a><a class="chip" href="/company/KCHE/finance/">Финансы и оценка</a><a class="chip" href="/company/KCHE/dividends/">Дивиденды</a><a class="chip" href="/company/KCHE/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

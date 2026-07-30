@@ -88,8 +88,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Зарплаты разработчиков — главный рычаг маржи, сейчас в плюс.</b> ФОТ инженеров — крупнейшая статья (~27,5% выручки, ~1,73 млрд ₽), и темп IT-зарплат напрямую двигает OIBDA-маржу. ±1 п.п. зарплат ≈ ∓0,017 млрд ₽ маржи. Редкая инверсия: IT-рынок остыл (вакансии −30–40%, зарплаты растут лишь +3–5% против прежних двузначных) — это сейчас <i>поддерживает</i> маржу. Но дефицит кадров структурный, при развороте цикла риск вернётся.</p>
 <p><b>3. Спрос на IT — циклический, но защищён импортозамещением.</b> Замедление экономики и высокая ставка режут корпоративные IT-бюджеты (±1 п.п. ВВП ≈ ±0,08 млрд выручки), но обязательная миграция госсектора/КИИ с VMware/Citrix идёт независимо от ставки, а ~38% выручки рекуррентны. Это делает Базис защитнее типичного IT-вендора. Оборотная сторона — после насыщения «разовой волны» (за 2027) выручка станет чувствительнее к циклу.</p>
 <a class="cta" href="/?company=BAZA&amp;tab=macro">Продолжить в приложении: макроэкономика ГК «Базис» →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/BAZA/business/">Бизнес-модель</a><a class="chip" href="/company/BAZA/finance/">Финансы и оценка</a><a class="chip" href="/company/BAZA/dividends/">Дивиденды</a><a class="chip" href="/company/BAZA/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/BAZA/otchet/">Разбор отчёта</a><a class="chip" href="/company/BAZA/business/">Бизнес-модель</a><a class="chip" href="/company/BAZA/finance/">Финансы и оценка</a><a class="chip" href="/company/BAZA/dividends/">Дивиденды</a><a class="chip" href="/company/BAZA/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -109,7 +109,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -121,8 +122,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

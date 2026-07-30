@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <h3>Главная war/peace-асимметрия — инвертированная</h3>
 <p>KRKOP <b>НЕ пис-бета</b> и в пис-ралли не участвует (в отличие от Газпром/Аэрофлот/Совкомфлот). Мир для завода — скорее лёгкий негатив по бизнесу: возврат западных вендоров-конкурентов эродирует импортозамещенческий ров и ценовую силу, плюс возможная демобилизация неподтверждённой военной компоненты госзаказа; это лишь приглушённо компенсируется дешевле-импортом и ниже-ставкой. Эскалация углубляет ров, но бьёт по поставкам и макро. Грубая пара чисел (E14): <b>S1 ≈ flat (−5…+5%), S4 ≈ −10…−15%</b> [оценка, низкая уверенность]. То есть чувствительность к обоим хвостам низкая, с мягким <b>вор-тилтом</b> (бенефициар продолжения через импортозамещение).</p>
 <a class="cta" href="/?company=KRKOP&amp;tab=geo">Продолжить в приложении: геополитика ТКЗ «Красный котельщик» →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KRKOP/business/">Бизнес-модель</a><a class="chip" href="/company/KRKOP/finance/">Финансы и оценка</a><a class="chip" href="/company/KRKOP/dividends/">Дивиденды</a><a class="chip" href="/company/KRKOP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KRKOP/otchet/">Разбор отчёта</a><a class="chip" href="/company/KRKOP/business/">Бизнес-модель</a><a class="chip" href="/company/KRKOP/finance/">Финансы и оценка</a><a class="chip" href="/company/KRKOP/dividends/">Дивиденды</a><a class="chip" href="/company/KRKOP/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

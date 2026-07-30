@@ -103,8 +103,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Показатель</th><th>DZRD (обыкновенные)</th><th>DZRDP (привилегированные)</th></tr></thead><tbody><tr><td><b>Голос на собрании</b></td><td class="num">Да</td><td class="num">Нет</td></tr><tr><td><b>Дивиденд (при прибыли)</b></td><td class="num">Переменный, выше префов в приоритете</td><td class="num">Фиксированный 10% / квота</td></tr><tr><td><b>При убытке (как в 2024)</b></td><td class="num">Дивиденд не выплачивается</td><td class="num">Дивиденд не выплачивается</td></tr><tr><td><b>Волатильность котировок</b></td><td class="num">Выше (управленческий контроль премируется)</td><td class="num">Ниже (стабильнее на доходе)</td></tr><tr><td><b>Ликвидность</b></td><td class="num">Малая</td><td class="num">Малая (обе акции неликвидны)</td></tr><tr><td><b>Стрес-сценарий: убыток в течение 3+ лет</b></td><td class="num">Худше для дивиденда, контроль бесценен</td><td class="num">Худше (дивиденд = 0, уложены в очередь)</td></tr></tbody></table>
 <p><b>Итог:</b> DZRDP технически безопаснее при длительной убыточности (приоритет в ликвидации), но дивидендный доход при стабильной убыточности обнулен. Выбор между ними зависит от того, рассчитывает ли инвестор на дивиденды (нет смысла — компания убыточна) или ищет спекулятивный плей на восстановление маржи (DZRD более волатильны из-за контроля).</p>
 <a class="cta" href="/?company=DZRDP&amp;tab=business">Продолжить в приложении: бизнес-модель Донской завод радиодеталей →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/DZRDP/finance/">Финансы и оценка</a><a class="chip" href="/company/DZRDP/dividends/">Дивиденды</a><a class="chip" href="/company/DZRDP/macro/">Макроэкономика</a><a class="chip" href="/company/DZRDP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/DZRDP/otchet/">Разбор отчёта</a><a class="chip" href="/company/DZRDP/finance/">Финансы и оценка</a><a class="chip" href="/company/DZRDP/dividends/">Дивиденды</a><a class="chip" href="/company/DZRDP/macro/">Макроэкономика</a><a class="chip" href="/company/DZRDP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -124,7 +124,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -136,8 +137,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

@@ -88,8 +88,8 @@ ul{padding-left:22px}</style>
 <p>3. <b>Акцизы на вино.</b> С 2026 года акциз на тихие и игристые вина повышается (для игристых — до 160 руб./л). <i>Риск:</i> рост акциза давит на конечную цену и спрос, особенно в среднем ценовом сегменте.</p>
 <p>4. <b>Ключевая ставка ЦБ и долг.</b> Финансовые расходы выросли до 1,49 млрд руб. (2025) — главная причина стагнации чистой прибыли. Виноградарство требует длинных инвестиций (виноградник плодоносит через несколько лет). <i>Риск:</i> при сохранении высокой ставки обслуживание долга продолжит давить на чистую маржу.</p>
 <a class="cta" href="/?company=ABRD&amp;tab=business">Продолжить в приложении: бизнес-модель Абрау-Дюрсо →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ABRD/finance/">Финансы и оценка</a><a class="chip" href="/company/ABRD/dividends/">Дивиденды</a><a class="chip" href="/company/ABRD/macro/">Макроэкономика</a><a class="chip" href="/company/ABRD/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ABRD/otchet/">Разбор отчёта</a><a class="chip" href="/company/ABRD/finance/">Финансы и оценка</a><a class="chip" href="/company/ABRD/dividends/">Дивиденды</a><a class="chip" href="/company/ABRD/macro/">Макроэкономика</a><a class="chip" href="/company/ABRD/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -109,7 +109,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -121,8 +122,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

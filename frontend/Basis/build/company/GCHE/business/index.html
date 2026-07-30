@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Показатель</th><th>2025</th><th>2024</th><th>Δ г/г</th></tr></thead><tbody><tr><td>Выручка</td><td class="num">288,7</td><td class="num">259,3</td><td class="num">+11,4%</td></tr><tr><td>Скорр. EBITDA</td><td class="num">56,5</td><td class="num">46,4</td><td class="num">+21,8%</td></tr><tr><td>Маржа по скорр. EBITDA</td><td class="num">19,6%</td><td class="num">17,9%</td><td class="num">+1,7 п.п.</td></tr><tr><td>Чистая прибыль (отчётная)</td><td class="num">~30,0</td><td class="num">~19,9</td><td class="num">+50,7%</td></tr><tr><td>Скорр. чистая прибыль</td><td class="num">19,5</td><td class="num">20,4</td><td class="num">−4,4%</td></tr><tr><td>Скорр. чистая маржа</td><td class="num">6,8%</td><td class="num">7,9%</td><td class="num">−1,1 п.п.</td></tr><tr><td>CapEx</td><td class="num">24,3</td><td class="num">36,3</td><td class="num">−33,1%</td></tr><tr><td>Чистый долг</td><td class="num">139,9</td><td class="num">140,6</td><td class="num">−0,5%</td></tr><tr><td>Чистый долг / EBITDA</td><td class="num">2,5x</td><td class="num">3,0x</td><td class="num">−0,5</td></tr></tbody></table>
 <p><b>Вывод из таблицы:</b> выручка выросла умеренно (+11,4%), а EBITDA — заметно быстрее (+21,8%), то есть бизнес стал рентабельнее за счёт более высоких цен на мясо и контроля над себестоимостью. При этом <i>скорректированная</i> чистая прибыль даже немного снизилась (−4,4%) — её съели процентные расходы по большому долгу (чистый долг ~140 млрд ₽) на фоне высокой ключевой ставки. Рост <i>отчётной</i> прибыли на 50,7% в значительной мере объясняется неденежной переоценкой биологических активов, поэтому ориентироваться лучше на скорректированный показатель <i>(пояснение аналитика)</i>. Долговая нагрузка снизилась с 3,0x до 2,5x — компания сократила CapEx на треть после завершения крупных инвестпроектов.</p>
 <a class="cta" href="/?company=GCHE&amp;tab=business">Продолжить в приложении: бизнес-модель Группа Черкизово →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/GCHE/finance/">Финансы и оценка</a><a class="chip" href="/company/GCHE/dividends/">Дивиденды</a><a class="chip" href="/company/GCHE/macro/">Макроэкономика</a><a class="chip" href="/company/GCHE/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/GCHE/otchet/">Разбор отчёта</a><a class="chip" href="/company/GCHE/finance/">Финансы и оценка</a><a class="chip" href="/company/GCHE/dividends/">Дивиденды</a><a class="chip" href="/company/GCHE/macro/">Макроэкономика</a><a class="chip" href="/company/GCHE/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

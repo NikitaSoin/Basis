@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <p><b>3. Внутренний промышленный спрос — умеренный плюс.</b> Факт: промышленность России в начале 2026 стагнирует, но Красноярский край — исключение (+4,7% к выпуску за счёт крупных инвестпроектов). Логика: основной объём кВт·ч дают энергоёмкие производства края → их активность задаёт объём полезного отпуска → выручку и массу надбавки. Суждение: пока страна буксует, край держится лучше среднего, что поддерживает объём; а сам спрос на электричество защитный — резких провалов даже при общем охлаждении не ждём.</p>
 <p><b>4. Слабый рост доходов населения и платёжная дисциплина — умеренный риск.</b> Факт: реальные доходы населения выросли лишь на 1,5% г/г в I квартале 2026. Логика: слабые доходы → хуже собираемость платежей → растёт просроченная дебиторка → выше резервы по сомнительным долгам → давление на чистую прибыль. Суждение: население — массовый, но небольшой по объёму сегмент, поэтому риск умеренный; но резервы по дебиторке — самая капризная статья в прибыли сбыта и могут неприятно качнуть прибыль в отдельном квартале.</p>
 <a class="cta" href="/?company=KRSBP&amp;tab=macro">Продолжить в приложении: макроэкономика Красноярскэнергосбыт →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KRSBP/business/">Бизнес-модель</a><a class="chip" href="/company/KRSBP/finance/">Финансы и оценка</a><a class="chip" href="/company/KRSBP/dividends/">Дивиденды</a><a class="chip" href="/company/KRSBP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KRSBP/otchet/">Разбор отчёта</a><a class="chip" href="/company/KRSBP/business/">Бизнес-модель</a><a class="chip" href="/company/KRSBP/finance/">Финансы и оценка</a><a class="chip" href="/company/KRSBP/dividends/">Дивиденды</a><a class="chip" href="/company/KRSBP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

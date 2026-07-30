@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <h3>Причинная атрибуция (C08): почему прибыль скакнула — и это не война</h3>
 <p>Скачок чистой прибыли 2023→2024 (+107% при выручке +7%) многие приписали бы «чему-то системному». Разложение говорит иначе. <b>K1-тест:</b> идентичный НЕроссийский регулируемый сбыт с денежной подушкой при цикле повышения ставки показал бы тот же рост прибыли за счёт процентного дохода — значит, скачок <b>не</b> Россия/гео-специфичен. Доминирует опосредованный макро-канал (процентный доход на растущую кубышку ~4,35 млрд ₽ при КС ~19–21%), плюс крупная <b>неразложимая учётная статья</b> (первичный ГИР БО показывает для 2023 «Прочие доходы» ~5,6 млрд и вообще иную динамику ЧП, чем smart-lab — конфликт рядов в 2–5× не разрешён). <b>Доля прямого гео ≈ 0%.</b> Остаток честно назван остатком, а не приписан геополитике.</p>
 <a class="cta" href="/?company=VRSB&amp;tab=geo">Продолжить в приложении: геополитика ТНС ЭНЕРГО ВОРОНЕЖ →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VRSB/business/">Бизнес-модель</a><a class="chip" href="/company/VRSB/finance/">Финансы и оценка</a><a class="chip" href="/company/VRSB/dividends/">Дивиденды</a><a class="chip" href="/company/VRSB/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VRSB/otchet/">Разбор отчёта</a><a class="chip" href="/company/VRSB/business/">Бизнес-модель</a><a class="chip" href="/company/VRSB/finance/">Финансы и оценка</a><a class="chip" href="/company/VRSB/dividends/">Дивиденды</a><a class="chip" href="/company/VRSB/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <p>MAGE <b>не пис-бета</b>. Нет экспорта к восстановлению, нет замороженных активов к разблокировке, нет навеса нерезидентов, нет санкций к снятию. Пара E14 по прямому гео почти плоская: в мирном сценарии прямой гео-апсайд ≈ 0, в эскалации — слабый минус (риск сбоя топливной логистики + хвост каскада SDN на родителя + risk-off по неликвидному микрокапу).</p>
 <p>Ловушка в том, что бумага <b>выглядит</b> чувствительной к мирному треку — но это <b>дюрационный, ставочный эффект</b> (в мире КС падает быстрее → облегчается доминирующая процентная нагрузка), а не гео-переоценка. S10 формулирует это точно: «не пис-корзина, а дюрационная». Переклеивать ставочный апсайд на гео-ярлык запрещено — он уже у макро, в безрисковой ставке.</p>
 <a class="cta" href="/?company=MAGE&amp;tab=geo">Продолжить в приложении: геополитика Магаданэнерго →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MAGE/business/">Бизнес-модель</a><a class="chip" href="/company/MAGE/finance/">Финансы и оценка</a><a class="chip" href="/company/MAGE/dividends/">Дивиденды</a><a class="chip" href="/company/MAGE/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MAGE/otchet/">Разбор отчёта</a><a class="chip" href="/company/MAGE/business/">Бизнес-модель</a><a class="chip" href="/company/MAGE/finance/">Финансы и оценка</a><a class="chip" href="/company/MAGE/dividends/">Дивиденды</a><a class="chip" href="/company/MAGE/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

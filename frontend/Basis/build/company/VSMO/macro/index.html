@@ -87,8 +87,8 @@ ul{padding-left:22px}</style>
 <p><b>1. Крепкий рубль (главный операционный макрофактор).</b> Крепкий рубль → рублёвая цена экспорта (USD-цена × курс) ниже → ~54% выручки сжимается, и почти вся дельта падает в EBITDA, потому что издержки рублёвые. Чувствительность: <b>+1 ₽/$ ≈ +0,45 млрд к чистой прибыли</b>. Относительно нейтрального курса ~88 текущие 78 стоят порядка <b>−4…−5 млрд</b> к операционной прибыли — в трог-год это сопоставимо со всей оставшейся прибылью. Отдельно: при укреплении рубля возможна разовая бумажная переоценка валютных активов кубышки (в 2020 убыток от пересчёта достигал ~12 млрд) — это разовый, не операционный эффект.</p>
 <p><b>2. Мировые цены на титан (расщеплённый рынок).</b> Авиакосмический grade-0 тверже (~$12,6 тыс./т, дефицит вне Китая), индустриальный grade-1 под китайским профицитом. Чувствительность: <b>±1% реализованной USD-цены ≈ ±0,6 млрд к прибыли</b>. Итог по портфелю зависит от микса; в индустрии ВСМПО — прайс-тейкер к Китаю, ценовой силы мало.</p>
 <a class="cta" href="/?company=VSMO&amp;tab=macro">Продолжить в приложении: макроэкономика Корпорация ВСМПО-АВИСМА →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VSMO/business/">Бизнес-модель</a><a class="chip" href="/company/VSMO/finance/">Финансы и оценка</a><a class="chip" href="/company/VSMO/dividends/">Дивиденды</a><a class="chip" href="/company/VSMO/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VSMO/otchet/">Разбор отчёта</a><a class="chip" href="/company/VSMO/business/">Бизнес-модель</a><a class="chip" href="/company/VSMO/finance/">Финансы и оценка</a><a class="chip" href="/company/VSMO/dividends/">Дивиденды</a><a class="chip" href="/company/VSMO/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -108,7 +108,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -120,8 +121,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

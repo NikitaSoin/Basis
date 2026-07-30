@@ -85,7 +85,7 @@ ul{padding-left:22px}</style>
 <p><b>4. Дорогой персонал и логистика — давление на маржу (эффект негативный).</b> Факт: дефицит кадров сохраняется, зарплаты растут быстрее замедляющейся потребительской инфляции. Механизм: расходы на персонал (около 9% выручки) и логистику растут быстрее продаж, операционные издержки опережают выручку, и маржа EBITDA сжимается (в 2025 — на 0,5 п.п., до 5,9%). Суждение: при замедлении инфляции переложить рост зарплат в цены становится труднее — это главный фактор сжатия операционной маржи; эффект ослабнет по мере охлаждения рынка труда, но в 2026 ещё значим.</p>
 <a class="cta" href="/?company=X5&amp;tab=macro">Продолжить в приложении: макроэкономика «Корпоративный центр ИКС 5» (Пятёрочка, Перекрёсток, Чижик) →</a>
 <h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/X5/otchet/">Разбор отчёта</a><a class="chip" href="/company/X5/business/">Бизнес-модель</a><a class="chip" href="/company/X5/finance/">Финансы и оценка</a><a class="chip" href="/company/X5/dividends/">Дивиденды</a><a class="chip" href="/company/X5/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

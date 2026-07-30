@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p><b>3. Рост акциза на игристое — умеренный негатив.</b> <i>Факт:</i> с 2026 года акциз поднят до 160 руб./л (+28% к 125 руб./л в 2025). <i>Как доходит до компании:</i> акциз вверх → растёт себестоимость и конечная цена бутылки (оценочно +70–100 руб. за 0,75 л) → если переложить весь рост в цену не удаётся, слабеет спрос в среднем сегменте или сжимается маржа. <i>Наше суждение о силе:</i> умеренный негатив, частично смягчаемый. Акциз бьёт по всему рынку одинаково, а премиальный бренд и вертикальная интеграция позволяют Абрау-Дюрсо перекладывать рост в цену легче дешёвых конкурентов. Но вместе со слабеющими доходами это усиливает риск спроса.</p>
 <p><b>4. Замедление инфляции — смешанный эффект.</b> <i>Факт:</i> годовая инфляция замедлилась до ~5,6%, ценовые ожидания компаний падают. <i>Как доходит до компании:</i> инфляция вниз → медленнее растут издержки (стекло, материалы, логистика, труд) → стабилизируется себестоимость; но и слабее номинальный «попутный ветер» для роста цен на продукцию. <i>Наше суждение о силе:</i> эффект смешанный, умеренный. Для премиального бренда важнее снижение издержек, поэтому чистый знак скорее слабоположительный.</p>
 <a class="cta" href="/?company=ABRD&amp;tab=macro">Продолжить в приложении: макроэкономика Абрау-Дюрсо →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ABRD/business/">Бизнес-модель</a><a class="chip" href="/company/ABRD/finance/">Финансы и оценка</a><a class="chip" href="/company/ABRD/dividends/">Дивиденды</a><a class="chip" href="/company/ABRD/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ABRD/otchet/">Разбор отчёта</a><a class="chip" href="/company/ABRD/business/">Бизнес-модель</a><a class="chip" href="/company/ABRD/finance/">Финансы и оценка</a><a class="chip" href="/company/ABRD/dividends/">Дивиденды</a><a class="chip" href="/company/ABRD/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

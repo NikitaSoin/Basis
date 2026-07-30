@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <h3>Главная war/peace-асимметрия</h3>
 <p>Она <b>тонкая и частично самогасящаяся</b> — редкий профиль. Операционно URKZ — умеренный <i>war-beta</i>: ОПК-заказ и импортозамещение в авиа/энергомаше поддерживают загрузку, и мир (демобилизация + возврат западной конкуренции и оборудования) этот tailwind размягчает. Но балансово URKZ — <i>peace-beta</i>: в мире «Мечел» де-рискует (санкционное послабление + восстановление угля + снижение ставки), и восстанавливаемость ~80% активов-займов растёт — это крупнейший рычаг стоимости. Эти два вектора гасят друг друга, а неликвидность (free float ~3.5%) обнуляет рыночную пис-реакцию — бумага почти не ходит на переговорных новостях. Грубая пара: <b>S1 ≈ +5…+10%</b>, <b>S4 ≈ −10…−20%</b> (в эскалации хвост обесценения займов Мечелу перевешивает рост бумажного финдохода). Ключевая честная оговорка: доминирующий свинг — кредит «Мечела», а это идиосинкразия/ИНСТ, не чистое гео, поэтому собственно гео-выпуклость ещё ниже.</p>
 <a class="cta" href="/?company=URKZ&amp;tab=geo">Продолжить в приложении: геополитика «Уральская кузница» (Уралкуз) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/URKZ/business/">Бизнес-модель</a><a class="chip" href="/company/URKZ/finance/">Финансы и оценка</a><a class="chip" href="/company/URKZ/dividends/">Дивиденды</a><a class="chip" href="/company/URKZ/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/URKZ/otchet/">Разбор отчёта</a><a class="chip" href="/company/URKZ/business/">Бизнес-модель</a><a class="chip" href="/company/URKZ/finance/">Финансы и оценка</a><a class="chip" href="/company/URKZ/dividends/">Дивиденды</a><a class="chip" href="/company/URKZ/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

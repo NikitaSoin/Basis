@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p><i>(Ряд — первичная РСБУ-отчётность из ГИР БО ФНС, как в financials.json — едином источнике чисел карточки; прежняя версия таблицы велась по МСФО-агрегатору с выручкой на ~10% выше.)</i></p>
 <p>Вывод из таблицы: выручка растёт двузначно (+14%), но прибыль в 2025-м снизилась (−10% после пикового 2024-го). Для сбытовой компании выручка — это в основном «транзитные» деньги (закупка энергии и оплата сетей), поэтому маржа измеряется единицами процентов, а реальный заработок — это сбытовая надбавка и эффективность сбора платежей. Снижение прибыли при растущей выручке означает рост издержек/резервов по «дебиторке» быстрее индексации надбавки. <i>(EBITDA и CapEx — оценка по данным агрегаторов; компания отдельной строкой их не выделяет.)</i> По МСФО показатели близки: выручка 43,0 млрд ₽, прибыль 2,54 млрд ₽ <i>(различие с РСБУ по выручке — из-за разного отражения сетевой составляющей)</i>.</p>
 <a class="cta" href="/?company=KRSB&amp;tab=business">Продолжить в приложении: бизнес-модель Красноярскэнергосбыт →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KRSB/finance/">Финансы и оценка</a><a class="chip" href="/company/KRSB/dividends/">Дивиденды</a><a class="chip" href="/company/KRSB/macro/">Макроэкономика</a><a class="chip" href="/company/KRSB/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KRSB/otchet/">Разбор отчёта</a><a class="chip" href="/company/KRSB/finance/">Финансы и оценка</a><a class="chip" href="/company/KRSB/dividends/">Дивиденды</a><a class="chip" href="/company/KRSB/macro/">Макроэкономика</a><a class="chip" href="/company/KRSB/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

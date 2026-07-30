@@ -87,8 +87,8 @@ ul{padding-left:22px}</style>
 <p>2. <b>Конкуренция с синтетическими алмазами</b> — структурный сдвиг рынка. Розничные цены на лабораторные бриллианты (LGD) упали на 86% с начала 2016 года по 2025 год <i>(оценка)</i>; в 2025 году 52% обручальных колец в США содержали синтетику. <i>Риск:</i> размывание премии природных камней, особенно в массовом сегменте до 1 карата.</p>
 <p>3. <b>Санкции G7 и ЕС</b> — прямой запрет на импорт российских алмазов с 1 января 2024 года; с марта 2024 года — запрет на бриллианты российского происхождения, огранённые в третьих странах. Механизм отслеживания в Антверпене внедряется с 2024 года, планируется завершение к 2026 году <i>(по рыночным оценкам)</i>. <i>Риск:</i> сужение рынков сбыта до Индии, ОАЭ, Китая; рост дисконтов и логистических издержек.</p>
 <a class="cta" href="/?company=ALRS&amp;tab=business">Продолжить в приложении: бизнес-модель АК «АЛРОСА» →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ALRS/finance/">Финансы и оценка</a><a class="chip" href="/company/ALRS/dividends/">Дивиденды</a><a class="chip" href="/company/ALRS/macro/">Макроэкономика</a><a class="chip" href="/company/ALRS/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ALRS/otchet/">Разбор отчёта</a><a class="chip" href="/company/ALRS/finance/">Финансы и оценка</a><a class="chip" href="/company/ALRS/dividends/">Дивиденды</a><a class="chip" href="/company/ALRS/macro/">Макроэкономика</a><a class="chip" href="/company/ALRS/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -108,7 +108,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -120,8 +121,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

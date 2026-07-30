@@ -87,8 +87,8 @@ ul{padding-left:22px}</style>
 <h3>Главные факторы</h3>
 <p><b>1. Ставка на фоне высокого долга (главный канал, негатив, слабеет).</b> Ставка → плавающий и рефинансируемый долг дорожает → проценты съедают прибыль. При краткосрочном долге 135,9 млрд ₽ (68% брутто) компания быстро чувствует любое движение ставки. <i>Сколько:</i> высокая ставка стоит ~6–8 млрд ₽ прибыли в год против нейтрали; каждые −100 б.п. добавляют ~+0,5…0,7 млрд ₽. <i>Редкое для агро:</i> льготные кредиты АПК привязаны к ключевой ставке, а субсидию Минсельхоз урезает (с 70% до 50% ставки ЦБ из-за дефицита бюджета) — процентные расходы растут даже по субсидируемому долгу. При этом после национализации ~65% капитала управляющим стал РСХБ — оператор льготных кредитов АПК, что даёт потенциально преференциальный доступ к дешёвому фондированию.</p>
 <a class="cta" href="/?company=RAGR&amp;tab=macro">Продолжить в приложении: макроэкономика Группа «Русагро» (RAGR; ранее ROS AGRO PLC) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RAGR/business/">Бизнес-модель</a><a class="chip" href="/company/RAGR/finance/">Финансы и оценка</a><a class="chip" href="/company/RAGR/dividends/">Дивиденды</a><a class="chip" href="/company/RAGR/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RAGR/otchet/">Разбор отчёта</a><a class="chip" href="/company/RAGR/business/">Бизнес-модель</a><a class="chip" href="/company/RAGR/finance/">Финансы и оценка</a><a class="chip" href="/company/RAGR/dividends/">Дивиденды</a><a class="chip" href="/company/RAGR/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -108,7 +108,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -120,8 +121,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

@@ -81,8 +81,8 @@ ul{padding-left:22px}</style>
 <p><b>Оговорка о свежести.</b> Отчёт от 22.07, барометр от 12.07. Два major-триггера из stale_after на пороге: 21-й пакет ЕС по поиску принят/расширен ~13–17.07 (метит нефтеэкспорт, теневой флот, банки, крипту — <b>не электросети</b>), и опорное заседание ЦБ 24.07 предстоит через два дня. Для гео-невинной распредсети оба эффекта близки к нулю (второй — опосредованно через ставку дисконта, что уже макро-канал). Работаю с текущим барометром, риск устаревания помечен; блокировки нет.</p>
 <p><b>Главная war/peace-асимметрия — и почему она не то, чем кажется.</b> Умеренная выпуклость к миру есть (E14 = 2,0; грубо S1 ≈ +15…30%, S4 ≈ −15…25%), но это <b>дюрационно-ставочная</b>, а не различимая гео-бета. Операционно бизнес к сценарию почти инвариантен: тарифная выручка, защитный спрос, крепкий рубль мира эмитенту безразличен (нет FX). Весь «апсайд мира» приходит через переоценку «квазиоблигации» при снижении безрисковой ставки/CRP (−1 п.п. ставки ≈ +6…12% капитализации, из macro.json) — а этот канал <b>уже сидит в рыночной ставке</b> и принадлежит макро, не гео. Единственный настоящий плюс мира, специфичный для гео, — мягкое удешевление импортного сетевого capex; и единственный структурный плюс профиля — <b>отсутствие нерез-навеса</b> (нет DR-истории, нет замороженного иностранного пакета), поэтому в пис-ралли у бумаги нет технического сопротивления второй фазы, которое давит на DR-тяжёлые имена (C03).</p>
 <a class="cta" href="/?company=TORSP&amp;tab=geo">Продолжить в приложении: геополитика «Россети Томск» (Томская распределительная компания) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TORSP/business/">Бизнес-модель</a><a class="chip" href="/company/TORSP/finance/">Финансы и оценка</a><a class="chip" href="/company/TORSP/dividends/">Дивиденды</a><a class="chip" href="/company/TORSP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TORSP/otchet/">Разбор отчёта</a><a class="chip" href="/company/TORSP/business/">Бизнес-модель</a><a class="chip" href="/company/TORSP/finance/">Финансы и оценка</a><a class="chip" href="/company/TORSP/dividends/">Дивиденды</a><a class="chip" href="/company/TORSP/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -102,7 +102,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -114,8 +115,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

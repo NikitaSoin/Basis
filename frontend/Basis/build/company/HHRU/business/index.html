@@ -90,8 +90,8 @@ ul{padding-left:22px}</style>
 <p>6. <b>Регуляторные и дивидендные ограничения.</b> Дивполитика — 60–100% скорр. чистой прибыли при чистый долг/EBITDA &lt; 2,5x. <i>Риск:</i> изменение налогов (в т.ч. для IT-компаний) или регулирование рекрутинга повлияют на прибыль.</p>
 <p>7. <b>Зависимость от продукта/IT-команды.</b> Бизнес целиком цифровой. <i>Риск:</i> отставание продукта, отток инженеров или сбои подрывают сетевой эффект.</p>
 <a class="cta" href="/?company=HHRU&amp;tab=business">Продолжить в приложении: бизнес-модель «Хэдхантер» (HeadHunter Group) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/HHRU/finance/">Финансы и оценка</a><a class="chip" href="/company/HHRU/dividends/">Дивиденды</a><a class="chip" href="/company/HHRU/macro/">Макроэкономика</a><a class="chip" href="/company/HHRU/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/HHRU/otchet/">Разбор отчёта</a><a class="chip" href="/company/HHRU/finance/">Финансы и оценка</a><a class="chip" href="/company/HHRU/dividends/">Дивиденды</a><a class="chip" href="/company/HHRU/macro/">Макроэкономика</a><a class="chip" href="/company/HHRU/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -111,7 +111,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -123,8 +124,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

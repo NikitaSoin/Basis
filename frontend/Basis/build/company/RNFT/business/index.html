@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p><i>(Источник якорей: годовая отчётность МСФО за 2024 и 2023 годы, агрегировано smart-lab.ru по данным компании. Чистый долг на конец 2024 ≈ 85,8 млрд ₽, на конец 2023 ≈ 72,3 млрд ₽.)</i></p>
 <p>Вывод из таблицы: 2024 год был сильным — выручка выросла на четверть, а прибыль и EBITDA — кратно. Главная причина не в физических объёмах (добыча стагнирует около 6,5 млн тонн), а в ценовой конъюнктуре: сужение дисконта Urals к Brent, ослабление рубля и снижение себестоимости. При этом свободный денежный поток резко сократился, потому что CapEx почти удвоился (43,2 против 22,1 млрд ₽) — компания нарастила инвестиции в добычу, и почти вся прибавка операционного денежного потока ушла в капвложения, а не в свободный поток.</p>
 <a class="cta" href="/?company=RNFT&amp;tab=business">Продолжить в приложении: бизнес-модель НК «РуссНефть» →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RNFT/finance/">Финансы и оценка</a><a class="chip" href="/company/RNFT/dividends/">Дивиденды</a><a class="chip" href="/company/RNFT/macro/">Макроэкономика</a><a class="chip" href="/company/RNFT/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RNFT/otchet/">Разбор отчёта</a><a class="chip" href="/company/RNFT/finance/">Финансы и оценка</a><a class="chip" href="/company/RNFT/dividends/">Дивиденды</a><a class="chip" href="/company/RNFT/macro/">Макроэкономика</a><a class="chip" href="/company/RNFT/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

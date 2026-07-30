@@ -86,7 +86,7 @@ ul{padding-left:22px}</style>
 <p>Рынок (P/B ~0.79 при цене ~291 ₽ на 11.07.2026; IMOEX на локальных минимумах, за два месяца бумага сползла с ~323 ₽/P/B~0.88) прайсит S3 с <b>утяжелённым хвостом S4</b> и почти не платит за мир. Снижение цены за 2 месяца — не «дешёвый опцион на мир», а более тяжёлый даунсайд-хвост в цене. На 6 месяцев я с пессимизмом согласен. На 18 месяцев P(S1+S2)~35% даёт небольшой недооценённый опцион на заморозку — но Сбер умеренная, а не чистая пис-бета, и разблокируется последним, так что <b>edge малый (&lt;20 п.п.), я его не тяну</b>.</p>
 <a class="cta" href="/?company=SBERP&amp;tab=geo">Продолжить в приложении: геополитика Сбербанк →</a>
 <h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/SBERP/otchet/">Разбор отчёта</a><a class="chip" href="/company/SBERP/business/">Бизнес-модель</a><a class="chip" href="/company/SBERP/finance/">Финансы и оценка</a><a class="chip" href="/company/SBERP/dividends/">Дивиденды</a><a class="chip" href="/company/SBERP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

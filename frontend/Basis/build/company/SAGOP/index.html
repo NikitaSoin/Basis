@@ -83,10 +83,10 @@ ul{padding-left:22px}</style>
 <h2>Дивиденды</h2><p>Формализованной публичной дивидендной политики с фиксированным целевым payout по обыкновенным акциям нет. По привилегированным акциям дивиденд определяется уставом (типовой ориентир для «АО-энерго» — доля чистой прибыли, требует сверки с уставом).</p><table><thead><tr><th>Год</th><th class="num">На акцию</th><th class="num">Доходность*</th><th class="num">Payout</th><th>Статус</th></tr></thead><tbody><tr><td>2025</td><td class="num">0,234 ₽</td><td class="num">8,08%</td><td class="num">—</td><td>выплачен (спец.)</td></tr><tr><td>2024</td><td class="num">0 ₽</td><td class="num">0%</td><td class="num">0%</td><td>рекомендован, не выплачен</td></tr><tr><td>2023</td><td class="num">0,234 ₽</td><td class="num">7,01%</td><td class="num">—</td><td>выплачен</td></tr><tr><td>2022</td><td class="num">0,13 ₽</td><td class="num">4,57%</td><td class="num">—</td><td>выплачен</td></tr></tbody></table>
 <p class="tag">* Доходность приведена к цене на дату обновления разбора — для сопоставимости
 истории между годами; текущая доходность считается живьём в приложении.</p>
-<h2>Разделы разбора</h2><div class="grid"><a class="chip" href="/company/SAGOP/business/">Бизнес-модель</a><a class="chip" href="/company/SAGOP/finance/">Финансы и оценка</a><a class="chip" href="/company/SAGOP/dividends/">Дивиденды</a><a class="chip" href="/company/SAGOP/macro/">Макроэкономика</a><a class="chip" href="/company/SAGOP/geo/">Геополитика</a></div>
+<h2>Разделы разбора</h2><div class="grid"><a class="chip" href="/company/SAGOP/otchet/">Разбор отчёта</a><a class="chip" href="/company/SAGOP/business/">Бизнес-модель</a><a class="chip" href="/company/SAGOP/finance/">Финансы и оценка</a><a class="chip" href="/company/SAGOP/dividends/">Дивиденды</a><a class="chip" href="/company/SAGOP/macro/">Макроэкономика</a><a class="chip" href="/company/SAGOP/geo/">Геополитика</a></div>
 <a class="cta" href="/?company=SAGOP">Открыть полный разбор Самараэнерго в Basis →</a>
 <h2>Похожие компании — Электроэнергетика</h2><div class="grid"><a class="chip" href="/company/ASSB/">«Астраханская энергосбытовая компания» (Астраханьэнергосбыт) (ASSB)</a><a class="chip" href="/company/DVEC/">«ДЭК» (Дальневосточная энергетическая компания) (DVEC)</a><a class="chip" href="/company/ELFV/">ЭЛ5-ЭНЕРГО (ELFV)</a><a class="chip" href="/company/FEES/">«Россети» (ФСК-Россети) (FEES)</a><a class="chip" href="/company/HYDR/">РусГидро (HYDR)</a><a class="chip" href="/company/IRAO/">Интер РАО (IRAO)</a><a class="chip" href="/company/KBSB/">ТНС энерго Кубань (KBSB)</a><a class="chip" href="/company/KCHE/">Камчатскэнерго (KCHE)</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

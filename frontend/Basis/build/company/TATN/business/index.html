@@ -83,7 +83,7 @@ ul{padding-left:22px}</style>
 <p>Вывод из таблицы: выручка снизилась умеренно (−10%), а прибыль упала вдвое — значит проблема не в объёмах продаж, а в марже. По данным компании и деловых СМИ, на результат 2025 года давили низкие рублёвые цены на нефть, сокращение выплат по возвратному акцизу (демпферу), убыток по курсовым разницам и рост финансовых расходов. При этом долговая нагрузка остаётся минимальной: денежная позиция превышает долг (чистый долг отрицательный), что отличает Татнефть от большинства сектора. <i>(EBITDA 2025 в разных источниках: ~327 млрд по сводной таблице Smart-Lab и ~359 млрд по оценке деловых СМИ — перепроверить по официальному отчёту.)</i></p>
 <a class="cta" href="/?company=TATN&amp;tab=business">Продолжить в приложении: бизнес-модель «Татнефть» им. В.Д. Шашина (обыкновенные) →</a>
 <h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TATN/otchet/">Разбор отчёта</a><a class="chip" href="/company/TATN/finance/">Финансы и оценка</a><a class="chip" href="/company/TATN/dividends/">Дивиденды</a><a class="chip" href="/company/TATN/macro/">Макроэкономика</a><a class="chip" href="/company/TATN/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

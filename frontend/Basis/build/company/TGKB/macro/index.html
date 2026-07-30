@@ -87,8 +87,8 @@ ul{padding-left:22px}</style>
 <p><b>1. Высокая, но снижающаяся ставка — процентная нагрузка.</b> Долг ~13 млрд ₽, практически весь короткий и постоянно рефинансируемый, поэтому почти мгновенно переоценивается. Каждые −100 б.п. ставки дают ориентировочно <b>+0,10…0,13 млрд ₽</b> к прибыли; путь от среднегодовых ~20% (2025) к сегодняшним 14,25% и ниже облегчает нагрузку примерно на <b>+0,6…1,0 млрд ₽/год</b>. Важная деталь: ТГК-2 — антипод «кубышки» из учебника по энергетике. Для генератора с кэшем снижение ставки было бы минусом; здесь это плюс, и вдобавок условие осуществимости плана оздоровления.</p>
 <p><b>2. Маржинальные ножницы: газ дорожает быстрее тарифа.</b> Топливо — крупнейшая статья затрат (~40–45%), газ индексируется +9,6% с октября 2026. Это добавляет <b>+1,5…2,1 млрд ₽ издержек в год</b>; при неполной/запаздывающей компенсации тарифом нетто-удар по EBITDA ориентировочно <b>−0,5…1,2 млрд ₽/год</b>. Частичный хедж: рост газа тянет вверх и цены электроэнергии на оптовом рынке (РСВ в 2025 +17,5%), что компенсирует удар по электро-сегменту (~41% выручки). Но у регулируемого тепла (~50% выручки) такой авто-компенсации нет — там всё решает своевременность тарифного решения. Это главный риск маржи.</p>
 <a class="cta" href="/?company=TGKB&amp;tab=macro">Продолжить в приложении: макроэкономика ТГК-2 →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TGKB/business/">Бизнес-модель</a><a class="chip" href="/company/TGKB/finance/">Финансы и оценка</a><a class="chip" href="/company/TGKB/dividends/">Дивиденды</a><a class="chip" href="/company/TGKB/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TGKB/otchet/">Разбор отчёта</a><a class="chip" href="/company/TGKB/business/">Бизнес-модель</a><a class="chip" href="/company/TGKB/finance/">Финансы и оценка</a><a class="chip" href="/company/TGKB/dividends/">Дивиденды</a><a class="chip" href="/company/TGKB/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -108,7 +108,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -120,8 +121,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

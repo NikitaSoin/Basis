@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p>Справочно, по РСБУ за 2024 год картина иная — выручка ≈22,1 млрд ₽ и небольшой убыток ≈−0,41 млрд ₽ (другой периметр и стандарт, не входит в ряд выше).</p>
 <p>Вывод из таблицы: выручка выросла на 17%, а операционный результат и чистая прибыль вышли из убытка в прибыль — но 2024 год был испорчен именно разовым неденежным списанием активов, а не провалом продаж: без него операционный бизнес уже в 2024 году генерировал положительный результат. 2025 год закрепил восстановление — компания прибыльна и по операционной, и по чистой прибыли, а CapEx (после аномально высокого уровня 2024 года, 66% выручки) вернулся ближе к норме.</p>
 <a class="cta" href="/?company=SLEN&amp;tab=business">Продолжить в приложении: бизнес-модель Сахалинэнерго →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/SLEN/finance/">Финансы и оценка</a><a class="chip" href="/company/SLEN/dividends/">Дивиденды</a><a class="chip" href="/company/SLEN/macro/">Макроэкономика</a><a class="chip" href="/company/SLEN/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/SLEN/otchet/">Разбор отчёта</a><a class="chip" href="/company/SLEN/finance/">Финансы и оценка</a><a class="chip" href="/company/SLEN/dividends/">Дивиденды</a><a class="chip" href="/company/SLEN/macro/">Макроэкономика</a><a class="chip" href="/company/SLEN/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

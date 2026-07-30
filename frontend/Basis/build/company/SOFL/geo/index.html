@@ -86,7 +86,7 @@ ul{padding-left:22px}</style>
 <p>ЧП МСФО 2025 = 0.29 млрд против 3.26 млрд в 2024 (−91%). <b>K1-тест:</b> идентичная нероссийская IT-дистрибуция в 2024–2025 росла — коллапса нижней строки в мировом цикле нет, значит объяснение внутреннее. Разложение: глобальный цикл ~0% · внутренний макро (проценты по долгу при ставке до 21%) ~30% · конкуренция ~5% · <b>менеджмент/идиосинкразия ~55%</b> (база-2024 раздута разовым M&amp;A-доходом при операционно отрицательном pre-tax; 2025 несёт разовый убыток −1.6 млрд от ликвидации Сойка/Робовойс + рост M&amp;A-амортизации) · <b>прямой гео ~5%</b> · необъяснённый остаток ~5%. На скорректированной базе бизнес операционно УЛУЧШИЛСЯ (adj ЧП 2024=0 → 2025=1.89 млрд). Прямой гео-вклад в обвал ≈ 5% — GRE-баллы по этой истории двигать нельзя.</p>
 <a class="cta" href="/?company=SOFL&amp;tab=geo">Продолжить в приложении: геополитика Софтлайн →</a>
 <h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/SOFL/otchet/">Разбор отчёта</a><a class="chip" href="/company/SOFL/business/">Бизнес-модель</a><a class="chip" href="/company/SOFL/finance/">Финансы и оценка</a><a class="chip" href="/company/SOFL/dividends/">Дивиденды</a><a class="chip" href="/company/SOFL/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

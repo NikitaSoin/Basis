@@ -81,8 +81,8 @@ ul{padding-left:22px}</style>
 <p><b>Главная war/peace-асимметрия.</b> ТЗА — <i>не</i> чистая пис-бета (не как Газпром/Аэрофлот). Её главный сценарный рычаг — восстановление стройки — это ставочная/макро история, а не прямой гео. Прямая гео-асимметрия мала и слегка эскалационно-негативна: мир → дешевле/доступнее импортные узлы (+), но возможен возврат западных конкурентов в нише насосов (−) и сжатие военно-кооперационного потока КАМАЗа (−); эскалация → жёстче компонентные санкции и COGS (−), но военный всплеск КАМАЗа (спецтехника для армии до ~3,8 тыс./год, БТР, К5 ×3 в 2026) поддерживает кооперационный поток рам кабин (+). Грубо, только прямой гео: ΔS1 ≈ 0…+3%, ΔS4 ≈ −3…−6%. Крупный циклический апсайд мира — это снижение ставки (макро), его сюда засчитывать нельзя.</p>
 <p><b>Главное расхождение с рынком — и оно не гео.</b> Цена ~105 ₽ против finance-range 156–292 ₽ (P/B 0,54). Разрыв объясняется неликвидностью (доступ только квалам, микрокап), риском размытия миноритария материнской структурой (трек-рекорд Ростеха — ОАК, Сегежа) и отсутствием дивидендов — это зона ИНСТ — плюс циклической трохой (макро). Геополитика не является связывающим ограничением стоимости ТЗА, поэтому conclusion.range намеренно оставлен пустым: любая «гео-справедливая цена» здесь была бы ложной точностью.</p>
 <a class="cta" href="/?company=TUZA&amp;tab=geo">Продолжить в приложении: геополитика «Туймазинский завод автобетоновозов» (ТЗА) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TUZA/business/">Бизнес-модель</a><a class="chip" href="/company/TUZA/finance/">Финансы и оценка</a><a class="chip" href="/company/TUZA/dividends/">Дивиденды</a><a class="chip" href="/company/TUZA/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TUZA/otchet/">Разбор отчёта</a><a class="chip" href="/company/TUZA/business/">Бизнес-модель</a><a class="chip" href="/company/TUZA/finance/">Финансы и оценка</a><a class="chip" href="/company/TUZA/dividends/">Дивиденды</a><a class="chip" href="/company/TUZA/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -102,7 +102,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -114,8 +115,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

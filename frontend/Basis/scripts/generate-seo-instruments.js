@@ -177,7 +177,7 @@ function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, 
 <body>
 <nav class="crumbs">${crumbsHtml}</nav>
 ${bodyHtml}
-<p class="note">Basis — независимый аналитический слой, не брокер: без сигналов
+<p class="note">Basis — аналитический слой, не брокер: без сигналов
 «купить/продать». Числа на странице — данные Московской биржи и расчёты Basis на
 ${dataDate}; актуальные котировки и полный разбор — в приложении. «Оценка Basis» —
 оценка соотношения доходности и риска по открытой методике, а не рейтинг и не совет.
@@ -510,7 +510,7 @@ ${sections}
 <a class="cta" href="/">Открыть приложение Basis: раздел «Рынок» → Фонды →</a>`;
   return pageShell({
     title: `Биржевые фонды (БПИФ/ETF) на Мосбирже: комиссии TER, типы, ликвидность | Basis`,
-    desc: `Каталог ${funds.length} биржевых фондов Московской биржи: акции, облигации, золото, денежный рынок. Комиссии TER, бенчмарки, обороты — независимый разбор Basis. Данные на ${dataDate}.`,
+    desc: `Каталог ${funds.length} биржевых фондов Московской биржи: акции, облигации, золото, денежный рынок. Комиссии TER, бенчмарки, обороты — разбор Basis. Данные на ${dataDate}.`,
     canonicalPath: "/funds/",
     breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Фонды" }],
     bodyHtml: body,

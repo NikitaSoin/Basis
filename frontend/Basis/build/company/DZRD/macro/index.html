@@ -88,7 +88,7 @@ ul{padding-left:22px}</style>
 <p><b>3. Спрос конечного рынка (ставка → инвестцикл, приглушённый господдержкой).</b> Рынок ЭКБ упал на 25% в 2025 и должен восстановиться на 15–20% в 2026. Ставка влияет на инвестспрос потребителей электроники, но канал ослаблен: спрос тянет госпрограмма импортозамещения, слабо чувствительная к ставке. Макро-часть эффекта мала (~±15 млн ₽ выручки на 1 п.п. ВВП); реальные качели выручки ДЗРД — сотни миллионов и определяются возвратом/потерей конкретного заказа, а не деловым циклом.</p>
 <a class="cta" href="/?company=DZRD&amp;tab=macro">Продолжить в приложении: макроэкономика Донской завод радиодеталей →</a>
 <h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/DZRD/otchet/">Разбор отчёта</a><a class="chip" href="/company/DZRD/business/">Бизнес-модель</a><a class="chip" href="/company/DZRD/finance/">Финансы и оценка</a><a class="chip" href="/company/DZRD/dividends/">Дивиденды</a><a class="chip" href="/company/DZRD/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -108,7 +108,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -120,8 +121,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

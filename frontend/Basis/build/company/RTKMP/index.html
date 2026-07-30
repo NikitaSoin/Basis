@@ -83,10 +83,10 @@ ul{padding-left:22px}</style>
 <h2>Дивиденды</h2><p>С 11.04.2025 действует политика на 2024–2026 отчётные годы (выплаты в 2025–2027 гг.): совокупно не менее 50% скорректированной чистой прибыли по МСФО, с ориентиром не менее 5 руб./обыкновенную акцию и ростом ≥5% г/г; выплаты не производятся при чистый долг/OIBDA &gt; 3,0. На уровне рекомендаций Правительства/Росимущества для госкомпаний. Ранее (2021–2023) — не менее 5 руб. на обыкновенную акцию с ежегодным ростом ≥5%.</p><table><thead><tr><th>Год</th><th class="num">На акцию</th><th class="num">Доходность*</th><th class="num">Payout</th><th>Статус</th></tr></thead><tbody><tr><td>2025</td><td class="num">2,71 ₽</td><td class="num">—</td><td class="num">50,6%</td><td>выплачен</td></tr><tr><td>2024</td><td class="num">2,71 ₽</td><td class="num">—</td><td class="num">—</td><td>выплачен</td></tr><tr><td>2023</td><td class="num">6,06 ₽</td><td class="num">—</td><td class="num">—</td><td>выплачен</td></tr><tr><td>2022</td><td class="num">5,45 ₽</td><td class="num">—</td><td class="num">—</td><td>выплачен</td></tr><tr><td>2021</td><td class="num">4,56 ₽</td><td class="num">—</td><td class="num">—</td><td>выплачен</td></tr></tbody></table>
 <p class="tag">* Доходность приведена к цене на дату обновления разбора — для сопоставимости
 истории между годами; текущая доходность считается живьём в приложении.</p>
-<h2>Разделы разбора</h2><div class="grid"><a class="chip" href="/company/RTKMP/business/">Бизнес-модель</a><a class="chip" href="/company/RTKMP/finance/">Финансы и оценка</a><a class="chip" href="/company/RTKMP/dividends/">Дивиденды</a><a class="chip" href="/company/RTKMP/macro/">Макроэкономика</a><a class="chip" href="/company/RTKMP/geo/">Геополитика</a></div>
+<h2>Разделы разбора</h2><div class="grid"><a class="chip" href="/company/RTKMP/otchet/">Разбор отчёта</a><a class="chip" href="/company/RTKMP/business/">Бизнес-модель</a><a class="chip" href="/company/RTKMP/finance/">Финансы и оценка</a><a class="chip" href="/company/RTKMP/dividends/">Дивиденды</a><a class="chip" href="/company/RTKMP/macro/">Макроэкономика</a><a class="chip" href="/company/RTKMP/geo/">Геополитика</a></div>
 <a class="cta" href="/?company=RTKMP">Открыть полный разбор Ростелеком в Basis →</a>
 <h2>Похожие компании — Телекоммуникации</h2><div class="grid"><a class="chip" href="/company/BISVP/">Башинформсвязь (привилегированные акции типа А) (BISVP)</a><a class="chip" href="/company/CNTL/">Центральный телеграф (CNTL)</a><a class="chip" href="/company/CNTLP/">Центральный телеграф (CNTLP)</a><a class="chip" href="/company/MGTS/">Московская городская телефонная сеть (MGTS)</a><a class="chip" href="/company/MGTSP/">Московская городская телефонная сеть (MGTSP)</a><a class="chip" href="/company/MTSS/">«Мобильные ТелеСистемы» (МТС) (MTSS)</a><a class="chip" href="/company/NSVZ/">НАУКА-СВЯЗЬ (NSVZ)</a><a class="chip" href="/company/RTKM/">Ростелеком (RTKM)</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

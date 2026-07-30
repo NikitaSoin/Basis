@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <h3>Причинная атрибуция (антисверхатрибуция)</h3>
 <p>Провал прибыли 2024 (−42% при росте EBITDA +25%) и восстановление 2025 (+91%) раскладываются как: обесценения/резервы в дочерней ДГК (идиосинкразия ~45%) + высокая ставка и амортизация капиталоёмких фондов при тонкой марже (макро ~50%) + прямое гео ~5% (только наценка на импорт оборудования). Мировой цикл и конкуренция = 0 (регулируемый внутренний монополист). Тариф/ставку/спрос/списания ДГК гео <b>не</b> приписываю — это и есть дисциплина C08.</p>
 <a class="cta" href="/?company=DVEC&amp;tab=geo">Продолжить в приложении: геополитика «ДЭК» (Дальневосточная энергетическая компания) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/DVEC/business/">Бизнес-модель</a><a class="chip" href="/company/DVEC/finance/">Финансы и оценка</a><a class="chip" href="/company/DVEC/dividends/">Дивиденды</a><a class="chip" href="/company/DVEC/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/DVEC/otchet/">Разбор отчёта</a><a class="chip" href="/company/DVEC/business/">Бизнес-модель</a><a class="chip" href="/company/DVEC/finance/">Финансы и оценка</a><a class="chip" href="/company/DVEC/dividends/">Дивиденды</a><a class="chip" href="/company/DVEC/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

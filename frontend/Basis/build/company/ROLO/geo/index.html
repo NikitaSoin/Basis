@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p>Ключевой вывод по протоколу причинной атрибуции (C08): <b>обвал результата 2024 и котировки 2025–2026 — почти НЕ геополитический.</b> EBITDA-2024 упала на 48% при росте выручки на 19% — не из-за санкций, а из-за падения объёма олова (−18%, геология/стареющие участки), роста удельных затрат и долгофинансируемого капекса. K1-тест прямой: нероссийский олово-добытчик при той же выросшей цене олова <b>нарастил бы</b> EBITDA — значит падение не глобально-цикловое и не гео, а операционное. Прямая гео-доля ухудшения ≈ 10% (трение импорта/платежей под SDN). А обвал акции с ~0,41 до ~0,20 ₽ за 6 недель (−50%; −64% г/г) — это долг (краткосрочный долг вырос к ~18 млрд ₽), убыток-2025, отказ от дивидендов и дело бенефициаров «Селигдара», а вовсе не санкции (SDN с 06.2024 давно в цене). Приписать это санкциям было бы ошибкой класса М.Видео (K27) / Совкомфлот (K29).</p>
 <p><b>Отдельно исправляю старую версию блока:</b> рекордная цена олова и перебои предложения в Мьянме/Индонезии — это глобальный товарный цикл, а НЕ российская геополитическая экспозиция; их место в макро/рынке, а не в GRE-профиле.</p>
 <a class="cta" href="/?company=ROLO&amp;tab=geo">Продолжить в приложении: геополитика Русолово →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ROLO/business/">Бизнес-модель</a><a class="chip" href="/company/ROLO/finance/">Финансы и оценка</a><a class="chip" href="/company/ROLO/dividends/">Дивиденды</a><a class="chip" href="/company/ROLO/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ROLO/otchet/">Разбор отчёта</a><a class="chip" href="/company/ROLO/business/">Бизнес-модель</a><a class="chip" href="/company/ROLO/finance/">Финансы и оценка</a><a class="chip" href="/company/ROLO/dividends/">Дивиденды</a><a class="chip" href="/company/ROLO/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <h4>Главная war/peace-асимметрия</h4>
 <p>Почти симметрична и мала. Мир даёт узкий прямой гео-плюс — облегчение импорта сетевого оборудования и SCADA (единственный измеримый прямой канал, ~0,5–2 млрд ₽/год удорожания капекса) плюс возможную де-токсификацию блока Мельниченко (но это уже Институты). Эскалация зеркально удорожает оборудование и усиливает санкц-навес. <b>Но главный апсайд MRKS в мире — вообще не гео:</b> это быстрое снижение ставки, которое из-за экстремального левериджа (чистый долг ~43 млрд при тонком капитале) действует кратно — ±1x по EV/EBITDA сдвигает акцию примерно на ±0,16 ₽, около 30% цены. MRKS — не «пис-бета», а экстремальная <b>ставочная бета</b>. Grubo гео-порция: S1 ≈ +2…4%, S4 ≈ −3…6% стоимости; доминирующий свинг лежит в макро-слое.</p>
 <a class="cta" href="/?company=MRKS&amp;tab=geo">Продолжить в приложении: геополитика Россети Сибирь →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MRKS/business/">Бизнес-модель</a><a class="chip" href="/company/MRKS/finance/">Финансы и оценка</a><a class="chip" href="/company/MRKS/dividends/">Дивиденды</a><a class="chip" href="/company/MRKS/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MRKS/otchet/">Разбор отчёта</a><a class="chip" href="/company/MRKS/business/">Бизнес-модель</a><a class="chip" href="/company/MRKS/finance/">Финансы и оценка</a><a class="chip" href="/company/MRKS/dividends/">Дивиденды</a><a class="chip" href="/company/MRKS/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

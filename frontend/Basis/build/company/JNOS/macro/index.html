@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p>Парадокс отчётности 2024: выручка выросла (+13,6%), операционная прибыль тоже выросла — а чистая прибыль почти вдвое упала (до 6,26 млрд ₽). Причина не в основном бизнесе, а в финансовой части.</p>
 <ul><li><b>Высокая ставка — главный съедатель прибыли.</b> Чистые процентные расходы выросли с 3,9 млрд (2023) до 6,3 млрд ₽ (2024), пока средняя ставка держалась на 17,5%. При нейтральной ставке (~8,5%) чистая прибыль была бы примерно на <b>3,6 млрд ₽ выше</b>. <i>(оценка — структура долга не раскрыта)</i></li><li><b>Разовый налог.</b> В 2024 эффективная ставка налога аномальна — 43,5% против норматива 25%, это забрало ещё ~2 млрд ₽ (разовое, не операционное).</li><li>Итог: нормализованная (без разового налога) прибыль ~8,3 млрд ₽; главный операционный виновник просадки — именно проценты по долгу.</li></ul>
 <a class="cta" href="/?company=JNOS&amp;tab=macro">Продолжить в приложении: макроэкономика Славнефть-ЯНОС (Ярославский НПЗ) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/JNOS/business/">Бизнес-модель</a><a class="chip" href="/company/JNOS/finance/">Финансы и оценка</a><a class="chip" href="/company/JNOS/dividends/">Дивиденды</a><a class="chip" href="/company/JNOS/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/JNOS/otchet/">Разбор отчёта</a><a class="chip" href="/company/JNOS/business/">Бизнес-модель</a><a class="chip" href="/company/JNOS/finance/">Финансы и оценка</a><a class="chip" href="/company/JNOS/dividends/">Дивиденды</a><a class="chip" href="/company/JNOS/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

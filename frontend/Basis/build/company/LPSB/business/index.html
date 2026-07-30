@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p>Источники якорей — годовая отчётность через агрегаторы (smart-lab, finviewer, porti.ru). Компания не раскрывает EBITDA и CapEx отдельными строками. <i>Выручка в таблице — по financials.json (нетто-представление); компания также раскрывает выручку по РСБУ 16,7 млрд ₽ (2025) / 15,4 млрд ₽ (2024) — на 13-15% выше, что типично для энергосбытов и объясняется валовым/полным отражением транзитных сумм ОРЭМ+сети в РСБУ против нетто-подачи в financials.json (см. data_flags); чистая прибыль по обеим базам почти идентична (расхождение ≤1%), поэтому строки прибыли/маржи ниже сопоставимы в любой базе.</i> Чистый долг отрицательный — это значит, что денежных средств и эквивалентов у компании больше, чем кредитов и займов <i>(оценка по балансу: сбытовая компания обычно держит подушку под расчёты с ОРЭМ и сетями)</i>.</p>
 <p>Вывод из таблицы. Выручка прибавила умеренно (~8%), а чистая прибыль выросла кратно (в 3,3 раза) — то есть дело не в объёме продаж, а в марже. Для сбытовой компании выручка — это в основном «транзит» стоимости купленной электроэнергии, и сама по себе она мало говорит о здоровье бизнеса. Прибыль формируется из тонкого слоя сбытовой надбавки и из управления оборотным капиталом и дебиторской задолженностью. Резкий рост прибыли 2025 года к низкой базе 2024-го требует ручной проверки причин (см. отчёт в конце).</p>
 <a class="cta" href="/?company=LPSB&amp;tab=business">Продолжить в приложении: бизнес-модель «Липецкая энергосбытовая компания» (ЛЭСК) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/LPSB/finance/">Финансы и оценка</a><a class="chip" href="/company/LPSB/dividends/">Дивиденды</a><a class="chip" href="/company/LPSB/macro/">Макроэкономика</a><a class="chip" href="/company/LPSB/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/LPSB/otchet/">Разбор отчёта</a><a class="chip" href="/company/LPSB/finance/">Финансы и оценка</a><a class="chip" href="/company/LPSB/dividends/">Дивиденды</a><a class="chip" href="/company/LPSB/macro/">Макроэкономика</a><a class="chip" href="/company/LPSB/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

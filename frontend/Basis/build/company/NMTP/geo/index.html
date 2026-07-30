@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <h3>Главная war/peace-асимметрия (E14 = 3.0)</h3>
 <p>Умеренная выпуклость к миру, мягче Аэрофлота/Совкомфлота. В <b>S1</b> (~+25…+35%): нормализация war-risk страховки Черноморья, снятие дроновой угрозы, ослабление санкций на танкеры → восстановление тоннажа и снятие военной надбавки в требуемой доходности; НМТП — среди чемпионов пис-корзины через <b>страховую нормализацию</b>. Встречный ветер мира слабый и специфичный: крепкий рубль срезает USD-привязанные тарифы, а размораживание нерезидентского навеса (JPM ~5.6%, счета С) даёт техническое давление предложения на цену (C03). В <b>S4</b> (~−20…−35%): физическое разрушение/долгий простой терминалов (некомпенсируемый военный капекс K26-класс), полный SDN Транснефти → 50%-rule (K04). Рентная база амортизирует оба хвоста — поэтому НМТП <b>не</b> чистая пис-бета: он собирает тариф с потока в любом сценарии.</p>
 <a class="cta" href="/?company=NMTP&amp;tab=geo">Продолжить в приложении: геополитика Новороссийский морской торговый порт →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/NMTP/business/">Бизнес-модель</a><a class="chip" href="/company/NMTP/finance/">Финансы и оценка</a><a class="chip" href="/company/NMTP/dividends/">Дивиденды</a><a class="chip" href="/company/NMTP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/NMTP/otchet/">Разбор отчёта</a><a class="chip" href="/company/NMTP/business/">Бизнес-модель</a><a class="chip" href="/company/NMTP/finance/">Финансы и оценка</a><a class="chip" href="/company/NMTP/dividends/">Дивиденды</a><a class="chip" href="/company/NMTP/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

@@ -86,8 +86,8 @@ ul{padding-left:22px}</style>
 <p><b>Высокая ставка при возросшем CapEx — умеренный негатив.</b> Факт: в 2024 году завод резко нарастил капзатраты (модернизация листопроката) и снизил денежную подушку с 6,1 до 3,3 млрд ₽; свободный денежный поток 2024 был отрицательным (−6,0 млрд ₽). Логика: при ставке 14,5% финансирование инвестпрограммы дорогое. <b>Важная оговорка по достоверности:</b> саму долговую нагрузку компания публично <b>не раскрывает</b> — в отчётности нет данных о долге и чистом долге. Прежняя цифра «чистый долг ~14–16 млрд ₽ / 2,8x EBITDA» была реконструкцией, не подтверждённой отчётностью, и снята. Достоверно лишь возросшая чувствительность к ставке через CapEx и кэш.</p>
 <p><b>Дешёвое сырьё — единственный явный плюс.</b> Факт: цены на лом (главное сырьё) держатся на минимумах (~17,5–18,5 тыс. руб./т) и в 2026 году ожидаются без сильных изменений. Логика: лом — крупнейшая статья затрат, поэтому его дешевизна расширяет металлургический спред между ценой проката и сырьём и поддерживает маржу. На наш взгляд, это умеренный плюс, который смягчает сжатие прибыли при слабых ценах на сталь, — но эффект ограничен: если прокат дешевеет быстрее лома, спред всё равно сужается.</p>
 <a class="cta" href="/?company=AMEZ&amp;tab=macro">Продолжить в приложении: макроэкономика Ашинский метзавод →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/AMEZ/business/">Бизнес-модель</a><a class="chip" href="/company/AMEZ/finance/">Финансы и оценка</a><a class="chip" href="/company/AMEZ/dividends/">Дивиденды</a><a class="chip" href="/company/AMEZ/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/AMEZ/otchet/">Разбор отчёта</a><a class="chip" href="/company/AMEZ/business/">Бизнес-модель</a><a class="chip" href="/company/AMEZ/finance/">Финансы и оценка</a><a class="chip" href="/company/AMEZ/dividends/">Дивиденды</a><a class="chip" href="/company/AMEZ/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -107,7 +107,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -119,8 +120,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

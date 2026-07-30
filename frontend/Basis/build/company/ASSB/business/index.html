@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p>Числа за 2024 и 2025 годы — РСБУ, по данным сервиса smart-lab (агрегатор официальной отчётности); якорь 2024 года (выручка 15 617,8 млн ₽, чистая прибыль 82,3 млн ₽) сверен с годовым отчётом компании за 2024 год.</p>
 <p>Вывод из таблицы: при росте выручки всего на 14% чистая прибыль выросла в 6 раз (с 82 до 502 млн ₽). Это особенность сбытовой модели — прибыль формируется не из тонкой торговой маржи на электроэнергии (она почти полностью «съедается» закупкой энергии и оплатой сетям), а из вторичных факторов: процентного дохода на накопленной денежной подушке (чистый долг отрицательный, наличность ~1,38 млрд ₽) и динамики резервов под дебиторскую задолженность. <i>(Конкретный вклад процентов и резервов в скачок прибыли 2025 года — оценка по структуре бизнеса; компания пояснений к скачку отдельно не публиковала.)</i></p>
 <a class="cta" href="/?company=ASSB&amp;tab=business">Продолжить в приложении: бизнес-модель «Астраханская энергосбытовая компания» (Астраханьэнергосбыт) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ASSB/finance/">Финансы и оценка</a><a class="chip" href="/company/ASSB/dividends/">Дивиденды</a><a class="chip" href="/company/ASSB/macro/">Макроэкономика</a><a class="chip" href="/company/ASSB/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ASSB/otchet/">Разбор отчёта</a><a class="chip" href="/company/ASSB/finance/">Финансы и оценка</a><a class="chip" href="/company/ASSB/dividends/">Дивиденды</a><a class="chip" href="/company/ASSB/macro/">Макроэкономика</a><a class="chip" href="/company/ASSB/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

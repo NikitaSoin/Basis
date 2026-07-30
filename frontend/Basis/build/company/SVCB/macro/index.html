@@ -80,8 +80,8 @@ ul{padding-left:22px}</style>
 <p>Жёсткая денежно-кредитная политика постепенно смягчается. Ключевая ставка ЦБ снижена до 14,5% (с пика 21% в начале 2025), инфляция замедлилась примерно до 5,4% годовых. Но ЦБ не спешит: инфляционные ожидания населения остаются высокими (13%), риторика регулятора ужесточилась, и на заседании 19 июня возможна пауза в снижении ставки.</p>
 <p>Для Совкомбанка это, по нашей оценке, в целом поддерживающая среда. Банк исторически устроен так, что выигрывает именно от снижения ставки — поэтому разворот цикла работает в его пользу. Главная оговорка: выигрыш приходит с задержкой и зависит от того, насколько быстро ЦБ продолжит смягчение.</p>
 <a class="cta" href="/?company=SVCB&amp;tab=macro">Продолжить в приложении: макроэкономика Совкомбанк →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/SVCB/business/">Бизнес-модель</a><a class="chip" href="/company/SVCB/finance/">Финансы и оценка</a><a class="chip" href="/company/SVCB/dividends/">Дивиденды</a><a class="chip" href="/company/SVCB/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/SVCB/otchet/">Разбор отчёта</a><a class="chip" href="/company/SVCB/business/">Бизнес-модель</a><a class="chip" href="/company/SVCB/finance/">Финансы и оценка</a><a class="chip" href="/company/SVCB/dividends/">Дивиденды</a><a class="chip" href="/company/SVCB/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -101,7 +101,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -113,8 +114,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

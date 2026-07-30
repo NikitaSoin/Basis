@@ -96,10 +96,42 @@ ul{padding-left:22px}</style>
 
 <a class="cta" href="/?view=companies">Открыть раздел «Рынок» →</a>
 <h2>Инструменты и методики Basis</h2><div class="grid"><a class="chip" href="/analiz-portfelya/">Анализ портфеля</a><a class="chip" href="/skrining-aktsiy/">Скрининг акций</a><a class="chip" href="/skrining-obligatsiy/">Скрининг облигаций</a><a class="chip" href="/spravedlivaya-tsena-aktsiy/">Справедливая цена акций</a><a class="chip" href="/kak-vybrat-ofz/">Как выбирать ОФЗ</a><a class="chip" href="/vdo-obligatsii/">ВДО</a><a class="chip" href="/obzor-rynka/">Обзор рынка</a><a class="chip" href="/stress-test-portfelya/">Стресс-тест портфеля</a><a class="chip" href="/dividendnyy-kalendar/">Дивидендный календарь</a><a class="chip" href="/novosti-fondovogo-rynka/">Новости рынка</a><a class="chip" href="/ekonomicheskaya-statistika-rossii/">Экономическая статистика</a><a class="chip" href="/karta-rynka-aktsiy/">Карта рынка</a><a class="chip" href="/kalendar-otchetnostey/">Календарь отчётностей</a><a class="chip" href="/razbor-otchetnosti-kompaniy/">Разбор отчётности</a><a class="chip" href="/makroobzor-rossiyskoy-ekonomiki/">Макрообзор</a><a class="chip" href="/geopolitika-i-rossiyskiy-rynok/">Геополитика</a><a class="chip" href="/bpif-etf-moex/">Фонды</a><a class="chip" href="/company/">Разборы 264 компаний</a></div>
-<p class="note">Basis — независимый аналитический слой для частного инвестора, не брокер:
+<p class="note">Basis — аналитический слой для частного инвестора, не брокер:
 не проводит сделок и не даёт сигналов «купить/продать». Материалы страницы — рамка
 оценки и описание инструментов платформы; они не являются индивидуальной
 инвестиционной рекомендацией.</p>
 </div>
+<div id="root"></div>
+<script>
+// Экран загрузки ставим СКРИПТОМ (не в разметке): роботы без исполнения JS получают
+// страницу с контентом как раньше, человек — спокойный экран вместо мелькания.
+(function () {
+  var b = document.createElement("div");
+  b.id = "seo-boot";
+  b.innerHTML = '<div class="b-mark">Basis</div>'
+    + '<div class="b-bar"><i></i></div>'
+    + '<div class="b-cap">Открываем разбор…</div>';
+  document.body.appendChild(b);
+  // Страховка: если приложение не стартовало за 12 с (упал бандл, нет сети), убираем
+  // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
+  setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
+})();
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
+  var el = document.getElementById("seo-static");
+  if (el) el.remove();          // не display:none — убираем из потока совсем
+  var ld = document.getElementById("seo-boot");
+  if (ld) ld.remove();
+  // Подчищаем оформление статики: у приложения своя тема (в т.ч. тёмная), а бежевый
+  // фон и системный шрифт статической страницы иначе просвечивают сквозь неё.
+  document.body.style.background = "";
+  document.body.style.color = "";
+  document.body.style.font = "";
+  document.documentElement.classList.add("basis-app-mounted");
+});
+});
+</script>
+<link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

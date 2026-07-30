@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <h3>Главная war/peace-асимметрия</h3>
 <p>Слабая и <b>смешанная</b> (E14=2.5) — ВСЗ не пис-бета. Мир облегчает импорт компонентов (плюс марже/срокам), но грозит демобилизацией ГОЗ и возвратом иностранных конкурентов; эскалация углубляет импортозамещающий ров и ГОЗ-спрос, но жёстче душит сорсинг узлов → убытки по фикс-цене → новые докапитализации. Обе стороны — второго порядка. <b>Стоимость ВСЗ определяет не хвост войны/мира, а идиосинкратика:</b> размытие допэмиссией (удвоение акций в пользу ОСК ~35,8 млрд ₽) и риск «списка Костина» / переноса заказов внутри ОСК (свежее — проработка переноса ГОЗ-ледокола «Дзержинский» на Адмиралтейские верфи).</p>
 <a class="cta" href="/?company=VSYD&amp;tab=geo">Продолжить в приложении: геополитика Выборгский судостроительный завод →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VSYD/business/">Бизнес-модель</a><a class="chip" href="/company/VSYD/finance/">Финансы и оценка</a><a class="chip" href="/company/VSYD/dividends/">Дивиденды</a><a class="chip" href="/company/VSYD/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VSYD/otchet/">Разбор отчёта</a><a class="chip" href="/company/VSYD/business/">Бизнес-модель</a><a class="chip" href="/company/VSYD/finance/">Финансы и оценка</a><a class="chip" href="/company/VSYD/dividends/">Дивиденды</a><a class="chip" href="/company/VSYD/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

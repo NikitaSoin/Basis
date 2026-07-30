@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <h3>Атрибуция: не приписывать санкциям чужое</h3>
 <p>Слабость 1кв2026 (выручка −18%, EBITDA −61%) разложена по независимым каналам так (числа — как в geo.json, сумма 100%): <b>~45% внутренний макрофинансовый канал</b> (доминирует крепкий рубль +16% г/г, срезавший рублёвую выручку долларового экспортёра; сюда же ставка 14,25% на ~210 млрд краткосрочного долга) + <b>~35% глобальный цикл</b> (шок входной цены серы ×2,6 при том, что сами цены удобрений высокие) + <b>~5% конкуренция</b> (Акрон/ЕвроХим, незначимо) + <b>~5% менеджмент</b> (дивпауза — решение СД по FCF/долгу) + лишь <b>~10% прямой гео</b> (US CVD 14,64% на минорный US-рынок, ЕС-тарифы, квоты). Итого макро+цикл+финансы+идиосинкразия ~90% исхода, прямой гео ~10%. Дивпауза — финансовый/идиосинкратический канал, НЕ санкционный. Сверхатрибуция гео-рамке была бы ошибкой уровня М.Видео (K27).</p>
 <a class="cta" href="/?company=PHOR&amp;tab=geo">Продолжить в приложении: геополитика ФосАгро →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/PHOR/business/">Бизнес-модель</a><a class="chip" href="/company/PHOR/finance/">Финансы и оценка</a><a class="chip" href="/company/PHOR/dividends/">Дивиденды</a><a class="chip" href="/company/PHOR/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/PHOR/otchet/">Разбор отчёта</a><a class="chip" href="/company/PHOR/business/">Бизнес-модель</a><a class="chip" href="/company/PHOR/finance/">Финансы и оценка</a><a class="chip" href="/company/PHOR/dividends/">Дивиденды</a><a class="chip" href="/company/PHOR/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

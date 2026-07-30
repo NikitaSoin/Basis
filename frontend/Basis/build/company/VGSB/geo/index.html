@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <h3>Главная war/peace-асимметрия</h3>
 <p>Нетривиальный вывод: VGSB — <b>не пис-бета и не вор-бета</b>, но при этом несёт СИСТЕМНЫЙ хвост эскалации БЕЗ компенсации от мира. В сценарии S4 (заморозка инфраструктуры рынка, остановка торгов, контроль капитала — эталон 24.02.2022, K06) бумага падает вместе со всем рынком, а на тонком free-float (оборот ~0,4 млн ₽/день) амплитуда усиливается (механика C03). При этом в мире (S1/S2) идиосинкратического апсайда почти нет — нечего размораживать (ни экспортов, ни активов, ни навеса нерезидентов), а быстрое снижение ставки ещё и подъедает кубышку. Грубая пара чисел: ΔS1 ≈ +5…+10% (через переоценку рынка, ниже пис-бет), ΔS4 ≈ −15…−30%. Итог — лёгкий <b>нисходящий</b> наклон: вы несёте системный хвост, не получая премии мира. По ставочной оси наклон и вовсе обратный рынку.</p>
 <a class="cta" href="/?company=VGSB&amp;tab=geo">Продолжить в приложении: геополитика Волгоградэнергосбыт →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VGSB/business/">Бизнес-модель</a><a class="chip" href="/company/VGSB/finance/">Финансы и оценка</a><a class="chip" href="/company/VGSB/dividends/">Дивиденды</a><a class="chip" href="/company/VGSB/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VGSB/otchet/">Разбор отчёта</a><a class="chip" href="/company/VGSB/business/">Бизнес-модель</a><a class="chip" href="/company/VGSB/finance/">Финансы и оценка</a><a class="chip" href="/company/VGSB/dividends/">Дивиденды</a><a class="chip" href="/company/VGSB/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

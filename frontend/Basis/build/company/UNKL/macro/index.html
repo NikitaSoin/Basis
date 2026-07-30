@@ -87,8 +87,8 @@ ul{padding-left:22px}</style>
 <p>2. <b>Ставка через процентный доход (нетипичный плюс).</b> Обратная сторона: у компании ~6,2 млрд ₽ финансовых вложений/займов группе и ноль долга — по сути внутригрупповой кредитор, «кубышка». Высокая ставка повышает процентный доход. Ориентировочно +40…45 млн ₽ к результату на каждые +100 б.п. (верхняя граница — при фиксированных внутригрупповых ставках эффект близок к нулю; контрагент — распредный «Мечел», то есть доход с кредитным риском). По этому каналу снижение ставки — скорее минус.</p>
 <p>3. <b>Никель × курс — опцион на перезапуск.</b> Для работающего металлурга это операционный фактор, здесь — опционный и неактивный. Никель у минимумов × крепкий рубль → рублёвая экономика гипотетического перезапуска бессмысленна → опцион «возобновление производства» глубоко вне денег. На текущую выручку/прибыль — ноль; опцион «оживёт» только при кратно более высоких ценах никеля и/или заметно слабее рубле.</p>
 <a class="cta" href="/?company=UNKL&amp;tab=macro">Продолжить в приложении: макроэкономика Комбинат Южуралникель (ЮУНК) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/UNKL/business/">Бизнес-модель</a><a class="chip" href="/company/UNKL/finance/">Финансы и оценка</a><a class="chip" href="/company/UNKL/dividends/">Дивиденды</a><a class="chip" href="/company/UNKL/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/UNKL/otchet/">Разбор отчёта</a><a class="chip" href="/company/UNKL/business/">Бизнес-модель</a><a class="chip" href="/company/UNKL/finance/">Финансы и оценка</a><a class="chip" href="/company/UNKL/dividends/">Дивиденды</a><a class="chip" href="/company/UNKL/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -108,7 +108,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -120,8 +121,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

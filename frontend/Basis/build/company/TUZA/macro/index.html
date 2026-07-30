@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <p>2024 год был near-peak: рекордная выручка 13,15 млрд ₽ и прибыль 457 млн — при этом уже тогда себестоимость росла быстрее выручки (+23,2% против +20,6%), подъедая тонкую маржу (~3%). Настоящий разлом — 2025 год: выручка упала примерно втрое (до ~4,2 млрд ₽), и завод впервые ушёл в убыток −434 млн ₽. Качели прибыли на ~0,9 млрд ₽ за один год.</p>
 <p>Что это «съело»: главный канал — <b>спросовый</b> (высокая ставка + конец льготной ипотеки обрушили стройку и потребление цемента: −9% в 2025, до −15% в 2026). На него наложились <b>урезание госсубсидий</b> на спецтехнику примерно втрое (бюджетные ассигнования в поступлениях завода 2,33 млрд → ~0,74 млрд ₽) и <b>инфляция издержек</b> при отсутствии ценовой силы. Высокий операционный рычаг у тонкой маржи усилил удар — при недоборе объёма постоянные расходы увели в минус. Важная оговорка: значимая часть обвала — <b>не макро, а структура</b> (потеря доли дешёвому китайскому импорту 31%→16%, обвал рынка прицепов −60%), и это макро не лечит.</p>
 <a class="cta" href="/?company=TUZA&amp;tab=macro">Продолжить в приложении: макроэкономика «Туймазинский завод автобетоновозов» (ТЗА) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TUZA/business/">Бизнес-модель</a><a class="chip" href="/company/TUZA/finance/">Финансы и оценка</a><a class="chip" href="/company/TUZA/dividends/">Дивиденды</a><a class="chip" href="/company/TUZA/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TUZA/otchet/">Разбор отчёта</a><a class="chip" href="/company/TUZA/business/">Бизнес-модель</a><a class="chip" href="/company/TUZA/finance/">Финансы и оценка</a><a class="chip" href="/company/TUZA/dividends/">Дивиденды</a><a class="chip" href="/company/TUZA/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

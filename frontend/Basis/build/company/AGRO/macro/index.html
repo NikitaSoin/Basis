@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p><b>rate_vector = вниз медленно.</b> Снижение ставки — двойной позитив для Русагро. В оценку: высокая реальная ставка держит WACC высоким сейчас (Rf ОФЗ ~14,6%) → DCF депрессирован и работает как нижняя граница; по мере снижения ставки база дисконтирования падает. Согласовано с гео: бизнес внутренний рублёвый, классические санкции на сбыт слабы, поэтому курсовой канал второстепенен.</p>
 <p>--- <i>Факт: ставка, инфляция, курс. Логика: каналы влияния. Суждение: сила и срок эффекта.</i></p>
 <a class="cta" href="/?company=AGRO&amp;tab=macro">Продолжить в приложении: макроэкономика Группа «Русагро» (RAGR; ранее ROS AGRO PLC) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/AGRO/business/">Бизнес-модель</a><a class="chip" href="/company/AGRO/finance/">Финансы и оценка</a><a class="chip" href="/company/AGRO/dividends/">Дивиденды</a><a class="chip" href="/company/AGRO/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/AGRO/otchet/">Разбор отчёта</a><a class="chip" href="/company/AGRO/business/">Бизнес-модель</a><a class="chip" href="/company/AGRO/finance/">Финансы и оценка</a><a class="chip" href="/company/AGRO/dividends/">Дивиденды</a><a class="chip" href="/company/AGRO/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

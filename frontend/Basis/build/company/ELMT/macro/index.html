@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p><b>3. Высокая ставка (но снижается) — умеренный негатив, который слабеет.</b> 43% долга «Элемента» — рыночный, по высокой ставке; при чистом долге на уровне 2,7 годовых EBITDA это заметные процентные расходы. Ставка уже снижается (это <i>факт</i>), что постепенно облегчает нагрузку, а льготная часть долга (57%) экранирует компанию от ставки. <i>На наш взгляд</i>, эффект негативный, но умеренный и затухающий; рыночные ставки реагируют на смягчение ЦБ с задержкой.</p>
 <p><b>4. Замедление инфляции — небольшой плюс для маржи и капекса.</b> Более медленный рост цен на материалы, энергию и оборудование немного облегчает себестоимость и стоимость строящихся фабрик (<i>факт</i> по инфляции — ~5,6%). Но это второстепенный фактор: главные статьи у «Элемента» — амортизация и проценты, а не текущая инфляция, да и дефицит инженеров держит зарплаты высокими независимо от неё.</p>
 <a class="cta" href="/?company=ELMT&amp;tab=macro">Продолжить в приложении: макроэкономика Элемент (Группа Элемент) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ELMT/business/">Бизнес-модель</a><a class="chip" href="/company/ELMT/finance/">Финансы и оценка</a><a class="chip" href="/company/ELMT/dividends/">Дивиденды</a><a class="chip" href="/company/ELMT/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ELMT/otchet/">Разбор отчёта</a><a class="chip" href="/company/ELMT/business/">Бизнес-модель</a><a class="chip" href="/company/ELMT/finance/">Финансы и оценка</a><a class="chip" href="/company/ELMT/dividends/">Дивиденды</a><a class="chip" href="/company/ELMT/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

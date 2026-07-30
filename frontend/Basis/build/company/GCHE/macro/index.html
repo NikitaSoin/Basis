@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Дешёвые корма — поддержка маржи (позитив).</b> <i>Факт:</i> цены на фуражное зерно сдержанные (ячмень ~12–13 тыс. ₽/т, кукуруза ~12–14 тыс. ₽/т), рынок под влиянием рекордного прошлого урожая и больших запасов; резких скачков в первой половине 2026 года не ждут. <i>Как доходит до компании:</i> корма — крупнейшая статья себестоимости мяса, поэтому их спокойная цена прямо удерживает себестоимость и поддерживает маржу по EBITDA (~19,6% в 2025). Собственное растениеводство усиливает этот эффект. <i>Наше суждение:</i> заметный плюс, но это конъюнктура урожая — к осени при слабом новом урожае давление может вернуться (оценки сбора пшеницы и ячменя на сезон 2026/27 уже снижают).</p>
 <p><b>3. Вялый рост доходов и экономный потребитель (смешанно).</b> <i>Факт:</i> реальные доходы растут медленно (+1,5% г/г), люди экономят и смещаются к более дешёвому мясу — чаще берут курицу, реже свинину и говядину. <i>Как доходит до компании:</i> слабый спрос ограничивает возможность поднимать цены, поэтому выручка растёт в основном номинально (вслед за инфляцией), а не за счёт объёма и премиальности. <i>Наше суждение:</i> эффект двойственный. Мясо — относительно защитная продуктовая категория, а сдвиг к курице играет в пользу Черкизово, где курятина — около 55% выручки. Но экономный спрос подтачивает ценовую силу в более маржинальной переработке и премиальных сегментах.</p>
 <a class="cta" href="/?company=GCHE&amp;tab=macro">Продолжить в приложении: макроэкономика Группа Черкизово →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/GCHE/business/">Бизнес-модель</a><a class="chip" href="/company/GCHE/finance/">Финансы и оценка</a><a class="chip" href="/company/GCHE/dividends/">Дивиденды</a><a class="chip" href="/company/GCHE/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/GCHE/otchet/">Разбор отчёта</a><a class="chip" href="/company/GCHE/business/">Бизнес-модель</a><a class="chip" href="/company/GCHE/finance/">Финансы и оценка</a><a class="chip" href="/company/GCHE/dividends/">Дивиденды</a><a class="chip" href="/company/GCHE/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

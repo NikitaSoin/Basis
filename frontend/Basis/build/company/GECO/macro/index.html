@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Падение рождаемости (минус, структурный).</b> <i>Факт:</i> число родившихся в начале 2026 снизилось примерно на 6% год к году — это уже 11-й год подряд, и число женщин фертильного возраста сокращается. <i>Механизм:</i> меньше беременностей и циклов ЭКО — меньше поводов тестировать эмбрионы и плод, а это самые маржинальные направления компании. <i>Наше суждение:</i> негатив структурный, но медленный; его частично компенсирует то, что охват тестами в России пока низкий (порядка 3% по пренатальному тесту против в разы более высокого за рубежом) — есть куда расти. Чистый знак зависит от того, перебьёт ли рост охвата сжатие демографической базы.</p>
 <p><b>3. Включение пренатального теста (НИПТ) в ОМС с 2026 года (смешанный).</b> <i>Факт:</i> с 2026 года тест включён в программу госгарантий — бесплатно по полису для беременных из группы риска (раньше он был платным, до ~50 тыс. ₽). <i>Механизм:</i> раз тест оплачивает государство, охват может резко вырасти, и это потенциально больше объёма для лабораторий-исполнителей; но тариф ОМС обычно ниже коммерческой цены, поэтому рост объёма идёт при более низкой марже и может частично заместить дорогой платный канал. <i>Наше суждение:</i> эффект двоякий и пока не подтверждён цифрами — выгода зависит от того, попадёт ли «ГЕНЕТИКО» в число исполнителей по ОМС и каким окажется тариф.</p>
 <a class="cta" href="/?company=GECO&amp;tab=macro">Продолжить в приложении: макроэкономика ЦГРМ «Генетико →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/GECO/business/">Бизнес-модель</a><a class="chip" href="/company/GECO/finance/">Финансы и оценка</a><a class="chip" href="/company/GECO/dividends/">Дивиденды</a><a class="chip" href="/company/GECO/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/GECO/otchet/">Разбор отчёта</a><a class="chip" href="/company/GECO/business/">Бизнес-модель</a><a class="chip" href="/company/GECO/finance/">Финансы и оценка</a><a class="chip" href="/company/GECO/dividends/">Дивиденды</a><a class="chip" href="/company/GECO/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

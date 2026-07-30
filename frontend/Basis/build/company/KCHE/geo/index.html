@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <h3>Причинная атрибуция: почему это НЕ гео-кейс</h3>
 <p>Обвал прибыли 2023→2025 (МСФО +3 980 → −819 → −30 млн ₽) разложен по пяти каналам: <b>~60% — ставка</b> (проценты при средней КС ~19,5% в 2025 съели почти всю операционную прибыль — классический K27/«М.Видео»-канал, макро, не гео), <b>~25% — учётные разовые</b> (обесценение дебиторки по субсидиям, знакопеременная переоценка ОС), <b>~10%</b> — топливная себестоимость (в основном внутренний дефицит газа, а не мировой цикл), <b>0%</b> — конкуренция (естественная монополия), <b>~5% — прямое гео</b>. Вывод: прямой гео-вклад в убыток ≈ 5% — двигать гео-баллы на основании этого убытка нельзя. Приписать эти потери «санкциям» было бы канонической ошибкой сверхатрибуции.</p>
 <a class="cta" href="/?company=KCHE&amp;tab=geo">Продолжить в приложении: геополитика Камчатскэнерго →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KCHE/business/">Бизнес-модель</a><a class="chip" href="/company/KCHE/finance/">Финансы и оценка</a><a class="chip" href="/company/KCHE/dividends/">Дивиденды</a><a class="chip" href="/company/KCHE/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KCHE/otchet/">Разбор отчёта</a><a class="chip" href="/company/KCHE/business/">Бизнес-модель</a><a class="chip" href="/company/KCHE/finance/">Финансы и оценка</a><a class="chip" href="/company/KCHE/dividends/">Дивиденды</a><a class="chip" href="/company/KCHE/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

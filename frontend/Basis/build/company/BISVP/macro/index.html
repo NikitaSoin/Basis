@@ -85,7 +85,7 @@ ul{padding-left:22px}</style>
 <p><b>4. Остывание спроса и доходов — слабый минус.</b> <i>Факт:</i> рост реальных располагаемых доходов в I квартале 2026 замедлился до +1,5% годовых (против +5–10% в 2025), потребительские настроения на многолетних минимумах. <i>Как доходит до компании:</i> люди экономят и реже переходят на более дорогие тарифы и дополнительные услуги → давление на средний чек и новые подключения, но от базовой связи не отказываются. <i>Наше суждение:</i> эффект слабый: спрос на связь защитный, поэтому остывание потребления бьёт по оператору заметно слабее, чем по рознице. Скорее тормозит рост и апсейл, чем рушит выручку.</p>
 <a class="cta" href="/?company=BISVP&amp;tab=macro">Продолжить в приложении: макроэкономика Башинформсвязь (привилегированные акции типа А) →</a>
 <h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/BISVP/otchet/">Разбор отчёта</a><a class="chip" href="/company/BISVP/business/">Бизнес-модель</a><a class="chip" href="/company/BISVP/finance/">Финансы и оценка</a><a class="chip" href="/company/BISVP/dividends/">Дивиденды</a><a class="chip" href="/company/BISVP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

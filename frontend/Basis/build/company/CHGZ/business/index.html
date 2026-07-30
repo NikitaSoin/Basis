@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Показатель</th><th>2024</th><th>2023</th><th>Δ г/г</th></tr></thead><tbody><tr><td>Выручка</td><td class="num">≈0 <i>(оценка)</i></td><td class="num">5,29</td><td class="num">−100% <i>(прибл.)</i></td></tr><tr><td>EBITDA</td><td class="num">не раскрывается</td><td class="num">не раскрывается</td><td class="num">—</td></tr><tr><td>Маржа EBITDA</td><td class="num">не раскрывается</td><td class="num">не раскрывается</td><td class="num">—</td></tr><tr><td>Чистая прибыль / убыток (акционеров)</td><td class="num">−66,6</td><td class="num">−33,3</td><td class="num">убыток вырос ≈2×</td></tr><tr><td>Чистая маржа</td><td class="num">неинформативно</td><td class="num">неинформативно</td><td class="num">—</td></tr><tr><td>CapEx</td><td class="num">не раскрывается / ≈0</td><td class="num">не раскрывается / ≈0</td><td class="num">—</td></tr><tr><td>Свободный денежный поток</td><td class="num">не раскрывается</td><td class="num">не раскрывается</td><td class="num">—</td></tr><tr><td>Чистый долг / EBITDA</td><td class="num">неприменимо</td><td class="num">неприменимо</td><td class="num">—</td></tr></tbody></table>
 <p>Вывод из таблицы: это <b>не классический мини-P&amp;L действующего бизнеса</b>. Выручка измеряется единицами миллионов рублей (для сравнения, в 2019 году — ≈56 млн ₽, в 2021 году — ≈64 млн ₽, в 2023 году — уже 5,3 млн ₽), то есть операционная деятельность практически свёрнута. При этом компания несёт растущий чистый убыток (−33,3 млн ₽ в 2023 → −66,6 млн ₽ в 2024). Результат формируется не выручкой, а расходами на содержание юрлица и, вероятно, неоперационными статьями; постатейную структуру компания не раскрывает. <i>(Выручка-2024 в части источников показана как 0; точную сумму нужно сверить по форме №2 РСБУ.)</i></p>
 <a class="cta" href="/?company=CHGZ&amp;tab=business">Продолжить в приложении: бизнес-модель РН-Западная Сибирь →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/CHGZ/finance/">Финансы и оценка</a><a class="chip" href="/company/CHGZ/dividends/">Дивиденды</a><a class="chip" href="/company/CHGZ/macro/">Макроэкономика</a><a class="chip" href="/company/CHGZ/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/CHGZ/otchet/">Разбор отчёта</a><a class="chip" href="/company/CHGZ/finance/">Финансы и оценка</a><a class="chip" href="/company/CHGZ/dividends/">Дивиденды</a><a class="chip" href="/company/CHGZ/macro/">Макроэкономика</a><a class="chip" href="/company/CHGZ/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

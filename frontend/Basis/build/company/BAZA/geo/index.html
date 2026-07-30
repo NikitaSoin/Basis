@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <ul><li><b>Фундамент (спрос)</b> инвертирован: мир → медленный возврат VMware/Citrix → конкуренция в коммерческом B2B (~67% выручки). Пис-РИСК. Но медленный (гистерезис — годы) и частичный (ядро КИИ/госсектора защищено регуляторным замком; признаков возврата вендоров сейчас нет — Citrix вообще уходит в cloud-лицензирование, что делает возврат в РФ ещё труднее).</li><li><b>Оценка (ставка)</b> нормальна: мир → обвал ставки → переоценка длинной растущей бумаги вверх. Пис-ПЛЮС. И этот канал у BAZA <b>доминирует</b> (главный ценовой драйвер — дюрация потоков, а не текущий кэш; −1 п.п. КС ≈ +8…16% капитализации).</li></ul>
 <p>Каналы гасят друг друга: в S1 ставка вытягивает цену вверх (net ≈ +15…+30% [ОЦЕНКА, порядок]), но BAZA <b>отстаёт</b> от чистых пис-бет из-за терминального оверхенга конкуренции; в S4 сжатие мультипликатора тянет вниз (net ≈ −15…−30%), но защитный домашний спрос смягчает и делает её <b>относительно</b> лучше рынка. Итог: BAZA ближе к обычной длинной растущей бумаге (пис-позитивна через ставку), с импортозамещением как частичным фундаментальным хеджем, демпфирующим оба хвоста. Лучший сценарий для бумаги — даже не мир, а <b>S2 (перемирие)</b>: ставочный плюс без немедленного возврата конкуренции.</p>
 <a class="cta" href="/?company=BAZA&amp;tab=geo">Продолжить в приложении: геополитика ГК «Базис» →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/BAZA/business/">Бизнес-модель</a><a class="chip" href="/company/BAZA/finance/">Финансы и оценка</a><a class="chip" href="/company/BAZA/dividends/">Дивиденды</a><a class="chip" href="/company/BAZA/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/BAZA/otchet/">Разбор отчёта</a><a class="chip" href="/company/BAZA/business/">Бизнес-модель</a><a class="chip" href="/company/BAZA/finance/">Финансы и оценка</a><a class="chip" href="/company/BAZA/dividends/">Дивиденды</a><a class="chip" href="/company/BAZA/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

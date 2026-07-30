@@ -81,8 +81,8 @@ ul{padding-left:22px}</style>
 <p><b>Главная war/peace-асимметрия — и почему она НЕ гео.</b> У SARE есть реальная чувствительность к сценариям, но идёт она через ставку, а не через фронт. Компания — «кубышка» без долга: высокая ставка <b>помогает</b> прибыли через процентный доход на кэш (~1,9 млрд ₽), поэтому мир (снижение ставки) по прибыли для неё скорее минус, а по оценке — плюс (ниже дисконт). Это инверсия обычной логики, но это <b>макро-ставочный</b> канал — он уже сидит в рублёвой безрисковой ставке и разобран в <code>macro.json</code>; в гео-каналы его заводить нельзя (двойной счёт). По прямому гео SARE — ни пис-бета, ни вор-бета: на переговорных новостях эту бумагу двигать почти не должно.</p>
 <p><b>Главное расхождение с рынком — его нет по линии гео.</b> Цена ~0,79–0,80 ₽ примерно равна фундаментально-governance справедливой оценке (financials.json, 0,74/0,79/0,95 после governance-дисконта). Рынок оценивает SARE по тарифу, ставке и скидке за притеснение миноритария — а не по гео-истории, которой нет. Гео-edge, который стоило бы предъявить, отсутствует; любое расхождение лежит в плоскости governance/миноритария — а это <b>зона ИНСТ</b>, не наша.</p>
 <a class="cta" href="/?company=SARE&amp;tab=geo">Продолжить в приложении: геополитика «Саратовэнерго» (обыкновенные акции) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/SARE/business/">Бизнес-модель</a><a class="chip" href="/company/SARE/finance/">Финансы и оценка</a><a class="chip" href="/company/SARE/dividends/">Дивиденды</a><a class="chip" href="/company/SARE/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/SARE/otchet/">Разбор отчёта</a><a class="chip" href="/company/SARE/business/">Бизнес-модель</a><a class="chip" href="/company/SARE/finance/">Финансы и оценка</a><a class="chip" href="/company/SARE/dividends/">Дивиденды</a><a class="chip" href="/company/SARE/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -102,7 +102,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -114,8 +115,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

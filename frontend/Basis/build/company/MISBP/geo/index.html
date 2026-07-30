@@ -80,8 +80,8 @@ ul{padding-left:22px}</style>
 <p><b>Барометр (handoff 2026-07-12, geo-system v0.9).</b> Действующий сценарный лин — <b>S3 «затяжная война инфраструктур» (64% на 6 мес / 47% на 18 мес</b>; S1 5/10, S2 16/25, S4 15/18), confidence M; G-профиль G1 4.5 / G3 5.0 / G12 3.5. Для внутреннего регулируемого сбыта ни один драйвер барометра — топливный кризис, SDN на нефтяное ядро, дисконт Urals — не проходит через выручку/логистику/платежи компании первого порядка. Единственная содержательная связь — G12 через ставку, и та опосредованная и макро-владельческая. Барометр в пределах срока годности (stale_after 2026-08-12), но опорное заседание ЦБ 24.07 — предстоящий major-триггер; для этой бумаги он immaterial (ставочный канал не гео).</p>
 <p><b>Главная war/peace-асимметрия — и почему её нельзя приписывать гео.</b> У MISBP есть кажущаяся чувствительность к сценариям, но она инвертирована и не геополитическая. Компания — «кубышка»: чистый кэш ~2 млрд ₽ приносит процентный доход, который вытягивает чистую прибыль выше EBITDA и питает базу уставного преф-дивиденда (10% ЧП). В мирном сценарии ставка падает быстрее → процентный доход тает → преф-дивиденд под давлением; в эскалации наоборот. То есть «мир» для этого префа скорее слегка минус, «война» — слегка плюс. <b>Но это опосредованный макроканал (война → бюджет → инфляция → ставка), который уже сидит в безрисковой ставке и принадлежит макро/финслою, а не гео</b> (C06 §3, A02). Прямая гео war/peace-бета ≈ 0 (E14 = 1.0). Приписать эту инверсию геополитике — ровно та ошибка сверхатрибуции, от которой предостерегают кейсы K27 (М.Видео) и K29 (Совкомфлот).</p>
 <a class="cta" href="/?company=MISBP&amp;tab=geo">Продолжить в приложении: геополитика «ТНС энерго Марий Эл» (привилегированные акции) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MISBP/business/">Бизнес-модель</a><a class="chip" href="/company/MISBP/finance/">Финансы и оценка</a><a class="chip" href="/company/MISBP/dividends/">Дивиденды</a><a class="chip" href="/company/MISBP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MISBP/otchet/">Разбор отчёта</a><a class="chip" href="/company/MISBP/business/">Бизнес-модель</a><a class="chip" href="/company/MISBP/finance/">Финансы и оценка</a><a class="chip" href="/company/MISBP/dividends/">Дивиденды</a><a class="chip" href="/company/MISBP/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -101,7 +101,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -113,8 +114,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

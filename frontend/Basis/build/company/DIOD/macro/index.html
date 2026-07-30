@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <ul><li><b>Зарплатная инфляция (главный удар).</b> Перегретый рынок труда → зарплаты +~13% → фонд оплаты труда (~252 млн ₽, почти половина выручки) растёт быстрее выручки → при почти нулевой возможности переложить это в цену маржа сжимается напрямую. Оценка эффекта: около −12…−18 млн ₽ к операционной прибыли за год против нейтрального роста зарплат. Второй слой: дефицит кадров структурный (демография), поэтому давление не снимется даже в рецессии — это устойчивый, а не циклический риск.</li></ul>
 <ul><li><b>Стагнирующий спрос.</b> Высокая ставка и стоящие реальные доходы (+1,5% г/г) давят на дискреционные покупки, а доля семей со сбережениями упала до минимума. Но БАД — недорогой полузащитный продукт, спрос липкий, поэтому удар по объёму мягкий: ориентировочно ±3…5 млн ₽ выручки на 1 пп ВВП. Главная проблема не обвал продаж, а невозможность нарастить выручку, чтобы перекрыть выросший ФОТ.</li></ul>
 <a class="cta" href="/?company=DIOD&amp;tab=macro">Продолжить в приложении: макроэкономика «ДИОД» (Завод экологической техники и экопитания «ДИОД») →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/DIOD/business/">Бизнес-модель</a><a class="chip" href="/company/DIOD/finance/">Финансы и оценка</a><a class="chip" href="/company/DIOD/dividends/">Дивиденды</a><a class="chip" href="/company/DIOD/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/DIOD/otchet/">Разбор отчёта</a><a class="chip" href="/company/DIOD/business/">Бизнес-модель</a><a class="chip" href="/company/DIOD/finance/">Финансы и оценка</a><a class="chip" href="/company/DIOD/dividends/">Дивиденды</a><a class="chip" href="/company/DIOD/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

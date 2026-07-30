@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Показатель</th><th>2025</th><th>2024</th><th>Δ г/г</th></tr></thead><tbody><tr><td>Выручка</td><td class="num">10,20</td><td class="num">9,59</td><td class="num">+5,9%</td></tr><tr><td>EBITDA</td><td class="num">4,44</td><td class="num">3,94</td><td class="num">+12,7%</td></tr><tr><td>Маржа EBITDA</td><td class="num">43,5%</td><td class="num">41,1%</td><td class="num">+2,4 п.п.</td></tr><tr><td>Чистая прибыль (акционеров)</td><td class="num">5,50</td><td class="num">3,11</td><td class="num">+76,9%</td></tr><tr><td>Чистая маржа</td><td class="num">53,9%</td><td class="num">32,4%</td><td class="num">+21,5 п.п.</td></tr><tr><td>CapEx</td><td class="num">~0,23</td><td class="num">~0,34</td><td class="num">−33%</td></tr><tr><td>Свободный денежный поток</td><td class="num">~4,47</td><td class="num">~4,48</td><td class="num">≈0%</td></tr><tr><td>Чистый долг / EBITDA</td><td class="num">−4,7x</td><td class="num">−4,2x</td><td class="num">—</td></tr></tbody></table>
 <p>Вывод из таблицы: выручка от самого комплекса растёт умеренно (+6%), а чистая прибыль выросла кратно — но не из-за основного бизнеса. У компании нет долга (чистый долг отрицательный: денежных средств и депозитов больше, чем обязательств), и на конец 2025 года она держала около 20,7 млрд ₽ свободных средств на депозитах. При высокой ключевой ставке эти депозиты принесли около 3,7 млрд ₽ процентных доходов — почти столько же, сколько весь операционный бизнес. Именно процентные доходы, а не аренда, обеспечили скачок прибыли <i>(данные по структуре прибыли — из раскрытия МСФО за 2025 год)</i>. (Чистый долг/EBITDA отрицательный — компания не имеет долговой нагрузки; показатель приведён как индикатор чистой денежной позиции.)</p>
 <a class="cta" href="/?company=WTCM&amp;tab=business">Продолжить в приложении: бизнес-модель «Центр международной торговли» (ЦМТ) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/WTCM/finance/">Финансы и оценка</a><a class="chip" href="/company/WTCM/dividends/">Дивиденды</a><a class="chip" href="/company/WTCM/macro/">Макроэкономика</a><a class="chip" href="/company/WTCM/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/WTCM/otchet/">Разбор отчёта</a><a class="chip" href="/company/WTCM/finance/">Финансы и оценка</a><a class="chip" href="/company/WTCM/dividends/">Дивиденды</a><a class="chip" href="/company/WTCM/macro/">Макроэкономика</a><a class="chip" href="/company/WTCM/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

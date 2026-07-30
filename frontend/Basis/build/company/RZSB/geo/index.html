@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <p>С рынком гео-расхождения нет: цена ~38.9 ₽ в середине диапазона финслоя (27.5–52), и гео-вклад в этот разрыв ≈ 0 (разрыв — история ставки и governance-дисконта).</p>
 <p>Реальное расхождение — <b>структурное нарушение границы A02 §1 в institutions.json</b>: ИНСТ включил гео-принадлежащие компоненты в свои опубликованные числа — WACC-премия 4.5 п.п. содержит «~0.5 п.п. санкции/FX/трансакционный», а мультипликатор-дисконт 22% содержит пункт «(4) недоступность нерезидентам». Оба фактора (санкции/FX и навес/доступность нерезидентов) — зона ГЕО. Я <b>не сглаживал</b> это и <b>не занижал свои каналы в компенсацию</b> (они ≈0 по существу гео-невинности, а не для баланса): зафиксировал структурно в <code>disagreements</code>, разрешение — за диспетчером (перегенерация institutions.json без этих компонентов). Плюс уточнил факт: РусГидро под SSI, а не SDN (ИНСТ писал расплывчато «под санкциями»).</p>
 <a class="cta" href="/?company=RZSB&amp;tab=geo">Продолжить в приложении: геополитика «Рязанская энергетическая сбытовая компания» (РЭСК / Рязаньэнергосбыт) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RZSB/business/">Бизнес-модель</a><a class="chip" href="/company/RZSB/finance/">Финансы и оценка</a><a class="chip" href="/company/RZSB/dividends/">Дивиденды</a><a class="chip" href="/company/RZSB/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RZSB/otchet/">Разбор отчёта</a><a class="chip" href="/company/RZSB/business/">Бизнес-модель</a><a class="chip" href="/company/RZSB/finance/">Финансы и оценка</a><a class="chip" href="/company/RZSB/dividends/">Дивиденды</a><a class="chip" href="/company/RZSB/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

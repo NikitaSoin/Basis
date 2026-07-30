@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p>Это главное, что отличает разбор Эн+ от разбора РУСАЛа. Доля Эн+ в РУСАЛе (~57%) <b>оценивается по рыночной цене RUAL</b>, которая уже содержит весь гео-риск РУСАЛа (его каналы: премия к ставке +0,5 пп, FCF-налог −2-3%, дисконт мультипликатора −5%). Здесь я <b>не переоцениваю его заново</b>. Мои гео-каналы для Эн+ — только холдинговый инкремент: owner-overhang Дерипаски на самой бумаге ENPG (включая отсечение западного капитала как механизм owner-SDN), навес нерезидентов на счетах «С», гео-нейтральность энергосегмента. Поэтому мой FCF-канал (−1%) <b>сознательно меньше</b>, чем у РУСАЛа: измеримый гео-налог алюминия живёт внутри цены RUAL и не дублируется. Итоговая трёхканальная поправка Эн+: <b>A +0,5 пп / B −1% / C −3%</b>.</p>
 <p><i>Правка от 13.07.2026 (устранение двойного счёта, блокер red-team №1):</i> один и тот же эффект — «недоступность/санкционная стигма акции для западного капитала» — раньше был заведён сразу в два канала (A и C), что нарушало правило единственного входа. Теперь он проходит <b>ровно один раз</b> — в канале A, где стигма есть прямое следствие owner-SDN Дерипаски на требуемую доходность. В канале C остались только технически иные вещи: навес нерезидентов на счетах «С» и неликвидность узкого free float. Величина A не изменилась (+0,5 пп — стигма и раньше сидела именно здесь), а дисконт мультипликатора снижен с −5% до <b>−3%</b> ровно на вычтенную дубль-компоненту; совокупный мультипл-дисконт карточки стал ≈ 13% (10% governance ИНСТ + 3% гео) вместо ~15%.</p>
 <a class="cta" href="/?company=ENPG&amp;tab=geo">Продолжить в приложении: геополитика ЭН+ ГРУП (En+ Group IPJSC) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ENPG/business/">Бизнес-модель</a><a class="chip" href="/company/ENPG/finance/">Финансы и оценка</a><a class="chip" href="/company/ENPG/dividends/">Дивиденды</a><a class="chip" href="/company/ENPG/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ENPG/otchet/">Разбор отчёта</a><a class="chip" href="/company/ENPG/business/">Бизнес-модель</a><a class="chip" href="/company/ENPG/finance/">Финансы и оценка</a><a class="chip" href="/company/ENPG/dividends/">Дивиденды</a><a class="chip" href="/company/ENPG/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

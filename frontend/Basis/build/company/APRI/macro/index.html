@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p><b>3. Слабый спрос и ограниченные доходы (негатив с лагом).</b> <i>Факт</i>: продажи новостроек в апреле −5% в деньгах и −8% по площади год к году, при этом стройка растёт вдвое быстрее продаж — копится затоваривание. <i>Логика</i>: слабые доходы и дорогой кредит → покупку жилья откладывают → медленнее распродаётся портфель. <i>Суждение</i>: бьёт с задержкой — текущая выручка АПРИ инерционна, она признаётся по ранее законтрактованному портфелю, поэтому спад спроса проявится позже, через будущую контрактацию. Замедление инфляции до ~5% при этом удерживает цены от обвала.</p>
 <p><b>4. Инфляция издержек стройки (смешанный, умеренный).</b> <i>Факт</i>: инфляция замедляется (~5,4%, устойчивая часть ~4%); себестоимость стройки — крупнейшая статья расходов. <i>Логика</i>: рост цен на материалы и труд давит на маржу, если поднять цену на жильё мешает слабый спрос. <i>Суждение</i>: замедление инфляции — скорее плюс для будущей себестоимости, но быстрого восстановления просевшей маржи (с ~39% до ~31% EBITDA) ждать не стоит. Эффект менее острый, чем долговой и ипотечный.</p>
 <a class="cta" href="/?company=APRI&amp;tab=macro">Продолжить в приложении: макроэкономика АПРИ →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/APRI/business/">Бизнес-модель</a><a class="chip" href="/company/APRI/finance/">Финансы и оценка</a><a class="chip" href="/company/APRI/dividends/">Дивиденды</a><a class="chip" href="/company/APRI/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/APRI/otchet/">Разбор отчёта</a><a class="chip" href="/company/APRI/business/">Бизнес-модель</a><a class="chip" href="/company/APRI/finance/">Финансы и оценка</a><a class="chip" href="/company/APRI/dividends/">Дивиденды</a><a class="chip" href="/company/APRI/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

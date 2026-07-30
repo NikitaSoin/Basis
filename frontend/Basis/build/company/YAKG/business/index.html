@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p>Ряд — financials.json (единый источник чисел карточки), отчётность компании по МСФО. <i>Примечание к 2024 году:</i> net_profit[2024] в основном массиве financials.json хранится как 698 млн ₽ (исходное значение), но годовой отчёт за 2025 год (Прим. 5, пересчитанные сравнительные данные) даёт restated-значение 735 млн ₽ — расхождение не связано с прежней аномалией ETR 56,9%, решение о замене значения в массиве оставлено financial-analyst (см. data_flags); в таблице используется restated-значение как более актуальное.</p>
 <p>Вывод из таблицы: выручка выросла на 20%, EBITDA и операционная прибыль — ещё заметнее (+74% по операционной прибыли), а чистая прибыль выросла втрое после провального 2024 года (аномально высокая эффективная налоговая ставка 56,9% из-за отложенного налога по СПГ-инвестициям съедала прибыль). Чистый долг подрос до 8,28 млрд ₽, но левередж (1,84x по EBITDA) остаётся умеренным благодаря сильному росту EBITDA. СПГ-проект заморожен в октябре 2025 года — возможны списания по СПГ-активам в 2025–2026 годах, требует уточнения по следующей отчётности.</p>
 <a class="cta" href="/?company=YAKG&amp;tab=business">Продолжить в приложении: бизнес-модель «ЯТЭК» (Якутская топливно-энергетическая компания) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/YAKG/finance/">Финансы и оценка</a><a class="chip" href="/company/YAKG/dividends/">Дивиденды</a><a class="chip" href="/company/YAKG/macro/">Макроэкономика</a><a class="chip" href="/company/YAKG/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/YAKG/otchet/">Разбор отчёта</a><a class="chip" href="/company/YAKG/finance/">Финансы и оценка</a><a class="chip" href="/company/YAKG/dividends/">Дивиденды</a><a class="chip" href="/company/YAKG/macro/">Макроэкономика</a><a class="chip" href="/company/YAKG/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <h3>Главное расхождение с рынком</h3>
 <p>Расхождения по гео-рамке практически нет. Цена ~0,72 ₽ уже прайсит тяжёлый институциональный дисконт (изъятие + перепродажа + риск низкой оферты/сквиз-аута/ делистинга). Мой гео-слой поверх этого маргинален: в потоках (Канал B) ~1-3% дисконт реализации за SDN/рекаст/платёжное трение; узкая компанейская премия к ставке (Канал A) +0,5-1,5 п.п.; навес нерезидентов (Канал C) — <b>явный ноль</b> (IPO ноябрь 2023 внутренний, после разрыва инфраструктуры 2022, иностранцев в free-float почти нет). Важно: institutions.json (13.07.2026) под протоколом A02 корректно <b>исключил</b> санкционный/экспортный/FX/навес-контур из своих величин — граница чистая, двойного счёта нет, ИНСТ выполнил протокол (в отличие от пилотного батча нефтяников).</p>
 <a class="cta" href="/?company=UGLD&amp;tab=geo">Продолжить в приложении: геополитика «Южуралзолото Группа Компаний» (ЮГК) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/UGLD/business/">Бизнес-модель</a><a class="chip" href="/company/UGLD/finance/">Финансы и оценка</a><a class="chip" href="/company/UGLD/dividends/">Дивиденды</a><a class="chip" href="/company/UGLD/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/UGLD/otchet/">Разбор отчёта</a><a class="chip" href="/company/UGLD/business/">Бизнес-модель</a><a class="chip" href="/company/UGLD/finance/">Финансы и оценка</a><a class="chip" href="/company/UGLD/dividends/">Дивиденды</a><a class="chip" href="/company/UGLD/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

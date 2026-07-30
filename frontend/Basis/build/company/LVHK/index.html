@@ -83,10 +83,10 @@ ul{padding-left:22px}</style>
 <h2>Дивиденды</h2><p>Формализованная дивидендная политика с фиксированным процентом выплат в открытом доступе отсутствует — компания дивполитику публично не раскрывает. На практике выплачивает небольшие дивиденды по решению совета директоров/ОСА, размер нестабилен от года к году.</p><table><thead><tr><th>Год</th><th class="num">На акцию</th><th class="num">Доходность*</th><th class="num">Payout</th><th>Статус</th></tr></thead><tbody><tr><td>2025</td><td class="num">0,189 ₽</td><td class="num">1,1%</td><td class="num">27%</td><td>выплачен</td></tr><tr><td>2024</td><td class="num">0,9445 ₽</td><td class="num">2,1%</td><td class="num">—</td><td>выплачен</td></tr><tr><td>2023</td><td class="num">1,2165 ₽</td><td class="num">3,2%</td><td class="num">0%</td><td>выплачен</td></tr><tr><td>2022</td><td class="num">0,756 ₽</td><td class="num">5,6%</td><td class="num">51%</td><td>выплачен</td></tr><tr><td>2021</td><td class="num">0,24462 ₽</td><td class="num">1,5%</td><td class="num">46%</td><td>выплачен</td></tr></tbody></table>
 <p class="tag">* Доходность приведена к цене на дату обновления разбора — для сопоставимости
 истории между годами; текущая доходность считается живьём в приложении.</p>
-<h2>Разделы разбора</h2><div class="grid"><a class="chip" href="/company/LVHK/business/">Бизнес-модель</a><a class="chip" href="/company/LVHK/finance/">Финансы и оценка</a><a class="chip" href="/company/LVHK/dividends/">Дивиденды</a><a class="chip" href="/company/LVHK/macro/">Макроэкономика</a><a class="chip" href="/company/LVHK/geo/">Геополитика</a></div>
+<h2>Разделы разбора</h2><div class="grid"><a class="chip" href="/company/LVHK/otchet/">Разбор отчёта</a><a class="chip" href="/company/LVHK/business/">Бизнес-модель</a><a class="chip" href="/company/LVHK/finance/">Финансы и оценка</a><a class="chip" href="/company/LVHK/dividends/">Дивиденды</a><a class="chip" href="/company/LVHK/macro/">Макроэкономика</a><a class="chip" href="/company/LVHK/geo/">Геополитика</a></div>
 <a class="cta" href="/?company=LVHK">Открыть полный разбор Левенгук в Basis →</a>
 <h2>Похожие компании — Потребительский сектор</h2><div class="grid"><a class="chip" href="/company/ABRD/">Абрау-Дюрсо (ABRD)</a><a class="chip" href="/company/AGRO/">Группа «Русагро» (RAGR; ранее ROS AGRO PLC) (AGRO)</a><a class="chip" href="/company/APTK/">Аптечная сеть 36,6 (APTK)</a><a class="chip" href="/company/BELU/">НоваБев Групп (BELU)</a><a class="chip" href="/company/EUTR/">«ЕвроТранс» (сеть АЗК ТРАССА) (EUTR)</a><a class="chip" href="/company/FIXR/">Фикс Прайс (FIXR)</a><a class="chip" href="/company/GCHE/">Группа Черкизово (GCHE)</a><a class="chip" href="/company/HNFG/">Хэндерсон Фэшн Групп (HNFG)</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

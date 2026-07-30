@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Крепкий рубль — редкий плюс.</b> Биотех — «антиэкспортёр»: в отличие от сырьевиков, крепкий рубль для «Артгена» выгоден, потому что удешевляет импортные реагенты, секвенаторы и оборудование для генетического сегмента. Оценка: +8…12 млн ₽ к EBITDA против нейтрального курса. Выручка рублёвая и от курса не зависит — двойного удара, как у экспортёра, нет. Минус исчезнет при ожидаемом ослаблении рубля к 85–90+.</p>
 <p><b>3. Зарплатная инфляция — главный операционный риск.</b> Структурный (не циклический) дефицит научного и медперсонала держит рост ФОТ выше производительности. Это одна из крупнейших статей биотеха, и именно она (вместе с амортизацией) обвалила прибыль-2025. Оценка: каждый +1 пп сверхроста зарплат ≈ −5 млн ₽ к прибыли; операционный рычаг ограничен — высокая доля живого труда не даёт экономии масштаба.</p>
 <a class="cta" href="/?company=ABIO&amp;tab=macro">Продолжить в приложении: макроэкономика Артген биотех →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ABIO/business/">Бизнес-модель</a><a class="chip" href="/company/ABIO/finance/">Финансы и оценка</a><a class="chip" href="/company/ABIO/dividends/">Дивиденды</a><a class="chip" href="/company/ABIO/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ABIO/otchet/">Разбор отчёта</a><a class="chip" href="/company/ABIO/business/">Бизнес-модель</a><a class="chip" href="/company/ABIO/finance/">Финансы и оценка</a><a class="chip" href="/company/ABIO/dividends/">Дивиденды</a><a class="chip" href="/company/ABIO/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

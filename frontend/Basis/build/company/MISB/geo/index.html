@@ -81,8 +81,8 @@ ul{padding-left:22px}</style>
 <p><b>Причинная атрибуция (обязательный предохранитель против сверхатрибуции).</b> Скачок чистой прибыли РСБУ 2025 в 3,5 раза (0,59 → 2,06 млрд ₽) при росте выручки всего +12% — соблазн приписать «военной экономике». Правильный разбор: ~40% — процентный доход на денежную «кубышку» ~2 млрд ₽ при высокой ставке (опосредованный макро, не гео), ~55% — операционно-учётное (сбытовая надбавка, резервы по дебиторке, налог, внутригрупповой фин.доход), прямой гео-вклад ~2%. Это канонический случай, где гео-объяснение было бы ошибкой (эталон М.Видео/Совкомфлот). Confidence понижена: кардинальное расхождение РСБУ/МСФО по прибыли не разрешено.</p>
 <p><b>Главная war/peace-асимметрия — контринтуитивная и НЕ гео.</b> У MISB редкий инвертированный профиль: <b>мир скорее вредит headline-прибыли</b>, а не помогает. Механизм — ставочный, макро, а не геополитический: сценарий мира (S1/S2) → снижение ставки → сжатие процентного дохода на «кубышку» → ниже чистая прибыль. Идиосинкратического гео-апсайда от мира нет — это не пис-бета. В эскалации (S4) главный даунсайд тоже не гео: усиление консолидационно-фискального аппетита к проблемной группе (форсированная консолидация, вывод кэша вверх без справедливой оферты миноритарию) — ИНСТ-хвост, а не гео-бета бизнеса. Грубая пара: S1 ≈ 0…+3% (общерыночный ре-рейтинг), S4 ≈ −8…−15% (risk-off тонкого free-float + ИНСТ-хвост).</p>
 <a class="cta" href="/?company=MISB&amp;tab=geo">Продолжить в приложении: геополитика «ТНС энерго Марий Эл» (обыкновенные акции) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MISB/business/">Бизнес-модель</a><a class="chip" href="/company/MISB/finance/">Финансы и оценка</a><a class="chip" href="/company/MISB/dividends/">Дивиденды</a><a class="chip" href="/company/MISB/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MISB/otchet/">Разбор отчёта</a><a class="chip" href="/company/MISB/business/">Бизнес-модель</a><a class="chip" href="/company/MISB/finance/">Финансы и оценка</a><a class="chip" href="/company/MISB/dividends/">Дивиденды</a><a class="chip" href="/company/MISB/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -102,7 +102,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -114,8 +115,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Цены на коксующийся уголь — единственный плюс (факт: ~$148/т FOB Дальний Восток, март 2026).</b> Цена качественного угля марки Ж выросла с начала года на фоне спроса Китая и погодных сбоев в Австралии. Логика: дороже уголь → выше выручка и маржа добычи → больше денег на обслуживание долга. Это единственный реально поддерживающий фактор сейчас. Но, на наш взгляд, для устойчивого выхода в прибыль и снижения долга нужны более высокие и стабильные цены (порядка $180+/т), а текущий уровень лишь стабилизирует ситуацию, не решая долговую проблему. Цена волатильна и сильно зависит от Китая.</p>
 <p><b>3. Слабый спрос на сталь и стройку — давит на металлургию (факт: потребление стали в РФ ~33–35 млн т в 2026, снижение).</b> Металлургический сегмент даёт около 69% выручки, а его главный потребитель — строительство, которое тормозит из-за дорогих кредитов. Логика: высокая ставка → ипотека и проектное финансирование дороже → стройка замедляется → меньше спрос на арматуру и прокат → объёмы и цены металлургического сегмента под давлением. На наш взгляд, заметный негатив; облегчение возможно по мере снижения ставки к 12–13%, но это, вероятно, история второй половины года, а не ближайших месяцев.</p>
 <a class="cta" href="/?company=MTLRP&amp;tab=macro">Продолжить в приложении: макроэкономика «Мечел» (привилегированные акции) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MTLRP/business/">Бизнес-модель</a><a class="chip" href="/company/MTLRP/finance/">Финансы и оценка</a><a class="chip" href="/company/MTLRP/dividends/">Дивиденды</a><a class="chip" href="/company/MTLRP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MTLRP/otchet/">Разбор отчёта</a><a class="chip" href="/company/MTLRP/business/">Бизнес-модель</a><a class="chip" href="/company/MTLRP/finance/">Финансы и оценка</a><a class="chip" href="/company/MTLRP/dividends/">Дивиденды</a><a class="chip" href="/company/MTLRP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

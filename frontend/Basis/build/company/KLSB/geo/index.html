@@ -87,8 +87,8 @@ ul{padding-left:22px}</style>
 <ul><li><b>К2 внутренний макро (~60-70%):</b> дорогой короткий револьверный долг (~3,8 млрд ₽) переоценивается по ключевой ставке; проценты съедают ~78% операционной прибыли. Это <b>опосредованный</b> военно-фискальный канал — но он уже уплачен в безрисковой ставке, <b>не</b> прямой гео.</li><li><b>К4 идиосинкратика (~20-25%):</b> свинг резерва под кредитные убытки (+415 млн в 2025 vs роспуск −52 млн в 2024) — «стоимость риска» энергосбыта.</li><li><b>К1 мировой цикл ~0 · К3 конкуренция ~0-5% · К5 прямой гео ~0-2%.</b></li><li><b>Необъяснённый остаток ~10-15%</b> явно отнесён на <b>качество данных</b> (нет первичной МСФО 2023-2025, аномалия EBITDA 2024), а не на гео.</li></ul>
 <p>K1-тест: идентичный <b>нероссийский</b> регулируемый энергосбыт при сопоставимо высокой ставке показал бы ту же компрессию тонкой маржи. Падение прибыли — родовое «плечо на ставку», не гео-специфика.</p>
 <a class="cta" href="/?company=KLSB&amp;tab=geo">Продолжить в приложении: геополитика Калужская сбытовая компания →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KLSB/business/">Бизнес-модель</a><a class="chip" href="/company/KLSB/finance/">Финансы и оценка</a><a class="chip" href="/company/KLSB/dividends/">Дивиденды</a><a class="chip" href="/company/KLSB/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KLSB/otchet/">Разбор отчёта</a><a class="chip" href="/company/KLSB/business/">Бизнес-модель</a><a class="chip" href="/company/KLSB/finance/">Финансы и оценка</a><a class="chip" href="/company/KLSB/dividends/">Дивиденды</a><a class="chip" href="/company/KLSB/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -108,7 +108,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -120,8 +121,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

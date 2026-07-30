@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p><i>EBITDA и чистый долг за 2024-2025 годы не раскрыты в первичке (DA не извлечена из отчётов за эти годы, баланс по долгу неполон) — н/д, не выдуманы. Для контекста: в 2022-2023 годах, когда DA была доступна, EBITDA составляла 62,0 и 22,4 млн ₽ соответственно (маржа 11,1% и 4,1%) — прежняя версия таблицы содержала за 2023 год ошибочное значение 12 млн вместо 22,4.</i></p>
 <p>Вывод из таблицы: выручка выросла на 2%, а валовая маржа заметно улучшилась (с 48,5% до 56,4%) — на уровне валовой прибыли бизнес поправляется. Операционный и чистый убыток сократились в несколько раз по сравнению с провальным 2024 годом (чистый убыток −71 млн ₽ против −248 млн ₽), но компания всё ещё не вышла в прибыль. По данным доразведки первички (data_flags), крупный убыток и 2024, и 2025 года связан с разовой статьёй «прочие прибыли/убытки» (примерно −250 млн ₽ в 2024 году и −34 млн ₽ в 2025-м, в 2025 году в том числе списание гудвилла до нуля) — точная природа этих списаний в открытых источниках не детализирована постатейно. CapEx резко упал (с 32 до 0,6 млн ₽) — компания фактически приостановила капитальные вложения.</p>
 <a class="cta" href="/?company=DIOD&amp;tab=business">Продолжить в приложении: бизнес-модель «ДИОД» (Завод экологической техники и экопитания «ДИОД») →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/DIOD/finance/">Финансы и оценка</a><a class="chip" href="/company/DIOD/dividends/">Дивиденды</a><a class="chip" href="/company/DIOD/macro/">Макроэкономика</a><a class="chip" href="/company/DIOD/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/DIOD/otchet/">Разбор отчёта</a><a class="chip" href="/company/DIOD/finance/">Финансы и оценка</a><a class="chip" href="/company/DIOD/dividends/">Дивиденды</a><a class="chip" href="/company/DIOD/macro/">Макроэкономика</a><a class="chip" href="/company/DIOD/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

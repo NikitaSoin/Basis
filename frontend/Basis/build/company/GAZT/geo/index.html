@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <h3>Причинная атрибуция: не сверхатрибутировать геополитике</h3>
 <p>Падение результата 2024→2025 (ЧП 2 230→1 760 млн, −21%; дивиденд-доход −22%) разложено по протоколу C08 с K1-тестом. <b>Тест К1</b>: идентичный НЕ-российский банк-холдинг в 2025 не увидел бы −32% прибыли банка — значит, падение специфично для РФ, но <b>не глобальный цикл (~5%)</b>. Доминирует <b>К2 — ставочно-кредитный цикл ГПБ (~40%)</b>: стоимость риска на латентном банковском стрессе; это <b>макро, уже в безрисковой ставке, в гео-дисконт не входит</b> (урок K27/М.Видео). Прямой гео-вклад (К5, санкции) ≈ <b>15%</b> — санкции гейтируют <b>уровень и хвост</b>, а не маргинальное движение последнего года (они в базе с ноября-2024, новых пакетов по ГПБ в 2025 не было). Плюс честный <b>необъяснённый остаток ~15%</b> — нераскрытая переоценка портфеля (называю остатком, не приписываю гео). Событийного анализа по цене нет — котировка заморожена.</p>
 <a class="cta" href="/?company=GAZT&amp;tab=geo">Продолжить в приложении: геополитика ГАЗ-Тек →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/GAZT/business/">Бизнес-модель</a><a class="chip" href="/company/GAZT/finance/">Финансы и оценка</a><a class="chip" href="/company/GAZT/dividends/">Дивиденды</a><a class="chip" href="/company/GAZT/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/GAZT/otchet/">Разбор отчёта</a><a class="chip" href="/company/GAZT/business/">Бизнес-модель</a><a class="chip" href="/company/GAZT/finance/">Финансы и оценка</a><a class="chip" href="/company/GAZT/dividends/">Дивиденды</a><a class="chip" href="/company/GAZT/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

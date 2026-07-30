@@ -81,8 +81,8 @@ ul{padding-left:22px}</style>
 <p><b>Главная war/peace-асимметрия — и почему она обманчива.</b> На первый взгляд BTBR выглядит выпуклым к миру: при снижении ставки «длинные» потоки платформы сильно переоцениваются вверх. Но это <b>ставочный (дюрационный) канал — зона макро, он уже сидит в безрисковой ОФЗ</b>, а не гео-бета. В чисто геополитическом измерении у BTBR разблокировать/нормализовать/снять с санкций нечего, поэтому его собственная war/peace-асимметрия <b>низкая и слегка инвертированная</b>: единственная гео-ось — импортозамещающая рента на <i>малом</i> сегменте комплементарных сервисов (SRM/ERP на месте ушедшего SAP Ariba). По логике S08 это делает компанию не пис-бетой, а слабым «заместителем» с <i>peace-РИСКОМ</i> (возврат западных вендоров при мире) и мягким <i>war-комфортом</i> (глубже изоляция — крепче реестровые мандаты и ров). Практический вывод: не покупать «мирную историю» BTBR как гео-ставку — она процентная.</p>
 <p><b>Ключевое расхождение с рынком — его почти нет, и это честный ответ.</b> Цена ~130 ₽ лежит внутри автономного диапазона Финансы/ИНСТ (~82 консервативно / ~160 база / ~198 оптимистично). Гео-линза этот диапазон <b>не двигает</b>: гео-дельта к WACC ≈ 0, к FCF ≈ 0 (латентный чиповый риск только в S4), к мультипликатору ≈ 0. Расхождение цены с диапазоном объясняется траекторией ключевой ставки (макро), а не геополитикой. Отдельно важно: у BTBR <b>нет навеса нерезидентов</b> — бумага размещена в 2026 году, после разрыва моста НРД–Euroclear, нерезиденты её никогда не держали. Значит нет ни пис-навеса продаж вниз, ни возврата иностранного спроса вверх — в отличие от голубых фишек пис-корзины. Это снимает целый класс рисков/опционов, который обычно и создаёт гео-асимметрию.</p>
 <a class="cta" href="/?company=BTBR&amp;tab=geo">Продолжить в приложении: геополитика B2B-РТС →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/BTBR/business/">Бизнес-модель</a><a class="chip" href="/company/BTBR/finance/">Финансы и оценка</a><a class="chip" href="/company/BTBR/dividends/">Дивиденды</a><a class="chip" href="/company/BTBR/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/BTBR/otchet/">Разбор отчёта</a><a class="chip" href="/company/BTBR/business/">Бизнес-модель</a><a class="chip" href="/company/BTBR/finance/">Финансы и оценка</a><a class="chip" href="/company/BTBR/dividends/">Дивиденды</a><a class="chip" href="/company/BTBR/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -102,7 +102,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -114,8 +115,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

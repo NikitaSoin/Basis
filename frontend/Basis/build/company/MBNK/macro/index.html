@@ -89,8 +89,8 @@ ul{padding-left:22px}</style>
 <p>3. <b>Кредитный спрос и реальные доходы (положительно).</b> Доходы населения растут, но выдачи в 2025 рухнули почти вдвое из-за ставки и макропру-лимитов ЦБ. Комиссии структурно завязаны на объём выдач (страховки при кредите), поэтому обвалились −35%. Оживление объёма при возврате ВВП к +1,5-2,5% ≈ <b>+1…+2 млрд</b> к прибыли, но упирается в тонкий капитал.</p>
 <p>4. <b>Инфляция издержек (слабо отрицательно).</b> Перегрев труда давит на персональные расходы (~50% опекс). ~−0,09 млрд на каждый +1 п.п. опережающего роста зарплат — наименьший из каналов.</p>
 <a class="cta" href="/?company=MBNK&amp;tab=macro">Продолжить в приложении: макроэкономика МТС Банк →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MBNK/business/">Бизнес-модель</a><a class="chip" href="/company/MBNK/finance/">Финансы и оценка</a><a class="chip" href="/company/MBNK/dividends/">Дивиденды</a><a class="chip" href="/company/MBNK/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MBNK/otchet/">Разбор отчёта</a><a class="chip" href="/company/MBNK/business/">Бизнес-модель</a><a class="chip" href="/company/MBNK/finance/">Финансы и оценка</a><a class="chip" href="/company/MBNK/dividends/">Дивиденды</a><a class="chip" href="/company/MBNK/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -110,7 +110,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -122,8 +123,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

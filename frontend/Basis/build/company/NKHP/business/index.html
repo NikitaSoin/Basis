@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Показатель</th><th>2025</th><th>2024</th><th>Δ г/г</th></tr></thead><tbody><tr><td>Выручка</td><td class="num">7,6</td><td class="num">11,2</td><td class="num">−32%</td></tr><tr><td>Валовая прибыль</td><td class="num">4,3</td><td class="num">8,4</td><td class="num">−49%</td></tr><tr><td>Операционная прибыль</td><td class="num">3,6</td><td class="num">7,2</td><td class="num">−50%</td></tr><tr><td>Чистая прибыль</td><td class="num">3,26</td><td class="num">6,41</td><td class="num">−49%</td></tr><tr><td>Чистая маржа</td><td class="num">~43%</td><td class="num">~57%</td><td class="num">−14 п.п.</td></tr><tr><td>Перевалка зерна</td><td class="num">5,3 млн т</td><td class="num">8,4 млн т</td><td class="num">−38%</td></tr><tr><td>Чистый долг / EBITDA</td><td class="num">низкий (чистая денежная позиция)</td><td class="num">низкий</td><td class="num">—</td></tr></tbody></table>
 <p><b>Вывод из таблицы:</b> 2025 год — провальный по сравнению с рекордным 2024-м. Выручка упала на 32%, прибыль — почти вдвое. Причина прямая и внешняя: объём перевалки зерна рухнул на 38% (с рекордных 8,4 до 5,3 млн тонн) из-за квоты на экспорт зерна за пределы ЕАЭС, действовавшей с 15 февраля по 30 июня 2025 года, и в целом меньшего экспортного окна. Бизнес НКХП имеет высокую долю постоянных расходов (терминал — это капиталоёмкая инфраструктура), поэтому при падении объёма перевалки маржа сжимается быстрее выручки: операционные расходы снизились лишь на ~14%, а выручка — на треть. При этом компания практически не имеет долга и держит чистую денежную позицию, что отчасти поддерживает прибыль за счёт процентного дохода (выросшего на фоне высоких ставок).</p>
 <a class="cta" href="/?company=NKHP&amp;tab=business">Продолжить в приложении: бизнес-модель Новороссийский комбинат хлебопродуктов →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/NKHP/finance/">Финансы и оценка</a><a class="chip" href="/company/NKHP/dividends/">Дивиденды</a><a class="chip" href="/company/NKHP/macro/">Макроэкономика</a><a class="chip" href="/company/NKHP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/NKHP/otchet/">Разбор отчёта</a><a class="chip" href="/company/NKHP/finance/">Финансы и оценка</a><a class="chip" href="/company/NKHP/dividends/">Дивиденды</a><a class="chip" href="/company/NKHP/macro/">Макроэкономика</a><a class="chip" href="/company/NKHP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

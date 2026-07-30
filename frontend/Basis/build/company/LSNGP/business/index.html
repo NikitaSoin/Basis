@@ -96,8 +96,8 @@ ul{padding-left:22px}</style>
 <ul><li>Чистая прибыль по РСБУ: ~26,5 млрд ₽ (примерная оценка)</li><li>10% ЧП РСБУ = 2,65 млрд ₽</li><li>Количество привилегированных акций LSNGP: ~1,05 млн шт.</li><li>Дивиденд на одну LSNGP: 2,65 млрд ÷ 1,05 млн ≈ <b>2 525 ₽</b></li><li>Дивидендная доходность по номиналу: 2 525 ÷ 100 ≈ <b>2 525%</b> (аномалия из-за отличия номинала от рыночной цены)</li><li><b>Реальная доходность</b> зависит от цены покупки (при цене ~250–300 ₽ доходность ~8–10% годовых)</li></ul>
 <p><i>По отчётности 2024: LSNGP выплатили дивиденд 25,95 ₽ (за счёт накоплений и особенностей учёта)</i></p>
 <a class="cta" href="/?company=LSNGP&amp;tab=business">Продолжить в приложении: бизнес-модель Россети Ленэнерго →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/LSNGP/finance/">Финансы и оценка</a><a class="chip" href="/company/LSNGP/dividends/">Дивиденды</a><a class="chip" href="/company/LSNGP/macro/">Макроэкономика</a><a class="chip" href="/company/LSNGP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/LSNGP/otchet/">Разбор отчёта</a><a class="chip" href="/company/LSNGP/finance/">Финансы и оценка</a><a class="chip" href="/company/LSNGP/dividends/">Дивиденды</a><a class="chip" href="/company/LSNGP/macro/">Макроэкономика</a><a class="chip" href="/company/LSNGP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -117,7 +117,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -129,8 +130,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

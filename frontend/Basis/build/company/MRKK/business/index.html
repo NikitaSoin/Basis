@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Показатель</th><th>2024</th><th>2023</th><th>Δ г/г</th></tr></thead><tbody><tr><td>Выручка</td><td class="num">54,4</td><td class="num">48,5</td><td class="num">+12,1%</td></tr><tr><td>EBITDA</td><td class="num">−9,6</td><td class="num">−4,5</td><td class="num">хуже в 2,1x</td></tr><tr><td>Маржа EBITDA</td><td class="num">−17,6%</td><td class="num">−9,2%</td><td class="num">−8,4 п.п.</td></tr><tr><td>Чистая прибыль (акционеров)</td><td class="num">−15,7</td><td class="num">−11,1</td><td class="num">хуже на 42%</td></tr><tr><td>Чистая маржа</td><td class="num">−28,9%</td><td class="num">−22,9%</td><td class="num">−6,0 п.п.</td></tr><tr><td>CapEx</td><td class="num">6,2</td><td class="num">3,8</td><td class="num">+63%</td></tr><tr><td>Свободный денежный поток</td><td class="num">отрицательный <i>(оценка)</i></td><td class="num">отрицательный <i>(оценка)</i></td><td class="num">—</td></tr><tr><td>Чистый долг / EBITDA</td><td class="num">неприменимо <i>(EBITDA&lt;0)</i></td><td class="num">неприменимо</td><td class="num">—</td></tr></tbody></table>
 <p>Вывод из таблицы: выручка растёт двузначными темпами (за счёт тарифов и роста полезного отпуска), но операционные расходы растут быстрее, и компания год за годом наращивает убыток. Это не циклическая, а структурная убыточность: бизнес не покрывает собственные операционные расходы даже до амортизации и процентов (EBITDA отрицательная). По данным компании, операционный убыток за 2024 год вырос в 1,5 раза, до 17,6 млрд ₽, при операционных расходах 64,5 млрд ₽ (+15,8%). Капитал группы по МСФО на конец 2024 года ушёл в минус (−2,0 млрд ₽) <i>(данные smart-lab по МСФО; требует сверки с аудированной отчётностью)</i> — то есть обязательства превышают активы.</p>
 <a class="cta" href="/?company=MRKK&amp;tab=business">Продолжить в приложении: бизнес-модель Россети Северный Кавказ →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MRKK/finance/">Финансы и оценка</a><a class="chip" href="/company/MRKK/dividends/">Дивиденды</a><a class="chip" href="/company/MRKK/macro/">Макроэкономика</a><a class="chip" href="/company/MRKK/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MRKK/otchet/">Разбор отчёта</a><a class="chip" href="/company/MRKK/finance/">Финансы и оценка</a><a class="chip" href="/company/MRKK/dividends/">Дивиденды</a><a class="chip" href="/company/MRKK/macro/">Макроэкономика</a><a class="chip" href="/company/MRKK/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

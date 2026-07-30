@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <p>2. <b>Разворот ставки вниз — облегчение долга и лизинга.</b> У «ЮТэйр» ~28,5 млрд ₽ финансового долга плюс ~40 млрд ₽ лизинговых обязательств. Снижение ставки с ~19,5% (среднее 2025) до 14,25% уже дало эффект: финрасходы упали с 7,6 до 5,4 млрд ₽. Оценка: ~+0,7 млрд ₽ к прибыли, и каждые −100 б.п. добавляют ~+0,14 млрд. При такой тонкой прибыли это решает знак результата. Нюанс: IFRS16 маскирует нагрузку — амортизация лизинга (22 млрд) почти равна EBITDA, поэтому компания чувствительнее к ставке, чем кажется по финансовому долгу.</p>
 <p>3. <b>Крепкий рубль — умеренный минус для выручки.</b> ~26% выручки валютные (зарубежные вертолётные контракты, международные рейсы). Крепкий рубль уменьшает их рублёвую оценку сильнее, чем экономит на валютных издержках (запчасти, ТОиР). Оценка: ~−1,5…2,5 млрд ₽ к EBITDA операционно. Отдельно — возможная разовая положительная переоценка валютного лизинга (бумажный эффект, не смешивать с операционным).</p>
 <a class="cta" href="/?company=UTAR&amp;tab=macro">Продолжить в приложении: макроэкономика Авиакомпания «ЮТэйр →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/UTAR/business/">Бизнес-модель</a><a class="chip" href="/company/UTAR/finance/">Финансы и оценка</a><a class="chip" href="/company/UTAR/dividends/">Дивиденды</a><a class="chip" href="/company/UTAR/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/UTAR/otchet/">Разбор отчёта</a><a class="chip" href="/company/UTAR/business/">Бизнес-модель</a><a class="chip" href="/company/UTAR/finance/">Финансы и оценка</a><a class="chip" href="/company/UTAR/dividends/">Дивиденды</a><a class="chip" href="/company/UTAR/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

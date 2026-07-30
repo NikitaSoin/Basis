@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <h3>Причинная атрибуция (анти-сверхатрибуция)</h3>
 <p>Убыток 2024 (-8.4 млн против +108.8 млн в 2023) — <b>не санкционная история</b>. Разложение: доминанта — макро/ставка (~55%, через переоценку собственного портфеля, качнувшуюся с +99 до -86 млн вслед за рынком) + операционный рычаг на фиксированных издержках (менеджмент/опекс +48%, ~20%); прямой гео — лишь гео-доля рыночного падения (~15-25%), транслированная через тот же портфель. Приписать это «геополитике» целиком было бы канонической ошибкой сверхатрибуции (урок K27/М.Видео): процентный/рыночный канал уже уплачен в безрисковой ставке, повторно в гео-дисконт компании не входит.</p>
 <a class="cta" href="/?company=ARSA&amp;tab=geo">Продолжить в приложении: геополитика УК Арсагера →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ARSA/business/">Бизнес-модель</a><a class="chip" href="/company/ARSA/finance/">Финансы и оценка</a><a class="chip" href="/company/ARSA/dividends/">Дивиденды</a><a class="chip" href="/company/ARSA/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ARSA/otchet/">Разбор отчёта</a><a class="chip" href="/company/ARSA/business/">Бизнес-модель</a><a class="chip" href="/company/ARSA/finance/">Финансы и оценка</a><a class="chip" href="/company/ARSA/dividends/">Дивиденды</a><a class="chip" href="/company/ARSA/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

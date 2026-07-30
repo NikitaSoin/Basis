@@ -86,8 +86,8 @@ ul{padding-left:22px}</style>
 <h4>3. Слабый спрос на сталь и стройку (умеренный негатив)</h4>
 <p>Факт: высокая ставка тормозит стройку — главного потребителя сортового проката. Потребление металлоконструкций снижается (2,1 млн т в 2025 году → прогноз 1,9 млн т в 2026), роста спроса на металл в этом году не ждут; арматура подорожала на 12–15%, но это не компенсирует слабые объёмы. Логика: дорогая ипотека и проектное финансирование → стройка замедляется → спрос на прокат падает → объёмы и маржа металлургического сегмента (около 69% выручки) под давлением. Наше суждение: умеренный негатив, важный из-за веса металлургии в выручке. Смягчится по мере снижения ставки и оживления стройки — но это история не ближайших кварталов.</p>
 <a class="cta" href="/?company=MTLR&amp;tab=macro">Продолжить в приложении: макроэкономика «Мечел» (обыкновенные акции) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MTLR/business/">Бизнес-модель</a><a class="chip" href="/company/MTLR/finance/">Финансы и оценка</a><a class="chip" href="/company/MTLR/dividends/">Дивиденды</a><a class="chip" href="/company/MTLR/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MTLR/otchet/">Разбор отчёта</a><a class="chip" href="/company/MTLR/business/">Бизнес-модель</a><a class="chip" href="/company/MTLR/finance/">Финансы и оценка</a><a class="chip" href="/company/MTLR/dividends/">Дивиденды</a><a class="chip" href="/company/MTLR/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -107,7 +107,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -119,8 +120,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

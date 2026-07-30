@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <h3>Главное расхождение с рынком</h3>
 <p>Его, по сути, нет — <b>по гео</b>. Бумага исторически торговалась выше очищенной от free-float-премии справедливой зоны финслоя (~13–17 тыс ₽), но эта премия — артефакт малого free-float/контроля (Институты) и удобренческого цикла, <b>не гео-сигнал</b>. Мои гео-каналы намеренно малы (санкц-издержки — пропорционально, не центрально): +0,5 п.п. WACC за найтов гео-хвост, ~2–4% haircut экспортной маржи за платёжно-логистику, ~2–4% мультипл-дисконта за непрозрачность. Они не двигают справедливую зону материально и <b>не создают отдельного сигнала дешевизны/ дороговизны</b>. (NB: цена в financials 20 060 ₽ от 16.06 против веб-снапшота ~14 336 ₽ от 18.07 — возможен крупный сдвиг вниз, надёжно не подтверждён; гео-анализ к цене не привязан.)</p>
 <a class="cta" href="/?company=AKRN&amp;tab=geo">Продолжить в приложении: геополитика Акрон →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/AKRN/business/">Бизнес-модель</a><a class="chip" href="/company/AKRN/finance/">Финансы и оценка</a><a class="chip" href="/company/AKRN/dividends/">Дивиденды</a><a class="chip" href="/company/AKRN/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/AKRN/otchet/">Разбор отчёта</a><a class="chip" href="/company/AKRN/business/">Бизнес-модель</a><a class="chip" href="/company/AKRN/finance/">Финансы и оценка</a><a class="chip" href="/company/AKRN/dividends/">Дивиденды</a><a class="chip" href="/company/AKRN/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

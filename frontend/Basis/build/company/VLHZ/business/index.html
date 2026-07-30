@@ -95,8 +95,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Сценарий</th><th>Спрос / сырьё</th><th>Чистая прибыль (ориентир)</th></tr></thead><tbody><tr><td>Позитивный (рост спроса, дешёвое сырьё)</td><td class="num">объёмы растут</td><td class="num">~0,2–0,3 млрд</td></tr><tr><td>Базовый (стабилизация)</td><td class="num">объёмы стабильны</td><td class="num">~0,05–0,15 млрд</td></tr><tr><td>Негативный (спад, дорогое сырьё)</td><td class="num">объёмы падают</td><td class="num">около нуля / убыток</td></tr></tbody></table>
 <p><i>(Все значения — ориентир по структуре 2023–2024 годов, не прогноз. EBITDA не приведена из-за отсутствия раскрытия.)</i></p>
 <a class="cta" href="/?company=VLHZ&amp;tab=business">Продолжить в приложении: бизнес-модель Владимирский химический завод →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VLHZ/finance/">Финансы и оценка</a><a class="chip" href="/company/VLHZ/dividends/">Дивиденды</a><a class="chip" href="/company/VLHZ/macro/">Макроэкономика</a><a class="chip" href="/company/VLHZ/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VLHZ/otchet/">Разбор отчёта</a><a class="chip" href="/company/VLHZ/finance/">Финансы и оценка</a><a class="chip" href="/company/VLHZ/dividends/">Дивиденды</a><a class="chip" href="/company/VLHZ/macro/">Макроэкономика</a><a class="chip" href="/company/VLHZ/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -116,7 +116,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -128,8 +129,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

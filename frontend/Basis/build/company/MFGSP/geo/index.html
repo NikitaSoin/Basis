@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <h3>Главная war/peace-асимметрия</h3>
 <p>Её почти нет по амплитуде (E14 = 2,0, как у обычки) — но у префа она интереснее по ФОРМЕ. В мире (S1) сектор-нормализация чуть сужает дисконт Urals, но выигрыш уходит вверх через трансферт, а крепкий рубль S1 — встречный ветер. Специфика префа — встроенная <b>асимметричная опция</b>: если контролёр когда-нибудь нормализует отчётную прибыль (например, готовя выкуп по «справедливой» цене), приоритетный дивиденд типа А восстановится первым и с потенциально высокой доходностью — тонкий низковероятный upside-хвост. Зеркально — <b>в мире растёт риск squeeze-out</b>, где преф особенно уязвим: при недружественном выкупе рискует не получить компенсацию накопленного за 13 лет приоритета (прецеденты СМЗ, отмена оферты ЮГК). Оба хвоста низковероятны и малы, и оба — про governance-выбор контролёра, а не про гео-цикл. Грубо: ΔS1 ≈ +10…+15% (плюс опционный хвост), ΔS4 ≈ −10…−15%.</p>
 <a class="cta" href="/?company=MFGSP&amp;tab=geo">Продолжить в приложении: геополитика Славнефть-Мегионнефтегаз →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MFGSP/business/">Бизнес-модель</a><a class="chip" href="/company/MFGSP/finance/">Финансы и оценка</a><a class="chip" href="/company/MFGSP/dividends/">Дивиденды</a><a class="chip" href="/company/MFGSP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MFGSP/otchet/">Разбор отчёта</a><a class="chip" href="/company/MFGSP/business/">Бизнес-модель</a><a class="chip" href="/company/MFGSP/finance/">Финансы и оценка</a><a class="chip" href="/company/MFGSP/dividends/">Дивиденды</a><a class="chip" href="/company/MFGSP/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

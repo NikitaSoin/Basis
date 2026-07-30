@@ -87,8 +87,8 @@ ul{padding-left:22px}</style>
 <p>1. <b>Долговая нагрузка и процентные расходы.</b> Чистый долг 21,8 млрд руб. при EBITDA 16,3 млрд — чистый долг/EBITDA ~1,34x (МСФО). Уровень умеренный, но при ставке ЦБ 14,5% (24.04.2026) обслуживание долга съедает почти всю операционную прибыль до процентов. <i>Риск:</i> сохранение высокой ставки удерживает чистую прибыль у нуля; рефинансирование на жёстких условиях — главный финансовый риск.</p>
 <p>2. <b>Отрицательный собственный капитал.</b> По отчётности капитал в отрицательной зоне (−7,3 млрд руб. на 2025). <i>Риск:</i> ограничивает способность привлекать капитал и выплачивать дивиденды, повышает чувствительность к шокам.</p>
 <a class="cta" href="/?company=APTK&amp;tab=business">Продолжить в приложении: бизнес-модель Аптечная сеть 36,6 →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/APTK/finance/">Финансы и оценка</a><a class="chip" href="/company/APTK/dividends/">Дивиденды</a><a class="chip" href="/company/APTK/macro/">Макроэкономика</a><a class="chip" href="/company/APTK/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/APTK/otchet/">Разбор отчёта</a><a class="chip" href="/company/APTK/finance/">Финансы и оценка</a><a class="chip" href="/company/APTK/dividends/">Дивиденды</a><a class="chip" href="/company/APTK/macro/">Макроэкономика</a><a class="chip" href="/company/APTK/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -108,7 +108,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -120,8 +121,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

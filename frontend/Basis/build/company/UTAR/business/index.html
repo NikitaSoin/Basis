@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Показатель</th><th>2024</th><th>2023</th><th>Δ г/г</th></tr></thead><tbody><tr><td>Выручка</td><td class="num">113,3</td><td class="num">97,7</td><td class="num">+16,0%</td></tr><tr><td>EBITDA <i>(оценка)</i></td><td class="num">~22–27</td><td class="num">~18–25</td><td class="num">н/д</td></tr><tr><td>Операционная прибыль</td><td class="num">8,3</td><td class="num">10,1</td><td class="num">−17,5%</td></tr><tr><td>Маржа по операционной прибыли</td><td class="num">7,3%</td><td class="num">10,3%</td><td class="num">−3,0 п.п.</td></tr><tr><td>Чистая прибыль (акционеров)</td><td class="num">−7,05</td><td class="num">2,81</td><td class="num">убыток</td></tr><tr><td>Чистая маржа</td><td class="num">−6,2%</td><td class="num">2,9%</td><td class="num">−9,1 п.п.</td></tr><tr><td>CapEx <i>(оценка)</i></td><td class="num">~20</td><td class="num">~24</td><td class="num">−16,7%</td></tr><tr><td>Свободный денежный поток <i>(оценка)</i></td><td class="num">~0,5</td><td class="num">~−4,6</td><td class="num">разворот в плюс</td></tr><tr><td>Чистый долг / EBITDA <i>(оценка)</i></td><td class="num">~1,0x</td><td class="num">~1,0x</td><td class="num">≈0</td></tr></tbody></table>
 <p>Под таблицей. Выручка выросла на 16% (рост тарифов и пассажиропотока), но операционная прибыль снизилась, а компания получила чистый убыток 7,05 млрд ₽ против прибыли годом ранее. По данным компании, убыток сформирован не операционной деятельностью, а тремя факторами «ниже операционной строки»: обесценением прочих основных средств, переоценкой отложенных налоговых обязательств по новой ставке 25% и ростом финансовых расходов на обслуживание кредитов, займов и аренды (финансовые расходы выросли на 27,3%, до ~7,6 млрд ₽). <i>Показатель EBITDA сильно зависит от учёта аренды по МСФО (IFRS 16): оценки разных источников расходятся (от ~9 до ~27 млрд ₽), поэтому в таблице дан диапазон-ориентир, а надёжным якорем рентабельности служит операционная прибыль.</i></p>
 <a class="cta" href="/?company=UTAR&amp;tab=business">Продолжить в приложении: бизнес-модель Авиакомпания «ЮТэйр →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/UTAR/finance/">Финансы и оценка</a><a class="chip" href="/company/UTAR/dividends/">Дивиденды</a><a class="chip" href="/company/UTAR/macro/">Макроэкономика</a><a class="chip" href="/company/UTAR/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/UTAR/otchet/">Разбор отчёта</a><a class="chip" href="/company/UTAR/finance/">Финансы и оценка</a><a class="chip" href="/company/UTAR/dividends/">Дивиденды</a><a class="chip" href="/company/UTAR/macro/">Макроэкономика</a><a class="chip" href="/company/UTAR/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

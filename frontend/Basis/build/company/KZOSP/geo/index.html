@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <h3>Главное расхождение с рынком</h3>
 <p>Расхождения по гео-линии нет. Рынок (~58 ₽) стоит <b>выше</b> фундаментального DCF- диапазона (21-51, центр ~33) — закладывает опцион на снижение ключевой ставки и восстановление ROE (ставочно-цикловая ставка, WACC 22.6% — «опцион на снижение КС»). Гео здесь — вторичный дрейф-минус; оно не делает бумагу дешёвой и не объясняет премию рынка к DCF. Мой гео-наложенный диапазон (<b>20-50 ₽, confidence L</b>) практически совпадает с фундаментальным — гео срезает лишь несколько процентов и коридор не двигает.</p>
 <a class="cta" href="/?company=KZOSP&amp;tab=geo">Продолжить в приложении: геополитика Казаньоргсинтез →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KZOSP/business/">Бизнес-модель</a><a class="chip" href="/company/KZOSP/finance/">Финансы и оценка</a><a class="chip" href="/company/KZOSP/dividends/">Дивиденды</a><a class="chip" href="/company/KZOSP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KZOSP/otchet/">Разбор отчёта</a><a class="chip" href="/company/KZOSP/business/">Бизнес-модель</a><a class="chip" href="/company/KZOSP/finance/">Финансы и оценка</a><a class="chip" href="/company/KZOSP/dividends/">Дивиденды</a><a class="chip" href="/company/KZOSP/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <h3>Главная war/peace-асимметрия</h3>
 <p>Необычная. У большинства пис-бет апсайд — про снятие финансовых санкций; у ВСМПО он <b>операционный</b>: опцион на возврат премиального западного авиаклиента и маржи (до-2022 EBITDA 33% против трохи 19,5%). Величина большая (+25…+40% в многолетнем горизонте), но выплата <b>медленная и неполная</b> — рекертификация под Boeing/Airbus занимает годы, конкуренты (ATI/Timet/Howmet, Япония) заняли место, и крепкий рубль сценария мира ещё и режет рублёвую экспортную выручку. Это не «ралли по подписании». Даунсайд S4 (15–18%) — быстрый и бинарный: прямой запрет ЕС на титан (21-й пакет метит в аэрокосмические сплавы) или, самое опасное, <b>SDN на бенефициара Шелкова (66%) с правилом 50%</b> — тогда бумага станет токсичной для внешнего контура (механика Русала-2018 «в минус»). Сейчас Шелков под санкциями только Украины — это триггер, не факт.</p>
 <a class="cta" href="/?company=VSMO&amp;tab=geo">Продолжить в приложении: геополитика Корпорация ВСМПО-АВИСМА →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VSMO/business/">Бизнес-модель</a><a class="chip" href="/company/VSMO/finance/">Финансы и оценка</a><a class="chip" href="/company/VSMO/dividends/">Дивиденды</a><a class="chip" href="/company/VSMO/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VSMO/otchet/">Разбор отчёта</a><a class="chip" href="/company/VSMO/business/">Бизнес-модель</a><a class="chip" href="/company/VSMO/finance/">Финансы и оценка</a><a class="chip" href="/company/VSMO/dividends/">Дивиденды</a><a class="chip" href="/company/VSMO/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

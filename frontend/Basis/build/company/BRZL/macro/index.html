@@ -88,8 +88,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Инфляция — реальная эрозия подушки.</b> Подушка — номинальный рублёвый актив, никак не индексируется. При инфляции ~5% она теряет ~0,25 млрд ₽ реальной стоимости в год. Но пока реальная ставка высокая (~9 п.п.), реальный доход на кэш остаётся положительным (~0,3–0,4 млрд ₽). Риск — если ставка упадёт быстрее инфляции: тогда реальная доходность сожмётся. Эффект смешанный.</p>
 <p><b>3. Цена золота × курс — связь разорвана (это здесь и есть «редкое»).</b> Золото на ралли (~$4 075/унц, был пик $5 602), рубль слабый — для действующего добытчика это сверхприбыль. Для BRZL — ноль: добычи нет, каждые +$100/унц или +1 ₽/$ дают ~0 ₽ выручки. Фактор включён именно чтобы явно его обнулить: тезис «золотой бенефициар слабого рубля» к BRZL не применим. Кто покупает BRZL «под золото», покупает депозит под ставку ЦБ.</p>
 <a class="cta" href="/?company=BRZL&amp;tab=macro">Продолжить в приложении: макроэкономика БУРЯТЗОЛОТО →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/BRZL/business/">Бизнес-модель</a><a class="chip" href="/company/BRZL/finance/">Финансы и оценка</a><a class="chip" href="/company/BRZL/dividends/">Дивиденды</a><a class="chip" href="/company/BRZL/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/BRZL/otchet/">Разбор отчёта</a><a class="chip" href="/company/BRZL/business/">Бизнес-модель</a><a class="chip" href="/company/BRZL/finance/">Финансы и оценка</a><a class="chip" href="/company/BRZL/dividends/">Дивиденды</a><a class="chip" href="/company/BRZL/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -109,7 +109,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -121,8 +122,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Показатель</th><th>2025</th><th>2024</th><th>Δ г/г</th></tr></thead><tbody><tr><td>Выручка</td><td class="num">23,5</td><td class="num">14,7</td><td class="num">+60%</td></tr><tr><td>Операционная прибыль (убыток)</td><td class="num">3,65</td><td class="num">−2,15</td><td class="num">выход в плюс</td></tr><tr><td>Чистая прибыль (убыток)</td><td class="num">0,68</td><td class="num">−3,99</td><td class="num">возврат к прибыли</td></tr><tr><td>Чистая маржа</td><td class="num">+2,9%</td><td class="num">−27,1%</td><td class="num">+30,0 п.п.</td></tr><tr><td>CapEx</td><td class="num">2,92</td><td class="num">4,62</td><td class="num">−37%</td></tr><tr><td>Свободный денежный поток</td><td class="num"><i>компания не раскрывает</i></td><td class="num"><i>не раскрывает</i></td><td class="num">—</td></tr><tr><td>Чистый долг / EBITDA</td><td class="num"><i>не раскрывает; долг растёт (см. риски)</i></td><td class="num">—</td><td class="num">—</td></tr></tbody></table>
 <p>Вывод из таблицы: до 2024 года включительно компания была хронически убыточна (2022: −2,56; 2023: −1,39; 2024: −3,99 млрд ₽) — регулируемый тариф не покрывал растущие затраты. В 2025-м резкий скачок выручки (+60%, вероятно тарифные решения и/или расширение периметра — постатейной расшифровки в доступных источниках нет) вывел компанию в символическую прибыль 0,68 млрд ₽. <i>(Оговорка по стандарту: по РСБУ головной компании числа иные — 2024: выручка 15,69 и убыток −0,74 млрд ₽; карточка ведётся по консолидированной МСФО. Достоверность ряда — средняя: агрегатор без первички.)</i></p>
 <a class="cta" href="/?company=MAGE&amp;tab=business">Продолжить в приложении: бизнес-модель Магаданэнерго →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MAGE/finance/">Финансы и оценка</a><a class="chip" href="/company/MAGE/dividends/">Дивиденды</a><a class="chip" href="/company/MAGE/macro/">Макроэкономика</a><a class="chip" href="/company/MAGE/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MAGE/otchet/">Разбор отчёта</a><a class="chip" href="/company/MAGE/finance/">Финансы и оценка</a><a class="chip" href="/company/MAGE/dividends/">Дивиденды</a><a class="chip" href="/company/MAGE/macro/">Макроэкономика</a><a class="chip" href="/company/MAGE/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

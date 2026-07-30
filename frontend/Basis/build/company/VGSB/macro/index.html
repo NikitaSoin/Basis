@@ -86,8 +86,8 @@ ul{padding-left:22px}</style>
 <h3>Главные факторы</h3>
 <p><b>1. Ставка как процентный доход и пени (кубышка) — редкий положительный канал.</b> У большинства компаний высокая ставка бьёт по процентным расходам; здесь наоборот — кормит финансовый доход с двух сторон (депозиты на кэш + пени, привязанные к ключевой ставке). Чувствительность: ±100 б.п. ≈ ±15–22 млн ₽ к чистой прибыли (рейт-чувствительная база ~2,5–3,5 млрд ₽). Обратная сторона — «кубышка-парадокс»: снижение ставки этот доход уменьшает, поэтому смягчение ДКП для VGSB скорее минус, чем плюс. <i>(Оценка: разбивку финдохода на депозиты и пени компания не раскрывает.)</i></p>
 <a class="cta" href="/?company=VGSB&amp;tab=macro">Продолжить в приложении: макроэкономика Волгоградэнергосбыт →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VGSB/business/">Бизнес-модель</a><a class="chip" href="/company/VGSB/finance/">Финансы и оценка</a><a class="chip" href="/company/VGSB/dividends/">Дивиденды</a><a class="chip" href="/company/VGSB/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VGSB/otchet/">Разбор отчёта</a><a class="chip" href="/company/VGSB/business/">Бизнес-модель</a><a class="chip" href="/company/VGSB/finance/">Финансы и оценка</a><a class="chip" href="/company/VGSB/dividends/">Дивиденды</a><a class="chip" href="/company/VGSB/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -107,7 +107,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -119,8 +120,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

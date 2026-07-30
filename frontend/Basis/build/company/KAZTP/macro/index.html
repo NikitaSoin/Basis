@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <p><b>Мировые цены на удобрения — заметный плюс.</b> Карбамид стоит около $442 за тонну, выше уровня годом ранее, и Всемирный банк прогнозирует дальнейший рост цен на удобрения в 2026 году (<i>факт по текущей цене; прогноз — оценка</i>). Выше цены на азот → дороже продажи удобрений (около 45% выручки) → выручка и маржа этого сегмента растут (<i>логика</i>). <i>На наш взгляд</i>, это ощутимая поддержка, но её частично гасят крепкий рубль и тот же дорогой газ, который и толкает цены вверх по всей отрасли.</p>
 <p><b>Снижение ключевой ставки — слабый плюс.</b> Ставка идёт вниз, дешевеет обслуживание долга и оборотного капитала, снижается ставка дисконтирования (<i>логика</i>). Но у компании очень низкий долг — 0,54 EBITDA, поэтому по процентам эффект небольшой. <i>На наш взгляд</i>, для привилегированной акции смягчение ставок важнее с другой стороны: по мере снижения доходностей депозитов и ОФЗ дивидендная доходность бумаги выглядит сравнительно привлекательнее.</p>
 <a class="cta" href="/?company=KAZTP&amp;tab=macro">Продолжить в приложении: макроэкономика КуйбышевАзот →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KAZTP/business/">Бизнес-модель</a><a class="chip" href="/company/KAZTP/finance/">Финансы и оценка</a><a class="chip" href="/company/KAZTP/dividends/">Дивиденды</a><a class="chip" href="/company/KAZTP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KAZTP/otchet/">Разбор отчёта</a><a class="chip" href="/company/KAZTP/business/">Бизнес-модель</a><a class="chip" href="/company/KAZTP/finance/">Финансы и оценка</a><a class="chip" href="/company/KAZTP/dividends/">Дивиденды</a><a class="chip" href="/company/KAZTP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

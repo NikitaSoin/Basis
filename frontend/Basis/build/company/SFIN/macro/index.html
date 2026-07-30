@@ -87,8 +87,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Ставка → результаты ВСК (облигации + премии каско) — доминирующий и противоположный.</b> Снижение ставки поднимает цены облигаций в портфеле страховщика и оживляет автокредит (→ премии каско). Оценочно <b>снижение ставки на 100 б.п. ≈ +0,3 млрд ₽</b> к доле SFI в прибыли ВСК (широкий диапазон +0,2…+0,5). Это важнее кубышки — и тянет в обратную сторону. В сумме два ставочных канала почти гасят друг друга: <b>SFI необычно ставочно-нейтрален для финхолдинга</b> (не «прокси на снижение ставки», как закредитованные холдинги). Главная неопределённость блока — дюрация портфеля ВСК неизвестна.</p>
 <p><b>3. Инфляция издержек ВСК → выплаты.</b> Дорожает ремонт и запчасти → растут выплаты по автострахованию при регулируемых тарифах ОСАГО → андеррайтинговая маржа под давлением. Оценочно <b>~−0,15 млрд ₽ на каждый +1 п.п.</b> инфляции издержек (доля SFI 49%). Параллельно инфляция подъедает реальную стоимость кубышки — эффект вне отчёта о прибыли.</p>
 <a class="cta" href="/?company=SFIN&amp;tab=macro">Продолжить в приложении: макроэкономика «ЭсЭфАй» (SFI) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/SFIN/business/">Бизнес-модель</a><a class="chip" href="/company/SFIN/finance/">Финансы и оценка</a><a class="chip" href="/company/SFIN/dividends/">Дивиденды</a><a class="chip" href="/company/SFIN/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/SFIN/otchet/">Разбор отчёта</a><a class="chip" href="/company/SFIN/business/">Бизнес-модель</a><a class="chip" href="/company/SFIN/finance/">Финансы и оценка</a><a class="chip" href="/company/SFIN/dividends/">Дивиденды</a><a class="chip" href="/company/SFIN/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -108,7 +108,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -120,8 +121,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

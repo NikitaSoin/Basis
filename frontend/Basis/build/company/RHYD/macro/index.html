@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p><b>3. Инфляция и топливные издержки угольной генерации — смешанно.</b> Факт: общая инфляция замедляется (плюс), но энергоуголь на Дальнем Востоке дорожает (~$79/т в 2026 против $70,7/т). Механизм: на дорогую угольную ТЭС компания опирается, когда не хватает дешёвой гидровыработки; рост цен на уголь поднимает себестоимость киловатт-часа. Наша оценка: в маловодный год этот канал ощущается сильнее, в многоводный — слабее; частично гасится ростом тарифов.</p>
 <p><b>4. Ставка как фактор оценки и финансирования CAPEX — негатив.</b> Факт: высокая доходность ОФЗ задаёт дорогую планку для оценки акций и для финансирования инвестпрограммы (план свыше 400 млрд ₽ в пик). Механизм: дорогой капитал снижает справедливую оценку капиталоёмкой стройки и удорожает новый долг. Наша оценка: это оборотная сторона того же ставочного канала — по мере снижения ставки фактор должен разворачиваться в пользу компании, но эффект растянут.</p>
 <a class="cta" href="/?company=RHYD&amp;tab=macro">Продолжить в приложении: макроэкономика РусГидро →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RHYD/business/">Бизнес-модель</a><a class="chip" href="/company/RHYD/finance/">Финансы и оценка</a><a class="chip" href="/company/RHYD/dividends/">Дивиденды</a><a class="chip" href="/company/RHYD/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RHYD/otchet/">Разбор отчёта</a><a class="chip" href="/company/RHYD/business/">Бизнес-модель</a><a class="chip" href="/company/RHYD/finance/">Финансы и оценка</a><a class="chip" href="/company/RHYD/dividends/">Дивиденды</a><a class="chip" href="/company/RHYD/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

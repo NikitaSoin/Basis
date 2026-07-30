@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <p>2. <b>Промышленный спрос Урала — объёмный риск (минус).</b> Полезный отпуск завязан на металлургию и машиностроение Урала, поэтому он чувствительнее к инвестциклу, чем у чисто бытовых МРСК. При обвале инвестиций (−14,3%) и первом за 4 года спаде энергопотребления РФ (−0,8% в 2025) объём передачи стагнирует. Оценочно это −0,5…−1 млрд ₽ выручки против потенциала; ±0,5 млрд выручки на каждый ±1 пп ВВП. Частично демпфирует консолидация сетей по реформе СТСО — компания как назначенный консолидатор структурно добирает объём.</p>
 <p>3. <b>Ключевая ставка — попутный, но второстепенный ветер (плюс).</b> Компания — нетто-должник, поэтому снижение ставки удешевляет рефинансирование краткосрочного долга (~14 млрд ₽): примерно +0,12 млрд ₽ прибыли на каждые −100 б.п. Но долг низкий (чистый долг/EBITDA 0,54), так что канал слабый. Оговорка: растущая инвестпрограмма (до ~27 млрд ₽ в 2026) может потребовать нового долга по всё ещё высокой ставке.</p>
 <a class="cta" href="/?company=MRKU&amp;tab=macro">Продолжить в приложении: макроэкономика Россети Урал →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MRKU/business/">Бизнес-модель</a><a class="chip" href="/company/MRKU/finance/">Финансы и оценка</a><a class="chip" href="/company/MRKU/dividends/">Дивиденды</a><a class="chip" href="/company/MRKU/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MRKU/otchet/">Разбор отчёта</a><a class="chip" href="/company/MRKU/business/">Бизнес-модель</a><a class="chip" href="/company/MRKU/finance/">Финансы и оценка</a><a class="chip" href="/company/MRKU/dividends/">Дивиденды</a><a class="chip" href="/company/MRKU/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

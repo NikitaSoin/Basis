@@ -87,8 +87,8 @@ ul{padding-left:22px}</style>
 <p><b>1. Ставка → стоимость фондирования (плюс по мере снижения).</b> Ключевая ↓ → банковские линии и новые облигации дешевеют с лагом 1–3 квартала → проценты по фондированию ↓ → прибыль ↑. Оценка: <b>−100 б.п. ставки ≈ +0,015…+0,030 млрд ₽</b> к прибыли (привлечённые ~4,7 млрд ₽, ~40–55% реагирует с лагом, после налога). Тонкость именно тут: у обычного банка снижение ставки сжимает маржу, а у CARM — нет, потому что доходность займов стоит у регуляторного потолка. CarMoney — по сути ставка на снижение ставки через фондирование.</p>
 <p><b>2. Стоимость риска (минус сейчас, разворачивается).</b> Высокая ставка + охлаждение спроса + слабый вторичный авторынок → рост дефолтности и падение цены залога → резервы ↑. Оценка: <b>+100 б.п. стоимости риска ≈ −0,046 млрд ₽</b>; нормализация с 1500 к ~1000 б.п. вернула бы <b>+0,20…+0,25 млрд ₽</b>. Залог (покрытие 2,29x) ограничивает итоговые потери, но по времени резервы бьют раньше.</p>
 <a class="cta" href="/?company=CARM&amp;tab=macro">Продолжить в приложении: макроэкономика «СмартТехГрупп» (CarMoney) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/CARM/business/">Бизнес-модель</a><a class="chip" href="/company/CARM/finance/">Финансы и оценка</a><a class="chip" href="/company/CARM/dividends/">Дивиденды</a><a class="chip" href="/company/CARM/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/CARM/otchet/">Разбор отчёта</a><a class="chip" href="/company/CARM/business/">Бизнес-модель</a><a class="chip" href="/company/CARM/finance/">Финансы и оценка</a><a class="chip" href="/company/CARM/dividends/">Дивиденды</a><a class="chip" href="/company/CARM/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -108,7 +108,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -120,8 +121,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

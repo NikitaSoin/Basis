@@ -515,7 +515,8 @@ function appMountHtml(assets) {
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -527,12 +528,13 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 ${css}
 <script defer src="${assets.js}"></script>`;
 }
 
-const DEFAULT_NOTE = `Basis — независимый аналитический слой, не брокер и не даёт сигналов
+const DEFAULT_NOTE = `Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.`;
@@ -959,7 +961,7 @@ function indexPage(companies) {
   const sectors = Object.keys(bySector).sort((a, b) => bySector[b].length - bySector[a].length);
   const body = `
 <h1>Аналитика компаний Московской биржи</h1>
-<p class="sub">${companies.length} независимых разборов: бизнес-модель, финансы и справедливая
+<p class="sub">${companies.length} разборов: бизнес-модель, финансы и справедливая
 цена, дивиденды, корпоративное управление, макро- и геополитические риски по каждой бумаге.</p>
 ${sectors.map((s) => `<h2>${escapeHtml(s)} <span style="color:var(--faint);font-size:14px">· ${bySector[s].length}</span></h2>
 <div class="grid">${bySector[s]
@@ -970,7 +972,7 @@ ${sectors.map((s) => `<h2>${escapeHtml(s)} <span style="color:var(--faint);font-
 <a class="cta" href="/">Открыть приложение Basis →</a>`;
   return pageShell({
     title: `Аналитика по ${companies.length} компаниям Мосбиржи — разборы Basis`,
-    desc: `Каталог независимых разборов Basis: ${companies.length} компаний Московской биржи по секторам — бизнес-модель, финансы, дивиденды, справедливая цена, риски. Без сигналов «купить/продать».`,
+    desc: `Каталог разборов Basis: ${companies.length} компаний Московской биржи по секторам — бизнес-модель, финансы, дивиденды, справедливая цена, риски. Без сигналов «купить/продать».`,
     canonicalPath: "/company/",
     breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Компании" }],
     bodyHtml: body,
@@ -980,12 +982,17 @@ ${sectors.map((s) => `<h2>${escapeHtml(s)} <span style="color:var(--faint);font-
 
 /* ------------------------- интент-лендинги ------------------------- */
 // Статические страницы под информационные запросы («проанализировать портфель»,
-// «скринер облигаций», «как выбрать ОФЗ»...) — тексты и правила текстов в
-// scripts/seo-landings-content.js. Это ЧИСТАЯ статика БЕЗ бандла приложения:
-// progressive takeover заточен под карточки компаний (basis:company-ready), а на
-// этих путях SPA отрисовал бы свою главную ПОД статикой — двойная страница.
-// Вместо этого — CTA-ссылка в нужный раздел (?view=..., обработчик в App.js).
-function landingPage(l) {
+// «скринер облигаций», «карта рынка»...) — тексты в scripts/seo-landings-content.js.
+//
+// 🔴 2026-07-31: лендинги стали ГИБРИДНЫМИ — как карточки компаний (статика + приложение
+// поверх). Раньше это была чистая статика без бандла, и из-за этого разделы платформы
+// жили на двух разных адресах: человекочитаемом /karta-rynka-aktsiy/ (статика, её видит
+// поиск) и служебном /?view=overview&obs=maps (приложение). Владелец поймал следствие:
+// «вбиваю „карта рынка basis“ — в выдаче не „Карта рынка“, а общее название платформы»,
+// потому что по служебному адресу отдаётся общий index.html с общим тайтлом.
+// Теперь адрес один: с него и робот получает нужный заголовок с текстом, и человек
+// попадает сразу в нужный раздел приложения (App.js разбирает слаг → LANDING_ROUTES).
+function landingPage(l, assets) {
   const faqHtml = l.faq && l.faq.length
     ? `<h2>Частые вопросы</h2>\n` + l.faq.map((f) =>
         `<h3>${escapeHtml(f.q)}</h3>\n<p>${escapeHtml(f.a)}</p>`).join("\n")
@@ -1025,7 +1032,8 @@ ${relatedHtml}`;
     breadcrumbs: [{ label: "Basis", href: "/" }, { label: l.crumb }],
     bodyHtml: body,
     jsonLd: ld,
-    note: `Basis — независимый аналитический слой для частного инвестора, не брокер:
+    assets,   // приложение поверх статики — адрес раздела теперь один для робота и человека
+    note: `Basis — аналитический слой для частного инвестора, не брокер:
 не проводит сделок и не даёт сигналов «купить/продать». Материалы страницы — рамка
 оценки и описание инструментов платформы; они не являются индивидуальной
 инвестиционной рекомендацией.`,
@@ -1144,7 +1152,7 @@ function main() {
   for (const l of LANDINGS) {
     const dir = path.join(_BUILD_DIR, l.slug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, "index.html"), landingPage(l), "utf8");
+    fs.writeFileSync(path.join(dir, "index.html"), landingPage(l, assets), "utf8");
     urls.push({ loc: `${_SITE}/${l.slug}/`, freq: "monthly", pri: "0.7", lastmod: landingLastmod });
   }
 

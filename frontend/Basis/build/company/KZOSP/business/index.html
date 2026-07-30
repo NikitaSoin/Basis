@@ -93,8 +93,8 @@ ul{padding-left:22px}</style>
 <h4>Сценарии: что будет с прибылью</h4>
 <p>Главные рычаги — цены на полимеры и стоимость сырья (спред нефтехимии), а также завершение инвестпрограммы. Ниже — качественная оценка на 2025–2026 годы.</p>
 <a class="cta" href="/?company=KZOSP&amp;tab=business">Продолжить в приложении: бизнес-модель Казаньоргсинтез →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KZOSP/finance/">Финансы и оценка</a><a class="chip" href="/company/KZOSP/dividends/">Дивиденды</a><a class="chip" href="/company/KZOSP/macro/">Макроэкономика</a><a class="chip" href="/company/KZOSP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KZOSP/otchet/">Разбор отчёта</a><a class="chip" href="/company/KZOSP/finance/">Финансы и оценка</a><a class="chip" href="/company/KZOSP/dividends/">Дивиденды</a><a class="chip" href="/company/KZOSP/macro/">Макроэкономика</a><a class="chip" href="/company/KZOSP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -114,7 +114,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -126,8 +127,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

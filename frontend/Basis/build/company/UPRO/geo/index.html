@@ -81,8 +81,8 @@ ul{padding-left:22px}</style>
 <p><b>Главная war/peace-асимметрия — и она необычная.</b> Это не экспортная пис-бета (нефть, фрахт), а <b>бета разблокировки владения по треку Россия↔Германия</b>. При деэскалации (S1/S2) появляется опцион на разморозку: доступ к кубышке, возобновление дивидендов, переоценка близкой к нулю стоимости самого бизнеса генерации — грубо +50…+90%. При эскалации (S4): если Германия национализирует активы «Роснефти» (Schwedt; доверительное управление истекало в марте 2026, идут суды) — Россия зеркально ужесточит статус Uniper от временного управления к полной экспроприации, а free float рискует пойти под принудительный низкоценовой выкуп по свежему прецеденту ЮГК — грубо −30…−50%. Ключевая честная оговорка: <b>даже «мир» не гарантирует выигрыш миноритарию</b> — разморозка может пройти как продажа госмейджору («Интер РАО»/ГЭХ) с тем же дешёвым выкупом. Поэтому пис-выигрыш сам по себе бимодален, и я держу балл асимметрии E14 на 3,5, не выше.</p>
 <p><b>Против сверхатрибуции (главная дисциплина этого разбора).</b> Прибыль-2025 выросла на 23,4% при выручке +4,7% — и было бы соблазнительно назвать это «геополитической историей». Это неверно: рывок почти целиком — процентный доход на кубышку при ставке ~19% (макро-канал, разобран в macro.json), а не гео. Гео причастно лишь <i>структурно</i> — именно заморозка дивидендов копит ту кубышку, что теперь даёт процентный доход. Прямой гео-вклад в изменение-2025 ≈ 0%. Зеркально неверно и «гео убило компанию»: операционно бизнес здоров.</p>
 <a class="cta" href="/?company=UPRO&amp;tab=geo">Продолжить в приложении: геополитика Юнипро →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/UPRO/business/">Бизнес-модель</a><a class="chip" href="/company/UPRO/finance/">Финансы и оценка</a><a class="chip" href="/company/UPRO/dividends/">Дивиденды</a><a class="chip" href="/company/UPRO/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/UPRO/otchet/">Разбор отчёта</a><a class="chip" href="/company/UPRO/business/">Бизнес-модель</a><a class="chip" href="/company/UPRO/finance/">Финансы и оценка</a><a class="chip" href="/company/UPRO/dividends/">Дивиденды</a><a class="chip" href="/company/UPRO/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -102,7 +102,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -114,8 +115,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

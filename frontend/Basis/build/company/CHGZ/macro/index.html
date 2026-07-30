@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Инфляция раздувает расходы на содержание (слабо-умеренный негатив).</b> <i>Факт:</i> цены растут ~5,6% в год; компания почти без выручки несёт растущий убыток (−66,6 млн ₽ за 2024 против −33,3 млн ₽ за 2023). <i>Как доходит до компании:</i> инфляция удорожает зарплаты небольшого штата, аренду и административные расходы на поддержание оболочки, а переложить их некуда — выручки и ценовой силы нет, поэтому издержки только усиливают убыток. <i>Наше суждение:</i> действует в одну сторону (только вверх по расходам), но суммы малы и тонут в решениях материнской группы — переоценки и внутригрупповые операции влияют на убыток сильнее, чем инфляция.</p>
 <p><b>3. Макросреда «Роснефти» — непрямой и неопределённый канал (смешанный).</b> <i>Факт:</i> нефть, курс и ставка влияют на группу «Роснефть», в контур которой входит CHGZ, но на сам эмитент напрямую не действуют — у него нет добычи и экспорта. <i>Как доходит до компании:</i> самочувствие группы → решения контролирующего акционера по «спящей» структуре (содержать, реорганизовать, выкупить) → судьба миноритарной доли. <i>Наше суждение:</i> это, по сути, не макро-, а корпоративный канал, поэтому знак смешанный, а сила непредсказуема. Здесь же проходит граница с геополитикой (санкции против группы), которую этот блок не разбирает.</p>
 <a class="cta" href="/?company=CHGZ&amp;tab=macro">Продолжить в приложении: макроэкономика РН-Западная Сибирь →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/CHGZ/business/">Бизнес-модель</a><a class="chip" href="/company/CHGZ/finance/">Финансы и оценка</a><a class="chip" href="/company/CHGZ/dividends/">Дивиденды</a><a class="chip" href="/company/CHGZ/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/CHGZ/otchet/">Разбор отчёта</a><a class="chip" href="/company/CHGZ/business/">Бизнес-модель</a><a class="chip" href="/company/CHGZ/finance/">Финансы и оценка</a><a class="chip" href="/company/CHGZ/dividends/">Дивиденды</a><a class="chip" href="/company/CHGZ/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

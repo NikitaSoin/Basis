@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p><b>3. Инфляция издержек при фиксированных госконтрактах — негатив для маржи.</b> Факт: инфляция замедлилась до ~5,4%, но издержки авиапрома (материалы, труд, энергия) растут, а цены ГОЗ строятся по принципу «затраты плюс» и индексируются медленнее — ОАК и Минобороны уже пересматривают убыточные контракты. Механизм: себестоимость самолёта растёт быстрее, чем зафиксированная цена контракта → маржа сжимается. Наше суждение: умеренный, но устойчивый минус — у компании нет ценовой власти в госзаказе, а в 2026 давление усиливают рост НДС и тарифов ЖКХ.</p>
 <p><b>4. Господдержка и бюджетный импульс в гражданское авиастроение — двойственно.</b> Факт: субсидия по кредитам для МС-21 в 2026 повышена на 25% (до 2,5 млрд ₽) — исключение на фоне общего сокращения авиасубсидий; параллельно компания держится на докапитализациях (одобрена допэмиссия +2,06 трлн акций). Механизм: бюджетные вливания финансируют программы и закрывают убытки → компания остаётся платёжеспособной, но доля миноритариев размывается. Наше суждение: для бизнеса это спасение, для акционера — оборотная сторона в виде кратного размытия доли.</p>
 <a class="cta" href="/?company=UNAC&amp;tab=macro">Продолжить в приложении: макроэкономика Объединённая авиастроительная корпорация (ОАК) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/UNAC/business/">Бизнес-модель</a><a class="chip" href="/company/UNAC/finance/">Финансы и оценка</a><a class="chip" href="/company/UNAC/dividends/">Дивиденды</a><a class="chip" href="/company/UNAC/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/UNAC/otchet/">Разбор отчёта</a><a class="chip" href="/company/UNAC/business/">Бизнес-модель</a><a class="chip" href="/company/UNAC/finance/">Финансы и оценка</a><a class="chip" href="/company/UNAC/dividends/">Дивиденды</a><a class="chip" href="/company/UNAC/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

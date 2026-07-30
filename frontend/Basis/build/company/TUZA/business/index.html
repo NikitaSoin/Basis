@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Показатель</th><th>2025</th><th>2024</th><th>Δ г/г</th></tr></thead><tbody><tr><td>Выручка</td><td class="num">~4 200 <i>(оценка)</i></td><td class="num">13 150</td><td class="num">−3,1x <i>(≈ −68%)</i></td></tr><tr><td>EBITDA</td><td class="num">не раскрывается</td><td class="num">не раскрывается</td><td class="num">—</td></tr><tr><td>Маржа EBITDA</td><td class="num">не раскрывается</td><td class="num">не раскрывается</td><td class="num">—</td></tr><tr><td>Чистая прибыль (убыток)</td><td class="num">−434</td><td class="num">457</td><td class="num">убыток</td></tr><tr><td>Чистая маржа</td><td class="num">отрицательная</td><td class="num">3,5%</td><td class="num">—</td></tr><tr><td>CapEx</td><td class="num">не раскрывается</td><td class="num">не раскрывается</td><td class="num">—</td></tr><tr><td>Свободный денежный поток</td><td class="num">не раскрывается</td><td class="num">не раскрывается</td><td class="num">—</td></tr><tr><td>Чистый долг / EBITDA</td><td class="num">чистая денежная позиция</td><td class="num">чистый долг −0,61 млрд (кэш)</td><td class="num">—</td></tr></tbody></table>
 <p>Вывод из таблицы: в 2024 году завод показал рекордную выручку (13,15 млрд ₽, +20,6% г/г), но прибыль уже снижалась (−7% к 2023-му) из-за опережающего роста себестоимости (+23,2% г/г). В 2025 году бизнес резко сжался: выручка упала примерно втрое, и при недостаточном снижении издержек завод впервые за годы ушёл в чистый убыток (−434 млн ₽). EBITDA отдельной строкой в РСБУ не публикуется; процентные расходы исторически близки к нулю, у компании чистая денежная позиция (кэш превышает долг), что снижает финансовый риск.</p>
 <a class="cta" href="/?company=TUZA&amp;tab=business">Продолжить в приложении: бизнес-модель «Туймазинский завод автобетоновозов» (ТЗА) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TUZA/finance/">Финансы и оценка</a><a class="chip" href="/company/TUZA/dividends/">Дивиденды</a><a class="chip" href="/company/TUZA/macro/">Макроэкономика</a><a class="chip" href="/company/TUZA/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TUZA/otchet/">Разбор отчёта</a><a class="chip" href="/company/TUZA/finance/">Финансы и оценка</a><a class="chip" href="/company/TUZA/dividends/">Дивиденды</a><a class="chip" href="/company/TUZA/macro/">Макроэкономика</a><a class="chip" href="/company/TUZA/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

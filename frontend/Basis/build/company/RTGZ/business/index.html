@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p>Ряд — financials.json (единый источник чисел карточки), отчётность компании по МСФО. Вывод из таблицы: выручка регулируемой ГРО относительно стабильна и растёт вслед за индексацией тарифа, операционная прибыль тоже выросла (+18,7%), а вот итоговый чистый результат скачет — в 2024 году компания ушла в убыток, в 2025-м вернулась к прибыли. Скачок объясняется не операционной деятельностью (она ровная и в 2024 году тоже была прибыльной), а разовой «бумажной» статьёй ниже операционной прибыли: по данным первичной отчётности, убыток 2024 года почти полностью создал крупный неденежный расход по отложенному налогу (~1,0 млрд ₽) — вероятно, эффект повышения ставки налога на прибыль с 20% до 25% на переоценку отложенных налоговых обязательств <i>(факт по первичке; природа статьи компанией отдельно не прокомментирована)</i> — при том что прибыль до налога за 2024 год была положительной (0,80 млрд ₽).</p>
 <p>&gt; Важно: справочно, по <b>РСБУ</b> (другой периметр, дивидендная база по префам &gt; RTBGP считается по РСБУ) чистый результат 2024 года — убыток −0,16 млрд ₽, &gt; 2025 года — прибыль ~0,74 млрд ₽; отличается от МСФО-ряда в таблице выше, но &gt; направление динамики (убыток → прибыль) совпадает. EBITDA, чистый долг и FCF &gt; компания отдельными строками не раскрывает ни по РСБУ, ни по МСФО.</p>
 <a class="cta" href="/?company=RTGZ&amp;tab=business">Продолжить в приложении: бизнес-модель Газпром газораспределение Ростов-на-Дону →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RTGZ/finance/">Финансы и оценка</a><a class="chip" href="/company/RTGZ/dividends/">Дивиденды</a><a class="chip" href="/company/RTGZ/macro/">Макроэкономика</a><a class="chip" href="/company/RTGZ/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RTGZ/otchet/">Разбор отчёта</a><a class="chip" href="/company/RTGZ/finance/">Финансы и оценка</a><a class="chip" href="/company/RTGZ/dividends/">Дивиденды</a><a class="chip" href="/company/RTGZ/macro/">Макроэкономика</a><a class="chip" href="/company/RTGZ/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p><b>Инфляция издержек при отсутствии своей цены (факт + суждение о силе).</b> Факт: инфляция замедляется, но ожидания всё ещё высокие (13% на год вперёд), а зарплаты, энергия, реагенты и ремонты дорожают. Логика: завод не продаёт топливо и не назначает цену сам — он получает фиксированную плату за переработку, а размер этой платы задаёт материнская Роснефть. Если тариф не индексируется под рост издержек, маржа сжимается. На наш взгляд, это умеренный негатив: замедление инфляции его смягчает, но всё упирается в готовность группы поднимать тариф — рыночного рычага у завода нет.</p>
 <p><b>Загрузка нефтепереработки в стране (факт + суждение о силе).</b> Факт: объём первичной переработки в РФ восстанавливается до ~260–270 млн тонн при мощности ~330, Минэнерго ждёт роста в 2026 году после простоев. Логика: ровная загрузка отрасли и стабильные поставки сырья поддерживают предсказуемый объём переработки, а значит — устойчивую базу выручки и дивиденда. На наш взгляд, эффект нейтрально-слабоположительный: фон спокойный, но объём конкретно этого завода определяет не рынок, а решения и поставки материнской компании.</p>
 <a class="cta" href="/?company=KRKNP&amp;tab=macro">Продолжить в приложении: макроэкономика Саратовский НПЗ →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KRKNP/business/">Бизнес-модель</a><a class="chip" href="/company/KRKNP/finance/">Финансы и оценка</a><a class="chip" href="/company/KRKNP/dividends/">Дивиденды</a><a class="chip" href="/company/KRKNP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KRKNP/otchet/">Разбор отчёта</a><a class="chip" href="/company/KRKNP/business/">Бизнес-модель</a><a class="chip" href="/company/KRKNP/finance/">Финансы и оценка</a><a class="chip" href="/company/KRKNP/dividends/">Дивиденды</a><a class="chip" href="/company/KRKNP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

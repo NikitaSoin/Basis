@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Регулирование цен ЖНВЛП на фоне замедления инфляции (смешанный, риск маржи).</b> <i>Факт:</i> инфляция тормозит до ~5,6%, а цены на жизненно важные препараты (ЖНВЛП) регулируются государством; в 2026 году ФАС обновила методику и ужесточает мониторинг цен. <i>Как доходит до компании:</i> индексация регулируемых цен ориентируется на инфляцию — чем ниже инфляция, тем меньше пространства поднимать цены на регулируемую часть портфеля; при росте себестоимости маржа по этим позициям сжимается. <i>Наше суждение:</i> эффект смешанный и умеренный — замедление инфляции одновременно и тормозит рост издержек, и ограничивает потолок цен. Именно здесь главный риск для маржи, и он зависит от доли регулируемого ассортимента в портфеле.</p>
 <p><b>3. Крепкий рубль и стоимость импортных субстанций (позитив сейчас, обратимый).</b> <i>Факт:</i> доллар стоит ~73 руб., рубль крепкий; часть активных фармацевтических субстанций (АФИ) компания импортирует. <i>Как доходит до компании:</i> крепкий рубль делает импортное сырьё в рублях дешевле → снижается себестоимость → поддерживается валовая маржа. <i>Наше суждение:</i> сейчас это умеренный плюс, но эффект обратим — если во втором полугодии рубль ослабнет (что допускают аналитики), он развернётся в минус для маржи. Сила зависит от того, какую долю себестоимости занимают импортные субстанции.</p>
 <a class="cta" href="/?company=OZPH&amp;tab=macro">Продолжить в приложении: макроэкономика ОЗОН ФАРМАЦЕВТИКА →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/OZPH/business/">Бизнес-модель</a><a class="chip" href="/company/OZPH/finance/">Финансы и оценка</a><a class="chip" href="/company/OZPH/dividends/">Дивиденды</a><a class="chip" href="/company/OZPH/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/OZPH/otchet/">Разбор отчёта</a><a class="chip" href="/company/OZPH/business/">Бизнес-модель</a><a class="chip" href="/company/OZPH/finance/">Финансы и оценка</a><a class="chip" href="/company/OZPH/dividends/">Дивиденды</a><a class="chip" href="/company/OZPH/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

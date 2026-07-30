@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Цикл снижения ставки — умеренный плюс.</b> <i>Факт:</i> ставка снижена до 14,5%, курс на дальнейшее смягчение, ориентир ЦБ на 2026 год — 14,0–14,5%. <i>Как доходит до компании:</i> дешевле обслуживать долг и финансировать экспансию — больше ресурса на открытие магазинов «у дома» и покупки сетей; плюс более низкая ставка делает акцию дороже в оценке. <i>Наше суждение о силе:</i> умеренно-позитивно. Прямая экономия на процентах невелика — долг у «Ленты» низкий (около 0,6 EBITDA). Главная польза — удешевление финансирования агрессивного роста «Монетки» и поддержка оценки.</p>
 <p><b>3. Замедление роста доходов населения — смешанный эффект и ключевой риск.</b> <i>Факт:</i> реальные доходы выросли лишь на 1,5% в первом квартале (против 7,4% за 2025 год), хотя розничный оборот пока держится (+6,2% в марте). <i>Как доходит до компании:</i> покупатель начинает экономить и смещается к дешёвым форматам — это давит на трафик гипермаркетов, но перегоняет спрос в дискаунтеры «у дома». <i>Наше суждение о силе:</i> смешанно. Продукты — защитная категория, спрос на еду не исчезает, поэтому удар мягче, чем по другим секторам. А переток экономящего покупателя в дискаунтеры играет «Ленте» на руку — у неё как раз быстрорастущая «Монетка». То есть слабость доходов частично превращается в структурное преимущество.</p>
 <a class="cta" href="/?company=LENT&amp;tab=macro">Продолжить в приложении: макроэкономика «Лента» (Лента Ритейл) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/LENT/business/">Бизнес-модель</a><a class="chip" href="/company/LENT/finance/">Финансы и оценка</a><a class="chip" href="/company/LENT/dividends/">Дивиденды</a><a class="chip" href="/company/LENT/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/LENT/otchet/">Разбор отчёта</a><a class="chip" href="/company/LENT/business/">Бизнес-модель</a><a class="chip" href="/company/LENT/finance/">Финансы и оценка</a><a class="chip" href="/company/LENT/dividends/">Дивиденды</a><a class="chip" href="/company/LENT/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

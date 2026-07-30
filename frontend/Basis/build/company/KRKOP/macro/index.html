@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Спрос держится на госпрограммах обновления энергетики — и это главный риск.</b> Программа модернизации тепловой генерации (КОММод/ДПМ-2) — около 1,9 трлн ₽ инвестиций до 2031 года, отборы мощности продолжаются; плюс заказы атомной отрасли (<i>факт</i>). Государство финансирует обновление ТЭС и АЭС → генерирующие компании заказывают котельное оборудование → завод получает крупные долгосрочные контракты и загрузку на годы (<i>механизм</i>). На наш взгляд, это и главный поддерживающий фактор, и <b>главный риск</b> одновременно (<i>суждение</i>): спрос не рыночный, а программный. Перенос, секвестр или пауза в инвестпрограммах генерации с лагом 1–2 года ударит по новым заказам сильнее любого процента или курса, и компания на это почти не влияет.</p>
 <p><b>3. Цена металла внутри фиксированной цены контракта.</b> Сталь и металлопрокат сейчас вблизи дна цикла, но прогноз — удорожание быстрее инфляции во второй половине 2026 года (<i>факт</i>). Котёл металлоёмок, металл — крупнейшая статья себестоимости, а цена контракта зафиксирована заранее на длинный цикл → если металл дорожает уже после подписания, рост издержек некуда переложить, и маржа проекта сжимается (<i>механизм</i>). Сейчас фактор скорее в пользу маржи (дешёвый металл поддержал рентабельность 2025 года), но это временно: риск впереди, по мере удорожания стали по уже законтрактованным проектам (<i>суждение</i>).</p>
 <a class="cta" href="/?company=KRKOP&amp;tab=macro">Продолжить в приложении: макроэкономика ТКЗ «Красный котельщик» →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KRKOP/business/">Бизнес-модель</a><a class="chip" href="/company/KRKOP/finance/">Финансы и оценка</a><a class="chip" href="/company/KRKOP/dividends/">Дивиденды</a><a class="chip" href="/company/KRKOP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KRKOP/otchet/">Разбор отчёта</a><a class="chip" href="/company/KRKOP/business/">Бизнес-модель</a><a class="chip" href="/company/KRKOP/finance/">Финансы и оценка</a><a class="chip" href="/company/KRKOP/dividends/">Дивиденды</a><a class="chip" href="/company/KRKOP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

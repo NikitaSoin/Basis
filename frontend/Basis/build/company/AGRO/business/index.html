@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Сегмент</th><th>Выручка 2025</th><th>Доля</th><th>Динамика г/г</th><th>Что это</th></tr></thead><tbody><tr><td>Масложировой</td><td class="num">207,8 млрд ₽</td><td class="num">49%</td><td class="num">+7%</td><td class="num">Подсолнечное масло, майонез, маргарин, промышленные жиры (бренды «Слобода», «Я люблю готовить»; завод НМЖК с 2024)</td></tr><tr><td>Мясной</td><td class="num">93,5 млрд ₽</td><td class="num">22%</td><td class="num">+71%</td><td class="num">Свинина (промышленное свиноводство, переработка). Рост — выход на проектную мощность приморского/тамбовского кластеров</td></tr><tr><td>Сахарный</td><td class="num">67,8 млрд ₽</td><td class="num">16%</td><td class="num">−0,1%</td><td class="num">Сахар из собственной свёклы; один из крупнейших производителей РФ</td></tr><tr><td>Сельхоз (растениеводство)</td><td class="num">54,7 млрд ₽</td><td class="num">13%</td><td class="num">+8%</td><td class="num">Зерно, масличные, сахарная свёкла — частью для своих переделов, частью на продажу</td></tr></tbody></table>
 <p>Сумма сегментов ≈ 423,8 млрд ₽ до элиминаций; консолидированная выручка после вычета внутренних продаж = <b>396 450,5 млн ₽</b> (якорный блок) — разница как раз и есть «продал сам себе» (свёкла → сахар, зерно → корма свиньям). Это нормально для вертикальной интеграции и подтверждает, что модель реально интегрированная.</p>
 <a class="cta" href="/?company=AGRO&amp;tab=business">Продолжить в приложении: бизнес-модель Группа «Русагро» (RAGR; ранее ROS AGRO PLC) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/AGRO/finance/">Финансы и оценка</a><a class="chip" href="/company/AGRO/dividends/">Дивиденды</a><a class="chip" href="/company/AGRO/macro/">Макроэкономика</a><a class="chip" href="/company/AGRO/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/AGRO/otchet/">Разбор отчёта</a><a class="chip" href="/company/AGRO/finance/">Финансы и оценка</a><a class="chip" href="/company/AGRO/dividends/">Дивиденды</a><a class="chip" href="/company/AGRO/macro/">Макроэкономика</a><a class="chip" href="/company/AGRO/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

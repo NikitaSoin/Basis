@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p>Тонкая и <b>инвертированная</b> относительно типичного экспортёра, при этом малая. На гео-слое конкуренции KLVZ — редкий мягкий <b>бенефициар статус-кво войны</b>: уход западных премиальных крепких и ликёрных брендов (Diageo/Pernod Ricard/Brown-Forman/LVMH) обвалил долю импорта (джин 22→11%, виски 56→36%, ликёры 44→30%) и освободил полку именно в сегменте ЛВИ/премиум, куда компания стратегически уводит фокус (в 1кв2026 ЛВИ впервые дали &gt;50% выручки); плюс пошлины на «недружественный» крепкий алкоголь (€3→€5/л с 05.2026). Зеркально при мире (S1/S2) — мягкий <b>peace-loser</b>: ослабление пошлин и возврат западной премиальной конкуренции подмывают этот попутный ветер импортозамещения. Эффект модест, политика «липкая», часть импорта и так возвращается параллельным каналом.</p>
 <p>Два уточнения, чтобы не переоценить асимметрию. Первое: профиль <b>чище ABRD</b> — у KLVZ нет физического регионального хвоста. Завод в Обнинске (вглубь страны), а не в черноморской/прифронтовой зоне, поэтому эскалация не грозит активу БПЛА-риском (в отличие от туркластера ABRD в Новороссийске); гео-минус эскалации сводится к более глубокому трению по импорту флейворов/дистиллята/оборудования. Второе и главное: <b>фактическая peace-бета акции сильно положительна, но за счёт МАКРО, а не гео</b> — мир означает снижение ставки, а для закредитованного убыточного эмитента разгрузка процентов раскрывает стоимость непропорционально. Это чувствительность к ставке, не к геополитике. Пара Δстоимости на гео-порцию (ex-макро): S1 ≈ −3%…+2%, S4 ≈ −2%…+3%.</p>
 <a class="cta" href="/?company=KLVZ&amp;tab=geo">Продолжить в приложении: геополитика «Алкогольная группа Кристалл» (КЛВЗ Кристалл) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KLVZ/business/">Бизнес-модель</a><a class="chip" href="/company/KLVZ/finance/">Финансы и оценка</a><a class="chip" href="/company/KLVZ/dividends/">Дивиденды</a><a class="chip" href="/company/KLVZ/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KLVZ/otchet/">Разбор отчёта</a><a class="chip" href="/company/KLVZ/business/">Бизнес-модель</a><a class="chip" href="/company/KLVZ/finance/">Финансы и оценка</a><a class="chip" href="/company/KLVZ/dividends/">Дивиденды</a><a class="chip" href="/company/KLVZ/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

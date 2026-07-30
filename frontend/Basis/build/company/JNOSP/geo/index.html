@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <h3>Чем НЕ был обвал прибыли-2024 (анти-сверхатрибуция) — мост class-agnostic</h3>
 <p>Экономика у обоих классов одна, поэтому атрибуция унаследована. Соблазн списать всё на войну ошибочен: собрал мост <b>строго год-к-году</b> (financials.json) — чистая прибыль 7,99→6,26 млрд (−1,74) <b>при том, что операционная прибыль ВЫРОСЛА</b> (13,94→17,35, +3,40) и доналоговая тоже (+0,99). Обвал пришёл <b>целиком из-под операционной строки</b>: финрасходы на росте ставки к 21% (−2,41 млрд, макро) плюс скачок налога (−2,73: ~0,69 нормального + ~2,05 аномального one-off). <b>Явная строка остатка = 0.</b> K1-тест: нероссийский завод-толлинг вёл бы себя так же → мировой цикл <b>0%</b>. <b>Прямой гео ≈ 0%</b> (в 2024 выручка и объём РОСЛИ). Ставочный канал — опосредованный макро, живёт в безрисковой ставке (macro.json), <b>в гео-дисконт не входит</b> (грех М.Видео/K27). Физический удар по выручке — это история <b>2025–2026</b>, которой ещё нет в отчётных числах, и даже она <b>не на 100% чистая физика</b>: часть недогруза — экономическое придерживание (демпфер развернулся, НПЗ платят ~16,9 млрд/квартал в бюджет; спрос слаб). <b>Преф-нюанс:</b> даже операционный рост +3,40 млрд до держателя ПА не доходит — его дивиденд по уставу привязан к <b>1% номинала (0,01 ₽)</b>, а не к прибыли; но это уставный дизайн (зона ИНСТ), а не гео.</p>
 <a class="cta" href="/?company=JNOSP&amp;tab=geo">Продолжить в приложении: геополитика Славнефть-ЯНОС (Ярославский НПЗ) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/JNOSP/business/">Бизнес-модель</a><a class="chip" href="/company/JNOSP/finance/">Финансы и оценка</a><a class="chip" href="/company/JNOSP/dividends/">Дивиденды</a><a class="chip" href="/company/JNOSP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/JNOSP/otchet/">Разбор отчёта</a><a class="chip" href="/company/JNOSP/business/">Бизнес-модель</a><a class="chip" href="/company/JNOSP/finance/">Финансы и оценка</a><a class="chip" href="/company/JNOSP/dividends/">Дивиденды</a><a class="chip" href="/company/JNOSP/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

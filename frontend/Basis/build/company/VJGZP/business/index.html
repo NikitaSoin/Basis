@@ -94,8 +94,8 @@ ul{padding-left:22px}</style>
 <h4>Отличие префов от обыкновенных (VJGZ vs VJGZP)</h4>
 <table><thead><tr><th>Параметр</th><th>VJGZ (обыкновенные)</th><th>VJGZP (привилегированные)</th></tr></thead><tbody><tr><td>Право голоса в совете</td><td class="num">Да</td><td class="num">Нет</td></tr><tr><td>Управление и влияние</td><td class="num">Есть доля (но в руках ННК на 93,89%)</td><td class="num">Нет</td></tr><tr><td>Дивидендный приоритет</td><td class="num">После префов; за 2024 не выплачены</td><td class="num">10% по уставу в приоритетном порядке</td></tr><tr><td>Экономический выход (P&amp;L)</td><td class="num">Идентичен</td><td class="num">Идентичен</td></tr><tr><td>Риск по прибыли</td><td class="num">Полный (чувствительны ко всем факторам)</td><td class="num">Полный (10% фонд зависит от общей прибыли)</td></tr><tr><td>Ликвидность</td><td class="num">Низкая</td><td class="num">Очень низкая</td></tr></tbody></table>
 <a class="cta" href="/?company=VJGZP&amp;tab=business">Продолжить в приложении: бизнес-модель ННК-Варьеганнефтегаз →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VJGZP/finance/">Финансы и оценка</a><a class="chip" href="/company/VJGZP/dividends/">Дивиденды</a><a class="chip" href="/company/VJGZP/macro/">Макроэкономика</a><a class="chip" href="/company/VJGZP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VJGZP/otchet/">Разбор отчёта</a><a class="chip" href="/company/VJGZP/finance/">Финансы и оценка</a><a class="chip" href="/company/VJGZP/dividends/">Дивиденды</a><a class="chip" href="/company/VJGZP/macro/">Макроэкономика</a><a class="chip" href="/company/VJGZP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -115,7 +115,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -127,8 +128,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

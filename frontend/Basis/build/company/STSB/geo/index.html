@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <h3>Главная war/peace-асимметрия: её практически нет (E14 = 1.0)</h3>
 <p>STSB — <b>ни пис-бета, ни вор-бета</b>. При мире (S1) разблокировать нечего: нет замороженных активов, экспортного дисконта или навеса нерезидентов. Небольшой апсайд в S1 (+2…+5%) — это чистая рыночная бета микрокапа на снижение Rf, а не компанейская пис-выпуклость, и она частично гасится обратным эффектом: снижение ставки срезает процентный доход «кубышки» (денежная подушка −1,89 млрд ₽ приносит больше прибыли при высокой ставке). При эскалации (S4) даунсайд (−3…−6%) — тоже общий risk-off на мультипликатор плюс 3-й порядок через удары по чужим сетям юга, а не прямой удар по бизнесу. Компания владеет офисами и биллингом, не генерацией и сетями, — БПЛА-фон бьёт по чужим активам.</p>
 <a class="cta" href="/?company=STSB&amp;tab=geo">Продолжить в приложении: геополитика Ставропольэнергосбыт →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/STSB/business/">Бизнес-модель</a><a class="chip" href="/company/STSB/finance/">Финансы и оценка</a><a class="chip" href="/company/STSB/dividends/">Дивиденды</a><a class="chip" href="/company/STSB/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/STSB/otchet/">Разбор отчёта</a><a class="chip" href="/company/STSB/business/">Бизнес-модель</a><a class="chip" href="/company/STSB/finance/">Финансы и оценка</a><a class="chip" href="/company/STSB/dividends/">Дивиденды</a><a class="chip" href="/company/STSB/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

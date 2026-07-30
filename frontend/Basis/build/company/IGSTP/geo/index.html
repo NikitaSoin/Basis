@@ -81,8 +81,8 @@ ul{padding-left:22px}</style>
 <h3>Главная war/peace-асимметрия (неочевидная)</h3>
 <p><b>«Ижсталь» — не пис-бета, а скорее про-статус-кво бумага по гео-торговому каналу.</b> Обычный рефлекс «мир = хорошо для российских акций» здесь не работает в лоб. При мирном прорыве (S1) завод не выигрывает по своей гео-линии: (1) ослабевает окно импортозамещения — на рынок нержавейки/спецстали могут вернуться западные поставщики- конкуренты (импорт и так ~74% рынка нержавейки); (2) крепкий рубль эпизода S1 удешевляет импортных конкурентов и бьёт по импортному паритету цен спецстали. Единственный гео-плюс мира — косвенный и медленный: смягчение SDN с «Мечела» (путь как в кейсе Русал-2018) разрядило бы давление на кэптивный вывод кэша наверх. Апсайд мира для «Ижстали» — это в основном МАКРО (снижение ставки → оживление машиностроения/ОПК), а не гео. Грубая гео- компонента: в S1 ≈ 0…−5%, в S4 ≈ −5…−10% — низкая выпуклость, лёгкий негативный скос.</p>
 <a class="cta" href="/?company=IGSTP&amp;tab=geo">Продолжить в приложении: геополитика Ижсталь →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/IGSTP/business/">Бизнес-модель</a><a class="chip" href="/company/IGSTP/finance/">Финансы и оценка</a><a class="chip" href="/company/IGSTP/dividends/">Дивиденды</a><a class="chip" href="/company/IGSTP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/IGSTP/otchet/">Разбор отчёта</a><a class="chip" href="/company/IGSTP/business/">Бизнес-модель</a><a class="chip" href="/company/IGSTP/finance/">Финансы и оценка</a><a class="chip" href="/company/IGSTP/dividends/">Дивиденды</a><a class="chip" href="/company/IGSTP/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -102,7 +102,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -114,8 +115,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

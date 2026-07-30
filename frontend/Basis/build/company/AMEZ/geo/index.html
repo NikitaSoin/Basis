@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p>Две проверки, которых не было в черновике:</p>
 <ul><li><b>Период уточнён.</b> Оговорка «2025=H1» <b>устарела</b>: ОДДС-2025 извлечён из полногодового аудированного отчёта FY2025 (report-fetcher 06.07), pre-tax в ОДДС совпадает с P&amp;L → и P&amp;L полногодовой; удвоение 27,2→54 млрд превысило бы пик-2023, что невозможно в даунцикле. Сравнение FY-к-FY корректно.</li><li><b>К1-контроль исполнен</b> на нероссийских неинтегрированных/спецсталь-аналогах. Acerinox (EBITDA €703 млн 2023 → ~€428 млн 2025, средняя цена −16%), Aperam (€339 млн 2025 vs €356 млн 2024, Q4 −40% г/г, «weak demand, low steel prices»), турецкие EAF-миниммилы («weak demand and high costs») — <b>все просели на мировом цикле, но остались в плюсе</b>. AMEZ <b>ушёл в отрицательную EBITDA</b>. Дельта «сжатие-но-плюс» (глобальный цикл) vs «обвал в убыток» (AMEZ) = <b>российский внутренний спрос</b>, а не санкции и не мировой цикл. Санти-чек суммы сходится (−11,1 млрд; независимая P&amp;L-сверка: операц. −12,0 + проценты −2,4 − налоговая льгота +3,4). Профиль ближе к K27 (чистый ставочный, тип М.Видео), чем к K28 (Сегежа). Сверхатрибуция санкциям была бы канонической ошибкой. [оценка]</li></ul>
 <a class="cta" href="/?company=AMEZ&amp;tab=geo">Продолжить в приложении: геополитика Ашинский метзавод →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/AMEZ/business/">Бизнес-модель</a><a class="chip" href="/company/AMEZ/finance/">Финансы и оценка</a><a class="chip" href="/company/AMEZ/dividends/">Дивиденды</a><a class="chip" href="/company/AMEZ/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/AMEZ/otchet/">Разбор отчёта</a><a class="chip" href="/company/AMEZ/business/">Бизнес-модель</a><a class="chip" href="/company/AMEZ/finance/">Финансы и оценка</a><a class="chip" href="/company/AMEZ/dividends/">Дивиденды</a><a class="chip" href="/company/AMEZ/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

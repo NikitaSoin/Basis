@@ -86,8 +86,8 @@ ul{padding-left:22px}</style>
 <p><b>1. Смягчение ставки при liability-sensitive балансе (плюс, с лагом).</b> Ставка ↓ → дорогие срочные вклады удешевляются по мере истечения (лаг 2–4 квартала) → фондирование дешевеет быстрее кредитов → маржа восстанавливается с 5,96% к ~6,3–6,7%. <i>Сколько:</i> ориентировочно <b>+2…+7 млн ₽</b> к прибыли на каждые −100 б.п. ставки (центр ~+4). Второй слой: банк выигрывает от снижения ставки — инверсия относительно крупных банков; обратная сторона — при быстром снижении вкладчики уходят за доходностью (риск оттока). <i>(факт ставки / логика канала / суждение о силе)</i></p>
 <p><b>2. Зарплатная и издержковая инфляция (минус, главный удар 2025).</b> Дефицит кадров → рост ФОТ (~50% издержек) → расходы обгоняют доходы → взрыв CIR. <i>Сколько:</i> <b>−3…−4 млн ₽</b> к прибыли на каждый +1 п.п. сверхинфляции издержек. Эндогенный капкан: тот же дефицит труда, что держит ставку ЦБ высокой, напрямую инфлирует издержки банка.</p>
 <a class="cta" href="/?company=KUZB&amp;tab=macro">Продолжить в приложении: макроэкономика Банк Кузнецкий →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KUZB/business/">Бизнес-модель</a><a class="chip" href="/company/KUZB/finance/">Финансы и оценка</a><a class="chip" href="/company/KUZB/dividends/">Дивиденды</a><a class="chip" href="/company/KUZB/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KUZB/otchet/">Разбор отчёта</a><a class="chip" href="/company/KUZB/business/">Бизнес-модель</a><a class="chip" href="/company/KUZB/finance/">Финансы и оценка</a><a class="chip" href="/company/KUZB/dividends/">Дивиденды</a><a class="chip" href="/company/KUZB/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -107,7 +107,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -119,8 +120,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

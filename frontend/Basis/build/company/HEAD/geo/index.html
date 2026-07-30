@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <h3>Причинная атрибуция: гео тут почти ни при чём</h3>
 <p>Падение чистой прибыли-2025 на 24,7% — это ставка (охлаждение найма, ~−2 млрд) плюс высокая база 2024 (аномальный процентный доход + нулевой IT-налог), спецдивиденд, рост IT-налога с 2025. Прямой гео-вклад <b>≈ 0-5%</b>. Эталонный анти-сверхатрибуционный случай (урок М.Видео/K27): приписывать движение стоимости HH санкциям нельзя, и гео-баллы по итогам года не двигались.</p>
 <a class="cta" href="/?company=HEAD&amp;tab=geo">Продолжить в приложении: геополитика «Хэдхантер» (HeadHunter Group) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/HEAD/business/">Бизнес-модель</a><a class="chip" href="/company/HEAD/finance/">Финансы и оценка</a><a class="chip" href="/company/HEAD/dividends/">Дивиденды</a><a class="chip" href="/company/HEAD/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/HEAD/otchet/">Разбор отчёта</a><a class="chip" href="/company/HEAD/business/">Бизнес-модель</a><a class="chip" href="/company/HEAD/finance/">Финансы и оценка</a><a class="chip" href="/company/HEAD/dividends/">Дивиденды</a><a class="chip" href="/company/HEAD/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

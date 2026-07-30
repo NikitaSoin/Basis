@@ -82,7 +82,7 @@ ul{padding-left:22px}</style>
 <p>НЛМК — <b>единственный в секторе, у кого мир возвращает не только ставку, но и рынок с активами</b>. У Северстали пис-бета почти целиком опосредованная (мир → снижение ставки → стройка → цена проката). У НЛМК поверх этого макро-канала (он и здесь доминирует, ~2/3 свинга) есть прямой гео-опцион: сохранение доступа к премиальному ЕС, снятие риска списания/форс-продажи NBH и американских заводов, более лёгкий возврат иностранного бида (компания не заблокирована). Зеркально тяжелее и даунсайд эскалации: ускорение отмены слябового исключения, форс-продажа активов США под дедлайн (переговоры с Cleveland-Cliffs с 2024 не завершены — K23-паттерн дисконта) и бинарный хвост — втягивание Лисина/компании в SDN, что одномоментно перевернуло бы профиль в CHMF-тип (правило OFAC 50%). Грубо: S1 ≈ +30–45% (гео-специфичная часть ~+10–15%, больше CHMF), S4 ≈ −20–30%.</p>
 <a class="cta" href="/?company=NLMK&amp;tab=geo">Продолжить в приложении: геополитика НЛМК →</a>
 <h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/NLMK/otchet/">Разбор отчёта</a><a class="chip" href="/company/NLMK/business/">Бизнес-модель</a><a class="chip" href="/company/NLMK/finance/">Финансы и оценка</a><a class="chip" href="/company/NLMK/dividends/">Дивиденды</a><a class="chip" href="/company/NLMK/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -102,7 +102,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -114,8 +115,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

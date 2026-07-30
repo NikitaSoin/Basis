@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <h3>Чем НЕ был обвал прибыли 2024 (анти-сверхатрибуция) — мост пересобран</h3>
 <p>Соблазн списать всё на войну здесь силён — и он ошибочен, но и прежняя раскладка (65/30/5) была арифметически несостоятельна. Пересобрал <b>строго год-к-году</b> (financials.json): чистая прибыль 7,99→6,26 млрд (−1,74) — при том, что <b>операционная прибыль ВЫРОСЛА</b> (13,94→17,35, +3,40) и доналоговая тоже (+0,99). То есть обвал пришёл <b>целиком из-под операционной строки</b>: финрасходы на росте ставки к 21% (−2,41 млрд, макро) плюс скачок налога (−2,73 млрд: ~0,69 нормального + ~2,05 аномального one-off), лишь частично компенсированные операционным ростом. Остаток моста — ноль. <b>Прямой гео-вклад ≈ 0%</b> (в 2024 выручка и объём РОСЛИ — физического удара по загрузке в отчётных числах нет). Ставочный канал — опосредованный макро, живёт в безрисковой ставке (macro.json), <b>в гео-дисконт не входит</b> (грех М.Видео/K27). Прямой физический удар по выручке — это история <b>2025–2026</b>, которой ещё нет в отчётных числах.</p>
 <a class="cta" href="/?company=JNOS&amp;tab=geo">Продолжить в приложении: геополитика Славнефть-ЯНОС (Ярославский НПЗ) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/JNOS/business/">Бизнес-модель</a><a class="chip" href="/company/JNOS/finance/">Финансы и оценка</a><a class="chip" href="/company/JNOS/dividends/">Дивиденды</a><a class="chip" href="/company/JNOS/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/JNOS/otchet/">Разбор отчёта</a><a class="chip" href="/company/JNOS/business/">Бизнес-модель</a><a class="chip" href="/company/JNOS/finance/">Финансы и оценка</a><a class="chip" href="/company/JNOS/dividends/">Дивиденды</a><a class="chip" href="/company/JNOS/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

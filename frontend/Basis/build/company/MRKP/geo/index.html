@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <p>MRKP — НЕ пис-бета. Её «мирный апсайд» (квази-облигация: −1 п.п. ставки ≈ +7-11% капитализации) — это чисто макро-переоценка ставки дисконтирования, уже сидящая в безрисковой, а не геополитическая заслуга бизнеса.</p>
 <p>Ключевая правка этой версии (по red-team): собственно гео-эффект мира через пакет Prosperity нужно разложить на два такта, а не вешать один риск дважды с разными знаками. <b>Stock-компонента</b> — постоянный дисконт за навес и недоступность бумаги нерезидентам (~4-5% в канале C) — бумага несёт его СЕГОДНЯ; при мирной разблокировке этот уже оплаченный дисконт <b>высвобождается</b> (приведённая стоимость, гео-мирный плюс). <b>Flow-компонента</b> — событийное транзитное предложение при выходе пакета — даёт временное давление, но по якорю C03 §3 это «техническое сопротивление во второй фазе ралли» (демпфер), а НЕ разворот знака. Вдобавок flow ослаблен двумя факторами, которые я раньше не тестировал: Prosperity исторически про-дивидендный активист и при двузначной дивдоходности может не продавать сразу; а продажа по режиму «С» идёт по разрешению правкомиссии, часто внебиржевым блоком с известным покупателем — тогда биржевой стакан навеса вовсе не видит.</p>
 <a class="cta" href="/?company=MRKP&amp;tab=geo">Продолжить в приложении: геополитика Россети Центр и Приволжье (ПАО) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MRKP/business/">Бизнес-модель</a><a class="chip" href="/company/MRKP/finance/">Финансы и оценка</a><a class="chip" href="/company/MRKP/dividends/">Дивиденды</a><a class="chip" href="/company/MRKP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MRKP/otchet/">Разбор отчёта</a><a class="chip" href="/company/MRKP/business/">Бизнес-модель</a><a class="chip" href="/company/MRKP/finance/">Финансы и оценка</a><a class="chip" href="/company/MRKP/dividends/">Дивиденды</a><a class="chip" href="/company/MRKP/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

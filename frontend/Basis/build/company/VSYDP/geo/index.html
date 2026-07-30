@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <h3>Против сверхатрибуции — главное дисциплинирующее звено</h3>
 <p>Соблазн — списать слабость ВСЗ на санкции. Причинная декомпозиция (C08) этого не подтверждает. Разворот РСБУ 2024→2025 (убыток 1,2 млрд → прибыль +142 млн) при органике около нуля объясняется в основном <b>ставкой</b> (дорогая оборотка длинного цикла при средней ~20% в 2025 — опосредованный макро, живёт в безрисковой, ~50–60%), <b>господдержкой</b> (докапитализация/субсидии вытянули итог, ~20–25%) и <b>POC-таймингом</b> единичных контрактов (отраслевая лумпи, K1-тест: нероссийская верфь показала бы ту же волатильность выручки). Прямо-гео доля (санкционная компонентная премия на фикс-цене + срывы сроков) — <b>~10–15% [ОЦЕНКА, confidence L]</b>, значимый, но миноритарный фактор. Необъяснённый остаток (закрытые долг/finance_income/капекс) назван остатком, не приписан гео. «Санкции убили ВСЗ» — ложная рамка (уроки K27 М.Видео / K29 Совкомфлот).</p>
 <a class="cta" href="/?company=VSYDP&amp;tab=geo">Продолжить в приложении: геополитика Выборгский судостроительный завод →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VSYDP/business/">Бизнес-модель</a><a class="chip" href="/company/VSYDP/finance/">Финансы и оценка</a><a class="chip" href="/company/VSYDP/dividends/">Дивиденды</a><a class="chip" href="/company/VSYDP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/VSYDP/otchet/">Разбор отчёта</a><a class="chip" href="/company/VSYDP/business/">Бизнес-модель</a><a class="chip" href="/company/VSYDP/finance/">Финансы и оценка</a><a class="chip" href="/company/VSYDP/dividends/">Дивиденды</a><a class="chip" href="/company/VSYDP/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

@@ -88,8 +88,8 @@ ul{padding-left:22px}</style>
 <p>4. <b>Налог на добычу (НДПИ)</b> — с 2025 года введена надбавка 10% от превышения цены золота над $1 900/унцию; в 2024 году действовал дополнительный коэффициент 78 тыс. руб./кг. <i>Риск:</i> дальнейший рост налоговой нагрузки при высоких ценах.</p>
 <p>5. <b>Долговая нагрузка и процентные расходы</b> — чистый долг 59,3 млрд руб. (2025 год), процентные расходы в 2024 году выросли в 2,4 раза до ~6,8 млрд руб. (в 2025-м — уже 11,2 млрд руб.). При ключевой ставке 14,5% (май 2026) расходы на обслуживание долга остаются высокими. <i>Риск:</i> при падении цены золота долговая нагрузка станет критической.</p>
 <a class="cta" href="/?company=UGLD&amp;tab=business">Продолжить в приложении: бизнес-модель «Южуралзолото Группа Компаний» (ЮГК) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/UGLD/finance/">Финансы и оценка</a><a class="chip" href="/company/UGLD/dividends/">Дивиденды</a><a class="chip" href="/company/UGLD/macro/">Макроэкономика</a><a class="chip" href="/company/UGLD/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/UGLD/otchet/">Разбор отчёта</a><a class="chip" href="/company/UGLD/finance/">Финансы и оценка</a><a class="chip" href="/company/UGLD/dividends/">Дивиденды</a><a class="chip" href="/company/UGLD/macro/">Макроэкономика</a><a class="chip" href="/company/UGLD/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -109,7 +109,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -121,8 +122,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

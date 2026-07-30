@@ -94,8 +94,8 @@ ul{padding-left:22px}</style>
 <p>Главные рычаги — цены на базовую химию, тарифы на энергию и загрузка мощностей.</p>
 <table><thead><tr><th>Сценарий</th><th>Цены / спрос</th><th>EBITDA (ориентир)</th><th>Чистая прибыль (ориентир)</th></tr></thead><tbody><tr><td>Позитивный (восстановление цен)</td><td class="num">спрос растёт</td><td class="num">~3,5–4,5 млрд</td><td class="num">~2–3 млрд</td></tr><tr><td>Базовый (стабилизация на уровне 2024)</td><td class="num">спрос стабилен</td><td class="num">~2,5–3 млрд</td><td class="num">~1–1,5 млрд</td></tr><tr><td>Негативный (низкие цены, рост тарифов)</td><td class="num">спрос слабый</td><td class="num">~1,5–2 млрд</td><td class="num">~0,3–0,8 млрд</td></tr></tbody></table>
 <a class="cta" href="/?company=HIMCP&amp;tab=business">Продолжить в приложении: бизнес-модель Химпром (преф HIMCP) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/HIMCP/finance/">Финансы и оценка</a><a class="chip" href="/company/HIMCP/dividends/">Дивиденды</a><a class="chip" href="/company/HIMCP/macro/">Макроэкономика</a><a class="chip" href="/company/HIMCP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/HIMCP/otchet/">Разбор отчёта</a><a class="chip" href="/company/HIMCP/finance/">Финансы и оценка</a><a class="chip" href="/company/HIMCP/dividends/">Дивиденды</a><a class="chip" href="/company/HIMCP/macro/">Макроэкономика</a><a class="chip" href="/company/HIMCP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -115,7 +115,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -127,8 +128,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

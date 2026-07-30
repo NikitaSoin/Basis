@@ -86,8 +86,8 @@ ul{padding-left:22px}</style>
 <h3>Главная war/peace-асимметрия</h3>
 <p>Пис-бета высокая, но это <b>общая рыночная бета, а не адресный опцион снятия санкций</b> (санкций на компанию нет — снимать нечего). Прикидка: ΔNAV в S1 ≈ +15…25%, в S4 ≈ −15…25% — почти симметрично. Но здесь ловушка для миноритария: асимметрия накапливается в NAV, а акция торгуется с <b>премией</b> к NAV (~1,6–2,05x). То есть даже если мир поднимет портфель, держатель может не получить апсайд — премия к NAV способна сжаться сильнее любого гео-движения. «Пис-опцион» на этой бумаге ненадёжен.</p>
 <a class="cta" href="/?company=RUSI&amp;tab=geo">Продолжить в приложении: геополитика ИК РУСС-ИНВЕСТ →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RUSI/business/">Бизнес-модель</a><a class="chip" href="/company/RUSI/finance/">Финансы и оценка</a><a class="chip" href="/company/RUSI/dividends/">Дивиденды</a><a class="chip" href="/company/RUSI/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RUSI/otchet/">Разбор отчёта</a><a class="chip" href="/company/RUSI/business/">Бизнес-модель</a><a class="chip" href="/company/RUSI/finance/">Финансы и оценка</a><a class="chip" href="/company/RUSI/dividends/">Дивиденды</a><a class="chip" href="/company/RUSI/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -107,7 +107,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -119,8 +120,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

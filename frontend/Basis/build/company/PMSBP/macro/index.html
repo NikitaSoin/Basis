@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <p><b>Инфляция и тарифная индексация — умеренная поддержка.</b> Факт: конечные тарифы на электроэнергию для населения индексируются осенью 2026 примерно на 11,3% (основной этап перенесён с июля на 1 октября). Логика канала: индексация поднимает рублёвый оборот, частично растёт и сбытовая надбавка. Но бизнес «транзитный» — около 92% выручки это перепродаваемая энергия, основная индексация проходит насквозь, а потолок собственного заработка задаёт регулятор. Поэтому, на наш взгляд, поддержка реальная, но скромная, и смещена ближе к концу года из-за переноса индексации.</p>
 <p><b>Внутренний спрос и доходы населения — близко к нейтральному.</b> Факт: рост реальных доходов резко замедлился до +1,5% г/г. Логика канала: при остывании доходов может слегка ослабнуть платёжная дисциплина, но спрос на электроэнергию защитный и обязательный, а статус гарантирующего поставщика защищает базу. Наше суждение: эффект слабый, основной риск тут — рост просрочки, а не падение выручки.</p>
 <a class="cta" href="/?company=PMSBP&amp;tab=macro">Продолжить в приложении: макроэкономика Пермэнергосбыт →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/PMSBP/business/">Бизнес-модель</a><a class="chip" href="/company/PMSBP/finance/">Финансы и оценка</a><a class="chip" href="/company/PMSBP/dividends/">Дивиденды</a><a class="chip" href="/company/PMSBP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/PMSBP/otchet/">Разбор отчёта</a><a class="chip" href="/company/PMSBP/business/">Бизнес-модель</a><a class="chip" href="/company/PMSBP/finance/">Финансы и оценка</a><a class="chip" href="/company/PMSBP/dividends/">Дивиденды</a><a class="chip" href="/company/PMSBP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

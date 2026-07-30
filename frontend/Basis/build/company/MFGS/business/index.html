@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p>&gt; <b>Справочно: РСБУ.</b> По отчётности РСБУ компания раскрывает более глубокий &gt; чистый убыток — 13,25 млрд ₽ (2024) и 7,91 млрд ₽ (2023, +6,5% выручка г/г) — &gt; заметно больше убытка по МСФО. Выручка по РСБУ (210,8 / 197,9 млрд ₽) близка &gt; к МСФО, но убыток отличается кратно — типично для дочерней добывающей &gt; компании с внутригрупповыми трансфертными ценами и разной трактовкой &gt; обесценения между стандартами.</p>
 <p>Вывод из таблицы: выручка растёт (+7,5% по МСФО), но компания второй год подряд убыточна, и убыток по МСФО увеличивается почти вдвое. Это значит, что проблема не в продажах, а в том, что между выручкой и итоговой прибылью стоят крупные статьи — производственные налоги, амортизация истощающихся месторождений и условия реализации нефти внутри группы. Положительная EBITDA при чистом убытке указывает на то, что «съедают» прибыль именно неоперационные и посленалоговые статьи (амортизация, налоги, возможные обесценения).</p>
 <a class="cta" href="/?company=MFGS&amp;tab=business">Продолжить в приложении: бизнес-модель Славнефть-Мегионнефтегаз →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MFGS/finance/">Финансы и оценка</a><a class="chip" href="/company/MFGS/dividends/">Дивиденды</a><a class="chip" href="/company/MFGS/macro/">Макроэкономика</a><a class="chip" href="/company/MFGS/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MFGS/otchet/">Разбор отчёта</a><a class="chip" href="/company/MFGS/finance/">Финансы и оценка</a><a class="chip" href="/company/MFGS/dividends/">Дивиденды</a><a class="chip" href="/company/MFGS/macro/">Макроэкономика</a><a class="chip" href="/company/MFGS/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

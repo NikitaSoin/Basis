@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <ul><li><b>Мир (S1/S2) — двойственно.</b> Гео-порция мира для бумаги <b>отрицательна</b> (обратная пис-бета): возврат Cisco/Zoom/Teams эродирует адресный рынок и ценовую силу MCU. Для ВКС издержки переключения <b>ниже</b>, чем у банковского ядра Диасофта, — операционно возврат мог бы быть быстрее. Но peace-downside сильно <b>размыт</b>: (1) адресную долю уже оспаривают отечественные гиганты (VK/Яндекс/Сбер) — у возвращающегося Zoom нет «чистого выстрела»; (2) серверный on-premise для госсектора/КИИ — липкий сегмент (реестр, безопасность); (3) серый импорт (~7% остаточной доли) уже в цене; (4) бумага у трога — изоляционная премия почти не заложена, терять нечему. При этом <b>макро-порция мира положительна и сильнее гео</b>: S2 (перемирие без снятия санкций) — это <b>sweet spot</b> (ставка вниз при целом моате), а IVA — длинная дюрация растущего софта (−1 п.п. КС ≈ +8–12% капитализации).</li><li><b>Эскалация (S4) — зеркально двойственно.</b> Бизнесу гео-плюс (глубже изоляция → больше принудительного замещения, крепче моат/госзаказ), но акции макро-минус (risk-off сжимает мультипликатор длинной дюрации, дороже железо для терминалов).</li></ul>
 <p>Грубая пара (гео-порция акции, confidence L): <b>S1 ≈ −5…−15%</b> (де-рейтинг моат-нарратива, приглушённый), <b>S4 ≈ бизнес +5…+15%</b> при валютационном минусе.</p>
 <a class="cta" href="/?company=IVAT&amp;tab=geo">Продолжить в приложении: геополитика IVA Technologies (ПАО ИВА) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/IVAT/business/">Бизнес-модель</a><a class="chip" href="/company/IVAT/finance/">Финансы и оценка</a><a class="chip" href="/company/IVAT/dividends/">Дивиденды</a><a class="chip" href="/company/IVAT/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/IVAT/otchet/">Разбор отчёта</a><a class="chip" href="/company/IVAT/business/">Бизнес-модель</a><a class="chip" href="/company/IVAT/finance/">Финансы и оценка</a><a class="chip" href="/company/IVAT/dividends/">Дивиденды</a><a class="chip" href="/company/IVAT/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

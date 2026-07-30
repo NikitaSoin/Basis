@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <h3>Главная war/peace-асимметрия</h3>
 <p>Асимметрия <b>мала и почти симметрична</b>: в мире (S1) прямая гео-порция ≈ <b>+2…4%</b> (облегчение импорта оборудования, послабление тарифно-фискального давления); при эскалации (S4) ≈ <b>−3…6%</b> (удорожание/замедление капекса от экспортконтроля + низковероятный форвард-хвост санкций на группу Россети/ФСК через правило 50%, ФСК ~68,5%). Оба хвоста <b>уже</b>, чем у сестёр: нет приграничного восстановительного капекса (как у MRKC) и нет санкц-навеса владельца (как у MRKU). <b>MRKV — НЕ пис-бета.</b> Доминирующий свинг её стоимости в любом сценарии идёт <b>через ставку дисконтирования</b> («квазиоблигация»: −1 пп ставки ≈ +5…9% капитализации, macro.json), а это <b>макро-канал, живущий в безрисковой ставке</b>, — вне гео-оси и вне моих каналов оценки (C06 §3, предохранитель от двойного счёта).</p>
 <a class="cta" href="/?company=MRKV&amp;tab=geo">Продолжить в приложении: геополитика Россети Волга →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MRKV/business/">Бизнес-модель</a><a class="chip" href="/company/MRKV/finance/">Финансы и оценка</a><a class="chip" href="/company/MRKV/dividends/">Дивиденды</a><a class="chip" href="/company/MRKV/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MRKV/otchet/">Разбор отчёта</a><a class="chip" href="/company/MRKV/business/">Бизнес-модель</a><a class="chip" href="/company/MRKV/finance/">Финансы и оценка</a><a class="chip" href="/company/MRKV/dividends/">Дивиденды</a><a class="chip" href="/company/MRKV/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

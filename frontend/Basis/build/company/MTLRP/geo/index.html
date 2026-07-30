@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <h3>Экспортная доля: три числа, одна датированная картина</h3>
 <p>Ранее в профиле числа доли экспорта не были сведены (блокер red-team). Сводка: <b>структурно/на mid-cycle ~30–40%</b> выручки (высокие цены угля 2021–22, уголь — доминирующий EBITDA-драйвер); <b>факт 2025 по стоимости ~15–18%</b> выручки группы (угольный сегмент сжался до ~26% выручки из-за обвала цен, из него ~52% в Китай → Китай ~13–15% группы); <b>~2% в 1П2025</b> — это узкая метрика (по-видимому головной компании standalone / прямо-книгуемого экспорта), обвалившаяся после SDN из-за утраты зарубежных трейдеров и переброски сбыта через посреднические контуры, — НЕ экономическая экспортная экспозиция группы. Три числа = три разные базы/даты, не противоречие. Практический вывод: <b>по выручке</b> экспорт — меньшинство и сильнее сжат, чем звучало, но <b>по марже/EBITDA</b> концентрация на китайском угле высокая (малая выручка — большая прибыль). Поэтому E2 (3.0) и E7 (3.5) удержаны, а канал B считается от нормализованного FCF, где структурная экспортная доля ~30%.</p>
 <a class="cta" href="/?company=MTLRP&amp;tab=geo">Продолжить в приложении: геополитика «Мечел» (привилегированные акции) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MTLRP/business/">Бизнес-модель</a><a class="chip" href="/company/MTLRP/finance/">Финансы и оценка</a><a class="chip" href="/company/MTLRP/dividends/">Дивиденды</a><a class="chip" href="/company/MTLRP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MTLRP/otchet/">Разбор отчёта</a><a class="chip" href="/company/MTLRP/business/">Бизнес-модель</a><a class="chip" href="/company/MTLRP/finance/">Финансы и оценка</a><a class="chip" href="/company/MTLRP/dividends/">Дивиденды</a><a class="chip" href="/company/MTLRP/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

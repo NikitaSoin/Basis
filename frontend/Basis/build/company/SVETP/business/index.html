@@ -93,8 +93,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Сценарий</th><th>Подключения школ / учеников</th><th>Чистая маржа (ориентир)</th><th>Чистая прибыль (ориентир)</th></tr></thead><tbody><tr><td>Рост</td><td class="num">приток партнёров, мягкое регулирование</td><td class="num">~26–30%</td><td class="num">рост &gt;200 млн</td></tr><tr><td>Базовый</td><td class="num">умеренный рост базы</td><td class="num">~22–26%</td><td class="num">~150–200 млн</td></tr><tr><td>Стресс</td><td class="num">ужесточение требований к онлайн / отток школ</td><td class="num">~10–15%</td><td class="num">падение к ~50–90 млн</td></tr></tbody></table>
 <p><i>Оценка: сценарии иллюстративны, от выручки ~677 млн руб.; компания не публикует прогнозов.</i></p>
 <a class="cta" href="/?company=SVETP&amp;tab=business">Продолжить в приложении: бизнес-модель Светофор Групп →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/SVETP/finance/">Финансы и оценка</a><a class="chip" href="/company/SVETP/dividends/">Дивиденды</a><a class="chip" href="/company/SVETP/macro/">Макроэкономика</a><a class="chip" href="/company/SVETP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/SVETP/otchet/">Разбор отчёта</a><a class="chip" href="/company/SVETP/finance/">Финансы и оценка</a><a class="chip" href="/company/SVETP/dividends/">Дивиденды</a><a class="chip" href="/company/SVETP/macro/">Макроэкономика</a><a class="chip" href="/company/SVETP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -114,7 +114,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -126,8 +127,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

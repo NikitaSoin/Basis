@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p>Фундаментально Астра — <b>выраженная анти-пис-бета (E14 = 4,0, вор-бета по якорю C07)</b>: <b>мир = риск</b> (возврат западных вендоров, конкуренция, смягчение мандата КИИ), война/изоляция = комфорт (ров углубляется). Единственный реальный гео-риск Астры — что импортозамещающий ров существует лишь пока существует санкционный режим. Балл ставится <b>строго по форме экспозиции, без ставочного неттинга</b>: ставка — макро-канал (macro.json), и занижать им гео-балл — та же ошибка владения C06 §3, только с обратным знаком (правка red-team, блокер 1).</p>
 <p>Ставочный офсет описываю <b>отдельно и с арифметикой</b> (а не декларацией «≈0»). Мой гео-канал (эрозия рва) реализуется материально только в S1 (снятие санкций); в S2 санкции держатся → ров цел. Эрозия в S1 внутри 18м-горизонта с гистерезис-лагом ≈ −12% к фундаментальной стоимости; взвешенно по барометру: 0,10 × (−12%) + 0,25 × 0 ≈ <b>−1,2%</b> ожидаемого гео-дрейфа. Это мало и это хвост — базовый мультипликаторный дисконт не ставлю. Отдельно (МАКРО, не мой канал): мир → снижение КС, ожидаемый ставочный плюс 0,10 × (+19%) + 0,25 × (+10%) ≈ <b>+4,4%</b>. Комбинированно ≈ +3,2% — то есть мирный исход по капитализации слегка <b>положителен</b>, но за счёт макро поверх гео-минуса, не за счёт неттинга балла. Именно этот ставочный плюс — причина, по которой рынок вообще не прайсит пис-дисконт для ASTR. Практическая асимметрия остаётся <b>относительной</b> (в S1 недобор к пис-корзине ~15–30 п.п. из-за ротации капитала в потребительские пис-беты), а не абсолютным обвалом.</p>
 <a class="cta" href="/?company=ASTR&amp;tab=geo">Продолжить в приложении: геополитика Группа Астра →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ASTR/business/">Бизнес-модель</a><a class="chip" href="/company/ASTR/finance/">Финансы и оценка</a><a class="chip" href="/company/ASTR/dividends/">Дивиденды</a><a class="chip" href="/company/ASTR/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ASTR/otchet/">Разбор отчёта</a><a class="chip" href="/company/ASTR/business/">Бизнес-модель</a><a class="chip" href="/company/ASTR/finance/">Финансы и оценка</a><a class="chip" href="/company/ASTR/dividends/">Дивиденды</a><a class="chip" href="/company/ASTR/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

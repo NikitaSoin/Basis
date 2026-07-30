@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <h3>Что новая миграция добавила к старому разбору</h3>
 <p>Старый geo.json писал «прямых санкций не выявлено» и ставил экспозицию «neutral». Технически верно, но он <b>упустил деривативный статус</b>: мажоритарий — группа «Полюс», под OFAC SDN с 19.05.2023, владеет ~94% обыкновенных. По правилу OFAC 50% LNZLP автоматически считается blocked property для US-лиц — без прямого листинга. Поэтому E1 и E13 честно подняты с подразумевавшегося «1» до <b>3.0</b> — но это формальный статус с <b>нулевым экономическим укусом</b>: рублёвая ликвидация идёт через российский реестр, и правило 50% затрагивает разве что редких держателей-US-лиц (их личная комплаенс-проблема при получении квоты), а не рублёвых миноритариев и не саму компанию. Керимов, к тому же, размыл долю в «Полюсе» &lt;50% ещё в 2022-м и продал большую часть в 2023-м, так что персональный линк ослаблен — основной канал сейчас корпоративный SDN «Полюса».</p>
 <a class="cta" href="/?company=LNZLP&amp;tab=geo">Продолжить в приложении: геополитика Лензолото →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/LNZLP/business/">Бизнес-модель</a><a class="chip" href="/company/LNZLP/finance/">Финансы и оценка</a><a class="chip" href="/company/LNZLP/dividends/">Дивиденды</a><a class="chip" href="/company/LNZLP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/LNZLP/otchet/">Разбор отчёта</a><a class="chip" href="/company/LNZLP/business/">Бизнес-модель</a><a class="chip" href="/company/LNZLP/finance/">Финансы и оценка</a><a class="chip" href="/company/LNZLP/dividends/">Дивиденды</a><a class="chip" href="/company/LNZLP/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

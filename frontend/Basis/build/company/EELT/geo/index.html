@@ -87,8 +87,8 @@ ul{padding-left:22px}</style>
 <h3>Главное расхождение с рынком</h3>
 <p>Его, по сути, <b>нет как гео-расхождения</b>. Цена упала с 8,43 ₽ (июнь) до 6,38 ₽ (17.07) — это широкая слабость IMOEX (многолетние минимумы ~2242) + отсечка дивиденда 0,6 ₽ + малоликвидность, <b>а не гео-ре-рейтинг EELT</b>. Мой гео-взгляд не выявляет гео-специфического мисприсинга — гео-edge нет, и я его не выдумываю. Собственные гео-каналы малы: премия к требуемой доходности <b>~+0,5–1 пп</b>, вычет из FCF <b>~−2%</b>, дисконт мультипликатора — почти ноль (навеса нерезидентов нет). <b>Оценку двигают не гео, а МАКРО</b> (ставка/дисконт: −1 пп ставки ≈ +4–6% капитализации) <b>и ИНСТИТУТЫ</b> (free float 5,5%, хвост делистинга) — обе зоны вне гео-аналитика. Переоценивать гео-влияние здесь было бы профдеформацией.</p>
 <a class="cta" href="/?company=EELT&amp;tab=geo">Продолжить в приложении: геополитика Европейская Электротехника →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/EELT/business/">Бизнес-модель</a><a class="chip" href="/company/EELT/finance/">Финансы и оценка</a><a class="chip" href="/company/EELT/dividends/">Дивиденды</a><a class="chip" href="/company/EELT/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/EELT/otchet/">Разбор отчёта</a><a class="chip" href="/company/EELT/business/">Бизнес-модель</a><a class="chip" href="/company/EELT/finance/">Финансы и оценка</a><a class="chip" href="/company/EELT/dividends/">Дивиденды</a><a class="chip" href="/company/EELT/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -108,7 +108,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -120,8 +121,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

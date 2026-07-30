@@ -85,7 +85,7 @@ ul{padding-left:22px}</style>
 <p><b>3. Стоимость фондирования и форма кривой — умеренный плюс по мере смягчения.</b> Факт: доходности гособлигаций 12–15%, кривая почти плоская и начинает выпрямляться; депозитные ставки постепенно идут вниз вслед за ключевой. Механизм: банк с большой долей короткого межбанка и операций РЕПО много платит за фондирование; снижение ставки и нормализация кривой удешевляют пассивы и облегчают заработок на разнице сроков. Наше суждение: для МКБ с его слабым местом — дорогим фондированием — это работает в плюс сильнее, чем для банков с дешёвыми розничными деньгами. Но эффект небыстрый.</p>
 <a class="cta" href="/?company=CBOM&amp;tab=macro">Продолжить в приложении: макроэкономика «Московский кредитный банк» (МКБ) →</a>
 <h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/CBOM/otchet/">Разбор отчёта</a><a class="chip" href="/company/CBOM/business/">Бизнес-модель</a><a class="chip" href="/company/CBOM/finance/">Финансы и оценка</a><a class="chip" href="/company/CBOM/dividends/">Дивиденды</a><a class="chip" href="/company/CBOM/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

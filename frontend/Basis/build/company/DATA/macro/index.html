@@ -84,8 +84,8 @@ ul{padding-left:22px}</style>
 <p><b>3. Издержки на персонал и рост страховых взносов.</b> <i>Факт:</i> зарплаты разработчиков и внедренцев — главная статья затрат; с 2026 года льготные страховые взносы для IT выросли с 7,6% до 15% (до предельной базы), сохраняется дефицит IT-кадров. <i>Как доходит до компании:</i> дорогие кадры и более высокие отчисления поднимают расходы быстрее цен → давление на маржу, если рост не переложить в цены лицензий. <i>Наше суждение:</i> умеренный негатив по марже; частично гасится высокой маржинальностью тиражируемых лицензий и ценовой силой на дефицитном рынке.</p>
 <p><b>4. Денежная позиция и процентный доход при высокой ставке.</b> <i>Факт:</i> у компании нет долга и есть запас денег; при ставке 14,5% эти средства приносят заметный процентный доход — чистая маржа (~34%) даже выше операционной. <i>Как доходит до компании:</i> пока ставка высокая, бездолговая компания зарабатывает на кэше, что поддерживает чистую прибыль. <i>Наше суждение:</i> это смягчающий фактор и обратная сторона ставки — по мере снижения ставки процентный доход уменьшится, но одновременно вырастет оценка, так что эффекты отчасти компенсируют друг друга.</p>
 <a class="cta" href="/?company=DATA&amp;tab=macro">Продолжить в приложении: макроэкономика «Группа Аренадата» (Arenadata) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/DATA/business/">Бизнес-модель</a><a class="chip" href="/company/DATA/finance/">Финансы и оценка</a><a class="chip" href="/company/DATA/dividends/">Дивиденды</a><a class="chip" href="/company/DATA/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/DATA/otchet/">Разбор отчёта</a><a class="chip" href="/company/DATA/business/">Бизнес-модель</a><a class="chip" href="/company/DATA/finance/">Финансы и оценка</a><a class="chip" href="/company/DATA/dividends/">Дивиденды</a><a class="chip" href="/company/DATA/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -105,7 +105,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -117,8 +118,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

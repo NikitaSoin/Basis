@@ -84,7 +84,7 @@ ul{padding-left:22px}</style>
 <p>Вывод из таблицы: выручка выросла примерно на 12% (рост спроса на тепло и электроэнергию плюс индексация тарифов), но чистая прибыль упала в 3,4 раза. Значит, проблема не в продажах, а «ниже выручки» — в резко выросшей долговой нагрузке: процентные расходы выросли почти втрое и съели операционную прибыль. По данным компании и СМИ, кредитный портфель за 9 месяцев 2025 года вырос до ~20,33 млрд ₽, уплаченные проценты за тот же период выросли на 1,59 млрд ₽, до 2,44 млрд ₽. При EBITDA за полный 2025 год ~3,1 млрд ₽ отношение долга к EBITDA поднялось до ~6–6,5x <i>(оценка)</i>; на промежуточной 9-месячной базе (EBITDA ~1,76 млрд ₽) показатель доходит до ~11x, отражая просадку прибыли внутри года. АКРА на горизонте 2025–2027 годов закладывает средневзвешенную долговую нагрузку около 5,8x. Деньги уходят на масштабную инвестпрограмму (модернизация Читинской ТЭЦ-1 по КОММод, новые мощности в Улан-Удэ).</p>
 <a class="cta" href="/?company=TGKN&amp;tab=business">Продолжить в приложении: бизнес-модель ТГК-14 (Группа ТГК-14) →</a>
 <h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TGKN/otchet/">Разбор отчёта</a><a class="chip" href="/company/TGKN/finance/">Финансы и оценка</a><a class="chip" href="/company/TGKN/dividends/">Дивиденды</a><a class="chip" href="/company/TGKN/macro/">Макроэкономика</a><a class="chip" href="/company/TGKN/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

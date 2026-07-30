@@ -94,8 +94,8 @@ ul{padding-left:22px}</style>
 <p><b>Практически для RTSBP (без доступа к актуальному Уставу):</b></p>
 <ul><li>Историческая структура дивидендов в ТНС энерго предполагала выплаты и на обыкновенные, и на привилегированные акции.</li><li>В условиях нестабильной прибыли (мы видели скачок от ₽0,23 млрд в 2024 до ₽3,01 млрд в 2025) преимущество префов в получении дивидендов <b>может быть значимым</b> в годы, когда прибыль подрезается.</li><li>Однако <i>предсказуемость</i> дивидендов на префы в RTSBP <b>ниже, чем в стабильных компаниях</b>, из-за волатильности прибыли от резервов по долгам.</li></ul>
 <a class="cta" href="/?company=RTSBP&amp;tab=business">Продолжить в приложении: бизнес-модель ТНС энерго Ростов-на-Дону →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RTSBP/finance/">Финансы и оценка</a><a class="chip" href="/company/RTSBP/dividends/">Дивиденды</a><a class="chip" href="/company/RTSBP/macro/">Макроэкономика</a><a class="chip" href="/company/RTSBP/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RTSBP/otchet/">Разбор отчёта</a><a class="chip" href="/company/RTSBP/finance/">Финансы и оценка</a><a class="chip" href="/company/RTSBP/dividends/">Дивиденды</a><a class="chip" href="/company/RTSBP/macro/">Макроэкономика</a><a class="chip" href="/company/RTSBP/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -115,7 +115,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -127,8 +128,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

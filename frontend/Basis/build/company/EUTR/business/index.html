@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Показатель</th><th>2025</th><th>2024</th><th>Δ г/г</th></tr></thead><tbody><tr><td>Выручка</td><td class="num">265,8</td><td class="num">186,2</td><td class="num">+42,7%</td></tr><tr><td>EBITDA</td><td class="num">21,0</td><td class="num">17,0</td><td class="num">+23,5%</td></tr><tr><td>Маржа EBITDA</td><td class="num">7,9%</td><td class="num">9,1%</td><td class="num">−1,2 п.п.</td></tr><tr><td>Чистая прибыль (акционеров)</td><td class="num">4,76</td><td class="num">5,51</td><td class="num">−13,6%</td></tr><tr><td>Чистая маржа</td><td class="num">1,8%</td><td class="num">3,0%</td><td class="num">−1,2 п.п.</td></tr><tr><td>CapEx</td><td class="num">~14,7</td><td class="num">~14,4</td><td class="num">+2,1%</td></tr><tr><td>Свободный денежный поток</td><td class="num">~−19,8</td><td class="num">~−5,3</td><td class="num">хуже</td></tr><tr><td>Чистый долг / EBITDA</td><td class="num">~3,2x</td><td class="num">~2,9x</td><td class="num">+0,3</td></tr></tbody></table>
 <p>Вывод из таблицы: выручка выросла на 43%, но прибыль снизилась на ~14% — рост обеспечен низкомаржинальным оптом, а прибыль съели процентные расходы по долгу и лизингу на фоне высокой ключевой ставки. Бизнес остаётся с отрицательным FCF: компания одновременно много инвестирует (электрозарядки, реконструкция АЗК) и обслуживает большой долг. <i>(EBITDA за 2025 по данным агрегатора smart-lab ~21,0 млрд ₽; в предварительном пресс-релизе компании от 15.01.2026 EBITDA «свыше 24 млрд ₽» — расхождение, вероятно, из-за включения лизинга; цифру нужно сверить с итоговым отчётом МСФО.)</i></p>
 <a class="cta" href="/?company=EUTR&amp;tab=business">Продолжить в приложении: бизнес-модель «ЕвроТранс» (сеть АЗК ТРАССА) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/EUTR/finance/">Финансы и оценка</a><a class="chip" href="/company/EUTR/dividends/">Дивиденды</a><a class="chip" href="/company/EUTR/macro/">Макроэкономика</a><a class="chip" href="/company/EUTR/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/EUTR/otchet/">Разбор отчёта</a><a class="chip" href="/company/EUTR/finance/">Финансы и оценка</a><a class="chip" href="/company/EUTR/dividends/">Дивиденды</a><a class="chip" href="/company/EUTR/macro/">Макроэкономика</a><a class="chip" href="/company/EUTR/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

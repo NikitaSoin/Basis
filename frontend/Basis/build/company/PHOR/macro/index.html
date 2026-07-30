@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p><b>Крепкий рубль — давление (факт о курсе, суждение о силе).</b> Факт из источника: USD/RUB держится около 73 — рубль крепкий, его поддерживают высокие цены на нефть, налоговые выплаты экспортёров и сдержанные покупки валюты государством. Механизм для экспортёра неприятный: выручка в основном долларовая, а затраты рублёвые — когда рубль крепнет, та же долларовая выручка превращается в меньшее число рублей, и рублёвая маржа сжимается. На наш взгляд, это существенный встречный ветер. Сила зависит от того, удержится ли рубль крепким: ослабление рубля частично перекрыло бы и давление цен, и удорожание сырья.</p>
 <p><b>Удорожание сырья (сера, газ) — давление на маржу (факт о ценах, суждение о силе).</b> Факт из источника: цена серы — ключевого сырья для фосфорной кислоты — удвоилась с начала 2026 года из-за сбоев поставок; ранее, в 2025 году, серная составляющая у ФосАгро подорожала более чем втрое, а газ — примерно на 35%. Цепочка: сера и газ дорожают → переменная себестоимость удобрений растёт → маржа EBITDA сжимается, даже если выручка стоит на месте. На наш взгляд, это ощутимый негатив — именно удорожание серы и газа в 2025 году срезало маржу EBITDA с 34,9% до 30,7%. Частичное утешение: рост цен на серу обычно идёт вместе с ростом цен на сами удобрения, так что эффекты отчасти гасят друг друга.</p>
 <a class="cta" href="/?company=PHOR&amp;tab=macro">Продолжить в приложении: макроэкономика ФосАгро →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/PHOR/business/">Бизнес-модель</a><a class="chip" href="/company/PHOR/finance/">Финансы и оценка</a><a class="chip" href="/company/PHOR/dividends/">Дивиденды</a><a class="chip" href="/company/PHOR/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/PHOR/otchet/">Разбор отчёта</a><a class="chip" href="/company/PHOR/business/">Бизнес-модель</a><a class="chip" href="/company/PHOR/finance/">Финансы и оценка</a><a class="chip" href="/company/PHOR/dividends/">Дивиденды</a><a class="chip" href="/company/PHOR/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

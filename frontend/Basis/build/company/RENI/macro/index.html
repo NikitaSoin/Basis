@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Переоценка облигаций при снижении доходностей ОФЗ — позитив.</b> Факт: индекс гособлигаций RGBI вырос к ~118–120 пунктам, доходности ОФЗ снижаются. Логика канала: когда доходности падают, рыночная цена ранее купленных облигаций растёт — портфель получает положительную переоценку тела, что добавляет к результату и капиталу. Суждение: умеренный позитив, который частично гасит потерю текущего купона. Важная оговорка — это разовый и волатильный эффект, а не устойчивый поток: в 2025 прибыль почти не выросла, потому что инвестдоход «съели» встречные финрасходы по договорам страхования жизни и валютная переоценка.</p>
 <p><b>3. Спрос на страхование жизни на фоне дешевеющих депозитов — позитив.</b> Факт: ставки по вкладам падают; пятилетний полис страхования жизни позволяет зафиксировать ~13% доходности надолго, а с 01.09.2026 расширяется налоговый вычет до 400 тыс. руб. Логика канала: депозит теряет привлекательность — клиент ищет, где зафиксировать доходность, — растёт спрос на НСЖ/ДСЖ, а это ≈64% сборов группы. Суждение: среднесрочно поддерживающий фактор, но в 2026 сглажен высокой базой рекордного 2024 года и переходным периодом отмены классического ИСЖ (рынок life близок к стагнации 0–3% по «Эксперт РА»). Плюс компании в том, что она растёт быстрее рынка (life-премии группы +35% в 2025).</p>
 <a class="cta" href="/?company=RENI&amp;tab=macro">Продолжить в приложении: макроэкономика Группа Ренессанс Страхование →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RENI/business/">Бизнес-модель</a><a class="chip" href="/company/RENI/finance/">Финансы и оценка</a><a class="chip" href="/company/RENI/dividends/">Дивиденды</a><a class="chip" href="/company/RENI/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/RENI/otchet/">Разбор отчёта</a><a class="chip" href="/company/RENI/business/">Бизнес-модель</a><a class="chip" href="/company/RENI/finance/">Финансы и оценка</a><a class="chip" href="/company/RENI/dividends/">Дивиденды</a><a class="chip" href="/company/RENI/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

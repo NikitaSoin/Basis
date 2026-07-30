@@ -83,10 +83,10 @@ ul{padding-left:22px}</style>
 <h2>Дивиденды</h2><p>Формальная дивидендная политика не задаёт жёсткой формулы расчёта и не фиксирует долю прибыли на выплату; на практике компания ориентируется на выплату около 50% чистой прибыли по МСФО. Платит, как правило, несколько раз в год (промежуточные + итоговые).</p><table><thead><tr><th>Год</th><th class="num">На акцию</th><th class="num">Доходность*</th><th class="num">Payout</th><th>Статус</th></tr></thead><tbody><tr><td>2025</td><td class="num">25,62 ₽</td><td class="num">5,2%</td><td class="num">—</td><td>выплачен</td></tr><tr><td>2024</td><td class="num">47,48 ₽</td><td class="num">8,1%</td><td class="num">—</td><td>выплачен</td></tr><tr><td>2023</td><td class="num">36,68 ₽</td><td class="num">3,7%</td><td class="num">—</td><td>выплачен</td></tr><tr><td>2022</td><td class="num">14,62 ₽</td><td class="num">5,1%</td><td class="num">—</td><td>выплачен</td></tr><tr><td>2021</td><td class="num">9,5 ₽</td><td class="num">3,3%</td><td class="num">—</td><td>выплачен</td></tr></tbody></table>
 <p class="tag">* Доходность приведена к цене на дату обновления разбора — для сопоставимости
 истории между годами; текущая доходность считается живьём в приложении.</p>
-<h2>Разделы разбора</h2><div class="grid"><a class="chip" href="/company/NKHP/business/">Бизнес-модель</a><a class="chip" href="/company/NKHP/finance/">Финансы и оценка</a><a class="chip" href="/company/NKHP/dividends/">Дивиденды</a><a class="chip" href="/company/NKHP/macro/">Макроэкономика</a><a class="chip" href="/company/NKHP/geo/">Геополитика</a></div>
+<h2>Разделы разбора</h2><div class="grid"><a class="chip" href="/company/NKHP/otchet/">Разбор отчёта</a><a class="chip" href="/company/NKHP/business/">Бизнес-модель</a><a class="chip" href="/company/NKHP/finance/">Финансы и оценка</a><a class="chip" href="/company/NKHP/dividends/">Дивиденды</a><a class="chip" href="/company/NKHP/macro/">Макроэкономика</a><a class="chip" href="/company/NKHP/geo/">Геополитика</a></div>
 <a class="cta" href="/?company=NKHP">Открыть полный разбор Новороссийский комбинат хлебопродуктов в Basis →</a>
 <h2>Похожие компании — Девелопмент и инфраструктура</h2><div class="grid"><a class="chip" href="/company/APRI/">АПРИ (APRI)</a><a class="chip" href="/company/ETLN/">Эталон Групп (ETLN)</a><a class="chip" href="/company/GLRX/">ГЛОРАКС (GLRX)</a><a class="chip" href="/company/KFBA/">ИНГРАД (KFBA)</a><a class="chip" href="/company/LSRG/">Группа ЛСР (LSRG)</a><a class="chip" href="/company/MSTT/">Мостотрест (MSTT)</a><a class="chip" href="/company/NMTP/">Новороссийский морской торговый порт (NMTP)</a><a class="chip" href="/company/PIKK/">ПИК — специализированный застройщик (PIKK)</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

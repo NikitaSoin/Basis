@@ -88,7 +88,7 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Металл / Сегмент</th><th>Доля выручки (2024)</th><th>Мировая доля компании</th><th>Тренд</th><th>Ключевые потребители</th></tr></thead><tbody><tr><td>Палладий</td><td class="num">35%</td><td class="num">№1 в мире — 41%</td><td class="num">Восстановление</td><td class="num">Автокатализаторы ДВС, электроника, водородная энергетика</td></tr><tr><td>Никель</td><td class="num">25%</td><td class="num">№1 в мире — 14%</td><td class="num">Снижение</td><td class="num">Нержавеющая сталь, аккумуляторы для электромобилей</td></tr><tr><td>Медь</td><td class="num">22%</td><td class="num">Топ-10 мировых производителей</td><td class="num">Рост</td><td class="num">Электротехника, строительство, инфраструктура электрификации</td></tr><tr><td>Платина</td><td class="num">7%</td><td class="num">№3–4 в мире — 10%</td><td class="num">Стабильно</td><td class="num">Автокатализаторы дизельных авто, водородные топливные элементы, ювелирное дело</td></tr><tr><td>Прочие металлы и реализация</td><td class="num">11%</td><td class="num">—</td><td class="num">Рост</td><td class="num">Золото, родий, кобальт, серебро, иридий, рутений, нефтепродукты</td></tr><tr><td><b>Итого</b></td><td class="num"><b>100%</b></td><td class="num">—</td><td class="num"><b>+9,8% г/г</b></td><td class="num">—</td></tr></tbody></table>
 <a class="cta" href="/?company=GMKN&amp;tab=business">Продолжить в приложении: бизнес-модель ГМК «Норильский никель» →</a>
 <h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/GMKN/otchet/">Разбор отчёта</a><a class="chip" href="/company/GMKN/finance/">Финансы и оценка</a><a class="chip" href="/company/GMKN/dividends/">Дивиденды</a><a class="chip" href="/company/GMKN/macro/">Макроэкономика</a><a class="chip" href="/company/GMKN/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -108,7 +108,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -120,8 +121,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

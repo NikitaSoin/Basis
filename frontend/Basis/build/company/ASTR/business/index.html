@@ -88,8 +88,8 @@ ul{padding-left:22px}</style>
 <p>4. <b>Капитализация R&amp;D и амортизация</b> — компания капитализирует расходы на разработку (~4 млрд руб. в 2025) и переносит их в амортизацию будущих периодов. Это поддерживает EBITDA, но давит на чистую прибыль. <i>Риск:</i> рост амортизации продолжит сдерживать чистую прибыль даже при росте выручки.</p>
 <p>5. <b>Ключевая ставка ЦБ РФ</b> — влияет на чистые финансовые расходы и на способность клиентов финансировать IT-бюджеты. На конец мая 2026 года ставка ~14,5% <i>(требует проверки на дату публикации)</i>. <i>Риск:</i> при высокой ставке корпоративные IT-бюджеты сжимаются, а процентные доходы компании от денежной позиции падают при её расходовании на M&amp;A.</p>
 <a class="cta" href="/?company=ASTR&amp;tab=business">Продолжить в приложении: бизнес-модель Группа Астра →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ASTR/finance/">Финансы и оценка</a><a class="chip" href="/company/ASTR/dividends/">Дивиденды</a><a class="chip" href="/company/ASTR/macro/">Макроэкономика</a><a class="chip" href="/company/ASTR/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/ASTR/otchet/">Разбор отчёта</a><a class="chip" href="/company/ASTR/finance/">Финансы и оценка</a><a class="chip" href="/company/ASTR/dividends/">Дивиденды</a><a class="chip" href="/company/ASTR/macro/">Макроэкономика</a><a class="chip" href="/company/ASTR/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -109,7 +109,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -121,8 +122,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

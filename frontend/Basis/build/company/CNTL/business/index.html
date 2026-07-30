@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <p>&gt; <b>Справочно: РСБУ материнского ПАО (2024 vs 2023).</b> Раскрытие СМИ и Cbonds &gt; даёт отдельные цифры по РСБУ материнской компании — они не тождественны &gt; консолидированному МСФО-периметру группы (в МСФО учтены прежние дочерние &gt; структуры, включая историческую недвижимость, см. data_flags): &gt; &gt; | Показатель (РСБУ) | 2024 | 2023 | Δ г/г | &gt; |---|---:|---:|---:| &gt; | Выручка (РСБУ) | 1 270 | 1 297 | −2,1% | &gt; | Прибыль до налога (РСБУ) | 171,1 | 121,2 | +41,1% | &gt; | Чистая прибыль (РСБУ) | 124,3 | 79,8 | +55,7% |</p>
 <p><b>Вывод из таблицы:</b> 2025 год стал переломным: выручка сократилась на 6,3% (до 1 190 млн руб.), а компания впервые за пятилетку показала операционный и чистый убыток (−465 и −355 млн руб. соответственно) — против скромной прибыли в 2024 году (РСБУ материнского ПАО за 2024 год, для сравнения, показывала рост прибыли на 56% год к году). Постатейной расшифровки причин убытка компания не раскрывает; по суждению аналитика на основе data_flags, значимая часть — разовое неденежное обесценение (без него результат был бы околонулевым). Раскрытие сокращённое, EBITDA и чистый долг отдельной строкой не публикуются.</p>
 <a class="cta" href="/?company=CNTL&amp;tab=business">Продолжить в приложении: бизнес-модель Центральный телеграф →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/CNTL/finance/">Финансы и оценка</a><a class="chip" href="/company/CNTL/dividends/">Дивиденды</a><a class="chip" href="/company/CNTL/macro/">Макроэкономика</a><a class="chip" href="/company/CNTL/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/CNTL/otchet/">Разбор отчёта</a><a class="chip" href="/company/CNTL/finance/">Финансы и оценка</a><a class="chip" href="/company/CNTL/dividends/">Дивиденды</a><a class="chip" href="/company/CNTL/macro/">Макроэкономика</a><a class="chip" href="/company/CNTL/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

@@ -85,8 +85,8 @@ ul{padding-left:22px}</style>
 <p><b>Ключевая ставка → процентный доход на кубышку (положительный, доминирующий).</b> Факт: ставка 14,25%, чистая денежная позиция ~2 020 млн ₽, финансового долга нет. Механизм: высокая ставка → высокие проценты по депозитам и долговым бумагам → процентный доход растёт → чистая прибыль растёт. Сколько это в деньгах: чувствительность около −15 млн рублей прибыли на каждые −100 базисных пунктов ставки. Второй слой — парадокс: для TASB СНИЖЕНИЕ ставки это минус (в отличие от типичной компании), а рост — плюс. И governance-оговорка: этот доход копится в балансе (кэш вырос 803→2020 млн ₽ за три года), но дивидендов нет с 2012 — миноритарий видит прибыль, а не деньги.</p>
 <p><b>Тарифное регулирование надбавки + перенос индексации на 1 октября 2026 (смешанный).</b> Факт: инфляция замедлилась до 5,6%, а ежегодная индексация электротарифов в 2026 перенесена с 1 июля на 1 октября (сети ~+15,2%). Механизм: почти вся выручка транзитная (закупка энергии на оптовом рынке 84% + сети 10% — проходные деньги), реальный заработок — только сбытовая надбавка ~5% выручки. Сдвиг индексации на квартал вправо удлиняет разрыв, когда издержки уже растут, а надбавка ещё нет. Сколько это в деньгах: порядка ±3…5 млн рублей EBITDA на 1 пп расхождения индексации с инфляцией издержек — эффект малый в абсолюте, но это единственный операционный рычаг маржи.</p>
 <a class="cta" href="/?company=TASB&amp;tab=macro">Продолжить в приложении: макроэкономика Тамбовская энергосбытовая компания →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TASB/business/">Бизнес-модель</a><a class="chip" href="/company/TASB/finance/">Финансы и оценка</a><a class="chip" href="/company/TASB/dividends/">Дивиденды</a><a class="chip" href="/company/TASB/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TASB/otchet/">Разбор отчёта</a><a class="chip" href="/company/TASB/business/">Бизнес-модель</a><a class="chip" href="/company/TASB/finance/">Финансы и оценка</a><a class="chip" href="/company/TASB/dividends/">Дивиденды</a><a class="chip" href="/company/TASB/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -106,7 +106,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -118,8 +119,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

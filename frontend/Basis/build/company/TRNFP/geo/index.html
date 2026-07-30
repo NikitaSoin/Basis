@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <h3>Главная war/peace-асимметрия</h3>
 <p><b>Транснефть — НЕ классическая пис-бета (E14=2,0 против 3+ у Газпром/Аэрофлот).</b> В мире (S1) фундаментальный апсайд умеренный: восстановление объёма прокачки, опцион нормализации налога 40%→25% (политически неопределён), но главное — переоценка дивидендной квазиоблигации через падение требуемой доходности. При этом крепкий рубль, который бьёт экспортёров-ВИНКов, Транснефти почти безразличен (нет FX-маржи для потери), а разморозка навеса нерезидентов на крошечном префовом free-float создаёт техническое сопротивление цене (C03: продавцы появляются раньше покупателей). Грубая пара чисел: ΔСтоимость S1 ≈ +15…+25%, S4 ≈ −15…−25% — почти симметрично и полого. Гео-хвосты для этой бумаги плоские; её судьбу решают ставка и фиск, а не переговорный трек.</p>
 <a class="cta" href="/?company=TRNFP&amp;tab=geo">Продолжить в приложении: геополитика «Транснефть» (привилегированные акции) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TRNFP/business/">Бизнес-модель</a><a class="chip" href="/company/TRNFP/finance/">Финансы и оценка</a><a class="chip" href="/company/TRNFP/dividends/">Дивиденды</a><a class="chip" href="/company/TRNFP/macro/">Макроэкономика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TRNFP/otchet/">Разбор отчёта</a><a class="chip" href="/company/TRNFP/business/">Бизнес-модель</a><a class="chip" href="/company/TRNFP/finance/">Финансы и оценка</a><a class="chip" href="/company/TRNFP/dividends/">Дивиденды</a><a class="chip" href="/company/TRNFP/macro/">Макроэкономика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

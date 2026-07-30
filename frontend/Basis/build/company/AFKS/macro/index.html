@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Снижение требуемой доходности → оценка дочек и дисконт к NAV (поддержка).</b> Стоимость холдинга формируется как сумма долей в дочерних компаниях, и сейчас рынок оценивает её с дисконтом 50–55% к этой сумме (NAV). <i>Факт из источника:</i> доходность длинных ОФЗ (12–15%) снижается вслед за инфляцией и ставкой. <i>Логика канала:</i> ниже ставка дисконтирования → выше оценки дочек, плюс дешевле деньги для их IPO → выше NAV и шанс сузить дисконт. <i>Наше суждение:</i> фактор среднесрочно поддерживающий — снижение ставок открывает окно для размещений дочек (Cosmos, Медси, Степь, Биннофарм). Но насколько и когда сузится дисконт — неопределённо: он зависит ещё и от качества управления и долговой нагрузки.</p>
 <p><b>3. Замедление доходов и спроса населения (умеренный, неоднозначный эффект).</b> Многие дочки завязаны на потребителя — связь (МТС), маркетплейс (Ozon), платная медицина (Медси), отели (Cosmos), жильё (Эталон). <i>Факт из источника:</i> реальные доходы выросли лишь на ~1,5% в 1 квартале 2026 года, рост замедлился. <i>Логика канала:</i> медленнее растут доходы → слабее спрос → медленнее растёт выручка потребительских дочек. <i>Наше суждение:</i> эффект умеренный и двоякий — часть дочек защитна (связь, медицина), а снижение ставки постепенно оживит ипотеку и потребкредит, поддержав Эталон и розницу. Нетто давление слабое, не критичное.</p>
 <a class="cta" href="/?company=AFKS&amp;tab=macro">Продолжить в приложении: макроэкономика АФК «Система» →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/AFKS/business/">Бизнес-модель</a><a class="chip" href="/company/AFKS/finance/">Финансы и оценка</a><a class="chip" href="/company/AFKS/dividends/">Дивиденды</a><a class="chip" href="/company/AFKS/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/AFKS/otchet/">Разбор отчёта</a><a class="chip" href="/company/AFKS/business/">Бизнес-модель</a><a class="chip" href="/company/AFKS/finance/">Финансы и оценка</a><a class="chip" href="/company/AFKS/dividends/">Дивиденды</a><a class="chip" href="/company/AFKS/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

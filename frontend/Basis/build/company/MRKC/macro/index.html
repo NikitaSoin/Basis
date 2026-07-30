@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p><b>2. Высокая, но снижающаяся ключевая ставка — эффект смешанный.</b> <i>Факт:</i> ставка 14,5% и снижается; базовый сценарий ЦБ — 14,0-14,5% в среднем в 2026 году и 8-10% в 2027. <i>Как доходит до компании:</i> инвестпрограмма частично финансируется в долг, поэтому дорогой долг увеличивает процентные расходы, которые давят на прибыль ниже EBITDA — именно это (вместе с растущей амортизацией) в 2024 году утянуло чистую прибыль вниз, хотя EBITDA выросла. <i>Оговорка (наше суждение):</i> долговая нагрузка умеренная (чистый долг около 1,2 EBITDA), компания не в зоне риска. Каждый шаг снижения ставки прямо разгружает проценты, поэтому со временем фактор работает в плюс. На спрос на саму услугу ставка почти не влияет — он защитный.</p>
 <p><b>3. Спрос на передачу (объём переданной энергии) — умеренно поддерживает.</b> <i>Факт:</i> потребление электроэнергии в энергосистеме страны выросло примерно на 4,5% в начале 2026 года после снижения на 0,8% в 2025-м (первое падение за пять лет — из-за тёплой зимы и охлаждения экономики). <i>Как доходит до компании:</i> объём переданных киловатт-часов — второй множитель выручки после тарифа; больше потребления в регионах — больше выручки от передачи, ещё до пересмотра тарифа. <i>Оговорка (наше суждение):</i> спрос защитный, но не нулевой к циклу — тёплая зима или спад в промышленности Центра снижают объём, как было в 2025. Возврат к росту обнадёживает, но устойчивость на весь год пока под вопросом, а цифра — по стране в целом, не строго по 11 областям компании.</p>
 <a class="cta" href="/?company=MRKC&amp;tab=macro">Продолжить в приложении: макроэкономика Россети Центр →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MRKC/business/">Бизнес-модель</a><a class="chip" href="/company/MRKC/finance/">Финансы и оценка</a><a class="chip" href="/company/MRKC/dividends/">Дивиденды</a><a class="chip" href="/company/MRKC/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/MRKC/otchet/">Разбор отчёта</a><a class="chip" href="/company/MRKC/business/">Бизнес-модель</a><a class="chip" href="/company/MRKC/finance/">Финансы и оценка</a><a class="chip" href="/company/MRKC/dividends/">Дивиденды</a><a class="chip" href="/company/MRKC/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

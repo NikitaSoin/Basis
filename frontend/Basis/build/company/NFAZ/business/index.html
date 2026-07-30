@@ -82,8 +82,8 @@ ul{padding-left:22px}</style>
 <table><thead><tr><th>Показатель</th><th>2025</th><th>2024</th><th>Δ г/г</th></tr></thead><tbody><tr><td>Выручка</td><td class="num">31 400</td><td class="num">42 300</td><td class="num">−25,6%</td></tr><tr><td>EBITDA</td><td class="num">~520 <i>(оценка)</i></td><td class="num">710</td><td class="num">~−27%</td></tr><tr><td>Маржа EBITDA</td><td class="num">~1,7% <i>(оценка)</i></td><td class="num">1,7%</td><td class="num">~0 п.п.</td></tr><tr><td>Чистая прибыль (убыток)</td><td class="num">−505,5</td><td class="num">33,3</td><td class="num">убыток</td></tr><tr><td>Чистая маржа</td><td class="num">−1,6%</td><td class="num">0,1%</td><td class="num">−1,7 п.п.</td></tr><tr><td>CapEx</td><td class="num">не раскрыто</td><td class="num">~667</td><td class="num">—</td></tr><tr><td>Свободный денежный поток</td><td class="num">не раскрыто</td><td class="num">~−3 380 <i>(оценка)</i></td><td class="num">—</td></tr><tr><td>Чистый долг / EBITDA</td><td class="num">высокий <i>(см. ниже)</i></td><td class="num">~4x <i>(оценка)</i></td><td class="num">—</td></tr></tbody></table>
 <p>Вывод из таблицы: бизнес работает на крайне тонкой марже (EBITDA всего ~1,7% выручки), поэтому даже небольшие колебания себестоимости или загрузки переводят компанию из символической прибыли в убыток. В 2025 году выручка упала на четверть из-за сокращения поставок автобусов и электробусов, и при почти неизменной себестоимости валовая прибыль сжалась с 1,7 до 1,1 млрд ₽, а год закрыт убытком 505,5 млн ₽. <i>(EBITDA, CapEx и FCF за 2024 — по данным агрегатора smart-lab, не сверены с первичной отчётностью; за 2025 EBITDA — оценка.)</i></p>
 <a class="cta" href="/?company=NFAZ&amp;tab=business">Продолжить в приложении: бизнес-модель «НЕФАЗ» (Нефтекамский автозавод) →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/NFAZ/finance/">Финансы и оценка</a><a class="chip" href="/company/NFAZ/dividends/">Дивиденды</a><a class="chip" href="/company/NFAZ/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/NFAZ/otchet/">Разбор отчёта</a><a class="chip" href="/company/NFAZ/finance/">Финансы и оценка</a><a class="chip" href="/company/NFAZ/dividends/">Дивиденды</a><a class="chip" href="/company/NFAZ/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -103,7 +103,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -115,8 +116,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

@@ -87,8 +87,8 @@ ul{padding-left:22px}</style>
 <p><b>1. Высокая ставка → процентные расходы (доминирующий канал).</b> Ставка удорожает проектное финансирование на непроданную часть, облигации и корпоративные займы. Тонкий эффект: у девелопера по эскроу-схеме проектный кредит на <i>проданные</i> квартиры дёшев (покрыт эскроу), на <i>непроданные</i> — по рыночной ставке. Поэтому распроданность напрямую управляет стоимостью долга: слабый спрос 2024–2025 раздувает проценты на непроданный остаток. Оценка влияния: <b>−4…−5 млрд ₽ к чистой прибыли</b> относительно нейтральной ставки. Чувствительность: каждые <b>−100 б.п. ставки ≈ +0,45 млрд ₽</b> чистой прибыли (диапазон +0,30…+0,55; часть процентов капитализируется в запасы, поэтому мгновенный эффект меньше полного цикла).</p>
 <p><b>2. Ставка → ипотечный спрос → выручка.</b> Рыночная ипотека ~15%, спрос на первичке подавлен вдвое. Но канал сильно приглушён: субсидируемая семейная ипотека под 6% (независима от ключевой ставки, 70–80% сделок) означает, что высокая ставка «не доезжает» до основной массы покупателей. Плюс выручка девелопера признаётся по передаче готовых объектов — эффект спроса лагирует ~2 года. Оценка: <b>−0,3…−0,5 млрд ₽ выручки на +100 б.п.</b> с лагом. Для «Инграда» это вторичный канал: выручку 2026–2027 в большей мере определяет решение нового собственника Sminex, какую часть проектов достраивать, а какую распродать (периметр эмитента сжимается) — это разбирается во вкладке «Рынки».</p>
 <a class="cta" href="/?company=KFBA&amp;tab=macro">Продолжить в приложении: макроэкономика ИНГРАД →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KFBA/business/">Бизнес-модель</a><a class="chip" href="/company/KFBA/finance/">Финансы и оценка</a><a class="chip" href="/company/KFBA/dividends/">Дивиденды</a><a class="chip" href="/company/KFBA/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/KFBA/otchet/">Разбор отчёта</a><a class="chip" href="/company/KFBA/business/">Бизнес-модель</a><a class="chip" href="/company/KFBA/finance/">Финансы и оценка</a><a class="chip" href="/company/KFBA/dividends/">Дивиденды</a><a class="chip" href="/company/KFBA/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -108,7 +108,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -120,8 +121,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

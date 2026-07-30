@@ -88,8 +88,8 @@ ul{padding-left:22px}</style>
 <p><b>3. Госспрос и импортозамещение — фон в плюс, но компания его не ловит.</b> Рынок вырос на 17% (2025), госзакупки +26%, курс на локализацию АФС по Фарма-2030. При этом выручка Фармсинтеза по РСБУ за 2025 упала на 37% — компания теряет относительную долю. В базовом сценарии импульс проходит мимо. Апсайд бинарный: один госконтракт импортозамещения на 0,2–0,3 млрд ₽ дал бы скачок выручки в десятки процентов, но вероятность низкая.</p>
 <p><b>4. Инфляция издержек против регулируемых цен ЖНВЛП.</b> Издержки (ФОТ, содержание площадки, R&amp;D) растут с инфляцией, а цены на ЖНВЛП индексируются ограниченно (лекарства +6,7% в 2025, ЖНВЛП — меньше). ~−3 млн к прибыли на каждый 1 п.п. роста издержек сверх переноса в цену. Слабый pricing power B2G-производителя: число заводов соцзначимых лекарств уже сократилось с 24–26 до 18 из-за низкомаржинальных позиций перечня.</p>
 <a class="cta" href="/?company=LIFE&amp;tab=macro">Продолжить в приложении: макроэкономика Фармсинтез →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/LIFE/business/">Бизнес-модель</a><a class="chip" href="/company/LIFE/finance/">Финансы и оценка</a><a class="chip" href="/company/LIFE/dividends/">Дивиденды</a><a class="chip" href="/company/LIFE/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/LIFE/otchet/">Разбор отчёта</a><a class="chip" href="/company/LIFE/business/">Бизнес-модель</a><a class="chip" href="/company/LIFE/finance/">Финансы и оценка</a><a class="chip" href="/company/LIFE/dividends/">Дивиденды</a><a class="chip" href="/company/LIFE/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -109,7 +109,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -121,8 +122,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

@@ -87,8 +87,8 @@ ul{padding-left:22px}</style>
 <p>1. <b>Ставка → инвестиции заказчиков (спрос) — главный риск.</b> Дорогие деньги заморозили капвложения нефтегаза, энергетики и стройки (инвестиции −14,3%), откуда компания берёт проекты. Каждый ±1 пп роста ВВП/инвестиций — это ориентировочно ±0,2 млрд ₽ выручки. Смягчает удар импортозамещение: уход западных вендоров создаёт обязательный спрос, что и дало +42,5% в 2025 вопреки ставке. Но базовый эффект замещения исчерпывается.</p>
 <p>2. <b>Ставка → оборотный капитал (специфика интегратора).</b> У EELT ставка бьёт не по телу долга (оно мало), а по стоимости прокрутки закупок: чем быстрее рост, тем больше кэша поглощает оборотка (CFO уходил в минус в 2022 и 2024 при прибыли). ±100 б.п. ставки ≈ ∓9 млн ₽ прибыли напрямую — умеренно, но кассово важно при ускорении роста.</p>
 <a class="cta" href="/?company=EELT&amp;tab=macro">Продолжить в приложении: макроэкономика Европейская Электротехника →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/EELT/business/">Бизнес-модель</a><a class="chip" href="/company/EELT/finance/">Финансы и оценка</a><a class="chip" href="/company/EELT/dividends/">Дивиденды</a><a class="chip" href="/company/EELT/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/EELT/otchet/">Разбор отчёта</a><a class="chip" href="/company/EELT/business/">Бизнес-модель</a><a class="chip" href="/company/EELT/finance/">Финансы и оценка</a><a class="chip" href="/company/EELT/dividends/">Дивиденды</a><a class="chip" href="/company/EELT/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -108,7 +108,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -120,8 +121,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>

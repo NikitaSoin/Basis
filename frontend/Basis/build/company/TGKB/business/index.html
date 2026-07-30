@@ -83,8 +83,8 @@ ul{padding-left:22px}</style>
 <p>Источники якорей: выручка и чистая прибыль 2024–2025 — отчётность МСФО (за 2024 опубликована 31.03.2025, за 2025 — в марте 2026) и сообщения деловых СМИ (Interfax, Finam, fomag) по этой отчётности; операционная прибыль/убыток и прибыль/убыток до налогов 2024–2025 — та же отчётность; EBITDA, чистый долг, CapEx, процентные расходы — данные агрегатора smart-lab на базе отчётности МСФО <i>(оценка/ориентир, перепроверить по первичной отчётности)</i>. ⚠️ Ранее встречавшаяся в сторонних проверках цифра «чистый долг ~815 млрд ₽» — <b>ошибочна</b> (нереалистична при выручке ~65 млрд ₽); по первоисточникам чистый долг измеряется единицами-десятками млрд ₽.</p>
 <p>Вывод из таблицы: ключевая особенность ТГК-2 — расхождение операционного и чистого результата, причём знак расхождения в 2024 и 2025 разный. В 2024 году бизнес операционно прибылен (операционная прибыль ~2,3 млрд ₽), но на чистом уровне — убыток (−3,3 млрд ₽): операционную прибыль и больше съели финансовые расходы и неденежные списания (в 2023 чистый убыток достигал ~15,4 млрд ₽). В 2025 году картина перевернулась: при росте выручки на 14,7% операционная деятельность ушла в убыток (~−2,0 млрд ₽, EBITDA фактически обнулилась), но компания впервые за годы показала чистую прибыль ~3,6 млрд ₽ — то есть прибыль обеспечена не операциями, а разовыми (вероятно, неоперационными) статьями. <i>(Природа разовых доходов 2025 в доступных источниках детально не раскрыта — перепроверить по отчёту о прибылях и убытках МСФО.)</i></p>
 <a class="cta" href="/?company=TGKB&amp;tab=business">Продолжить в приложении: бизнес-модель ТГК-2 →</a>
-<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TGKB/finance/">Финансы и оценка</a><a class="chip" href="/company/TGKB/dividends/">Дивиденды</a><a class="chip" href="/company/TGKB/macro/">Макроэкономика</a><a class="chip" href="/company/TGKB/geo/">Геополитика</a></div>
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
+<h2>Другие разделы разбора</h2><div class="grid"><a class="chip" href="/company/TGKB/otchet/">Разбор отчёта</a><a class="chip" href="/company/TGKB/finance/">Финансы и оценка</a><a class="chip" href="/company/TGKB/dividends/">Дивиденды</a><a class="chip" href="/company/TGKB/macro/">Макроэкономика</a><a class="chip" href="/company/TGKB/geo/">Геополитика</a></div>
+<p class="note">Basis — аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
@@ -104,7 +104,8 @@ ul{padding-left:22px}</style>
   // экран и показываем статику — она полноценная, лучше чем бесконечная загрузка.
   setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
 })();
-window.addEventListener("basis:company-ready", function () {
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
   var el = document.getElementById("seo-static");
   if (el) el.remove();          // не display:none — убираем из потока совсем
   var ld = document.getElementById("seo-boot");
@@ -116,8 +117,9 @@ window.addEventListener("basis:company-ready", function () {
   document.body.style.font = "";
   document.documentElement.classList.add("basis-app-mounted");
 });
+});
 </script>
 <link rel="stylesheet" href="/static/css/main.5ac98dcd.css">
-<script defer src="/static/js/main.a7f8083b.js"></script>
+<script defer src="/static/js/main.6d031650.js"></script>
 </body>
 </html>
