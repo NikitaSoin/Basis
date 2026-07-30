@@ -6,6 +6,7 @@
    /bonds, /futures, /funds, /spot, /market/instruments/sparklines (мини-графики).
    Эпистемика: котировки = факт; тон рынка и трактовка драйверов = оценка/суждение Basis. */
 import React, { useState, useEffect, useMemo } from "react";
+import { syncTabUrl } from "../navUrl";
 import { InfoDot } from "../design/InfoDot";
 import { FAIR_VALUE_NOTE } from "../fairValueNote";
 import { TrendingUp, FileText, ArrowRightLeft, Layers, Coins, Sigma } from "lucide-react";
@@ -920,9 +921,13 @@ function inTradingHours() {
   return t >= 7 * 60 && t <= 23 * 60 + 50;
 }
 
-export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot, onOpenOption, onSelectIndex, onSelectDriver, Logo }) {
+export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot, onOpenOption, onSelectIndex, onSelectDriver, Logo, forceTab }) {
   const persist = (k, d) => { try { return localStorage.getItem(k) || d; } catch { return d; } };
-  const [tab, setTab] = useState(() => persist("mk.tab", "stocks"));
+  // forceTab — вкладка из адреса (?view=companies&tab=bonds). Приоритет у неё: человек
+  // пришёл по ссылке на конкретный класс активов, и запомненная в localStorage вкладка
+  // не должна перебивать намерение.
+  const VALID_TABS = ["stocks", "bonds", "futures", "funds", "spot"];
+  const [tab, setTab] = useState(() => (VALID_TABS.includes(forceTab) ? forceTab : persist("mk.tab", "stocks")));
   // Мобильный (≤760px) выезжающий сайдбар — тот же переиспользуемый паттерн,
   // что у Портфеля/Обозревателя/Скринера (design/MobileSidebarDrawer.jsx).
   // Заменяет собой горизонтальную полосу mk-tabbar-mobile (Фаза 1) — владелец,
@@ -951,7 +956,9 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   const [fundSparks, setFundSparks] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const saveTab = (t) => { setTab(t); setQuery(""); setSector("Все"); try { localStorage.setItem("mk.tab", t); } catch {} };
+  // Вкладка класса активов получает свой адрес и заголовок (владелец 2026-07-31:
+  // «по вкладкам в каждом из блоков не появились страницы под каждую вкладку»).
+  const saveTab = (t) => { setTab(t); setQuery(""); setSector("Все"); syncTabUrl("companies", t); try { localStorage.setItem("mk.tab", t); } catch {} };
   const saveSView = (v) => { setStockView(v); try { localStorage.setItem("mk.sview3", v); } catch {} };
 
   // акции (scored) + пульс + капитализации: загрузка при монтировании И периодическое

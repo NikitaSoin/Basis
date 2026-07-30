@@ -21,6 +21,7 @@ import {
 import { Button, Card, Badge, Chip, IconButton, Table, Delta, KpiTile, usePrefersReducedMotion } from "../design/primitives";
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber } from "../design/format";
 import { FAIR_VALUE_NOTE } from "../fairValueNote";
+import { syncTabUrl } from "../navUrl";
 import { WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "../design/PortfolioViz";
 import { KeyTakeaway, Disclosure } from "../design/textblocks";
 import { AppearGroup } from "../design/motion";
@@ -2085,6 +2086,7 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
 
   const handleSectionChange = (id) => {
     setActiveSection(id);
+    syncTabUrl("portfolio", id);   // у каждой вкладки портфеля свой адрес и заголовок
     setVisitedSections((prev) => {
       if (prev.has(id)) return prev;
       const next = new Set(prev);

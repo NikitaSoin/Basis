@@ -876,6 +876,9 @@ export default function App() {
   // Вкладка карточки из deep-link (?company=T&tab=finance) — применяется только
   // при первом монтировании карточки, дальше пользователь управляет вкладками сам.
   const [initialCardTab, setInitialCardTab] = useState(null);
+  // Вкладка внутри раздела из адреса (?view=portfolio&tab=risk) — прокидывается в
+  // MarketNeo/PortfolioV2/ObserverV2 как начальная секция.
+  const [forceInnerTab, setForceInnerTab] = useState(null);
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem("basis_theme");
     if (stored === "dark" || stored === "light") return stored;
@@ -949,6 +952,11 @@ export default function App() {
       const VIEW_TABS = ["companies", "overview", "portfolio", "stress", "screener", "ai", "pricing"];
       const viewP = (params.get("view") || "").toLowerCase();
       if (VIEW_TABS.includes(viewP)) {
+        // ?tab=… — вкладка ВНУТРИ раздела (Рынок: stocks/bonds/futures/funds;
+        // Портфель: composition/risk/correlation/quality/…). Без этого ссылка на
+        // конкретную вкладку открывала раздел на дефолтной, и адрес терял смысл.
+        const tabInner = (params.get("tab") || "").toLowerCase();
+        if (tabInner) setForceInnerTab(tabInner);
         if (viewP === "overview") {
           const OBS_SECTIONS = ["news", "economy", "pulse", "maps", "calendar", "reports", "corp-news", "macro", "geo", "institutions", "ai"];
           const obsP = (params.get("obs") || "").toLowerCase();
@@ -1081,7 +1089,7 @@ export default function App() {
     if (selectedSpot) return <SpotCard secid={selectedSpot} onBack={() => setSelectedSpot(null)} />;
     switch (activeTab) {
       case "companies":
-        return <CompaniesView onSelectCompany={selectCompany} onSelectIndex={openIndex} onSelectDriver={openDriverChart} />;
+        return <CompaniesView onSelectCompany={selectCompany} onSelectIndex={openIndex} onSelectDriver={openDriverChart} forceTab={forceInnerTab} />;
       case "screener":
         return <ScreenerCompareView onSelectCompany={selectCompany} token={token} onAuthRequired={() => setShowAuthModal(true)} />;
       case "overview":
@@ -1101,7 +1109,7 @@ export default function App() {
           />
         );
       case "portfolio":
-        return <PortfolioV2 token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={selectCompany} />;
+        return <PortfolioV2 token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={selectCompany} forceSection={forceInnerTab} />;
       case "strategies":
         return <ComingSoonView icon={Target} title="Портфельные стратегии" blurb="Подбор готовой стратегии под ваш профиль риска. Раздел скоро появится — мы его готовим." />;
       case "stress":
