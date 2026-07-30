@@ -434,7 +434,12 @@ def _revenue_per_share(fin: dict, shares_outstanding: float | None = None,
     for a in alts:
         if plausible(a):
             return a
-    return primary if primary is not None else (alts[0] if alts else None)
+    # Ни один вариант не прошёл проверку живой ценой. Возвращаем primary, если он есть
+    # (пусть сомнительный — так вело себя и до правки, и такие случаи ловит санити-гейт
+    # аксессора), но НЕ подставляем заведомо мусорный альтернативный: проверка показала,
+    # что у BLNG/CHGZ/GAZT выручка на акцию выходит 0,00 (P·S в миллиарды), и раньше эти
+    # бумаги ЧЕСТНО не считались вовсе. Молчание лучше выдуманного числа.
+    return primary
 
 
 def _net_margin(fin: dict) -> float | None:
