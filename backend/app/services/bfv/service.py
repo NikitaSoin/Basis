@@ -42,10 +42,14 @@ def _live_price(db: Session, ticker: str) -> float | None:
 
 def _live_beta(db: Session, ticker: str) -> float | None:
     try:
+        # 🔴 company_metrics идентифицируется по TICKER (unique-колонка), колонки
+        # company_id в ней НЕТ вовсе — прежний JOIN по cm.company_id падал, ошибка
+        # глоталась except-ом, и бета молча подменялась дефолтом β=1.0 у ВСЕХ бумаг.
+        # То есть порог доходности не различал Сбер и микрокап, хотя реальные беты в
+        # таблице есть (проверено 2026-07-30: 261 из 261, у SBER 0,55).
         r = db.execute(text(
-            "SELECT cm.beta FROM company_metrics cm JOIN companies c ON c.id = cm.company_id "
-            "WHERE c.ticker = :t AND cm.beta IS NOT NULL "
-            "ORDER BY cm.updated_at DESC NULLS LAST LIMIT 1"), {"t": ticker}).first()
+            "SELECT beta FROM company_metrics "
+            "WHERE ticker = :t AND beta IS NOT NULL LIMIT 1"), {"t": ticker}).first()
         return float(r[0]) if r and r[0] is not None else None
     except Exception:  # noqa: BLE001
         return None

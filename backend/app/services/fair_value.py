@@ -101,11 +101,11 @@ def _live_betas(db: Session, tickers: list[str]) -> dict[str, float]:
     if not tickers:
         return {}
     try:
+        # см. комментарий в bfv/service._live_beta: company_metrics ключуется по ticker,
+        # JOIN по company_id падал и обнулял бету у всех бумаг
         rows = db.execute(text(
-            "SELECT DISTINCT ON (c.ticker) c.ticker, cm.beta "
-            "FROM company_metrics cm JOIN companies c ON c.id = cm.company_id "
-            "WHERE c.ticker = ANY(:ts) AND cm.beta IS NOT NULL "
-            "ORDER BY c.ticker, cm.updated_at DESC NULLS LAST"), {"ts": tickers}).all()
+            "SELECT ticker, beta FROM company_metrics "
+            "WHERE ticker = ANY(:ts) AND beta IS NOT NULL"), {"ts": tickers}).all()
         return {t: float(b) for t, b in rows if b is not None}
     except Exception:  # noqa: BLE001
         logger.warning("fair_value: не удалось получить беты пачкой", exc_info=True)
