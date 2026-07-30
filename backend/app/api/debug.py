@@ -879,6 +879,43 @@ def debug_trigger_report_watch(days_back: int = 5, run_girbo: bool = True):
         db.close()
 
 
+@router.post("/debug/redo-report")
+def debug_redo_report(ticker: str, days_back: int = 7):
+    """Пересоздать РАЗБОР ОТЧЁТА одного тикера (владелец 2026-07-31: «пересоздай
+    Ozon — хочу посмотреть, как будет выглядеть» после апгрейда конвейера: полный
+    текст источника + extra_metrics + контекст/watch_next).
+
+    Механика: удаляем СВЕЖИЕ processed/extract_failed-записи тикера (дедуп
+    report_watch держится на записях — без удаления событие «уже обработано» и
+    повторно не разбирается; figures/digest уходят каскадом по FK), затем сразу
+    гоним refresh() узким окном. ГИР БО пропускаем (дорогой полный обход, к
+    свежим МСФО-разборам отношения не имеет)."""
+    from app.db.session import SessionLocal
+    from app.models.earnings import EarningsReport
+    from app.services.report_watch import refresh
+    from datetime import date as _date, timedelta as _td
+    db = SessionLocal()
+    try:
+        cutoff = _date.today() - _td(days=days_back)
+        rows = (db.query(EarningsReport)
+                .filter(EarningsReport.ticker == ticker.upper(),
+                        EarningsReport.status.in_(("processed", "extract_failed", "needs_source")),
+                        EarningsReport.published_at.isnot(None),
+                        EarningsReport.published_at >= cutoff).all())
+        deleted = len(rows)
+        for r in rows:
+            db.delete(r)   # ORM-delete → каскад figures/digest по relationship
+        db.commit()
+        res = refresh(db, days_back=days_back, run_girbo=False)
+        return {"deleted": deleted, "refresh": res}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug redo-report %s: %s", ticker, e)
+        db.rollback()
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/reset-report-watch")
 def debug_reset_report_watch(ticker: str | None = None):
     """Удаляет needs_source-записи report_watch — ЛЮБОГО пути (calendar_event_id ИЛИ
