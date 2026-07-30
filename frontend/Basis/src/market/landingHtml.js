@@ -1,8 +1,20 @@
-// Лендинг v4. Структура и копирайт — по брифу владельца (2026-07-30): не каталог
-// фич, а разделы платформы, у каждого явно названа ЦЕННОСТЬ для инвестора. Сквозная
-// линия, которая держит всю страницу: у частного инвестора нет времени на разбор,
-// нам можно доверять (не брокер, сделок не исполняем), мы помогаем разобраться и
-// показываем, сколько бумага стоит на самом деле — чтобы сохранить капитал.
+// Лендинг v4. Структура — по брифу владельца (2026-07-30): не каталог фич, а разделы
+// платформы, у каждого названа ценность. Копирайт переписан после разбора с советником:
+// первая редакция была написана В РЕГИСТРЕ УГОВАРИВАНИЯ — субъектом текста был читатель
+// и его дефициты («на один разбор уходят дни»), отсюда просторечие и рекламная
+// парцелляция. Деловая аналитическая проза утверждает о ПРЕДМЕТЕ (рынок, метод,
+// стоимость), а читатель узнаёт себя сам.
+//
+// 🔴 Сквозная мысль страницы — НЕ «мы экономим ваше время» (это умеет любой агрегатор),
+// а «мы даём единую систему координат для рынка, на котором её нет»: одна методика на
+// 264 компании и 3100 выпусков ⇒ числа сравнимы между собой. Дефицит внимания — следствие,
+// а не причина, и звучит как факт о методе, а не как жалоба на читателя.
+//
+// Правила тона (нарушать = вернуться к первой редакции): утверждение о предмете, а не о
+// читателе; деталь вместо эпитета (264 / 3100 / 7 / 75 — фактура, эпитеты не нужны);
+// полные предложения без парцелляции; ЗАПРЕЩЕНЫ «на самом деле», «правда», «секрет»,
+// «сбой» — риторика разоблачения; ограничения формулируются как принцип, а не как
+// оправдание («не брокер: сделок не исполняем» — без «нам незачем вас торопить»).
 //
 // Порядок разделов задан владельцем: Рынок (акции + облигации) → методика
 // справедливой цены → Обозреватель → Скринер → Портфель → Стресс-тест → Ассистент.
@@ -23,8 +35,8 @@ const LANDING_HTML = `
   <div class="wrap">
     <div>
       <div class="hero-badge rv"><i></i> Независимая аналитика российского рынка · второе мнение перед решением</div>
-      <h1 class="rv d1">Сколько на самом деле<br><span class="grad">стоят ваши акции</span></h1>
-      <p class="hero-sub rv d2">Полный разбор одной компании — это несколько дней работы по десяткам источников, и через неделю половина устаревает. Базис держит эту работу сделанной по всему рынку: разбор каждой бумаги, рыночный фон, справедливая цена по своей методике и проверка портфеля на прочность. Мы не брокер и сделок не исполняем — нам незачем вас торопить.</p>
+      <h1 class="rv d1">Сколько стоит бумага —<br><span class="grad">с поправкой на страну, где она торгуется</span></h1>
+      <p class="hero-sub rv d2">Базис разбирает 264 компании и 3100 выпусков облигаций по единой методике — от финансовой модели до институциональных рисков — и встраивает в оценку то, что определяет цены на российском рынке: качество корпоративного управления, геополитику, макроэкономический режим. Справедливая цена пересчитывается на каждый запрос от текущей котировки и кривой ОФЗ. Мы не брокер: сделок не исполняем и торговых сигналов не даём.</p>
       <div class="hero-actions rv d3">
         <a class="btn btn-primary btn-lg" href="#" data-route="companies">Открыть платформу →</a>
         <a class="btn btn-ghost btn-lg" href="#" data-route="rosn">Пример — Роснефть</a>
@@ -53,7 +65,7 @@ const LANDING_HTML = `
             <div class="cc-m"><div class="l">Дивиденд</div><div class="v">10,4%</div><div class="bar"><i style="width:68%;background:var(--accent)"></i></div></div>
           </div>
           <div class="cc-tags"><span class="tag tag-f">факт</span><span class="tag tag-e">оценка</span><span class="tag tag-j">суждение</span></div>
-          <div class="cc-live"><span class="cc-live-dot"></span>числа живые — пересчитываются, пока вы читаете</div>
+          <div class="cc-live"><span class="cc-live-dot"></span>оценка пересчитывается на каждый запрос — от текущей котировки и кривой ОФЗ</div>
         </div>
       </div>
       <div class="cock-float cf1"><div class="ic" style="background:var(--violet-soft)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="1.8" stroke-linecap="round"><path d="M3 17l5-6 4 3 5-7 4 5"/></svg></div><div><div class="ft">Сценарий · эскалация</div><div class="fv" style="color:var(--violet)">ROS −5%</div></div></div>
@@ -68,9 +80,9 @@ const LANDING_HTML = `
 <section class="trust">
   <div class="wrap">
     <div class="trust-grid">
-      <div class="stat rv"><div class="num" data-count="264">0</div><div class="lbl">компаний с полным разбором</div></div>
-      <div class="stat rv d1"><div class="num" data-count="3000" data-suffix="+">0</div><div class="lbl">облигаций: доходность против&nbsp;риска</div></div>
-      <div class="stat rv d2"><div class="num" data-count="7">0</div><div class="lbl">разделов разбора по каждой компании</div></div>
+      <div class="stat rv"><div class="num" data-count="264">0</div><div class="lbl">компаний, разобранных по единой методике</div></div>
+      <div class="stat rv d1"><div class="num" data-count="3000" data-suffix="+">0</div><div class="lbl">выпусков облигаций: доходность против&nbsp;риска</div></div>
+      <div class="stat rv d2"><div class="num" data-count="7">0</div><div class="lbl">связанных разделов анализа по компании</div></div>
       <div class="stat rv d3"><div class="num mono">0–100</div><div class="lbl">композитный балл в скринере</div></div>
       <div class="stat rv d4"><div class="num" data-count="10" data-suffix="+">0</div><div class="lbl">метрик риска в аналитике портфеля</div></div>
       <div class="stat rv d4"><div class="num" data-count="4">0</div><div class="lbl">сценария стресс-теста портфеля</div></div>
@@ -83,8 +95,8 @@ const LANDING_HTML = `
   <div class="wrap">
     <div class="sec-head">
       <div class="eyebrow rv">Зачем это нужно</div>
-      <h2 class="sh rv d1" style="margin-left:auto;margin-right:auto">На один толковый разбор уходят дни. А их нужны десятки.</h2>
-      <p class="lead rv d2">Отчётность, мультипликаторы, отрасль, макроэкономика, геополитика, институциональная среда, риск бумаги в вашем портфеле — по десяткам источников и с разной свежестью. Через неделю половина уже неактуальна. Базис держит эту работу сделанной по всему рынку сразу и обновляет её без вас — чтобы ваше время уходило на решение, а не на сбор данных.</p>
+      <h2 class="sh rv d1" style="margin-left:auto;margin-right:auto">Данных достаточно. Не хватает системы координат</h2>
+      <p class="lead rv d2">Отчётности, раскрытия и новости доступны каждому, но данные — ещё не оценка: чтобы превратить одно в другое, нужна методика, применённая последовательно ко всему рынку. Инвестор обычно сверяет выводы из разных источников, полученные разными методами и на разных допущениях, — сопоставить их между собой невозможно. Базис выполняет эту работу одинаково по 264 компаниям и 3100 выпускам облигаций: каждое число на платформе сравнимо с любым другим, а границы его достоверности указаны явно.</p>
     </div>
   </div>
 </section>
@@ -93,19 +105,19 @@ const LANDING_HTML = `
 <section class="band band-alt" id="market">
   <div class="wrap">
     <div class="sec-head" style="margin-bottom:44px">
-      <div class="eyebrow rv">Что внутри</div>
-      <h2 class="sh rv d1" style="margin-left:auto;margin-right:auto">Весь процесс — от одной бумаги до всего портфеля</h2>
-      <p class="lead rv d2">Разобрать компанию, понять фон рынка, найти идею, проверить портфель и его устойчивость. Всё в одном месте и по одной методике.</p>
+      <div class="eyebrow rv">Состав платформы</div>
+      <h2 class="sh rv d1" style="margin-left:auto;margin-right:auto">От отдельной бумаги до устойчивости портфеля</h2>
+      <p class="lead rv d2">Разбор компании, рыночный контекст, отбор кандидатов, структура риска и проверка портфеля на сценариях — в одном контуре и по одной методике.</p>
     </div>
     <div class="feat">
       <div class="feat-copy">
         <div class="feat-num rv">01 — Рынок</div>
-        <h3 class="rv d1">Весь рынок — и полный разбор под каждой бумагой</h3>
-        <p class="rv d2">Акции, облигации, фьючерсы, фонды, валюта и металлы. По каждой компании — семь разделов разбора: бизнес-модель, финансы и оценка, корпоративное управление, рынки, макроэкономика, геополитика и институциональная среда. Под каждым тезисом источник и пометка, факт это, оценка или суждение.</p>
+        <h3 class="rv d1">Каждая бумага — с разбором, а не с карточкой котировки</h3>
+        <p class="rv d2">Акции, облигации, фьючерсы, фонды, валюта и металлы. По каждой компании — семь связанных разделов анализа: бизнес-модель, финансы и оценка, корпоративное управление, рынки присутствия, макроэкономика, геополитика и институциональная среда. Разделы не соседствуют, а входят друг в друга: вывод одного становится параметром расчёта в другом. Под каждым утверждением — источник и его статус: факт, оценка или суждение.</p>
         <ul class="feat-pts rv d2">
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Справедливая цена и потенциал — с допущениями, а не одним числом</li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Семь разделов вместо десяти вкладок в браузере</li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Цена и мультипликаторы живые — ничего не застывает на дате разбора</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Справедливая цена с раскрытой выкладкой и допущениями</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Семь связанных разделов вместо разрозненных источников</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Котировка и мультипликаторы пересчитываются непрерывно — оценка не привязана к дате разбора</li>
         </ul>
         <a class="feat-link" href="#" data-route="rosn">Открыть пример — Роснефть <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
       </div>
@@ -139,10 +151,10 @@ const LANDING_HTML = `
       <div class="feat-copy">
         <div class="feat-num rv">01 — Рынок · облигации</div>
         <h3 class="rv d1">Главный вопрос по облигации — не доходность, а оправдана ли она риском</h3>
-        <p class="rv d2">Высокий купон сам по себе ничего не значит: важно, компенсирует ли он кредитный риск эмитента и переоценку по ставке. Базис считает это по каждому выпуску — видно, где премия честная, а где вам платят за риск, который вы не заметили.</p>
+        <p class="rv d2">Высокий купон сам по себе не информативен: значение имеет то, компенсирует ли он кредитный риск эмитента и переоценку выпуска при изменении ставки. Базис оценивает это по каждой бумаге — где премия соответствует принимаемому риску, а где инвестору платят за риск, которого он не учёл.</p>
         <ul class="feat-pts rv d2">
           <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Спред к ОФЗ против кредитного качества эмитента</li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Рейтинг агентств против собственной оценки Базиса</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Рейтинг агентства рядом с собственной оценкой платформы</li>
           <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Чувствительность к ставке и ожидаемые потери</li>
         </ul>
         <a class="feat-link" href="#" data-route="companies">Открыть облигации <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
@@ -172,13 +184,13 @@ const LANDING_HTML = `
     <div class="feat">
       <div class="feat-copy">
         <div class="feat-num rv">02 — Справедливая цена</div>
-        <h3 class="rv d1">Старые методики на российском рынке дают сбой</h3>
-        <p class="rv d2">Классическая модель исходит из того, что заработанное компанией дойдёт до акционера. В России между прибылью и вашим дивидендом стоит слишком многое: кто собственник и как он связан с государством, санкционный контур, геополитика, ставка ЦБ. Поэтому мы считаем не прибыль, а поток, который реально доходит до миноритария, — dividend discounted model, в которую заложены оценка институциональной среды, геополитических трендов и влияние макроэкономики.</p>
-        <p class="rv d2">Такая модель намеренно осторожна: она требует за риск доходность выше ОФЗ и потому отбирает бумаги, которые достаточно безопасны для вложения. Это не про то, чтобы поймать максимум, — это про то, чтобы сохранить капитал.</p>
+        <h3 class="rv d1">Классическая модель оценки не знает, в какой стране торгуется бумага</h3>
+        <p class="rv d2">Дисконтная модель исходит из допущения, что заработанное компанией дойдёт до акционера. На российском рынке это допущение слишком сильное: между прибылью и дивидендом стоят структура собственности и её отношения с государством, санкционный контур, геополитическая траектория и стоимость денег. Базис оценивает поток, который достаётся миноритарию, — дивидендная модель, где институциональная среда, качество управления и макроэкономический режим входят параметрами расчёта, а не оговоркой под таблицей: слабое управление повышает требуемую доходность и тем самым снижает справедливую цену.</p>
+        <p class="rv d2">Модель намеренно консервативна — она требует премии к доходности ОФЗ и потому выделяет бумаги с запасом прочности. Знание стоимости защищает от переплаты, дисциплина метода — от настроения рынка.</p>
         <ul class="feat-pts rv d2">
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Институты, геополитика и макро — не текстом рядом, а поправкой в самом расчёте</li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Порог доходности выше ОФЗ — иначе бумага его не проходит</li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Где модель неприменима — она честно не даёт числа и говорит почему</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Институты, геополитика и макроэкономика — параметры расчёта, а не комментарий к нему</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Премия к доходности ОФЗ как порог: ниже него бумага не проходит отбор</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>По 75 компаниям из 264 модель не даёт числа — и объясняет причину</li>
         </ul>
       </div>
       <div class="rv d2">
@@ -194,7 +206,7 @@ const LANDING_HTML = `
             <div class="lvl-row"><span class="lvl-n">07</span><span class="lvl-t">Институциональная среда</span><span class="lvl-b"><i style="width:52%"></i></span></div>
           </div>
           <div class="cc-fv" style="margin-top:13px"><span class="fvl">Справедливая<br>цена</span><span class="fvbar"><i></i></span><span class="fvv">+18%</span></div>
-          <div class="pv-sub" style="margin-top:10px;line-height:1.5">Каждый уровень меняет требуемую доходность или сам поток — и потому двигает итоговую цену.</div>
+          <div class="pv-sub" style="margin-top:10px;line-height:1.5">Каждый уровень изменяет либо требуемую доходность, либо сам поток — и потому смещает итоговую цену.</div>
         </div>
       </div>
     </div>
@@ -207,13 +219,13 @@ const LANDING_HTML = `
     <div class="feat rev">
       <div class="feat-copy">
         <div class="feat-num rv">03 — Обозреватель</div>
-        <h3 class="rv d1">Рыночный фон без чтения первоисточников</h3>
-        <p class="rv d2">Лента новостей, обзоры рынка и календарь событий — чтобы ничего не пропустить. Главное: как только выходит отчётность, вы получаете не двести страниц PDF, а готовый разбор — что показал отчёт и что в нём изменилось против прошлого раза.</p>
-        <p class="rv d2">Отдельно — оценка макроэкономической, геополитической и институциональной ситуации: куда всё движется глобально и как это отразится на российском рынке. И ИИ-отчёт, который за пару минут собирает весь рыночный контекст с учётом именно вашего портфеля.</p>
+        <h3 class="rv d1">Рыночный контекст в готовом виде</h3>
+        <p class="rv d2">Лента, календарь событий и обзоры рынка закрывают вопрос осведомлённости. Существеннее другое: в момент публикации отчётности вы получаете не первичный документ, а его разбор — что показал отчёт, что изменилось против предыдущего периода и какие статьи это объясняют.</p>
+        <p class="rv d2">Отдельный слой — состояние макроэкономической, геополитической и институциональной среды: в какую сторону движется контекст и каких секторов это коснётся. ИИ-отчёт собирает эту картину применительно к составу вашего портфеля.</p>
         <ul class="feat-pts rv d2">
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Готовые разборы отчётностей — ничего не упускаете и сразу понимаете суть</li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Макро, геополитика и институты — куда движется среда и кого это заденет</li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>ИИ-отчёт за пару минут — рыночный контекст под ваш портфель</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Разбор отчётности в момент публикации — вместо первичного документа</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Макроэкономика, геополитика и институты — как направление среды, а не поток новостей</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>ИИ-отчёт: рыночный контекст, соотнесённый с составом портфеля</li>
         </ul>
         <a class="feat-link" href="#" data-route="overview">Открыть обозреватель <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
       </div>
@@ -237,12 +249,12 @@ const LANDING_HTML = `
     <div class="feat">
       <div class="feat-copy">
         <div class="feat-num rv">04 — Скринер</div>
-        <h3 class="rv d1">От всего рынка к десятку кандидатов за минуты</h3>
-        <p class="rv d2">Фильтры по мультипликаторам, доходности и риску — с распределением рынка под каждым критерием, чтобы было видно, дёшево ли это на самом деле или только на фоне соседа. Плюс композитный балл Базиса 0–100 с уровнем уверенности и карта «оценка × качество».</p>
+        <h3 class="rv d1">Отбор, в котором видно распределение, а не только значение</h3>
+        <p class="rv d2">Фильтры по мультипликаторам, доходности и риску сопровождаются распределением рынка по каждому критерию — чтобы «дёшево» определялось относительно всей совокупности, а не соседней бумаги. Композитный балл 0–100 приводится с уровнем уверенности, а карта «оценка × качество» показывает обе координаты одновременно.</p>
         <ul class="feat-pts rv d2">
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Композитный балл с честным уровнем уверенности</li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Распределение рынка под каждым фильтром</li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Карта «дёшево × качественно» — и то, и другое сразу</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Композитный балл с указанием уровня уверенности</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Распределение рынка под каждым критерием отбора</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Карта «оценка × качество» — обе координаты одновременно</li>
         </ul>
         <a class="feat-link" href="#" data-route="screener">Открыть скринер <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
       </div>
@@ -271,12 +283,12 @@ const LANDING_HTML = `
     <div class="feat rev">
       <div class="feat-copy">
         <div class="feat-num rv">05 — Аналитика портфеля</div>
-        <h3 class="rv d1">Из чего на самом деле складывается ваш риск</h3>
-        <p class="rv d2">Таблица брокера показывает, сколько вы заработали. Она не показывает, что три ваши бумаги ходят вместе, что портфель вдвое чувствительнее рынка и что весь результат года дала одна позиция. Базис считает концентрацию, бету, волатильность, альфу, матрицу корреляций и сравнивает вас с индексом полной доходности — с учётом дивидендов, а не только цены.</p>
+        <h3 class="rv d1">Структура риска, а не итог доходности</h3>
+        <p class="rv d2">Брокерский отчёт показывает результат. Он не показывает, что три позиции движутся синхронно, что портфель вдвое чувствительнее рынка и что годовой результат обеспечен одной бумагой. Базис считает концентрацию, бету, волатильность, альфу и матрицу корреляций и сопоставляет портфель с индексом полной доходности — то есть с учётом дивидендов, а не одной цены.</p>
         <ul class="feat-pts rv d2">
           <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Концентрация, бета, волатильность, альфа</li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Матрица корреляций и скрытые связи между позициями</li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Индекс качества портфеля и ИИ-диагноз: щит и уязвимости</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Матрица корреляций: связи, не видимые в списке позиций</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Индекс качества портфеля: на чём он держится и где уязвим</li>
         </ul>
         <a class="feat-link" href="#" data-route="portfolio">Открыть портфель <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
       </div>
@@ -301,12 +313,12 @@ const LANDING_HTML = `
     <div class="feat">
       <div class="feat-copy">
         <div class="feat-num rv">06 — Стресс-тестирование</div>
-        <h3 class="rv d1">Узнать цену ошибки заранее, а не в день падения</h3>
-        <p class="rv d2">Что станет с вашим портфелем, если нефть уйдёт к 45 долларам, ставка вырастет ещё, рубль укрепится или случится сценарий, которого никто не ждал. Сценарии считаются по факторной модели, а не «на глаз», — видно и глубину просадки, и какая позиция тянет вниз сильнее всех.</p>
+        <h3 class="rv d1">Как портфель поведёт себя при сдвиге нефти, ставки и курса</h3>
+        <p class="rv d2">Сценарии рассчитываются по факторной модели, а не оцениваются приблизительно: видна и глубина просадки, и вклад каждой позиции в неё. Это перевод неопределённости в величину, с которой можно работать до того, как сценарий реализуется.</p>
         <ul class="feat-pts rv d2">
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Шоки по нефти, ставке и курсу — и совокупный удар</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Шоки по нефти, ставке и курсу — по отдельности и совокупно</li>
           <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Вклад каждой позиции в просадку</li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Заранее понятная цена риска — основа сохранения капитала</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Оценённая величина риска вместо предположения о нём</li>
         </ul>
         <a class="feat-link" href="#" data-route="stress">Открыть стресс-тест <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
       </div>
@@ -331,12 +343,12 @@ const LANDING_HTML = `
     <div class="feat rev">
       <div class="feat-copy">
         <div class="feat-num rv">07 — Ассистент</div>
-        <h3 class="rv d1">Спросить словами — вместо поиска по разделам</h3>
-        <p class="rv d2">«Что с моим портфелем», «разбери Сбер», «что было на рынке за неделю», «какие отчёты выходят на следующей неделе». Ассистент отвечает по данным самой платформы — с теми же пометками достоверности и ссылками на разделы, откуда взят каждый вывод.</p>
+        <h3 class="rv d1">Запрос на естественном языке вместо навигации по разделам</h3>
+        <p class="rv d2">«Что происходит с моим портфелем», «разбери Сбербанк», «какие отчётности выходят на следующей неделе». Ассистент отвечает на данных самой платформы — с той же разметкой достоверности и ссылкой на раздел, откуда взят каждый вывод, и учитывает состав вашего портфеля.</p>
         <ul class="feat-pts rv d2">
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Отвечает по данным платформы, а не по памяти модели</li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Видит ваш портфель и отвечает с учётом него</li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Не нужно знать, где что лежит на платформе</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Ответ строится на данных платформы, а не на памяти модели</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Каждое утверждение — со ссылкой на источник</li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>Учитывает состав портфеля при ответе</li>
         </ul>
         <a class="feat-link" href="#" data-route="ai">Открыть ассистента <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
       </div>
@@ -361,9 +373,9 @@ const LANDING_HTML = `
 <section class="band band-alt" id="trust-sec">
   <div class="wrap">
     <div class="sec-head diff-head">
-      <div class="eyebrow rv">Почему нам можно верить</div>
-      <h2 class="sh rv d1" style="margin-left:auto;margin-right:auto">Каждое утверждение помечено уровнем достоверности</h2>
-      <p class="lead rv d2">Не «магия ИИ», а прозрачная логика. Вы всегда видите, на чём основан вывод — и где мы честно не знаем.</p>
+      <div class="eyebrow rv">Основание доверия</div>
+      <h2 class="sh rv d1" style="margin-left:auto;margin-right:auto">У каждого утверждения указан его статус</h2>
+      <p class="lead rv d2">Прозрачность здесь — формат изложения, а не декларация: видно, что именно перед вами — установленный факт, модельный расчёт, аналитическое суждение или условный сценарий. И видно, где платформа ответа не даёт.</p>
     </div>
     <div class="fej">
       <div class="fc rv" style="--c:var(--ink-3)"><div class="tg">Факт</div><h4>Подтверждён источником</h4><p>Отчётность, котировки, официальные данные — с датой и ссылкой.</p></div>
@@ -372,9 +384,9 @@ const LANDING_HTML = `
       <div class="fc rv d3" style="--c:var(--violet)"><div class="tg">Сценарий</div><h4>Условный путь</h4><p>«Если X — тогда Y»: что должно произойти и что опровергнет вывод.</p></div>
     </div>
     <div class="pillars">
-      <div class="pil rv"><div class="pic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.7"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg></div><div><h4>Экономим ваше время</h4><p>Разбор уже сделан и обновляется сам — вам остаётся решение.</p></div></div>
-      <div class="pil rv d1"><div class="pic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg></div><div><h4>Полная картина</h4><p>Бизнес, риски, сценарии и портфельный контекст — а не один показатель.</p></div></div>
-      <div class="pil rv d2"><div class="pic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.7"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div><div><h4>Независимость</h4><p>Не брокер, сделок не исполняем — нам незачем вас торопить.</p></div></div>
+      <div class="pil rv"><div class="pic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.7"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg></div><div><h4>Единая методика</h4><p>Один метод для всего рынка: числа сравнимы между собой.</p></div></div>
+      <div class="pil rv d1"><div class="pic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 8v5l3 2"/></svg></div><div><h4>Полнота картины</h4><p>Бизнес, риски, сценарии и портфельный контекст вместо отдельного показателя.</p></div></div>
+      <div class="pil rv d2"><div class="pic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.7"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div><div><h4>Независимость</h4><p>Мы не брокер: сделок не исполняем и торговых сигналов не даём.</p></div></div>
     </div>
   </div>
 </section>
@@ -399,8 +411,8 @@ const LANDING_HTML = `
 <section class="final">
   <div class="wrap">
     <div class="eyebrow rv">Начать</div>
-    <h2 class="rv d1">Решение принимаете вы.<br>Разбор — за нами</h2>
-    <p class="lead rv d2" style="margin:16px auto 0;text-align:center">Откройте готовый разбор конкретной компании или зайдите в платформу целиком.</p>
+    <h2 class="rv d1">Решение остаётся за вами.<br>Аналитическая работа — за нами</h2>
+    <p class="lead rv d2" style="margin:16px auto 0;text-align:center">Откройте разбор конкретной компании или платформу целиком.</p>
     <div class="hero-actions rv d2">
       <a class="btn btn-primary btn-lg" href="#" data-route="companies">Открыть платформу →</a>
       <a class="btn btn-ghost btn-lg" href="#" data-route="rosn">Пример — Роснефть</a>

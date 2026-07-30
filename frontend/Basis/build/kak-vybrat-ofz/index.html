@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Как выбрать ОФЗ: доходность, дюрация, кривая — разбор Basis</title>
+<meta name="description" content="Как выбирать ОФЗ: на что смотреть — доходность к погашению, дюрация, тип выпуска (ПД, ПК, ИН), форма кривой. Аналитическая рамка Basis, без «купить/продать».">
+<link rel="canonical" href="https://inbasis.ru/kak-vybrat-ofz/">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Basis">
+<meta property="og:title" content="Как выбрать ОФЗ: доходность, дюрация, кривая — разбор Basis">
+<meta property="og:description" content="Как выбирать ОФЗ: на что смотреть — доходность к погашению, дюрация, тип выпуска (ПД, ПК, ИН), форма кривой. Аналитическая рамка Basis, без «купить/продать».">
+<meta property="og:url" content="https://inbasis.ru/kak-vybrat-ofz/">
+<meta property="og:image" content="https://inbasis.ru/og-banner.png">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://inbasis.ru/og-banner.png">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="120x120" href="/favicon-120.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Basis","item":"https://inbasis.ru/"},{"@type":"ListItem","position":2,"name":"Как выбирать ОФЗ"}]},{"@type":"WebPage","name":"Как выбрать ОФЗ: доходность, дюрация, кривая — разбор Basis","description":"Как выбирать ОФЗ: на что смотреть — доходность к погашению, дюрация, тип выпуска (ПД, ПК, ИН), форма кривой. Аналитическая рамка Basis, без «купить/продать».","url":"https://inbasis.ru/kak-vybrat-ofz/","inLanguage":"ru","isPartOf":{"@type":"WebSite","name":"Basis","url":"https://inbasis.ru"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Что выбрать — короткие или длинные ОФЗ?","acceptedAnswer":{"@type":"Answer","text":"Универсального ответа нет: это выбор сценария по ключевой ставке. Длинные выпуски сильнее дорожают при снижении ставки, но сильнее падают при её росте. Короткие менее чувствительны и ближе к денежному рынку. Basis показывает дюрацию каждого выпуска, чтобы этот выбор был осознанным, но не советует конкретный сценарий."}},{"@type":"Question","name":"Чем ОФЗ-ПК отличаются от ОФЗ-ПД?","acceptedAnswer":{"@type":"Answer","text":"У ОФЗ-ПД купон зафиксирован до погашения — при росте ставки цена падает. У ОФЗ-ПК купон плавающий и следует за ставкой денежного рынка RUONIA, поэтому цена стабильнее, а купон растёт вместе со ставкой. ПД выигрывают в сценарии снижения ставки, ПК защищают в сценарии её роста."}},{"@type":"Question","name":"Можно ли получить убыток по ОФЗ?","acceptedAnswer":{"@type":"Answer","text":"Да, по цене — если продать до погашения после роста ставок, когда облигация подешевела. При удержании до погашения Минфин выплачивает номинал, и рыночные колебания цены перестают иметь значение, но реальная доходность может проиграть инфляции."}},{"@type":"Question","name":"Что показывает кривая доходности ОФЗ?","acceptedAnswer":{"@type":"Answer","text":"Кривая — это доходности выпусков в зависимости от срока. Нормальная кривая (длинные доходнее коротких) отражает ожидание стабильной или растущей ставки, инвертированная (короткие доходнее) — ожидание снижения ставки. Это консенсус рынка, а не гарантия: кривая ошибалась не раз."}}]}]}</script>
+<style>:root{--paper:#F7F5F0;--ink:#1F1B16;--muted:#5A5248;--faint:#8A8072;--copper:#C97A4A;--line:#E4DFD5}
+*{box-sizing:border-box}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--paper);color:var(--ink);
+     max-width:760px;margin:0 auto;padding:32px 20px 60px;line-height:1.55}
+h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.25;margin:10px 0 4px}
+h2{font-family:Georgia,serif;font-size:21px;margin:28px 0 10px}
+h3{font-family:Georgia,serif;font-size:17px;margin:20px 0 8px}
+h4{font-size:15px;margin:16px 0 6px}
+p{margin:10px 0}
+a{color:var(--copper)}
+.crumbs{font-size:13px;color:var(--faint)} .crumbs a{color:var(--faint)}
+.sub{color:var(--muted);font-size:14px;margin:0 0 14px}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.cta{display:inline-block;margin:18px 0 6px;padding:11px 22px;background:var(--copper);color:#fff;
+     text-decoration:none;border-radius:10px;font-size:14.5px;font-weight:600}
+.cta:hover{filter:brightness(.95)}
+.grid{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip{display:inline-block;padding:7px 14px;border:1px solid var(--line);border-radius:999px;
+      background:#fff;color:var(--ink);text-decoration:none;font-size:13.5px}
+.chip:hover{border-color:var(--copper)}
+.note{font-size:12.5px;color:var(--faint);margin-top:26px;border-top:1px solid var(--line);padding-top:14px}
+.tag{font-size:11.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
+ul{padding-left:22px}</style>
+</head>
+<body>
+<div id="seo-static">
+<nav class="crumbs"><a href="/">Basis</a> → Как выбирать ОФЗ</nav>
+
+<p class="tag">Basis · инструменты инвестора</p>
+<h1>Как выбирать ОФЗ: доходность, дюрация, кривая</h1>
+<p class="sub">Рамка оценки государственных облигаций — на что смотреть до того, как смотреть на доходность.</p>
+
+<h2>Что такое ОФЗ и какой у них риск</h2>
+<p>ОФЗ — облигации федерального займа, долг Минфина России. Внутри рублёвого рынка
+это минимальный кредитный риск, но «минимальный кредитный» не значит «никакого»:
+у ОФЗ в полный рост есть <b>процентный риск</b>. Когда ключевая ставка растёт,
+цены уже выпущенных облигаций падают — и длинные выпуски падают сильнее коротких.</p>
+<h2>Четыре вещи, на которые стоит смотреть</h2>
+<ul>
+<li><b>Доходность к погашению, а не купон.</b> Купон — лишь часть картины; доходность
+к погашению учитывает и цену покупки, и все выплаты до погашения.</li>
+<li><b>Дюрация</b> — мера чувствительности цены к ставке. Грубое правило: дюрация 5
+означает, что рост ставок на 1 п.п. снижает цену примерно на 5%. Длинная дюрация —
+это ставка на снижение ключевой ставки, со всеми рисками такой ставки.</li>
+<li><b>Тип выпуска.</b> ОФЗ-ПД — постоянный купон, максимальная чувствительность к
+ставке. ОФЗ-ПК — флоатеры с купоном от RUONIA, защищают от роста ставки. ОФЗ-ИН —
+линкеры, номинал индексируется на инфляцию. Это разные инструменты под разные
+сценарии, а не «одинаковые госбумаги».</li>
+<li><b>Кривая доходности.</b> Если короткие выпуски доходнее длинных (инверсия),
+рынок ждёт снижения ставки; нормальная кривая — обратные ожидания. Форма кривой —
+это консенсус рынка о будущем ставки, с которым вы соглашаетесь или спорите.</li>
+</ul>
+<h2>Как это устроено в Basis</h2>
+<p>В <a href="/skrining-obligatsiy/">скринере облигаций</a> ОФЗ фильтруются отдельным
+сегментом — с доходностью, дюрацией и типом купона по каждому выпуску. Макрофон для
+решений — ключевая ставка, инфляция, риторика ЦБ — собран в
+<a href="/obzor-rynka/">Обозревателе</a>. Если рассматриваете более доходные сегменты,
+сначала посмотрите, <a href="/vdo-obligatsii/">как оценивать риск ВДО</a>.</p>
+<p><b>Важно:</b> Basis — аналитическая платформа, не брокер. Мы не советуем, что и
+когда покупать; этот материал — рамка оценки, а не инвестиционная рекомендация.</p>
+<h2>Частые вопросы</h2>
+<h3>Что выбрать — короткие или длинные ОФЗ?</h3>
+<p>Универсального ответа нет: это выбор сценария по ключевой ставке. Длинные выпуски сильнее дорожают при снижении ставки, но сильнее падают при её росте. Короткие менее чувствительны и ближе к денежному рынку. Basis показывает дюрацию каждого выпуска, чтобы этот выбор был осознанным, но не советует конкретный сценарий.</p>
+<h3>Чем ОФЗ-ПК отличаются от ОФЗ-ПД?</h3>
+<p>У ОФЗ-ПД купон зафиксирован до погашения — при росте ставки цена падает. У ОФЗ-ПК купон плавающий и следует за ставкой денежного рынка RUONIA, поэтому цена стабильнее, а купон растёт вместе со ставкой. ПД выигрывают в сценарии снижения ставки, ПК защищают в сценарии её роста.</p>
+<h3>Можно ли получить убыток по ОФЗ?</h3>
+<p>Да, по цене — если продать до погашения после роста ставок, когда облигация подешевела. При удержании до погашения Минфин выплачивает номинал, и рыночные колебания цены перестают иметь значение, но реальная доходность может проиграть инфляции.</p>
+<h3>Что показывает кривая доходности ОФЗ?</h3>
+<p>Кривая — это доходности выпусков в зависимости от срока. Нормальная кривая (длинные доходнее коротких) отражает ожидание стабильной или растущей ставки, инвертированная (короткие доходнее) — ожидание снижения ставки. Это консенсус рынка, а не гарантия: кривая ошибалась не раз.</p>
+<a class="cta" href="/?view=screener">Открыть скринер облигаций →</a>
+<h2>Инструменты и методики Basis</h2><div class="grid"><a class="chip" href="/analiz-portfelya/">Анализ портфеля</a><a class="chip" href="/skrining-aktsiy/">Скрининг акций</a><a class="chip" href="/skrining-obligatsiy/">Скрининг облигаций</a><a class="chip" href="/spravedlivaya-tsena-aktsiy/">Справедливая цена акций</a><a class="chip" href="/vdo-obligatsii/">ВДО</a><a class="chip" href="/obzor-rynka/">Обзор рынка</a><a class="chip" href="/stress-test-portfelya/">Стресс-тест портфеля</a><a class="chip" href="/dividendnyy-kalendar/">Дивидендный календарь</a><a class="chip" href="/company/">Разборы 264 компаний</a></div>
+<p class="note">Basis — независимый аналитический слой для частного инвестора, не брокер:
+не проводит сделок и не даёт сигналов «купить/продать». Материалы страницы — рамка
+оценки и описание инструментов платформы; они не являются индивидуальной
+инвестиционной рекомендацией.</p>
+</div>
+</body>
+</html>
