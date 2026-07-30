@@ -387,15 +387,54 @@ def _sales_to_capital(archetype: str, sector: str, profile: str) -> float:
     return 3.0
 
 
-def _revenue_per_share(fin: dict) -> float | None:
-    """Выручка на акцию, единично-безопасно: last_price / P/S (P/S безразмерен — та же
-    защита от разного масштаба shares_outstanding, что BVPS через P/B). Фолбэк —
-    revenue_total(млн)·1e6 / shares, но масштаб shares ненадёжен, поэтому вторично."""
+def _revenue_per_share(fin: dict, shares_outstanding: float | None = None,
+                       live_price: float | None = None) -> float | None:
+    """Выручка на акцию. Основной путь — last_price / P·S (P·S безразмерен, поэтому не
+    зависит от масштаба shares_outstanding). Но он ломается, если `meta.last_price` в
+    файле разошёлся с реальностью или не согласован с тем же P·S.
+
+    Проверка на бою 2026-07-30: у 7 компаний цена в файле отличается от живой в разы —
+    SGZH 3413 ₽ против 0,73 ₽ (×4679), URKZ 263 968 ₽ против 217 ₽ (×1214), VSYDP ×76,
+    YRSBP ×4,6, KZOSP ×3,9, а у VEON-RX и GEMC наоборот занижена. У SGZH это давало
+    выручку на акцию 4266 ₽ вместо фактических ~1,14 ₽ (89,2 млрд / 78,45 млрд акций) и
+    потенциал +12000 %.
+
+    Поэтому считаем ВТОРЫМ способом — из первичных данных (выручка / число акций) — и,
+    если способы расходятся, выбираем тот, у которого P·S ОТ ЖИВОЙ ЦЕНЫ попадает в
+    правдоподобный диапазон. Масштаб shares_outstanding в файлах неоднороден (штуки или
+    млн штук), поэтому пробуем оба и берём вариант с осмысленным P·S.
+    """
     ps = (fin.get("multiples", {}).get("current", {}) or {}).get("ps")
     last_price = fin.get("meta", {}).get("last_price")
+    primary = None
     if isinstance(ps, (int, float)) and ps > 0 and isinstance(last_price, (int, float)) and last_price > 0:
-        return last_price / ps
-    return None
+        primary = last_price / ps
+
+    # альтернатива из отчётности: выручка (млн ₽) / число акций, оба масштаба shares
+    alts: list[float] = []
+    rev = (fin.get("income_statement", {}) or {}).get("revenue")
+    rev_last = None
+    if isinstance(rev, list):
+        rev_last = next((x for x in reversed(rev) if isinstance(x, (int, float)) and x > 0), None)
+    if rev_last and isinstance(shares_outstanding, (int, float)) and shares_outstanding > 0:
+        alts = [rev_last / shares_outstanding,            # shares в млн штук
+                rev_last * 1e6 / shares_outstanding]      # shares в штуках
+
+    if not isinstance(live_price, (int, float)) or live_price <= 0:
+        return primary if primary is not None else (alts[0] if alts else None)
+
+    # правдоподобный P·S: от «почти даром» до дорогой истории роста
+    def plausible(rps: float | None) -> bool:
+        if not rps or rps <= 0:
+            return False
+        return 0.02 <= live_price / rps <= 40.0
+
+    if plausible(primary):
+        return primary
+    for a in alts:
+        if plausible(a):
+            return a
+    return primary if primary is not None else (alts[0] if alts else None)
 
 
 def _net_margin(fin: dict) -> float | None:
@@ -471,7 +510,7 @@ def _terminal_growth(fin: dict, market: dict) -> float:
 
 def compile_params_f(fin: dict, gov: dict, inst: dict, barometer: dict, market: dict,
                      shares_outstanding: float | None,
-                     overrides: dict | None = None) -> dict:
+                     overrides: dict | None = None, live_price: float | None = None) -> dict:
     """Входы BFV-F из карточки. None-выход — нет выручки/маржи. Права/хазарды/сценарии —
     те же источники, что BFV-D (governance/institutions/geo_barometer)."""
     warn: list[str] = []
@@ -481,7 +520,7 @@ def compile_params_f(fin: dict, gov: dict, inst: dict, barometer: dict, market: 
     vi = market.get("valuation_inputs", {}) or {}
     archetype = vi.get("archetype", "")
 
-    revenue0 = _revenue_per_share(fin)
+    revenue0 = _revenue_per_share(fin, shares_outstanding, live_price)
     if revenue0 is None or revenue0 <= 0:
         return {"params": None, "scenarios": None, "base_meta": None, "engine": "BFV-F",
                 "warnings": ["нет выручки/P·S для BFV-F"]}

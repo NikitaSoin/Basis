@@ -68,7 +68,7 @@ def compute_bfv(fin: dict, gov: dict, inst: dict, barometer: dict, *,
 
     # --- компиляция под выбранный движок ---
     if engine == "BFV-F":
-        comp = compile_params_f(fin, gov, inst, barometer, market, shares_outstanding, overrides)
+        comp = compile_params_f(fin, gov, inst, barometer, market, shares_outstanding, overrides, live_price=live_price)
         method = "BFV-F v1.1 (от денежного потока; тестовая, без калибровки §22)"
     else:
         comp = compile_params(fin, gov, inst, barometer, shares_outstanding, overrides)
