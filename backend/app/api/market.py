@@ -1095,6 +1095,11 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
             "risks": risks,
             "conclusion": (dg.summary if dg else None),
             "data_gaps": (dg.data_gaps if dg else None),
+            # глубина разбора (владелец 2026-07-30, референс — авторские телеграм-разборы):
+            # контекст и «за чем следить» живут в metrics_snapshot (см. report_watch.py —
+            # почему не отдельными колонками: multiple alembic heads)
+            "market_context": ((dg.metrics_snapshot or {}).get("market_context") if dg else None),
+            "watch_next": ((dg.metrics_snapshot or {}).get("watch_next") if dg else None) or [],
             "revenue_pct": _yoy_pct(fig.revenue_ttm if fig else None, prev.get("revenue")),
             "ebitda_pct": _yoy_pct(fig.ebitda if fig else None, prev.get("ebitda")),
             "profit_pct": _yoy_pct(fig.net_profit_ttm if fig else None, prev.get("net_profit")),
@@ -1104,6 +1109,11 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
             "revenue_abs": _fmt_abs_rub(fig.revenue_ttm if fig else None),
             "ebitda_abs": _fmt_abs_rub(fig.ebitda if fig else None),
             "profit_abs": _fmt_abs_rub(fig.net_profit_ttm if fig else None),
+            # показатели, которые компания САМА выделяет в релизе сверх стандартной
+            # тройки (GMV у Ozon, OIBDA у телекомов, процентный доход у банков) —
+            # экстрактор кладёт их в extracted_fields.extra_metrics (владелец
+            # 2026-07-30: «GMV Ozon не достаётся»)
+            "extra_metrics": ((fig.extracted_fields or {}).get("extra_metrics") or [])[:4] if fig else [],
         })
     return {"count": len(out), "reports": out}
 

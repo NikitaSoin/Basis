@@ -54,6 +54,7 @@ calendar_event_id — повторно не трогаем (ручной ре-т
 """
 from __future__ import annotations
 
+import html as _html
 import json
 import logging
 import re
@@ -136,7 +137,6 @@ _COMPANY_RSS = {
 
 
 def _from_company_rss(ticker: str, event_date: date) -> str | None:
-    import html as _html
     from email.utils import parsedate_to_datetime
     url = _COMPANY_RSS.get(ticker)
     if not url:
@@ -200,7 +200,47 @@ def _from_market_updates(db: Session, ticker: str, event_date: date) -> str | No
     parts = []
     for r in picked:
         parts.append(f"{r.title}\n{r.summary or ''}\n{r.impact_comment or ''}".strip())
+    # 🔴 Выжимка ленты — 2-4 предложения на новость, и СМИ в них чаще всего называет
+    # ОДНО число («прибыль выросла вдвое»). Разбор по такому обрывку честно выходил
+    # без выручки/EBITDA/GMV — «нет данных» писал сам дайджест (владелец 2026-07-30,
+    # кейс Ozon: прибыль есть, остального нет, хотя в полном релизе всё было).
+    # Полные тексты статей в БД не храним намеренно (только summary + ссылка) —
+    # поэтому здесь ДОТЯГИВАЕМ полный текст по source_url для топ-2 релевантных
+    # новостей; не вышло — работаем по выжимке, как раньше (честная деградация).
+    for r in picked[:2]:
+        full = _fetch_article_text(r.source_url)
+        if full:
+            parts.append(f"[ПОЛНЫЙ ТЕКСТ] {r.title}\n{full}")
     return "\n\n---\n\n".join(parts)
+
+
+_ARTICLE_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+               "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
+
+
+def _fetch_article_text(url: str | None, limit: int = 7000) -> str | None:
+    """Полный текст статьи по URL новости. Один GET с браузерным UA и коротким
+    таймаутом; из HTML берём абзацы <p> (обвязка/меню при склейке тегов в текст
+    дают в основном короткие строки — отфильтровываются порогом длины)."""
+    if not url or not url.startswith("http"):
+        return None
+    try:
+        r = httpx.Client(timeout=12, headers={"User-Agent": _ARTICLE_UA},
+                         follow_redirects=True).get(url)
+        r.raise_for_status()
+        html_text = r.text
+    except Exception as e:  # noqa: BLE001
+        logger.info("report_watch: полный текст %s недоступен (%s)", url[:60], type(e).__name__)
+        return None
+    paras = re.findall(r"<p[^>]*>(.*?)</p>", html_text, re.S | re.I)
+    chunks = []
+    for p in paras:
+        t = re.sub(r"<[^>]+>", " ", p)
+        t = _html.unescape(re.sub(r"\s+", " ", t)).strip()
+        if len(t) >= 60:  # навигация/подписи короче — режем
+            chunks.append(t)
+    text_out = "\n".join(chunks)[:limit]
+    return text_out if len(text_out) >= 300 else None
 
 
 # ----------------------------- источник 2: СКРИН существенные факты -----------------------------
@@ -418,7 +458,14 @@ _FIN_SPEC = (
     'Формат JSON: {"revenue": число|null, "revenue_yoy_pct": число|null, '
     '"ebitda": число|null, "ebitda_yoy_pct": число|null, '
     '"net_profit": число|null, "net_profit_yoy_pct": число|null, '
-    '"net_debt": число|null, "has_figures": true|false, "is_company_report": true|false}. '
+    '"net_debt": число|null, '
+    '"extra_metrics": [{"name": "название показателя как в тексте (GMV, OIBDA, '
+    'скорр. EBITDA, FCF, процентный доход, выручка сегмента и т.п.)", '
+    '"value": "значение С ЕДИНИЦЕЙ как в тексте (напр. 780,6 млрд ₽ или 28,5 млн)", '
+    '"yoy_pct": число|null}] — до 4 показателей, которые компания САМА выделяет в '
+    'релизе сверх выручки/EBITDA/прибыли (у Ozon это GMV, у банка — процентный/'
+    'комиссионный доход, у телекома — OIBDA); нет таких — пустой список, '
+    '"has_figures": true|false, "is_company_report": true|false}. '
     'has_figures=false, если в тексте нет ни одного числового финансового показателя. '
     'is_company_report=true ТОЛЬКО если текст — корпоративная отчётность/релиз/'
     'результаты ИМЕННО названной компании; false — если это отраслевая, страновая '
@@ -498,13 +545,19 @@ def _extract_operational(text_blob: str, company_name: str | None = None) -> dic
 # document_analyst.analyze_document (см. этот файл): модель получает ВЕСЬ текст источника
 # + уже проверенные цифры как опору, не только числа.
 _RICH_SYS = (
-    "Ты — финансовый аналитик Basis (не брокер, без «купить/продать»). Тебе дан ТЕКСТ "
-    "источника о вышедшей отчётности компании (пресс-релиз/раскрытие информации/новость) "
-    "и уже точные извлечённые headline-цифры (используй как проверенную основу, НЕ выдумывай "
-    "новые числа сверх текста). Разбери СОДЕРЖАТЕЛЬНО — не только динамику выручки/EBITDA/"
-    "прибыли, а что ещё есть в тексте: комментарии менеджмента, сегменты, разовые факторы, "
-    "гайденс, дивиденды, долговая нагрузка. Тон фактический, нейтральный, независимый. "
-    "Верни JSON."
+    "Ты — финансовый аналитик Basis (не брокер, без «купить/продать» и целевых цен). "
+    "Тебе даны: ТЕКСТ источника о вышедшей отчётности компании (пресс-релиз/раскрытие/"
+    "новость), точные извлечённые headline-цифры (проверенная основа — НЕ выдумывай "
+    "новые числа сверх текста) и КОНТЕКСТ ПЛАТФОРМЫ (ставка ЦБ, показатели компании из "
+    "нашей карточки). Разбери СОДЕРЖАТЕЛЬНО, как это делает сильный независимый "
+    "аналитик: не «выросло/упало», а ПОЧЕМУ (драйверы: цены, объёмы, курс, ставка, "
+    "разовые статьи), КАК результат ложится в текущий рыночный контекст и ЗА ЧЕМ "
+    "СЛЕДИТЬ дальше (катализаторы: дивидендное решение, гайденс, следующий отчёт, "
+    "долговая нагрузка при текущей ставке). Комментарии менеджмента, сегменты, "
+    "качество прибыли (разовые vs операционные) — обязательно, если есть в тексте. "
+    "Прогнозов цен и рекомендаций НЕ давать; «что дальше» — только наблюдаемые "
+    "события и условия («если X, то Y»), не предсказания. Тон фактический, "
+    "нейтральный, независимый. Верни JSON."
 )
 _RICH_SPEC = (
     'Формат JSON: {"headline": "шапка: Компания (ТИКЕР) · период, стандарт", '
@@ -513,12 +566,58 @@ _RICH_SPEC = (
     '"risks_or_caveats": ["на что обратить внимание / оговорки — до 5 пунктов"], '
     '"data_gaps": "чего в тексте не хватает для полной картины, коротко (или null)", '
     '"what_changed": "что изменилось vs прошлый период — по тексту и цифрам (1-3 фразы)", '
-    '"summary": "2-3 фразы фактического резюме без советов", '
+    '"market_context": "как результат ложится в текущий контекст (ставка, сектор, курс, '
+    'спрос) — 1-3 фразы ПО ДАННЫМ контекста платформы и текста, без выдумок (или null)", '
+    '"watch_next": ["за чем следить дальше: конкретное наблюдаемое событие/условие '
+    '(дивидендная рекомендация, гайденс, следующий отчёт, рефинансирование долга) — '
+    'до 3 пунктов, БЕЗ рекомендаций и целевых цен"], '
+    '"summary": "2-4 фразы фактического резюме без советов", '
     '"importance": "high|medium|low"}'
 )
 
 
-def _digest_rich(text_blob: str, fig: dict, mult: dict) -> dict | None:
+def _platform_context(db: Session, ticker: str) -> dict:
+    """Компактный контекст ПЛАТФОРМЫ для глубокого разбора: ставка ЦБ + ключевые
+    числа карточки компании. Только уже посчитанное — никакой новой аналитики;
+    любой сбой → пустой словарь (разбор не должен падать из-за контекста)."""
+    ctx: dict = {}
+    try:
+        row = db.execute(text(
+            "SELECT value FROM macro_data_points WHERE indicator_code='key_rate' "
+            "AND metric='level' ORDER BY as_of DESC LIMIT 1")).first()
+        if row:
+            ctx["key_rate_pct"] = float(row[0])
+        row = db.execute(text(
+            "SELECT value FROM macro_data_points WHERE indicator_code='inflation' "
+            "AND metric='yoy' ORDER BY as_of DESC LIMIT 1")).first()
+        if row:
+            ctx["inflation_yoy_pct"] = float(row[0])
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        import json as _json
+        from pathlib import Path
+        fp = Path(__file__).parent.parent.parent / "companies" / ticker.upper() / "financials.json"
+        if fp.exists():
+            fin = _json.loads(fp.read_text(encoding="utf-8"))
+            meta = fin.get("meta") or {}
+            bs = fin.get("balance_sheet") or {}
+            gov_fp = fp.parent / "governance.json"
+            ctx["company"] = {
+                "sector": meta.get("sector"),
+                "nd_ebitda_last": (lambda a: a[-1] if isinstance(a, list) and a else a)(
+                    (bs.get("ratios") or {}).get("net_debt_ebitda")),
+                "data_flags": (fin.get("data_flags") or [])[:2] or None,
+            }
+            if gov_fp.exists():
+                dv = (_json.loads(gov_fp.read_text(encoding="utf-8")).get("dividends") or {})
+                ctx["company"]["dividend_policy"] = dv.get("policy_text")
+    except Exception:  # noqa: BLE001
+        pass
+    return ctx
+
+
+def _digest_rich(text_blob: str, fig: dict, mult: dict, platform_ctx: dict | None = None) -> dict | None:
     """Как _digest(), но модель видит РЕАЛЬНЫЙ ТЕКСТ источника целиком (до 8000 симв.),
     не только 4 сжатых числа — вызывается вместо _digest() всюду, где text_blob достаточно
     содержателен (см. _store_report). Возвращает None при сбое LLM — вызывающий код
@@ -537,8 +636,11 @@ def _digest_rich(text_blob: str, fig: dict, mult: dict) -> dict | None:
         "net_debt": fig.get("net_debt"), "nd_ebitda": mult.get("nd_ebitda"),
         "pe_ttm": mult.get("pe_ttm"), "pb": mult.get("pb"), "ev_ebitda": mult.get("ev_ebitda"),
     }
+    ctx_part = (f"\n\nКОНТЕКСТ ПЛАТФОРМЫ (ставка/инфляция/карточка компании):\n"
+                f"{json.dumps(platform_ctx, ensure_ascii=False)}" if platform_ctx else "")
     user = (f"ИЗВЛЕЧЁННЫЕ ЦИФРЫ (проверенные, используй как основу):\n"
-            f"{json.dumps(figures_ctx, ensure_ascii=False)}\n\n=== ТЕКСТ ИСТОЧНИКА ===\n{text_blob[:8000]}")
+            f"{json.dumps(figures_ctx, ensure_ascii=False)}{ctx_part}"
+            f"\n\n=== ТЕКСТ ИСТОЧНИКА ===\n{text_blob[:8000]}")
     try:
         res = complete(_RICH_SYS + "\n" + _RICH_SPEC, user, json_mode=True, max_tokens=1500, temperature=0.2)
         return res if isinstance(res, dict) else None
@@ -653,7 +755,8 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
     # календаря) — модель видит текст целиком, не только 4 сжатых числа. Порог 150
     # символов отсекает тривиальные обрывки (типовой calendar_title-фолбэк без
     # description); при неудаче LLM/пустом ответе — честная деградация на _digest().
-    digest = _digest_rich(text_blob, fig, mult) if text_blob and len(text_blob) >= 150 else None
+    digest = (_digest_rich(text_blob, fig, mult, platform_ctx=_platform_context(db, fig["ticker"]))
+              if text_blob and len(text_blob) >= 150 else None)
     if not digest:
         digest = _digest(fig, mult)
     db.add(report); db.flush()
@@ -667,9 +770,17 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
               "net_profit": fig.get("net_profit_prev")},
         extracted_fields=fig_raw))
     if digest:
+        # market_context/watch_next — внутри metrics_snapshot (JSONB), НЕ отдельными
+        # колонками: в migrations/versions СЕЙЧАС 4 alembic-головы, `alembic upgrade
+        # head` на бою при multiple heads падает (Dockerfile глотает ошибку «…failed —
+        # continuing»), т.е. новая миграция МОЛЧА не применилась бы и колонок на бою
+        # не было бы. Починка голов — отдельная задача (см. журнал 2026-07-30).
         db.add(EarningsDigest(
             report_id=report.id, headline=digest.get("headline"), one_liner=digest.get("one_liner"),
-            metrics_snapshot=mult, what_report_showed=digest.get("what_report_showed"),
+            metrics_snapshot={**(mult or {}),
+                              "market_context": digest.get("market_context"),
+                              "watch_next": digest.get("watch_next")},
+            what_report_showed=digest.get("what_report_showed"),
             highlights=digest.get("highlights"), risks_or_caveats=digest.get("risks_or_caveats"),
             data_gaps=digest.get("data_gaps"),
             what_changed=digest.get("what_changed"), summary=digest.get("summary"),

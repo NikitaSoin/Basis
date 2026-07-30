@@ -476,7 +476,7 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
                    по дрова» — где-то абсолют, где-то только рост): абсолютное значение
                    ВСЕГДА первично (rm-val), рост г/г — рядом мельче (rm-delta), с
                    глифом ▲/▼ (см. дизайн-конституцию — дельты не только цветом). */}
-                {(r.revenue_abs || r.ebitda_abs || r.profit_abs) && (
+                {(r.revenue_abs || r.ebitda_abs || r.profit_abs || (r.extra_metrics || []).length > 0) && (
                   <div className="obs-rep-metrics">
                     {r.revenue_abs && (
                       <div className="obs-rep-metric">
@@ -511,6 +511,20 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
                         )}
                       </div>
                     )}
+                    {/* Показатели, которые компания сама выделяет в релизе (GMV у Ozon,
+                       OIBDA у телекомов, процентный доход у банков) — extra_metrics из
+                       экстракции; value приходит строкой с единицей как в источнике */}
+                    {(r.extra_metrics || []).map((m, mi) => m && m.name && m.value && (
+                      <div className="obs-rep-metric" key={`x${mi}`}>
+                        <span className="rm-lbl">{m.name}</span>
+                        <span className="rm-val">{m.value}</span>
+                        {m.yoy_pct != null && (
+                          <span className="rm-delta" style={{ color: metricColor(m.yoy_pct) }}>
+                            {m.yoy_pct >= 0 ? "▲" : "▼"} {Math.abs(m.yoy_pct)}% г/г
+                          </span>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
 
@@ -565,6 +579,23 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
                          силы, что и остальные блоки (владелец: сложно понять, к чему
                          всё это). Тот же каллаут-«печать», что в статьях Макро/Гео/
                          Институтов — один язык по всему Обозревателю. */}
+                      {/* Глубина разбора (владелец 2026-07-30): не «выросло/упало»,
+                         а связка с текущим рыночным контекстом и за чем следить
+                         дальше — наблюдаемые события, без рекомендаций. */}
+                      {r.market_context && (
+                        <div className="obs-rep-section">
+                          <div className="obs-rep-section-title">Контекст</div>
+                          <div className="obs-rep-bullet">{r.market_context}</div>
+                        </div>
+                      )}
+                      {r.watch_next && r.watch_next.length > 0 && (
+                        <div className="obs-rep-section">
+                          <div className="obs-rep-section-title">За чем следить</div>
+                          {r.watch_next.map((b, j) => (
+                            <div key={j} className="obs-rep-bullet">{b}</div>
+                          ))}
+                        </div>
+                      )}
                       {r.conclusion && (
                         <ObsArtCallout label="Вывод" icon={_ICON_BOLT}>{r.conclusion}</ObsArtCallout>
                       )}
