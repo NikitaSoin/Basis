@@ -286,8 +286,8 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
+        2011.0,
+        3687.5,
         null,
         null,
         null,
@@ -310,24 +310,24 @@
         null
       ],
       "long_term_investments": [
-        null,
-        null,
+        32511.8,
+        32941.8,
         null,
         null,
         null,
         null
       ],
       "other_non_current": [
-        null,
-        null,
+        35.2,
+        35.7,
         null,
         null,
         null,
         null
       ],
       "total_non_current": [
-        null,
-        null,
+        34561.2,
+        36665.5,
         null,
         null,
         null,
@@ -336,24 +336,24 @@
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
+        827.9,
+        1516.0,
         null,
         null,
         null,
         null
       ],
       "receivables": [
-        null,
-        null,
+        13831.6,
+        16174.3,
         null,
         null,
         null,
         null
       ],
       "cash": [
-        null,
-        null,
+        0.1,
+        0.5,
         null,
         null,
         null,
@@ -368,16 +368,16 @@
         null
       ],
       "other_current": [
-        null,
-        null,
+        72.9,
+        98.4,
         null,
         null,
         null,
         null
       ],
       "total_current": [
-        null,
-        null,
+        14732.5,
+        17789.2,
         null,
         null,
         null,
@@ -385,8 +385,8 @@
       ]
     },
     "total_assets": [
-      null,
-      56500,
+      49293.7,
+      54454.6,
       64900,
       59200,
       67300,
@@ -394,40 +394,40 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
+        0.2,
+        0.2,
         null,
         null,
         null,
         null
       ],
       "retained_earnings": [
-        null,
-        null,
+        44771.0,
+        49863.1,
         null,
         null,
         null,
         null
       ],
       "additional_paid_in": [
-        null,
-        null,
+        1096.1,
+        2110.1,
         null,
         null,
         null,
         null
       ],
       "other_equity": [
-        null,
-        null,
+        0.6,
+        0.6,
         null,
         null,
         null,
         null
       ],
       "total_equity": [
-        null,
-        52600,
+        45867.9,
+        51974.0,
         56600,
         46200,
         50000,
@@ -452,24 +452,24 @@
         0
       ],
       "deferred_tax": [
-        null,
-        null,
+        300.2,
+        599.9,
         null,
         null,
         null,
         null
       ],
       "other_non_current_liab": [
-        null,
-        null,
+        101.0,
+        54.5,
         null,
         null,
         null,
         null
       ],
       "total_non_current_liab": [
-        null,
-        null,
+        401.2,
+        654.4,
         null,
         null,
         null,
@@ -486,24 +486,24 @@
         0
       ],
       "payables": [
-        null,
-        null,
+        2792.2,
+        1546.5,
         null,
         null,
         null,
         null
       ],
       "other_current_liab": [
-        null,
-        null,
+        232.5,
+        279.6,
         null,
         null,
         null,
         null
       ],
       "total_current_liab": [
-        null,
-        null,
+        3024.7,
+        1826.2,
         null,
         null,
         null,
@@ -511,8 +511,8 @@
       ]
     },
     "total_liabilities": [
-      null,
-      3900,
+      3425.9,
+      2480.6,
       8300,
       13000,
       17300,
@@ -1350,7 +1350,8 @@
     "2026-07-27: ПОПУТНЫЕ ошибки агрегатов исправлены по первичке (ГИР БО): net_profit[2020] было 3200, стало 3152.5 (первичник форма 2 код 2400); net_profit[2021] было 5080, стало 5076.4 (первичник; расхождение <0.1%, для консистентности с новыми cogs/gross того же источника). margins.ros[2020] было 100.0 (артефакт: раньше revenue[2020] по ошибке равнялось net_profit — сам revenue уже был исправлен на 12941.3 более ранним проходом, но ros[2020] не пересчитали) — исправлено на 24.4% (= net_profit/revenue). margins.gross_margin и margins.operating_margin досчитаны для всех 6 лет по новым cogs/operating_profit.",
     "2026-07-27: operating_profit[2020] заполнен (было null) = 2268.1 млн руб. — из первички ГИР БО (форма 2, «Прибыль от продаж», код 2200); ранее отсутствовал в главном financials.json (был null), не был перенесён из extracted_financials.json.",
     "ДОБОР pre_tax_profit/income_tax 2025 (2026-07-28, report-fetcher): честный флаг, как и предполагалось в задании. Подтверждено: smart-lab.ru/q/KOGK/f/y/RSBU/ структурно НЕ содержит полей pretax_profit/income_tax (полный список 29 полей проверен — их нет). ГИР БО ФНС для группы «Мечел» (включая КОГК) не содержит форм после 2021 г. (задокументировано в предыдущей сессии — компания воспользовалась правом не раскрывать отчётность в условиях санкций, постановление Правительства РФ). korgok.com (сайт эмитента) ранее проверен — файлов бухгалтерской отчётности не найдено. Новых источников за отведённый бюджет не обнаружено — вывод не изменился с прошлой сессии.",
-    "ДОБОР pre_tax_profit/income_tax (2026-07-29, report-fetcher): повторная проверка. ГИР БО ФНС advanced-search по 'Коршуновский ГОК' (ИНН 3834002314) — ПАО «Коршуновский ГОК» по-прежнему НЕ в поисковом индексе (только профсоюзная ППО ГМПР и однофамильные ГОК), подтверждает вывод прошлой сессии (2026-07-27/28): компания использует право не раскрывать БФО в условиях санкций с 2022 г. smart-lab и e-disclosure уже проверены ранее безрезультатно. Вывод не изменился — pre_tax_profit/income_tax остаются null за 2022-2025, честный пробел."
+    "ДОБОР pre_tax_profit/income_tax (2026-07-29, report-fetcher): повторная проверка. ГИР БО ФНС advanced-search по 'Коршуновский ГОК' (ИНН 3834002314) — ПАО «Коршуновский ГОК» по-прежнему НЕ в поисковом индексе (только профсоюзная ППО ГМПР и однофамильные ГОК), подтверждает вывод прошлой сессии (2026-07-27/28): компания использует право не раскрывать БФО в условиях санкций с 2022 г. smart-lab и e-disclosure уже проверены ранее безрезультатно. Вывод не изменился — pre_tax_profit/income_tax остаются null за 2022-2025, честный пробел.",
+    "🔵 GAP-ЗАКРЫТИЕ (2026-07-30, report-fetcher, ГИР БО ФНС форма 1/2/4 через checko.ru за 2020-2021, тот же источник что уже дал revenue/cfo/capex ранее): баланс 2020-2021 дозаполнен постатейно (внеоб./об. активы, капитал, обязательства). total_assets/total_equity/total_liabilities 2020 заполнены (были пусты): 49293.7/45867.9/3425.9. Для 2021 ЗАМЕНЕНЫ на более точные первичные значения (было 56500/52600/3900 — грубые round-числа smart-lab, расхождение по total_liabilities доходило до 36%): стало 54454.6/51974.0/2480.6, подтверждено точным тождеством assets=equity+liabilities и components=subtotals. 2022-2025: постатейная форма недоступна в ГИР БО (компания перестала раскрывать полные формы после 2022, санкционное послабление) — честный пробел, не тронуто."
   ],
   "segments": [
     {
