@@ -25,7 +25,7 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build && node scripts/generate-seo-pages.js && node scripts/generate-seo-instruments.js",
+    "build": "craco build && node scripts/refresh-earnings-snapshot.js && node scripts/generate-seo-pages.js && node scripts/generate-seo-instruments.js",
     "test": "craco test --env=jsdom",
     "eject": "react-scripts eject"
   },
