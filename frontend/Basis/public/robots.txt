@@ -3,3 +3,4 @@ Allow: /
 
 Sitemap: https://inbasis.ru/sitemap.xml
 Sitemap: https://inbasis.ru/sitemap-instruments.xml
+Sitemap: https://inbasis.ru/sitemap-indicators.xml
