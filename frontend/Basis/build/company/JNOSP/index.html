@@ -22,8 +22,24 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Basis","item":"https://inbasis.ru/"},{"@type":"ListItem","position":2,"name":"Компании","item":"https://inbasis.ru/company/"},{"@type":"ListItem","position":3,"name":"Славнефть-ЯНОС (Ярославский НПЗ) (JNOSP)"}]},{"@type":"Corporation","name":"ПАО Славнефть-ЯНОС (Ярославский НПЗ)","alternateName":"Славнефть-ЯНОС (Ярославский НПЗ)","tickerSymbol":"JNOSP","url":"https://inbasis.ru/company/JNOSP/"}]}</script>
 <style>:root{--paper:#F7F5F0;--ink:#1F1B16;--muted:#5A5248;--faint:#8A8072;--copper:#C97A4A;--line:#E4DFD5}
 *{box-sizing:border-box}
+/* 🔴 Ограничения ширины — на КОНТЕЙНЕР статики, а не на body (владелец, 2026-07-30:
+   «открылось всё на полэкрана»). Раньше body жёстко зажимался в 760px, и когда поверх
+   статики монтировалось приложение, оно наследовало эту ширину: интерфейс платформы
+   ужимался в узкую колонку по центру, справа оставалась пустота. Статику мы прячем, а
+   стиль body оставался жить. */
 body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--paper);color:var(--ink);
-     max-width:760px;margin:0 auto;padding:32px 20px 60px;line-height:1.55}
+     margin:0;padding:0;line-height:1.55}
+#seo-static{max-width:760px;margin:0 auto;padding:32px 20px 60px}
+/* Полоска «загружаем интерактивную версию»: бандл приложения ~3 МБ, до его старта
+   проходит 2–4 с, и человек, пришедший из поиска, видел статику, не понимая, что
+   сейчас загрузится платформа (владелец 2026-07-30: «должно сразу перекидывать»).
+   Мгновенно перекинуть нельзя — приложение физически грузится; честнее показать, что
+   процесс идёт. Полоска исчезает вместе со статикой. */
+#seo-loading{position:fixed;left:0;right:0;top:0;z-index:9999;background:var(--copper);
+  color:#fff;font:600 12px/1 -apple-system,'Segoe UI',Roboto,sans-serif;
+  padding:7px 12px;text-align:center;letter-spacing:.01em}
+@media (prefers-reduced-motion:no-preference){#seo-loading{animation:seoPulse 1.6s ease-in-out infinite}}
+@keyframes seoPulse{0%,100%{opacity:.85}50%{opacity:1}}
 h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.25;margin:10px 0 4px}
 h2{font-family:Georgia,serif;font-size:21px;margin:28px 0 10px}
 h3{font-family:Georgia,serif;font-size:17px;margin:20px 0 8px}
@@ -48,6 +64,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 ul{padding-left:22px}</style>
 </head>
 <body>
+<div id="seo-loading">Загружаем интерактивную версию — сейчас откроется полный разбор</div>
 <div id="seo-static">
 <nav class="crumbs"><a href="/">Basis</a> → <a href="/company/">Компании</a> → Славнефть-ЯНОС (Ярославский НПЗ) (JNOSP)</nav>
 <p class="tag">Нефть и газ · MOEX: JNOSP</p>
@@ -55,7 +72,7 @@ ul{padding-left:22px}</style>
 <p class="sub">ПАО Славнефть-ЯНОС (Ярославский НПЗ)</p>
 <h2>Суть бизнеса</h2><p>ПАО «Славнефть-ЯНОС» (Ярославнефтеоргсинтез) — это одна компания, одна экономика, один завод в Ярославле.</p>
 <h2>Ключевые факты</h2><table><tbody><tr><th>Суть бизнеса</th><td>Нефтеперерабатывающий завод (процессинг) в Ярославле</td></tr><tr><th>Типы акций</th><td>Обыкновенные (JNOS) и привилегированные (JNOSP)</td></tr><tr><th>Контроль</th><td>СП «Славнефть» (Газпром нефть и Роснефть) — 39,2%, прямые структуры ~27,5%</td></tr><tr><th>Доля рынка</th><td>Топ-5 в РФ, ~5-6% рынка первичной переработки</td></tr><tr><th>Модель</th><td>Услуги по переработке нефти (давальческая схема), ~100% выручки</td></tr></tbody></table>
-<h2>Финансовые показатели</h2><table><thead><tr><th>Показатель</th><th class="num">2020</th><th class="num">2021</th><th class="num">2022</th><th class="num">2023</th><th class="num">2024</th></tr></thead><tbody><tr><td>Выручка</td><td class="num">29,1 млрд ₽</td><td class="num">41,2 млрд ₽</td><td class="num">46,8 млрд ₽</td><td class="num">41,2 млрд ₽</td><td class="num">46,8 млрд ₽</td></tr><tr><td>EBITDA</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">21,8 млрд ₽</td><td class="num">26,5 млрд ₽</td></tr><tr><td>Операционная прибыль</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">13,9 млрд ₽</td><td class="num">17,3 млрд ₽</td></tr><tr><td>Чистая прибыль</td><td class="num">3,50 млрд ₽</td><td class="num">8,00 млрд ₽</td><td class="num">—</td><td class="num">8,00 млрд ₽</td><td class="num">6,26 млрд ₽</td></tr></tbody></table>
+<h2>Финансовые показатели</h2><table><thead><tr><th>Показатель</th><th class="num">2020</th><th class="num">2021</th><th class="num">2022</th><th class="num">2023</th><th class="num">2024</th></tr></thead><tbody><tr><td>Выручка</td><td class="num">29,1 млрд ₽</td><td class="num">41,2 млрд ₽</td><td class="num">46,8 млрд ₽</td><td class="num">41,2 млрд ₽</td><td class="num">46,8 млрд ₽</td></tr><tr><td>EBITDA</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">21,8 млрд ₽</td><td class="num">26,5 млрд ₽</td></tr><tr><td>Операционная прибыль</td><td class="num">5,91 млрд ₽</td><td class="num">—</td><td class="num">—</td><td class="num">13,9 млрд ₽</td><td class="num">17,3 млрд ₽</td></tr><tr><td>Чистая прибыль</td><td class="num">3,50 млрд ₽</td><td class="num">8,00 млрд ₽</td><td class="num">—</td><td class="num">8,00 млрд ₽</td><td class="num">6,26 млрд ₽</td></tr></tbody></table>
 <p class="tag">Годовая отчётность (МСФО). «—» — данных за период нет.</p>
 <h2>Дивиденды</h2><p>Утверждённой публичной дивидендной политики с прозрачной формулой распределения прибыли нет. Устав закрепляет по привилегированным акциям ежегодный дивиденд не менее 1% номинала; по факту платится 0,01 руб. на ап. По обыкновенным акциям дивиденды не выплачиваются.</p><table><thead><tr><th>Год</th><th class="num">На акцию</th><th class="num">Доходность*</th><th class="num">Payout</th><th>Статус</th></tr></thead><tbody><tr><td>2025</td><td class="num">0,01 ₽</td><td class="num">0,1%</td><td class="num">—</td><td>выплачен</td></tr><tr><td>2024</td><td class="num">0,01 ₽</td><td class="num">0,1%</td><td class="num">0,09%</td><td>выплачен</td></tr><tr><td>2023</td><td class="num">0,01 ₽</td><td class="num">0,1%</td><td class="num">0,05%</td><td>выплачен</td></tr><tr><td>2022</td><td class="num">0,01 ₽</td><td class="num">0,1%</td><td class="num">0,21%</td><td>выплачен</td></tr><tr><td>2021</td><td class="num">0,01 ₽</td><td class="num">—</td><td class="num">—</td><td>выплачен</td></tr></tbody></table>
 <p class="tag">* Доходность приведена к цене на дату обновления разбора — для сопоставимости
@@ -72,10 +89,18 @@ ul{padding-left:22px}</style>
 <script>
 window.addEventListener("basis:company-ready", function () {
   var el = document.getElementById("seo-static");
-  if (el) el.style.display = "none";
+  if (el) el.remove();          // не display:none — убираем из потока совсем
+  var ld = document.getElementById("seo-loading");
+  if (ld) ld.remove();
+  // Подчищаем оформление статики: у приложения своя тема (в т.ч. тёмная), а бежевый
+  // фон и системный шрифт статической страницы иначе просвечивают сквозь неё.
+  document.body.style.background = "";
+  document.body.style.color = "";
+  document.body.style.font = "";
+  document.documentElement.classList.add("basis-app-mounted");
 });
 </script>
-<link rel="stylesheet" href="/static/css/main.f7032d83.css">
-<script defer src="/static/js/main.f1a9b8f4.js"></script>
+<link rel="stylesheet" href="/static/css/main.96db248b.css">
+<script defer src="/static/js/main.3562cddc.js"></script>
 </body>
 </html>

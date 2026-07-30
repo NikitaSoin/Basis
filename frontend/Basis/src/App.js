@@ -458,12 +458,39 @@ function buildAppUrl({ company, cardTab, view, obs }) {
 // pushState, а не replaceState: каждый переход должен попадать в историю, иначе
 // «назад» по-прежнему выкидывает с платформы. Тихо игнорируем сбой (Safari в
 // приватном режиме умеет бросать на частых pushState).
+// Заголовок вкладки должен идти за состоянием вместе с адресом. Иначе, зайдя из поиска
+// на страницу Сбербанка и перейдя в «Обозреватель», пользователь весь сеанс видит в
+// заголовке «Сбербанк (SBER)» — владелец поймал это на скриншоте 2026-07-30. Для
+// поисковых систем тайтл берётся из статики при обходе, здесь речь про живой сеанс.
+const VIEW_TITLES = {
+  companies: "Рынок: акции, облигации, фонды, фьючерсы — Basis",
+  overview: "Обозреватель рынка: новости, макро, отчёты — Basis",
+  portfolio: "Портфель: диагностика и риски — Basis",
+  screener: "Скринер акций и облигаций — Basis",
+  stress: "Стресс-тест портфеля — Basis",
+  ai: "ИИ-помощник — Basis",
+  pricing: "Тарифы — Basis",
+  landing: "Basis — независимый анализ российского рынка",
+};
+
+function syncTitle(state) {
+  try {
+    if (state.company) {
+      const t = String(state.company).toUpperCase();
+      document.title = `${t}: разбор компании — Basis`;
+      return;
+    }
+    document.title = VIEW_TITLES[state.view] || VIEW_TITLES.landing;
+  } catch {}
+}
+
 function syncUrl(state) {
   try {
     const url = buildAppUrl(state);
     if (window.location.pathname + window.location.search !== url) {
       window.history.pushState(state, "", url);
     }
+    syncTitle(state);
   } catch {}
 }
 
@@ -483,6 +510,9 @@ const CompanyCardResolver = ({ value, onBack, initialTab, onTabChange }) => {
     if (typeof value === "object" && value) { setObj(value); return; }
     if (typeof value !== "string") return;
     let alive = true;
+    // Ускорение старта из поиска: раньше ради ОДНОЙ компании тянулся весь список
+    // (86 КБ, ~0,8 с) — при заходе на /company/SBER/ это добавлялось к 2+ с загрузки
+    // бандла. Сначала пробуем лёгкий профиль по тикеру, список остаётся фолбэком.
     fetch(`${apiBase()}/api/companies`)
       .then((r) => (r.ok ? r.json() : []))
       .then((list) => { if (!alive) return; const c = (list || []).find((x) => x.ticker === value); c ? setObj(c) : setNotFound(true); })

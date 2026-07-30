@@ -421,8 +421,24 @@ function lastValue(c, key) {
 const CSS = `
 :root{--paper:#F7F5F0;--ink:#1F1B16;--muted:#5A5248;--faint:#8A8072;--copper:#C97A4A;--line:#E4DFD5}
 *{box-sizing:border-box}
+/* 🔴 Ограничения ширины — на КОНТЕЙНЕР статики, а не на body (владелец, 2026-07-30:
+   «открылось всё на полэкрана»). Раньше body жёстко зажимался в 760px, и когда поверх
+   статики монтировалось приложение, оно наследовало эту ширину: интерфейс платформы
+   ужимался в узкую колонку по центру, справа оставалась пустота. Статику мы прячем, а
+   стиль body оставался жить. */
 body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--paper);color:var(--ink);
-     max-width:760px;margin:0 auto;padding:32px 20px 60px;line-height:1.55}
+     margin:0;padding:0;line-height:1.55}
+#seo-static{max-width:760px;margin:0 auto;padding:32px 20px 60px}
+/* Полоска «загружаем интерактивную версию»: бандл приложения ~3 МБ, до его старта
+   проходит 2–4 с, и человек, пришедший из поиска, видел статику, не понимая, что
+   сейчас загрузится платформа (владелец 2026-07-30: «должно сразу перекидывать»).
+   Мгновенно перекинуть нельзя — приложение физически грузится; честнее показать, что
+   процесс идёт. Полоска исчезает вместе со статикой. */
+#seo-loading{position:fixed;left:0;right:0;top:0;z-index:9999;background:var(--copper);
+  color:#fff;font:600 12px/1 -apple-system,'Segoe UI',Roboto,sans-serif;
+  padding:7px 12px;text-align:center;letter-spacing:.01em}
+@media (prefers-reduced-motion:no-preference){#seo-loading{animation:seoPulse 1.6s ease-in-out infinite}}
+@keyframes seoPulse{0%,100%{opacity:.85}50%{opacity:1}}
 h1{font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.25;margin:10px 0 4px}
 h2{font-family:Georgia,serif;font-size:21px;margin:28px 0 10px}
 h3{font-family:Georgia,serif;font-size:17px;margin:20px 0 8px}
@@ -464,7 +480,15 @@ function appMountHtml(assets) {
 <script>
 window.addEventListener("basis:company-ready", function () {
   var el = document.getElementById("seo-static");
-  if (el) el.style.display = "none";
+  if (el) el.remove();          // не display:none — убираем из потока совсем
+  var ld = document.getElementById("seo-loading");
+  if (ld) ld.remove();
+  // Подчищаем оформление статики: у приложения своя тема (в т.ч. тёмная), а бежевый
+  // фон и системный шрифт статической страницы иначе просвечивают сквозь неё.
+  document.body.style.background = "";
+  document.body.style.color = "";
+  document.body.style.font = "";
+  document.documentElement.classList.add("basis-app-mounted");
 });
 </script>
 ${css}
@@ -519,6 +543,7 @@ function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, 
 <style>${CSS}</style>
 </head>
 <body>
+<div id="seo-loading">Загружаем интерактивную версию — сейчас откроется полный разбор</div>
 <div id="seo-static">
 <nav class="crumbs">${crumbsHtml}</nav>
 ${bodyHtml}
