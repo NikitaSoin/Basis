@@ -423,6 +423,50 @@ function OverviewView({ token, onSelectCompany }) {
 // в синхроне с TAB_PAGES в scripts/generate-seo-pages.js — там же генератор SEO-
 // страниц с теми же адресами. slug "dividends" сознательно ведёт на вкладку
 // "governance" (дивиденды — часть блока управления в самой карточке).
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Синхронизация АДРЕСА со состоянием приложения (владелец, 2026-07-30).
+//
+// Было: адрес читался только при загрузке, а дальше не менялся — открыв
+// inbasis.ru/#method и походив по разделам и карточкам, пользователь всё время
+// оставался на том же URL. Последствия: ссылку на конкретную бумагу нельзя ни
+// отправить, ни сохранить в закладки (получатель попадёт туда, откуда начинал
+// отправитель), кнопка «назад» уводит с платформы вместо шага назад, а для поиска
+// у сотен разборов нет собственных адресов — на запрос «акции Газпрома» мы
+// конкурируем одной общей страницей вместо страницы про Газпром.
+//
+// Формат адресов повторяет уже существующие пре-рендеренные SEO-страницы
+// (scripts/generate-seo-pages.js), чтобы статика и SPA жили на ОДНИХ И ТЕХ ЖЕ
+// путях, а не в двух параллельных мирах: /company/GAZP/, /company/GAZP/finance/.
+// Разделы платформы пока остаются на query-форме ?view=…, которую понимает и
+// парсер ниже, и CTA-ссылки внутри интент-лендингов.
+const TAB_TO_SEO_SLUG = { business: "business", finance: "finance", governance: "dividends", macro: "macro", geo: "geo" };
+
+function buildAppUrl({ company, cardTab, view, obs }) {
+  if (company) {
+    const slug = TAB_TO_SEO_SLUG[cardTab];
+    return `/company/${String(company).toUpperCase()}/${slug ? slug + "/" : ""}`;
+  }
+  if (view && view !== "landing") {
+    const q = new URLSearchParams({ view });
+    if (obs) q.set("obs", obs);
+    return `/?${q.toString()}`;
+  }
+  return "/";
+}
+
+// pushState, а не replaceState: каждый переход должен попадать в историю, иначе
+// «назад» по-прежнему выкидывает с платформы. Тихо игнорируем сбой (Safari в
+// приватном режиме умеет бросать на частых pushState).
+function syncUrl(state) {
+  try {
+    const url = buildAppUrl(state);
+    if (window.location.pathname + window.location.search !== url) {
+      window.history.pushState(state, "", url);
+    }
+  } catch {}
+}
+
 const SEO_SLUG_TO_TAB = {
   business: "business",
   finance: "finance",
@@ -432,7 +476,7 @@ const SEO_SLUG_TO_TAB = {
 };
 
 // Резолвер карточки: значение может быть объектом компании или тикером-строкой.
-const CompanyCardResolver = ({ value, onBack, initialTab }) => {
+const CompanyCardResolver = ({ value, onBack, initialTab, onTabChange }) => {
   const [obj, setObj] = useState(typeof value === "object" && value ? value : null);
   const [notFound, setNotFound] = useState(false);
   useEffect(() => {
@@ -453,7 +497,7 @@ const CompanyCardResolver = ({ value, onBack, initialTab }) => {
     if (!obj && !notFound) return;
     try { window.dispatchEvent(new Event("basis:company-ready")); } catch {}
   }, [obj, notFound]);
-  if (obj) return <CompanyCard company={obj} onBack={onBack} initialTab={initialTab} />;
+  if (obj) return <CompanyCard company={obj} onBack={onBack} initialTab={initialTab} onTabChange={onTabChange} />;
   if (notFound) return <div className="tw-py-12 tw-text-text-tertiary">Компания «{String(value)}» не найдена в базе. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer">Назад</button></div>;
   return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Открываем карточку...</div>;
 };
@@ -790,6 +834,29 @@ export default function App() {
   //    приложение кнопкой, теперь САМА содержит бандл и открывает карточку у себя
   //    (progressive takeover, #seo-static прячется по событию basis:company-ready
   //    из CompanyCardResolver). Короткие /TICKER/ редиректят сюда же build-time.
+  // Кнопка «назад» браузера: без этого обработчика история, которую мы теперь пишем
+  // через pushState, «прокручивалась» бы без изменения экрана — адрес менялся, а
+  // приложение оставалось на прежнем состоянии.
+  useEffect(() => {
+    const onPop = () => {
+      try {
+        const m = window.location.pathname.match(/^\/company\/([A-Za-z0-9-]+)\/?([a-z]+)?\/?$/);
+        if (m) {
+          setSelectedCompany(m[1].toUpperCase());
+          const tab = SEO_SLUG_TO_TAB[(m[2] || "").toLowerCase()];
+          if (tab) setInitialCardTab(tab);
+          return;
+        }
+        setSelectedCompany(null);
+        const view = (new URLSearchParams(window.location.search).get("view") || "").toLowerCase();
+        const VIEW_TABS = ["companies", "overview", "portfolio", "stress", "screener", "ai", "pricing"];
+        setActiveTab(VIEW_TABS.includes(view) ? view : "landing");
+      } catch {}
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
   // 2) ?company=TICKER[&tab=finance] — старый query-формат, оставлен как фолбэк
   //    (используется CTA-ссылками внутри самих SEO-страниц: /?company=T&tab=X).
   useEffect(() => {
@@ -869,9 +936,19 @@ export default function App() {
     localStorage.setItem("basis_user", JSON.stringify(updatedUser));
   };
 
+  // Единая точка выбора компании: раньше setSelectedCompany дёргали напрямую из десятка
+  // мест (список, скринер, лента, карты, портфель), и адрес не менялся ни в одном.
+  // Обёртка ставит и состояние, и URL — правится в одном месте, а не в десяти.
+  const selectCompany = (value) => {
+    setSelectedCompany(value);
+    const t = typeof value === "string" ? value : (value && value.ticker);
+    if (t) syncUrl({ company: t });
+  };
+
   const navigate = (tab) => {
     setActiveTab(tab);
     setSelectedCompany(null);
+    syncUrl({ view: tab });          // раздел получает свой адрес (?view=…)
     // Любая навигация закрывает мобильную шторку «Ещё», если была открыта —
     // единая точка, покрывает и её собственные пункты, и обычные клики по
     // TopNav/MobileTabBar.
@@ -931,21 +1008,22 @@ export default function App() {
       // selectedCompany может быть ОБЪЕКТОМ (из грида) или ТИКЕРОМ-строкой (из
       // ссылок эмитент→компания в облигациях/фьючерсах и из скринера) — резолвер
       // приводит к объекту, который ждёт CompanyCard.
-      return <CompanyCardResolver value={selectedCompany} onBack={() => setSelectedCompany(null)} initialTab={initialCardTab} />;
+      return <CompanyCardResolver value={selectedCompany} onBack={() => { setSelectedCompany(null); syncUrl({ view: activeTab }); }} initialTab={initialCardTab}
+                onTabChange={(t) => { const tk = typeof selectedCompany === "string" ? selectedCompany : (selectedCompany && selectedCompany.ticker); if (tk) syncUrl({ company: tk, cardTab: t }); }} />;
     }
-    if (selectedBond) return <BondCard secid={selectedBond} onBack={() => setSelectedBond(null)} onSelectCompany={setSelectedCompany} />;
-    if (selectedFuture) return <FuturesCard secid={selectedFuture} onBack={() => setSelectedFuture(null)} onSelectCompany={setSelectedCompany} />;
+    if (selectedBond) return <BondCard secid={selectedBond} onBack={() => setSelectedBond(null)} onSelectCompany={selectCompany} />;
+    if (selectedFuture) return <FuturesCard secid={selectedFuture} onBack={() => setSelectedFuture(null)} onSelectCompany={selectCompany} />;
     if (selectedFund) return <FundCard secid={selectedFund} onBack={() => setSelectedFund(null)} />;
     if (selectedSpot) return <SpotCard secid={selectedSpot} onBack={() => setSelectedSpot(null)} />;
     switch (activeTab) {
       case "companies":
-        return <CompaniesView onSelectCompany={setSelectedCompany} onSelectIndex={openIndex} onSelectDriver={openDriverChart} />;
+        return <CompaniesView onSelectCompany={selectCompany} onSelectIndex={openIndex} onSelectDriver={openDriverChart} />;
       case "screener":
-        return <ScreenerCompareView onSelectCompany={setSelectedCompany} token={token} onAuthRequired={() => setShowAuthModal(true)} />;
+        return <ScreenerCompareView onSelectCompany={selectCompany} token={token} onAuthRequired={() => setShowAuthModal(true)} />;
       case "overview":
         return (
           <ObserverV2
-            token={token} onSelectCompany={setSelectedCompany}
+            token={token} onSelectCompany={selectCompany}
             onOpenBond={setSelectedBond} onOpenFuture={setSelectedFuture} onOpenFund={setSelectedFund} onOpenSpot={setSelectedSpot}
             onSelectIndex={openIndex}
             onOpenFearGreed={openFearGreed}
@@ -959,7 +1037,7 @@ export default function App() {
           />
         );
       case "portfolio":
-        return <PortfolioV2 token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={setSelectedCompany} />;
+        return <PortfolioV2 token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={selectCompany} />;
       case "strategies":
         return <ComingSoonView icon={Target} title="Портфельные стратегии" blurb="Подбор готовой стратегии под ваш профиль риска. Раздел скоро появится — мы его готовим." />;
       case "stress":
@@ -972,9 +1050,9 @@ export default function App() {
         // числовые шоки по нефти/курсу) — StressTestView, живой факторный движок
         // (backend/app/services/stress_scenarios.py), явно помечен как демо-версия.
         // Портфельный стресс-тест остаётся отдельно доступен внутри самого Портфеля.
-        return <StressTestView onOpenCompany={setSelectedCompany} />;
+        return <StressTestView onOpenCompany={selectCompany} />;
       case "ai":
-        return <AssistantView token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={setSelectedCompany} />;
+        return <AssistantView token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={selectCompany} />;
       case "pricing":
         return (
           <PricingView
@@ -996,7 +1074,7 @@ export default function App() {
           />
         );
       default:
-        return <CompaniesView onSelectCompany={setSelectedCompany} onSelectIndex={openIndex} onSelectDriver={openDriverChart} />;
+        return <CompaniesView onSelectCompany={selectCompany} onSelectIndex={openIndex} onSelectDriver={openDriverChart} />;
     }
   };
 
@@ -1015,13 +1093,13 @@ export default function App() {
           onNav={navigate}
           theme={theme}
           toggleTheme={toggleTheme}
-          onOpenCompany={setSelectedCompany}
+          onOpenCompany={selectCompany}
         />
         {isLanding ? (
           <ViewErrorBoundary routeKey="landing">
             <LandingNeo
               onNavigate={navigate}
-              onOpenCompany={setSelectedCompany}
+              onOpenCompany={selectCompany}
               onShowAuth={() => setShowAuthModal(true)}
               theme={theme}
               toggleTheme={toggleTheme}

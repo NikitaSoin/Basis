@@ -3057,11 +3057,18 @@ const LiveMacroBackdropChip = () => {
 // Кружок «i» с пояснением — тот же приём, что в Портфеле и Обозревателе (владелец
 // 2026-07-30). Свой, а не импорт InfoTip из скринера: тот тянет за собой весь модуль
 // скринера вместе с его стилями, здесь достаточно 20 строк на токенах карточки.
-const CompanyCard = ({ company, onBack, initialTab }) => {
+const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
   // initialTab — deep-link из статических SEO-страниц (/company/T/finance/ →
   // /?company=T&tab=finance): открыть карточку сразу на нужной вкладке.
   // Валидация id — в App.js (whitelist), сюда приходит уже проверенное значение.
   const [tab, setTab] = useState(initialTab || "overview");
+  // Сообщаем наверх о смене вкладки: App.js по этому событию меняет адрес на
+  // /company/<TICKER>/<раздел>/ — тот же путь, что у пре-рендеренной SEO-страницы.
+  // Без этого вкладки карточки не имели собственных адресов: открыв «Финансы» и
+  // скопировав ссылку, пользователь отправлял «Обзор».
+  useEffect(() => {
+    if (typeof onTabChange === "function") onTabChange(tab);
+  }, [tab, onTabChange]);
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef(null);
   useEffect(() => {
