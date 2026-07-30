@@ -10,6 +10,7 @@
     "converted_years": [],
     "conversion_note": "Все годы 2020-2024 отчитываются в USD млн. Для оценки на акцию пересчёт в RUB по курсу 82,5 USD/RUB (ориентир июнь 2026). Курс зафиксирован в caveats каждого метода — при изменении курса все RUB-цены меняются пропорционально.",
     "fiscal_years": [
+      2025,
       2024,
       2023,
       2022,
@@ -29,6 +30,7 @@
   "income_statement": {
     "cost_format": "by_function",
     "revenue": [
+      17703.0,
       14649,
       14648,
       16549,
@@ -36,6 +38,7 @@
       10356
     ],
     "cogs": [
+      13247.0,
       10216,
       11366,
       12056,
@@ -43,6 +46,7 @@
       7808
     ],
     "gross_profit": [
+      4456.0,
       4433,
       3282,
       4493,
@@ -92,6 +96,7 @@
       }
     ],
     "operating_profit": [
+      1414.0,
       1506,
       1030,
       2006,
@@ -113,6 +118,7 @@
       1760
     ],
     "share_in_associate_profit": [
+      660.0,
       563,
       752,
       1553,
@@ -120,6 +126,7 @@
       971
     ],
     "gain_from_associate_disposal": [
+      0.0,
       0,
       0,
       0,
@@ -127,6 +134,7 @@
       0
     ],
     "finance_costs": [
+      1463.0,
       944,
       1026,
       1290,
@@ -134,6 +142,7 @@
       1016
     ],
     "finance_income": [
+      229.0,
       444,
       120,
       184,
@@ -141,6 +150,7 @@
       160
     ],
     "pre_tax_profit": [
+      840.0,
       1569,
       876,
       2453,
@@ -148,6 +158,7 @@
       1125
     ],
     "income_tax": [
+      605.0,
       221,
       160,
       607,
@@ -155,6 +166,7 @@
       109
     ],
     "net_profit": [
+      235.0,
       1348,
       716,
       1846,
@@ -162,6 +174,7 @@
       1016
     ],
     "net_profit_to_parent": [
+      428.0,
       996,
       596,
       1083,
@@ -169,6 +182,7 @@
       684
     ],
     "net_profit_to_nci": [
+      -193.0,
       352,
       120,
       763,
@@ -451,6 +465,7 @@
       ]
     },
     "total_assets": [
+      32830.0,
       27473,
       26388,
       null,
@@ -590,6 +605,7 @@
       ]
     },
     "total_liabilities": [
+      18791.0,
       15192,
       14807,
       null,
@@ -665,6 +681,7 @@
       -1372
     ],
     "net_change_in_cash": [
+      66.0,
       -317,
       -975,
       null,
@@ -672,6 +689,7 @@
       441
     ],
     "capex": [
+      2142.0,
       1842,
       1413,
       null,
@@ -1686,7 +1704,60 @@
     "RUAL price (32 RUB) для SOTP — оценочный ориентир; рекомендуется верификация по MOEX на дату расчёта",
     "ОДДС (CFO/CFI/CFF) деталізована постатейно для 2024-2023 из МСФО PDF; 2022-2020 частично недоступны в PDF 2024 (требуют архивных отчётов)",
     "Корпоративный долг En+ holding-level (5165 USD млн) — расчётная величина; фактическое распределение ND между En+ и RUSAL требует верификации",
-    "ETR sustainable 20% (не 25%) — специфика холдинга: доход RUSAL включается уже после налога RUSAL"
+    "ETR sustainable 20% (не 25%) — специфика холдинга: доход RUSAL включается уже после налога RUSAL",
+    {
+      "date": "2026-07-30",
+      "scope": "годы [2025]",
+      "note": "Данные добыты report-fetcher из первичной отчётности и перенесены скриптом; единицы млн→млн (×1.0). Существующие годы не перезаписывались."
+    },
+    {
+      "note": "All years 2024-2020 fully extracted from official source PDFs"
+    },
+    {
+      "note": "2024-2023: Primary sources - ar2024.enplusgroup.com PDF"
+    },
+    {
+      "note": "2022-2020: Secondary sources - LSE Archive (annualreports.com LSE_ENPL_*.pdf)"
+    },
+    {
+      "note": "Cost of sales + Gross profit confirm by_function P&L format"
+    },
+    {
+      "note": "RUSAL: Major associate investment (5.2 млн 2022, 4 млн 2020). Share of associate profit major income: 1.5+ млн annually"
+    },
+    {
+      "note": "NCI (non-controlling interests): 4.7-2.9 млн range. Significant minority stakes in subsidiaries"
+    },
+    {
+      "note": "Impairment volatility: 661(2024) → 370(2022) → 58(2020), reflects asset revaluations & hydro market conditions"
+    },
+    {
+      "note": "FX translation reserve: -7.1 млн (2024), accumulated depreciation of RUB-denominated balance sheet items"
+    },
+    {
+      "note": "Finance costs elevated: 1.3(2022) → 1.0(2020), reflects debt levels & interest rate environment"
+    },
+    {
+      "note": "2022 includes gain from partial RUSAL disposal: 492 млн (one-time)"
+    },
+    {
+      "note": "Balance sheet: 2022 totals calculated from segments; some 2022 detail missing (consolidated statement truncated in source)"
+    },
+    {
+      "note": "Cash flow 2022: Investing CF positive (285) due to RUSAL dividend (620) + disposal proceeds (1421)"
+    },
+    {
+      "note": "All currency conversions within USD; no cross-currency adjustments required"
+    },
+    {
+      "note": "2026-07-30 (report-fetcher, добор FY2025): Полная построчная МСФО-отчётность за год по 31.12.2025 (в USD млн) получена из Единого отчёта 2025 (enplusgroup.com), раздел 'Консолидированная финансовая отчётность' стр.219-303. Арифметика СОШЛАСЬ ТОЧНО: revenue-cogs=gross_profit (17703-13247=4456); total_assets=total_equity+total_liabilities (32830=14039+18791); cfo+cfi+cff=net_change_in_cash (2950-2112-772=66)."
+    },
+    {
+      "note": "2025: Прибыль за год РЕЗКО упала до 235 млн долл. (vs 1348 в 2024, -82.6%) при РОСТЕ выручки до 17703 млн долл. (+20.9%) — падение прибыльности объясняется: (а) ростом финансовых расходов до 1463 млн (vs 944 в 2024, вероятно из-за увеличения краткосрочных кредитов и займов с 5781 до 9499 млн), (б) сохранившимся обесценением внеоборотных активов 324 млн. Скорректированная EBITDA снизилась умеренно (2700 vs 2927, -4.6%), что указывает: основной удар пришёлся на неоперационные статьи (финрасходы), не на операционную деятельность."
+    },
+    {
+      "note": "Чистый долг вырос с 8881 до 11109 млн долл. (Прим.: краткосрочные кредиты и займы почти удвоились 5781->9499 млн, долгосрочные снизились 4983->3724 млн — возможно рефинансирование долгосрочного долга в краткосрочный, либо приближение сроков погашения)."
+    }
   ],
   "segments": [
     {
