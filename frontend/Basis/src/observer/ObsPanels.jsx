@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, useId } from "react";
+import { FAIR_VALUE_NOTE } from "../fairValueNote";
 import { createRoot } from "react-dom/client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -5608,8 +5609,7 @@ function ObsMarketMap({ token, portfolioOnly, onSelectCompany, onOpenBond, onOpe
           {/* Дисклеймер для режима оценки (только акции) */}
           {assetClass === "stocks" && mapType === "valuation" && !loading && !error && (
             <div className="obs-map-valuation-note">
-              <b>Модельная оценка, не сигнал на покупку.</b> Потенциал к модельной справедливой цене Basis (считается
-              живьём от текущей цены). Методика и оговорки — в карточке компании.
+              <b>Модельная оценка, не сигнал на покупку.</b> {FAIR_VALUE_NOTE}
             </div>
           )}
           {/* Дисклеймер по весу плитки для фьючерсов/фондов (вес не капитализация) */}

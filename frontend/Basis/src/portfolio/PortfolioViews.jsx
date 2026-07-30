@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Button, Card, Badge, Chip, IconButton, Table, Delta, KpiTile, usePrefersReducedMotion } from "../design/primitives";
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber } from "../design/format";
+import { FAIR_VALUE_NOTE } from "../fairValueNote";
 import { WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "../design/PortfolioViz";
 import { KeyTakeaway, Disclosure } from "../design/textblocks";
 import { AppearGroup } from "../design/motion";
@@ -1589,7 +1590,7 @@ const METRIC_EXPLANATIONS = {
       : v > 15 ? `Рынок оценивает бумагу на ${_pct(v)} ниже нашей справедливой цены — модель считает её недооценённой. Это оценка по модели с допущениями, не гарантия — не переоценивайте точность до знака после запятой.`
       : v < -15 ? `Рынок оценивает бумагу на ${_pct(v)} выше нашей справедливой цены — модель считает её переоценённой.`
       : `Апсайд ${_sgn(v)} — рыночная цена примерно соответствует нашей справедливой оценке, без явного перекоса.`,
-    soWhat: "Апсайд к цели — суждение модели, а не факт и не прогноз движения цены. Модель требовательна к порогу доходности (кривая ОФЗ плюс премия за риск), поэтому у части бумаг показывает заметный минус — это означает «дорого по нашей планке», а не «упадёт». Используйте как один из ориентиров, не единственный: рынок может годами не «сходиться» к модели.",
+    soWhat: FAIR_VALUE_NOTE + " Используйте как один из ориентиров, не единственный: рынок может годами не «сходиться» к модели.",
     formula: { expr: "Апсайд = (Справедливая цена − Текущая цена) / Текущая цена", note: "Справедливая цена — методика Basis: поток к акционеру (дивиденды и книга либо денежный поток) против требуемой доходности от кривой ОФЗ; пересчитывается живьём от текущей цены. Там, где движок не даёт числа, подставляется оценка аналитика из карточки. Только для акций." },
   },
   downside_vol: {

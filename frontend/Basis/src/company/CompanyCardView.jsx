@@ -30,6 +30,7 @@ import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, Kp
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "../design/format";
 import { Prose, ANALYST_MD } from "../design/textblocks";
 import { AppearGroup, Appear } from "../design/motion";
+import { FAIR_VALUE_NOTE } from "../fairValueNote";
 import { CompanyLogo } from "../design/CompanyLogo";
 import { useCountUp } from "../design/PortfolioViz";
 import { CompanyIdentityBlock, PricePanel, MetricStrip, ResearchTabs as NeoResearchTabs, DecisionSupportRail } from "./neo";
@@ -3046,6 +3047,36 @@ const LiveMacroBackdropChip = () => {
   );
 };
 
+// Кружок «i» с пояснением — тот же приём, что в Портфеле и Обозревателе (владелец
+// 2026-07-30). Свой, а не импорт InfoTip из скринера: тот тянет за собой весь модуль
+// скринера вместе с его стилями, здесь достаточно 20 строк на токенах карточки.
+const InfoDot = ({ text, label = "Пояснение" }) => {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+    const onEsc = (e) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onEsc);
+    return () => { document.removeEventListener("mousedown", onDoc); document.removeEventListener("keydown", onEsc); };
+  }, [open]);
+  if (!text) return null;
+  return (
+    <span ref={wrapRef} className="tw-relative tw-inline-flex tw-align-middle">
+      <button type="button" aria-label={label} aria-expanded={open}
+        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+        className="tw-w-[15px] tw-h-[15px] tw-rounded-full tw-border tw-border-border-subtle tw-bg-bg-base tw-text-text-tertiary tw-text-[10px] tw-font-semibold tw-leading-none tw-inline-flex tw-items-center tw-justify-center tw-cursor-pointer tw-p-0 hover:tw-border-accent hover:tw-text-accent">i</button>
+      {open && (
+        <span role="tooltip"
+          className="tw-absolute tw-z-50 tw-top-[22px] tw-left-0 tw-w-[290px] max-sm:tw-w-[240px] tw-p-3 tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-elevated tw-shadow-lg tw-text-[12px] tw-leading-snug tw-text-text-secondary tw-font-normal tw-normal-case tw-tracking-normal">
+          {text}
+        </span>
+      )}
+    </span>
+  );
+};
+
 const CompanyCard = ({ company, onBack, initialTab }) => {
   // initialTab — deep-link из статических SEO-страниц (/company/T/finance/ →
   // /?company=T&tab=finance): открыть карточку сразу на нужной вкладке.
@@ -3427,12 +3458,16 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
     // данных → ▲10929 % и «проходит»). Такое число нельзя подавать как обычную оценку —
     // помечаем явно, но НЕ прячем (пользователь должен видеть, что выдала модель).
     const bfvAbsurd = bfvOk && typeof bfv.upside_pct === "number" && Math.abs(bfv.upside_pct) >= 300;
+    // 🔴 Исторические P/E и P/B показываем ТОЛЬКО рядом с посчитанной ценой Basis
+    // (владелец, 2026-07-30). Если по бумаге наша методика не сработала, эти два числа
+    // остаются единственными на экране и читаются как «справедливая цена по Basis», хотя
+    // это лишь прошлые оценки рынка — там нужен прочерк, а не подмена методики.
     const methodRows = [];
-    if (bfvFair != null) methodRows.push({ label: "Методика Basis на основе DCF", value: bfvFair, main: true });
-    // «Оценка по …», а не «Исторический P/E»: в колонке стоит ЦЕНА в рублях, а голый
-    // «P/E» рядом с рублёвым числом читается как сам мультипликатор (ОТК 2026-07-29).
-    if (mFair(peM) != null) methodRows.push({ label: "Оценка по историческому P/E", value: mFair(peM) });
-    if (mFair(pbM) != null) methodRows.push({ label: "Оценка по историческому P/B", value: mFair(pbM) });
+    if (bfvFair != null) {
+      methodRows.push({ label: "Методика Basis на основе DCF", value: bfvFair, main: true });
+      if (mFair(peM) != null) methodRows.push({ label: "Оценка по историческому P/E", value: mFair(peM) });
+      if (mFair(pbM) != null) methodRows.push({ label: "Оценка по историческому P/B", value: mFair(pbM) });
+    }
     // расхождение методов: если крайние значения различаются > 1.6×, поясняем почему
     // (Basis требователен к порогу ОФЗ ~15%, исторические P/E и P/B отражают прошлые
     // оценки рынка) — иначе разброс вроде «2817 vs 5460» сбивает без объяснения.
@@ -3449,11 +3484,14 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
         <div className="tw-flex tw-items-center tw-gap-2 tw-text-text-secondary tw-font-semibold tw-mb-2">
           <Target size={18} />
           <span>Справедливая цена по методике Basis</span>
+          <InfoDot text={FAIR_VALUE_NOTE} label="Как читать справедливую цену" />
         </div>
         <div className="tw-text-[13px] tw-text-text-tertiary tw-leading-snug">
-          Не рассчитана — не хватает входных данных{bfvFailReason ? ` (${bfvFailReason})` : ""}. Исторические
-          ориентиры P/E и P/B по этой бумаге тоже недоступны. Судить о цене придётся по отчётности и
-          мультипликаторам во вкладке «Финансы» — модельной цены по этой бумаге у нас нет.
+          <span className="tw-text-text-secondary tw-font-medium">—</span> Не рассчитана: не хватает входных
+          данных{bfvFailReason ? ` (${bfvFailReason})` : ""}. Исторические P/E и P/B мы здесь намеренно не
+          подставляем — это прошлые оценки рынка, а не наша справедливая цена, и на месте главного числа они
+          вводили бы в заблуждение. Судить о стоимости придётся по отчётности и мультипликаторам во вкладке
+          «Финансы».
         </div>
       </Card>
     );
@@ -3463,6 +3501,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
           <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-flex-wrap">
             <Target size={18} />
             <span>Справедливая цена по методике Basis</span>
+            <InfoDot text={FAIR_VALUE_NOTE} label="Как читать справедливую цену" />
             {/* эпистемический тег: число — МОДЕЛЬ, а не факт. Был у заголовка в старом
                 блоке «Финансов» (tag-model «тест · модель») и потерялся при переносе —
                 вернули (ОТК 2026-07-29): дисклеймер 11px внизу карточки этот слой не
