@@ -879,6 +879,16 @@ def debug_trigger_report_watch(days_back: int = 5, run_girbo: bool = True):
         db.close()
 
 
+@router.get("/debug/fetch-article")
+def debug_fetch_article(url: str):
+    """Проверка фетчабельности полного текста статьи С ПРОД-СЕРВЕРА (egress Timeweb ≠
+    локальная машина: анти-боты режут серверные IP-пулы). Возвращает длину и первые
+    300 символов того, что реально видит _fetch_article_text."""
+    from app.services.report_watch import _fetch_article_text
+    t = _fetch_article_text(url)
+    return {"ok": bool(t), "chars": len(t) if t else 0, "head": (t or "")[:300]}
+
+
 @router.post("/debug/redo-report")
 def debug_redo_report(ticker: str, days_back: int = 7):
     """Пересоздать РАЗБОР ОТЧЁТА одного тикера (владелец 2026-07-31: «пересоздай
