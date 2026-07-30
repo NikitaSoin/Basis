@@ -59,6 +59,10 @@ async function main() {
     "macro-snapshot.json");
   await grab("Индексы", "/api/market/indices",
     (d) => (Array.isArray(d) ? d : (d.indices || [])), "indices-snapshot.json");
+  // Секторальные индексы MOEX (10 шт.) живут в «пульсе», а не в /market/indices —
+  // владелец перечислил их поимённо и попросил страницы под каждый.
+  await grab("Секторальные индексы", "/api/market/pulse",
+    (d) => ((d && d.sectors) || []), "sectors-snapshot.json");
 }
 
 main();

@@ -187,6 +187,55 @@ ${related.length ? `<h2>Другие индексы</h2><div>${related.map((x) =
   });
 }
 
+
+// Секторальный индекс MOEX: «Нефть и газ», «Финансы», «Металлы и добыча»… Владелец
+// перечислил их поимённо (2026-07-31) — это ходовые запросы («индекс нефть и газ
+// мосбиржа»), а собственных адресов у них не было.
+const SECTOR_SLUGS = {
+  MOEXOG: "neft-i-gaz", MOEXEU: "elektroenergetika", MOEXTL: "telekommunikatsii",
+  MOEXCH: "khimiya-i-neftekhimiya", MOEXMM: "metally-i-dobycha", MOEXFN: "finansy",
+  MOEXCN: "potrebitelskiy-sektor", MOEXIT: "informatsionnye-tekhnologii",
+  MOEXTN: "transport", MOEXRE: "stroitelnye-kompanii",
+};
+const sectorSlug = (t) => SECTOR_SLUGS[t] || String(t).toLowerCase();
+
+function sectorPage(sx, assets, all) {
+  const chg = sx.change_pct;
+  const title = `Индекс «${sx.name}» (${sx.ticker}) Мосбиржи${chg != null ? `: ${chg > 0 ? "+" : ""}${chg}%` : ""} — состав и динамика | Basis`;
+  const desc = `Секторальный индекс «${sx.name}» (${sx.ticker}) Московской биржи`
+    + `${chg != null ? `, изменение ${chg > 0 ? "+" : ""}${chg}% за день` : ""}: что в него входит, `
+    + `как читать движение сектора и где смотреть разборы его компаний.`;
+  const others = all.filter((x) => x.ticker !== sx.ticker);
+  const body = `
+<p class="tag">Секторальные индексы MOEX</p>
+<h1>Индекс «${esc(sx.name)}» <span style="color:var(--faint)">(${esc(sx.ticker)})</span></h1>
+<div class="val">${esc(sx.level != null ? sx.level : (chg != null ? `${chg > 0 ? "+" : ""}${chg}%` : "—"))}</div>
+<p class="meta">${chg != null ? `Изменение за день: ${chg > 0 ? "+" : ""}${esc(chg)}%` : "Значение обновляется"}</p>
+<h2>Что показывает</h2>
+<p>Индекс отслеживает бумаги одного сектора, поэтому его движение отвечает на вопрос
+«дело в компании или во всём секторе». Если бумага падает вместе с сектором — причина
+скорее общая (цены на сырьё, регулирование, ставка), если против него — искать причину
+надо в самой компании.</p>
+<h2>Как пользоваться</h2>
+<p>Сравнение с широким рынком (<a href="/indeks/imoex/">Индексом МосБиржи</a>) показывает,
+какие сектора тянут рынок, а какие отстают. Для портфеля это ещё и проверка
+диверсификации: несколько бумаг одного сектора движутся почти как одна позиция — это
+видно в <a href="/analiz-portfelya/">матрице корреляций</a>.</p>
+<a class="cta" href="/?view=overview&obs=pulse">Открыть обзор рынка →</a>
+<h2>Другие секторы</h2>
+<div>${others.map((x) => `<a class="chip" href="/indeks/sektor/${sectorSlug(x.ticker)}/">${esc(x.name)}</a>`).join("")}</div>
+<div style="margin-top:10px"><a class="chip" href="/indeks/imoex/">Индекс МосБиржи</a><a class="chip" href="/karta-rynka-aktsiy/">Карта рынка</a></div>`;
+  return shell({
+    title, desc, canonical: `/indeks/sektor/${sectorSlug(sx.ticker)}/`,
+    crumbs: `<a href="/">Basis</a> → <a href="/obzor-rynka/">Обзор рынка</a> → ${esc(sx.name)}`,
+    body, assets,
+    jsonLd: { "@context": "https://schema.org", "@type": "WebPage", name: title,
+      description: desc, url: `${SITE}/indeks/sektor/${sectorSlug(sx.ticker)}/` },
+    note: "Значения индексов приводятся с Московской биржи. Basis — аналитический слой, не брокер: "
+      + "не проводит сделок и не даёт сигналов «купить/продать».",
+  });
+}
+
 function fearGreedPage(assets) {
   const body = `
 <p class="tag">Обзор рынка · настроения</p>
@@ -241,6 +290,14 @@ function main() {
     fs.writeFileSync(path.join(dir, "index.html"), indexPage(ix, assets, indices), "utf8");
     urls.push(`${SITE}/indeks/${String(ix.ticker).toLowerCase()}/`);
   }
+  const sectors = readSnap("sectors-snapshot.json").rows;
+  for (const sx of sectors) {
+    const dir = path.join(BUILD, "indeks", "sektor", sectorSlug(sx.ticker));
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "index.html"), sectorPage(sx, assets, sectors), "utf8");
+    urls.push(`${SITE}/indeks/sektor/${sectorSlug(sx.ticker)}/`);
+  }
+
   const fgDir = path.join(BUILD, "indeks-strakha-i-zhadnosti");
   fs.mkdirSync(fgDir, { recursive: true });
   fs.writeFileSync(path.join(fgDir, "index.html"), fearGreedPage(assets), "utf8");
@@ -253,7 +310,8 @@ function main() {
     + urls.map((u) => `<url><loc>${u}</loc><lastmod>${today}</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>`).join("\n")
     + `\n</urlset>\n`, "utf8");
 
-  console.log(`Показатели и индексы: ${macro.length} статистики + ${indices.length} индексов + индекс страха; sitemap-indicators.xml — ${urls.length} URL`);
+  console.log(`Показатели и индексы: ${macro.length} статистики + ${indices.length} индексов + `
+    + `${sectors.length} секторальных + индекс страха; sitemap-indicators.xml — ${urls.length} URL`);
 }
 
 main();
