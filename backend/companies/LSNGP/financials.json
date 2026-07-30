@@ -323,16 +323,16 @@
       "ppe": [
         null,
         null,
-        null,
-        null,
+        219998.804,
+        224974.19,
         232546.249,
         265610.346
       ],
       "intangibles": [
         null,
         null,
-        null,
-        null,
+        639.157,
+        662.314,
         1256.222,
         2226.516
       ],
@@ -347,32 +347,32 @@
       "long_term_investments": [
         null,
         null,
-        null,
-        null,
+        1765.334,
+        2572.638,
         1636.787,
         1053.963
       ],
       "other_non_current": [
         null,
         null,
-        null,
-        null,
+        2079.515,
+        3466.294,
         6747.052,
         7287.523
       ],
       "total_non_current": [
         null,
         null,
-        null,
-        null,
+        225771.931,
+        232574.468,
         243632.461,
         278215.218
       ],
       "right_of_use_assets": [
         null,
         null,
-        null,
-        null,
+        1289.121,
+        899.032,
         1446.151,
         2036.87
       ],
@@ -382,16 +382,16 @@
       "inventory": [
         null,
         null,
-        null,
-        null,
+        1738.121,
+        1421.209,
         1044.397,
         1609.694
       ],
       "receivables": [
         null,
         null,
-        null,
-        null,
+        5271.341,
+        5183.197,
         8635.931,
         10440.441
       ],
@@ -406,24 +406,24 @@
       "short_term_investments": [
         null,
         null,
-        null,
-        null,
+        3150.916,
+        374.115,
         2526.173,
         491.991
       ],
       "other_current": [
         null,
         null,
-        null,
-        null,
+        4174.574,
+        5173.347,
         5521.995,
         5586.484
       ],
       "total_current": [
         null,
         null,
-        null,
-        null,
+        29310.833,
+        35305.852,
         55576.992,
         67527.233
       ],
@@ -441,8 +441,8 @@
       "share_capital": [
         null,
         null,
-        null,
-        null,
+        13089.482,
+        13089.482,
         13089.482,
         13089.482
       ],
@@ -457,16 +457,16 @@
       "additional_paid_in": [
         null,
         null,
-        null,
-        null,
+        52075.215,
+        52075.215,
         52075.215,
         52075.215
       ],
       "other_equity": [
         null,
         null,
-        null,
-        null,
+        836.303,
+        836.303,
         -456.255,
         -445.516
       ],
@@ -492,24 +492,24 @@
       "deferred_tax": [
         null,
         null,
-        null,
-        null,
+        4.633,
+        0,
         0,
         0
       ],
       "other_non_current_liab": [
         null,
         null,
-        null,
-        null,
+        11752.662,
+        16830.8,
         27122.713,
         28704.969
       ],
       "total_non_current_liab": [
         null,
         null,
-        null,
-        null,
+        23344.971,
+        27804.672,
         44091.367,
         40505.71
       ],
@@ -527,24 +527,24 @@
       "payables": [
         null,
         null,
-        null,
-        null,
+        19217.871,
+        17486.89,
         16830.629,
         22569.323
       ],
       "other_current_liab": [
         null,
         null,
-        null,
-        null,
+        28805.904,
+        23361.359,
         27878.914,
         37432.955
       ],
       "total_current_liab": [
         null,
         null,
-        null,
-        null,
+        65950.57,
+        56568.746,
         55930.223,
         76951.555
       ],
@@ -1526,7 +1526,8 @@
     "beta = 0,55 — суждение аналитика; публичного расчёта beta LSNG не найдено в локальных источниках.",
     "ROIC 2025 = 15,0% рассчитан от отчётной операционной прибыли 41 396 млн (с вероятным разовым). Нормализованный ROIC 2025 оценочно 8-9% (в диапазоне 2022-2024).",
     "cash_flow скопирован из LSNG (диспетчер, 2026-07-06) — один эмитент.",
-    "2026-07: income_statement/balance_sheet/cash_flow синхронизированы с LSNG (общая компания ПАО Россети Ленэнерго, LSNGP — привилегированные акции того же эмитента) — полная разбивка баланса + P&L + ОДДС за 2024-2025 добыта из первичных МСФО-отчётов e-disclosure.ru (см. флаг в LSNG/financials.json для деталей источника и OCR-метода). meta/valuation/multiples остаются специфичными для префа (own price/shares_outstanding)."
+    "2026-07: income_statement/balance_sheet/cash_flow синхронизированы с LSNG (общая компания ПАО Россети Ленэнерго, LSNGP — привилегированные акции того же эмитента) — полная разбивка баланса + P&L + ОДДС за 2024-2025 добыта из первичных МСФО-отчётов e-disclosure.ru (см. флаг в LSNG/financials.json для деталей источника и OCR-метода). meta/valuation/multiples остаются специфичными для префа (own price/shares_outstanding).",
+    "🔵 GAP-ЗАКРЫТИЕ (2026-07-30, report-fetcher, общий эмитент с LSNG): постатейный баланс 2022-2023 синхронизирован с LSNG — то же юрлицо, пара уже была в согласии."
   ],
   "segments": [
     {
