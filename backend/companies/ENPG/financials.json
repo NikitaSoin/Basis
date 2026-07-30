@@ -61,7 +61,8 @@
           844,
           793,
           708,
-          545
+          545,
+          null
         ]
       },
       {
@@ -71,7 +72,8 @@
           874,
           1071,
           861,
-          775
+          775,
+          null
         ]
       },
       {
@@ -81,7 +83,8 @@
           366,
           370,
           267,
-          58
+          58,
+          null
         ]
       },
       {
@@ -91,7 +94,8 @@
           168,
           253,
           218,
-          160
+          160,
+          null
         ]
       }
     ],
@@ -104,6 +108,7 @@
       1010
     ],
     "da": [
+      null,
       900,
       850,
       950,
@@ -111,6 +116,7 @@
       750
     ],
     "ebitda": [
+      null,
       2406,
       1880,
       2956,
@@ -218,7 +224,23 @@
         15.16,
         6.6
       ]
-    }
+    },
+    "da_actual_from_cashflow": [
+      951.0,
+      753.0,
+      null,
+      null,
+      null,
+      null
+    ],
+    "adjusted_ebitda_disclosed": [
+      2700.0,
+      2927.0,
+      2157.0,
+      null,
+      null,
+      null
+    ]
   },
   "adjusted": {
     "net_profit_adj": [
@@ -613,6 +635,7 @@
       16596
     ],
     "net_debt": [
+      null,
       8748,
       8620,
       null,
@@ -620,6 +643,7 @@
       9589
     ],
     "tangible_equity": [
+      null,
       5622,
       4835,
       null,
@@ -651,6 +675,7 @@
       ]
     },
     "total_equity": [
+      null,
       12281,
       11581,
       null,
@@ -660,6 +685,7 @@
   },
   "cash_flow": {
     "cfo": [
+      null,
       1658,
       2721,
       null,
@@ -667,6 +693,7 @@
       1890
     ],
     "cfi": [
+      null,
       -1621,
       -1419,
       null,
@@ -674,6 +701,7 @@
       -77
     ],
     "cff": [
+      null,
       -354,
       -2277,
       null,
@@ -697,6 +725,7 @@
       1108
     ],
     "fcf": [
+      null,
       -184,
       1308,
       null,
@@ -711,6 +740,7 @@
           716,
           null,
           null,
+          null,
           null
         ]
       },
@@ -719,6 +749,7 @@
         "values": [
           753,
           765,
+          null,
           null,
           null,
           null
@@ -731,7 +762,8 @@
           366,
           370,
           267,
-          58
+          58,
+          null
         ]
       },
       {
@@ -739,6 +771,7 @@
         "values": [
           -221,
           85,
+          null,
           null,
           null,
           null
@@ -751,6 +784,7 @@
           -4,
           null,
           null,
+          null,
           null
         ]
       },
@@ -761,7 +795,8 @@
           -752,
           -1553,
           -1802,
-          -971
+          -971,
+          null
         ]
       },
       {
@@ -769,6 +804,7 @@
         "values": [
           830,
           748,
+          null,
           null,
           null,
           null
@@ -781,6 +817,7 @@
           -93,
           null,
           null,
+          null,
           null
         ]
       },
@@ -789,6 +826,7 @@
         "values": [
           -2,
           -27,
+          null,
           null,
           null,
           null
@@ -801,6 +839,7 @@
           160,
           null,
           null,
+          null,
           null
         ]
       },
@@ -809,6 +848,7 @@
         "values": [
           -2,
           -14,
+          null,
           null,
           null,
           null
@@ -821,6 +861,7 @@
           16,
           null,
           null,
+          null,
           null
         ]
       },
@@ -829,6 +870,7 @@
         "values": [
           29,
           3,
+          null,
           null,
           null,
           null
@@ -841,6 +883,7 @@
           99,
           null,
           null,
+          null,
           null
         ]
       },
@@ -849,6 +892,7 @@
         "values": [
           114,
           94,
+          null,
           null,
           null,
           null
@@ -861,6 +905,7 @@
           843,
           null,
           null,
+          null,
           null
         ]
       },
@@ -869,6 +914,7 @@
         "values": [
           -743,
           340,
+          null,
           null,
           null,
           null
@@ -881,6 +927,7 @@
           -259,
           null,
           null,
+          null,
           null
         ]
       },
@@ -889,6 +936,7 @@
         "values": [
           -367,
           -365,
+          null,
           null,
           null,
           null
@@ -903,6 +951,7 @@
           13,
           null,
           null,
+          null,
           null
         ]
       },
@@ -913,7 +962,8 @@
           -1413,
           null,
           -1485,
-          -1108
+          -1108,
+          null
         ]
       },
       {
@@ -921,6 +971,7 @@
         "values": [
           -36,
           -35,
+          null,
           null,
           null,
           null
@@ -933,6 +984,7 @@
           -5,
           null,
           null,
+          null,
           null
         ]
       },
@@ -941,6 +993,7 @@
         "values": [
           2,
           -69,
+          null,
           null,
           null,
           null
@@ -953,6 +1006,7 @@
           84,
           null,
           null,
+          null,
           null
         ]
       },
@@ -961,6 +1015,7 @@
         "values": [
           416,
           0,
+          null,
           null,
           null,
           null
@@ -973,6 +1028,7 @@
           23,
           null,
           null,
+          null,
           null
         ]
       },
@@ -981,6 +1037,7 @@
         "values": [
           0,
           -13,
+          null,
           null,
           null,
           null
@@ -993,6 +1050,7 @@
           0,
           null,
           null,
+          null,
           null
         ]
       },
@@ -1003,6 +1061,7 @@
           -5,
           null,
           null,
+          null,
           null
         ]
       },
@@ -1011,6 +1070,7 @@
         "values": [
           0,
           1,
+          null,
           null,
           null,
           null
@@ -1025,6 +1085,7 @@
           6103,
           null,
           null,
+          null,
           null
         ]
       },
@@ -1033,6 +1094,7 @@
         "values": [
           -3805,
           -7662,
+          null,
           null,
           null,
           null
@@ -1045,6 +1107,7 @@
           -3,
           null,
           null,
+          null,
           null
         ]
       },
@@ -1053,6 +1116,7 @@
         "values": [
           -929,
           -682,
+          null,
           null,
           null,
           null
@@ -1065,6 +1129,7 @@
           -31,
           null,
           null,
+          null,
           null
         ]
       },
@@ -1073,6 +1138,7 @@
         "values": [
           63,
           -2,
+          null,
           null,
           null,
           null
@@ -1101,7 +1167,39 @@
         10.51,
         10.7
       ]
-    }
+    },
+    "operating_cf": [
+      2950.0,
+      1658.0,
+      2721.0,
+      null,
+      2168.0,
+      1890.0
+    ],
+    "fx_impact_on_cash": [
+      162.0,
+      -147.0,
+      -154.0,
+      null,
+      17.0,
+      -157.0
+    ],
+    "financing_cf": [
+      -772.0,
+      -354.0,
+      -2277.0,
+      null,
+      -2691.0,
+      -1372.0
+    ],
+    "investing_cf": [
+      -2112.0,
+      -1621.0,
+      -1419.0,
+      null,
+      285.0,
+      -77.0
+    ]
   },
   "returns": {
     "roe": [
@@ -1708,7 +1806,7 @@
     {
       "date": "2026-07-30",
       "scope": "годы [2025]",
-      "note": "Данные добыты report-fetcher из первичной отчётности и перенесены скриптом; единицы млн→млн (×1.0). Существующие годы не перезаписывались."
+      "note": "Добыто report-fetcher из первичной отчётности, перенесено скриптом (масштаб ×1.0, выведен сопоставлением общих лет). Ряды пересобраны по объединённому списку лет; существующие значения не перезаписывались."
     },
     {
       "note": "All years 2024-2020 fully extracted from official source PDFs"
