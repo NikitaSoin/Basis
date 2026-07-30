@@ -67,8 +67,14 @@ SCENARIOS = [
     },
     {
         "key": "fiscal_pressure", "label": "Рост налогового/регуляторного давления",
-        "description": "Государство расширяет изъятие прибыли бизнеса через налоги/пошлины (НДПИ, экспортные пошлины, разовые взносы) — ЭКОНОМИКА В ЦЕЛОМ, не точечно одна компания (точечное решение по одному эмитенту эта модель не считает).",
+        "description": "Государство расширяет изъятие прибыли бизнеса через налоги/пошлины (НДПИ, экспортные пошлины, разовые взносы) — ЭКОНОМИКА В ЦЕЛОМ, не точечно одна компания. Считается прямым ударом по прибыли, а не через факторный тег: повышение налога задевает всех, а фискальных доноров первой очереди (нефтегаз, металлурги, госбанки — прецеденты windfall-2023 и НДПИ Газпрома) заметно сильнее.",
         "intensities": {"fiscal": 1.0},
+        # 🔴 2026-07-30 (заказ владельца: «сценарий доп. НДПИ как у Газпрома… или массово
+        # могут поднять на всех»). Один тег fiscal этот сценарий не тянул: он покрыт лишь
+        # у 27% компаний и знак смешанный (36% отриц / 37% полож), потому что кодирует
+        # текущие идиосинкразии (IT-льгота, субсидии ДФО), а не налоговую бету. Плоский
+        # удар + усиление доноров даёт сценарию покрытие 100% и правильное направление.
+        "tax_shock": {"flat_profit_hit_pct": 6.0, "donor_extra_hit_pct": 9.0},
     },
     {
         "key": "sticky_inflation", "label": "Инфляционные ожидания остаются повышенными",
@@ -116,7 +122,8 @@ def custom_intensities(db: Session, oil_usd: float | None, rub_usd: float | None
     return out, ref_oil, ref_rub
 
 
-def compute_impact(db: Session, intensities: dict, sector_scope: dict | None = None) -> dict:
+def compute_impact(db: Session, intensities: dict, sector_scope: dict | None = None,
+                   tax_shock: dict | None = None) -> dict:
     """Реакция ВСЕХ компаний с company_metrics (та же вселенная, что скринер)
     на заданный набор интенсивностей факторов. Честная деградация: компания
     без покрытых факторов из intensities получает reaction=0.0, coverage=0 —
@@ -156,6 +163,13 @@ def compute_impact(db: Session, intensities: dict, sector_scope: dict | None = N
                 exp["commodity"] = 2.0
         covered = [k for k in eff_intensities if exp.get(k) is not None]
         reaction = company_scenario_reaction(exp, eff_intensities) if eff_intensities else 0.0
+        if tax_shock:
+            # Налоговый удар считается прямо по прибыли, а не через факторный тег —
+            # см. factor_engine.tax_hike_reaction. Складывается с факторной реакцией
+            # (тег fiscal ловит регуляторную специфику компании, налог — общий).
+            from app.services.factor_engine import tax_hike_reaction
+            reaction = max(-0.70, reaction + tax_hike_reaction(ticker, tax_shock))
+            covered = covered + ["tax"]
         out.append({
             "ticker": ticker, "name": name, "sector": sector,
             "reaction_pct": round(reaction * 100, 1),
@@ -191,7 +205,7 @@ def build_scenario_result(db: Session, scenario_key: str | None, oil_usd: float 
         sc = next((s for s in SCENARIOS if s["key"] == scenario_key), None)
         if not sc:
             return {"error": "unknown_scenario"}
-        result = compute_impact(db, sc["intensities"], sc.get("sector_scope"))
+        result = compute_impact(db, sc["intensities"], sc.get("sector_scope"), sc.get("tax_shock"))
         result["scenario"] = {"key": sc["key"], "label": sc["label"], "description": sc["description"], "intensities": sc["intensities"]}
     else:
         intensities, ref_oil, ref_rub = custom_intensities(db, oil_usd, rub_usd)
