@@ -1104,7 +1104,12 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("rating_agencies", _rating_agencies_job), "cron", hour=20, minute=55, id="rating_agencies")  # рейтинговые действия АКРА/НКР → сигналы + освежение agency_rating бумаг
         scheduler.add_job(_with_heartbeat("card_consumer", _card_consumer_job), "cron", hour=21, minute=15, id="card_consumer")  # consumer-агент: точные сигналы → addendum вкладки (гейт); после rating_agencies(20:55)+company_signals(:35)
         scheduler.add_job(_with_heartbeat("prose_patcher", _prose_patcher_job), "cron", hour=21, minute=35, id="prose_patcher")  # авто-свежесть прозы: дневной факт-патч из входного потока (гейт, БД-оверлей)
-        scheduler.add_job(_with_heartbeat("prose_interp", _prose_interp_job), "cron", day_of_week="sun", hour=22, minute=10, id="prose_interp")  # авто-свежесть прозы: НЕДЕЛЬНАЯ интерпретация по потоку недели (дельта, гейт)
+        # Недельная интерпретация прозы по потоку недели (дельта, гейт). День недели
+        # смещён с воскресенья на ЧЕТВЕРГ (владелец, 2026-07-30): нужно было прогнать
+        # актуализацию сразу, а не ждать выходных, дальше — тот же недельный ритм от
+        # этой точки. Время 22:10 МСК оставлено (планировщик в Europe/Moscow), чтобы
+        # проход шёл после дневных синков и факт-патча в 21:35.
+        scheduler.add_job(_with_heartbeat("prose_interp", _prose_interp_job), "cron", day_of_week="thu", hour=22, minute=10, id="prose_interp")
         scheduler.add_job(_with_heartbeat("agent_pilot", _agent_pilot_job), "cron", hour=7, minute=40, id="agent_pilot")  # автономный агент-пилот (macro addendum)
         scheduler.add_job(_with_heartbeat("chronicle_maintenance", _chronicle_maintenance_job), "cron", hour=5, minute=20, id="chronicle_maintenance")  # летопись: бэкфилл + ретеншен Ленты
         logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo/geo_digest)")
