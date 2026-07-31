@@ -551,11 +551,50 @@ function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, 
   const crumbsHtml = breadcrumbs
     .map((b, i) => (i < breadcrumbs.length - 1 && b.href ? `<a href="${b.href}">${escapeHtml(b.label)}</a>` : escapeHtml(b.label)))
     .join(" → ");
+  // 🔴 Организация и сайт — НА КАЖДОЙ статической странице, а не только в index.html
+  // SPA-оболочки. Именно статические страницы поиск и индексирует; до 2026-07-31 в них
+  // был только BreadcrumbList, то есть сущности «кто это вообще» у проиндексированных
+  // страниц не было вовсе. Рекомендация Вебмастера «настроена ли микроразметка» — про это.
+  // SearchAction — то, из чего Яндекс и Google собирают строку поиска по сайту в выдаче
+  // и опираются при формировании быстрых ссылок.
   const ld = {
     "@context": "https://schema.org",
     "@graph": [
       {
+        "@type": "Organization",
+        "@id": `${_SITE}/#org`,
+        name: "Basis",
+        url: `${_SITE}/`,
+        logo: `${_SITE}/icon-512.png`,
+        description: "Аналитический слой и «второе мнение» для частного инвестора на "
+          + "российском рынке. Не брокер, без сигналов «купить/продать».",
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${_SITE}/#site`,
+        name: "Basis",
+        url: `${_SITE}/`,
+        inLanguage: "ru-RU",
+        publisher: { "@id": `${_SITE}/#org` },
+        potentialAction: {
+          "@type": "SearchAction",
+          target: { "@type": "EntryPoint", urlTemplate: `${_SITE}/?q={search_term_string}` },
+          "query-input": "required name=search_term_string",
+        },
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${url}#page`,
+        url,
+        name: title,
+        description: desc,
+        inLanguage: "ru-RU",
+        isPartOf: { "@id": `${_SITE}/#site` },
+        breadcrumb: { "@id": `${url}#crumbs` },
+      },
+      {
         "@type": "BreadcrumbList",
+        "@id": `${url}#crumbs`,
         itemListElement: breadcrumbs.map((b, i) => ({
           "@type": "ListItem", position: i + 1, name: b.label,
           ...(b.href ? { item: _SITE + b.href } : {}),
@@ -1036,7 +1075,7 @@ function hubDescription(c) {
   if (np) bits.push(`${np.value < 0 ? "чистый убыток" : "чистая прибыль"}: ${fmtMoney(Math.abs(np.value), c.unit, c.currency)}`);
   const nums = bits.length ? ` ${bits.join(", ").replace(/^./, (ch) => ch.toUpperCase())}.` : "";
   return truncate(
-    `${c.short} (${c.ticker}), сектор «${c.sectorFull || c.sector}»: бизнес-модель, финансы, дивиденды, справедливая цена, макро- и геополитические риски.${nums} Независимый разбор Basis.`,
+    `${c.short} (${c.ticker}), сектор «${c.sectorFull || c.sector}»: бизнес-модель, финансы, дивиденды, справедливая цена, макро- и геополитические риски.${nums} Разбор Basis.`,
     200
   );
 }
@@ -1743,6 +1782,13 @@ ${rel ? `<h2>Связанные термины</h2><div class="grid">${rel}</div
     title,
     desc: truncate(`${label} — что это простыми словами${term.formula ? ", как считается" : ""}, `
       + `зачем инвестору и где ошибаются. С примерами на реальных бумагах Мосбиржи.`, 200),
+    jsonLd: [{
+      "@type": "DefinedTerm",
+      "@id": `${_SITE}/pokazateli/${term.slug}/#term`,
+      name: label,
+      description: term.simple,
+      inDefinedTermSet: { "@id": `${_SITE}/pokazateli/#set` },
+    }],
     canonicalPath: `/pokazateli/${term.slug}/`,
     breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Показатели", href: "/pokazateli/" },
       { label }],
@@ -2186,6 +2232,13 @@ ${spec.formula ? `<h2>Формула</h2>
 
   return pageShell({
     title, desc, canonicalPath: `/pokazateli/${spec.slug}/`,
+    jsonLd: [{
+      "@type": "DefinedTerm",
+      "@id": `${_SITE}/pokazateli/${spec.slug}/#term`,
+      name: label,
+      description: spec.simple || spec.what,
+      inDefinedTermSet: { "@id": `${_SITE}/pokazateli/#set` },
+    }],
     breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Показатели", href: "/pokazateli/" },
       { label }],
     bodyHtml: body, assets, note: DEFAULT_NOTE,
@@ -2427,14 +2480,10 @@ ${l.body}
 ${faqHtml}
 <a class="cta" href="${escapeHtml(l.appHref)}">${escapeHtml(l.appLabel)} →</a>
 ${relatedHtml}`;
-  const ld = [{
-    "@type": "WebPage",
-    name: l.title,
-    description: l.description,
-    url: `${_SITE}/${l.slug}/`,
-    inLanguage: "ru",
-    isPartOf: { "@type": "WebSite", name: "Basis", url: _SITE },
-  }];
+  // WebPage теперь описывается в pageShell единообразно для ВСЕХ страниц (с @id и
+  // связью с WebSite), поэтому свой дубль лендинга убран — две сущности WebPage на одной
+  // странице поисковик разбирает хуже, чем одну.
+  const ld = [];
   if (l.faq && l.faq.length) {
     ld.push({
       "@type": "FAQPage",
@@ -2767,6 +2816,12 @@ function main() {
       desc: "Справочник показателей отчётности: что показывает каждый, формула расчёта, "
         + "как читать и где ошибаются. Со значениями по российским компаниям.",
       canonicalPath: "/pokazateli/",
+      jsonLd: [{
+        "@type": "DefinedTermSet",
+        "@id": `${_SITE}/pokazateli/#set`,
+        name: "Показатели и термины рынка — справочник Basis",
+        url: `${_SITE}/pokazateli/`,
+      }],
       breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Показатели" }],
       bodyHtml: body, assets, note: DEFAULT_NOTE,
     }), "utf8");

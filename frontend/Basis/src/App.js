@@ -923,6 +923,14 @@ export default function App() {
   // поймал владелец на /statistika/indeks-pmi/. Честнее оставить статику — она
   // полноценная — и не показывать приложение вовсе.
   const [staticOnly, setStaticOnly] = useState(false);
+  // 🔴 Мягкий 404. Хостинг (Caddy на Timeweb) отдаёт index.html с кодом 200 на ЛЮБОЙ
+  // несуществующий адрес — это ровно то, на что ругается Вебмастер («некорректно
+  // настроен возврат 404»). Настроить сам код ответа можно только в панели хостинга,
+  // из репозитория — нельзя. Но можно не делать вид, что страница существует: показать
+  // честное «не найдено» и запретить индексирование метатегом, чтобы такие адреса не
+  // расползались по индексу. Индексируемые страницы у нас статические, у них свой
+  // robots=index, поэтому им это не вредит.
+  const [notFound, setNotFound] = useState(false);
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem("basis_theme");
     if (stored === "dark" || stored === "light") return stored;
@@ -1019,6 +1027,18 @@ export default function App() {
       if (!params.get("view") && !params.get("company")
           && document.getElementById("seo-static")) {
         setStaticOnly(true);
+        return;
+      }
+      // Статики под нами нет, адрес не корневой и ни на что не похож — страницы
+      // действительно не существует. Раньше в этом случае молча показывалась главная.
+      if (window.location.pathname !== "/" && !params.get("view") && !params.get("company")) {
+        try {
+          let m = document.querySelector('meta[name="robots"]');
+          if (!m) { m = document.createElement("meta"); m.name = "robots"; document.head.appendChild(m); }
+          m.content = "noindex, follow";
+          document.title = "Страница не найдена — Basis";
+        } catch {}
+        setNotFound(true);
         return;
       }
       const VIEW_TABS = ["companies", "overview", "portfolio", "stress", "screener", "ai", "pricing"];
@@ -1230,6 +1250,32 @@ export default function App() {
   // только её. Иначе пользователь видит две страницы разом: сверху статику, снизу
   // главную приложения (баг, пойманный владельцем на странице PMI 2026-07-31).
   if (staticOnly) return null;
+
+  if (notFound) {
+    return (
+      <div data-theme={theme} className="tw-bg-bg-base tw-text-text-primary">
+        <div style={{ maxWidth: 640, margin: "0 auto", padding: "80px 20px", fontFamily: "var(--bs-sans, Inter, sans-serif)" }}>
+          <p style={{ color: "var(--bs-copper, #C97A4A)", fontSize: 13, letterSpacing: ".08em", textTransform: "uppercase", margin: 0 }}>
+            Ошибка 404
+          </p>
+          <h1 style={{ fontFamily: "var(--bs-serif, Fraunces, serif)", fontSize: 32, lineHeight: 1.2, margin: "10px 0 14px" }}>
+            Такой страницы нет
+          </h1>
+          <p style={{ color: "var(--bs-muted, #5A5248)", lineHeight: 1.6, margin: "0 0 24px" }}>
+            Возможно, адрес набран с опечаткой или страница была переименована.
+            Вот основные разделы — оттуда можно найти нужное.
+          </p>
+          <ul style={{ lineHeight: 2, paddingLeft: 18, margin: 0 }}>
+            <li><a href="/company/">Каталог компаний</a> — разборы по тикеру</li>
+            <li><a href="/pokazateli/">Показатели и термины</a> — что означают цифры</li>
+            <li><a href="/skrining-aktsiy/">Скрининг акций</a> и <a href="/skrining-obligatsiy/">облигаций</a></li>
+            <li><a href="/obzor-rynka/">Обзор рынка</a>, <a href="/novosti-fondovogo-rynka/">новости</a></li>
+            <li><a href="/">Главная страница Basis</a></li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
 
   const isLanding = activeTab === "landing" && !selectedCompany;
   const toggleTheme = () => setTheme(t => t === "dark" ? "light" : "dark");
