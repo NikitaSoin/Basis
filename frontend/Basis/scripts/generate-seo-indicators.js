@@ -348,6 +348,21 @@ function main() {
     + urls.map((u) => `<url><loc>${u}</loc><lastmod>${today}</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>`).join("\n")
     + `\n</urlset>\n`, "utf8");
 
+  // ─── Индекс карт сайта ────────────────────────────────────────────────────────
+  // Пишется ЗДЕСЬ, потому что этот скрипт в цепочке сборки идёт последним: к моменту
+  // его запуска все три карты уже созданы. Зачем нужен: в Search Console и Вебмастере
+  // добавляется ОДИН адрес вместо трёх, а новые карты подхватываются автоматически —
+  // не придётся вспоминать, что при добавлении раздела надо идти в панель руками.
+  {
+    const maps = ["sitemap.xml", "sitemap-instruments.xml", "sitemap-indicators.xml"]
+      .filter((f) => fs.existsSync(path.join(BUILD, f)));
+    fs.writeFileSync(path.join(BUILD, "sitemap-index.xml"),
+      `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`
+      + maps.map((f) => `<sitemap><loc>${SITE}/${f}</loc><lastmod>${today}</lastmod></sitemap>`).join("\n")
+      + `\n</sitemapindex>\n`, "utf8");
+    console.log(`sitemap-index.xml: ${maps.length} карт (${maps.join(", ")})`);
+  }
+
   console.log(`Показатели и индексы: ${macro.length} статистики + ${indices.length} индексов + `
     + `${sectors.length} секторальных + индекс страха; sitemap-indicators.xml — ${urls.length} URL`);
 }
