@@ -48,6 +48,17 @@ def _live_values(db) -> dict:
                 out[key] = (float(row[0]), row[1])
         except Exception:  # noqa: BLE001
             pass
+    # дата ПРЕДЫДУЩЕГО решения по ставке — для датной замены в текстах («19 июня
+    # 2026 ставка снижена … до 14%» после подстановки значения несогласована:
+    # дата июньская, значение июльское)
+    try:
+        rows = db.execute(_sql(
+            "SELECT as_of FROM macro_data_points WHERE indicator_code='key_rate' "
+            "AND metric='level' ORDER BY as_of DESC LIMIT 2")).all()
+        if len(rows) == 2:
+            out["key_rate_prev_date"] = rows[1][0]
+    except Exception:  # noqa: BLE001
+        pass
     return out
 
 
@@ -98,6 +109,23 @@ def enrich_snapshot_live(db, data: dict) -> dict:
         subs = [(str(it.get("stale_value")), str(it.get("value")))
                 for it in snap if isinstance(it, dict) and it.get("stale_value")]
         subs = [(a, b) for a, b in subs if a and b and a != b and len(a) >= 3]
+        # датные пары для строк про ставку: если значение ставки заменялось, дата
+        # ПРЕДЫДУЩЕГО решения в тексте меняется на дату текущего (обе — из ряда
+        # key_rate, детерминированно). Применяются ТОЛЬКО в строках со «ставк».
+        rate_subs = []
+        rate_changed = any(_CANON[0][0].search(str(it.get("indicator") or ""))
+                           for it in snap if isinstance(it, dict) and it.get("stale_value"))
+        prev_d, cur = live.get("key_rate_prev_date"), live.get("key_rate")
+        if rate_changed and prev_d and cur:
+            months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля",
+                      "августа", "сентября", "октября", "ноября", "декабря"]
+            cur_d = cur[1]
+            for fmt in ("{d} {m} {y}", "{d} {m}", "{dd}.{mm}.{y}", "{dd}.{mm}"):
+                a = fmt.format(d=prev_d.day, m=months[prev_d.month - 1], y=prev_d.year,
+                               dd=f"{prev_d.day:02d}", mm=f"{prev_d.month:02d}")
+                b = fmt.format(d=cur_d.day, m=months[cur_d.month - 1], y=cur_d.year,
+                               dd=f"{cur_d.day:02d}", mm=f"{cur_d.month:02d}")
+                rate_subs.append((a, b))
         if subs:
             def _walk(node, path=""):
                 if isinstance(node, dict):
@@ -114,10 +142,20 @@ def enrich_snapshot_live(db, data: dict) -> dict:
                             # («~78,4»), но не запятая-пунктуация («~78, а»)
                             node = re.sub(rf"(?<!\d)(?<!\d,){re.escape(a)}(?!\d)(?!,\d)",
                                           b, node)
+                    if rate_subs and "ставк" in node.lower():
+                        for a, b in rate_subs:
+                            if a in node:
+                                node = re.sub(rf"(?<!\d){re.escape(a)}(?!\d)", b, node)
                     return node
                 return node
             for key in list(data.keys()):
-                if key in ("snapshot", "sources", "meta"):
+                # meta НЕ исключаем: у макро-карточек именно в meta живёт контентный
+                # текст (meta.macro_regime_summary — блок «Эффект для компании»);
+                # исключение meta целиком оставило Сберу «14,25%… ожидания ~13%»
+                # при обновлённых остальных слоях (владелец 2026-08-01, второй заход).
+                # Служебные подполя meta (ticker/as_of/data_quality) парам замен не
+                # соответствуют по построению. snapshot обновлён напрямую выше.
+                if key in ("snapshot", "sources"):
                     continue
                 data[key] = _walk(data[key], key)
             data["text_live_subst"] = [{"from": a, "to": b} for a, b in subs]

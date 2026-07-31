@@ -53,3 +53,21 @@ def test_text_substitution_boundary_safe():
     enrich_snapshot_live(_DB2(), data)
     t = data["factors"][0]["t"]
     assert "79,86 ₽, а" in t and "~780 тыс" in t and "~78,4" in t
+
+
+def test_meta_regime_summary_gets_substitution():
+    # текст «Эффект для компании» живёт в meta.macro_regime_summary — meta нельзя
+    # исключать из подстановки (бой 2026-08-01, SBER: всё обновилось, кроме него)
+    import datetime as dt
+
+    class _DB3:
+        def execute(self, q, p):
+            v = {"key_rate": (14.0, dt.date(2026, 7, 24))}.get(p["c"])
+            return type("R", (), {"first": staticmethod(lambda v=v: v)})()
+
+    data = {"meta": {"ticker": "SBER", "as_of": "2026-07-04",
+                     "macro_regime_summary": "ставка снижена на 25 б.п. до 14,25% (с пика 21%)"},
+            "snapshot": [{"indicator": "Ключевая ставка ЦБ", "value": "14,25%"}]}
+    enrich_snapshot_live(_DB3(), data)
+    assert "до 14% (с пика 21%)" in data["meta"]["macro_regime_summary"]
+    assert data["meta"]["ticker"] == "SBER" and data["meta"]["as_of"] == "2026-07-04"
