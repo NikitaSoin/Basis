@@ -156,15 +156,54 @@ def _numbers(s: str) -> list[str]:
 
 
 # нормализация для ПОИСКА find в прозе — 1:1 (длина сохраняется, чтобы индексы
-# совпадали): виды тире → «-», неразрывные/узкие пробелы → обычный. Иначе валидная
-# правка не находит место из-за «–» vs «-» и т.п.
+# совпадали): тире → «-», спецпробелы И ПЕРЕНОСЫ → пробел, «ёлочки»/„лапки" → ",
+# типографский апостроф → ', ё → е. На бою 2026-07-31 недостающая нормализация
+# (кавычки/переносы) дала 0 публикаций интерпретации за 14 дней: содержательные
+# правки (SBER: прибыль 1П2026, статус дивиденда) резались find_not_in_prose.
 _MATCH_NORM = str.maketrans({
-    "–": "-", "—": "-", "−": "-", "‑": "-", " ": " ", " ": " ", " ": " ",
+    "\u2013": "-", "\u2014": "-", "\u2212": "-", "\u2011": "-",
+    "\u00a0": " ", "\u202f": " ", "\u2009": " ",
+    "\n": " ", "\t": " ",
+    "\u00ab": '"', "\u00bb": '"', "\u201e": '"', "\u201c": '"', "\u201d": '"',
+    "\u2019": "'", "\u2018": "'", "\u0451": "\u0435", "\u0401": "\u0415",
 })
 
 
 def _norm_match(s: str) -> str:
     return s.translate(_MATCH_NORM)
+
+
+import re as _re_flex  # noqa: E402 (локальный алиас, чтобы не путать с модульным re)
+
+
+def _flexible_spans(haystack: str, needle: str) -> list[tuple[int, int]]:
+    """Вторая линия поиска, когда 1:1-нормализация не нашла: та же толерантность
+    плюс СХЛОПЫВАНИЕ пробелов — модель отдаёт find с одиночными пробелами, а в
+    прозе двойные/переносы, и 1:1-замена (длина сохраняется) этого не покрывает.
+    Ищем регекспом ПО ОРИГИНАЛУ; длина совпадения может отличаться от find —
+    возвращаем реальные спаны."""
+    tokens = _norm_match(needle).split()
+    if not tokens:
+        return []
+    def _tok(t: str) -> str:
+        out = []
+        for ch in t:
+            if ch == "-":
+                out.append("[-\u2013\u2014\u2212\u2011]")
+            elif ch == '"':
+                out.append("[\"\u00ab\u00bb\u201e\u201c\u201d]")
+            elif ch == "'":
+                out.append("['\u2019\u2018]")
+            elif ch in ("е", "Е"):
+                out.append("[еЕёЁ]" if ch == "Е" else "[её]")
+            else:
+                out.append(re.escape(ch))
+        return "".join(out)
+    pattern = r"\s+".join(_tok(t) for t in tokens)
+    try:
+        return [(m.start(), m.end()) for m in re.finditer(pattern, haystack)]
+    except re.error:
+        return []
 
 
 def _apply_and_gate(prose: str, result: dict, signal_text: str) -> tuple[str | None, list[str]]:
@@ -182,6 +221,13 @@ def _apply_and_gate(prose: str, result: dict, signal_text: str) -> tuple[str | N
     # (аналитик его туда внёс) — иначе это выдуманное агентом число.
     allowed_nums = (set(_numbers(signal_text.replace(",", ".")))
                     | set(_numbers(prose.replace(",", "."))))
+    # даты «30.07»/«30.07.2026» — производные ISO-дат источника (published_at
+    # сигнала пишется как 2026-07-30): токен «30.07» не совпадает с «2026», «07»,
+    # «30» по отдельности, и валидные правки резались ungrounded_numbers (бой
+    # 2026-07-31, GAZP governance). Разрешаем ровно производные, не любые даты.
+    for iso in re.findall(r"(\d{4})-(\d{2})-(\d{2})", signal_text + " " + prose):
+        y, mo, d = iso
+        allowed_nums |= {f"{d}.{mo}", f"{int(d)}.{mo}", f"{d}.{mo}.{y}", f"{int(d)}.{mo}.{y}"}
     patched = prose
     for i, e in enumerate(edits):
         if not isinstance(e, dict):
@@ -196,10 +242,21 @@ def _apply_and_gate(prose: str, result: dict, signal_text: str) -> tuple[str | N
         # индекс в нормализованной = индекс в оригинале)
         n_patched, n_find = _norm_match(patched), _norm_match(find)
         cnt = n_patched.count(n_find)
-        if cnt == 0:
-            notes.append(f"edit{i}:find_not_in_prose")
-            continue
-        if cnt > 1:
+        span = None
+        if cnt == 1:
+            idx0 = n_patched.find(n_find)
+            span = (idx0, idx0 + len(find))
+        elif cnt == 0:
+            spans = _flexible_spans(patched, find)
+            if len(spans) == 1:
+                span = spans[0]
+            elif len(spans) > 1:
+                notes.append(f"edit{i}:find_ambiguous({len(spans)})")
+                continue
+            else:
+                notes.append(f"edit{i}:find_not_in_prose")
+                continue
+        else:
             notes.append(f"edit{i}:find_ambiguous({cnt})")
             continue
         if len(repl) > len(find) + 200:
@@ -214,8 +271,7 @@ def _apply_and_gate(prose: str, result: dict, signal_text: str) -> tuple[str | N
         if ungrounded:
             notes.append(f"edit{i}:ungrounded_numbers:{ungrounded[:3]}")
             continue
-        idx = n_patched.find(n_find)  # применяем правку по оригинальному span
-        patched = patched[:idx] + repl + patched[idx + len(find):]
+        patched = patched[:span[0]] + repl + patched[span[1]:]
 
     if notes:
         return None, notes
@@ -372,7 +428,9 @@ def run_interp_for_tab(db: Session, ticker: str, tab: str,
             CardProseOverlay.created_at >= since).first():
         return None  # cooldown: недавно УЖЕ меняли интерпретацию этой вкладки
     flow_txt = "\n".join(
-        f"- {r.published_at} [{r.source_key}] {r.title}: {(r.summary or '')[:160]}"
+        # 500, не 160: обрезка резала сами ЧИСЛА из сигналов, и законные правки
+        # падали на ungrounded_numbers (заземление проверяется по этому тексту)
+        f"- {r.published_at} [{r.source_key}] {r.title}: {(r.summary or '')[:500]}"
         for r in flow_rows)
 
     def _tb(prose: str) -> str:
