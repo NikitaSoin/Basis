@@ -229,7 +229,8 @@ def _flexible_spans(haystack: str, needle: str) -> list[tuple[int, int]]:
 
 
 def _apply_and_gate(prose: str, result: dict, signal_text: str,
-                    kind: str = "fact") -> tuple[str | None, list[str]]:
+                    kind: str = "fact",
+                    strict_numbers: bool = False) -> tuple[str | None, list[str]]:
     """→ (patched_md|None, notes). Применяет find/replace и проверяет каждую правку."""
     notes: list[str] = []
     if not isinstance(result, dict):
@@ -242,8 +243,14 @@ def _apply_and_gate(prose: str, result: dict, signal_text: str,
 
     # число «обосновано», если есть в тексте сигнала ИЛИ уже в самой прозе
     # (аналитик его туда внёс) — иначе это выдуманное агентом число.
-    allowed_nums = (set(_numbers(signal_text.replace(",", ".")))
-                    | set(_numbers(prose.replace(",", "."))))
+    # strict_numbers (макро-факты): новые числа — ТОЛЬКО из официального якоря.
+    # Обычный режим разрешает и числа из прозы (перестройка предложения), но для
+    # обновления макро-показателей это дыра: на бою 2026-08-01 модель поставила
+    # ожидания «12,1%» (число из ДРУГОГО места прозы) вместо 14,7 из якоря — гейт
+    # пропустил, т.к. «12,1» встречался в тексте.
+    allowed_nums = set(_numbers(signal_text.replace(",", ".")))
+    if not strict_numbers:
+        allowed_nums |= set(_numbers(prose.replace(",", ".")))
     # даты «30.07»/«30.07.2026» — производные ISO-дат источника (published_at
     # сигнала пишется как 2026-07-30): токен «30.07» не совпадает с «2026», «07»,
     # «30» по отдельности, и валидные правки резались ungrounded_numbers (бой
@@ -315,7 +322,8 @@ def _apply_and_gate(prose: str, result: dict, signal_text: str,
 # ----------------------------- ПРОГОН (общее ядро) -----------------------------
 def _run_patch(db: Session, ticker: str, tab: str, *, sys: str, task_builder,
                grounding_text: str, kind: str, source_signal_id: int | None = None,
-               evidence_extra: dict | None = None) -> CardProseOverlay | None:
+               evidence_extra: dict | None = None,
+               strict_numbers: bool = False) -> CardProseOverlay | None:
     """Ядро патча: прочитать прозу (оверлей-first) → агент правит find/replace →
     код-гейт → published|rejected-оверлей. grounding_text — источник, в котором
     обязаны присутствовать новые числа (сигнал для фактов / сводка потока для
@@ -334,7 +342,8 @@ def _run_patch(db: Session, ticker: str, tab: str, *, sys: str, task_builder,
     except LLMError as e:
         result, stopped = None, f"llm_error:{str(e)[:60]}"
     if isinstance(result, dict):
-        patched, notes = _apply_and_gate(prose, result, grounding_text, kind=kind)
+        patched, notes = _apply_and_gate(prose, result, grounding_text, kind=kind,
+                                         strict_numbers=strict_numbers)
     else:
         patched, notes = None, [f"no_result:{stopped}"]
     ok = patched is not None
@@ -632,6 +641,7 @@ def run_macro_facts(db: Session, batch: int = _MACRO_BATCH_CAP,
 
         row = _run_patch(db, tk, "macro", sys=_MACRO_FACT_SYS + _JSON_ONLY,
                          task_builder=_tb, grounding_text=grounding, kind="fact",
+                         strict_numbers=True,
                          evidence_extra={"macro_anchor": {k: [v[0], v[1].isoformat()]
                                                           for k, v in anchor.items()},
                                          "stale_keys": stale})

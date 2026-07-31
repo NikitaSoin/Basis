@@ -119,3 +119,18 @@ def test_macro_stale_detector_fresh_text_quiet():
 def test_macro_stale_detector_no_keywords_quiet():
     anchor = {"rate": (14.0, None)}
     assert _macro_prose_stale("Компания нарастила добычу угля.", anchor) == []
+
+
+def test_strict_numbers_blocks_prose_sourced_value():
+    # дыра с боя 2026-08-01: модель поставила «12,1» из другого места прозы вместо
+    # 14,7 из якоря — strict_numbers разрешает новые числа ТОЛЬКО из grounding
+    prose = "Ожидания повышены (13%). Ранее наблюдаемая инфляция была 12,1%."
+    grounding = "Инфляционные ожидания населения: 14,7 % (2026-07-31)"
+    bad = {"confirmed": True, "edits": [{"find": "Ожидания повышены (13%).",
+                                         "replace": "Ожидания повышены (12,1%)."}]}
+    patched, notes = _apply_and_gate(prose, bad, grounding, strict_numbers=True)
+    assert patched is None and any("ungrounded" in n for n in notes)
+    good = {"confirmed": True, "edits": [{"find": "Ожидания повышены (13%).",
+                                          "replace": "Ожидания повышены (14,7%)."}]}
+    patched, notes = _apply_and_gate(prose, good, grounding, strict_numbers=True)
+    assert patched is not None and notes == []
