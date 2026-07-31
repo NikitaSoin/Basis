@@ -118,6 +118,60 @@ _NEWS_REPORT_DETECT_RE = re.compile(
     re.IGNORECASE)
 
 
+# 🔴 Найдено на бою 2026-08-01 (17 тикеров бэкфилла с period=сырая дата публикации
+# вместо метки типа «1П2026»): прежний inline-regex в process_news_item/
+# ingest_agent_source понимал ТОЛЬКО «за <арабские цифры>» — реальные заголовки
+# деловых СМИ пишут иначе: «во втором квартале» (словесный порядковый + предлог
+# «во», не «за»), «в I полугодии» (римские цифры), «по итогам второго квартала»
+# (другой предлог). Не регекс не «упал» — просто не матчился, честная деградация
+# на pub_date.isoformat(). Один общий, более щедрый паттерн — вместо двух
+# расходящихся копий по путям (news/agent_fetcher); ТОЛЬКО добавляет альтернативы,
+# ничего не убирает — уже матчащиеся заголовки продолжают матчиться как раньше.
+_ORD_STEM = r"(?:перв|втор|трет[ье]|четверт)[а-я]{0,3}"
+_PERIOD_PHRASE_RE = re.compile(
+    r"(?:за|в|во|по\s+итогам|итогам)\s+"
+    r"(\d+М|\d+\s*мес\.?|"
+    r"\d+\s*кв(?:артал)?[а-я]*\.?|"
+    r"[IVX]{1,3}\s*кв(?:артал)?[а-я]*\.?|"
+    rf"{_ORD_STEM}\s+кв(?:артал)?[а-я]*|"
+    r"\d{4}(?:\s*г(?:од)?[а-я]*)?|"
+    rf"{_ORD_STEM}\s+полугоди[а-я]{{1,2}}|"
+    r"I\s+полугоди[ие]|II\s+полугоди[ие]|"
+    r"1П\s*\d{4}|полугодии)",
+    re.IGNORECASE)
+_ORD_NUM = {"перв": 1, "втор": 2, "трет": 3, "четверт": 4}
+_ROMAN_NUM = {"I": 1, "II": 2, "III": 3, "IV": 4}
+
+
+def _normalize_period_phrase(raw: str, ref_year: int) -> str:
+    """Захваченную фразу периода → компактная метка (арабские цифры), совместимая
+    с interim_periods.parse_period(). Год берём из ref_year (год публикации), если
+    в самой фразе его нет — parse_period() всё равно способен взять год из
+    end_date-фолбэка, но явная метка читаемее в UI (ровно как уже делал старый
+    код для «первое полугодие» → «1П<year>»)."""
+    s = raw.strip()
+    low = s.lower()
+    m = re.match(r"^([ivx]{1,3})\s*кв", low)
+    if m and m.group(1).upper() in _ROMAN_NUM:
+        return f"{_ROMAN_NUM[m.group(1).upper()]}кв{ref_year}"
+    m = re.match(r"^(перв|втор|трет|четверт)[а-я]{0,3}\s+кв", low)
+    if m and m.group(1) in _ORD_NUM:
+        return f"{_ORD_NUM[m.group(1)]}кв{ref_year}"
+    m = re.match(r"^(перв|втор)[а-я]{0,3}\s+полугоди", low)
+    if m:
+        return f"{_ORD_NUM[m.group(1)]}П{ref_year}"
+    if re.match(r"^i\s+полугоди", low):
+        return f"1П{ref_year}"
+    if re.match(r"^ii\s+полугоди", low):
+        return f"2П{ref_year}"
+    return s
+
+
+def _extract_period_phrase(text: str, ref_year: int) -> str | None:
+    m = _PERIOD_PHRASE_RE.search(text)
+    return _normalize_period_phrase(m.group(1), ref_year) if m else None
+
+
 # ----------------------------- источник 0: собственный RSS компании (высший приоритет) -----------------------------
 # Официальный первоисточник — когда есть, качественнее новостного пересказа: у Роснефти
 # RSS пресс-релизов (rosneft.ru/press/releases/rss/) отдаёт ПОЛНУЮ таблицу цифр (выручка/
@@ -688,10 +742,7 @@ def _digest_rich(text_blob: str, fig: dict, mult: dict, platform_ctx: dict | Non
 
 # ----------------------------- вспомогательное -----------------------------
 def _period_label(event: CalendarEvent) -> str:
-    m = re.search(r"за\s+(\d+М|\d+\s*кв(?:артал)?|\d{4}(?:\s*год)?)", event.title, re.IGNORECASE)
-    if m:
-        return m.group(1).strip()
-    return event.event_date.isoformat()
+    return _extract_period_phrase(event.title, event.event_date.year) or event.event_date.isoformat()
 
 
 def _live_price(ticker: str, db: Session) -> tuple[float | None, float | None]:
@@ -979,22 +1030,21 @@ def process_news_item(db: Session, item: dict, company: Company, market_cap: flo
     # ГАЗПРОМа).
     standard, is_operational = _classify_standard(headline_blob, blob_l)
     # Период — ТОЛЬКО из заголовка (headline_blob), не из полного текста статьи
-    # (см. комментарий выше). Паттерн расширен: «в первом полугодии» / «за 1П» /
-    # «в I полугодии» — реальный заголовок Северстали «Прибыль... снизилась на 89%
-    # в первом полугодии» раньше не матчился (требовался предлог «за») и период
-    # падал в сырую дату публикации.
-    m = re.search(r"(?:за|в)\s+(\d+М|\d+\s*кв(?:артал)?[а-я]*|\d{4}(?:\s*год)?|"
-                  r"перво[ем]\s+полугоди[ие]|I\s+полугоди[ие]|1П\s*\d{4}|полугодии)",
-                  headline_blob, re.IGNORECASE)
-    period = m.group(1).strip() if m else pub_date.isoformat()
-    # Нормализация: «первом полугодии»/«I полугодии» → «1П<год публикации>» —
-    # единый вид с остальными путями (и уникальный индекс (ticker, period,
-    # standard) начинает реально дедупить одинаковые полугодия).
-    if re.match(r"(?:перво|I\s)", period, re.IGNORECASE):
-        period = f"1П{pub_date.year}"
+    # (см. комментарий выше). _extract_period_phrase понимает и «за 1П»/арабские
+    # цифры, и словесные порядковые/римские кварталы+полугодия («во втором
+    # квартале», «в I полугодии», «по итогам первого полугодия») — см. докстринг
+    # у _PERIOD_PHRASE_RE (найдено на бою 2026-08-01, 17 тикеров с period=сырая
+    # дата публикации из-за узкого прежнего паттерна).
+    period = _extract_period_phrase(headline_blob, pub_date.year) or pub_date.isoformat()
+    # «annual» только если заголовок говорит «год» И НЕ содержит вообще никакого
+    # квартального/полугодового маркера (арабского/римского/словесного) — та же
+    # расширенная альтернатива, что в _PERIOD_PHRASE_RE, иначе «во втором квартале
+    # 2026 года» рисковал уйти в annual просто из-за слова «года» в тексте.
     report_type = "operating" if is_operational else (
         "annual" if re.search(r"\bгод(?:а)?\b", headline_blob, re.IGNORECASE)
-        and not re.search(r"\d+\s*(?:М|кв|П)", headline_blob, re.IGNORECASE) else "quarter")
+        and not re.search(r"\d+\s*(?:М|кв|П)|[ivx]{1,3}\s*кв|"
+                          r"(?:перв|втор|трет|четверт)[а-я]{0,3}\s+(?:кв|полугоди)",
+                          headline_blob, re.IGNORECASE) else "quarter")
     report = EarningsReport(
         ticker=ticker, period=period, standard=standard, report_type=report_type,
         published_at=pub_date, source="market_updates", source_url=None,
@@ -1036,9 +1086,7 @@ def process_company_rss_item(db: Session, item: dict, company: Company, market_c
     # Классификация — см. _classify_standard; заголовок здесь заменяет первая
     # строка RSS-текста (нет отдельного title/summary, как у Ленты новостей).
     standard, is_operational = _classify_standard(text_blob.split("\n", 1)[0], blob_l)
-    m = re.search(r"за\s+(\d+\s*кв(?:артал)?\.?|\d+\s*мес\.?|\d{4}(?:\s*г(?:од)?)?|1 пол\.?|полугодие)",
-                 text_blob, re.IGNORECASE)
-    period = m.group(1).strip() if m else date.today().isoformat()
+    period = _extract_period_phrase(text_blob, date.today().year) or date.today().isoformat()
     report_type = "operating" if is_operational else (
         "annual" if re.search(r"\bгод", text_blob, re.IGNORECASE) and "кв" not in blob_l else "quarter")
     if db.query(EarningsReport).filter_by(ticker=ticker, period=period, standard=standard).first():
@@ -1079,9 +1127,7 @@ def ingest_agent_source(db: Session, ticker: str, text_blob: str, source_url: st
 
     per = (period or "").strip()
     if not per:
-        m = re.search(r"за\s+(\d+\s*кв(?:артал)?\.?|\d+\s*мес\.?|\d{4}(?:\s*г(?:од)?)?|"
-                      r"1 пол\.?|полугодие)", text_blob, re.IGNORECASE)
-        per = m.group(1).strip() if m else date.today().isoformat()
+        per = _extract_period_phrase(text_blob, date.today().year) or date.today().isoformat()
     std = (standard or "").strip() or ("МСФО" if re.search(r"МСФО|IFRS", text_blob, re.I)
                                       else "отчётность")
     report_type = "annual" if re.search(r"\bгод", per, re.I) else "quarter"

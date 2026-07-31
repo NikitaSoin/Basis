@@ -107,6 +107,7 @@ _REPORT_PERIOD_MAP = {
     (3, 6): ("2кв{year}", "quarter", False),
     (6, 9): ("3кв{year}", "quarter", False),
     (0, 6): ("1П{year}", "half", True),
+    (6, 12): ("2П{year}", "half", False),
     (0, 9): ("9М{year}", "9m", True),
 }
 
@@ -114,9 +115,12 @@ _REPORT_PERIOD_MAP = {
 def report_period_to_interim(period: str, published_at=None) -> dict | None:
     """`EarningsReport.period` (напр. "1кв2026") → объект, готовый для
     `interim.periods[]`: {fiscal_year, start_m, end_m, period_label, period_type,
-    cumulative, end_date}. None — период не распознан ИЛИ это годовой отчёт
-    (end_m == 12, вне scope авто-довеска — годовые данные остаются ручным
-    процессом report-fetcher'а). Переиспользует parse_period() как есть.
+    cumulative, end_date}. None — период не распознан ИЛИ это ПОЛНЫЙ год
+    ((0,12) — вне scope авто-довеска, годовые данные остаются ручным процессом
+    report-fetcher'а); отдельное «2-е полугодие» ((6,12), start_m≠0) — валидный
+    интерим-период (та же конвенция, что уже используют вручную собранные файлы,
+    напр. PIKK: 2П2023/2П2024/2П2025), НЕ исключается. Переиспользует
+    parse_period() как есть.
 
     `end_date` — фолбэк-дата: последний день месяца конца окна в рамках
     fiscal_year (report_watch не знает точную календарную дату конца периода,
@@ -125,7 +129,7 @@ def report_period_to_interim(period: str, published_at=None) -> dict | None:
         "label": period,
         "end_date": published_at.isoformat() if published_at else None,
     })
-    if canon is None or canon["end_m"] == 12:
+    if canon is None or (canon["start_m"] == 0 and canon["end_m"] == 12):
         return None
     year, sm, em = canon["year"], canon["start_m"], canon["end_m"]
     spec = _REPORT_PERIOD_MAP.get((sm, em))
