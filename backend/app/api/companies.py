@@ -719,12 +719,18 @@ async def get_market_summary_md(ticker: str):
 
 
 @router.get("/companies/by-ticker/{ticker}/macro")
-async def get_macro_json(ticker: str):
-    """Блок «Макро» в виде JSON (его рисует фронтенд: факторы, знаки эффекта)."""
+async def get_macro_json(ticker: str, db: Session = Depends(get_db)):
+    """Блок «Макро» в виде JSON (его рисует фронтенд: факторы, знаки эффекта).
+    snapshot: канонические индикаторы (ставка/инфляция/ожидания/курс) подменяются
+    ЖИВЫМИ значениями на отдаче (macro_snapshot_live) — запечённые агентом числа
+    стареют, а слой никем не обновлялся (владелец 2026-08-01, кейс CHMF: живая
+    плашка 14%, snapshot рядом 14,25%)."""
     path = COMPANIES_DIR / _safe(ticker).upper() / "macro.json"
     if not path.exists():
         raise HTTPException(status_code=404, detail="Macro not found")
     data = json.loads(path.read_text(encoding="utf-8"))
+    from app.services.macro_snapshot_live import enrich_snapshot_live
+    enrich_snapshot_live(db, data)
     # Подстраховка: есть числовые входы, но computed не посчитан (файл запечён без enrich
     # или устарел) → досчитать детерминированно на лету. Расчёт мгновенный, старые файлы
     # без quant_inputs не трогаются (computed остаётся пустым, фронт деградирует грациозно).

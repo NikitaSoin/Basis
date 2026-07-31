@@ -614,12 +614,23 @@ def run_macro_facts(db: Session, batch: int = _MACRO_BATCH_CAP,
     if not anchor:
         return {"error": "нет макро-якоря (key_rate)"}
     grounding = _macro_grounding(anchor)
-    retry_cut = datetime.now(timezone.utc) - timedelta(days=_MACRO_RETRY_DAYS)
-    recent = set() if only_ticker else {
-        r[0] for r in db.query(CardProseOverlay.ticker)
-        .filter(CardProseOverlay.tab == "macro",
-                CardProseOverlay.kind == "fact",
-                CardProseOverlay.created_at >= retry_cut).all()}
+    # кулдаун асимметричный: published держит 4 дня (значения не меняются чаще),
+    # а rejected — только 1 день: отказ бывает багом ГЕЙТА (лимит 4 правок,
+    # 2026-07-31 — 79 карточек в корзину), и после фикса гейта хвост должен
+    # добираться следующей же волной, а не ждать 4 суток
+    now = datetime.now(timezone.utc)
+    if only_ticker:
+        recent = set()
+    else:
+        pub_cut = now - timedelta(days=_MACRO_RETRY_DAYS)
+        rej_cut = now - timedelta(days=1)
+        rows_cd = (db.query(CardProseOverlay.ticker, CardProseOverlay.status,
+                            CardProseOverlay.created_at)
+                   .filter(CardProseOverlay.tab == "macro",
+                           CardProseOverlay.kind == "fact",
+                           CardProseOverlay.created_at >= rej_cut - timedelta(days=_MACRO_RETRY_DAYS)).all())
+        recent = {t for t, st, ts in rows_cd
+                  if (st == "published" and ts >= pub_cut) or (st == "rejected" and ts >= rej_cut)}
     stats = {"checked": 0, "queued": 0, "published": 0, "rejected": 0}
     tickers = ([only_ticker.upper()] if only_ticker else
                sorted(d.name for d in COMPANIES_DIR.iterdir()
