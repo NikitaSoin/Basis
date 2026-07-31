@@ -43,28 +43,31 @@ def _fields_present(figures: dict) -> int:
     return sum(1 for k in _HEADLINE_FIELDS if figures.get(k) is not None)
 
 
-def write(db: Session, report: EarningsReport, fig: dict, company_name: str | None = None) -> None:
+def write(db: Session, report: EarningsReport, fig: dict, company_name: str | None = None) -> str:
     """`fig` — тот же dict, что `_store_report` собирает для EarningsFigures/Digest
     (ticker/period/standard/unit/revenue/ebitda/net_profit/net_debt/...). Молчаливо
     не пишет ничего при любой неоднозначности (annual/operating, нераспознанный
-    период, < 2 непустых headline-полей) — fail-closed, не роняет вызывающий код."""
+    период, < 2 непустых headline-полей) — fail-closed, не роняет вызывающий код.
+    Возвращает статус (для дебага/бэкфилла): created|updated|unchanged|
+    skipped_not_quarter|skipped_period|skipped_sparse|error."""
     try:
-        _write(db, report, fig, company_name)
+        return _write(db, report, fig, company_name)
     except Exception:  # noqa: BLE001 — не должно ронять report_watch.refresh()
         db.rollback()
         logger.exception("interim_overlay.write: сбой для %s/%s", report.ticker, report.period)
+        return "error"
 
 
-def _write(db: Session, report: EarningsReport, fig: dict, company_name: str | None) -> None:
+def _write(db: Session, report: EarningsReport, fig: dict, company_name: str | None) -> str:
     if report.report_type != "quarter":
-        return
+        return "skipped_not_quarter"
     period_obj = interim_periods.report_period_to_interim(report.period, report.published_at)
     if period_obj is None:
-        return
+        return "skipped_period"
     figures = {k: fig.get(k) for k in _HEADLINE_FIELDS}
     fields_present = _fields_present(figures)
     if fields_present < 2:
-        return
+        return "skipped_sparse"
 
     existing = db.execute(
         select(InterimFinancialsOverlay).where(
@@ -82,7 +85,7 @@ def _write(db: Session, report: EarningsReport, fig: dict, company_name: str | N
         better = fields_present > existing.fields_present or (
             fields_present == existing.fields_present and new_rank > old_rank)
         if not better:
-            return
+            return "unchanged"
         existing.period_label = period_obj["period_label"]
         existing.period_type = period_obj["period_type"]
         existing.cumulative = period_obj["cumulative"]
@@ -130,6 +133,7 @@ def _write(db: Session, report: EarningsReport, fig: dict, company_name: str | N
     )
     logger.info("interim_overlay.write: %s %s%s", report.ticker, period_obj["period_label"],
                 " (обновлено)" if not is_new else "")
+    return "created" if is_new else "updated"
 
 
 # --- слияние в ответ /financials ------------------------------------------------

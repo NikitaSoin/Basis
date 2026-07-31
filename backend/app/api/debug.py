@@ -879,6 +879,55 @@ def debug_trigger_report_watch(days_back: int = 5, run_girbo: bool = True):
         db.close()
 
 
+@router.post("/debug/backfill-interim-overlay")
+def debug_backfill_interim_overlay(ticker: str | None = None, days_back: int | None = None):
+    """Бэкфилл: прогнать УЖЕ сохранённые квартальные/полугодовые EarningsReport
+    (report_type=quarter, уже с EarningsFigures) через interim_overlay.write() —
+    для отчётов, обработанных ДО деплоя авто-довеска (2026-07-31), которые иначе
+    никогда не попадут в interim_financials_overlay (write() вызывается только из
+    НОВОГО прохода _store_report). Идемпотентно (апсерт «не ухудшай») — безопасно
+    гонять повторно и на пересечении с уже обработанными отчётами.
+    ticker — точечно один тикер (тест перед массовым прогоном); days_back —
+    окно по published_at (без параметра — все квартальные отчёты в БД)."""
+    from datetime import date, timedelta
+    from app.db.session import SessionLocal
+    from app.models.company import Company
+    from app.models.earnings import EarningsFigures, EarningsReport
+    from app.services import interim_overlay
+
+    db = SessionLocal()
+    try:
+        q = (db.query(EarningsReport, EarningsFigures, Company)
+             .join(EarningsFigures, EarningsFigures.report_id == EarningsReport.id)
+             .join(Company, Company.ticker == EarningsReport.ticker)
+             .filter(EarningsReport.report_type == "quarter"))
+        if ticker:
+            q = q.filter(EarningsReport.ticker == ticker.strip().upper())
+        if days_back:
+            q = q.filter(EarningsReport.published_at >= date.today() - timedelta(days=days_back))
+        rows = q.order_by(EarningsReport.published_at).all()
+
+        stats: dict[str, int] = {}
+        by_ticker: dict[str, list[str]] = {}
+        for report, efig, company in rows:
+            fig = {
+                "revenue": float(efig.revenue_ttm) if efig.revenue_ttm is not None else None,
+                "ebitda": float(efig.ebitda) if efig.ebitda is not None else None,
+                "net_profit": float(efig.net_profit_ttm) if efig.net_profit_ttm is not None else None,
+                "net_debt": float(efig.net_debt) if efig.net_debt is not None else None,
+            }
+            status = interim_overlay.write(db, report, fig, company.name)
+            stats[status] = stats.get(status, 0) + 1
+            if status in ("created", "updated"):
+                by_ticker.setdefault(report.ticker, []).append(f"{report.period}:{status}")
+        return {"scanned": len(rows), "stats": stats, "changed_tickers": by_ticker}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug backfill-interim-overlay: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.get("/debug/fetch-wishlist")
 def debug_fetch_wishlist(days_back: int = 2):
     """Список «что добыть» для агента-добытчика: свежие отчётные события, где
