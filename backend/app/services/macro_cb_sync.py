@@ -530,6 +530,24 @@ def sync_expectations(db: Session) -> dict:
     if not candidates:
         return {"error": "no data"}
     d, exp, url = max(candidates, key=lambda c: c[0])
+    # 🔴 FIRST-WRITE-WINS ДЛЯ МЕСЯЦА: инФОМ-опрос публикуется ОДИН раз и не
+    # пересматривается — легитимных ревизий у этого ряда не существует. На бою
+    # 2026-08-01 значение июля откатилось 14,7 → 12,1 ВТОРОЙ раз: приоритет
+    # детерминированного парсера (фикс 2026-07-30) защищает только когда PDF-путь
+    # жив; при его сетевом сбое XLSX-LLM оставался единственным кандидатом и
+    # перезаписывал корректную точку. Точка месяца, уже записанная официальным
+    # каналом, больше НЕ перезаписывается — расхождение только логируется
+    # (кросс-проверка верификации его подсветит).
+    from app.models.macro import MacroDataPoint
+    existing = (db.query(MacroDataPoint)
+                .filter_by(indicator_code="inflation_expectations", as_of=d, metric="level")
+                .first())
+    if existing is not None and (existing.ingested_via or "") == "cbr":
+        if abs(float(existing.value) - exp) > 0.05:
+            logger.warning("CB-sync: ожидания за %s уже записаны (%.2f), новый кандидат %.2f "
+                           "ОТБРОШЕН (first-write-wins: опрос не пересматривается)",
+                           d, float(existing.value), exp)
+        return {"month": str(d), "expectation": float(existing.value), "kept_existing": True}
     upsert_point(db, "inflation_expectations", d, "level", exp, unit="%", source="ЦБ РФ (инФОМ)",
                  source_url=url, ingested_via="cbr")
     return {"month": str(d), "expectation": exp}

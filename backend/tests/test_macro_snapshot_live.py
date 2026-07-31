@@ -36,3 +36,20 @@ def test_matching_value_left_as_is():
     data = {"snapshot": [{"indicator": "Ключевая ставка ЦБ", "value": "14%"}]}
     enrich_snapshot_live(_DB(), data)
     assert "stale_value" not in data["snapshot"][0]
+
+
+def test_text_substitution_boundary_safe():
+    # «~78» меняется в тексте фактора, но «~780» и десятичное «~78,4» не корёжатся;
+    # пунктуационная запятая после числа замене не мешает
+    import datetime as dt
+
+    class _DB2:
+        def execute(self, q, p):
+            v = {"usdrub": (79.86, dt.date(2026, 8, 1))}.get(p["c"])
+            return type("R", (), {"first": staticmethod(lambda v=v: v)})()
+
+    data = {"snapshot": [{"indicator": "Курс USD/RUB", "value": "~78"}],
+            "factors": [{"t": "курс ~78, а объём ~780 тыс т и ~78,4 не трогаем"}]}
+    enrich_snapshot_live(_DB2(), data)
+    t = data["factors"][0]["t"]
+    assert "79,86 ₽, а" in t and "~780 тыс" in t and "~78,4" in t

@@ -90,6 +90,37 @@ def enrich_snapshot_live(db, data: dict) -> dict:
                         item["trend_note"] = f"актуально на {as_of.strftime('%d.%m.%Y')}"
                 break
         data["snapshot_live_at"] = today.isoformat()
+        # Текстовые поля macro.json (factors[].current_state.text, bottom_line и
+        # т.п.) повторяют то же устаревшее значение прозой: «(ставка 14,25%,
+        # снижается…)» — владелец 2026-08-01, кейс CHMF. Подменяем СТРОГО пары
+        # stale→live, собранные из snapshot ЭТОЙ ЖЕ карточки (значения согласованы
+        # по построению), во всех строковых полях, кроме источников.
+        subs = [(str(it.get("stale_value")), str(it.get("value")))
+                for it in snap if isinstance(it, dict) and it.get("stale_value")]
+        subs = [(a, b) for a, b in subs if a and b and a != b and len(a) >= 3]
+        if subs:
+            def _walk(node, path=""):
+                if isinstance(node, dict):
+                    return {k: (v if k in ("sources", "source_ref", "url", "source_url")
+                                else _walk(v, f"{path}.{k}")) for k, v in node.items()}
+                if isinstance(node, list):
+                    return [_walk(x, path) for x in node]
+                if isinstance(node, str):
+                    for a, b in subs:
+                        if a in node:
+                            # границы: не корёжить «~780» заменой «~78» (лукэраунды
+                            # по цифрам с обеих сторон)
+                            # запрещены: цифра вплотную и ДЕСЯТИЧНАЯ запятая
+                            # («~78,4»), но не запятая-пунктуация («~78, а»)
+                            node = re.sub(rf"(?<!\d)(?<!\d,){re.escape(a)}(?!\d)(?!,\d)",
+                                          b, node)
+                    return node
+                return node
+            for key in list(data.keys()):
+                if key in ("snapshot", "sources", "meta"):
+                    continue
+                data[key] = _walk(data[key], key)
+            data["text_live_subst"] = [{"from": a, "to": b} for a, b in subs]
     except Exception:  # noqa: BLE001
         logger.warning("macro snapshot live-подмена не удалась", exc_info=True)
     return data
