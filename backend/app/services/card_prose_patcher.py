@@ -502,3 +502,132 @@ def run_weekly_interp(db: Session) -> dict:
             stats[row.status] = stats.get(row.status, 0) + 1
     logger.info("card_prose_patcher.run_weekly_interp: %s", stats)
     return stats
+
+
+# ----------------------------- МАКРО-ФАКТЫ (мост рынок → карточки) -----------------------------
+# Владелец 2026-07-31 (кейс SBER/macro: «ставка 14,25% от 19 июня, инфляция ~5,6,
+# ожидания ~13 — на сайте ничего не меняется»): сигналы card_tab="macro" не
+# производит НИКТО — шина company_signals мапит только КОРПОРАТИВНЫЕ события
+# (дивиденды/отчёты/рейтинги/суды), а решение ЦБ — событие рынка, не тикера.
+# Макро-вкладки всех ~264 карточек стояли вне контура авто-свежести by design.
+# Этот проход — недостающий мост: живые макро-ряды (те же, что чинили сегодня:
+# ставка/инфляция/ожидания) → детектор устаревших упоминаний в прозе кодом →
+# обычный факт-патч под тем же гейтом. Никакой новой аналитики: только замена
+# устаревших значений НА официальные текущие.
+_MACRO_BATCH_CAP = 12
+_MACRO_RETRY_DAYS = 4   # не долбить один тикер, пока значения не изменились/LLM думает no-op
+
+_MACRO_FACT_SYS = """Ты — редактор-факт-чекер платформы Basis (не брокер, без «купить/
+продать» и прогнозов). Даны АКТУАЛЬНЫЕ официальные макро-значения (ЦБ РФ, Росстат,
+опрос инФОМ) и ТЕКСТ макро-вкладки карточки компании. Найди в тексте УСТАРЕВШИЕ
+значения ЭТИХ ЖЕ показателей (ключевая ставка, инфляция г/г, инфляционные ожидания,
+дата/размер последнего решения ЦБ) и верни точечные правки find/replace, обновляющие
+ТОЛЬКО эти числа/даты и напрямую зависящие от них короткие обороты. ИСТОРИЧЕСКИЕ
+сравнения («с пика 21% в начале 2025») НЕ трогай — они про прошлое и верны. Смысл,
+выводы и структуру текста НЕ меняй. Если все значения актуальны — confirmed=false.
+"""
+
+
+def _fmt_num_variants(v: float) -> str:
+    """Число в вариантах написания, чтобы гейт заземления узнал любой стиль прозы:
+    14.0 → «14,0 14», 5.94 → «5,94», 14.25 → «14,25»."""
+    out = [f"{v:.2f}".rstrip("0").rstrip(".").replace(".", ",")]
+    if float(v) == int(v):
+        out.append(str(int(v)))
+    return " ".join(out)
+
+
+def _macro_anchor(db: Session) -> dict | None:
+    """Актуальные ставка/инфляция/ожидания из живых рядов + дата решения ЦБ."""
+    from sqlalchemy import text as _sql
+    vals = {}
+    for code, metric, key in (("key_rate", "level", "rate"),
+                              ("inflation", "yoy", "inflation"),
+                              ("inflation_expectations", "level", "expectations")):
+        row = db.execute(_sql(
+            "SELECT value, as_of FROM macro_data_points WHERE indicator_code=:c "
+            "AND metric=:m ORDER BY as_of DESC LIMIT 1"), {"c": code, "m": metric}).first()
+        if row:
+            vals[key] = (float(row[0]), row[1])
+    if "rate" not in vals:
+        return None
+    return vals
+
+
+def _macro_grounding(anchor: dict) -> str:
+    parts = []
+    r, rd = anchor["rate"]
+    parts.append(f"Ключевая ставка ЦБ: {_fmt_num_variants(r)} % (решение {rd.isoformat()})")
+    if "inflation" in anchor:
+        v, d = anchor["inflation"]
+        parts.append(f"Инфляция г/г: {_fmt_num_variants(v)} % (на {d.isoformat()})")
+    if "expectations" in anchor:
+        v, d = anchor["expectations"]
+        parts.append(f"Инфляционные ожидания населения: {_fmt_num_variants(v)} % ({d.isoformat()})")
+    return "\n".join(parts)
+
+
+def _macro_prose_stale(prose: str, anchor: dict) -> list[str]:
+    """Кодовый детектор: в прозе упоминается показатель, но ТЕКУЩЕГО значения нет
+    нигде в тексте. Грубо и дёшево — точность обеспечивает гейт, детектор лишь
+    строит очередь."""
+    nums = set(_numbers(prose.replace(",", ".")))
+    stale = []
+    checks = [("rate", r"ключев\w+ ставк|ставк\w+ (снижен|повышен|сохранен)"),
+              ("inflation", r"инфляци"),
+              ("expectations", r"инфляционн\w+ ожидани")]
+    for key, kw in checks:
+        if key not in anchor:
+            continue
+        val = anchor[key][0]
+        variants = {f"{val:.2f}".rstrip("0").rstrip("."), str(int(val)) if val == int(val) else None}
+        variants.discard(None)
+        if re.search(kw, prose, re.IGNORECASE) and not (variants & nums):
+            stale.append(key)
+    return stale
+
+
+def run_macro_facts(db: Session, batch: int = _MACRO_BATCH_CAP) -> dict:
+    """Проход по макро-вкладкам: устаревшие ставка/инфляция/ожидания → факт-патч."""
+    anchor = _macro_anchor(db)
+    if not anchor:
+        return {"error": "нет макро-якоря (key_rate)"}
+    grounding = _macro_grounding(anchor)
+    retry_cut = datetime.now(timezone.utc) - timedelta(days=_MACRO_RETRY_DAYS)
+    recent = {r[0] for r in db.query(CardProseOverlay.ticker)
+              .filter(CardProseOverlay.tab == "macro",
+                      CardProseOverlay.kind == "fact",
+                      CardProseOverlay.created_at >= retry_cut).all()}
+    stats = {"checked": 0, "queued": 0, "published": 0, "rejected": 0}
+    tickers = sorted(d.name for d in COMPANIES_DIR.iterdir()
+                     if d.is_dir() and (d / "macro_summary.md").exists())
+    for tk in tickers:
+        if stats["queued"] >= batch:
+            break
+        if tk in recent:
+            continue
+        prose, _src = read_prose(db, tk, "macro")
+        if not prose:
+            continue
+        stats["checked"] += 1
+        stale = _macro_prose_stale(prose, anchor)
+        if not stale:
+            continue
+        stats["queued"] += 1
+
+        def _tb(p: str) -> str:
+            return (f"Компания: {tk}. Вкладка: macro. Сегодня "
+                    f"{datetime.now(timezone.utc).date().isoformat()}.\n\n"
+                    f"АКТУАЛЬНЫЕ ОФИЦИАЛЬНЫЕ ЗНАЧЕНИЯ:\n{grounding}\n\n"
+                    f"Устаревшие показатели по детектору: {', '.join(stale)}\n\n"
+                    f"ТЕКСТ ВКЛАДКИ:\n<<<\n{p[:8000]}\n>>>")
+
+        row = _run_patch(db, tk, "macro", sys=_MACRO_FACT_SYS + _JSON_ONLY,
+                         task_builder=_tb, grounding_text=grounding, kind="fact",
+                         evidence_extra={"macro_anchor": {k: [v[0], v[1].isoformat()]
+                                                          for k, v in anchor.items()},
+                                         "stale_keys": stale})
+        if row is not None:
+            stats[row.status] = stats.get(row.status, 0) + 1
+    logger.info("card_prose_patcher.run_macro_facts: %s", stats)
+    return stats

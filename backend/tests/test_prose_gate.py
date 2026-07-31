@@ -97,3 +97,25 @@ def test_trailing_sentence_dot_not_ungrounded():
                                          "replace": "План капзатрат продлён до 2025."}]}
     patched, notes = _apply_and_gate(prose, res, sig)
     assert patched is not None and notes == []
+
+
+# ── детектор устаревших макро-чисел в прозе (run_macro_facts) ────────────────
+from app.services.card_prose_patcher import _macro_prose_stale
+
+
+def test_macro_stale_detector_on_real_sber_text():
+    anchor = {"rate": (14.0, None), "inflation": (5.94, None), "expectations": (14.7, None)}
+    sber = ("19 июня 2026 ставка снижена на 25 б.п. до 14,25% (с пика 21% в начале 2025), "
+            "инфляция ~5,6% г/г, инфляционные ожидания повышены (~13%).")
+    assert set(_macro_prose_stale(sber, anchor)) == {"rate", "inflation", "expectations"}
+
+
+def test_macro_stale_detector_fresh_text_quiet():
+    anchor = {"rate": (14.0, None), "inflation": (5.94, None), "expectations": (14.7, None)}
+    fresh = "Ключевая ставка 14%, инфляция 5,94% г/г, ожидания населения 14,7%."
+    assert _macro_prose_stale(fresh, anchor) == []
+
+
+def test_macro_stale_detector_no_keywords_quiet():
+    anchor = {"rate": (14.0, None)}
+    assert _macro_prose_stale("Компания нарастила добычу угля.", anchor) == []

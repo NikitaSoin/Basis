@@ -819,6 +819,26 @@ async def _prose_patcher_job():
         logger.exception("Ошибка патчера прозы: %s", e)
 
 
+async def _macro_facts_job():
+    """Мост «рынок → карточки»: устаревшие ставка/инфляция/ожидания в макро-прозе
+    карточек → факт-патч от живых макро-рядов (card_prose_patcher.run_macro_facts;
+    владелец 2026-07-31, кейс SBER/macro со ставкой 14,25 от 19 июня)."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.card_prose_patcher import run_macro_facts
+        db = SessionLocal()
+        try:
+            return run_macro_facts(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        if res.get("queued"):
+            logger.info("Макро-факты карточек: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка макро-фактов карточек: %s", e)
+
+
 async def _prose_interp_job():
     """Авто-свежесть ПРОЗЫ — НЕДЕЛЬНЫЙ интерпретационный проход (владелец
     2026-07-29). По входному потоку недели дельта-правит интерпретацию ТОЛЬКО там,
@@ -1164,6 +1184,9 @@ async def lifespan(app: FastAPI):
         # этой точки. Время 22:10 МСК оставлено (планировщик в Europe/Moscow), чтобы
         # проход шёл после дневных синков и факт-патча в 21:35.
         scheduler.add_job(_with_heartbeat("prose_interp", _prose_interp_job), "cron", day_of_week="thu", hour=22, minute=10, id="prose_interp")
+        # дважды в день: после решения ЦБ волна из ~264 карточек проходит за считанные
+        # дни (батч 12), в спокойное время детектор пуст и прогон дёшев
+        scheduler.add_job(_with_heartbeat("macro_facts", _macro_facts_job), "cron", hour="9,20", minute=50, id="macro_facts")
         scheduler.add_job(_with_heartbeat("agent_pilot", _agent_pilot_job), "cron", hour=7, minute=40, id="agent_pilot")  # автономный агент-пилот (macro addendum)
         scheduler.add_job(_with_heartbeat("chronicle_maintenance", _chronicle_maintenance_job), "cron", hour=5, minute=20, id="chronicle_maintenance")  # летопись: бэкфилл + ретеншен Ленты
         logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo/geo_digest)")
