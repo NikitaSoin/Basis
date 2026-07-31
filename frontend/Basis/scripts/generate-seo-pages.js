@@ -1392,8 +1392,10 @@ function fairValuePage(c, fv, dateIso, assets, tabsWritten, sectorAll, fairValue
   const up = typeof fv.upside_pct === "number" ? Math.round(fv.upside_pct) : null;
   const verdict = up == null ? "оценка есть, потенциал не рассчитан"
     : up > 0 ? `на ${up}% выше рынка` : `на ${Math.abs(up)}% ниже рынка`;
+  // Без хвостового «г.»: оно уже заканчивается точкой, и в конце предложения выходило
+  // «Расчёт на 31 июля 2026 г..» с двойной точкой.
   const asOf = dateIso ? new Date(dateIso).toLocaleDateString("ru-RU",
-    { day: "numeric", month: "long", year: "numeric" }) : null;
+    { day: "numeric", month: "long", year: "numeric" }).replace(/\s*г\.\s*$/, "") : null;
   const byModel = fv.source === "bfv";
 
   // Контекст сектора: один потенциал без фона читается как приговор компании, хотя при
