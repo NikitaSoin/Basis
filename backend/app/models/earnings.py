@@ -6,7 +6,10 @@ EarningsDigest — ознакомительный «Разбор отчёта» 
 """
 from datetime import date as date_type, datetime, timezone
 
-from sqlalchemy import Date, DateTime, ForeignKey, Index, Numeric, String, Text, UniqueConstraint
+from sqlalchemy import (
+    Boolean, Date, DateTime, ForeignKey, Index, Integer, Numeric, String, Text,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -106,3 +109,43 @@ class EarningsDigest(Base):
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     report: Mapped["EarningsReport"] = relationship(back_populates="digest")
+
+
+class InterimFinancialsOverlay(Base):
+    """Авто-довесок квартальных/полугодовых данных к `financials.json.interim`,
+    построенный из `report_watch.py` (см. app/services/interim_overlay.py).
+
+    Не подменяет ручную сверку report-fetcher'а: узкая, дозаполняющая прослойка
+    (только НОВЫЕ периоды, которых нет в файле — см. interim_overlay.merge_into).
+    Один тикер + один канонический период (year, start_m, end_m) — не тикер+
+    период+standard, как в EarningsReport: два ряда одного квартала (МСФО/РСБУ)
+    на витрине карточки были бы хуже одного слота, где standard может
+    «апгрейднуться» при повторном апсерте более полным источником."""
+    __tablename__ = "interim_financials_overlay"
+    __table_args__ = (
+        UniqueConstraint("ticker", "fiscal_year", "start_m", "end_m",
+                          name="uq_interim_overlay_period"),
+        Index("ix_interim_financials_overlay_ticker", "ticker"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ticker: Mapped[str] = mapped_column(String(20), nullable=False)
+    fiscal_year: Mapped[int] = mapped_column(Integer, nullable=False)
+    start_m: Mapped[int] = mapped_column(Integer, nullable=False)   # окно от начала фингода: 0|3|6
+    end_m: Mapped[int] = mapped_column(Integer, nullable=False)     # 3|6|9 — год (12) сюда не пишем
+    period_label: Mapped[str] = mapped_column(String(24), nullable=False)   # "1кв2026"/"1П2026"/"9М2026"
+    period_type: Mapped[str] = mapped_column(String(16), nullable=False)    # quarter | half | 9m
+    cumulative: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    standard: Mapped[str | None] = mapped_column(String(40))
+    end_date: Mapped[date_type] = mapped_column(Date, nullable=False)
+    # ровно 4 headline-поля (млн ₽) — то, что report_watch реально извлекает.
+    # {"revenue": float|None, "ebitda": float|None, "net_profit": float|None, "net_debt": float|None}
+    figures: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    fields_present: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    source: Mapped[str | None] = mapped_column(String(40))
+    source_report_id: Mapped[int | None] = mapped_column(
+        ForeignKey("earnings_reports.id", ondelete="SET NULL"))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), onupdate=lambda: datetime.now(timezone.utc))

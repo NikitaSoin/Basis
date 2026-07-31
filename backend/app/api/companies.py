@@ -388,7 +388,10 @@ async def get_financials_json(ticker: str, db: Session = Depends(get_db)):
     path = COMPANIES_DIR / _safe(ticker).upper() / "financials.json"
     if not path.exists():
         raise HTTPException(status_code=404, detail="Financials not found")
-    fin = _normalize_financials(json.loads(path.read_text(encoding="utf-8")))
+    fin = json.loads(path.read_text(encoding="utf-8"))
+    from app.services import interim_overlay
+    interim_overlay.merge_into(db, _safe(ticker).upper(), fin)
+    fin = _normalize_financials(fin)
     row = db.execute(
         text("SELECT market_cap, shares_outstanding FROM companies WHERE ticker = :t"),
         {"t": _safe(ticker).upper()},

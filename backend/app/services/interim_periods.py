@@ -25,7 +25,9 @@
 """
 from __future__ import annotations
 
+import calendar
 import re
+from datetime import date
 
 # --- разбор метки периода -----------------------------------------------------
 
@@ -96,6 +98,46 @@ def parse_period(p: dict) -> dict | None:
 def canon_periods(periods: list) -> list:
     """Список периодов → список канонов (None на неразобранных, длина сохраняется)."""
     return [parse_period(p) for p in (periods or [])]
+
+
+# --- адаптер: report_watch.EarningsReport.period → объект periods[] интерима ---
+
+_REPORT_PERIOD_MAP = {
+    (0, 3): ("1кв{year}", "quarter", False),
+    (3, 6): ("2кв{year}", "quarter", False),
+    (6, 9): ("3кв{year}", "quarter", False),
+    (0, 6): ("1П{year}", "half", True),
+    (0, 9): ("9М{year}", "9m", True),
+}
+
+
+def report_period_to_interim(period: str, published_at=None) -> dict | None:
+    """`EarningsReport.period` (напр. "1кв2026") → объект, готовый для
+    `interim.periods[]`: {fiscal_year, start_m, end_m, period_label, period_type,
+    cumulative, end_date}. None — период не распознан ИЛИ это годовой отчёт
+    (end_m == 12, вне scope авто-довеска — годовые данные остаются ручным
+    процессом report-fetcher'а). Переиспользует parse_period() как есть.
+
+    `end_date` — фолбэк-дата: последний день месяца конца окна в рамках
+    fiscal_year (report_watch не знает точную календарную дату конца периода,
+    только дату публикации/детекта)."""
+    canon = parse_period({
+        "label": period,
+        "end_date": published_at.isoformat() if published_at else None,
+    })
+    if canon is None or canon["end_m"] == 12:
+        return None
+    year, sm, em = canon["year"], canon["start_m"], canon["end_m"]
+    spec = _REPORT_PERIOD_MAP.get((sm, em))
+    if spec is None:
+        return None
+    label_tpl, ptype, cumulative = spec
+    last_day = calendar.monthrange(year, em)[1]
+    return {
+        "fiscal_year": year, "start_m": sm, "end_m": em,
+        "period_label": label_tpl.format(year=year), "period_type": ptype,
+        "cumulative": cumulative, "end_date": date(year, em, last_day),
+    }
 
 
 def build_yoy_index(periods: list) -> list:

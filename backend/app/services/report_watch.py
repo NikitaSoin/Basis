@@ -806,6 +806,8 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
         prev={"revenue": fig.get("revenue_prev"), "ebitda": fig.get("ebitda_prev"),
               "net_profit": fig.get("net_profit_prev")},
         extracted_fields=fig_raw))
+    from app.services import interim_overlay
+    interim_overlay.write(db, report, fig, company.name)
     if digest:
         # market_context/watch_next — внутри metrics_snapshot (JSONB), НЕ отдельными
         # колонками: в migrations/versions СЕЙЧАС 4 alembic-головы, `alembic upgrade
