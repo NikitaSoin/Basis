@@ -87,3 +87,13 @@ def test_fact_still_blocks_expectation_wording():
                                          "replace": "Маржа стабильна; ожидается рост."}]}
     patched, notes = _apply_and_gate(prose, res, "сигнал", kind="fact")
     assert patched is None and any("forbidden" in n for n in notes)
+
+
+def test_trailing_sentence_dot_not_ungrounded():
+    # «...в 2025.» — точка конца предложения прилипала к числу: токен «2025.» ≠ «2025»
+    prose = "План капзатрат подтверждён."
+    sig = "2026-07-31 [ir] программа продлена до 2025 года"
+    res = {"confirmed": True, "edits": [{"find": "План капзатрат подтверждён.",
+                                         "replace": "План капзатрат продлён до 2025."}]}
+    patched, notes = _apply_and_gate(prose, res, sig)
+    assert patched is not None and notes == []
