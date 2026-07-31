@@ -305,12 +305,12 @@
       "total_equity": [
         1189.741,
         2233.34,
-        null
+        1860
       ]
     },
     "total_equity": [
-      null,
-      null,
+      1189.741,
+      2233.34,
       1860
     ],
     "non_current_liabilities": {
