@@ -2039,6 +2039,99 @@ ${a.why_it_matters ? `<br>Почему важно: ${escapeHtml(truncate(strip(S
   });
 }
 
+
+// ─── Живые блоки для лендингов Обозревателя ─────────────────────────────────────────
+// Переименовать заголовок мало: страницы макро и гео весили 232 и 249 слов, а тонкую
+// страницу поиск не поднимет, каким бы точным ни был тайтл. Здесь к ним добавляется то,
+// ради чего человек и заходит — текущее состояние в цифрах. Данные из снапшотов,
+// обновляются на каждой сборке.
+function macroLiveBlock(macro) {
+  // Коды и МЕТРИКИ берём как они есть в данных: у ставки это values.level, у инфляции
+  // и ВВП — values.yoy (уровня там нет вовсе). Слепое обращение к level давало пустую
+  // таблицу, и блок молча не выводился.
+  // Номинальную зарплату НЕ показываем: в данных у неё значение 101600 при единице «%» —
+  // дефект источника, выводить такое на витрину нельзя.
+  const want = [
+    ["key_rate", "level"], ["inflation", "yoy"], ["inflation_expectations", "level"],
+    ["gdp", "yoy"], ["usdrub", "level"], ["cnyrub", "level"],
+    ["unemployment", "level"], ["urals", "level"], ["pmi_composite", "level"],
+  ];
+  const rows = [];
+  for (const [code, metric] of want) {
+    const ind = (macro || []).find((m) => m.code === code);
+    const lvl = ind && ind.values && ind.values[metric];
+    if (!lvl || lvl.value == null) continue;
+    // Источник отдаёт курс как 79.8573 — на витрине это выглядит как машинный вывод,
+    // а не как показатель. Два знака достаточно для любой из этих величин.
+    // Единицы приходят как есть из источника («usd», «п», «ед») — на витрине приводим
+    // к человеческому виду, иначе таблица выглядит выгрузкой из базы.
+    const UNITS = { usd: "$", eur: "€", "руб": "₽", "ед": "ед.", "п": "п.",
+      "трлн руб": "трлн ₽", "млрд руб": "млрд ₽" };
+    const unit = lvl.unit ? (UNITS[String(lvl.unit)] || String(lvl.unit)) : "";
+    const val = `${Number(lvl.value).toLocaleString("ru-RU", { maximumFractionDigits: 2 })}`
+      + `${unit ? ` ${unit}` : ""}`;
+    const chg = typeof lvl.change === "number" && lvl.change !== 0
+      ? `${lvl.change > 0 ? "+" : "−"}${Number(Math.abs(lvl.change)).toLocaleString("ru-RU",
+          { maximumFractionDigits: 2 })}` : "—";
+    rows.push(`<tr><td>${escapeHtml(ind.title || code)}</td><td class="num">${escapeHtml(val)}</td>`
+      + `<td class="num">${escapeHtml(chg)}</td><td>${escapeHtml(ruDate(lvl.as_of) || "—")}</td></tr>`);
+  }
+  if (rows.length < 3) return "";
+  return `<h2>Что происходит в экономике сейчас</h2>
+<table><thead><tr><th>Показатель</th><th class="num">Значение</th><th class="num">Изменение</th><th>На дату</th></tr></thead>
+<tbody>${rows.join("")}</tbody></table>
+<p class="sub">Значения обновляются автоматически из официальных источников; полный набор
+показателей с графиками — в <a href="/ekonomicheskaya-statistika-rossii/">экономической
+статистике</a>. Официальный ориентир регулятора на годы вперёд —
+в <a href="/prognoz-banka-rossii/">среднесрочном прогнозе Банка России</a>, ближайшее
+решение по ставке — в <a href="/zasedaniya-tsb/">графике заседаний ЦБ</a>.</p>
+<p>Свежие события экономики с разбором, что каждое меняет, — в ленте
+<a href="/novosti-ekonomiki/">новостей экономики</a>.</p>`;
+}
+
+function geoLiveBlock(geo) {
+  if (!geo) return "";
+  const SC = {
+    S1_breakthrough: "Прорыв: устойчивое урегулирование",
+    S2_ceasefire: "Перемирие или заморозка конфликта",
+    S3_attrition: "Затяжное противостояние без развязки",
+    S4_escalation: "Эскалация",
+  };
+  const sc = geo.scenarios || {};
+  const scRows = Object.keys(SC).filter((k) => sc[k])
+    .map((k) => `<tr><td>${escapeHtml(SC[k])}</td><td class="num">${
+      escapeHtml(String(sc[k]).replace(/\s*\(Δ[^)]*\)/, ""))}</td></tr>`).join("");
+
+  const reg = geo.regions || {};
+  const regRows = Object.keys(reg).slice(0, 4).map((k) => {
+    const r = reg[k] || {};
+    return `<li><b>${escapeHtml(strip(String(r.label || k)))}</b>${
+      r.summary ? `<br>${escapeHtml(truncate(strip(String(r.summary)), 300))}` : ""}</li>`;
+  }).join("");
+
+  const parts = [];
+  if (geo.summary) {
+    parts.push(`<h2>Главное сейчас</h2><p>${escapeHtml(truncate(strip(String(geo.summary)), 700))}
+<span class="tag">суждение аналитика</span></p>`);
+  }
+  if (scRows) {
+    parts.push(`<h2>Сценарии и их вероятность</h2>
+<table><thead><tr><th>Сценарий</th><th class="num">Вероятность (6 мес / 18 мес)</th></tr></thead>
+<tbody>${scRows}</tbody></table>
+<p class="sub">Вероятности — оценка модели Basis, а не прогноз событий. Смысл не в самих
+процентах, а в том, какой сценарий рынок закладывать не спешит: расхождение между
+ожиданиями рынка и этой картиной и есть источник риска.</p>`);
+  }
+  if (regRows) parts.push(`<h2>По очагам напряжённости</h2><ul class="news">${regRows}</ul>`);
+  if (!parts.length) return "";
+  parts.push(`<p>События по мере поступления — в ленте
+<a href="/novosti-geopolitiki/">новостей геополитики</a>; как геополитика доходит до
+конкретной бумаги — в разделе «Геополитика» карточки компании, например
+у <a href="/company/GAZP/geo/">Газпрома</a>. Внутренний контур тех же рисков —
+<a href="/institutsionalnaya-sreda/">институциональная среда</a>.</p>`);
+  return parts.join("\n");
+}
+
 function glossaryPage(spec, companies, assets) {
   const label = spec.label;
   const lower = label.toLowerCase();
@@ -2545,10 +2638,21 @@ function main() {
   // Интент-лендинги разделов (v3, SEO-задача №1): /analiz-portfelya/ и др.
   // lastmod — mtime файла текстов: правка текста = реальное обновление страницы.
   const landingLastmod = fileLastmod(path.join(__dirname, "seo-landings-content.js"));
+  // Живые блоки для двух лендингов Обозревателя — см. macroLiveBlock/geoLiveBlock.
+  const loadRows = (f) => {
+    try { return JSON.parse(fs.readFileSync(path.join(__dirname, "data", f), "utf8")).rows || []; }
+    catch { return []; }
+  };
+  const LIVE_BLOCKS = {
+    "makroobzor-rossiyskoy-ekonomiki": macroLiveBlock(loadRows("macro-snapshot.json")),
+    "geopolitika-i-rossiyskiy-rynok": geoLiveBlock(loadRows("geo-barometer-snapshot.json")[0]),
+  };
   for (const l of LANDINGS) {
     const dir = path.join(_BUILD_DIR, l.slug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, "index.html"), landingPage(l, assets), "utf8");
+    const extra = LIVE_BLOCKS[l.slug];
+    const withLive = extra ? { ...l, body: `${extra}\n${l.body}` } : l;
+    fs.writeFileSync(path.join(dir, "index.html"), landingPage(withLive, assets), "utf8");
     urls.push({ loc: `${_SITE}/${l.slug}/`, freq: "monthly", pri: "0.7", lastmod: landingLastmod });
   }
 
