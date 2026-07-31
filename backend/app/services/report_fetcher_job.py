@@ -144,12 +144,44 @@ def _looks_substantive(text: str) -> bool:
     return hits >= 2
 
 
+def _disclosure_texts(ticker: str, inn: str | None, pub: date) -> list[str]:
+    """ПЕРВОИСТОЧНИК — аккредитованные ЦБ центры раскрытия (владелец 2026-07-31:
+    «агент же может ходить в центры раскрытия — мы их подключили»). СКРИН/ПРАЙМ/
+    АЗИПИ уже интегрированы в report_watch для календарного пути — здесь те же
+    фетчеры дергаются по ИНН эмитента вокруг даты публикации. Их тексты идут
+    ПЕРВЫМИ в блобе: раскрытие эмитента приоритетнее пересказов."""
+    if not inn:
+        return []
+    from app.services.report_watch import _from_skrin, _from_prime, _from_azipi
+    out = []
+    for name, fn in (("СКРИН", _from_skrin), ("ПРАЙМ", _from_prime), ("АЗИПИ", _from_azipi)):
+        try:
+            txt = fn(inn, pub)
+        except Exception as e:  # noqa: BLE001 — один упавший центр не валит добычу
+            logger.info("report-fetch: %s по %s недоступен (%s)", name, ticker, type(e).__name__)
+            continue
+        if txt and len(txt) >= 200:
+            out.append(f"[РАСКРЫТИЕ · {name}]\n{txt[:6000]}")
+        if len(out) >= 2:   # двух центров достаточно, не дублируем одно сообщение трижды
+            break
+    return out
+
+
 def fetch_missing_reports(db: Session, max_tickers: int = _MAX_TICKERS_PER_RUN) -> dict:
     """Один проход добытчика. Идемпотентен: закрытые позиции уходят из wishlist."""
     from app.services.report_watch import _fetch_article_text, ingest_agent_source
+    from app.services.calendar_events import _load_inn_ticker_map
     wishlist = build_wishlist(db)
     if not wishlist:
         return {"status": "empty"}
+    # ИНН → тикер (rates.csv); карта нужна центрам раскрытия
+    inn_by_ticker: dict[str, str] = {}
+    try:
+        for inn, tickers in _load_inn_ticker_map().items():
+            for tk in tickers:
+                inn_by_ticker.setdefault(tk, inn)
+    except Exception:  # noqa: BLE001
+        pass
     done, skipped = [], []
     seen: set[str] = set()
     for item in wishlist:
@@ -159,9 +191,14 @@ def fetch_missing_reports(db: Session, max_tickers: int = _MAX_TICKERS_PER_RUN) 
         if t in seen:
             continue
         seen.add(t)
+        try:
+            pub = date.fromisoformat(item["published_at"])
+        except (TypeError, ValueError):
+            pub = date.today()
+        texts = _disclosure_texts(t, inn_by_ticker.get(t), pub)
+        used_urls: list[str] = []
         candidates = _smartlab_candidates(t) + _lenta_candidates(db, t)
         urls = _pick_urls(t, item.get("period"), candidates)
-        texts, used_urls = [], []
         for u in urls:
             full = _fetch_article_text(u, limit=8000)
             if full:
@@ -170,7 +207,8 @@ def fetch_missing_reports(db: Session, max_tickers: int = _MAX_TICKERS_PER_RUN) 
         blob = "\n\n---\n\n".join(texts)[:12000]
         if not blob or not _looks_substantive(blob):
             skipped.append({"ticker": t, "reason": "источники без цифр отчёта",
-                            "candidates": len(candidates), "fetched": len(texts)})
+                            "candidates": len(candidates), "articles": len(used_urls),
+                            "disclosures": len(texts) - len(used_urls)})
             continue
         res = ingest_agent_source(db, t, blob, used_urls[0] if used_urls else None,
                                   item.get("period"), item.get("standard"))
