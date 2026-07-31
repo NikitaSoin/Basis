@@ -105,6 +105,40 @@ window.addEventListener(evt,function(){
 </body></html>`;
 }
 
+// История значений: настоящий контент вместо «одного числа с подписью». Показатели
+// вроде ставки или инфляции ищут именно так — «по годам», «динамика», «история».
+const SERIES = (() => {
+  try {
+    const raw = JSON.parse(fs.readFileSync(path.join(__dirname, "data", "macro-series-snapshot.json"), "utf8"));
+    return raw.series || {};
+  } catch { return {}; }
+})();
+
+function seriesHtml(code, unit) {
+  const pts = SERIES[code];
+  if (!Array.isArray(pts) || pts.length < 3) return "";
+  // Показываем не все 60 точек, а срез по годам: для годовой динамики берём последнее
+  // значение каждого года — таблица на 10 строк читается, на 60 нет.
+  const byYear = new Map();
+  for (const p of pts) {
+    const y = String(p.as_of || "").slice(0, 4);
+    if (y) byYear.set(y, p);
+  }
+  const rows = [...byYear.entries()].sort((a, b) => b[0].localeCompare(a[0])).slice(0, 11);
+  if (rows.length < 3) return "";
+  const last = pts[pts.length - 1], first = byYear.get(rows[rows.length - 1][0]);
+  const dir = last && first && last.value !== first.value
+    ? (last.value > first.value ? "выше" : "ниже") : null;
+  return `<h2>Динамика по годам</h2>
+${dir ? `<p>За период с ${esc(rows[rows.length - 1][0])} года показатель ${dir}: `
+    + `${esc(first.value)}${unit ? " " + esc(unit) : ""} → ${esc(last.value)}${unit ? " " + esc(unit) : ""}.</p>` : ""}
+<table><thead><tr><th>Период</th><th>Значение</th></tr></thead><tbody>${
+    rows.map(([y, p]) => `<tr><td>${esc(p.as_of || y)}</td><td>${esc(p.value)}${unit ? " " + esc(unit) : ""}</td></tr>`).join("")
+  }</tbody></table>
+<p class="sub">Значения приводятся на указанные даты. Полный ряд с графиком — в разделе
+«Экономическая статистика» платформы.</p>`;
+}
+
 function macroPage(ind, assets, all) {
   const v = (ind.values && (ind.values.level || Object.values(ind.values)[0])) || {};
   const unit = v.unit || ind.unit || "";
@@ -124,6 +158,7 @@ function macroPage(ind, assets, all) {
 ${ind.influence_short ? `<h2>Что это значит для инвестора</h2><p>${esc(ind.influence_short)}</p>` : ""}
 ${ind.influence_full && ind.influence_full !== ind.influence_short
     ? `<p>${esc(ind.influence_full)}</p>` : ""}
+${seriesHtml(ind.code, v.unit || ind.unit)}
 <h2>Где смотреть на платформе</h2>
 <p>Показатель живёт в разделе «Экономическая статистика» Обозревателя: там он с графиком,
 историей и проверкой данных. Макропоказатели у нас не висят отдельно от бумаг — ключевая

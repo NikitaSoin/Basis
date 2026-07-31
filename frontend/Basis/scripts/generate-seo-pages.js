@@ -739,7 +739,12 @@ const TAB_PAGES = [
     // общий у пары обычка/преф (SBER/SBERP) или у похожих компаний.
     desc: (c) => truncate(`Бизнес-модель ${c.short} (${c.ticker}): ${mdFirstSentence(c.businessMd, 300) ||
       "источники выручки, экономика, факторы и риски — разбор Basis."}`, 200),
-    content: (c) => mdExcerpt(c.businessMd, 3500),
+    // Лимит поднят 3500 → 12000 (2026-07-31). Замер по всем компаниям: медиана
+    // business_model.md — 10 400 символов, то есть при 3500 текст резался у 98 % и в
+    // поиск уходила треть разбора. Страницы выглядели «тонкими» (250–530 слов) при том,
+    // что содержания у нас больше, чем у конкурентов в топе — просто оно не доезжало
+    // до робота. Это и есть главная причина, почему сайт стоял на девятой странице.
+    content: (c) => mdExcerpt(c.businessMd, 12000),
   },
   {
     slug: "finance", appTab: "finance", label: "Финансы и оценка",
@@ -796,7 +801,7 @@ const TAB_PAGES = [
     title: (c) => `${titleName(c)} (${c.ticker}) и макро: влияние ставки ЦБ, инфляции, курса — Basis`,
     desc: (c) => truncate(`Макро и ${c.short} (${c.ticker}): ${mdFirstSentence(c.macroMd, 300) ||
       "как ключевая ставка, инфляция и курс рубля влияют на компанию — разбор Basis."}`, 200),
-    content: (c) => mdExcerpt(c.macroMd, 3000),
+    content: (c) => mdExcerpt(c.macroMd, 6000),   // медиана 3 928 симв — резалось у 97 %
   },
   {
     slug: "geo", appTab: "geo", label: "Геополитика",
@@ -804,7 +809,7 @@ const TAB_PAGES = [
     title: (c) => `${titleName(c)} (${c.ticker}): риски — геополитика и санкции | Basis`,
     desc: (c) => truncate(`Геополитика и ${c.short} (${c.ticker}): ${mdFirstSentence(c.geoMd, 300) ||
       "санкционная экспозиция, сценарии, влияние на оценку — разбор Basis."}`, 200),
-    content: (c) => mdExcerpt(c.geoMd, 3000),
+    content: (c) => mdExcerpt(c.geoMd, 7000),     // медиана 5 378 симв — резалось у 100 %
   },
 ];
 
@@ -873,8 +878,15 @@ function hubPage(c, tabsWritten, sectorPeers, assets) {
   if (c.name !== c.short) parts.push(`<p class="sub">${escapeHtml(c.name)}</p>`);
 
   // Суть бизнеса — первый абзац прозы из business_model.md
-  const lead = mdFirstSentence(c.businessMd, 400);
-  if (lead) parts.push(`<h2>Суть бизнеса</h2><p>${escapeHtml(lead)}</p>`);
+  // Было одно предложение (400 символов) — теперь первые разделы разбора (2600).
+  // Полный текст остаётся на /business/ (12 000), так что это не дубль страницы, а
+  // содержательное начало: человек, пришедший из поиска, сразу видит суть, а не тизер.
+  const lead = mdExcerpt(c.businessMd, 2600) || (() => {
+    const one = mdFirstSentence(c.businessMd, 400);
+    return one ? `<p>${escapeHtml(one)}</p>` : null;
+  })();
+  if (lead) parts.push(`<h2>Суть бизнеса</h2>${lead}
+<p class="sub"><a href="/company/${c.ticker}/business/">Полный разбор бизнес-модели ${escapeHtml(c.short)} →</a></p>`);
 
   // Ключевые факты. 🔴 Значения в части financials.json жёстко обрезаны на 120
   // символах (артефакт экспорта данных, 96 ячеек в 78 файлах по аудиту) — рвём
@@ -898,6 +910,23 @@ function hubPage(c, tabsWritten, sectorPeers, assets) {
   if (dt) {
     const pol = c.dividends && c.dividends.policy_text ? `<p>${escapeHtml(strip(c.dividends.policy_text))}</p>` : "";
     parts.push(`<h2>Дивиденды</h2>${pol}${dt}`);
+  }
+
+  // 🔴 Выжимки макро и геополитики прямо на карточке (2026-07-31). Раньше хаб давал
+  // роботу 359 слов: суть бизнеса одним абзацем, факты, две таблицы — и всё. Разборы
+  // макро- и геополитических рисков существовали, но только на отдельных страницах, и
+  // главная страница компании выглядела «тонкой» при том, что содержания у нас больше,
+  // чем у конкурентов в топе. Здесь — сжато и с ссылкой на полный разбор, чтобы
+  // страницы не дублировали друг друга целиком (за дубли поиск наказывает).
+  const macroLead = mdExcerpt(c.macroMd, 1400);
+  if (macroLead) {
+    parts.push(`<h2>Макроэкономика: что влияет на компанию</h2>${macroLead}
+<p class="sub"><a href="/company/${c.ticker}/macro/">Полный макроразбор ${escapeHtml(c.short)} →</a></p>`);
+  }
+  const geoLead = mdExcerpt(c.geoMd, 1400);
+  if (geoLead) {
+    parts.push(`<h2>Геополитика и санкционные риски</h2>${geoLead}
+<p class="sub"><a href="/company/${c.ticker}/geo/">Полный геополитический разбор →</a></p>`);
   }
 
   // Разделы разбора → отдельные страницы + deep-link в приложение

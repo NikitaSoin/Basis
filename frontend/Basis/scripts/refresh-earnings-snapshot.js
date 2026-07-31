@@ -63,6 +63,35 @@ async function main() {
   // владелец перечислил их поимённо и попросил страницы под каждый.
   await grab("Секторальные индексы", "/api/market/pulse",
     (d) => ((d && d.sectors) || []), "sectors-snapshot.json");
+
+  // История значений показателей — ради неё стоит сделать N запросов: без неё страницы
+  // статистики остаются справочными «одно число + подпись» (218 слов), а с ней дают
+  // реальный контент — динамику за годы, которую и ищут («ключевая ставка по годам»).
+  try {
+    const macroPath = path.join(__dirname, "data", "macro-snapshot.json");
+    const codes = (JSON.parse(fs.readFileSync(macroPath, "utf8")).rows || [])
+      .map((r) => r.code).filter(Boolean);
+    const series = {};
+    for (const code of codes) {
+      try {
+        const r = await fetch(`${API}/api/market/macro/${encodeURIComponent(code)}/series`,
+          { headers: { "Accept-Encoding": "gzip" } });
+        if (!r.ok) continue;
+        const j = await r.json();
+        const pts = (j.points || []).filter((x) => x && x.value != null);
+        if (pts.length) series[code] = pts.slice(-60);
+      } catch { /* один показатель не должен ронять остальные */ }
+      await new Promise((res) => setTimeout(res, 120));
+    }
+    const out = path.join(__dirname, "data", "macro-series-snapshot.json");
+    fs.writeFileSync(out, JSON.stringify({
+      meta: { source: API, fetched_at: new Date().toISOString(), count: Object.keys(series).length },
+      series,
+    }), "utf8");
+    console.log(`История показателей: ${Object.keys(series).length} рядов → снапшот обновлён`);
+  } catch (e) {
+    console.log(`История показателей: не обновлена (${e.message}) — беру закоммиченную`);
+  }
 }
 
 main();
