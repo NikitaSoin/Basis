@@ -1021,6 +1021,70 @@ ${sectors.map((s) => `<h2>${escapeHtml(s)} <span style="color:var(--faint);font-
 // а массовая генерация тонких однотипных страниц понижает весь сайт.
 const METRIC_PAGES = [
   {
+    slug: "operatsionnaya-pribyl", key: "operating_profit", label: "Операционная прибыль",
+    bank: false,
+    what: "Операционная прибыль — то, что осталось от выручки после всех расходов на ведение "
+      + "основной деятельности, но до процентов по долгу и налогов. Она показывает, зарабатывает "
+      + "ли бизнес на том, чем занимается, отдельно от того, как он профинансирован.",
+    caveat: "В отличие от EBITDA, операционная прибыль уже уменьшена на амортизацию — то есть "
+      + "учитывает износ основных средств. Разрыв между этими двумя строками показывает, "
+      + "насколько бизнес капиталоёмкий.",
+  },
+  {
+    slug: "svobodnyy-denezhnyy-potok", key: "fcf", label: "Свободный денежный поток",
+    from: "cash_flow", bank: false,
+    // Готовый ряд есть не у всех, а считать «CFO минус capex» вслепую нельзя: знак
+    // капзатрат в данных разный (у одних эмитентов −449 975, у других +97 409), и
+    // прямое вычитание половине компаний удвоило бы поток. Берём модуль.
+    derive: (fin) => {
+      const cf = fin.cash_flow || {};
+      if (Array.isArray(cf.fcf) && cf.fcf.filter((x) => typeof x === "number").length >= 3) return cf.fcf;
+      const cfo = cf.cfo, capex = cf.capex;
+      if (!Array.isArray(cfo) || !Array.isArray(capex)) return null;
+      return cfo.map((v, i) => (typeof v === "number" && typeof capex[i] === "number"
+        ? v - Math.abs(capex[i]) : null));
+    },
+    what: "Свободный денежный поток — деньги, которые остались у компании после оплаты текущей "
+      + "деятельности и вложений в основные средства. Именно из него платятся дивиденды и "
+      + "гасится долг, поэтому он ближе к интересам акционера, чем бумажная прибыль.",
+    caveat: "Поток по годам скачет: крупная стройка или разовая закупка легко уводят его в "
+      + "минус у здорового бизнеса. Смотреть надо на несколько лет подряд, а не на один год.",
+  },
+  {
+    slug: "operatsionnyy-denezhnyy-potok", key: "cfo", label: "Операционный денежный поток",
+    from: "cash_flow", bank: true,
+    what: "Операционный денежный поток — сколько живых денег принесла основная деятельность. "
+      + "Это проверка прибыли на реальность: прибыль можно начислить, деньги — нет.",
+    caveat: "Систематический разрыв, когда прибыль растёт, а денежный поток нет, — повод "
+      + "разбираться: обычно за ним стоит рост дебиторской задолженности или запасов.",
+  },
+  {
+    slug: "aktivy", key: "total_assets", label: "Активы", from: "balance_sheet", bank: true,
+    what: "Активы — всё, чем компания владеет: заводы, запасы, деньги на счетах, выданные "
+      + "займы. Мера размера баланса, особенно важная для банков, где активы — это в основном "
+      + "кредитный портфель.",
+    caveat: "Размер активов ничего не говорит об их качестве. Растущий баланс при падающей "
+      + "отдаче на активы означает, что компания вкладывает всё больше, зарабатывая всё меньше.",
+  },
+  {
+    slug: "sobstvennyy-kapital", key: "total_equity", label: "Собственный капитал",
+    from: "balance_sheet", bank: true,
+    what: "Собственный капитал — то, что осталось бы акционерам после погашения всех "
+      + "обязательств. Балансовая стоимость компании, с которой сравнивают рыночную "
+      + "капитализацию в мультипликаторе P/B.",
+    caveat: "Капитал в отчётности отражает историческую стоимость активов, а не сегодняшнюю. "
+      + "У компании со старыми активами он занижен, у компании с переоценёнными — завышен.",
+  },
+  {
+    slug: "roa", key: "roa", label: "Рентабельность активов (ROA)", from: "returns",
+    unit: "%", bank: true,
+    what: "Рентабельность активов — сколько прибыли приносит каждый рубль активов. Показывает "
+      + "эффективность бизнеса без поправки на то, чьи это деньги — акционеров или кредиторов.",
+    caveat: "ROA несопоставима между отраслями: у ритейла с быстрым оборотом она естественно "
+      + "выше, чем у сетевой инфраструктуры с огромной базой активов. Сравнивать имеет смысл "
+      + "внутри сектора и с собственной историей компании.",
+  },
+  {
     slug: "ebitda", key: "ebitda", label: "EBITDA", bank: false,
     what: "EBITDA — прибыль до вычета процентов, налогов и амортизации. Показывает, сколько "
       + "бизнес зарабатывает на основной деятельности, до влияния долговой нагрузки и "
@@ -1047,7 +1111,7 @@ const METRIC_PAGES = [
       + "нормализованную прибыль — без разовых статей.",
   },
   {
-    slug: "chistyy-dolg", key: "net_debt", label: "Чистый долг", bank: false,
+    slug: "chistyy-dolg", lowerIsBetter: true, key: "net_debt", label: "Чистый долг", bank: false,
     from: "balance_sheet",
     what: "Чистый долг — весь долг компании минус денежные средства на счетах. Отрицательное "
       + "значение означает, что денег больше, чем долгов: компания в чистой денежной позиции.",
@@ -1056,7 +1120,17 @@ const METRIC_PAGES = [
       + "растущего бизнеса нормален, дорогой у падающего опасен даже при меньшей сумме.",
   },
   {
-    slug: "dolgovaya-nagruzka", key: "net_debt_ebitda", label: "Долговая нагрузка (чистый долг / EBITDA)",
+    slug: "dolgovaya-nagruzka", lowerIsBetter: true,
+    // минус бывает двух совершенно разных природ — их нельзя показывать одинаково
+    pointInvalid: (fin, i) => {
+      const e = ((fin.income_statement || {}).ebitda || [])[i];
+      return typeof e === "number" && e < 0;
+    },
+    note: (c, pts, last) => (last < 0
+      ? "Отрицательное значение здесь означает отрицательный чистый долг: денежных средств "
+        + "на счетах больше, чем всего долга. Формально компания способна погасить долг "
+        + "сразу, и долговой риск для неё не основной."
+      : ""), key: "net_debt_ebitda", label: "Долговая нагрузка (чистый долг / EBITDA)",
     shortLabel: "Долговая нагрузка", bank: false, from: "ratios", unit: "×", decimals: 2,
     what: "Отношение чистого долга к EBITDA показывает, за сколько лет компания погасила бы "
       + "долг, если бы вся операционная прибыль шла только на это. Универсальная мера того, "
@@ -1086,17 +1160,59 @@ function metricSeries(c, spec) {
   const src = spec.from === "balance_sheet" ? (c.fin.balance_sheet || {})
     : spec.from === "ratios" ? ((c.fin.balance_sheet || {}).ratios || {})
     : spec.from === "returns" ? (c.fin.returns || {})
+    : spec.from === "cash_flow" ? (c.fin.cash_flow || {})
     : isBank ? (c.fin.bank_pnl || {}) : (c.fin.income_statement || {});
-  const arr = src[key];
+  const arr = spec.derive ? spec.derive(c.fin) : src[key];
   if (!Array.isArray(arr) || !c.years.length) return null;
   const pts = [];
+  const dropped = [];
   for (let i = 0; i < Math.min(arr.length, c.years.length); i++) {
-    if (typeof arr[i] === "number") pts.push({ year: c.years[i], value: arr[i] });
+    if (typeof arr[i] !== "number") continue;
+    // Отношение к отрицательному знаменателю арифметически считается, но смыслом не
+    // обладает: «−15,46×» у Мечела читается как «долга нет», хотя означает обратное —
+    // EBITDA ушла в минус и обслуживать долг нечем. Такие точки не данные, а артефакт.
+    if (spec.pointInvalid && spec.pointInvalid(c.fin, i, arr[i])) { dropped.push(c.years[i]); continue; }
+    pts.push({ year: c.years[i], value: arr[i] });
   }
+  if (pts.length >= 3 && dropped.length) pts.droppedYears = dropped;
   return pts.length >= 3 ? pts : null;
 }
 
-function metricPage(c, spec, pts, assets, tabsWritten) {
+// Сравнение с сектором — то, ради чего страница перестаёт быть «числом из отчёта».
+// Голая цифра есть у десятка агрегаторов; ответ на вопрос «это много или мало для такой
+// компании» — почти ни у кого. Считаем по нашим же данным: медиана сектора и позиция.
+function sectorContext(c, spec, lastValue, peers, fmt) {
+  const vals = [];
+  for (const p of peers) {
+    const pts = metricSeries(p, spec);   // pointInvalid отсеян здесь же — медиана чистая
+    if (pts && pts.length) vals.push({ ticker: p.ticker, short: p.short, value: pts[pts.length - 1].value });
+  }
+  if (vals.length < 3) return "";          // на двух соседях «медиана сектора» — фикция
+  const sorted = vals.map((v) => v.value).slice().sort((a, b) => a - b);
+  const median = sorted.length % 2
+    ? sorted[(sorted.length - 1) / 2]
+    : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
+  const below = vals.filter((v) => v.value < lastValue).length;
+  const rank = vals.length + 1 - below;     // 1 = самое высокое ЗНАЧЕНИЕ, не «лучшее»
+  const cmp = lastValue > median ? "выше" : lastValue < median ? "ниже" : "на уровне";
+  const top = vals.slice().sort((a, b) => b.value - a.value).slice(0, 6);
+  // Нейтральное «N-е по величине», а не «N место»: у долговой нагрузки первое место —
+  // это самый закредитованный в секторе, и слово «место» читалось бы как похвала.
+  return `<h2>Сравнение с сектором</h2>
+<p>Медиана по сектору «${escapeHtml(c.sectorFull || c.sector)}» — ${escapeHtml(fmt(median))};
+у ${escapeHtml(c.short)} ${escapeHtml(cmp)} (${escapeHtml(fmt(lastValue))}) —
+${rank}-е значение по величине среди ${vals.length + 1} компаний сектора, по которым есть данные.${
+    spec.lowerIsBetter ? " По этому показателю большее значение означает больший риск, а не лучший результат." : ""
+  }</p>
+<table><thead><tr><th>Компания</th><th>Значение</th></tr></thead><tbody>${
+    top.map((v) => `<tr><td><a href="/company/${v.ticker}/${spec.slug}/">${escapeHtml(v.short)}</a></td>`
+      + `<td>${escapeHtml(fmt(v.value))}</td></tr>`).join("")
+  }</tbody></table>
+<p class="sub">Сравнение внутри сектора корректнее сравнения по всему рынку: у отраслей
+разная нормальная рентабельность и разная терпимость к долгу.</p>`;
+}
+
+function metricPage(c, spec, pts, assets, tabsWritten, sectorAll) {
   const isBank = c.profile === "bank";
   const label = isBank && spec.bankLabel ? spec.bankLabel : spec.label;
   const short = spec.shortLabel || label;
@@ -1165,6 +1281,12 @@ function metricPage(c, spec, pts, assets, tabsWritten) {
 <p>${escapeHtml(spec.what)}</p>
 <h2>Как читать этот показатель</h2>
 <p>${escapeHtml(spec.caveat)}</p>
+${spec.note ? `<p>${escapeHtml(spec.note(c, pts, last.value))}</p>` : ""}
+${pts.droppedYears && pts.droppedYears.length ? `<p>За ${pts.droppedYears.join(", ")} `
+  + `показатель не рассчитывается: EBITDA отрицательна, то есть компания убыточна уже на `
+  + `операционном уровне. Отношение долга к ней в такой ситуации смысла не имеет — `
+  + `это не отсутствие долга, а невозможность обслуживать его текущей прибылью.</p>` : ""}
+${sectorContext(c, spec, last.value, sectorAll || [], fmt)}
 <p>Полная отчётность ${escapeHtml(c.short)} — выручка, расходы, баланс, денежные потоки,
 мультипликаторы и расчёт справедливой цены — на странице
 <a href="/company/${c.ticker}/finance/">разбора отчётности</a>. Что за бизнес стоит за
@@ -1335,10 +1457,12 @@ function main() {
       rendered.push([spec, content]);
     }
 
-    // соседи по сектору (до 8, кроме себя)
-    const peers = companies
-      .filter((p) => p.sector === c.sector && p.ticker !== c.ticker)
-      .slice(0, 8);
+    // ВАЖНО: два разных списка. sectorAll — ВЕСЬ сектор, на нём считаются медиана и
+    // место компании: если считать по обрезанным восьми, «3-я из 6» будет прямой
+    // неправдой при секторе в тридцать бумаг. peers — те же соседи, но обрезанные до
+    // восьми для блока перелинковки, где длинный список только мешает.
+    const sectorAll = companies.filter((p) => p.sector === c.sector && p.ticker !== c.ticker);
+    const peers = sectorAll.slice(0, 8);
 
     const hubDir = path.join(_BUILD_DIR, "company", c.ticker);
     fs.mkdirSync(hubDir, { recursive: true });
@@ -1360,7 +1484,7 @@ function main() {
       if (!pts) continue;
       const dir = path.join(hubDir, spec.slug);
       fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(path.join(dir, "index.html"), metricPage(c, spec, pts, assets, tabsWritten), "utf8");
+      fs.writeFileSync(path.join(dir, "index.html"), metricPage(c, spec, pts, assets, tabsWritten, sectorAll), "utf8");
       urls.push({ loc: `${_SITE}/company/${c.ticker}/${spec.slug}/`, freq: "monthly", pri: "0.6", lastmod });
       metricPagesCount++;
     }
