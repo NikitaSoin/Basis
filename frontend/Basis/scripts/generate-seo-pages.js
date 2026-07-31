@@ -1028,7 +1028,9 @@ ${sectors.map((s) => `<h2>${escapeHtml(s)} <span style="color:var(--faint);font-
 // а массовая генерация тонких однотипных страниц понижает весь сайт.
 const METRIC_PAGES = [
   {
-    slug: "operatsionnaya-pribyl", key: "operating_profit", label: "Операционная прибыль",
+    slug: "operatsionnaya-pribyl",
+    formula: "Выручка − себестоимость − коммерческие и управленческие расходы.",
+    simple: "Заработок от основного дела: уже с учётом износа оборудования, но ещё до процентов по кредитам и налогов.", key: "operating_profit", label: "Операционная прибыль",
     bank: false,
     what: "Операционная прибыль — то, что осталось от выручки после всех расходов на ведение "
       + "основной деятельности, но до процентов по долгу и налогов. Она показывает, зарабатывает "
@@ -1038,7 +1040,9 @@ const METRIC_PAGES = [
       + "насколько бизнес капиталоёмкий.",
   },
   {
-    slug: "svobodnyy-denezhnyy-potok", key: "fcf", label: "Свободный денежный поток",
+    slug: "svobodnyy-denezhnyy-potok",
+    formula: "Операционный денежный поток − капитальные затраты.",
+    simple: "Деньги, которые остаются после того, как оплачена текущая работа и вложения в оборудование. Именно из них платят дивиденды и гасят долг.", key: "fcf", label: "Свободный денежный поток",
     from: "cash_flow", bank: false,
     // Готовый ряд есть не у всех, а считать «CFO минус capex» вслепую нельзя: знак
     // капзатрат в данных разный (у одних эмитентов −449 975, у других +97 409), и
@@ -1058,7 +1062,9 @@ const METRIC_PAGES = [
       + "минус у здорового бизнеса. Смотреть надо на несколько лет подряд, а не на один год.",
   },
   {
-    slug: "operatsionnyy-denezhnyy-potok", key: "cfo", label: "Операционный денежный поток",
+    slug: "operatsionnyy-denezhnyy-potok",
+    formula: "Прибыль + амортизация ± изменения оборотного капитала.",
+    simple: "Сколько живых денег принесла основная деятельность. Проверка прибыли на честность: прибыль можно начислить на бумаге, деньги на счёте — нет.", key: "cfo", label: "Операционный денежный поток",
     from: "cash_flow", bank: true,
     what: "Операционный денежный поток — сколько живых денег принесла основная деятельность. "
       + "Это проверка прибыли на реальность: прибыль можно начислить, деньги — нет.",
@@ -1066,7 +1072,9 @@ const METRIC_PAGES = [
       + "разбираться: обычно за ним стоит рост дебиторской задолженности или запасов.",
   },
   {
-    slug: "aktivy", key: "total_assets", label: "Активы", from: "balance_sheet", bank: true,
+    slug: "aktivy",
+    formula: "Собственный капитал + все обязательства. Всё, чем компания владеет.",
+    simple: "Заводы, склады, запасы, деньги, выданные кредиты — весь имущественный размер компании. У банка активы это в основном выданные кредиты.", key: "total_assets", label: "Активы", from: "balance_sheet", bank: true,
     what: "Активы — всё, чем компания владеет: заводы, запасы, деньги на счетах, выданные "
       + "займы. Мера размера баланса, особенно важная для банков, где активы — это в основном "
       + "кредитный портфель.",
@@ -1074,7 +1082,9 @@ const METRIC_PAGES = [
       + "отдаче на активы означает, что компания вкладывает всё больше, зарабатывая всё меньше.",
   },
   {
-    slug: "sobstvennyy-kapital", key: "total_equity", label: "Собственный капитал",
+    slug: "sobstvennyy-kapital",
+    formula: "Активы − обязательства.",
+    simple: "Что осталось бы акционерам, если продать всё имущество и раздать все долги. Балансовая стоимость компании.", key: "total_equity", label: "Собственный капитал",
     from: "balance_sheet", bank: true,
     what: "Собственный капитал — то, что осталось бы акционерам после погашения всех "
       + "обязательств. Балансовая стоимость компании, с которой сравнивают рыночную "
@@ -1083,7 +1093,9 @@ const METRIC_PAGES = [
       + "У компании со старыми активами он занижен, у компании с переоценёнными — завышен.",
   },
   {
-    slug: "roa", key: "roa", label: "Рентабельность активов (ROA)", from: "returns",
+    slug: "roa",
+    formula: "Чистая прибыль ÷ активы × 100%.",
+    simple: "Сколько прибыли выжимается из каждого рубля активов — независимо от того, чьи это деньги, акционеров или кредиторов.", key: "roa", label: "Рентабельность активов (ROA)", from: "returns",
     percentBasis: [["income_statement", "net_profit"], ["balance_sheet", "total_assets"]],
     unit: "%", bank: true,
     what: "Рентабельность активов — сколько прибыли приносит каждый рубль активов. Показывает "
@@ -1093,7 +1105,9 @@ const METRIC_PAGES = [
       + "внутри сектора и с собственной историей компании.",
   },
   {
-    slug: "ebitda", key: "ebitda", label: "EBITDA", bank: false,
+    slug: "ebitda",
+    formula: "Операционная прибыль + амортизация. Или, если идти сверху: выручка − себестоимость − коммерческие и управленческие расходы + амортизация.",
+    simple: "Сколько бизнес зарабатывает «до всего»: до процентов банку, налогов государству и списания износа оборудования. Показатель придумали, чтобы сравнивать компании, которые по-разному закредитованы и по-разному считают износ.", key: "ebitda", label: "EBITDA", bank: false,
     what: "EBITDA — прибыль до вычета процентов, налогов и амортизации. Показывает, сколько "
       + "бизнес зарабатывает на основной деятельности, до влияния долговой нагрузки и "
       + "учётной политики по амортизации. Поэтому по ней сравнивают компании с разной "
@@ -1103,7 +1117,9 @@ const METRIC_PAGES = [
       + "свободным потоком — поэтому рядом всегда смотрим денежный поток и долг.",
   },
   {
-    slug: "vyruchka", key: "revenue", bankKey: "net_interest_income", label: "Выручка",
+    slug: "vyruchka",
+    formula: "Цена × количество проданного за период. В отчёте — самая верхняя строка.",
+    simple: "Сколько денег компания выручила от продаж, ещё ничего не потратив. Это масштаб бизнеса, а не заработок: из выручки предстоит оплатить всё остальное.", key: "revenue", bankKey: "net_interest_income", label: "Выручка",
     bankLabel: "Чистые процентные доходы",
     what: "Выручка — сколько компания продала за период, до вычета любых расходов. Это "
       + "верхняя строка отчёта и мера масштаба бизнеса.",
@@ -1111,7 +1127,9 @@ const METRIC_PAGES = [
       + "издержек или скидками, прибыль может падать одновременно с ростом продаж.",
   },
   {
-    slug: "chistaya-pribyl", key: "net_profit", label: "Чистая прибыль", bank: true,
+    slug: "chistaya-pribyl",
+    formula: "Выручка − все расходы − проценты по долгу − налог на прибыль.",
+    simple: "То, что реально осталось компании в конце. Из этой суммы платят дивиденды, остальное остаётся внутри и увеличивает капитал.", key: "net_profit", label: "Чистая прибыль", bank: true,
     what: "Чистая прибыль — то, что осталось после всех расходов, процентов и налогов. "
       + "Из неё платятся дивиденды и она формирует капитал компании.",
     caveat: "Чистая прибыль легче других строк искажается разовыми событиями: переоценкой "
@@ -1119,7 +1137,9 @@ const METRIC_PAGES = [
       + "нормализованную прибыль — без разовых статей.",
   },
   {
-    slug: "chistyy-dolg", lowerIsBetter: true, key: "net_debt", label: "Чистый долг", bank: false,
+    slug: "chistyy-dolg",
+    formula: "Все кредиты и облигации − деньги на счетах и депозитах.",
+    simple: "Сколько компания должна сверх того, что у неё уже есть в кассе. Если денег больше, чем долгов, показатель отрицательный — это не ошибка, а признак запаса прочности.", lowerIsBetter: true, key: "net_debt", label: "Чистый долг", bank: false,
     from: "balance_sheet",
     what: "Чистый долг — весь долг компании минус денежные средства на счетах. Отрицательное "
       + "значение означает, что денег больше, чем долгов: компания в чистой денежной позиции.",
@@ -1128,7 +1148,9 @@ const METRIC_PAGES = [
       + "растущего бизнеса нормален, дорогой у падающего опасен даже при меньшей сумме.",
   },
   {
-    slug: "dolgovaya-nagruzka", lowerIsBetter: true,
+    slug: "dolgovaya-nagruzka",
+    formula: "Чистый долг ÷ EBITDA.",
+    simple: "За сколько лет компания расплатилась бы по долгам, если бы вся операционная прибыль шла только на это. Три года — уже много, полтора — спокойно.", lowerIsBetter: true,
     // минус бывает двух совершенно разных природ — их нельзя показывать одинаково
     pointInvalid: (fin, i) => {
       const e = ((fin.income_statement || {}).ebitda || [])[i];
@@ -1148,7 +1170,9 @@ const METRIC_PAGES = [
       + "предсказуемой выручкой можно больше, чем цикличной добыче.",
   },
   {
-    slug: "roe", key: "roe",
+    slug: "roe",
+    formula: "Чистая прибыль ÷ собственный капитал × 100%.",
+    simple: "Сколько копеек прибыли приносит каждый рубль, вложенный акционерами. Мера того, насколько эффективно компания распоряжается их деньгами.", key: "roe",
     percentBasis: [["income_statement", "net_profit"], ["balance_sheet", "total_equity"]], label: "ROE (рентабельность капитала)", shortLabel: "ROE",
     bank: true, from: "returns", unit: "%", decimals: 1,
     what: "ROE — отношение прибыли к собственному капиталу: сколько компания зарабатывает "
@@ -1289,6 +1313,78 @@ const FV_NOTE = "Это не прогноз цены и не таргет, а п
   + "говорит «дорого относительно безрисковой альтернативы», а не «упадёт». Методика "
   + "прототипная, без калибровки — может преувеличивать в обе стороны. Не является "
   + "индивидуальной инвестиционной рекомендацией.";
+
+
+// ─── Глоссарий показателей: /pokazateli/<slug>/ ─────────────────────────────────────
+// ЗАЧЕМ ОТДЕЛЬНО ОТ СТРАНИЦ КОМПАНИЙ: замер спроса (подсказки Яндекса и Google,
+// 2026-07-31) показал, что метрики ищут ОПРЕДЕЛИТЕЛЬНО, а не по эмитенту. «что такое
+// ebitda простыми словами», «чистый долг формула», «roa формула» — полные наборы
+// подсказок; «ebitda северстали» — две-три. То есть 2541 страница «метрика компании»
+// бьёт по тонкому хвосту, а голова спроса у нас не закрыта вообще.
+//
+// ЧЕМ МЫ ЗДЕСЬ ЛУЧШЕ СПРАВОЧНИКА: определение есть у всех, а вот показать показатель
+// на 260 живых российских компаниях сразу — почти ни у кого. Поэтому на каждой странице
+// таблица реальных значений со ссылками: определение сразу превращается в инструмент,
+// а страница становится узлом, связывающим глоссарий с карточками.
+function glossaryPage(spec, companies, assets) {
+  const label = spec.label;
+  const lower = label.toLowerCase();
+  const fmtFor = (c, v) => spec.unit
+    ? `${Number(v).toLocaleString("ru-RU", { minimumFractionDigits: spec.decimals || 0,
+        maximumFractionDigits: spec.decimals || 0 }).replace("-", "−")}${
+        spec.unit === "%" ? " %" : spec.unit}`
+    : fmtMoney(v, c.unit, c.currency);
+
+  // Примеры берём по убыванию: у денежных показателей это крупнейшие компании рынка —
+  // те, которые читатель узнаёт, и по которым проще понять порядок величин.
+  const rows = [];
+  for (const c of companies) {
+    const pts = metricSeries(c, spec);
+    if (pts && pts.length) rows.push({ c, v: pts[pts.length - 1].value, year: pts[pts.length - 1].year });
+  }
+  rows.sort((a, b) => b.v - a.v);
+  const top = rows.slice(0, 12);
+
+  // «Что такое Долговая нагрузка» — заглавная посреди фразы. Опускаем регистр, но не у
+  // аббревиатур: «что такое ebitda» выглядело бы неряшливо, а ROE вообще потеряло бы смысл.
+  const titleLabel = /^[A-ZА-Я]{2,}/.test(label)
+    ? label : label.charAt(0).toLowerCase() + label.slice(1);
+  const title = `Что такое ${titleLabel} — ${spec.formula ? "формула, " : ""}простыми словами | Basis`;
+  const desc = truncate(`${titleLabel} — что это простыми словами${spec.formula ? `, формула расчёта` : ""}, `
+    + `как читать и на что смотреть рядом. Плюс значения по ${rows.length} российским компаниям.`, 200);
+
+  const body = `
+<p class="tag">Показатели · справочник Basis</p>
+<h1>${escapeHtml(label)}: что это простыми словами</h1>
+<p class="sub">${escapeHtml(spec.simple || spec.what)}</p>
+${spec.formula ? `<h2>Формула</h2>
+<p class="formula"><b>${escapeHtml(label)} = ${escapeHtml(spec.formula)}</b></p>` : ""}
+<h2>Что показывает</h2>
+<p>${escapeHtml(spec.what)}</p>
+<h2>Как читать и где легко ошибиться</h2>
+<p>${escapeHtml(spec.caveat)}</p>
+<h2>${escapeHtml(label)} российских компаний</h2>
+<p>Значения из последней отчётности${top.length ? ` (${top[0].year} год у большинства компаний)` : ""}.
+По каждой компании — динамика за все годы и сравнение с сектором.</p>
+<table><thead><tr><th>Компания</th><th>${escapeHtml(label)}</th></tr></thead><tbody>${
+    top.map((r) => `<tr><td><a href="/company/${r.c.ticker}/${spec.slug}/">${
+      escapeHtml(r.c.short)} (${r.c.ticker})</a></td><td>${escapeHtml(fmtFor(r.c, r.v))}</td></tr>`).join("")
+  }</tbody></table>
+<p class="sub">Всего показатель посчитан по ${plural(rows.length, "компании", "компаниям", "компаниям")}
+из ${companies.length} на платформе. Там, где данных в отчётности не хватает, мы ставим
+прочерк, а не оценку — подставлять сюда догадку было бы хуже, чем признать пробел.</p>
+<h2>Другие показатели</h2>
+<div class="grid">${METRIC_PAGES.filter((m) => m.slug !== spec.slug && m.formula)
+    .map((m) => `<a class="chip" href="/pokazateli/${m.slug}/">${escapeHtml(m.label)}</a>`).join("")}</div>
+<a class="cta" href="/skrining-aktsiy/">Отобрать акции по этому показателю →</a>`;
+
+  return pageShell({
+    title, desc, canonicalPath: `/pokazateli/${spec.slug}/`,
+    breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Показатели", href: "/pokazateli/" },
+      { label }],
+    bodyHtml: body, assets, note: DEFAULT_NOTE,
+  });
+}
 
 function fairValuePage(c, fv, dateIso, assets, tabsWritten, sectorAll, fairValues) {
   const money = (v) => Number(v).toLocaleString("ru-RU",
@@ -1735,7 +1831,42 @@ function main() {
   }
 
   writeSitemap(urls);
-  console.log(`SEO-страницы: ${companies.length} хабов + ${tabPagesCount} разделов + ${metricPagesCount} метрик + ${fairValuePagesCount} оценок + ${LANDINGS.length} лендингов + каталог; sitemap.xml — ${urls.length} URL; пропущено (нет financials.json): ${skipped.length}`);
+  // Глоссарий — после компаний: ему нужны их ряды для таблиц примеров.
+  let glossaryCount = 0;
+  for (const spec of METRIC_PAGES.filter((m) => m.formula)) {
+    const dir = path.join(_BUILD_DIR, "pokazateli", spec.slug);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "index.html"), glossaryPage(spec, companies, assets), "utf8");
+    urls.push({ loc: `${_SITE}/pokazateli/${spec.slug}/`, freq: "monthly", pri: "0.7" });
+    glossaryCount++;
+  }
+  // Оглавление справочника: и людям навигация, и роботу узел, связывающий все страницы.
+  {
+    const items = METRIC_PAGES.filter((m) => m.formula);
+    const body = `<p class="tag">Справочник Basis</p>
+<h1>Показатели компаний: что они значат</h1>
+<p class="sub">Короткие объяснения без учебника: что показывает величина, по какой формуле
+считается, где её легко прочитать неверно — и сразу значения по российским компаниям.</p>
+<div class="grid">${items.map((m) => `<a class="chip" href="/pokazateli/${m.slug}/">${
+      escapeHtml(m.label)}</a>`).join("")}</div>
+<p>Каждый показатель разобран и по отдельным компаниям: динамика по годам, сравнение с
+медианой сектора и место среди соседей по отрасли. Начать можно с
+<a href="/company/">каталога компаний</a> или с <a href="/skrining-aktsiy/">скрининга</a>,
+если нужно отобрать бумаги по значению показателя.</p>`;
+    fs.mkdirSync(path.join(_BUILD_DIR, "pokazateli"), { recursive: true });
+    fs.writeFileSync(path.join(_BUILD_DIR, "pokazateli", "index.html"), pageShell({
+      title: "Показатели компаний: EBITDA, ROE, чистый долг — что значат | Basis",
+      desc: "Справочник показателей отчётности: что показывает каждый, формула расчёта, "
+        + "как читать и где ошибаются. Со значениями по российским компаниям.",
+      canonicalPath: "/pokazateli/",
+      breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Показатели" }],
+      bodyHtml: body, assets, note: DEFAULT_NOTE,
+    }), "utf8");
+    urls.push({ loc: `${_SITE}/pokazateli/`, freq: "monthly", pri: "0.8" });
+    glossaryCount++;
+  }
+
+  console.log(`SEO-страницы: ${companies.length} хабов + ${tabPagesCount} разделов + ${metricPagesCount} метрик + ${fairValuePagesCount} оценок + ${glossaryCount} справочника + ${LANDINGS.length} лендингов + каталог; sitemap.xml — ${urls.length} URL; пропущено (нет financials.json): ${skipped.length}`);
   console.log(`Короткие редиректы /TICKER/: ${shortUrlCount}${shortUrlSkipped.length ? `; пропущены (конфликт с зарезервированным путём): ${shortUrlSkipped.join(", ")}` : ""}`);
   if (skipped.length) console.log("пропущены:", skipped.slice(0, 20).join(", "), skipped.length > 20 ? "..." : "");
 }
