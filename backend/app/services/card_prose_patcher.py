@@ -655,3 +655,85 @@ def run_macro_facts(db: Session, batch: int = _MACRO_BATCH_CAP,
             stats[row.status] = stats.get(row.status, 0) + 1
     logger.info("card_prose_patcher.run_macro_facts: %s", stats)
     return stats
+
+
+# ----------------------------- МАКРО-ИНТЕРПРЕТАЦИЯ (смысл, не только числа) -----------------------------
+# Владелец 2026-08-01: «нужно чтобы содержание прям менялось — не перегенерация,
+# а изменение устаревших вещей на актуальные». Факт-патч меняет ЧИСЛА; смысловые
+# обороты («на июльском заседании может взять паузу» — заседание прошло, ЦБ снизил;
+# «в мае рост цен почти остановился») остаются. Этот проход — вторая половина
+# моста: те же точечные find/replace, но kind=interpretation (right to судить),
+# grounding = полный контекст решения ЦБ (дата/размер/сигнал/следующее заседание).
+_MACRO_INTERP_SYS = """Ты — аналитик-редактор платформы Basis (не брокер, без «купить/
+продать» и целевых цен). Даны АКТУАЛЬНЫЙ макро-контекст (последнее решение ЦБ:
+дата, ставка, сигнал регулятора, дата следующего заседания; инфляция; ожидания)
+и ТЕКСТ макро-вкладки карточки компании. Найди УСТАРЕВШИЕ ПО СМЫСЛУ утверждения —
+прошедшие заседания, упомянутые как будущие; «регулятор может взять паузу», если
+решение уже принято; ссылки на старые месяцы как на «сейчас»; сигнал ЦБ, который
+изменился — и верни точечные правки find/replace, приводящие ИМЕННО ЭТИ места в
+соответствие актуальному контексту. Правь минимально: НЕ трогай компанию-специфику
+(бизнес, маржа, прогнозы по компании), НЕ переписывай структуру, НЕ добавляй
+собственных прогнозов сверх сигнала ЦБ. Если смысловых устареваний нет —
+confirmed=false.
+"""
+_MACRO_INTERP_COOLDOWN_DAYS = 7
+
+
+def _macro_interp_grounding(db: Session) -> str | None:
+    """Контекст для смысловых правок: решение ЦБ целиком + инфляция/ожидания."""
+    anchor = _macro_anchor(db)
+    if not anchor:
+        return None
+    parts = [_macro_grounding(anchor)]
+    from app.models.macro import RateMeeting
+    rm = db.query(RateMeeting).order_by(RateMeeting.decision_date.desc()).first()
+    if rm:
+        parts.append(f"Последнее заседание ЦБ: {rm.decision_date.isoformat()}, "
+                     f"ставка {rm.rate_value}%.")
+        if rm.signal:
+            parts.append(f"Сигнал регулятора: {rm.signal[:300]}")
+        if rm.next_meeting_date:
+            parts.append(f"Следующее заседание: {rm.next_meeting_date.isoformat()}")
+    today = datetime.now(timezone.utc).date()
+    parts.append(f"Сегодня: {today.isoformat()}")
+    return "\n".join(parts)
+
+
+def run_macro_interp(db: Session, batch: int = 8, only_ticker: str | None = None) -> dict:
+    """Смысловая доводка макро-вкладок ПОСЛЕ фактов: очередь — тикеры со свежим
+    published факт-патчем macro (вкладка была устаревшей и уже тронута числами),
+    у которых нет свежей macro-интерпретации. Не слепой прогон всех карточек."""
+    grounding = _macro_interp_grounding(db)
+    if not grounding:
+        return {"error": "нет макро-контекста"}
+    cut_facts = datetime.now(timezone.utc) - timedelta(days=7)
+    cut_interp = datetime.now(timezone.utc) - timedelta(days=_MACRO_INTERP_COOLDOWN_DAYS)
+    if only_ticker:
+        queue = [only_ticker.upper()]
+    else:
+        fact_ok = {r[0] for r in db.query(CardProseOverlay.ticker)
+                   .filter(CardProseOverlay.tab == "macro", CardProseOverlay.kind == "fact",
+                           CardProseOverlay.status == "published",
+                           CardProseOverlay.created_at >= cut_facts).all()}
+        interp_done = {r[0] for r in db.query(CardProseOverlay.ticker)
+                       .filter(CardProseOverlay.tab == "macro",
+                               CardProseOverlay.kind == "interpretation",
+                               CardProseOverlay.created_at >= cut_interp).all()}
+        queue = sorted(fact_ok - interp_done)[:batch]
+    stats = {"queued": len(queue), "published": 0, "rejected": 0}
+    for tk in queue:
+
+        def _tb(p: str) -> str:
+            return (f"Компания: {tk}. Вкладка: macro.\n\n"
+                    f"АКТУАЛЬНЫЙ МАКРО-КОНТЕКСТ:\n{grounding}\n\n"
+                    f"ТЕКСТ ВКЛАДКИ (правь точечно ТОЛЬКО смысловые устаревания):\n"
+                    f"<<<\n{p[:8000]}\n>>>")
+
+        row = _run_patch(db, tk, "macro", sys=_MACRO_INTERP_SYS + _JSON_ONLY,
+                         task_builder=_tb, grounding_text=grounding,
+                         kind="interpretation",
+                         evidence_extra={"macro_interp": True})
+        if row is not None:
+            stats[row.status] = stats.get(row.status, 0) + 1
+    logger.info("card_prose_patcher.run_macro_interp: %s", stats)
+    return stats

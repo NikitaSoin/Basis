@@ -1696,6 +1696,21 @@ def debug_trigger_macro_facts(batch: int = 12, ticker: str | None = None):
         db.close()
 
 
+@router.post("/debug/trigger-macro-interp")
+def debug_trigger_macro_interp(batch: int = 8, ticker: str | None = None):
+    """Ручной прогон смысловой доводки макро-вкладок (run_macro_interp)."""
+    from app.db.session import SessionLocal
+    from app.services.card_prose_patcher import run_macro_interp
+    db = SessionLocal()
+    try:
+        return run_macro_interp(db, batch=batch, only_ticker=ticker)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-macro-interp: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-prose-patcher")
 def debug_trigger_prose_patcher(signal_id: int | None = None, kind: str = "fact",
                                 weekly: bool = False, ticker: str | None = None,

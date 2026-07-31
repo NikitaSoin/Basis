@@ -839,6 +839,26 @@ async def _macro_facts_job():
         logger.exception("Ошибка макро-фактов карточек: %s", e)
 
 
+async def _macro_interp_job():
+    """Смысловая доводка макро-вкладок (run_macro_interp): обороты, устаревшие по
+    смыслу («может взять паузу», прошедшие заседания как будущие) → точечные правки
+    от контекста решения ЦБ. Очередь — тикеры со свежим факт-патчем macro."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.card_prose_patcher import run_macro_interp
+        db = SessionLocal()
+        try:
+            return run_macro_interp(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        if res.get("queued"):
+            logger.info("Макро-интерпретация карточек: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка макро-интерпретации карточек: %s", e)
+
+
 async def _prose_interp_job():
     """Авто-свежесть ПРОЗЫ — НЕДЕЛЬНЫЙ интерпретационный проход (владелец
     2026-07-29). По входному потоку недели дельта-правит интерпретацию ТОЛЬКО там,
@@ -1187,6 +1207,9 @@ async def lifespan(app: FastAPI):
         # дважды в день: после решения ЦБ волна из ~264 карточек проходит за считанные
         # дни (батч 12), в спокойное время детектор пуст и прогон дёшев
         scheduler.add_job(_with_heartbeat("macro_facts", _macro_facts_job), "cron", hour="9,20", minute=50, id="macro_facts")
+        # смысловая доводка макро-вкладок после чисел (владелец 2026-08-01: «нужно
+        # чтобы содержание прям менялось») — раз в день, очередь = свежие факт-патчи
+        scheduler.add_job(_with_heartbeat("macro_interp", _macro_interp_job), "cron", hour=21, minute=5, id="macro_interp")
         scheduler.add_job(_with_heartbeat("agent_pilot", _agent_pilot_job), "cron", hour=7, minute=40, id="agent_pilot")  # автономный агент-пилот (macro addendum)
         scheduler.add_job(_with_heartbeat("chronicle_maintenance", _chronicle_maintenance_job), "cron", hour=5, minute=20, id="chronicle_maintenance")  # летопись: бэкфилл + ретеншен Ленты
         logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo/geo_digest)")
