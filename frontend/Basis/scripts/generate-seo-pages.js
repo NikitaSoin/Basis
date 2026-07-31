@@ -1046,13 +1046,47 @@ const METRIC_PAGES = [
       + "активов, курсовыми разницами, продажей бизнеса. Поэтому мы смотрим и "
       + "нормализованную прибыль — без разовых статей.",
   },
+  {
+    slug: "chistyy-dolg", key: "net_debt", label: "Чистый долг", bank: false,
+    from: "balance_sheet",
+    what: "Чистый долг — весь долг компании минус денежные средства на счетах. Отрицательное "
+      + "значение означает, что денег больше, чем долгов: компания в чистой денежной позиции.",
+    caveat: "Сам по себе размер долга ничего не говорит: важно, чем он обслуживается. "
+      + "Поэтому долг сопоставляют с прибылью — см. долговую нагрузку. Дешёвый долг у "
+      + "растущего бизнеса нормален, дорогой у падающего опасен даже при меньшей сумме.",
+  },
+  {
+    slug: "dolgovaya-nagruzka", key: "net_debt_ebitda", label: "Долговая нагрузка (чистый долг / EBITDA)",
+    shortLabel: "Долговая нагрузка", bank: false, from: "ratios", unit: "×", decimals: 2,
+    what: "Отношение чистого долга к EBITDA показывает, за сколько лет компания погасила бы "
+      + "долг, если бы вся операционная прибыль шла только на это. Универсальная мера того, "
+      + "посилен ли долг.",
+    caveat: "Ориентир: до 1,5× — низкая нагрузка, 1,5–3× — умеренная, выше 3× — повышенная. "
+      + "Но пороги отличаются по отраслям: инфраструктуре и электроэнергетике с "
+      + "предсказуемой выручкой можно больше, чем цикличной добыче.",
+  },
+  {
+    slug: "roe", key: "roe", label: "ROE (рентабельность капитала)", shortLabel: "ROE",
+    bank: true, from: "returns", unit: "%", decimals: 1,
+    what: "ROE — отношение прибыли к собственному капиталу: сколько компания зарабатывает "
+      + "на деньгах акционеров. Ключевая мера эффективности бизнеса и главный вход в "
+      + "оценку по балансовой стоимости.",
+    caveat: "Высокий ROE бывает не от эффективности, а от большого долга: чем меньше "
+      + "собственного капитала, тем выше отношение при той же прибыли. Поэтому ROE "
+      + "смотрят вместе с долговой нагрузкой, а не отдельно.",
+  },
 ];
 
 function metricSeries(c, spec) {
   const isBank = c.profile === "bank";
   if (isBank && spec.bank === false) return null;          // EBITDA у банка не считается
   const key = isBank && spec.bankKey ? spec.bankKey : spec.key;
-  const src = isBank ? (c.fin.bank_pnl || {}) : (c.fin.income_statement || {});
+  // Ряд может лежать не только в P&L: чистый долг — в балансе, ROE — в returns,
+  // долговая нагрузка — в ratios (проверено по структуре financials.json).
+  const src = spec.from === "balance_sheet" ? (c.fin.balance_sheet || {})
+    : spec.from === "ratios" ? ((c.fin.balance_sheet || {}).ratios || {})
+    : spec.from === "returns" ? (c.fin.returns || {})
+    : isBank ? (c.fin.bank_pnl || {}) : (c.fin.income_statement || {});
   const arr = src[key];
   if (!Array.isArray(arr) || !c.years.length) return null;
   const pts = [];
@@ -1065,31 +1099,64 @@ function metricSeries(c, spec) {
 function metricPage(c, spec, pts, assets, tabsWritten) {
   const isBank = c.profile === "bank";
   const label = isBank && spec.bankLabel ? spec.bankLabel : spec.label;
+  const short = spec.shortLabel || label;
   const last = pts[pts.length - 1], first = pts[0];
-  const fmt = (v) => fmtMoney(v, c.unit, c.currency);
-  const dir = last.value > first.value ? "выросла" : last.value < first.value ? "снизилась" : "не изменилась";
-  const pct = first.value ? Math.round((last.value / first.value - 1) * 100) : null;
+  // Деньги, проценты и «разы» форматируются по-разному: ROE 11,19 % нельзя печатать
+  // как «11 млрд ₽», а долговую нагрузку 0,16× — как деньги.
+  const fmt = (v) => spec.unit
+    ? `${Number(v).toLocaleString("ru-RU", { minimumFractionDigits: spec.decimals || 0,
+        maximumFractionDigits: spec.decimals || 0 }).replace("-", "−")}${
+        spec.unit === "%" ? " %" : spec.unit}`
+    : fmtMoney(v, c.unit, c.currency);
+  // Род согласуем с названием показателя: «долговая нагрузка выросла», но «чистый долг вырос».
+  const fem = /^(выручка|чистая прибыль|долговая нагрузка|рентабельность|ebitda)/i.test(short);
+  const dir = last.value > first.value ? (fem ? "выросла" : "вырос")
+    : last.value < first.value ? (fem ? "снизилась" : "снизился")
+    : (fem ? "не изменилась" : "не изменился");
+  // 🔴 У показателей, которые САМИ измеряются в процентах (ROE) или в разах (долговая
+  // нагрузка), относительное изменение вводит в заблуждение: ROE 22,6 % → 23,8 % это
+  // +1,2 процентных пункта, а не «+5 %». Для них считаем абсолютную разницу.
+  const isRelative = !spec.unit;
+  const pct = isRelative
+    ? (first.value ? Math.round((last.value / first.value - 1) * 100) : null)
+    : null;
+  const absDelta = isRelative ? null : (last.value - first.value);
+  const deltaText = isRelative
+    ? (pct != null ? ` на ${Math.abs(pct)}%` : "")
+    : (absDelta ? ` на ${Math.abs(absDelta).toLocaleString("ru-RU", {
+        minimumFractionDigits: spec.decimals || 0, maximumFractionDigits: spec.decimals || 0 })}`
+        + (spec.unit === "%" ? " п.п." : spec.unit) : "");
   // Имя-первым: «EBITDA Северсталь» безграмотно (нужен родительный падеж, а склонять
   // названия автоматически нельзя). «Северсталь (CHMF): EBITDA по годам» читается верно
   // и ловит тот же запрос — поисковик сопоставляет слова, а не падежи.
-  const title = `${titleName(c)} (${c.ticker}): ${label} по годам — ${fmt(last.value)} за ${last.year} | Basis`;
+  const title = `${titleName(c)} (${c.ticker}): ${short} по годам — ${fmt(last.value)} за ${last.year} | Basis`;
   const desc = truncate(`${c.short} (${c.ticker}), ${label.toLowerCase()} за ${last.year} — ${fmt(last.value)}. `
-    + `Динамика ${first.year}–${last.year}: ${dir}${pct != null ? ` на ${Math.abs(pct)}%` : ""}. `
+    + `Динамика ${first.year}–${last.year}: ${dir}${deltaText}${/\.$/.test(deltaText) ? " " : ". "}`
     + `Данные из отчётности с разбором, что это значит.`, 200);
 
   const rowsHtml = pts.slice().reverse().map((p, i, a) => {
     const prev = a[i + 1];
-    const d = prev && prev.value ? Math.round((p.value / prev.value - 1) * 100) : null;
-    return `<tr><td>${p.year}</td><td>${escapeHtml(fmt(p.value))}</td><td>${
-      d == null ? "—" : (d > 0 ? "+" : "") + d + "%"}</td></tr>`;
+    let cell = "—";
+    if (prev) {
+      if (isRelative && prev.value) {
+        const d = Math.round((p.value / prev.value - 1) * 100);
+        cell = (d > 0 ? "+" : "") + d + "%";
+      } else if (!isRelative) {
+        const d = p.value - prev.value;
+        const body = Math.abs(d).toLocaleString("ru-RU", {
+          minimumFractionDigits: spec.decimals || 0, maximumFractionDigits: spec.decimals || 0 });
+        cell = (d > 0 ? "+" : d < 0 ? "−" : "") + body + (spec.unit === "%" ? " п.п." : spec.unit);
+      }
+    }
+    return `<tr><td>${p.year}</td><td>${escapeHtml(fmt(p.value))}</td><td>${cell}</td></tr>`;
   }).join("");
 
   const others = METRIC_PAGES.filter((m) => m.slug !== spec.slug);
   const body = `
 <p class="tag">${escapeHtml(c.sectorFull || c.sector)} · MOEX: ${c.ticker}</p>
-<h1>${escapeHtml(c.short)} <span style="color:var(--faint)">(${escapeHtml(c.ticker)})</span>: ${escapeHtml(label.toLowerCase())} по годам</h1>
+<h1>${escapeHtml(c.short)} <span style="color:var(--faint)">(${escapeHtml(c.ticker)})</span>: ${escapeHtml(short.toLowerCase())} по годам</h1>
 <p class="sub">${escapeHtml(label)} за ${last.year} — <b>${escapeHtml(fmt(last.value))}</b>.
-За ${first.year}–${last.year} ${dir}${pct != null ? ` на ${Math.abs(pct)}%` : ""}.</p>
+За ${first.year}–${last.year} ${dir}${deltaText}${/\.$/.test(deltaText) ? "" : "."}</p>
 <h2>${escapeHtml(label)} по годам</h2>
 <table><thead><tr><th>Год</th><th>${escapeHtml(label)}</th><th>Изм. г/г</th></tr></thead>
 <tbody>${rowsHtml}</tbody></table>
