@@ -64,6 +64,19 @@ async function main() {
   await grab("Секторальные индексы", "/api/market/pulse",
     (d) => ((d && d.sectors) || []), "sectors-snapshot.json");
 
+  // Справедливая цена по всем бумагам — под страницы /company/<T>/spravedlivaya-tsena/.
+  // Спрос на «справедливая цена акций <компании>» подтверждён подсказками Яндекса, а
+  // BFV — то, чего нет у агрегаторов. Снимаем вместе с ценой и потенциалом, чтобы на
+  // статической странице было видно, к какой цене относится оценка.
+  await grab("Справедливая цена", "/api/screener/stocks?limit=400",
+    (d) => (Array.isArray(d) ? d : (d.rows || []))
+      .filter((r) => r && r.ticker && r.fair_value)
+      .map((r) => ({
+        ticker: r.ticker, fair_value: r.fair_value, price: r.price,
+        upside_pct: r.upside_pct, source: r.fair_value_source,
+      })),
+    "fair-value-snapshot.json");
+
   // История значений показателей — ради неё стоит сделать N запросов: без неё страницы
   // статистики остаются справочными «одно число + подпись» (218 слов), а с ней дают
   // реальный контент — динамику за годы, которую и ищут («ключевая ставка по годам»).

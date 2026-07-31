@@ -1271,6 +1271,126 @@ ${rank}-е значение по величине среди ${plural(vals.lengt
 разная нормальная рентабельность и разная терпимость к долгу.</p>`;
 }
 
+
+// ─── Справедливая цена: страница под запрос «справедливая цена акций <компании>» ────
+// Подсказки Яндекса подтверждают спрос по конкретным эмитентам (Сбербанк, ЛУКОЙЛ, Х5,
+// Газпром, Татнефть, Интер РАО, Магнит), а у нас это единственная метрика, которой нет
+// у агрегаторов — они дают консенсус аналитиков, мы считаем от доходности ОФЗ.
+//
+// 🔴 ЧЕСТНОСТЬ ВАЖНЕЕ КЛИКА: число живое (пересчитывается от текущей цены), а страница
+// статическая, поэтому на ней ОБЯЗАТЕЛЬНО стоит дата снимка и цена, к которой оценка
+// относится. Без этого пользователь увидит вчерашний потенциал как сегодняшний.
+// Формулировки — те же, что в src/fairValueNote.js, чтобы одно и то же число не
+// объяснялось на карточке одним текстом, а здесь другим.
+const FV_NOTE = "Это не прогноз цены и не таргет, а планка входа: столько бумага должна "
+  + "стоить, чтобы вложение в неё было оправдано при сегодняшней доходности ОФЗ плюс "
+  + "премия за риск — макроэкономический и конкретно этой компании. Ставки сейчас "
+  + "высокие, поэтому у многих бумаг планка получается заметно ниже рынка: модель "
+  + "говорит «дорого относительно безрисковой альтернативы», а не «упадёт». Методика "
+  + "прототипная, без калибровки — может преувеличивать в обе стороны. Не является "
+  + "индивидуальной инвестиционной рекомендацией.";
+
+function fairValuePage(c, fv, dateIso, assets, tabsWritten, sectorAll, fairValues) {
+  const money = (v) => Number(v).toLocaleString("ru-RU",
+    { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace("-", "−") + " ₽";
+  const up = typeof fv.upside_pct === "number" ? Math.round(fv.upside_pct) : null;
+  const verdict = up == null ? "оценка есть, потенциал не рассчитан"
+    : up > 0 ? `на ${up}% выше рынка` : `на ${Math.abs(up)}% ниже рынка`;
+  const asOf = dateIso ? new Date(dateIso).toLocaleDateString("ru-RU",
+    { day: "numeric", month: "long", year: "numeric" }) : null;
+  const byModel = fv.source === "bfv";
+
+  // Контекст сектора: один потенциал без фона читается как приговор компании, хотя при
+  // ставке 16-18% отрицательный потенциал — норма почти для всего рынка. Показываем,
+  // сколько бумаг сектора в том же положении, чтобы число не выглядело личной бедой.
+  const peers = (sectorAll || [])
+    .map((p) => ({ p, f: fairValues[p.ticker] }))
+    .filter((x) => x.f && typeof x.f.upside_pct === "number");
+  let sectorHtml = "";
+  if (peers.length >= 3) {
+    const below = peers.filter((x) => x.f.upside_pct < 0).length;
+    const sorted = peers.map((x) => x.f.upside_pct).slice().sort((a, b) => a - b);
+    const med = sorted.length % 2 ? sorted[(sorted.length - 1) / 2]
+      : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
+    const top = peers.slice().sort((a, b) => b.f.upside_pct - a.f.upside_pct).slice(0, 6);
+    sectorHtml = `<h2>Как это выглядит на фоне сектора</h2>
+<p>По сектору «${escapeHtml(c.sectorFull || c.sector)}» медианный потенциал —
+${String(Math.round(med)).replace("-", "−")}%; оценка ниже текущей цены у
+${plural(below, "компании", "компаний", "компаний")} из ${peers.length}. При высокой
+ключевой ставке это ожидаемо: планка входа поднимается у всего рынка сразу, а не у
+отдельной бумаги.</p>
+<table><thead><tr><th>Компания</th><th>Потенциал</th></tr></thead><tbody>${
+      top.map((x) => `<tr><td><a href="/company/${x.p.ticker}/spravedlivaya-tsena/">${
+        escapeHtml(x.p.short)}</a></td><td>${x.f.upside_pct > 0 ? "+" : "−"}${
+        Math.abs(Math.round(x.f.upside_pct))}%</td></tr>`).join("")
+    }</tbody></table>`;
+  }
+
+  // Имя-первым по той же причине, что на страницах метрик: «справедливая цена акций
+  // Сбербанк» безграмотно (нужен родительный падеж, а склонять названия автоматически
+  // нельзя), «Сбербанк (SBER): справедливая цена акций» читается верно и ловит тот же
+  // запрос — поисковик сопоставляет слова, а не падежи.
+  const title = `${titleName(c)} (${c.ticker}): справедливая цена акций — оценка Basis | Basis`;
+  const desc = truncate(`Справедливая цена акций — ${c.short} (${c.ticker}) по методике Basis — `
+    + `${money(fv.fair_value)}${up != null ? `, ${verdict}` : ""} при цене ${money(fv.price)}`
+    + `${asOf ? ` на ${asOf}` : ""}. Как считается и что это число не означает.`, 200);
+
+  const body = `
+<p class="tag">${escapeHtml(c.sectorFull || c.sector)} · MOEX: ${c.ticker}</p>
+<h1>${escapeHtml(c.short)} <span style="color:var(--faint)">(${escapeHtml(c.ticker)})</span>: справедливая цена акций</h1>
+<p class="sub">Оценка Basis — <b>${escapeHtml(money(fv.fair_value))}</b> за акцию при рыночной цене
+${escapeHtml(money(fv.price))}${up != null ? `, то есть ${escapeHtml(verdict)}` : ""}.
+${asOf ? `Расчёт на ${escapeHtml(asOf)}.` : ""} <span class="tag">оценка модели</span></p>
+<table><thead><tr><th>Показатель</th><th>Значение</th></tr></thead><tbody>
+<tr><td>Справедливая цена</td><td>${escapeHtml(money(fv.fair_value))}</td></tr>
+<tr><td>Цена на момент расчёта</td><td>${escapeHtml(money(fv.price))}</td></tr>
+<tr><td>Потенциал</td><td>${up == null ? "—" : (up > 0 ? "+" : "−") + Math.abs(up) + "%"}</td></tr>
+<tr><td>Метод</td><td>${byModel ? "модель Basis (BFV)" : "оценка аналитика"}</td></tr>
+</tbody></table>
+<h2>Как читать это число</h2>
+<p>${escapeHtml(FV_NOTE)}</p>
+<h2>Как считается</h2>
+<p>${byModel
+    ? "Методика Basis идёт от требуемой доходности, а не от консенсуса аналитиков. За точку "
+      + "отсчёта берётся доходность ОФЗ на сопоставимый срок — безрисковая альтернатива, "
+      + "которая доступна инвестору прямо сейчас. К ней добавляется премия за риск: "
+      + "макроэкономический, отраслевой и специфический для компании. Полученная планка "
+      + "требуемой доходности накладывается на способность бизнеса генерировать поток — "
+      + "дивиденды и балансовый капитал либо свободный денежный поток, в зависимости от "
+      + "того, что для компании показательнее. Отсюда и получается цена, при которой "
+      + "вложение оправдано."
+    : "По этой бумаге модель не дала устойчивого результата — обычно так бывает при "
+      + "убытке, отрицательном капитале или слишком короткой истории отчётности. "
+      + "Показана оценка аналитика, полученная сравнительным методом. Это менее строгий "
+      + "путь, и относиться к числу стоит осторожнее."}</p>
+<p>Число пересчитывается автоматически: оно зависит от текущей цены и от кривой
+доходности ОФЗ, поэтому меняется вместе с рынком. На этой странице — снимок${
+    asOf ? ` на ${escapeHtml(asOf)}` : ""}; актуальное значение всегда
+<a href="/company/${c.ticker}/">на карточке компании</a>.</p>
+${sectorHtml}
+<h2>Чем подкреплена оценка</h2>
+<p>Оценка опирается на отчётность компании, а не на настроение рынка. Основные величины,
+которые в неё входят, разобраны отдельно:
+<a href="/company/${c.ticker}/vyruchka/">выручка</a>,
+<a href="/company/${c.ticker}/chistaya-pribyl/">чистая прибыль</a>,
+<a href="/company/${c.ticker}/dividends/">дивиденды</a> и
+<a href="/company/${c.ticker}/finance/">полный разбор отчётности</a>.
+Что за бизнес стоит за этими цифрами — в
+<a href="/company/${c.ticker}/business/">разборе бизнес-модели</a>.</p>
+<a class="cta" href="/?company=${c.ticker}">Открыть разбор ${escapeHtml(c.short)} в Basis →</a>`;
+
+  return pageShell({
+    title, desc, canonicalPath: `/company/${c.ticker}/spravedlivaya-tsena/`,
+    breadcrumbs: [
+      { label: "Basis", href: "/" },
+      { label: "Компании", href: "/company/" },
+      { label: `${c.short} (${c.ticker})`, href: `/company/${c.ticker}/` },
+      { label: "Справедливая цена" },
+    ],
+    bodyHtml: body, assets, note: DEFAULT_NOTE,
+  });
+}
+
 function metricPage(c, spec, pts, assets, tabsWritten, sectorAll) {
   const isBank = c.profile === "bank";
   const label = isBank && spec.bankLabel ? spec.bankLabel : spec.label;
@@ -1499,6 +1619,21 @@ function main() {
   ];
   let tabPagesCount = 0;
   let metricPagesCount = 0;
+  let fairValuePagesCount = 0;
+
+  // Справедливая цена: снимок с боевого API (обновляется на каждой сборке). Держим
+  // отдельно от financials.json, потому что число ЖИВОЕ — оно пересчитывается от
+  // текущей цены и кривой ОФЗ, в файлах отчётности его нет и быть не может.
+  let fairValues = {}, fairValueDate = null;
+  try {
+    const fvRaw = JSON.parse(fs.readFileSync(
+      path.join(__dirname, "data", "fair-value-snapshot.json"), "utf8"));
+    fairValueDate = (fvRaw.meta || {}).fetched_at || null;
+    for (const r of fvRaw.rows || []) fairValues[r.ticker] = r;
+    console.log(`Справедливая цена: снимок на ${Object.keys(fairValues).length} бумаг`);
+  } catch {
+    console.log("Справедливая цена: снимка нет — страницы оценки пропускаются");
+  }
 
   const gitDates = loadGitFileDates();
   if (!gitDates) console.log("⚠️  git-история недоступна — lastmod из mtime файлов");
@@ -1538,6 +1673,20 @@ function main() {
 
     const hubDir = path.join(_BUILD_DIR, "company", c.ticker);
     fs.mkdirSync(hubDir, { recursive: true });
+
+    // Справедливая цена — отдельной страницей: спрос по конкретным эмитентам
+    // подтверждён, а у агрегаторов такой метрики нет (у них консенсус аналитиков).
+    const fv = fairValues[c.ticker];
+    if (fv && typeof fv.fair_value === "number" && typeof fv.price === "number") {
+      const fvDir = path.join(hubDir, "spravedlivaya-tsena");
+      fs.mkdirSync(fvDir, { recursive: true });
+      fs.writeFileSync(path.join(fvDir, "index.html"),
+        fairValuePage(c, fv, fairValueDate, assets, tabsWritten, sectorAll, fairValues), "utf8");
+      urls.push({ loc: `${_SITE}/company/${c.ticker}/spravedlivaya-tsena/`,
+        freq: "weekly", pri: "0.7", lastmod });
+      fairValuePagesCount++;
+      tabsWritten.push({ slug: "spravedlivaya-tsena", label: "Справедливая цена" });
+    }
     fs.writeFileSync(path.join(hubDir, "index.html"), hubPage(c, tabsWritten, peers, assets), "utf8");
     urls.push({ loc: `${_SITE}/company/${c.ticker}/`, freq: "weekly", pri: "0.8", lastmod });
 
@@ -1586,7 +1735,7 @@ function main() {
   }
 
   writeSitemap(urls);
-  console.log(`SEO-страницы: ${companies.length} хабов + ${tabPagesCount} разделов + ${metricPagesCount} метрик + ${LANDINGS.length} лендингов + каталог; sitemap.xml — ${urls.length} URL; пропущено (нет financials.json): ${skipped.length}`);
+  console.log(`SEO-страницы: ${companies.length} хабов + ${tabPagesCount} разделов + ${metricPagesCount} метрик + ${fairValuePagesCount} оценок + ${LANDINGS.length} лендингов + каталог; sitemap.xml — ${urls.length} URL; пропущено (нет financials.json): ${skipped.length}`);
   console.log(`Короткие редиректы /TICKER/: ${shortUrlCount}${shortUrlSkipped.length ? `; пропущены (конфликт с зарезервированным путём): ${shortUrlSkipped.join(", ")}` : ""}`);
   if (skipped.length) console.log("пропущены:", skipped.slice(0, 20).join(", "), skipped.length > 20 ? "..." : "");
 }
