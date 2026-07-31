@@ -75,6 +75,13 @@ _FORBIDDEN = re.compile(
     r"купи(ть|те)|прода(ть|йте)|рекоменду|таргет|целев\w+\s+цен|приведёт\s+к|"
     r"ожида(ем|ется)|вырастет\s+до|упадёт\s+до|прогнозиру|потенциал\s+рост|апсайд",
     re.IGNORECASE)
+# Для ИНТЕРПРЕТАЦИИ полный список не годится: её работа — суждение, и «ожидается»/
+# «прогнозируется» там легитимны (на бою 2026-07-31 forbidden резал валидные
+# интерпретационные правки). Жёсткое ядро остаётся: сделки и целевые цены
+# запрещены ЛЮБОМУ виду патча (не брокер, без «купить/продать»).
+_FORBIDDEN_INTERP = re.compile(
+    r"купи(ть|те)|прода(ть|йте)|рекоменду|таргет|целев\w+\s+цен",
+    re.IGNORECASE)
 
 _FACT_SYS = """Ты — редактор-факт-чекер платформы Basis (не брокер, без «купить/
 продать» и прогнозов). Тебе дан ТЕКСТ разбора вкладки и ПРОВЕРЕННЫЙ сигнал-событие
@@ -156,7 +163,12 @@ def read_prose(db: Session, ticker: str, tab: str) -> tuple[str | None, str]:
 
 # ----------------------------- ГЕЙТ -----------------------------
 def _numbers(s: str) -> list[str]:
-    return re.findall(r"\d+[.,]?\d*", s or "")
+    # «1 019 млрд» (пробел/неразрывный как разделитель тысяч) без склейки распадается
+    # на токены «1» и «019» — и валидная правка падала на ungrounded_numbers:['019']
+    # (бой 2026-07-31). Склеиваем разряды ДО разбора — одинаково для сигнала, прозы,
+    # find и replace, так что строгость проверки не меняется.
+    s = re.sub(r"(?<=\d)[\u00a0\u202f\u2009 ](?=\d{3}(?!\d))", "", s or "")
+    return re.findall(r"\d+[.,]?\d*", s)
 
 
 # нормализация для ПОИСКА find в прозе — 1:1 (длина сохраняется, чтобы индексы
@@ -210,7 +222,8 @@ def _flexible_spans(haystack: str, needle: str) -> list[tuple[int, int]]:
         return []
 
 
-def _apply_and_gate(prose: str, result: dict, signal_text: str) -> tuple[str | None, list[str]]:
+def _apply_and_gate(prose: str, result: dict, signal_text: str,
+                    kind: str = "fact") -> tuple[str | None, list[str]]:
     """→ (patched_md|None, notes). Применяет find/replace и проверяет каждую правку."""
     notes: list[str] = []
     if not isinstance(result, dict):
@@ -263,10 +276,15 @@ def _apply_and_gate(prose: str, result: dict, signal_text: str) -> tuple[str | N
         else:
             notes.append(f"edit{i}:find_ambiguous({cnt})")
             continue
-        if len(repl) > len(find) + 200:
+        # интерпретация легитимно дописывает абзац (новый риск/тезис) — +200 ей
+        # мало (бой 2026-07-31: replace_too_long на валидных правках); переписывание
+        # с нуля по-прежнему отсечено лимитом
+        max_grow = 500 if kind == "interpretation" else 200
+        if len(repl) > len(find) + max_grow:
             notes.append(f"edit{i}:replace_too_long")
             continue
-        if _FORBIDDEN.search(repl):
+        forb = _FORBIDDEN_INTERP if kind == "interpretation" else _FORBIDDEN
+        if forb.search(repl):
             notes.append(f"edit{i}:forbidden")
             continue
         # число в replace, которого НЕТ в find, обязано быть обосновано (сигнал/проза)
@@ -310,7 +328,7 @@ def _run_patch(db: Session, ticker: str, tab: str, *, sys: str, task_builder,
     except LLMError as e:
         result, stopped = None, f"llm_error:{str(e)[:60]}"
     if isinstance(result, dict):
-        patched, notes = _apply_and_gate(prose, result, grounding_text)
+        patched, notes = _apply_and_gate(prose, result, grounding_text, kind=kind)
     else:
         patched, notes = None, [f"no_result:{stopped}"]
     ok = patched is not None

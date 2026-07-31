@@ -57,3 +57,33 @@ def test_ambiguous_find_rejected():
     res = {"confirmed": True, "edits": [{"find": "Ставка 14%.", "replace": "Ставка 13%."}]}
     patched, notes = _apply_and_gate(prose, res, "сигнал: ставка 13%")
     assert patched is None and any("ambiguous" in n for n in notes)
+
+
+def test_thousands_separator_number_grounded():
+    # «1 019 млрд» с пробелом-разделителем распадалось на «1»+«019» → ungrounded
+    prose = "Прибыль за 2025 год — 1 580 млрд ₽."
+    sig = "2026-07-30 [ir] прибыль 1П2026 составила 1 019 млрд руб."
+    res = {"confirmed": True, "edits": [{"find": "Прибыль за 2025 год — 1 580 млрд ₽.",
+                                         "replace": "Прибыль за 1П2026 — 1 019 млрд ₽."}]}
+    patched, notes = _apply_and_gate(prose, res, sig)
+    assert patched is not None and notes == []
+
+
+def test_interp_allows_expectation_wording_but_not_trades():
+    prose = "Маржа стабильна."
+    res_ok = {"confirmed": True, "edits": [{"find": "Маржа стабильна.",
+                                            "replace": "Маржа стабильна; ожидается давление ставки."}]}
+    patched, notes = _apply_and_gate(prose, res_ok, "сигнал: ставка", kind="interpretation")
+    assert patched is not None and notes == []
+    res_trade = {"confirmed": True, "edits": [{"find": "Маржа стабильна.",
+                                               "replace": "Маржа стабильна — рекомендуем покупать."}]}
+    patched, notes = _apply_and_gate(prose, res_trade, "сигнал", kind="interpretation")
+    assert patched is None and any("forbidden" in n for n in notes)
+
+
+def test_fact_still_blocks_expectation_wording():
+    prose = "Маржа стабильна."
+    res = {"confirmed": True, "edits": [{"find": "Маржа стабильна.",
+                                         "replace": "Маржа стабильна; ожидается рост."}]}
+    patched, notes = _apply_and_gate(prose, res, "сигнал", kind="fact")
+    assert patched is None and any("forbidden" in n for n in notes)
