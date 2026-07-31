@@ -909,6 +909,7 @@ def debug_backfill_interim_overlay(ticker: str | None = None, days_back: int | N
 
         stats: dict[str, int] = {}
         by_ticker: dict[str, list[str]] = {}
+        skipped: dict[str, list[str]] = {}
         for report, efig, company in rows:
             fig = {
                 "revenue": float(efig.revenue_ttm) if efig.revenue_ttm is not None else None,
@@ -920,7 +921,9 @@ def debug_backfill_interim_overlay(ticker: str | None = None, days_back: int | N
             stats[status] = stats.get(status, 0) + 1
             if status in ("created", "updated"):
                 by_ticker.setdefault(report.ticker, []).append(f"{report.period}:{status}")
-        return {"scanned": len(rows), "stats": stats, "changed_tickers": by_ticker}
+            else:
+                skipped.setdefault(status, []).append(f"{report.ticker}:{report.period!r}")
+        return {"scanned": len(rows), "stats": stats, "changed_tickers": by_ticker, "skipped_detail": skipped}
     except Exception as e:  # noqa: BLE001
         logger.exception("debug backfill-interim-overlay: %s", e)
         return {"error": f"{type(e).__name__}: {e}"}
