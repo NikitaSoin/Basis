@@ -2273,7 +2273,6 @@ function main() {
     shortUrlCount++;
   }
 
-  writeSitemap(urls);
   // Лендинг недооценённых — после компаний: нужны и оценки, и выручка для разделения.
   if (Object.keys(fairValues).length) {
     const dir = path.join(_BUILD_DIR, "nedootsenennye-aktsii");
@@ -2339,6 +2338,12 @@ function main() {
     glossaryCount++;
   }
 
+  // 🔴 Карта сайта пишется ПОСЛЕДНЕЙ, когда все страницы уже добавлены в urls. Раньше
+  // writeSitemap() стоял до генерации справочника и лендинга недооценённых — 25 адресов
+  // в файл не попадали, хотя сами страницы существовали и открывались. Коварство в том,
+  // что итоговый лог считает длину массива urls, а не строки файла: он рапортовал 4687
+  // при реальных 4662 в sitemap.xml. Проверять карту по ФАЙЛУ, а не по логу.
+  writeSitemap(urls);
   console.log(`SEO-страницы: ${companies.length} хабов + ${tabPagesCount} разделов + ${metricPagesCount} метрик + ${fairValuePagesCount} оценок + ${glossaryCount} справочника + ${LANDINGS.length} лендингов + каталог; sitemap.xml — ${urls.length} URL; пропущено (нет financials.json): ${skipped.length}`);
   console.log(`Короткие редиректы /TICKER/: ${shortUrlCount}${shortUrlSkipped.length ? `; пропущены (конфликт с зарезервированным путём): ${shortUrlSkipped.join(", ")}` : ""}`);
   if (skipped.length) console.log("пропущены:", skipped.slice(0, 20).join(", "), skipped.length > 20 ? "..." : "");
