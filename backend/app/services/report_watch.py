@@ -1084,14 +1084,26 @@ def ingest_agent_source(db: Session, ticker: str, text_blob: str, source_url: st
                                       else "отчётность")
     report_type = "annual" if re.search(r"\bгод", per, re.I) else "quarter"
 
-    # старые свежие записи тикера — под замену (тот же паттерн, что redo-report)
+    # 🔴 ГЕЙТ «НЕ УХУДШАЙ» (найдено на бою 2026-07-31: добытчик заменил полноценный
+    # разбор Ozon записью со смартлаб-поста и кривыми ярлыками — прежний код удалял
+    # ВСЕ свежие записи тикера, хотя докстринг обещал замену «только если
+    # содержательнее»). Правило: processed-запись С ВЫРУЧКОЙ — неприкосновенна;
+    # если такая есть, добыча завершает работу чисткой пустых дублей, ничего не
+    # создавая. Под замену идут только слабые записи (needs_source / без выручки).
     olds = (db.query(EarningsReport)
             .filter(EarningsReport.ticker == ticker,
                     EarningsReport.published_at.isnot(None),
                     EarningsReport.published_at >= date.today() - timedelta(days=10)).all())
-    for r in olds:
+    good = [r for r in olds
+            if r.status == "processed" and r.figures is not None
+            and r.figures.revenue_ttm is not None]
+    weak = [r for r in olds if r not in good]
+    for r in weak:
         db.delete(r)
     db.commit()
+    if good:
+        return {"result": "kept_better", "kept_period": good[0].period,
+                "deleted_weak": len(weak)}
 
     report = EarningsReport(
         ticker=ticker, period=per, standard=std, report_type=report_type,
@@ -1108,7 +1120,7 @@ def ingest_agent_source(db: Session, ticker: str, text_blob: str, source_url: st
     except IntegrityError:
         db.rollback()
         return {"error": "integrity (дубль period/standard)"}
-    return {"result": res, "period": per, "standard": std, "deleted_old": len(olds)}
+    return {"result": res, "period": per, "standard": std, "deleted_weak": len(weak)}
 
 
 # ----------------------------- ГИР БО (bo.nalog.gov.ru) — годовая РСБУ-отчётность -----------------------------

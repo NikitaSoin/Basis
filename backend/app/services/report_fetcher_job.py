@@ -64,8 +64,16 @@ def build_wishlist(db: Session, days_back: int = 2) -> list[dict]:
             .outerjoin(EarningsFigures, EarningsFigures.report_id == EarningsReport.id)
             .filter(EarningsReport.published_at.isnot(None),
                     EarningsReport.published_at >= cutoff).all())
+    # 🔴 Закрытость считается ПО ТИКЕРУ, не по отдельной записи: у эмитента в окне
+    # часто несколько записей (пути детекта плодят пустые дубли рядом с полноценной),
+    # и пустой дубль НЕ повод добывать заново — на бою 2026-07-31 пустая Ozon-запись
+    # утянула добытчика при живом полноценном разборе, и замена стёрла хорошие ярлыки.
+    satisfied = {r.ticker for r, fig in rows
+                 if r.status == "processed" and fig is not None and fig.revenue_ttm is not None}
     out = []
     for r, fig in rows:
+        if r.ticker in satisfied:
+            continue
         reason = None
         if r.status == "needs_source":
             reason = "нет источника"
