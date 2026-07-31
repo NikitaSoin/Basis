@@ -1596,6 +1596,37 @@ def debug_card_consumer_addenda(ticker: str | None = None, limit: int = 20):
         db.close()
 
 
+@router.get("/debug/prose-overlays-status")
+def debug_prose_overlays_status(days_back: int = 14, limit: int = 30):
+    """Смотровое окно авто-свежести прозы (владелец 2026-07-31: «интерпретация была,
+    но по-моему ничего не изменилось»): счётчики по kind/status за окно + последние
+    записи с причинами гейта. Раньше единственным следом прогонов был logger.info —
+    с прода его не видно, и «ok» хартбита не говорил, публиковалось ли что-то."""
+    from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+    from app.db.session import SessionLocal
+    from app.models.geo import CardProseOverlay
+    db = SessionLocal()
+    try:
+        since = _dt.now(_tz.utc) - _td(days=days_back)
+        rows = (db.query(CardProseOverlay)
+                .filter(CardProseOverlay.created_at >= since)
+                .order_by(CardProseOverlay.created_at.desc()).limit(500).all())
+        counters: dict = {}
+        for r in rows:
+            counters[f"{r.kind}/{r.status}"] = counters.get(f"{r.kind}/{r.status}", 0) + 1
+        return {
+            "days_back": days_back, "total": len(rows), "counters": counters,
+            "recent": [{
+                "created_at": r.created_at.isoformat() if r.created_at else None,
+                "ticker": r.ticker, "tab": r.tab, "kind": r.kind, "status": r.status,
+                "change_note": (r.change_note or "")[:200],
+                "gate_notes": (r.gate_notes or [])[:3],
+            } for r in rows[:limit]],
+        }
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-prose-patcher")
 def debug_trigger_prose_patcher(signal_id: int | None = None, kind: str = "fact",
                                 weekly: bool = False, ticker: str | None = None,
