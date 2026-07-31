@@ -146,9 +146,16 @@ function shortName(raw) {
     .replace(/Закрытое акционерное общество/gi, "")
     .replace(/Акционерное общество/gi, "");
   s = s.split(/\s+/).filter((w) => !LEGAL_TOKENS.has(w.replace(/[«»"',.]/g, ""))).join(" ").trim();
-  // развернуть кавычки «...» / "..." если имя целиком в них
+  // Развернуть кавычки «...», если имя целиком в них. НО у составных имён вида
+  // «НК «Роснефть» внутренняя кавычка своя: слепое разворачивание давало «НК «Роснефть
+  // с потерянной закрывающей — это видно в тексте страниц. Разворачиваем, только если
+  // внутри кавычки сбалансированы; иначе снимаем лишь внешнюю открывающую.
   const m = s.match(/^[«"']+(.+?)[»"']+$/);
-  if (m) s = m[1];
+  if (m) {
+    const inner = m[1];
+    const balanced = (inner.match(/«/g) || []).length === (inner.match(/»/g) || []).length;
+    s = balanced ? inner : s.replace(/^[«"']/, "");
+  }
   // хвост в скобках-кавычках после снятия юрформы: `«Сбербанк» (прив.)` → оставить как есть
   s = strip(s.replace(/^[-–—\s]+|[-–—\s]+$/g, ""));
   return s || strip(raw);
@@ -1077,6 +1084,7 @@ const METRIC_PAGES = [
   },
   {
     slug: "roa", key: "roa", label: "Рентабельность активов (ROA)", from: "returns",
+    percentBasis: [["income_statement", "net_profit"], ["balance_sheet", "total_assets"]],
     unit: "%", bank: true,
     what: "Рентабельность активов — сколько прибыли приносит каждый рубль активов. Показывает "
       + "эффективность бизнеса без поправки на то, чьи это деньги — акционеров или кредиторов.",
@@ -1140,7 +1148,8 @@ const METRIC_PAGES = [
       + "предсказуемой выручкой можно больше, чем цикличной добыче.",
   },
   {
-    slug: "roe", key: "roe", label: "ROE (рентабельность капитала)", shortLabel: "ROE",
+    slug: "roe", key: "roe",
+    percentBasis: [["income_statement", "net_profit"], ["balance_sheet", "total_equity"]], label: "ROE (рентабельность капитала)", shortLabel: "ROE",
     bank: true, from: "returns", unit: "%", decimals: 1,
     what: "ROE — отношение прибыли к собственному капиталу: сколько компания зарабатывает "
       + "на деньгах акционеров. Ключевая мера эффективности бизнеса и главный вход в "
@@ -1150,6 +1159,48 @@ const METRIC_PAGES = [
       + "смотрят вместе с долговой нагрузкой, а не отдельно.",
   },
 ];
+
+// Единицы рентабельностей в financials.json СМЕШАНЫ: у одних компаний проценты
+// (11.19), у других доли (0.0577) — 31 компания по ROE, 56 по ROA. Порог «меньше
+// полутора значит доля» проверен на данных и ошибается на 11 компаниях в опасную
+// сторону: у «Красного Октября» ROE действительно 0,88 %, и порог раздул бы его до
+// 88 %. Поэтому единицы устанавливаем сверкой с пересчётом из первичных статей, а где
+// сверить нечем — НЕ трогаем (занизить безопаснее, чем раздуть в сто раз).
+// Та же логика на бэкенде: backend/app/services/units.py.
+// Согласование существительного с числом: 21 компании, 22 компании, 25 компаний.
+// Тикер привилегированной акции → тикер обычки того же эмитента (SBERP → SBER), если
+// обычка есть в наборе. Нужно, чтобы один эмитент не попадал в статистику дважды.
+function baseTicker(ticker, tickerSet) {
+  if (ticker.length > 1 && ticker.endsWith("P")) {
+    const base = ticker.slice(0, -1);
+    if (tickerSet.has(base)) return base;
+  }
+  return ticker;
+}
+
+function plural(n, one, few, many) {
+  const a = Math.abs(n) % 100, b = a % 10;
+  const word = a > 10 && a < 20 ? many : b === 1 ? one : b >= 2 && b <= 4 ? few : many;
+  return `${n} ${word}`;
+}
+
+function detectScale(series, num, den) {
+  if (![series, num, den].every(Array.isArray)) return 1;
+  const pairs = [];
+  const n = Math.min(series.length, num.length, den.length);
+  for (let i = 0; i < n; i++) {
+    const s = series[i], a = num[i], b = den[i];
+    if (![s, a, b].every((x) => typeof x === "number")) continue;
+    if (b <= 0) continue;                       // отрицательный капитал — пересчёт не показателен
+    const calc = (a / b) * 100;
+    if (Math.abs(calc) > 300) continue;         // выброс, сверять по нему нельзя
+    pairs.push([s, calc]);
+  }
+  if (pairs.length < 2) return 1;
+  const errAsIs = pairs.reduce((t, [s, c]) => t + Math.abs(s - c), 0);
+  const errX100 = pairs.reduce((t, [s, c]) => t + Math.abs(s * 100 - c), 0);
+  return errX100 < errAsIs ? 100 : 1;
+}
 
 function metricSeries(c, spec) {
   const isBank = c.profile === "bank";
@@ -1162,7 +1213,12 @@ function metricSeries(c, spec) {
     : spec.from === "returns" ? (c.fin.returns || {})
     : spec.from === "cash_flow" ? (c.fin.cash_flow || {})
     : isBank ? (c.fin.bank_pnl || {}) : (c.fin.income_statement || {});
-  const arr = spec.derive ? spec.derive(c.fin) : src[key];
+  let arr = spec.derive ? spec.derive(c.fin) : src[key];
+  if (spec.percentBasis && Array.isArray(arr)) {
+    const [[ng, nk], [dg, dk]] = spec.percentBasis;
+    const k = detectScale(arr, (c.fin[ng] || {})[nk], (c.fin[dg] || {})[dk]);
+    if (k !== 1) arr = arr.map((x) => (typeof x === "number" ? x * k : x));
+  }
   if (!Array.isArray(arr) || !c.years.length) return null;
   const pts = [];
   const dropped = [];
@@ -1198,10 +1254,13 @@ function sectorContext(c, spec, lastValue, peers, fmt) {
   const top = vals.slice().sort((a, b) => b.value - a.value).slice(0, 6);
   // Нейтральное «N-е по величине», а не «N место»: у долговой нагрузки первое место —
   // это самый закредитованный в секторе, и слово «место» читалось бы как похвала.
+  // «у компании», а не «у ${short}»: названия эмитентов не склоняются («у Северсталь
+  // выше»), а часть коротких имён ещё и обрезана с незакрытой кавычкой.
   return `<h2>Сравнение с сектором</h2>
 <p>Медиана по сектору «${escapeHtml(c.sectorFull || c.sector)}» — ${escapeHtml(fmt(median))};
-у ${escapeHtml(c.short)} ${escapeHtml(cmp)} (${escapeHtml(fmt(lastValue))}) —
-${rank}-е значение по величине среди ${vals.length + 1} компаний сектора, по которым есть данные.${
+у компании ${escapeHtml(cmp)} (${escapeHtml(fmt(lastValue))}) —
+${rank}-е значение по величине среди ${plural(vals.length + 1, "компании", "компаний", "компаний")} сектора,
+по которым есть данные.${
     spec.lowerIsBetter ? " По этому показателю большее значение означает больший риск, а не лучший результат." : ""
   }</p>
 <table><thead><tr><th>Компания</th><th>Значение</th></tr></thead><tbody>${
@@ -1444,6 +1503,9 @@ function main() {
   const gitDates = loadGitFileDates();
   if (!gitDates) console.log("⚠️  git-история недоступна — lastmod из mtime файлов");
 
+  // для склейки пар обычка/преф в статистике сектора (см. baseTicker)
+  const tickerSet = new Set(companies.map((x) => x.ticker));
+
   for (const c of companies) {
     const lastmod = companyLastmod(c.ticker, gitDates);
     // какие таб-страницы реально есть у этой компании
@@ -1461,7 +1523,17 @@ function main() {
     // место компании: если считать по обрезанным восьми, «3-я из 6» будет прямой
     // неправдой при секторе в тридцать бумаг. peers — те же соседи, но обрезанные до
     // восьми для блока перелинковки, где длинный список только мешает.
-    const sectorAll = companies.filter((p) => p.sector === c.sector && p.ticker !== c.ticker);
+    // Привилегированные акции — та же компания и те же цифры, что у обычки (SBER/SBERP,
+    // TATN/TATNP). Считая их отдельной строкой, мы удваивали эмитента в медиане сектора
+    // и показывали Сбербанк соседом самому себе в таблице на его же странице.
+    const seenIssuers = new Set([baseTicker(c.ticker, tickerSet)]);
+    const sectorAll = companies.filter((p) => {
+      if (p.sector !== c.sector || p.ticker === c.ticker) return false;
+      const base = baseTicker(p.ticker, tickerSet);
+      if (seenIssuers.has(base)) return false;
+      seenIssuers.add(base);
+      return true;
+    });
     const peers = sectorAll.slice(0, 8);
 
     const hubDir = path.join(_BUILD_DIR, "company", c.ticker);

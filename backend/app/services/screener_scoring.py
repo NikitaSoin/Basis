@@ -26,6 +26,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.services.live_multiples import live_scale_multiples
+from app.services.units import last_to_percent
 
 logger = logging.getLogger(__name__)
 
@@ -156,9 +157,13 @@ def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding, fv_entr
     # Реальный ROE у части банков лежит в bank_metrics.roe_adj_pct/roe_rep_pct —
     # без этого фолбэка банки со свежим форматом (T, MBNK, PRMB) молча выпадали
     # из ROE-фильтров скринера, хотя в их же карточке ROE показан.
-    roe = _num(_last(ret.get("roe")))
+    # 🔴 2026-07-31: единицы ROE в financials.json СМЕШАНЫ — у 31 компании доли
+    # (0.0577), у 185 проценты (11.19). Без приведения «Качество» видело у них ROE
+    # ≈ 0 и роняло в самый низ рейтинга при реальных 5,77 %. Тот же класс дефекта,
+    # что margins.ebitda_margin строкой ниже: не падает, просто молча врёт.
+    roe = last_to_percent(j, "roe", ret.get("roe"))
     if roe is None:
-        roe = _num(_last(bank_m.get("roe_adj_pct")))
+        roe = _num(_last(bank_m.get("roe_adj_pct")))   # у банков поле уже в процентах (_pct)
     if roe is None:
         roe = _num(_last(bank_m.get("roe_rep_pct")))
 

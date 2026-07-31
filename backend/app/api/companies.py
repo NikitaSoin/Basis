@@ -53,6 +53,7 @@ from app.services.company import (
 )
 from app.services.live_multiples import live_scale_multiples
 from app.services.live_wacc import live_recompute_valuation
+from app.services.units import last_to_percent, series_to_percent
 
 router = APIRouter()
 
@@ -846,7 +847,10 @@ def sector_multiples(db: Session = Depends(get_db)):
             "pe": _f(cur.get("pe")), "ps": _f(cur.get("ps")), "pb": _f(cur.get("pb")),
             "ev_ebitda": _f(cur.get("ev_ebitda")),
             "nd_ebitda": last(mt.get("net_debt_ebitda")),
-            "roe": last(rs.get("roe")) if rs.get("roe") else last(mt.get("roe")),
+            # единицы ROE смешаны между компаниями (доли/проценты) — без приведения
+            # медиана сектора считается по несопоставимым величинам, см. services/units.py
+            "roe": (last_to_percent(d, "roe", rs.get("roe")) if rs.get("roe")
+                    else last_to_percent(d, "roe", mt.get("roe"))),
         }
         b = buckets.setdefault(sec, {k: [] for k in row})
         b["_n"] = b.get("_n", 0)
@@ -907,7 +911,7 @@ def sector_peers_multiples(db: Session = Depends(get_db)):
         src = {
             "pe": mt.get("pe"), "ps": mt.get("ps"), "pb": mt.get("pb"),
             "ev_ebitda": mt.get("ev_ebitda"), "nd_ebitda": mt.get("net_debt_ebitda"),
-            "roe": rs.get("roe") or mt.get("roe"),
+            "roe": series_to_percent(d, "roe", rs.get("roe") or mt.get("roe")),
         }
         by_year: dict = {}
         for i, y in enumerate(years):
