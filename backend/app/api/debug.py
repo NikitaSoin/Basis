@@ -995,24 +995,29 @@ def debug_fetch_article(url: str):
 
 @router.post("/debug/redo-report")
 def debug_redo_report(ticker: str, days_back: int = 7):
-    """Пересоздать РАЗБОР ОТЧЁТА одного тикера (владелец 2026-07-31: «пересоздай
-    Ozon — хочу посмотреть, как будет выглядеть» после апгрейда конвейера: полный
-    текст источника + extra_metrics + контекст/watch_next).
+    """Пересоздать РАЗБОР ОТЧЁТА одного или НЕСКОЛЬКИХ тикеров (через запятую,
+    напр. ticker=DOMRF,RAGR,YDEX — владелец 2026-08-01: батч перебора после правки
+    period-эвристики, один refresh() дешевле N последовательных). Изначально —
+    владелец 2026-07-31: «пересоздай Ozon — хочу посмотреть, как будет выглядеть»
+    после апгрейда конвейера: полный текст источника + extra_metrics + контекст/
+    watch_next.
 
-    Механика: удаляем СВЕЖИЕ processed/extract_failed-записи тикера (дедуп
-    report_watch держится на записях — без удаления событие «уже обработано» и
-    повторно не разбирается; figures/digest уходят каскадом по FK), затем сразу
-    гоним refresh() узким окном. ГИР БО пропускаем (дорогой полный обход, к
-    свежим МСФО-разборам отношения не имеет)."""
+    Механика: удаляем СВЕЖИЕ processed/extract_failed-записи ВСЕХ перечисленных
+    тикеров (дедуп report_watch держится на записях — без удаления событие «уже
+    обработано» и повторно не разбирается; figures/digest уходят каскадом по FK),
+    затем ОДИН раз гоним refresh() узким окном (охватывает все тикеры сразу — это
+    общий проход по календарю/ленте, не ticker-scoped). ГИР БО пропускаем (дорогой
+    полный обход, к свежим МСФО-разборам отношения не имеет)."""
     from app.db.session import SessionLocal
     from app.models.earnings import EarningsReport
     from app.services.report_watch import refresh
     from datetime import date as _date, timedelta as _td
     db = SessionLocal()
     try:
+        tickers = [t.strip().upper() for t in ticker.split(",") if t.strip()]
         cutoff = _date.today() - _td(days=days_back)
         rows = (db.query(EarningsReport)
-                .filter(EarningsReport.ticker == ticker.upper(),
+                .filter(EarningsReport.ticker.in_(tickers),
                         EarningsReport.status.in_(("processed", "extract_failed", "needs_source")),
                         EarningsReport.published_at.isnot(None),
                         EarningsReport.published_at >= cutoff).all())
@@ -1021,7 +1026,7 @@ def debug_redo_report(ticker: str, days_back: int = 7):
             db.delete(r)   # ORM-delete → каскад figures/digest по relationship
         db.commit()
         res = refresh(db, days_back=days_back, run_girbo=False)
-        return {"deleted": deleted, "refresh": res}
+        return {"tickers": tickers, "deleted": deleted, "refresh": res}
     except Exception as e:  # noqa: BLE001
         logger.exception("debug redo-report %s: %s", ticker, e)
         db.rollback()
