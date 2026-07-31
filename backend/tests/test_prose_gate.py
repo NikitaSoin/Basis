@@ -110,6 +110,23 @@ def test_macro_stale_detector_on_real_sber_text():
     assert set(_macro_prose_stale(sber, anchor)) == {"rate", "inflation", "expectations"}
 
 
+def test_macro_stale_detector_window_catches_mixed_prose():
+    # бой 2026-08-01: правильное значение в одном месте прозы, кривое — в другом;
+    # детектор «по всей прозе» молчал, оконный обязан найти кривую шапку
+    anchor = {"expectations": (14.7, None)}
+    prose = ("ЦБ осторожен: инфляционные ожидания населения держатся высоко (12,1%), "
+             "и регулятор может взять паузу. " + "х" * 200 +
+             " Отдельно: инфляционные ожидания по опросу выросли до 14,7%.")
+    assert _macro_prose_stale(prose, anchor) == ["expectations"]
+
+
+def test_macro_stale_detector_historical_peak_near_current_ok():
+    # «снижена до 14% (с пика 21%)» — историческое 21 рядом с текущим 14 не триггерит
+    anchor = {"rate": (14.0, None)}
+    prose = "Ключевая ставка снижена до 14% (с пика 21% в начале 2025 года)."
+    assert _macro_prose_stale(prose, anchor) == []
+
+
 def test_macro_stale_detector_fresh_text_quiet():
     anchor = {"rate": (14.0, None), "inflation": (5.94, None), "expectations": (14.7, None)}
     fresh = "Ключевая ставка 14%, инфляция 5,94% г/г, ожидания населения 14,7%."

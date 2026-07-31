@@ -580,22 +580,28 @@ def _macro_grounding(anchor: dict) -> str:
 
 
 def _macro_prose_stale(prose: str, anchor: dict) -> list[str]:
-    """Кодовый детектор: в прозе упоминается показатель, но ТЕКУЩЕГО значения нет
-    нигде в тексте. Грубо и дёшево — точность обеспечивает гейт, детектор лишь
-    строит очередь."""
-    nums = set(_numbers(prose.replace(",", ".")))
+    """Кодовый детектор устаревших макро-упоминаний — ПО ОКНАМ вокруг ключевых слов,
+    а не «по всей прозе»: первая версия («текущего значения нет нигде в тексте»)
+    слепла, когда правильное значение стояло в одном месте, а кривое — в другом
+    (бой 2026-08-01, SBER: в теле 14,7 появилось, в шапке остались ожидания 12,1 —
+    детектор молчал). Правило: показатель устарел, если СУЩЕСТВУЕТ окно вокруг его
+    ключевого слова, где есть числа правдоподобного диапазона, но нет текущего.
+    Грубо и дёшево — точность обеспечивает гейт (strict grounding)."""
+    checks = [("rate", r"ключев\w+ ставк|ставк\w+ (?:снижен|повышен|сохранен)", (4.0, 30.0)),
+              ("inflation", r"инфляци(?!онн\w+ ожидани)", (2.0, 30.0)),
+              ("expectations", r"инфляционн\w+ ожидани", (4.0, 30.0))]
     stale = []
-    checks = [("rate", r"ключев\w+ ставк|ставк\w+ (снижен|повышен|сохранен)"),
-              ("inflation", r"инфляци"),
-              ("expectations", r"инфляционн\w+ ожидани")]
-    for key, kw in checks:
+    for key, kw, (lo, hi) in checks:
         if key not in anchor:
             continue
         val = anchor[key][0]
-        variants = {f"{val:.2f}".rstrip("0").rstrip("."), str(int(val)) if val == int(val) else None}
-        variants.discard(None)
-        if re.search(kw, prose, re.IGNORECASE) and not (variants & nums):
-            stale.append(key)
+        for m in re.finditer(kw, prose, re.IGNORECASE):
+            window = prose[max(0, m.start() - 15): m.end() + 100]
+            in_range = [float(n) for n in _numbers(window.replace(",", "."))
+                        if lo <= float(n) <= hi]
+            if in_range and not any(abs(n - val) < 0.01 for n in in_range):
+                stale.append(key)
+                break
     return stale
 
 
