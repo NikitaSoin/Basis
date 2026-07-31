@@ -1590,6 +1590,164 @@ ${small.length ? table(small) : "<p>Сейчас таких бумаг нет.</
   });
 }
 
+
+// ─── Термины рынка: те же /pokazateli/, но без рядов по годам ───────────────────────
+// Спрос по ним широкий («что такое офз», «дюрация облигации что это простыми словами»,
+// «оферта по облигации» — полные наборы подсказок), а у нас 3270 страниц выпусков БЕЗ
+// справочного узла, который объяснял бы, что означают колонки в их таблицах.
+const TERM_PAGES = require("./seo-terms-content");
+
+// Живые примеры: определение, показанное на реальных бумагах, — то, чего нет у
+// справочников. Каждый вид примеров знает, что взять и как объяснить выборку.
+function termExamples(kind, ctx) {
+  const bonds = ctx.bonds || [];
+  const num = (v, d = 2) => Number(v).toLocaleString("ru-RU",
+    { minimumFractionDigits: d, maximumFractionDigits: d });
+  const bondTable = (list, col, cell, note) => list.length
+    ? `<table><thead><tr><th>Выпуск</th><th>Эмитент</th><th class="num">${col}</th></tr></thead>
+<tbody>${list.map((b) => `<tr><td><a href="/bond/${b.secid}/">${escapeHtml(b.short_name || b.secid)}</a></td>`
+      + `<td>${escapeHtml((b.issuer_name || "—").slice(0, 34))}</td>`
+      + `<td class="num">${escapeHtml(cell(b))}</td></tr>`).join("")}</tbody></table>
+${note ? `<p class="sub">${note}</p>` : ""}` : "";
+  const withYtm = bonds.filter((b) => typeof b.ytm === "number" && b.ytm > 0 && b.ytm < 80);
+
+  switch (kind) {
+    case "bonds-ofz": {
+      // ТОЛЬКО с реальной доходностью: у ОФЗ-ПК (плавающий купон) ytm приходит нулём,
+      // и таблица выходила со столбцом «0,00%» на каждой строке.
+      const list = bonds.filter((b) => b.bond_type === "ofz"
+        && typeof b.ytm === "number" && b.ytm > 0 && typeof b.duration_years === "number")
+        .sort((a, b) => a.duration_years - b.duration_years).slice(0, 8);
+      return bondTable(list, "Доходность", (b) => `${num(b.ytm)}%`,
+        "Выпуски отсортированы от коротких к длинным: видно, как доходность меняется с "
+        + "удлинением срока — это и есть кривая доходности ОФЗ, от которой считается всё остальное.");
+    }
+    case "bonds-duration": {
+      const list = withYtm.filter((b) => typeof b.duration_years === "number")
+        .sort((a, b) => b.duration_years - a.duration_years).slice(0, 8);
+      return bondTable(list, "Дюрация", (b) => `${num(b.duration_years, 1)} года`,
+        "Самые длинные выпуски в базе. Именно они сильнее всего дорожают при снижении "
+        + "ключевой ставки — и сильнее всего дешевеют при её росте.");
+    }
+    case "bonds-coupon": {
+      const list = bonds.filter((b) => typeof b.coupon_percent === "number" && b.coupon_percent > 0)
+        .sort((a, b) => b.coupon_percent - a.coupon_percent).slice(0, 8);
+      return bondTable(list, "Ставка купона", (b) => `${num(b.coupon_percent)}%`,
+        "Высокая ставка купона сама по себе не означает высокую доходность вложения: "
+        + "такие бумаги обычно торгуются дороже номинала, и часть купона «оплачена» ценой.");
+    }
+    case "bonds-price": {
+      const list = bonds.filter((b) => typeof b.last_price === "number" && b.last_price > 0
+        && b.last_price < 100).sort((a, b) => a.last_price - b.last_price).slice(0, 8);
+      return bondTable(list, "Цена, % номинала", (b) => `${num(b.last_price)}%`,
+        "Выпуски, торгующиеся заметно ниже номинала. Дисконт означает либо купон ниже "
+        + "рыночных ставок, либо сомнения рынка в эмитенте — это разные вещи, и различать их "
+        + "нужно по разбору эмитента, а не по величине скидки.");
+    }
+    case "bonds-nkd": {
+      const list = bonds.filter((b) => typeof b.accrued_int === "number" && b.accrued_int > 0)
+        .sort((a, b) => b.accrued_int - a.accrued_int).slice(0, 8);
+      return bondTable(list, "НКД, ₽", (b) => `${num(b.accrued_int)} ₽`,
+        "Столько покупатель доплатит сверх цены сверху за каждую бумагу — и получит обратно "
+        + "в ближайшую купонную выплату.");
+    }
+    case "bonds-offer": {
+      const today = new Date().toISOString().slice(0, 10);
+      const list = bonds.filter((b) => b.offer_date && String(b.offer_date) > today)
+        .sort((a, b) => String(a.offer_date).localeCompare(String(b.offer_date))).slice(0, 8);
+      return bondTable(list, "Дата оферты", (b) => ruDate(b.offer_date) || String(b.offer_date),
+        "Ближайшие оферты в базе. По таким выпускам доходность корректно считать к дате "
+        + "оферты, а не к погашению: после неё условия могут стать совсем другими.");
+    }
+    case "bonds-ytm": {
+      const list = withYtm.sort((a, b) => b.ytm - a.ytm).slice(0, 8);
+      return bondTable(list, "Доходность", (b) => `${num(b.ytm)}%`,
+        "Самые высокие доходности в базе. Это не список выгодных бумаг: доходность выше "
+        + "рынка — плата за риск, который рынок уже видит. Разбор эмитента здесь важнее цифры.");
+    }
+    case "companies-pe": {
+      const seen = new Set();
+      const tickers = new Set((ctx.companies || []).map((c) => c.ticker));
+      const rows = (ctx.companies || []).map((c) => {
+        const pe = (((c.fin.multiples || {}).current || {}) || {}).pe;
+        return typeof pe === "number" && pe > 0 && pe < 60 ? { c, pe } : null;
+      }).filter(Boolean).sort((a, b) => a.pe - b.pe).filter((r) => {
+        // обычка и преф одного эмитента — одна компания и один P/E: «Ижсталь» шла дважды
+        const base = baseTicker(r.c.ticker, tickers);
+        if (seen.has(base)) return false;
+        seen.add(base); return true;
+      }).slice(0, 10);
+      if (!rows.length) return "";
+      return `<table><thead><tr><th>Компания</th><th class="num">P/E</th></tr></thead><tbody>${
+        rows.map((r) => `<tr><td><a href="/company/${r.c.ticker}/">${escapeHtml(r.c.short)}</a></td>`
+          + `<td class="num">${num(r.pe, 1)}</td></tr>`).join("")}</tbody></table>
+<p class="sub">Самые низкие P/E на рынке. Низкий множитель — повод разобраться, а не вывод:
+у части этих компаний он низкий заслуженно (цикличность, долг, разовая прибыль).</p>`;
+    }
+    case "companies-dividends": {
+      const rows = (ctx.companies || []).map((c) => {
+        const h = ((c.dividends || {}).history || []).filter((x) => x && x.paid !== false && x.yield_pct != null);
+        const last = h.sort((a, b) => (b.year || 0) - (a.year || 0))[0];
+        return last ? { c, y: last.yield_pct, year: last.year } : null;
+      }).filter(Boolean).sort((a, b) => b.y - a.y).slice(0, 10);
+      if (!rows.length) return "";
+      return `<table><thead><tr><th>Компания</th><th class="num">Доходность выплаты</th></tr></thead><tbody>${
+        rows.map((r) => `<tr><td><a href="/company/${r.c.ticker}/dividends/">${escapeHtml(r.c.short)}</a></td>`
+          + `<td class="num">${num(r.y, 1)}% (${r.year})</td></tr>`).join("")}</tbody></table>
+<p class="sub">Доходность последней подтверждённой выплаты к цене того периода — историческая,
+не текущая. Ближайшие выплаты по рынку — в <a href="/dividendnyy-kalendar/">календаре</a>.</p>`;
+    }
+    case "macro-key-rate":
+      return `<p>Текущее значение ставки, история решений ЦБ и график —
+на странице <a href="/statistika/klyuchevaya-stavka/">ключевой ставки</a>. Там же видно,
+как она соотносится с инфляцией: разница между ними показывает, насколько жёсткая сейчас
+денежная политика.</p>`;
+    default: return "";
+  }
+}
+
+function termPage(term, ctx, assets) {
+  const label = term.label;
+  // Не опускаем регистр, если метка начинается с аббревиатуры ИЛИ с одиночной заглавной
+  // перед не-буквой: «P/E» → правило про две заглавные не срабатывало и давало «p/E».
+  const titleLabel = /^[A-ZА-Я]{2,}|^[A-ZА-Я][^а-яa-zA-ZА-Я]/.test(label)
+    ? label : label.charAt(0).toLowerCase() + label.slice(1);
+  const title = term.titleOverride
+    || `Что такое ${titleLabel} — ${term.formula ? "формула, " : ""}простыми словами | Basis`;
+  const ex = termExamples(term.examples, ctx);
+  const rel = (term.related || []).map((slug) => {
+    const t = TERM_PAGES.find((x) => x.slug === slug);
+    const m = METRIC_PAGES.find((x) => x.slug === slug);
+    const item = t || m;
+    return item ? `<a class="chip" href="/pokazateli/${slug}/">${escapeHtml(item.label)}</a>` : "";
+  }).filter(Boolean).join("");
+
+  const body = `
+<p class="tag">Термины рынка · справочник Basis</p>
+<h1>${escapeHtml(label)}: что это простыми словами</h1>
+<p class="sub">${escapeHtml(term.simple)}</p>
+${term.formula ? `<h2>Как считается</h2><p class="formula"><b>${escapeHtml(term.formula)}</b></p>` : ""}
+<h2>Зачем это инвестору</h2>
+<p>${escapeHtml(term.what)}</p>
+<h2>Где легко ошибиться</h2>
+<p>${escapeHtml(term.caveat)}</p>
+${ex ? `<h2>На реальных бумагах</h2>${ex}` : ""}
+${rel ? `<h2>Связанные термины</h2><div class="grid">${rel}</div>` : ""}
+<p>Весь справочник — на странице <a href="/pokazateli/">показателей и терминов</a>.
+Подобрать бумаги по своим условиям можно в <a href="/skrining-obligatsiy/">скрининге
+облигаций</a> и <a href="/skrining-aktsiy/">скрининге акций</a>.</p>`;
+
+  return pageShell({
+    title,
+    desc: truncate(`${label} — что это простыми словами${term.formula ? ", как считается" : ""}, `
+      + `зачем инвестору и где ошибаются. С примерами на реальных бумагах Мосбиржи.`, 200),
+    canonicalPath: `/pokazateli/${term.slug}/`,
+    breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Показатели", href: "/pokazateli/" },
+      { label }],
+    bodyHtml: body, assets, note: DEFAULT_NOTE,
+  });
+}
+
 function glossaryPage(spec, companies, assets) {
   const label = spec.label;
   const lower = label.toLowerCase();
@@ -2128,22 +2286,43 @@ function main() {
     urls.push({ loc: `${_SITE}/pokazateli/${spec.slug}/`, freq: "monthly", pri: "0.7" });
     glossaryCount++;
   }
+  // Термины рынка — те же /pokazateli/, примеры берутся из снимка облигаций и компаний.
+  {
+    let bonds = [];
+    try {
+      bonds = (JSON.parse(fs.readFileSync(
+        path.join(__dirname, "data", "bonds-snapshot.json"), "utf8")).rows) || [];
+    } catch { /* без снимка облигаций примеры просто не выводятся */ }
+    const ctx = { bonds, companies };
+    for (const term of TERM_PAGES) {
+      const dir = path.join(_BUILD_DIR, "pokazateli", term.slug);
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, "index.html"), termPage(term, ctx, assets), "utf8");
+      urls.push({ loc: `${_SITE}/pokazateli/${term.slug}/`, freq: "monthly", pri: "0.7" });
+      glossaryCount++;
+    }
+  }
+
   // Оглавление справочника: и людям навигация, и роботу узел, связывающий все страницы.
   {
     const items = METRIC_PAGES.filter((m) => m.formula);
     const body = `<p class="tag">Справочник Basis</p>
-<h1>Показатели компаний: что они значат</h1>
-<p class="sub">Короткие объяснения без учебника: что показывает величина, по какой формуле
-считается, где её легко прочитать неверно — и сразу значения по российским компаниям.</p>
+<h1>Показатели и термины рынка: что они значат</h1>
+<p class="sub">Короткие объяснения без учебника: что показывает величина, как считается,
+где её легко прочитать неверно — и сразу примеры на реальных бумагах Мосбиржи.</p>
+<h2>Показатели отчётности</h2>
 <div class="grid">${items.map((m) => `<a class="chip" href="/pokazateli/${m.slug}/">${
       escapeHtml(m.label)}</a>`).join("")}</div>
+<h2>Термины рынка</h2>
+<div class="grid">${TERM_PAGES.map((t) => `<a class="chip" href="/pokazateli/${t.slug}/">${
+      escapeHtml(t.label)}</a>`).join("")}</div>
 <p>Каждый показатель разобран и по отдельным компаниям: динамика по годам, сравнение с
 медианой сектора и место среди соседей по отрасли. Начать можно с
 <a href="/company/">каталога компаний</a> или с <a href="/skrining-aktsiy/">скрининга</a>,
 если нужно отобрать бумаги по значению показателя.</p>`;
     fs.mkdirSync(path.join(_BUILD_DIR, "pokazateli"), { recursive: true });
     fs.writeFileSync(path.join(_BUILD_DIR, "pokazateli", "index.html"), pageShell({
-      title: "Показатели компаний: EBITDA, ROE, чистый долг — что значат | Basis",
+      title: "Показатели и термины рынка: EBITDA, ROE, ОФЗ, дюрация — что значат | Basis",
       desc: "Справочник показателей отчётности: что показывает каждый, формула расчёта, "
         + "как читать и где ошибаются. Со значениями по российским компаниям.",
       canonicalPath: "/pokazateli/",
