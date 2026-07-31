@@ -918,6 +918,11 @@ export default function App() {
   // Вкладка внутри раздела из адреса (?view=portfolio&tab=risk) — прокидывается в
   // MarketNeo/PortfolioV2/ObserverV2 как начальная секция.
   const [forceInnerTab, setForceInnerTab] = useState(null);
+  // Статическая SEO-страница, адрес которой приложение не распознало. В этом случае
+  // НЕЛЬЗЯ рисовать главную: получается «сверху SEO-страница, снизу лендинг», что и
+  // поймал владелец на /statistika/indeks-pmi/. Честнее оставить статику — она
+  // полноценная — и не показывать приложение вовсе.
+  const [staticOnly, setStaticOnly] = useState(false);
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem("basis_theme");
     if (stored === "dark" || stored === "light") return stored;
@@ -976,7 +981,15 @@ export default function App() {
       }
       // Путь человекочитаемого раздела (/karta-rynka-aktsiy/ и т.п.)
       const landing = window.location.pathname.replace(/^\/|\/$/g, "");
-      const route = LANDING_ROUTES[landing];
+      // 🔴 Страницы показателей и индексов (/statistika/…, /indeks/…) — их адреса
+      // задаются генератором пачкой, перечислять каждый в LANDING_ROUTES бессмысленно.
+      // Без этой ветки приложение не понимало адрес и рисовало ГЛАВНУЮ под статикой:
+      // владелец поймал ровно это — «была SEO-страница, ниже лендинг, потом SEO-страница
+      // пропала и остался лендинг». Теперь открывается тот раздел, о котором страница.
+      const prefixRoute = landing.startsWith("statistika/") ? { view: "overview", obs: "economy" }
+        : (landing === "indeks-strakha-i-zhadnosti" || landing.startsWith("indeks/"))
+          ? { view: "overview", obs: "pulse" } : null;
+      const route = LANDING_ROUTES[landing] || prefixRoute;
       if (route) {
         if (route.obs) setForceObsSection(route.obs);
         if (route.tab) setForceInnerTab(route.tab);
@@ -1001,6 +1014,13 @@ export default function App() {
       //    scripts/seo-landings-content.js): открыть сразу нужный раздел
       //    приложения; для Обозревателя опционально конкретная секция
       //    (ид из OBS_ZONES в observer/ObsPanels.jsx).
+      // Ничего из известного не совпало. Если под нами лежит статическая страница —
+      // не подменяем её главной (см. staticOnly).
+      if (!params.get("view") && !params.get("company")
+          && document.getElementById("seo-static")) {
+        setStaticOnly(true);
+        return;
+      }
       const VIEW_TABS = ["companies", "overview", "portfolio", "stress", "screener", "ai", "pricing"];
       const viewP = (params.get("view") || "").toLowerCase();
       if (VIEW_TABS.includes(viewP)) {
@@ -1205,6 +1225,11 @@ export default function App() {
   if (typeof window !== "undefined" && window.location.pathname === "/_design") {
     return <DesignSystem />;
   }
+
+  // Адрес не распознан, а под приложением лежит статическая SEO-страница — показываем
+  // только её. Иначе пользователь видит две страницы разом: сверху статику, снизу
+  // главную приложения (баг, пойманный владельцем на странице PMI 2026-07-31).
+  if (staticOnly) return null;
 
   const isLanding = activeTab === "landing" && !selectedCompany;
   const toggleTheme = () => setTheme(t => t === "dark" ? "light" : "dark");

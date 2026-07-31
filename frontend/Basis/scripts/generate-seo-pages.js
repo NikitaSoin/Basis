@@ -1009,6 +1009,119 @@ ${sectors.map((s) => `<h2>${escapeHtml(s)} <span style="color:var(--faint);font-
   });
 }
 
+
+/* ------------ страницы под ТОЧЕЧНЫЕ метрики («ebitda северстали») ------------ */
+// Владелец, 2026-07-31: «если человек ищет ebitda северстали — нужно, чтобы он нас
+// находил, потому что во вкладке Финансы такая информация есть; надо декомпозировать
+// вкладки до конкретных вещей». Запрос «<метрика> <компания>» — самый частый тип
+// точечного поиска, а у нас под него не было ни одной страницы: данные лежали внутри
+// вкладки «Финансы», куда поиск не заглядывает.
+//
+// Страницы делаем ТОЛЬКО там, где есть ряд минимум за 3 года: иначе получится пустышка,
+// а массовая генерация тонких однотипных страниц понижает весь сайт.
+const METRIC_PAGES = [
+  {
+    slug: "ebitda", key: "ebitda", label: "EBITDA", bank: false,
+    what: "EBITDA — прибыль до вычета процентов, налогов и амортизации. Показывает, сколько "
+      + "бизнес зарабатывает на основной деятельности, до влияния долговой нагрузки и "
+      + "учётной политики по амортизации. Поэтому по ней сравнивают компании с разной "
+      + "структурой финансирования.",
+    caveat: "EBITDA не равна деньгам: она не учитывает капитальные затраты и оборотный "
+      + "капитал. У капиталоёмкого бизнеса высокая EBITDA может сочетаться с нулевым "
+      + "свободным потоком — поэтому рядом всегда смотрим денежный поток и долг.",
+  },
+  {
+    slug: "vyruchka", key: "revenue", bankKey: "net_interest_income", label: "Выручка",
+    bankLabel: "Чистые процентные доходы",
+    what: "Выручка — сколько компания продала за период, до вычета любых расходов. Это "
+      + "верхняя строка отчёта и мера масштаба бизнеса.",
+    caveat: "Рост выручки сам по себе ещё не хорошая новость: если он куплен ростом "
+      + "издержек или скидками, прибыль может падать одновременно с ростом продаж.",
+  },
+  {
+    slug: "chistaya-pribyl", key: "net_profit", label: "Чистая прибыль", bank: true,
+    what: "Чистая прибыль — то, что осталось после всех расходов, процентов и налогов. "
+      + "Из неё платятся дивиденды и она формирует капитал компании.",
+    caveat: "Чистая прибыль легче других строк искажается разовыми событиями: переоценкой "
+      + "активов, курсовыми разницами, продажей бизнеса. Поэтому мы смотрим и "
+      + "нормализованную прибыль — без разовых статей.",
+  },
+];
+
+function metricSeries(c, spec) {
+  const isBank = c.profile === "bank";
+  if (isBank && spec.bank === false) return null;          // EBITDA у банка не считается
+  const key = isBank && spec.bankKey ? spec.bankKey : spec.key;
+  const src = isBank ? (c.fin.bank_pnl || {}) : (c.fin.income_statement || {});
+  const arr = src[key];
+  if (!Array.isArray(arr) || !c.years.length) return null;
+  const pts = [];
+  for (let i = 0; i < Math.min(arr.length, c.years.length); i++) {
+    if (typeof arr[i] === "number") pts.push({ year: c.years[i], value: arr[i] });
+  }
+  return pts.length >= 3 ? pts : null;
+}
+
+function metricPage(c, spec, pts, assets, tabsWritten) {
+  const isBank = c.profile === "bank";
+  const label = isBank && spec.bankLabel ? spec.bankLabel : spec.label;
+  const last = pts[pts.length - 1], first = pts[0];
+  const fmt = (v) => fmtMoney(v, c.unit, c.currency);
+  const dir = last.value > first.value ? "выросла" : last.value < first.value ? "снизилась" : "не изменилась";
+  const pct = first.value ? Math.round((last.value / first.value - 1) * 100) : null;
+  // Имя-первым: «EBITDA Северсталь» безграмотно (нужен родительный падеж, а склонять
+  // названия автоматически нельзя). «Северсталь (CHMF): EBITDA по годам» читается верно
+  // и ловит тот же запрос — поисковик сопоставляет слова, а не падежи.
+  const title = `${titleName(c)} (${c.ticker}): ${label} по годам — ${fmt(last.value)} за ${last.year} | Basis`;
+  const desc = truncate(`${c.short} (${c.ticker}), ${label.toLowerCase()} за ${last.year} — ${fmt(last.value)}. `
+    + `Динамика ${first.year}–${last.year}: ${dir}${pct != null ? ` на ${Math.abs(pct)}%` : ""}. `
+    + `Данные из отчётности с разбором, что это значит.`, 200);
+
+  const rowsHtml = pts.slice().reverse().map((p, i, a) => {
+    const prev = a[i + 1];
+    const d = prev && prev.value ? Math.round((p.value / prev.value - 1) * 100) : null;
+    return `<tr><td>${p.year}</td><td>${escapeHtml(fmt(p.value))}</td><td>${
+      d == null ? "—" : (d > 0 ? "+" : "") + d + "%"}</td></tr>`;
+  }).join("");
+
+  const others = METRIC_PAGES.filter((m) => m.slug !== spec.slug);
+  const body = `
+<p class="tag">${escapeHtml(c.sectorFull || c.sector)} · MOEX: ${c.ticker}</p>
+<h1>${escapeHtml(c.short)} <span style="color:var(--faint)">(${escapeHtml(c.ticker)})</span>: ${escapeHtml(label.toLowerCase())} по годам</h1>
+<p class="sub">${escapeHtml(label)} за ${last.year} — <b>${escapeHtml(fmt(last.value))}</b>.
+За ${first.year}–${last.year} ${dir}${pct != null ? ` на ${Math.abs(pct)}%` : ""}.</p>
+<h2>${escapeHtml(label)} по годам</h2>
+<table><thead><tr><th>Год</th><th>${escapeHtml(label)}</th><th>Изм. г/г</th></tr></thead>
+<tbody>${rowsHtml}</tbody></table>
+<p class="sub">Данные из отчётности компании${c.standard ? ` (${escapeHtml(c.standard)})` : ""}.</p>
+<h2>Что такое ${escapeHtml(label.toLowerCase())}</h2>
+<p>${escapeHtml(spec.what)}</p>
+<h2>Как читать этот показатель</h2>
+<p>${escapeHtml(spec.caveat)}</p>
+<p>Полная отчётность ${escapeHtml(c.short)} — выручка, расходы, баланс, денежные потоки,
+мультипликаторы и расчёт справедливой цены — на странице
+<a href="/company/${c.ticker}/finance/">разбора отчётности</a>. Что за бизнес стоит за
+этими цифрами — в <a href="/company/${c.ticker}/business/">разборе бизнес-модели</a>.</p>
+<h2>Другие показатели ${escapeHtml(c.short)}</h2>
+<div class="grid">${others.map((m) =>
+    `<a class="chip" href="/company/${c.ticker}/${m.slug}/">${escapeHtml(m.bankLabel && isBank ? m.bankLabel : m.label)}</a>`).join("")}
+<a class="chip" href="/company/${c.ticker}/">Полный разбор ${escapeHtml(c.ticker)}</a></div>
+<a class="cta" href="/?company=${c.ticker}&tab=finance">Открыть финансы ${escapeHtml(c.short)} в Basis →</a>`;
+
+  return pageShell({
+    title, desc, canonicalPath: `/company/${c.ticker}/${spec.slug}/`,
+    breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Компании", href: "/company/" },
+      { label: `${c.short} (${c.ticker})`, href: `/company/${c.ticker}/` }, { label }],
+    bodyHtml: body, assets,
+    jsonLd: [{
+      "@type": "Dataset", name: `${label} ${c.short} (${c.ticker}) по годам`,
+      description: desc, url: `${_SITE}/company/${c.ticker}/${spec.slug}/`,
+      creator: { "@type": "Organization", name: "Basis", url: _SITE },
+    }],
+    note: DEFAULT_NOTE,
+  });
+}
+
 /* ------------------------- интент-лендинги ------------------------- */
 // Статические страницы под информационные запросы («проанализировать портфель»,
 // «скринер облигаций», «карта рынка»...) — тексты в scripts/seo-landings-content.js.
@@ -1137,6 +1250,7 @@ function main() {
     { loc: `${_SITE}/company/`, freq: "weekly", pri: "0.9" },
   ];
   let tabPagesCount = 0;
+  let metricPagesCount = 0;
 
   const gitDates = loadGitFileDates();
   if (!gitDates) console.log("⚠️  git-история недоступна — lastmod из mtime файлов");
@@ -1171,6 +1285,18 @@ function main() {
       urls.push({ loc: `${_SITE}/company/${c.ticker}/${spec.slug}/`, freq: "monthly", pri: "0.6", lastmod });
       tabPagesCount++;
     }
+
+    // Точечные метрики: /company/CHMF/ebitda/, /vyruchka/, /chistaya-pribyl/ —
+    // под запросы вида «ebitda северстали». Только там, где ряд ≥3 лет.
+    for (const spec of METRIC_PAGES) {
+      const pts = metricSeries(c, spec);
+      if (!pts) continue;
+      const dir = path.join(hubDir, spec.slug);
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, "index.html"), metricPage(c, spec, pts, assets, tabsWritten), "utf8");
+      urls.push({ loc: `${_SITE}/company/${c.ticker}/${spec.slug}/`, freq: "monthly", pri: "0.6", lastmod });
+      metricPagesCount++;
+    }
   }
 
   fs.writeFileSync(path.join(_BUILD_DIR, "company", "index.html"), indexPage(companies), "utf8");
@@ -1197,7 +1323,7 @@ function main() {
   }
 
   writeSitemap(urls);
-  console.log(`SEO-страницы: ${companies.length} хабов + ${tabPagesCount} страниц разделов + ${LANDINGS.length} интент-лендингов + каталог; sitemap.xml — ${urls.length} URL; пропущено (нет financials.json): ${skipped.length}`);
+  console.log(`SEO-страницы: ${companies.length} хабов + ${tabPagesCount} разделов + ${metricPagesCount} метрик + ${LANDINGS.length} лендингов + каталог; sitemap.xml — ${urls.length} URL; пропущено (нет financials.json): ${skipped.length}`);
   console.log(`Короткие редиректы /TICKER/: ${shortUrlCount}${shortUrlSkipped.length ? `; пропущены (конфликт с зарезервированным путём): ${shortUrlSkipped.join(", ")}` : ""}`);
   if (skipped.length) console.log("пропущены:", skipped.slice(0, 20).join(", "), skipped.length > 20 ? "..." : "");
 }
