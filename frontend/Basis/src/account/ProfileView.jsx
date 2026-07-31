@@ -141,12 +141,14 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
       <span className="acct-deep-eyebrow">Подписка · текущий план</span>
       <div className="acct-deep-head">
         <h2 className="acct-deep-name">{isFree ? "Бесплатный" : `Basis ${tier.name}`}</h2>
-        <span className="acct-deep-price">{tier.priceRub} ₽<span> / мес</span></span>
+        <span className="acct-deep-price">
+          {isFree ? "0 ₽" : `${tier.priceRub} ₽`}<span> / мес</span>
+        </span>
       </div>
       <p className="acct-deep-note">
         {isFree
-          ? "Вся платформа без ограничений, глубокие разборы — 3 в месяц. Банковская карта не нужна."
-          : `${user.subscription_expires_at ? `Активен до ${fmtDate(user.subscription_expires_at)}` : "Тариф активен"} · Оплата картой появится позже — сейчас тарифы переключаются свободно.`}
+          ? "Рынок, скринер, карточки и портфель — бесплатно. Банковская карта не нужна."
+          : `${user.subscription_expires_at ? `Активен до ${fmtDate(user.subscription_expires_at)}` : "Тариф активен"} · или ${tier.priceRubYear} ₽ за год. Оплата картой появится позже — сейчас тарифы переключаются свободно.`}
       </p>
       <div className="acct-deep-actions">
         <Button variant="primary" className="acct-pill" onClick={() => onNavigate("pricing")}>

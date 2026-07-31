@@ -73,7 +73,7 @@ def add_position_endpoint(
         if len(portfolio.positions) >= FREE_POSITION_LIMIT:
             raise HTTPException(
                 status_code=403,
-                detail=f"Free-тариф: максимум {FREE_POSITION_LIMIT} позиций. Перейдите на Premium.",
+                detail=f"Бесплатный тариф: максимум {FREE_POSITION_LIMIT} позиций. Перейдите на Max.",
             )
 
     return add_position(db, portfolio_id, data)

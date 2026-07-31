@@ -63,8 +63,43 @@
 }
 .tar-status b { color: var(--ink); font-weight: 600; }
 
-.tar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 8px; }
+/* Два тарифа вместо трёх (владелец, 2026-08-01: Plus убран) — было жёстко
+   repeat(3,1fr), из-за чего две карточки занимали 2/3 ширины и справа зияла
+   пустая колонка. Ограничиваем ширину, чтобы карточки не растянулись на всю
+   полосу 1120px и не выглядели «раздутыми». */
+.tar-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px; margin-bottom: 8px; max-width: 760px; margin-left: auto; margin-right: auto;
+}
 @media (max-width: 900px) { .tar-grid { grid-template-columns: 1fr; } }
+
+/* Переключатель периода оплаты Max: 390 ₽/мес ↔ 1990 ₽/год */
+.tar-billing {
+  display: inline-flex; gap: 4px; padding: 4px; margin: 0 auto 20px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 999px;
+}
+.tar-billing-wrap { display: flex; justify-content: center; }
+.tar-billing-opt {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--cc-sans, inherit); font-size: 13px; font-weight: 600;
+  color: var(--ink-3); background: transparent; border: 0; border-radius: 999px;
+  padding: 8px 16px; cursor: pointer; transition: color .15s, background .15s;
+}
+.tar-billing-opt:hover { color: var(--ink-2); }
+.tar-billing-opt--on { background: var(--accent); color: var(--on-accent); }
+.tar-billing-save {
+  font-family: var(--cc-mono); font-size: 10.5px; font-weight: 700;
+  padding: 2px 6px; border-radius: 5px;
+  background: var(--success-soft); color: var(--success);
+}
+.tar-billing-opt--on .tar-billing-save { background: rgba(255,255,255,.22); color: var(--on-accent); }
+
+.tar-price-sub { font-size: 12px; color: var(--ink-3); margin: 2px 0 4px; }
+.tar-note--soft {
+  max-width: 720px; margin-left: auto; margin-right: auto;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; padding: 11px 14px; line-height: 1.5; margin-bottom: 18px;
+}
 
 .tar-card {
   display: flex; flex-direction: column;
@@ -130,7 +165,9 @@
 .tar-compare:hover { box-shadow: var(--shadow-md); }
 
 .tar-compare-head {
-  display: grid; grid-template-columns: minmax(220px, 1.6fr) repeat(3, 1fr);
+  /* 2 тарифа вместо 3 (владелец, 2026-08-01) — было repeat(3,1fr), справа
+     оставалась пустая колонка-призрак. */
+  display: grid; grid-template-columns: minmax(220px, 1.6fr) repeat(2, 1fr);
   background: var(--panel-2); border-bottom: 1px solid var(--line-2);
 }
 .tar-compare-head-cell {
@@ -147,7 +184,7 @@
 }
 .tar-compare-group:first-child .tar-compare-group-t { border-top: 0; }
 
-.tar-compare-row { display: grid; grid-template-columns: minmax(220px, 1.6fr) repeat(3, 1fr); border-top: 1px solid var(--line); }
+.tar-compare-row { display: grid; grid-template-columns: minmax(220px, 1.6fr) repeat(2, 1fr); border-top: 1px solid var(--line); }
 .tar-compare-row-label { padding: 12px 10px; font-size: 13px; color: var(--ink); display: flex; align-items: center; }
 .tar-compare-cell { padding: 12px 10px; font-size: 12.5px; line-height: 1.4; color: var(--ink-2); display: flex; align-items: center; justify-content: center; text-align: center; }
 .tar-compare-cell--current { background: var(--accent-soft); }

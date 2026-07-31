@@ -14,7 +14,7 @@ import { Check } from "lucide-react";
 import { Button, Badge } from "../design/primitives";
 import { AppearGroup } from "../design/motion";
 import { formatNumber } from "../design/format";
-import { TIERS, COMPARE_GROUPS, TIER_RANK } from "./tierCatalog";
+import { TIERS, COMPARE_GROUPS, TIER_RANK, FREE_LIMITS_ENFORCED } from "./tierCatalog";
 import "../styles/account.css";
 
 const cx = (...parts) => parts.filter(Boolean).join(" ");
@@ -35,8 +35,14 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
   const appearGate = useRef(new Set());
   const [busyTier, setBusyTier] = useState(null);
   const [errorInfo, setErrorInfo] = useState(null); // { tierId, message }
-
-  const currentTierId = user ? user.subscription_type || "free" : null;
+  // Период оплаты Max (владелец, 2026-08-01: две стоимости — 390 ₽/мес и 1990 ₽/год).
+  // Годовой выбран по умолчанию: он выгоднее, и это честнее показать сразу, а не
+  // прятать за переключателем.
+  const [billing, setBilling] = useState("year"); // "month" | "year"
+  // Тариф в БД мог остаться "plus" (убран из UI, см. tierCatalog) — показываем
+  // такого пользователя как Max, иначе он увидел бы «Бесплатный».
+  const rawTierId = user ? user.subscription_type || "free" : null;
+  const currentTierId = rawTierId === "plus" ? "premium" : rawTierId;
 
   async function changeTier(tierId) {
     if (!token) { onShowAuth && onShowAuth(); return; }
@@ -60,7 +66,7 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
           <h1 className="acct-h1">Тарифы</h1>
         </div>
         <p className="acct-sec-sub">
-          Вердикт и вся ширина продукта — бесплатно. Глубина разбора и живой ИИ-слой — платно.
+          Работать с платформой можно бесплатно. Вся аналитика и все разборы — в тарифе Max.
         </p>
 
         {user && (
@@ -69,9 +75,32 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
           </div>
         )}
 
+        {/* Период оплаты Max: 390 ₽/мес или 1990 ₽/год */}
+        <div className="tar-billing-wrap">
+        <div className="tar-billing" role="group" aria-label="Период оплаты">
+          <button
+            type="button"
+            className={cx("tar-billing-opt", billing === "month" && "tar-billing-opt--on")}
+            aria-pressed={billing === "month"}
+            onClick={() => setBilling("month")}
+          >
+            Помесячно
+          </button>
+          <button
+            type="button"
+            className={cx("tar-billing-opt", billing === "year" && "tar-billing-opt--on")}
+            aria-pressed={billing === "year"}
+            onClick={() => setBilling("year")}
+          >
+            На год
+            <span className="tar-billing-save">−57%</span>
+          </button>
+        </div>
+        </div>
+
         <AppearGroup gate={appearGate.current} groupId="tar-grid" className="tar-grid">
           {TIERS.map((tier) => {
-            const isPlus = tier.id === "plus";
+            const isPaid = tier.priceRub > 0;
             const isCurrent = currentTierId === tier.id;
             const rankDiff = currentTierId ? TIER_RANK[tier.id] - TIER_RANK[currentTierId] : null;
             const busy = busyTier === tier.id;
@@ -79,21 +108,29 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
             const err = errorInfo && errorInfo.tierId === tier.id ? errorInfo.message : null;
 
             return (
-              <div key={tier.id} className={`tar-card${isPlus ? " tar-card--plus" : ""}`}>
+              <div key={tier.id} className={`tar-card${isPaid ? " tar-card--plus" : ""}`}>
                 <div className="tar-eyebrow-slot">
                   {tier.eyebrow && <span className="tar-eyebrow">{tier.eyebrow}</span>}
                 </div>
                 <h3 className="tar-name">{tier.name}</h3>
                 <div className="tar-price">
                   <span className="tar-price-num">
-                    {tier.priceRub === 0 ? "Бесплатно" : formatNumber(tier.priceRub)}
+                    {!isPaid
+                      ? "Бесплатно"
+                      : formatNumber(billing === "year" ? tier.priceRubYear : tier.priceRub)}
                   </span>
-                  {tier.priceRub > 0 && <span className="tar-price-period">₽/мес</span>}
+                  {isPaid && (
+                    <span className="tar-price-period">{billing === "year" ? "₽/год" : "₽/мес"}</span>
+                  )}
                 </div>
-                {tier.id === "free" && (
-                  <div className="tar-quota">
-                    <span className="tar-quota-val">3</span>
-                    <span className="tar-quota-lbl">глубоких разбора в месяц</span>
+                {isPaid && billing === "year" && (
+                  <div className="tar-price-sub">
+                    {formatNumber(Math.round(tier.priceRubYear / 12))} ₽ в месяц при оплате за год
+                  </div>
+                )}
+                {isPaid && billing === "month" && (
+                  <div className="tar-price-sub">
+                    или {formatNumber(tier.priceRubYear)} ₽ за год — выгоднее
                   </div>
                 )}
                 <p className="tar-desc">{tier.description}</p>
@@ -141,9 +178,20 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
         <p className="tar-note">Тариф применяется сразу, без оплаты картой — она появится позже.</p>
 
         <p className="tar-compare-lead">
-          Карточки компаний, поиск, весь Скринер, лента и карты Обозревателя, состав портфеля любого
-          размера — доступны без ограничений на всех тарифах. Ниже — только то, чем тарифы отличаются.
+          Поиск, весь Скринер, лента новостей и карты Обозревателя, карточки всех бумаг —
+          доступны на обоих тарифах. Ниже — только то, чем тарифы отличаются.
         </p>
+
+        {/* Честная плашка: границы ниже описывают задуманный продукт, но код их
+            ещё не применяет (см. FREE_LIMITS_ENFORCED в tierCatalog.js). Без неё
+            страница обещала бы бесплатному пользователю ограничения, которых он
+            не встретит, и продавала бы Max за то, что и так открыто. */}
+        {!FREE_LIMITS_ENFORCED && (
+          <p className="tar-note tar-note--soft">
+            Пока идёт обкатка, всё перечисленное открыто и на бесплатном тарифе — ограничения
+            ниже описывают, как тарифы будут различаться, и включатся позже.
+          </p>
+        )}
 
         <div className="tar-compare-scroll">
           <div className="tar-compare" role="table" aria-label="Отличия между тарифами">
@@ -152,7 +200,7 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
                 Что отличается
               </div>
               {TIERS.map((t) => {
-                const isTierCol = t.id === "plus" || t.id === "premium";
+                const isTierCol = t.priceRub > 0;
                 // Plus/Max читаются медным ВСЕГДА (владелец, 2026-07-12) — «текущий
                 // тариф» подсвечивается тем же accent-soft только у Бесплатного,
                 // иначе на Plus/Max наложились бы два одинаковых фона без смысла.
@@ -180,7 +228,7 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
                     <div className="tar-compare-row-label" role="rowheader">{row.label}</div>
                     {TIERS.map((t) => {
                       const val = t.compareCells[row.key];
-                      const isTierCol = t.id === "plus" || t.id === "premium";
+                      const isTierCol = t.priceRub > 0;
                       const isCurrentCol = currentTierId === t.id && !isTierCol;
                       return (
                         <div
