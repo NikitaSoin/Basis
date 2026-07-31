@@ -1680,7 +1680,7 @@ def debug_prose_overlays_status(days_back: int = 14, limit: int = 30):
 
 
 @router.post("/debug/trigger-macro-facts")
-def debug_trigger_macro_facts(batch: int = 12):
+def debug_trigger_macro_facts(batch: int = 12, ticker: str | None = None):
     """Ручной прогон макро-фактов карточек (run_macro_facts): устаревшие ставка/
     инфляция/ожидания в macro-прозе → факт-патч от живых рядов. Идемпотентен
     (ретрай-кулдаун 4 дня на тикер)."""
@@ -1688,7 +1688,7 @@ def debug_trigger_macro_facts(batch: int = 12):
     from app.services.card_prose_patcher import run_macro_facts
     db = SessionLocal()
     try:
-        return run_macro_facts(db, batch=batch)
+        return run_macro_facts(db, batch=batch, only_ticker=ticker)
     except Exception as e:  # noqa: BLE001
         logger.exception("debug trigger-macro-facts: %s", e)
         return {"error": f"{type(e).__name__}: {e}"}

@@ -61,7 +61,10 @@ _SIGNAL_TAB_TO_PROSE = {
     "macro": "macro", "geo": "geo", "institutions": "institutions",
 }
 
-_MAX_EDITS = 4          # мало правок за раз → вывод агента не упирается в 1600 токенов
+_MAX_EDITS = 10         # было 4 («вывод не упирается в токены») — насыщенной макро-
+# вкладке (ставка+дата решения+инфляция+ожидания+заседание, по нескольку упоминаний)
+# законно нужно больше: на бою 2026-07-31 SBER/macro отклонился edits_invalid при
+# корректной полной правке. Токен-бюджет поднят синхронно (см. max_tokens в _run_patch)
 _MAX_FIND_LEN = 450     # якорь find: раньше 200 «≤ предложение», но интерпретация
 # правит АБЗАЦЫ, и модель законно отдаёт 200-300-символьные якоря — на бою
 # 2026-07-31 find_too_long(247/256) резал содержательные правки (SBER finance,
@@ -327,7 +330,7 @@ def _run_patch(db: Session, ticker: str, tab: str, *, sys: str, task_builder,
     stopped = "final"
     try:
         result = complete(sys, task_builder(prose), json_mode=True,
-                          max_tokens=2000, temperature=0.1)
+                          max_tokens=3500, temperature=0.1)
     except LLMError as e:
         result, stopped = None, f"llm_error:{str(e)[:60]}"
     if isinstance(result, dict):
@@ -587,20 +590,25 @@ def _macro_prose_stale(prose: str, anchor: dict) -> list[str]:
     return stale
 
 
-def run_macro_facts(db: Session, batch: int = _MACRO_BATCH_CAP) -> dict:
-    """Проход по макро-вкладкам: устаревшие ставка/инфляция/ожидания → факт-патч."""
+def run_macro_facts(db: Session, batch: int = _MACRO_BATCH_CAP,
+                    only_ticker: str | None = None) -> dict:
+    """Проход по макро-вкладкам: устаревшие ставка/инфляция/ожидания → факт-патч.
+    only_ticker — точечный перезапуск одного тикера БЕЗ ретрай-кулдауна (после
+    фикса гейта не ждать 4 дня)."""
     anchor = _macro_anchor(db)
     if not anchor:
         return {"error": "нет макро-якоря (key_rate)"}
     grounding = _macro_grounding(anchor)
     retry_cut = datetime.now(timezone.utc) - timedelta(days=_MACRO_RETRY_DAYS)
-    recent = {r[0] for r in db.query(CardProseOverlay.ticker)
-              .filter(CardProseOverlay.tab == "macro",
-                      CardProseOverlay.kind == "fact",
-                      CardProseOverlay.created_at >= retry_cut).all()}
+    recent = set() if only_ticker else {
+        r[0] for r in db.query(CardProseOverlay.ticker)
+        .filter(CardProseOverlay.tab == "macro",
+                CardProseOverlay.kind == "fact",
+                CardProseOverlay.created_at >= retry_cut).all()}
     stats = {"checked": 0, "queued": 0, "published": 0, "rejected": 0}
-    tickers = sorted(d.name for d in COMPANIES_DIR.iterdir()
-                     if d.is_dir() and (d / "macro_summary.md").exists())
+    tickers = ([only_ticker.upper()] if only_ticker else
+               sorted(d.name for d in COMPANIES_DIR.iterdir()
+                      if d.is_dir() and (d / "macro_summary.md").exists()))
     for tk in tickers:
         if stats["queued"] >= batch:
             break
