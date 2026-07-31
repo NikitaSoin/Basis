@@ -19,8 +19,10 @@ merge_into() — вызывается из companies.py::get_financials_json() �
 """
 from __future__ import annotations
 
+import json
 import logging
 from datetime import date, datetime, timezone
+from pathlib import Path
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -29,6 +31,8 @@ from app.models.earnings import EarningsReport, InterimFinancialsOverlay
 from app.services import interim_periods
 
 logger = logging.getLogger(__name__)
+
+_COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 
 _HEADLINE_FIELDS = ("revenue", "ebitda", "net_profit", "net_debt")
 
@@ -41,6 +45,25 @@ _SOURCE_RANK = {"girbo": 3, "company_rss": 3, "agent_fetcher": 2, "report_watch"
 
 def _fields_present(figures: dict) -> int:
     return sum(1 for k in _HEADLINE_FIELDS if figures.get(k) is not None)
+
+
+def _is_bank(ticker: str) -> bool:
+    """meta.profile == "bank" из financials.json — ТОТ ЖЕ дискриминатор, что
+    merge_into() использует для bank_pnl-маппинга (см. ниже). Найдено 2026-08-01
+    (SBER/VTBR/SBERP): банк в пресс-релизе честно не называет revenue/EBITDA/
+    net_debt — это НЕ применимые к банку понятия в этой схеме, не пробел
+    экстракции (полный текст INTERFAX с net_profit/ЧПД/CoR подтягивается
+    исправно, LLM корректно возвращает null на нерелевантные поля). Порог
+    «≥2 из 4» для банка недостижим почти никогда — единственное поле, которое
+    реально используется (bank_pnl.net_profit), гейтуется отдельно, см. _write()."""
+    try:
+        path = _COMPANIES_DIR / ticker.upper() / "financials.json"
+        if not path.exists():
+            return False
+        meta = json.loads(path.read_text(encoding="utf-8")).get("meta") or {}
+        return meta.get("profile") == "bank"
+    except Exception:  # noqa: BLE001 — не банк по умолчанию, обычный гейт «≥2»
+        return False
 
 
 def write(db: Session, report: EarningsReport, fig: dict, company_name: str | None = None) -> str:
@@ -66,7 +89,13 @@ def _write(db: Session, report: EarningsReport, fig: dict, company_name: str | N
         return "skipped_period"
     figures = {k: fig.get(k) for k in _HEADLINE_FIELDS}
     fields_present = _fields_present(figures)
-    if fields_present < 2:
+    # Банк: merge_into() маппит ТОЛЬКО net_profit (bank_pnl) — revenue/EBITDA/net_debt
+    # для банка структурно не бывают заполнены в этой схеме, «≥2 из 4» недостижимо
+    # почти никогда. Гейтуем по единственному полю, которое реально используется.
+    if _is_bank(report.ticker):
+        if figures.get("net_profit") is None:
+            return "skipped_sparse"
+    elif fields_present < 2:
         return "skipped_sparse"
 
     existing = db.execute(
