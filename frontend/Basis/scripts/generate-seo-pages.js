@@ -625,6 +625,18 @@ function finTableHtml(c, maxYears) {
 <p class="tag">Годовая отчётность${std}. «—» — данных за период нет.</p>`;
 }
 
+// Заполняется в main() из снимка календаря: тикер → ближайшая объявленная выплата.
+let DIVIDEND_CALENDAR = {};
+
+// Дата вида 2026-08-06 → «6 августа 2026». Для читателя, а не для машины.
+function ruDate(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d)) return null;
+  return d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" })
+    .replace(/\s*г\.\s*$/, "");
+}
+
 function dividendsTableHtml(c, maxRows) {
   const d = c.dividends;
   if (!d || !Array.isArray(d.history) || !d.history.length) return null;
@@ -727,9 +739,17 @@ const TAB_PAGES = [
     // проиндексирован, в него просто приезжает свежий разбор. Пустой страница не бывает —
     // годовая отчётность из financials.json есть у всех 264, она и составляет каркас.
     has: (c) => finRows(c).length > 0 || Boolean(EARNINGS_BY_TICKER[c.ticker]),
-    // Тайтл НЕ зависит от свежести разбора: период в заголовке означал бы, что при каждом
-    // новом отчёте меняется тайтл уже проиндексированной страницы — поиск такое не любит.
-    title: (c) => `Отчётность ${titleName(c)} (${c.ticker}): разбор — выручка, прибыль | Basis`,
+    // Тайтл НЕ зависит от свежести КВАРТАЛЬНОГО разбора: период в заголовке означал бы,
+    // что при каждом новом отчёте меняется тайтл уже проиндексированной страницы —
+    // поиск такое не любит. Но ГОД годовой отчётности ставим: он меняется раз в год, а
+    // спрос его требует прямо («отчет сбербанка за 2025 год», «мсфо сбербанк 2025» —
+    // замер подсказок 2026-07-31). Стандарт (МСФО/РСБУ) — оттуда же.
+    // Имя-первым: «Отчётность Сбербанк» безграмотно, нужен родительный падеж.
+    title: (c) => {
+      const yr = c.years && c.years.length ? c.years[c.years.length - 1] : null;
+      return `${titleName(c)} (${c.ticker}): отчётность${c.standard ? ` ${c.standard}` : ""}`
+        + `${yr ? ` за ${yr} год` : ""} — разбор, выручка, прибыль | Basis`;
+    },
     desc: (c) => {
       const e = EARNINGS_BY_TICKER[c.ticker] || {};
       return truncate(e.one_liner
@@ -795,10 +815,58 @@ const TAB_PAGES = [
     content: (c) => {
       const d = c.dividends;
       const parts = [];
+      const hist = [...(d.history || [])].sort((a, b) => (b.year || 0) - (a.year || 0));
+
+      // 1) Ответ сверху: сколько платили в последний раз и платят ли вообще регулярно.
+      // Раньше страница начиналась с политики — текста на абзац, из которого главное
+      // («платят или нет») приходилось выуживать.
+      const lastPaid = hist.find((h) => h.paid !== false && h.dps != null);
+      if (lastPaid) {
+        const paidYears = hist.filter((h) => h.paid !== false && h.dps != null).length;
+        const skipped = hist.filter((h) => h.paid === false && h.dps == null).length;
+        parts.push(`<p class="sub">Последняя выплата — <b>${escapeHtml(String(lastPaid.dps).replace(".", ","))} ₽`
+          + `</b> на акцию за ${lastPaid.year} год${lastPaid.yield_pct != null
+            ? ` (доходность ${escapeHtml(String(lastPaid.yield_pct).replace(".", ","))}% к цене того периода)` : ""}.`
+          + ` Дивиденды выплачивались ${paidYears} ${
+            plural(paidYears, "год", "года", "лет").split(" ")[1]} из ${hist.length}`
+          + `${skipped ? `, в остальные годы выплат не было` : ""}.</p>`);
+      } else if (hist.length) {
+        parts.push(`<p class="sub">За доступную историю (${hist.length} лет) компания дивиденды `
+          + `не платила либо выплаты не подтверждены.</p>`);
+      }
+
+      // 2) Ближайшая объявленная выплата — прямой ответ на «когда выплатят» и «отсечка».
+      const up = DIVIDEND_CALENDAR[c.ticker];
+      if (up && up.amount != null) {
+        const rec = ruDate(up.record_date), buy = ruDate(up.buy_by_date);
+        parts.push(`<h2>Ближайшая выплата</h2>
+<p>Объявлен дивиденд <b>${escapeHtml(String(up.amount).replace(".", ","))} ₽</b> на акцию${
+          up.yield_pct != null ? ` — доходность ${escapeHtml(String(up.yield_pct).replace(".", ","))}% к текущей цене` : ""}.
+${rec ? `Дата закрытия реестра (отсечка) — ${escapeHtml(rec)}.` : ""}
+${buy ? `Чтобы попасть в реестр, бумага должна быть куплена не позднее ${escapeHtml(buy)}` : ""}
+${buy ? " — из-за режима расчётов Т+1 покупка в день отсечки права на дивиденд уже не даёт." : ""}
+${up.status ? ` Статус: ${escapeHtml(up.status)}.` : ""}</p>
+<p class="sub">Данные календаря обновляются автоматически. Полный список ближайших выплат
+по рынку — в <a href="/dividendnyy-kalendar/">дивидендном календаре</a>.</p>`);
+      }
+
       if (d.policy_text) parts.push(`<h2>Дивидендная политика</h2><p>${escapeHtml(strip(d.policy_text))}</p>`);
       if (d.policy_conditions) parts.push(`<p class="sub">${escapeHtml(strip(d.policy_conditions))}</p>`);
       const t = dividendsTableHtml(c, 9);
       if (t) parts.push(`<h2>История выплат</h2>${t}`);
+
+      // 3) Регулярность и расхождение обещаний с практикой лежали в данных, но на
+      // страницу не выводились — а это ровно то, что отличает «политика есть» от
+      // «политике можно верить».
+      if (d.regularity_note) parts.push(`<h2>Насколько выплаты регулярны</h2><p>${escapeHtml(strip(d.regularity_note))}</p>`);
+      if (d.policy_vs_practice) parts.push(`<h2>Политика и практика</h2><p>${escapeHtml(strip(d.policy_vs_practice))}</p>`);
+
+      // 4) Пояснения по конкретным годам: спецдивиденды, выплаты в долг, пропуски.
+      const noted = hist.filter((h) => h.note && h.year).slice(0, 4);
+      if (noted.length) {
+        parts.push(`<h2>Что стоит за отдельными годами</h2><ul>${
+          noted.map((h) => `<li><b>${h.year}</b> — ${escapeHtml(strip(h.note))}</li>`).join("")}</ul>`);
+      }
       return parts.length ? parts.join("\n") : null;
     },
   },
@@ -1326,6 +1394,100 @@ const FV_NOTE = "Это не прогноз цены и не таргет, а п
 // на 260 живых российских компаниях сразу — почти ни у кого. Поэтому на каждой странице
 // таблица реальных значений со ссылками: определение сразу превращается в инструмент,
 // а страница становится узлом, связывающим глоссарий с карточками.
+
+// ─── «Недооценённые акции»: /nedootsenennye-aktsii/ ─────────────────────────────────
+// Замер спроса: «недооценённые акции» и «какие акции купить» — широкие запросы, куда
+// более массовые, чем «справедливая цена акций <эмитента>». Это тот же интент, только
+// без имени компании, и отвечать на него мы можем честно: не списком «покупай», а
+// показом того, что говорит наша модель, с оговорками.
+//
+// 🔴 ПОЧЕМУ ДВА СПИСКА, А НЕ ОДИН ПО УБЫВАНИЮ: верх рейтинга по потенциалу занимают
+// малоликвидные бумаги ценой в копейки, где модель наименее устойчива — небольшая
+// ошибка в прибыли даёт кратный разброс оценки. Один общий список по убыванию по факту
+// рекомендовал бы читателю третий эшелон. Поэтому крупные бумаги отдельно, малые
+// отдельно и с предупреждением.
+function undervaluedLanding(companies, fairValues, dateIso, assets) {
+  const toMln = (v, unit) => {
+    if (typeof v !== "number") return null;
+    const u = String(unit || "млн");
+    if (u.startsWith("млрд")) return v * 1000;
+    if (u.startsWith("тыс")) return v / 1000;
+    return v;
+  };
+  const rows = [];
+  for (const c of companies) {
+    const f = fairValues[c.ticker];
+    if (!f || typeof f.upside_pct !== "number") continue;
+    const rev = (c.fin.income_statement || {}).revenue;
+    const lastRev = Array.isArray(rev)
+      ? [...rev].reverse().find((x) => typeof x === "number") : null;
+    rows.push({ c, f, revMln: toMln(lastRev, c.unit) });
+  }
+  const positive = rows.filter((r) => r.f.upside_pct > 0).sort((a, b) => b.f.upside_pct - a.f.upside_pct);
+  const BIG = 100000;   // 100 млрд ₽ выручки — грубая, но честная граница «крупной» бумаги
+  const big = positive.filter((r) => (r.revMln || 0) >= BIG).slice(0, 15);
+  const small = positive.filter((r) => (r.revMln || 0) < BIG).slice(0, 10);
+  const asOf = dateIso ? new Date(dateIso).toLocaleDateString("ru-RU",
+    { day: "numeric", month: "long", year: "numeric" }).replace(/\s*г\.\s*$/, "") : null;
+
+  const money = (v) => Number(v).toLocaleString("ru-RU",
+    { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₽";
+  const table = (list) => `<table><thead><tr><th>Компания</th><th class="num">Цена</th>
+<th class="num">Оценка Basis</th><th class="num">Разница</th></tr></thead><tbody>${
+    list.map((r) => `<tr><td><a href="/company/${r.c.ticker}/spravedlivaya-tsena/">${
+      escapeHtml(r.c.short)} (${r.c.ticker})</a></td><td class="num">${escapeHtml(money(r.f.price))}</td>`
+      + `<td class="num">${escapeHtml(money(r.f.fair_value))}</td>`
+      + `<td class="num">+${Math.round(r.f.upside_pct)}%</td></tr>`).join("")
+  }</tbody></table>`;
+
+  const body = `
+<p class="tag">Оценка Basis · ${rows.length} бумаг Мосбиржи</p>
+<h1>Недооценённые акции российского рынка</h1>
+<p class="sub">Бумаги, у которых оценка Basis выше рыночной цены${asOf ? `, на ${escapeHtml(asOf)}` : ""}.
+Это не список «что купить», а то, что показывает наша модель — со всеми оговорками ниже.</p>
+<h2>Что здесь считается «недооценённой»</h2>
+<p>Мы не сравниваем цену с мнением аналитиков. Отправная точка — доходность ОФЗ:
+безрисковая альтернатива, доступная инвестору прямо сейчас. К ней добавляется премия за
+риск — макроэкономический и конкретно этой компании. Получается планка: столько бумага
+должна стоить, чтобы вложение в неё было оправдано. Если рынок торгует её дешевле планки,
+она попадает в этот список.</p>
+<p>Сразу важное о фоне: из ${rows.length} бумаг оценка выше цены только у
+${plural(positive.length, "бумаги", "бумаг", "бумаг")}, а по рынку в целом медианная
+разница отрицательная. Это не приговор российским компаниям — это следствие высокой
+ключевой ставки: когда безрисковая доходность высокая, планка поднимается у всего рынка
+сразу, и «дорого относительно ОФЗ» становится нормой.</p>
+<h2>Крупные компании с оценкой выше цены</h2>
+<p>Бумаги с выручкой от 100 млрд ₽ — те, что на слуху и достаточно ликвидны.</p>
+${big.length ? table(big) : "<p>Сейчас таких бумаг нет.</p>"}
+<h2>Небольшие компании</h2>
+<p><b>Здесь нужна осторожность.</b> Верх любого рейтинга по потенциалу занимают
+малоликвидные бумаги: у них небольшая ошибка в прогнозе прибыли даёт кратный разброс
+оценки, а выйти из позиции бывает труднее, чем войти. Большой процент в таблице ниже
+чаще говорит о неопределённости, чем о находке.</p>
+${small.length ? table(small) : "<p>Сейчас таких бумаг нет.</p>"}
+<h2>Чего этот список не значит</h2>
+<p>Он не значит «эти акции вырастут». Модель говорит только о соотношении цены и
+требуемой доходности сегодня — она не предсказывает котировки и не знает, когда и
+почему рынок передумает. Методика прототипная, без калибровки, и может преувеличивать в
+обе стороны. Basis не брокер, не проводит сделок и не даёт индивидуальных инвестиционных
+рекомендаций.</p>
+<p>Разумный следующий шаг — не купить из таблицы, а разобраться: почему рынок оценивает
+компанию дешевле, чем модель. Ответ обычно в бизнесе, долге или управлении, и он есть в
+разборе — например, <a href="/company/">по любой из ${companies.length} компаний</a>.
+Отобрать бумаги по своим условиям можно в <a href="/skrining-aktsiy/">скрининге</a>, а
+как устроена сама методика — на странице
+<a href="/spravedlivaya-tsena-aktsiy/">справедливой цены</a>.</p>`;
+
+  return pageShell({
+    title: "Недооценённые акции России: список по справедливой цене — Basis",
+    desc: "Акции Мосбиржи, у которых оценка Basis выше рыночной цены: расчёт от доходности "
+      + "ОФЗ и премии за риск. С оговорками о том, что список не значит.",
+    canonicalPath: "/nedootsenennye-aktsii/",
+    breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Недооценённые акции" }],
+    bodyHtml: body, assets, note: DEFAULT_NOTE,
+  });
+}
+
 function glossaryPage(spec, companies, assets) {
   const label = spec.label;
   const lower = label.toLowerCase();
@@ -1722,6 +1884,19 @@ function main() {
   // Справедливая цена: снимок с боевого API (обновляется на каждой сборке). Держим
   // отдельно от financials.json, потому что число ЖИВОЕ — оно пересчитывается от
   // текущей цены и кривой ОФЗ, в файлах отчётности его нет и быть не может.
+  // Ближайшие объявленные выплаты — под запросы «дивиденды X 2026 дата выплаты».
+  let upcomingDivs = {};
+  try {
+    const raw = JSON.parse(fs.readFileSync(
+      path.join(__dirname, "data", "dividend-calendar-snapshot.json"), "utf8"));
+    for (const r of raw.rows || []) {
+      // на бумагу может быть несколько объявлений — держим ближайшее по дате
+      const prev = upcomingDivs[r.ticker];
+      if (!prev || String(r.date) < String(prev.date)) upcomingDivs[r.ticker] = r;
+    }
+  } catch { /* нет снимка — блок ближайшей выплаты просто не выводится */ }
+  DIVIDEND_CALENDAR = upcomingDivs;
+
   let fairValues = {}, fairValueDate = null;
   try {
     const fvRaw = JSON.parse(fs.readFileSync(
@@ -1833,6 +2008,15 @@ function main() {
   }
 
   writeSitemap(urls);
+  // Лендинг недооценённых — после компаний: нужны и оценки, и выручка для разделения.
+  if (Object.keys(fairValues).length) {
+    const dir = path.join(_BUILD_DIR, "nedootsenennye-aktsii");
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "index.html"),
+      undervaluedLanding(companies, fairValues, fairValueDate, assets), "utf8");
+    urls.push({ loc: `${_SITE}/nedootsenennye-aktsii/`, freq: "weekly", pri: "0.8" });
+  }
+
   // Глоссарий — после компаний: ему нужны их ряды для таблиц примеров.
   let glossaryCount = 0;
   for (const spec of METRIC_PAGES.filter((m) => m.formula)) {

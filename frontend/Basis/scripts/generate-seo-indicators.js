@@ -144,7 +144,10 @@ function macroPage(ind, assets, all) {
   const unit = v.unit || ind.unit || "";
   const val = v.value != null ? `${v.value}${unit ? " " + unit : ""}` : "—";
   const related = all.filter((x) => x.code !== ind.code).slice(0, 12);
-  const title = `${ind.title}${v.value != null ? `: ${val}` : ""} — что это и как влияет на рынок | Basis`;
+  // «график» и «сегодня» — устойчивые модификаторы в запросах (замер подсказок
+  // 2026-07-31: «ключевая ставка цб график», «индекс pmi россии график»). График на
+  // странице есть, поэтому слово в заголовке не обещание, а описание.
+  const title = `${ind.title}${v.value != null ? `: ${val}` : ""} на сегодня — график, динамика | Basis`;
   const desc = `${ind.title}${v.value != null ? ` — ${val}` : ""}${v.as_of ? ` на ${v.as_of}` : ""}. `
     + `${(ind.influence_short || "Как показатель влияет на российский рынок и оценку компаний.").slice(0, 130)}`;
   const body = `
@@ -185,7 +188,7 @@ ${seriesHtml(ind.code, v.unit || ind.unit)}
 
 function indexPage(ix, assets, all) {
   const chg = ix.change_pct;
-  const title = `${ix.name} (${ix.ticker})${ix.level != null ? `: ${ix.level}` : ""} — значение и состав | Basis`;
+  const title = `${ix.name} (${ix.ticker})${ix.level != null ? `: ${ix.level}` : ""} сегодня — график, состав | Basis`;
   const desc = `${ix.name} (${ix.ticker})${ix.level != null ? ` — ${ix.level}` : ""}`
     + `${chg != null ? `, изменение ${chg > 0 ? "+" : ""}${chg}%` : ""}. Что показывает индекс, из чего состоит и как читать его движение.`;
   const related = all.filter((x) => x.ticker !== ix.ticker);

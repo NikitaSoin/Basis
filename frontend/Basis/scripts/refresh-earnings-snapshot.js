@@ -77,6 +77,20 @@ async function main() {
       })),
     "fair-value-snapshot.json");
 
+  // Ближайшие дивиденды: сумма, дата отсечки и «купить до». Замер спроса показал, что
+  // дивиденды спрашивают С УТОЧНЕНИЕМ — «мтс дивиденды 2026 дата выплаты», «дивиденды
+  // сбербанка когда выплатят». Без дат страница отвечает на половину вопроса.
+  await grab("Ближайшие дивиденды", "/api/market/calendar?limit=800",
+    (d) => (Array.isArray(d) ? d : (d.items || d.events || []))
+      .filter((e) => e && e.type === "dividend" && e.ticker && e.payload)
+      .map((e) => ({
+        ticker: e.ticker, date: e.date, status: e.status,
+        amount: e.payload.amount, currency: e.payload.currency,
+        record_date: e.payload.record_date, buy_by_date: e.payload.buy_by_date,
+        yield_pct: e.payload.dividend_yield,
+      })),
+    "dividend-calendar-snapshot.json");
+
   // История значений показателей — ради неё стоит сделать N запросов: без неё страницы
   // статистики остаются справочными «одно число + подпись» (218 слов), а с ней дают
   // реальный контент — динамику за годы, которую и ищут («ключевая ставка по годам»).
