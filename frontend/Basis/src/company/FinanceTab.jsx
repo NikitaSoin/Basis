@@ -756,9 +756,20 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const curTab = tabsAvail.includes(tab) ? tab : (tabsAvail[0] || "pnl");
   const TLABEL = { pnl: "P&L", bs: "Баланс", cf: "ОДДС", mult: "Мультипликаторы" };
   const curHasDet = TABLES[curTab].some((r) => !r.sectionHeader && r.det && sl(r.a).some((x) => x != null));
+  // Единица — на СТРОКУ (тот же принцип, что «Финансовая модель» ниже — moneyRowUnit):
+  // B(v) внутри молча переключает млрд↔трлн по величине КАЖДОЙ ячейки независимо
+  // (bln()), а прежний код брал только {}.v без {}.u — строка со значением ≥ 1 трлн ₽
+  // (выручка/активы Газпрома, Роснефти, Сбера и т.п.) показывалась под общей шапкой
+  // «млрд ₽», занижая масштаб в 1000×. Единица — по МАКСИМУМУ |значения| в строке
+  // (по всем годам), одна на всю строку — чтобы годы внутри строки не расходились.
+  const rowMoneyUnit = (vals) => {
+    const nums = (vals || []).filter((v) => typeof v === "number" && !isNaN(v)).map((v) => Math.abs(v * U) / 1000);
+    const maxMlrd = nums.length ? Math.max(...nums) : 0;
+    return maxMlrd >= 1000 ? { div: 1e6, dec: 2, u: "трлн ₽" } : { div: 1e3, dec: maxMlrd >= 100 ? 0 : 1, u: "млрд ₽" };
+  };
   // форматирование ячейки по kind
   // j — индекс в yslice (для проверки убытка по соответствующему году)
-  const fmtCell = (r, v, j) => {
+  const fmtCell = (r, v, j, rowUnit) => {
     if (v == null || isNaN(v)) {
       if (r.lossArr && j != null && r.lossArr[j] != null && r.lossArr[j] < 0)
         return <span style={{ color: "var(--ink-3)", fontSize: 11 }} title="убыток — неприменимо">—</span>;
@@ -768,7 +779,8 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     if (r.kind === "ratio") return num(v, 2);
     if (r.kind === "x") return num(v, 2) + "×";
     if (r.kind === "rub") return num(v, 1) + " ₽";
-    return B(v).v; // money
+    if (rowUnit) return num((v * U) / rowUnit.div, rowUnit.dec); // money, единица строки
+    return B(v).v; // money — фолбэк там, где строка не передана
   };
   const cellDelta = (r, vals, j) => {
     if (j === 0 || !["money", "pct"].includes(r.kind)) return null;
@@ -779,7 +791,9 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     const ch = (cv - pv) / Math.abs(pv) * 100; const cls = ch > 0.5 ? "up" : ch < -0.5 ? "dn" : "fl";
     return <span className={`yoy ${cls}`}>{ch > 0 ? "▲" : ch < 0 ? "▼" : "▬"} {num(Math.abs(ch), 1)} %</span>;
   };
-  const unitNote = curTab === "mult" ? "×, %" : "млрд ₽";
+  // единица теперь показывается ПО СТРОКЕ (rowMoneyUnit, см. выше) — общий заголовок
+  // не может нести одну единицу для всех строк таблицы (разный масштаб млрд/трлн)
+  const unitNote = curTab === "mult" ? "×, %" : "Показатель";
 
   /* динамика — столбчатые диаграммы ключевых показателей (рендерятся в блоке
      «Ключевые показатели и мультипликаторы»; владелец 2026-07-29: диаграммы динамики
@@ -1041,8 +1055,9 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                         if (!rawVals.some((x) => x != null)) return null;
                         // sign=-1: вычитаемые строки (расходы/резервы/налог) показываем отрицательно
                         const vals = r.sign === -1 ? rawVals.map((v) => (v == null ? null : -Math.abs(v))) : rawVals;
+                        const rowUnit = r.kind === "money" ? rowMoneyUnit(vals) : null;
                         const cls = [r.bold ? "bold" : "", r.accent ? "accent" : ""].filter(Boolean).join(" ");
-                        return (<tr className={cls} key={i}><td style={{ paddingLeft: r.det ? 24 : undefined, color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}</td>{yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j], j)}</span>{cellDelta(r, vals, j)}</td>)}</tr>);
+                        return (<tr className={cls} key={i}><td style={{ paddingLeft: r.det ? 24 : undefined, color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}{rowUnit && <span className="fm-row-unit"> · {rowUnit.u}</span>}</td>{yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j], j, rowUnit)}</span>{cellDelta(r, vals, j)}</td>)}</tr>);
                       })}
                     </tbody>
                   </table>
@@ -1077,11 +1092,12 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                     <tbody>
                       {bankMetricRows.map((r, i) => {
                         const vals = sl(r.a);
+                        const rowUnit = r.kind === "money" ? rowMoneyUnit(vals) : null;
                         const cls = [r.bold ? "bold" : "", r.accent ? "accent" : ""].filter(Boolean).join(" ");
                         return (
                           <tr className={cls} key={i}>
-                            <td style={{ color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}</td>
-                            {yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j], j)}</span>{cellDelta(r, vals, j)}</td>)}
+                            <td style={{ color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}{rowUnit && <span className="fm-row-unit"> · {rowUnit.u}</span>}</td>
+                            {yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j], j, rowUnit)}</span>{cellDelta(r, vals, j)}</td>)}
                           </tr>
                         );
                       })}
@@ -1110,15 +1126,16 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                 <div className="disc-body">
                   <div className="tbl-scroll">
                     <table className="ftbl">
-                      <thead><tr><th>млрд ₽</th>{yslice.map((y) => <th key={y}>{y}</th>)}</tr></thead>
+                      <thead><tr><th>Показатель</th>{yslice.map((y) => <th key={y}>{y}</th>)}</tr></thead>
                       <tbody>
                         {ecoRows.map((r, i) => {
                           const vals = sl(r.a);
+                          const rowUnit = r.kind === "money" ? rowMoneyUnit(vals) : null;
                           const cls = [r.bold ? "bold" : "", r.accent ? "accent" : ""].filter(Boolean).join(" ");
                           return (
                             <tr className={cls} key={i}>
-                              <td style={{ color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}</td>
-                              {yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j], j)}</span>{cellDelta(r, vals, j)}</td>)}
+                              <td style={{ color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}{rowUnit && <span className="fm-row-unit"> · {rowUnit.u}</span>}</td>
+                              {yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j], j, rowUnit)}</span>{cellDelta(r, vals, j)}</td>)}
                             </tr>
                           );
                         })}
