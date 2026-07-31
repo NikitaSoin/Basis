@@ -1605,7 +1605,7 @@ function termExamples(kind, ctx) {
     { minimumFractionDigits: d, maximumFractionDigits: d });
   const bondTable = (list, col, cell, note) => list.length
     ? `<table><thead><tr><th>Выпуск</th><th>Эмитент</th><th class="num">${col}</th></tr></thead>
-<tbody>${list.map((b) => `<tr><td><a href="/bond/${b.secid}/">${escapeHtml(b.short_name || b.secid)}</a></td>`
+<tbody>${list.map((b) => `<tr><td><a href="/bonds/${b.secid}/">${escapeHtml(b.short_name || b.secid)}</a></td>`
       + `<td>${escapeHtml((b.issuer_name || "—").slice(0, 34))}</td>`
       + `<td class="num">${escapeHtml(cell(b))}</td></tr>`).join("")}</tbody></table>
 ${note ? `<p class="sub">${note}</p>` : ""}` : "";
@@ -1735,7 +1735,9 @@ ${ex ? `<h2>На реальных бумагах</h2>${ex}` : ""}
 ${rel ? `<h2>Связанные термины</h2><div class="grid">${rel}</div>` : ""}
 <p>Весь справочник — на странице <a href="/pokazateli/">показателей и терминов</a>.
 Подобрать бумаги по своим условиям можно в <a href="/skrining-obligatsiy/">скрининге
-облигаций</a> и <a href="/skrining-aktsiy/">скрининге акций</a>.</p>`;
+облигаций</a> и <a href="/skrining-aktsiy/">скрининге акций</a>, а готовые подборки —
+<a href="/bonds/ofz/">все ОФЗ с кривой доходности</a> и
+<a href="/bonds/">каталог выпусков</a>.</p>`;
 
   return pageShell({
     title,
@@ -1966,7 +1968,11 @@ function metricPage(c, spec, pts, assets, tabsWritten, sectorAll) {
     return `<tr><td>${p.year}</td><td>${escapeHtml(fmt(p.value))}</td><td>${cell}</td></tr>`;
   }).join("");
 
-  const others = METRIC_PAGES.filter((m) => m.slug !== spec.slug);
+  // 🔴 Только те показатели, страницы которых у ЭТОЙ компании реально созданы. Раньше
+  // блок «Другие показатели» перечислял весь список METRIC_PAGES, и у компаний без
+  // части данных (ZVEZ, MFGSP, VRSBP…) ссылки вели в никуда — 36 битых ссылок на
+  // сорока проверенных страницах. Условие тут ровно то же, что при генерации.
+  const others = METRIC_PAGES.filter((m) => m.slug !== spec.slug && metricSeries(c, m));
   const body = `
 <p class="tag">${escapeHtml(c.sectorFull || c.sector)} · MOEX: ${c.ticker}</p>
 <h1>${escapeHtml(c.short)} <span style="color:var(--faint)">(${escapeHtml(c.ticker)})</span>: ${escapeHtml(short.toLowerCase())} по годам</h1>
