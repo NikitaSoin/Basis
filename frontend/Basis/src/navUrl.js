@@ -16,6 +16,8 @@
 
 // Заголовки вкладок: у каждой свой, иначе в браузере и в выдаче все вкладки раздела
 // выглядят одинаково. Ключ — «раздел:вкладка».
+import { trackPageView } from "./analytics";
+
 const TAB_TITLES = {
   // Рынок
   "companies:stocks": "Акции Мосбиржи: котировки и справедливая цена — Basis",
@@ -49,6 +51,9 @@ export function syncTabUrl(view, tab) {
     const url = `/?view=${encodeURIComponent(view)}&tab=${encodeURIComponent(tab)}`;
     if (window.location.pathname + window.location.search !== url) {
       window.history.pushState({ view, tab }, "", url);
+      // Вкладки разделов меняют адрес в обход syncUrl — без этой строки переходы
+      // «Акции → Облигации» или «Состав → Риск» в аналитике не видны вовсе.
+      trackPageView(url);
     }
     const t = tabTitle(view, tab);
     if (t) document.title = t;

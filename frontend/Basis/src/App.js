@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import DesignSystem from "./design/DesignSystem";
+import { initAnalytics, trackPageView } from "./analytics";
 import { BasisLogomark } from "./design/logomarks";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -531,6 +532,11 @@ function syncUrl(state) {
     const url = buildAppUrl(state);
     if (window.location.pathname + window.location.search !== url) {
       window.history.pushState(state, "", url);
+      // 🔴 В SPA адрес меняется без перезагрузки, и счётчик сам этого НЕ видит: без
+      // явной отправки за весь сеанс засчитается один просмотр — точка входа. Тогда
+      // отчёт по страницам не покажет ни переходов между карточками, ни вкладок, то
+      // есть ровно то, ради чего аналитику и ставят.
+      trackPageView(url);
     }
     syncTitle(state);
   } catch {}
@@ -974,6 +980,21 @@ export default function App() {
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  // Аналитика: инициализация и первый просмотр. Без REACT_APP_METRIKA_ID модуль —
+  // набор пустых операций, наружу не уходит ничего (см. src/analytics.js).
+  useEffect(() => {
+    initAnalytics();
+    trackPageView();
+  }, []);
+
+  // Кнопка «назад» — тоже переход между страницами, и его надо считать: иначе путь
+  // пользователя в отчётах обрывается там, где он вернулся, а не там, где ушёл.
+  useEffect(() => {
+    const onPopTrack = () => trackPageView();
+    window.addEventListener("popstate", onPopTrack);
+    return () => window.removeEventListener("popstate", onPopTrack);
   }, []);
 
   // 2) ?company=TICKER[&tab=finance] — старый query-формат, оставлен как фолбэк
