@@ -91,6 +91,43 @@ async function main() {
       })),
     "dividend-calendar-snapshot.json");
 
+  // Обозреватель: разделение «новости по теме» и «анализ текущей ситуации».
+  // Владелец 2026-07-31: спрос идёт на широких словах («геополитика», «новости
+  // геополитики»), а наши заголовки под узкими формулировками («геополитика и
+  // российский рынок») находятся заметно хуже. Новости у нас уже размечены по
+  // категориям (Геополитика 42, Экономика 39, Политика 17) — этого достаточно,
+  // чтобы сделать тематические ленты отдельными страницами.
+  await grab("Новости по темам", "/api/market/news?limit=200",
+    (d) => (Array.isArray(d) ? d : (d.items || d.news || []))
+      .filter((n) => n && n.title)
+      .map((n) => ({
+        id: n.id, title: n.title, summary: n.summary, category: n.category,
+        rubric: n.rubric, importance: n.importance, published_at: n.published_at,
+        impact_comment: n.impact_comment, affected_tickers: n.affected_tickers,
+      })),
+    "news-snapshot.json");
+
+  // Среднесрочный прогноз ЦБ — под запрос «среднесрочный прогноз банка россии»
+  // (широкий спрос, с уточнениями «по ключевой ставке», «по инфляции»). Данные уже
+  // собираются, но страницы под них не было.
+  await grab("Прогноз Банка России", "/api/market/macro/forecast",
+    (d) => (d && Array.isArray(d.rows)
+      ? [{ as_of: d.as_of, scenario: d.scenario, comment: d.comment,
+           source_url: d.source_url, rows: d.rows }] : []),
+    "cb-forecast-snapshot.json");
+
+  // График заседаний ЦБ по ставке — «заседание цб по ключевой ставке 2026 график».
+  await grab("Заседания ЦБ", "/api/market/calendar?event_type=macro&scope=all&days=400&limit=400",
+    (d) => (d.events || []).filter((e) => /ключевой ставке/i.test(String(e.title || "")))
+      .map((e) => ({ date: e.date, time: e.time, title: e.title, status: e.status })),
+    "cb-meetings-snapshot.json");
+
+  // Институциональная среда: алерты барометра.
+  await grab("Институты", "/api/market/institutions",
+    (d) => (d && Array.isArray(d.alerts)
+      ? d.alerts.map((a) => ({ ...a, _as_of: d.as_of })) : []),
+    "institutions-snapshot.json");
+
   // История значений показателей — ради неё стоит сделать N запросов: без неё страницы
   // статистики остаются справочными «одно число + подпись» (218 слов), а с ней дают
   // реальный контент — динамику за годы, которую и ищут («ключевая ставка по годам»).

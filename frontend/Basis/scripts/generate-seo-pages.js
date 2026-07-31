@@ -1750,6 +1750,295 @@ ${rel ? `<h2>Связанные термины</h2><div class="grid">${rel}</div
   });
 }
 
+
+// ─── Обозреватель: «новости по теме» отдельно от «анализа ситуации» ─────────────────
+// Владелец 2026-07-31: «нужно разделение — новости просто и анализ текущей ситуации.
+// Очень много запросов идут просто по названию геополитика, меньше новости геополитики,
+// а по нашему „геополитика и российский рынок“ будет находиться хуже».
+//
+// Замер подтвердил: «новости геополитики» — широкий спрос с уточнением «сегодня»,
+// «геополитическая ситуация» — тоже широкий. Это ДВА РАЗНЫХ намерения: одно «что
+// случилось», другое «что происходит вообще». Одна страница отвечает на оба плохо.
+//
+// 🔴 ЧЕСТНО ПРО СВЕЖЕСТЬ: страница статическая, новости живые. Поэтому на ней стоит
+// дата снимка, а под ней подгружается актуальная лента — как на страницах отчётности.
+function newsTopicPage(cfg, news, assets) {
+  const items = news.filter((n) => cfg.categories.includes(String(n.category)))
+    .sort((a, b) => String(b.published_at || "").localeCompare(String(a.published_at || "")))
+    .slice(0, 25);
+  if (items.length < 5) return null;      // тонкую ленту публиковать незачем
+  const asOf = ruDate(String(items[0].published_at || "").slice(0, 10));
+
+  const li = items.map((n) => {
+    const d = ruDate(String(n.published_at || "").slice(0, 10));
+    const tick = (n.affected_tickers || []).slice(0, 3)
+      .map((t) => `<a class="chip" href="/company/${escapeHtml(String(t))}/">${escapeHtml(String(t))}</a>`).join(" ");
+    return `<li><b>${escapeHtml(strip(n.title))}</b>${d ? ` <span class="tag">${escapeHtml(d)}</span>` : ""}
+${n.summary ? `<br>${escapeHtml(truncate(strip(n.summary), 260))}` : ""}
+${n.impact_comment ? `<br><i>Что это значит: ${escapeHtml(truncate(strip(n.impact_comment), 220))}</i>` : ""}
+${tick ? `<br>${tick}` : ""}</li>`;
+  }).join("");
+
+  const body = `
+<p class="tag">${escapeHtml(cfg.tag)}${asOf ? ` · обновлено ${escapeHtml(asOf)}` : ""}</p>
+<h1>${escapeHtml(cfg.h1)}</h1>
+<p class="sub">${escapeHtml(cfg.lead)}</p>
+<h2>Последние события</h2>
+<ul class="news">${li}</ul>
+<div id="live-news" data-cats="${escapeHtml(cfg.categories.join(","))}"></div>
+<script>
+// Лента подгружается живьём: адрес существует и проиндексирован заранее, свежие
+// новости приезжают сюда сами, без пересборки сайта.
+(function () {
+  var host = document.getElementById("live-news");
+  if (!host || !window.fetch) return;
+  var cats = (host.dataset.cats || "").split(",");
+  var esc = function (v) { return String(v == null ? "" : v).replace(/[&<>"]/g, function (m) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]; }); };
+  fetch(${JSON.stringify(API_BASE)} + "/api/market/news?limit=120")
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      var rows = (Array.isArray(d) ? d : (d && (d.items || d.news)) || [])
+        .filter(function (n) { return n && cats.indexOf(String(n.category)) >= 0; }).slice(0, 25);
+      if (!rows.length) return;
+      var html = rows.map(function (n) {
+        return "<li><b>" + esc(n.title) + "</b>" + (n.summary ? "<br>" + esc(n.summary) : "") + "</li>";
+      }).join("");
+      var ul = document.querySelector("ul.news");
+      if (ul) ul.innerHTML = html;
+    })
+    .catch(function () { /* нет сети — остаётся снимок из HTML */ });
+})();
+</script>
+${cfg.after}`;
+
+  return pageShell({
+    title: cfg.title, desc: cfg.desc, canonicalPath: `/${cfg.slug}/`,
+    breadcrumbs: [{ label: "Basis", href: "/" }, { label: cfg.crumb }],
+    bodyHtml: body, assets, note: DEFAULT_NOTE,
+  });
+}
+
+const NEWS_TOPICS = [
+  {
+    slug: "novosti-geopolitiki",
+    crumb: "Новости геополитики",
+    tag: "Лента Basis · геополитика",
+    title: "Новости геополитики сегодня: события и влияние на рынок — Basis",
+    desc: "Свежие новости геополитики с разбором: что произошло и что это значит для "
+      + "российского рынка и конкретных компаний. Лента обновляется автоматически.",
+    h1: "Новости геополитики сегодня",
+    lead: "События, которые двигают российский рынок: санкции, переговоры, ограничения. "
+      + "К каждой новости — короткий разбор, что она меняет и для кого.",
+    categories: ["Геополитика", "Политика"],
+    after: `<h2>Не только новости</h2>
+<p>Отдельные события мало что объясняют без общей картины: одна и та же новость значит
+разное при разной геополитической обстановке. Разбор текущей ситуации — направления, по
+которым идёт напряжение, и что каждое из них означает для секторов рынка — на странице
+<a href="/geopolitika-i-rossiyskiy-rynok/">геополитической обстановки</a>. Как это влияет
+на конкретную бумагу, видно в разделе «Геополитика» карточки компании — например,
+у <a href="/company/GAZP/geo/">Газпрома</a> или <a href="/company/LKOH/geo/">ЛУКОЙЛа</a>.</p>`,
+  },
+  {
+    slug: "novosti-ekonomiki",
+    crumb: "Новости экономики",
+    tag: "Лента Basis · экономика",
+    title: "Новости экономики России сегодня: ставка, инфляция, рубль — Basis",
+    desc: "Свежие новости экономики России с разбором: решения ЦБ, инфляция, курс рубля, "
+      + "бюджет — и что каждое событие значит для инвестора. Лента обновляется автоматически.",
+    h1: "Новости экономики России сегодня",
+    lead: "Решения ЦБ, инфляция, курс рубля, бюджет — события, от которых зависит "
+      + "доходность вкладов, облигаций и акций. С пояснением, на что каждое влияет.",
+    categories: ["Экономика"],
+    after: `<h2>Не только новости</h2>
+<p>Чтобы понять, куда движется экономика, отдельных новостей мало — нужны показатели в
+динамике и то, как они связаны между собой. Текущее состояние по всем ключевым
+показателям — на странице <a href="/makroobzor-rossiyskoy-ekonomiki/">макроэкономики
+России</a>, официальный ориентир ЦБ на ближайшие годы — в
+<a href="/prognoz-banka-rossii/">среднесрочном прогнозе Банка России</a>, а сами
+показатели с графиками — в <a href="/ekonomicheskaya-statistika-rossii/">экономической
+статистике</a>.</p>`,
+  },
+];
+
+
+// ─── Прогноз Банка России и график заседаний ────────────────────────────────────────
+// Владелец: «есть например запросы типа среднесрочный прогноз банка россии — а на нас
+// это не ведёт». Замер: запрос широкий, с уточнениями «по ключевой ставке», «по
+// инфляции», «от <дата>». Данные у нас собираются давно (/api/market/macro/forecast),
+// страницы под них не было. Отдельно «заседание цб по ключевой ставке 2026 график» —
+// тоже широкий запрос и тоже готовые данные.
+function cbForecastPage(fc, meetings, assets) {
+  if (!fc || !Array.isArray(fc.rows) || !fc.rows.length) return null;
+  const byInd = {};
+  for (const r of fc.rows) {
+    if (!r || !r.indicator) continue;
+    (byInd[r.indicator] = byInd[r.indicator] || []).push(r);
+  }
+  // Парсер ЦБ иногда вытаскивает вместо числа словесную пометку («не указано», «не
+  // изменился» — так в исходнике за 2028 год). В числовой колонке это читается как
+  // ошибка данных, а «не изменился» без предыдущего значения вообще ничего не сообщает.
+  // Показываем только то, в чём есть цифры.
+  const val = (hit) => {
+    const v = hit && hit.value != null ? String(hit.value).trim() : "";
+    return /\d/.test(v) ? v : null;
+  };
+  // Годы, по которым нет ни одного числа, из таблицы убираем целиком — колонка из
+  // сплошных прочерков только создаёт впечатление, что данные потерялись.
+  const years = [...new Set(fc.rows.map((r) => r.year).filter(Boolean))].sort()
+    .filter((y) => fc.rows.some((r) => r.year === y && val(r)));
+  if (!years.length) return null;
+  const head = `<tr><th>Показатель</th>${years.map((y) => `<th class="num">${y}</th>`).join("")}</tr>`;
+  const rows = Object.keys(byInd).map((ind) => {
+    const cells = years.map((y) => {
+      const v = val(byInd[ind].find((r) => r.year === y));
+      return `<td class="num">${escapeHtml(v || "—")}</td>`;
+    }).join("");
+    return `<tr><td>${escapeHtml(ind)}</td>${cells}</tr>`;
+  }).join("");
+  const asOf = ruDate(fc.as_of);
+  const next = (meetings || []).filter((m) => m.date >= new Date().toISOString().slice(0, 10))
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)))[0];
+
+  const body = `
+<p class="tag">Официальный прогноз ЦБ${asOf ? ` · опубликован ${escapeHtml(asOf)}` : ""}</p>
+<h1>Среднесрочный прогноз Банка России</h1>
+<p class="sub">${escapeHtml(fc.comment || "Ориентир ЦБ по ключевой ставке, инфляции и росту экономики на ближайшие годы.")}
+${fc.scenario ? `Сценарий — ${escapeHtml(fc.scenario)}.` : ""} <span class="tag">факт</span></p>
+<table><thead>${head}</thead><tbody>${rows}</tbody></table>
+<p class="sub">Значения — диапазоны из среднесрочного прогноза Банка России${
+    fc.source_url ? `, <a href="${escapeHtml(fc.source_url)}" rel="nofollow">источник</a>` : ""}.
+Прогноз обновляется на опорных заседаниях, четыре раза в год.</p>
+<h2>Зачем инвестору этот прогноз</h2>
+<p>Это не мнение аналитиков, а официальный ориентир регулятора — и рынок торгует именно
+ожидания по нему. Прогноз по ключевой ставке задаёт доходность вкладов и облигаций на
+годы вперёд: если ЦБ ждёт снижения, длинные облигации выигрывают заранее, ещё до самого
+снижения. Он же меняет и оценку акций — чем ниже безрисковая ставка, тем ниже планка
+требуемой доходности, по которой считается
+<a href="/spravedlivaya-tsena-aktsiy/">справедливая цена</a>.</p>
+<h2>Как читать диапазоны</h2>
+<p>ЦБ публикует не точку, а интервал — и это честнее точной цифры: он показывает,
+насколько сам регулятор уверен. Широкий диапазон означает высокую неопределённость.
+Важно и то, что прогноз по ставке даётся как СРЕДНЕЕ за год: ставка 14,5–14,6% в среднем
+за год допускает и 16% в начале, и 12% в конце. Из среднего нельзя прочитать траекторию.</p>
+${next ? `<h2>Ближайшее заседание</h2>
+<p>Следующее решение по ключевой ставке — ${escapeHtml(ruDate(next.date) || next.date)}${
+    next.time ? `, около ${escapeHtml(next.time)}` : ""}.
+Полный график и какие заседания опорные — на странице
+<a href="/zasedaniya-tsb/">заседаний ЦБ по ключевой ставке</a>.</p>` : ""}
+<p>Текущие значения показателей с графиками — в
+<a href="/statistika/klyuchevaya-stavka/">ключевой ставке</a> и
+<a href="/statistika/inflyatsiya/">инфляции</a>; как это складывается в общую картину —
+в <a href="/makroobzor-rossiyskoy-ekonomiki/">макроэкономике России</a>.</p>`;
+
+  return pageShell({
+    title: "Среднесрочный прогноз Банка России: ставка, инфляция, ВВП — Basis",
+    desc: truncate(`Среднесрочный прогноз Банка России${asOf ? ` от ${asOf}` : ""}: ключевая ставка, `
+      + `инфляция и рост ВВП по годам. Что означают диапазоны и как их читать инвестору.`, 200),
+    canonicalPath: "/prognoz-banka-rossii/",
+    breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Прогноз Банка России" }],
+    bodyHtml: body, assets, note: DEFAULT_NOTE,
+  });
+}
+
+function cbMeetingsPage(meetings, fc, assets) {
+  if (!meetings || !meetings.length) return null;
+  const today = new Date().toISOString().slice(0, 10);
+  const sorted = [...meetings].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  const rows = sorted.map((m) => {
+    const key = /опорное/i.test(String(m.title || ""));
+    const past = String(m.date) < today;
+    return `<tr><td>${escapeHtml(ruDate(m.date) || m.date)}</td>`
+      + `<td>${key ? "опорное, с публикацией прогноза" : "обычное"}</td>`
+      + `<td>${past ? "прошло" : "предстоит"}</td></tr>`;
+  }).join("");
+  const next = sorted.find((m) => String(m.date) >= today);
+
+  const body = `
+<p class="tag">Календарь Basis · денежная политика</p>
+<h1>Заседания ЦБ по ключевой ставке в 2026 году</h1>
+<p class="sub">${next
+    ? `Ближайшее решение — ${escapeHtml(ruDate(next.date) || next.date)}${next.time ? `, около ${escapeHtml(next.time)}` : ""}.`
+    : "График заседаний Совета директоров Банка России по ключевой ставке."}</p>
+<table><thead><tr><th>Дата</th><th>Тип заседания</th><th>Статус</th></tr></thead><tbody>${rows}</tbody></table>
+<h2>Чем опорное заседание отличается от обычного</h2>
+<p>Опорных заседаний четыре в год. На них ЦБ не только меняет или сохраняет ставку, но и
+публикует обновлённый <a href="/prognoz-banka-rossii/">среднесрочный прогноз</a> и
+проводит пресс-конференцию. Для рынка они важнее: даже при неизменной ставке пересмотр
+прогноза меняет ожидания на годы вперёд — а торгуются именно ожидания.</p>
+<h2>Что происходит с рынком вокруг решения</h2>
+<p>Котировки обычно двигаются заранее: к дате заседания ожидаемое решение уже заложено в
+ценах. Поэтому реакция бывает сильной, когда решение расходится с ожиданиями, и почти
+нулевой, когда совпадает. Сильнее всего на ставку реагируют длинные облигации и
+закредитованные компании: у первых меняется цена через
+<a href="/pokazateli/dyuratsiya/">дюрацию</a>, у вторых — процентные расходы.</p>
+<p>Текущее значение и история решений — на странице
+<a href="/statistika/klyuchevaya-stavka/">ключевой ставки</a>. Остальные события рынка —
+в <a href="/kalendar-otchetnostey/">календаре</a>.</p>`;
+
+  return pageShell({
+    title: "Заседания ЦБ по ключевой ставке 2026: график и даты — Basis",
+    desc: "График заседаний Банка России по ключевой ставке в 2026 году: все даты, какие "
+      + "заседания опорные и чем они важнее для рынка.",
+    canonicalPath: "/zasedaniya-tsb/",
+    breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Заседания ЦБ" }],
+    bodyHtml: body, assets, note: DEFAULT_NOTE,
+  });
+}
+
+
+// ─── Институциональная среда ────────────────────────────────────────────────────────
+// 🔴 ЦЕЛИМСЯ НЕ В СЛОВО «ИНСТИТУТЫ». Замер спроса 2026-07-31: запрос «институты» широкий,
+// но это «институты культуры», «институты ФСБ», «институты Санкт-Петербурга список» —
+// люди ищут вузы и организации, а не институциональную среду экономики. Гнаться за ним
+// значит собирать трафик, которому мы не нужны. Целимся в «институциональная среда»
+// (средний спрос, точное намерение) и в «санкции против россии» (широкий) — санкционный
+// фон занимает заметную часть содержания самих алертов.
+function institutionsPage(alerts, assets) {
+  if (!alerts || alerts.length < 3) return null;
+  const sorted = [...alerts].sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+  const asOf = ruDate(sorted[0]._as_of || sorted[0].date);
+  const items = sorted.slice(0, 10).map((a) => `<li><b>${escapeHtml(strip(String(a.title || "")))}</b>
+${a.date ? `<span class="tag">${escapeHtml(ruDate(a.date) || a.date)}</span>` : ""}
+${a.type ? `<span class="tag">${escapeHtml(String(a.type))}</span>` : ""}
+${a.why_it_matters ? `<br>Почему важно: ${escapeHtml(truncate(strip(String(a.why_it_matters)), 320))}` : ""}</li>`).join("");
+
+  const body = `
+<p class="tag">Институциональная среда${asOf ? ` · обновлено ${escapeHtml(asOf)}` : ""}</p>
+<h1>Институциональная среда России: что меняется для инвестора</h1>
+<p class="sub">Санкции, бюджет, регулирование и защита собственности — то, что меняет
+правила игры сразу для всего рынка, а не для отдельной компании.</p>
+<h2>Что происходит сейчас</h2>
+<ul class="news">${items}</ul>
+<h2>Почему это отдельная тема, а не часть макроэкономики</h2>
+<p>Макропоказатели отвечают на вопрос «в какой фазе экономика», институциональная
+среда — на вопрос «по каким правилам она работает и насколько эти правила устойчивы».
+Инфляцию можно прогнозировать по данным; вероятность изъятия актива, нового санкционного
+пакета или разворота регулирования по данным не считается — но на цену влияет сильнее
+любого мультипликатора. Поэтому мы держим этот слой отдельно и помечаем как суждение,
+а не как расчёт.</p>
+<h2>Как это доходит до конкретной бумаги</h2>
+<p>Институциональный фон входит в оценку тремя путями: через требуемую доходность
+(выше риск — выше планка, а значит ниже <a href="/spravedlivaya-tsena-aktsiy/">справедливая
+цена</a>), через денежный поток (санкции на экспорт или логистику режут выручку) и через
+мультипликатор (рынок готов платить меньше за ту же прибыль). У каждой компании этот
+расчёт свой — он в разделе «Институты» её карточки, например
+у <a href="/company/GAZP/">Газпрома</a> или <a href="/company/SBER/">Сбербанка</a>.</p>
+<p>Смежное: <a href="/geopolitika-i-rossiyskiy-rynok/">геополитическая обстановка</a> —
+внешний контур тех же рисков, <a href="/novosti-geopolitiki/">новости геополитики</a> —
+события по мере поступления, <a href="/makroobzor-rossiyskoy-ekonomiki/">макроэкономика
+России</a> — цифры, на которые всё это ложится.</p>`;
+
+  return pageShell({
+    title: "Институциональная среда России: санкции, бюджет, регулирование — Basis",
+    desc: "Что меняется в правилах игры для инвестора: санкционные пакеты, бюджет, "
+      + "регулирование и защита собственности — с пояснением, почему каждое событие важно.",
+    canonicalPath: "/institutsionalnaya-sreda/",
+    breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Институциональная среда" }],
+    bodyHtml: body, assets, note: DEFAULT_NOTE,
+  });
+}
+
 function glossaryPage(spec, companies, assets) {
   const label = spec.label;
   const lower = label.toLowerCase();
@@ -2146,6 +2435,7 @@ function main() {
   let tabPagesCount = 0;
   let metricPagesCount = 0;
   let fairValuePagesCount = 0;
+  let observerCount = 0;
 
   // Справедливая цена: снимок с боевого API (обновляется на каждой сборке). Держим
   // отдельно от financials.json, потому что число ЖИВОЕ — оно пересчитывается от
@@ -2282,6 +2572,48 @@ function main() {
     urls.push({ loc: `${_SITE}/nedootsenennye-aktsii/`, freq: "weekly", pri: "0.8" });
   }
 
+  // Обозреватель: тематические ленты + прогноз ЦБ + график заседаний.
+  {
+    const load = (f) => {
+      try { return JSON.parse(fs.readFileSync(path.join(__dirname, "data", f), "utf8")).rows || []; }
+      catch { return []; }
+    };
+    const news = load("news-snapshot.json");
+    const fc = (load("cb-forecast-snapshot.json") || [])[0];
+    const meetings = load("cb-meetings-snapshot.json");
+
+    for (const cfg of NEWS_TOPICS) {
+      const html = newsTopicPage(cfg, news, assets);
+      if (!html) { console.log(`  ${cfg.slug}: новостей мало — страница пропущена`); continue; }
+      const dir = path.join(_BUILD_DIR, cfg.slug);
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, "index.html"), html, "utf8");
+      urls.push({ loc: `${_SITE}/${cfg.slug}/`, freq: "daily", pri: "0.8" });
+      observerCount++;
+    }
+    const fcHtml = cbForecastPage(fc, meetings, assets);
+    if (fcHtml) {
+      fs.mkdirSync(path.join(_BUILD_DIR, "prognoz-banka-rossii"), { recursive: true });
+      fs.writeFileSync(path.join(_BUILD_DIR, "prognoz-banka-rossii", "index.html"), fcHtml, "utf8");
+      urls.push({ loc: `${_SITE}/prognoz-banka-rossii/`, freq: "weekly", pri: "0.8" });
+      observerCount++;
+    }
+    const instHtml = institutionsPage(load("institutions-snapshot.json"), assets);
+    if (instHtml) {
+      fs.mkdirSync(path.join(_BUILD_DIR, "institutsionalnaya-sreda"), { recursive: true });
+      fs.writeFileSync(path.join(_BUILD_DIR, "institutsionalnaya-sreda", "index.html"), instHtml, "utf8");
+      urls.push({ loc: `${_SITE}/institutsionalnaya-sreda/`, freq: "weekly", pri: "0.7" });
+      observerCount++;
+    }
+    const mHtml = cbMeetingsPage(meetings, fc, assets);
+    if (mHtml) {
+      fs.mkdirSync(path.join(_BUILD_DIR, "zasedaniya-tsb"), { recursive: true });
+      fs.writeFileSync(path.join(_BUILD_DIR, "zasedaniya-tsb", "index.html"), mHtml, "utf8");
+      urls.push({ loc: `${_SITE}/zasedaniya-tsb/`, freq: "weekly", pri: "0.7" });
+      observerCount++;
+    }
+  }
+
   // Глоссарий — после компаний: ему нужны их ряды для таблиц примеров.
   let glossaryCount = 0;
   for (const spec of METRIC_PAGES.filter((m) => m.formula)) {
@@ -2344,7 +2676,7 @@ function main() {
   // что итоговый лог считает длину массива urls, а не строки файла: он рапортовал 4687
   // при реальных 4662 в sitemap.xml. Проверять карту по ФАЙЛУ, а не по логу.
   writeSitemap(urls);
-  console.log(`SEO-страницы: ${companies.length} хабов + ${tabPagesCount} разделов + ${metricPagesCount} метрик + ${fairValuePagesCount} оценок + ${glossaryCount} справочника + ${LANDINGS.length} лендингов + каталог; sitemap.xml — ${urls.length} URL; пропущено (нет financials.json): ${skipped.length}`);
+  console.log(`SEO-страницы: ${companies.length} хабов + ${tabPagesCount} разделов + ${metricPagesCount} метрик + ${fairValuePagesCount} оценок + ${glossaryCount} справочника + ${observerCount} обозревателя + ${LANDINGS.length} лендингов + каталог; sitemap.xml — ${urls.length} URL; пропущено (нет financials.json): ${skipped.length}`);
   console.log(`Короткие редиректы /TICKER/: ${shortUrlCount}${shortUrlSkipped.length ? `; пропущены (конфликт с зарезервированным путём): ${shortUrlSkipped.join(", ")}` : ""}`);
   if (skipped.length) console.log("пропущены:", skipped.slice(0, 20).join(", "), skipped.length > 20 ? "..." : "");
 }
