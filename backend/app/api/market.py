@@ -1,3 +1,4 @@
+import re as _re
 import os
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import JSONResponse
@@ -860,12 +861,57 @@ def market_geopolitics_region(region: str, tab: str = "deep",
     return _geo_block_dict(b, set())
 
 
+# 🔴 КОМПЛАЕНС (владелец, 2026-07-31): часть источников нельзя называть в публичном
+# контенте платформы, работающей в РФ, — ни подписью «источник», ни упоминанием внутри
+# пересказа. Скрываем и то и другое: сама аналитика остаётся, атрибуция снимается.
+# Список ключей — по source_key из geo_digest.SOURCE_LABELS.
+_UNNAMED_SOURCES = {"carnegie", "rerussia", "tg_carnegie", "tg_baunov", "tg_agabuev"}
+
+# Упоминания в ТЕКСТЕ пересказа: LLM переносит название из исходника («в еженедельном
+# обзоре Carnegie Politika представлены…»), поэтому чистим и тело статьи, а не только
+# подпись. Удаляем именно название, оставляя фразу связной.
+_NAMES = r"(?:Carnegie\s+Politika|Carnegie|Карнеги|Re:\s*Russia|rerussia|Баунов|Габуев)"
+
+# Чистим не голое название, а ВВОДНУЮ КОНСТРУКЦИЮ целиком: простое вырезание слова
+# оставляло обрубки («Как отмечает, ситуация меняется», «пишет, что переговоры…»).
+# Порядок правил важен — сначала длинные конструкции, потом одиночные упоминания.
+_MENTION_RULES = [
+    (_re.compile(r"(?:как\s+)?(?:отмеча(?:ет|ют)|пиш(?:ет|ут)|счита(?:ет|ют)|полага(?:ет|ют)|"
+                 r"указыва(?:ет|ют)|сообща(?:ет|ют))\s+" + _NAMES + r"\s*,\s*", _re.I), ""),
+    (_re.compile(r"по\s+(?:данным|мнению|оценке|версии)\s+" + _NAMES + r"\s*,\s*", _re.I), ""),
+    (_re.compile(_NAMES + r"\s+(?:пиш(?:ет|ут)|отмеча(?:ет|ют)|счита(?:ет|ют)|"
+                 r"указыва(?:ет|ют)|сообща(?:ет|ют))\s*,\s*что\s+", _re.I), ""),
+    (_re.compile(r"\s+" + _NAMES + r"(?=\s|[,.;:)])", _re.I), ""),
+    (_re.compile(_NAMES, _re.I), ""),
+]
+
+
+def _clean_mentions(v):
+    """Убирает неназываемые источники из текста, сохраняя фразу связной."""
+    if isinstance(v, list):
+        return [_clean_mentions(x) for x in v]
+    if not isinstance(v, str) or not v:
+        return v
+    out = v
+    for rx, rep in _MENTION_RULES:
+        out = rx.sub(rep, out)
+    out = _re.sub(r"\s{2,}", " ", out)
+    out = _re.sub(r"\s+([,.;:)])", r"\1", out)
+    out = _re.sub(r"^[\s,;:—-]+", "", out)
+    out = _re.sub(r"(^|[.!?]\s+)([а-яё])", lambda m: m.group(1) + m.group(2).upper(), out)
+    return out.strip()
+
+
 def _digest_dict(a) -> dict:
     from app.services.geo_digest import SOURCE_LABELS
-    return {"id": a.id, "title": a.title, "summary": a.summary,
-            "key_takeaways": a.key_takeaways or [],
-            "investor_relevance": a.investor_relevance,
-            "source_label": SOURCE_LABELS.get(a.source_key, a.source_key),
+    hide = a.source_key in _UNNAMED_SOURCES
+    return {"id": a.id,
+            "title": _clean_mentions(a.title) if hide else a.title,
+            "summary": _clean_mentions(a.summary) if hide else a.summary,
+            "key_takeaways": (_clean_mentions(a.key_takeaways) if hide else a.key_takeaways) or [],
+            "investor_relevance": _clean_mentions(a.investor_relevance) if hide else a.investor_relevance,
+            # None, а не строка-заглушка: фронт просто не рисует чип источника
+            "source_label": None if hide else SOURCE_LABELS.get(a.source_key, a.source_key),
             "published_at": a.published_at.isoformat() if a.published_at else None}
 
 

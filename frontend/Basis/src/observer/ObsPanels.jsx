@@ -1280,7 +1280,9 @@ function ObsWireRow({ a }) {
     <div className="obs-wire-row-wrap">
       <button type="button" className="obs-wire-row" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
         <span className="obs-wire-date">{dateStr}</span>
-        <span className="obs-wire-src">{a.source_label}</span>
+        {/* Источник может быть скрыт (комплаенс, см. _UNNAMED_SOURCES в api/market.py) —
+            тогда не рисуем пустой блок, иначе в строке остаётся дыра от отступа. */}
+        {a.source_label && <span className="obs-wire-src">{a.source_label}</span>}
         <span className="obs-wire-title">{a.title}</span>
         <span className="obs-wire-toggle" aria-hidden="true">{open ? "▴" : "▾"}</span>
       </button>
