@@ -5,6 +5,7 @@ GET /api/market/macro/{code}/series — ряд для графика (metric, fr
 GET /api/market/macro/rate       — спец-блок ключевой ставки
 GET /api/market/macro/analytics  — выжимки ЦБ/ЦМАКП
 """
+import logging
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -19,6 +20,8 @@ from app.models.portfolio import Portfolio, PortfolioPosition
 from app.models.macro import (MacroIndicator, MacroDataPoint, RateMeeting,
                               MacroAnalyticsDoc, MacroForecast, MacroInterpretation,
                               MacroExpertSurvey)
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -202,7 +205,8 @@ def macro_expert_survey(db: Session = Depends(get_db)):
 
 
 @router.get("/market/macro/interpretation")
-def macro_interpretation_get(db: Session = Depends(get_db)):
+def macro_interpretation_get(db: Session = Depends(get_db),
+                             user=Depends(get_current_user_optional)):
     from app.services.macro_interpreter import get_latest, run_state
     row = get_latest(db)
     # status нужен фронту, чтобы показать «пересобираем…» и опрашивать до готовности:
@@ -212,7 +216,24 @@ def macro_interpretation_get(db: Session = Depends(get_db)):
         return {"sections": None, "status": status}
     return {"sections": row.sections, "generated_at": row.generated_at.isoformat(),
             "model_used": row.model_used, "source_snapshot": row.source_snapshot,
-            "status": status}
+            "status": status,
+            # Персональная проекция выпуска на бумаги пользователя. Считается ЗДЕСЬ,
+            # а не в выпуске: выпуск один для всех и живёт сутки, портфель у каждого
+            # свой. Без портфеля возвращается приглашение его завести.
+            "portfolio": _portfolio_link(db, user, row.sections)}
+
+
+def _portfolio_link(db: Session, user, sections: dict) -> dict:
+    from app.services.macro_portfolio_link import build_link
+    if not user:
+        return build_link(db, None, sections)
+    pf = (db.query(Portfolio).filter(Portfolio.user_id == user.id)
+          .order_by(Portfolio.id).first())
+    try:
+        return build_link(db, pf.id if pf else None, sections or {})
+    except Exception:  # noqa: BLE001
+        logger.warning("Макро: связка с портфелем не собралась", exc_info=True)
+        return {"available": False}
 
 
 @router.post("/market/macro/interpretation")
