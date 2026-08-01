@@ -64,19 +64,33 @@ def _search_our_feed(db: Session, query: str, days: int, limit: int) -> dict:
     """Полнотекстовый поиск по летописи. Без привязки к тикеру — вопрос макро."""
     days = max(7, min(int(days or 120), 1095))
     limit = max(1, min(int(limit or 8), 10))
-    words = [w for w in str(query or "").split() if len(w) > 2][:5]
+    words = [w for w in str(query or "").split() if len(w) > 2][:6]
     if not words:
         return {"error": "empty_query"}
-    conds, params = [], {"days": days, "lim": limit}
+    # 🔴 РАНЖИРОВАНИЕ ПО ЧИСЛУ СОВПАВШИХ СЛОВ, а не «подходит любое слово».
+    # Первая версия склеивала условия через OR и сортировала по дате: на запрос
+    # «PMI России индекс деловой активности» первыми шли «Трамп допустил захват
+    # Гренландии» и «Южнокорейский рынок акций» — совпало слово «России». Агент
+    # получал мусор, решал, что в ленте ничего нет, и уходил в веб, сжигая шаги.
+    # Теперь релевантность = сколько слов запроса реально встретилось, заголовок
+    # весит вдвое против пересказа, и результаты ниже порога отбрасываются.
+    params = {"days": days, "lim": limit}
+    score_parts, where_parts = [], []
     for i, w in enumerate(words):
-        conds.append(f"(title ILIKE :w{i} OR summary ILIKE :w{i})")
         params[f"w{i}"] = f"%{w}%"
+        score_parts.append(f"(CASE WHEN title ILIKE :w{i} THEN 2 ELSE 0 END)")
+        score_parts.append(f"(CASE WHEN summary ILIKE :w{i} THEN 1 ELSE 0 END)")
+        where_parts.append(f"(title ILIKE :w{i} OR summary ILIKE :w{i})")
+    score = " + ".join(score_parts)
+    # порог: для 1-2 слов достаточно одного совпадения, дальше требуем минимум два
+    params["min_score"] = 2 if len(words) <= 2 else 3
     sql = (f"SELECT id, title, summary, source_key, source_url, "
-           f"COALESCE(event_date, published_at::date) AS d "
+           f"COALESCE(event_date, published_at::date) AS d, ({score}) AS rel "
            f"FROM chronicle_entries "
            f"WHERE published_at > now() - (:days || ' days')::interval "
-           f"AND ({' OR '.join(conds)}) "
-           f"ORDER BY d DESC NULLS LAST LIMIT :lim")
+           f"AND ({' OR '.join(where_parts)}) "
+           f"AND ({score}) >= :min_score "
+           f"ORDER BY rel DESC, d DESC NULLS LAST LIMIT :lim")
     try:
         rows = db.execute(text(sql), params).all()
     except Exception:  # noqa: BLE001
@@ -84,7 +98,7 @@ def _search_our_feed(db: Session, query: str, days: int, limit: int) -> dict:
         return {"error": "search_failed"}
     return {"found": len(rows), "items": [
         {"id": r[0], "date": str(r[5]) if r[5] else None, "title": r[1],
-         "summary": (r[2] or "")[:220], "source": r[3], "url": r[4]}
+         "summary": (r[2] or "")[:220], "source": r[3], "url": r[4], "relevance": r[6]}
         for r in rows]}
 
 
@@ -140,8 +154,15 @@ def _get_series_state(db: Session, code: str) -> dict:
     rows = db.execute(text(
         "SELECT as_of, value, metric FROM macro_data_points WHERE indicator_code=:c "
         "ORDER BY as_of DESC LIMIT 6"), {"c": ind.code}).all()
+    # 🔴 СТРАНА обязательна в ответе. Без неё агент нашёл КИТАЙСКИЙ композитный PMI и
+    # предложил его для российского ряда — число в тексте было, гейт пропустил
+    # (2026-08-02). Показатель без страны — это не показатель.
+    country = {"ru": "Россия", "cn": "Китай", "us": "США", "eu": "Еврозона",
+               "world": "мир"}.get(ind.country, ind.country or "не указана")
     return {"code": ind.code, "title": ind.title, "unit": ind.unit,
-            "frequency": ind.frequency,
+            "country": country, "frequency": ind.frequency,
+            "warning": f"Нужны данные ИМЕННО по стране: {country}. Значение по другой "
+                       f"стране в этот ряд не подходит.",
             "last_points": [{"date": str(r[0]), "value": float(r[1]), "metric": r[2]} for r in rows]}
 
 

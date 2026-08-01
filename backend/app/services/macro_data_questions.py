@@ -81,6 +81,9 @@ def _stale_series(db: Session) -> list[dict]:
         ind = db.get(MacroIndicator, s["code"])
         title = ind.title if ind else s["code"]
         unit = (ind.unit if ind else "") or ""
+        country = {"ru": "Россия", "cn": "Китай", "us": "США", "eu": "Еврозона",
+                   "world": "мир"}.get(getattr(ind, "country", None),
+                                       getattr(ind, "country", None) or "не указана")
         out.append({
             "kind": "stale_series",
             "code": s["code"], "metric": s["metric"],
@@ -88,10 +91,12 @@ def _stale_series(db: Session) -> list[dict]:
             "age_days": s["age_days"],
             "have": f"последняя точка {s['last']} ({s['age_days']} дн. назад)",
             "question": (
-                f"Показатель «{title}» ({s['code']}, {unit}) у нас обновлялся последний раз "
-                f"{s['last']} — это {s['age_days']} дней назад, хотя ряд регулярный. "
-                f"Найди опубликованные значения за пропущенные периоды. "
-                f"Верни число, дату периода (не дату публикации) и ссылку на источник."
+                f"Показатель «{title}» ({s['code']}, {unit}) ПО СТРАНЕ: {country}. "
+                f"У нас обновлялся последний раз {s['last']} — это {s['age_days']} дней "
+                f"назад, хотя ряд регулярный. Найди опубликованные значения за "
+                f"пропущенные периоды ИМЕННО по этой стране и именно этого показателя "
+                f"(похожие названия — другие величины). Верни число, дату периода "
+                f"(не дату публикации) и ссылку на источник."
             ),
         })
     return out

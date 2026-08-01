@@ -707,6 +707,34 @@ async def _seed_shares_startup():
         logger.exception("Ошибка стартового сида акций/капитализации: %s", e)
 
 
+async def _macro_gap_agent_job():
+    """Агент-добытчик чинит дыры в макро-рядах ДО утреннего выпуска.
+
+    🔴 Порядок в расписании важен: 06:30 ингест → 06:50 агент → 07:15 интерпретация.
+    Чинить данные после генерации бессмысленно — выпуск уже посчитан по устаревшим
+    рядам (безработица уходила в прогноз с задержкой в 94 дня).
+
+    Контур: код находит дыру → добытчик ищет (сначала наша лента, потом веб) →
+    факт-чекер подтверждает НЕЗАВИСИМЫМ источником → точка пишется. Существующие
+    точки не перезаписываются никогда. Лимит на раунд маленький: это регулярная
+    чистка по чуть-чуть, каждая дыра — два агентских прогона.
+    """
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.macro_gap_pipeline import run_round
+        db = SessionLocal()
+        try:
+            return run_round(db, limit=int(os.environ.get("MACRO_GAP_LIMIT", "3")))
+        finally:
+            db.close()
+    try:
+        out = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Агент-добытчик: закрыто дыр %s из %s вопросов",
+                    (out or {}).get("written"), (out or {}).get("questions"))
+    except Exception as e:
+        logger.exception("Ошибка агента-добытчика макроданных: %s", e)
+
+
 async def _macro_interpretation_job():
     """Макро «Оценка ситуации» (ИИ-интерпретация: текущая картина/ставка/прогноз ЦБ/
     рынок-сектора/сценарии) — раньше генерировалась ТОЛЬКО вручную кнопкой «Обновить
@@ -1217,6 +1245,9 @@ async def lifespan(app: FastAPI):
                           "cron", day_of_week="mon-fri", hour="10,17", minute=15,
                           id="report_fetch")
         scheduler.add_job(_with_heartbeat("macro_verification", _macro_verification_job), "cron", hour=18, minute=30, id="macro_verification")  # «ОТК данных» — вечером, после всех синков
+        # 06:50 — между ингестом (06:30) и интерпретацией (07:15): данные чинятся ДО того,
+        # как выпуск на них посчитается.
+        scheduler.add_job(_with_heartbeat("macro_gap_agent", _macro_gap_agent_job), "cron", hour=6, minute=50, id="macro_gap_agent")
         scheduler.add_job(_with_heartbeat("macro_interpretation", _macro_interpretation_job), "cron", hour=7, minute=15, id="macro_interpretation")
         scheduler.add_job(_with_heartbeat("earnings_digest", _earnings_job), "cron", hour=20, minute=30, id="earnings_digest")
         # 🔴 Было раз в сутки (20:45) — владелец 2026-07-29: Сбер/Яндекс отчитались с

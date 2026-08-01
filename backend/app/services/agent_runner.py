@@ -31,6 +31,10 @@ class AgentRunError(RuntimeError):
 
 # инструменты с внешним доступом — их вызовы дороги/медленны, ограничиваем счётчиком
 _WEB_TOOLS = {"web_search", "fetch_document"}
+# Лимит тратится ПОИСКАМИ (они множат варианты), а чтение найденного — то, ради чего
+# всё и затевалось. Поэтому кап считаем по поисковым инструментам, а fetch_document
+# остаётся доступным до конца прогона.
+_SEARCH_TOOLS = {"web_search", "search_our_feed"}
 
 
 def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[dict],
@@ -55,8 +59,13 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
         # когда веб-бюджет исчерпан — не предлагаем веб-инструменты дальше
         step_tools = tools_schema
         if web_calls >= web_call_cap:
+            # 🔴 Исчерпан бюджет ПОИСКА — убираем только поисковые инструменты, но
+            # оставляем чтение документов. Раньше срезалось всё разом, и агент,
+            # потративший лимит на поиски, физически не мог открыть найденное:
+            # 10 шагов подряд искал и возвращал «не нашёл», хотя ссылки были на руках
+            # (2026-08-02, pmi_composite).
             step_tools = [t for t in tools_schema
-                          if (t.get("function") or {}).get("name") not in _WEB_TOOLS]
+                          if (t.get("function") or {}).get("name") not in _SEARCH_TOOLS]
         try:
             resp = complete_messages(messages, tools=step_tools, max_tokens=1600, temperature=0.2)
         except LLMError as e:
@@ -101,10 +110,20 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
                 args = json.loads(fn.get("arguments") or "{}")
             except json.JSONDecodeError:
                 args = {}
-            if name in _WEB_TOOLS:
+            if name in _SEARCH_TOOLS:
                 web_calls += 1
-            out = (executor(db, name, args) if executor
-                   else execute_tool(db, name, args, allowed_ticker))
+            # 🔴 Кап проверяем НА ИСПОЛНЕНИИ, а не только убирая инструмент из схемы:
+            # модель продолжает вызывать его по памяти из прошлых сообщений. Наблюдалось
+            # 2026-08-02: агент с лимитом 4 сделал ~12 поисков и ушёл искать композитный
+            # PMI по Китаю, Японии и Австралии, хотя вопрос был про Россию. Отказ в
+            # исполнении разворачивает его к ответу.
+            if name in _SEARCH_TOOLS and web_calls > web_call_cap:
+                out = {"error": "search_budget_exhausted",
+                       "note": ("Лимит поисков исчерпан. Работай с тем, что уже нашёл: "
+                                "открой подходящий источник или верни found=false.")}
+            else:
+                out = (executor(db, name, args) if executor
+                       else execute_tool(db, name, args, allowed_ticker))
             payload = json.dumps(out, ensure_ascii=False)
             trace.append({"step": step, "event": "tool", "name": name,
                           "args": args, "result_bytes": len(payload)})
