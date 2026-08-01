@@ -2207,6 +2207,8 @@ font-size:13px;cursor:pointer}
 <p class="sub">Только чтение: транзакция объявлена READ ONLY на стороне базы, запись
 отклонит сам Postgres. Ограничение — 15 секунд на запрос.</p>
 <p><input id="tok" placeholder="X-Debug-Token" size="46"> <span id="saved"></span></p>
+<p><input id="ask" placeholder="Спросить словами: «какие бумаги у клиентов с gmail»" size="62">
+<button onclick="assist()" style="background:#5A5248">Написать запрос</button></p>
 <textarea id="q">SELECT count(*) AS всего FROM users</textarea>
 <p><button onclick="run()">Выполнить</button></p>
 <div class="ex">Готовые запросы:
@@ -2216,6 +2218,11 @@ font-size:13px;cursor:pointer}
 <a onclick="set('SELECT u.id, u.created_at, count(p.id) AS портфелей FROM users u LEFT JOIN portfolios p ON p.user_id = u.id GROUP BY 1,2 ORDER BY 2 DESC')">активность по людям</a>
 <a onclick="set('SELECT coalesce(c.ticker, p.secid) AS бумага, p.instrument_type AS тип, count(*) AS в_портфелях, sum(p.quantity) AS штук FROM portfolio_positions p LEFT JOIN companies c ON c.id = p.company_id GROUP BY 1,2 ORDER BY 3 DESC')">популярные бумаги</a>
 <a onclick="set(&quot;SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY 1&quot;)">список таблиц</a>
+<a onclick="set(this.dataset.q)" data-q="SELECT u.email, date(u.created_at) AS регистрация, u.subscription_type AS тариф, count(DISTINCT p.id) AS портфелей, count(pos.id) AS позиций, string_agg(DISTINCT coalesce(c.ticker, pos.secid), ', ') AS бумаги FROM users u LEFT JOIN portfolios p ON p.user_id = u.id LEFT JOIN portfolio_positions pos ON pos.portfolio_id = p.id AND pos.instrument_type <> 'cash' LEFT JOIN companies c ON c.id = pos.company_id WHERE NOT (u.email LIKE '%@example.com' OR u.email LIKE '%@inbasis.ru') GROUP BY 1,2,3 ORDER BY 5 DESC">клиенты и их портфели</a>
+<a onclick="set(this.dataset.q)" data-q="SELECT u.email, p.name AS портфель, coalesce(c.ticker, pos.secid) AS бумага, pos.instrument_type AS тип, pos.quantity AS количество, pos.avg_buy_price AS средняя_цена FROM portfolio_positions pos JOIN portfolios p ON p.id = pos.portfolio_id JOIN users u ON u.id = p.user_id LEFT JOIN companies c ON c.id = pos.company_id ORDER BY u.email, p.name">все позиции с почтами</a>
+<a onclick="set(this.dataset.q)" data-q="SELECT u.email, count(*) AS событий, count(DISTINCT e.session_id) AS сессий, count(DISTINCT date(e.created_at)) AS дней_заходил, max(e.created_at) AS последний_раз FROM user_events e JOIN users u ON u.id = e.user_id GROUP BY 1 ORDER BY 2 DESC">активность клиентов</a>
+<a onclick="set(this.dataset.q)" data-q="SELECT path AS страница, count(*) AS просмотров, count(DISTINCT coalesce(anon_id, user_id::text)) AS людей FROM user_events WHERE kind = 'pageview' GROUP BY 1 ORDER BY 2 DESC LIMIT 40">какие страницы смотрят</a>
+<a onclick="set(this.dataset.q)" data-q="SELECT name AS действие, count(*) AS раз, count(DISTINCT coalesce(anon_id, user_id::text)) AS людей FROM user_events WHERE kind IN ('click','action') GROUP BY 1 ORDER BY 2 DESC LIMIT 40">что нажимают</a>
 </div>
 <details style="margin:18px 0"><summary style="cursor:pointer;color:#C97A4A">
 Справочник: какие есть таблицы и что в них лежит</summary>
@@ -2245,6 +2252,21 @@ t.value=localStorage.getItem('basisDebugToken')||'';
 t.onchange=function(){localStorage.setItem('basisDebugToken',t.value);
 document.getElementById('saved').textContent='сохранён';};
 function set(s){document.getElementById('q').value=s;}
+// Запрос СОЧИНЯЕТ модель, а выполняет человек: она регулярно ошибается в названиях
+// полей, и молчаливый запуск придуманного запроса дал бы правдоподобный, но неверный
+// ответ — худший вид ошибки в аналитике.
+function assist(){
+  var a=document.getElementById('ask').value.trim();
+  if(!a) return;
+  var out=document.getElementById('out'); out.innerHTML='думаю…';
+  fetch('/api/debug/sql-assist?ask='+encodeURIComponent(a),{headers:{'X-Debug-Token':t.value}})
+   .then(function(r){return r.json();})
+   .then(function(d){
+     if(d.error||d.detail){out.innerHTML='<p class="err">'+esc(d.error||d.detail)+'</p>';return;}
+     document.getElementById('q').value=d.запрос||'';
+     out.innerHTML='<p class="sub">Запрос написан моделью — проверьте поля и нажмите «Выполнить».</p>';
+   }).catch(function(e){out.innerHTML='<p class="err">'+esc(e)+'</p>';});
+}
 function esc(v){return String(v==null?'':v).replace(/[&<>]/g,function(m){
 return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];});}
 function run(){
@@ -2263,3 +2285,146 @@ function run(){
    }).catch(function(e){out.innerHTML='<p class="err">'+esc(e)+'</p>';});
 }
 </script></body></html>""")
+
+
+@router.post("/debug/purge-test-users")
+def purge_test_users(confirm: str = Query("", description="передать 'да' для реального удаления")):
+    """Удалить СИНТЕТИЧЕСКИЕ аккаунты (@example.com) и всё, что за ними тянется.
+
+    ЗАЧЕМ: в боевой базе накопились аккаунты от тестовых прогонов — claude-test-*,
+    test_bench-*, qa-*, obs_test-*, tier-prod-check. Они считались наравне с живыми и
+    испортили продуктовые выводы (владелец поймал 2026-08-01). Разрешение на удаление
+    дано явно.
+
+    🔴 БЕЗ confirm=да НИЧЕГО НЕ УДАЛЯЕТСЯ — возвращается только план: что и сколько.
+    Пересчитывать глазами перед необратимой операцией дешевле, чем восстанавливать.
+
+    🔴 ШАБЛОН ЗАШИТ В КОД и не принимается параметром. Ручка, которой можно передать
+    произвольный фильтр удаления, — это способ однажды снести живые аккаунты опечаткой.
+    Здесь можно удалить ТОЛЬКО @example.com.
+
+    🔴 ПОРТФЕЛИ ЧИСТИМ ВРУЧНУЮ. У portfolios.user_id НЕТ внешнего ключа на users (см.
+    models/portfolio.py) — база не удалит их каскадом, и после удаления аккаунтов
+    остались бы висячие портфели с позициями, которые попадут в любую будущую аналитику
+    как ничьи. Каскад есть только у observer_reports, assistant_conversations и
+    screener_saved_filters.
+    """
+    from sqlalchemy import text
+    from app.db.session import SessionLocal
+
+    PATTERN = "%@example.com"          # зашито намеренно, см. докстринг
+    db = SessionLocal()
+    try:
+        ids = [r[0] for r in db.execute(
+            text("SELECT id FROM users WHERE email LIKE :p"), {"p": PATTERN}).all()]
+        if not ids:
+            return {"итог": "подходящих аккаунтов не найдено", "удалено": 0}
+
+        pids = [r[0] for r in db.execute(
+            text("SELECT id FROM portfolios WHERE user_id = ANY(:ids)"), {"ids": ids}).all()]
+        posids = [r[0] for r in db.execute(
+            text("SELECT id FROM portfolio_positions WHERE portfolio_id = ANY(:p)"),
+            {"p": pids or [0]}).all()]
+
+        emails = [r[0] for r in db.execute(
+            text("SELECT email FROM users WHERE id = ANY(:ids) ORDER BY id"), {"ids": ids}).all()]
+        план = {
+            "аккаунтов": len(ids), "портфелей": len(pids), "позиций": len(posids),
+            "почты": emails,
+        }
+        if confirm.strip().lower() not in ("да", "yes", "true"):
+            return {"режим": "ПРОВЕРКА, ничего не удалено",
+                    "как_удалить": "повторить с параметром confirm=да", "план": план}
+
+        # Порядок важен: сначала то, что ссылается, потом то, на что ссылаются.
+        удалено = {}
+        if posids:
+            удалено["сделок"] = db.execute(
+                text("DELETE FROM portfolio_transactions WHERE position_id = ANY(:p)"),
+                {"p": posids}).rowcount
+        if pids:
+            удалено["диагнозов"] = db.execute(
+                text("DELETE FROM portfolio_diagnoses WHERE portfolio_id = ANY(:p)"),
+                {"p": pids}).rowcount
+            удалено["позиций"] = db.execute(
+                text("DELETE FROM portfolio_positions WHERE portfolio_id = ANY(:p)"),
+                {"p": pids}).rowcount
+            удалено["портфелей"] = db.execute(
+                text("DELETE FROM portfolios WHERE id = ANY(:p)"), {"p": pids}).rowcount
+        удалено["аккаунтов"] = db.execute(
+            text("DELETE FROM users WHERE id = ANY(:ids)"), {"ids": ids}).rowcount
+        db.commit()
+        return {"режим": "УДАЛЕНО", "удалено": удалено, "почты": emails}
+    except Exception as e:  # noqa: BLE001
+        db.rollback()
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
+# Схема для подсказки LLM: перечень таблиц с колонками собирается ИЗ БАЗЫ на лету, а не
+# пишется руками — иначе разойдётся с реальностью при первой же миграции, и модель начнёт
+# уверенно сочинять несуществующие поля (как это сделал я сам с portfolio_positions.ticker).
+_SQL_SYSTEM = (
+    "Ты помощник аналитика инвестиционной платформы Basis. По вопросу на русском языке "
+    "пишешь ОДИН SQL-запрос к PostgreSQL. Правила: только SELECT или WITH; без точки с "
+    "запятой; без изменения данных; всегда ставь разумный LIMIT, если запрос может "
+    "вернуть много строк; давай колонкам понятные псевдонимы на русском. "
+    "Отвечай ТОЛЬКО текстом запроса, без пояснений и без markdown-разметки."
+)
+
+
+@router.get("/debug/sql-assist")
+def sql_assist(ask: str = Query(..., description="вопрос на русском")):
+    """Превратить вопрос на русском в SQL-запрос силами LLM (по конфигу — DeepSeek).
+
+    🔴 ЗАПРОС НЕ ВЫПОЛНЯЕТСЯ. Возвращается только текст: человек читает, при желании
+    правит и запускает сам. Модель регулярно ошибается в названиях полей, и молчаливое
+    выполнение сочинённого запроса дало бы правдоподобный, но неверный ответ — худший
+    вид ошибки в аналитике.
+
+    Схема подкладывается из information_schema на лету, чтобы модель видела реальные
+    имена таблиц и колонок, а не догадывалась.
+    """
+    from sqlalchemy import text
+    from app.db.session import SessionLocal
+    from app.services.llm import complete
+
+    db = SessionLocal()
+    try:
+        rows = db.execute(text(
+            "SELECT table_name, string_agg(column_name, ', ' ORDER BY ordinal_position) "
+            "FROM information_schema.columns WHERE table_schema='public' "
+            "GROUP BY table_name ORDER BY table_name"
+        )).all()
+        schema = "\n".join(f"{t}({c})" for t, c in rows)
+    except Exception as e:  # noqa: BLE001
+        db.rollback()
+        return {"error": f"схему прочитать не удалось: {e}"}
+    finally:
+        db.close()
+
+    hints = (
+        "Важные особенности данных:\n"
+        "- portfolio_positions: у АКЦИЙ колонка secid пустая, тикер берётся через "
+        "company_id → companies.ticker; secid заполнен только у облигаций, фондов, "
+        "фьючерсов. Сшивай через coalesce(c.ticker, pos.secid).\n"
+        "- portfolio_positions.instrument_type='cash' — это денежный остаток, а не бумага; "
+        "исключай его, когда речь о бумагах.\n"
+        "- portfolios.user_id может быть NULL (портфели, созданные до привязки к аккаунту).\n"
+        "- Служебные аккаунты: email как '%@example.com', '%@inbasis.ru', 'qa-%', 'test_%' — "
+        "исключай их, когда речь о живых пользователях.\n"
+        "- Цены акций: quotes (company_id, date, close). Цены прочих инструментов: "
+        "instrument_history.\n"
+    )
+    try:
+        sql = complete(_SQL_SYSTEM, f"Схема базы:\n{schema}\n\n{hints}\nВопрос: {ask}",
+                       json_mode=False, max_tokens=700, temperature=0.1,
+                       timeout=30, retries=1)
+    except Exception as e:  # noqa: BLE001
+        return {"error": f"LLM недоступна: {type(e).__name__}: {e}"}
+
+    sql = str(sql).strip()
+    for fence in ("```sql", "```"):
+        sql = sql.replace(fence, "")
+    return {"запрос": sql.strip(), "подсказка": "проверьте поля перед запуском"}

@@ -12,6 +12,7 @@ from app.api.companies import router as companies_router
 from app.api.portfolios import router as portfolios_router
 from app.api.market import router as market_router
 from app.api.debug import router as debug_router, open_router as debug_open_router
+from app.api.events import router as events_router
 from app.api.bonds import router as bonds_router
 from app.api.futures import router as futures_router
 from app.api.funds import router as funds_router
@@ -1338,6 +1339,7 @@ app.add_middleware(
 )
 
 app.include_router(health_router, prefix="/api")
+app.include_router(events_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(companies_router, prefix="/api")

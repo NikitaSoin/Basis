@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import DesignSystem from "./design/DesignSystem";
-import { initAnalytics, trackPageView } from "./analytics";
+import { initAnalytics, trackPageView, logPageView } from "./analytics";
 import { BasisLogomark } from "./design/logomarks";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -537,6 +537,7 @@ function syncUrl(state) {
       // отчёт по страницам не покажет ни переходов между карточками, ни вкладок, то
       // есть ровно то, ради чего аналитику и ставят.
       trackPageView(url);
+      logPageView();
     }
     syncTitle(state);
   } catch {}
@@ -986,12 +987,12 @@ export default function App() {
   // набор пустых операций, наружу не уходит ничего (см. src/analytics.js).
   // Первый просмотр отправляет сниппет счётчика в <head> — здесь его повторять НЕЛЬЗЯ,
   // иначе каждая точка входа считалась бы дважды и показатель отказов был бы занижен.
-  useEffect(() => { initAnalytics(); }, []);
+  useEffect(() => { initAnalytics(); logPageView(); }, []);
 
   // Кнопка «назад» — тоже переход между страницами, и его надо считать: иначе путь
   // пользователя в отчётах обрывается там, где он вернулся, а не там, где ушёл.
   useEffect(() => {
-    const onPopTrack = () => trackPageView();
+    const onPopTrack = () => { trackPageView(); logPageView(); };
     window.addEventListener("popstate", onPopTrack);
     return () => window.removeEventListener("popstate", onPopTrack);
   }, []);

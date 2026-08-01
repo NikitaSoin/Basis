@@ -4323,7 +4323,10 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
   // null означает «первый очаг из списка», у «Оценки ситуации» null-эквивалент
   // ("all") означает «Весь рынок» — разная семантика, поэтому разный стейт,
   // чтобы переключение режима не путало одно с другим.
-  const [assessmentScope, setAssessmentScope] = useState("all"); // all | svo | middle_east | atr
+  // Владелец (2026-08-01): «убери фильтр "весь рынок"» — очаг выбран ВСЕГДА.
+  // "all" как значение больше не используется: смешанная витрина (сценарии СВО
+  // поверх карточек Ближнего Востока) и была причиной претензии.
+  const [assessmentScope, setAssessmentScope] = useState("svo"); // svo | middle_east | atr
   const [digestByRegion, setDigestByRegion] = useState({});
   const [digestLoading, setDigestLoading] = useState({});
   const [baro, setBaro] = useState(null);
@@ -4435,13 +4438,6 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
       )}
       {mode === "assessment" && (
         <div className="obs-filterbar">
-          <button
-            type="button"
-            className={`obs-chip obs-scope-chip${assessmentScope === "all" ? " obs-chip--active" : ""}`}
-            onClick={() => setAssessmentScope("all")}
-          >
-            <Globe size={13} aria-hidden="true" /> Весь рынок
-          </button>
           {GEO_REGION_META.map(({ key, label, icon: Icon }) => (
             <button
               key={key}
@@ -4474,11 +4470,7 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
       {mode === "assessment" && (
         <div className="obs-baro-note">
           <Info size={14} />
-          {assessmentScope === "all" ? (
-            <span>Барометр ниже — <b>единый показатель для российского рынка в целом</b>, собран из 13 показателей (СВО / Ближний Восток / АТР входят в него как отдельные оси, G9–G11). Выберите очаг выше — увидите отдельную оценку конкретно по нему.</span>
-          ) : (
-            <span>Оценка по очагу ниже — детализация <b>одной из осей</b> общего барометра рынка (показан компактно выше). «Весь рынок» вернёт полную картину: сценарии, секторные последствия, все 13 показателей.</span>
-          )}
+          <span>Ниже — оценка <b>только по выбранному очагу</b>: его сценарии, направление и секторные последствия. Барометр рынка в целом (13 показателей) показан компактно как фон.</span>
         </div>
       )}
 
@@ -4534,21 +4526,9 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
               {!baroLoading && baro && (() => {
                 const subMap = {};
                 (baro.subindices || []).forEach((s) => { subMap[s.key] = s; });
-                const horizon = geoHorizon;
-                const probs = horizon === "18m" ? baro.scenario?.probabilities_18m : baro.scenario?.probabilities_6m;
-                const GEO_SCEN_LABELS = {
-                  S1_breakthrough: "S1 · Прорыв к миру",
-                  S2_ceasefire: "S2 · Перемирие",
-                  S3_attrition: "S3 · Затяжная война",
-                  S4_escalation: "S4 · Эскалация",
-                };
-                const ladderItems = Object.entries(probs || {}).map(([k, v]) => ({
-                  key: k,
-                  label: GEO_SCEN_LABELS[k] || k,
-                  pct: obsParsePct(v),
-                }));
-                const currentMatch = String(baro.scenario?.current_lean || "").match(/S[1-4]/);
-                const currentKey = currentMatch ? ladderItems.find((it) => it.key.startsWith(currentMatch[0]))?.key : null;
+                // Глобальная лестница S1-S4 (baro.scenario) больше НЕ рендерится:
+                // это шкала СВО, и показывать её на витрине Ближнего Востока/АТР было
+                // ошибкой (владелец 2026-08-01). Сценарии берутся из regions.<очаг>.
 
                 // Фокус на конкретном очаге (assessmentScope !== "all") — данные
                 // очага + цвет направления + балл-«шапка» компактной версии hero
@@ -4560,22 +4540,35 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                 const scopeDirColor = scopeRegionData ? obsGeoDirColor(scopeRegionData.direction) : null;
                 const compactTier = baro.barometer?.overall != null ? obsScoreTier(baro.barometer.overall, "higherWorse") : null;
 
+                // ── Данные ВЫБРАННОГО ОЧАГА (владелец 2026-08-01: материал одного
+                // очага не должен попадать в другой). Сценарии и секторные флаги
+                // берём из regions.<очаг>, а НЕ из глобальных baro.scenario /
+                // baro.sector_flags — те описывают СВО и рынок целиком.
+                const scopeScenarioMeta = scopeRegionData?.scenarios || null;
+                const scopeScenarios = Array.isArray(scopeScenarioMeta?.items) ? scopeScenarioMeta.items : [];
+                const scopeLadderItems = scopeScenarios.map((it) => ({
+                  key: it.key,
+                  label: it.label || it.key,
+                  pct: obsParsePct(geoHorizon === "18m" ? it.p18m : it.p6m),
+                }));
+                const scopeScenarioNote = (
+                  scopeScenarios.find((it) => it.key === scopeScenarioMeta?.current_lean)?.note || null
+                );
+                // Секторные последствия: свои у очага; если старая схема — общий
+                // список НЕ подставляем (он про все очаги сразу, это и была претензия).
+                const scopeSectorFlags = Array.isArray(scopeRegionData?.sector_flags)
+                  ? scopeRegionData.sector_flags
+                  : [];
+
                 return (
                   <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                     <ObsBaroCaveat flags={baro.data_flags} />
 
-                    {assessmentScope === "all" ? (
-                      <ObsBaroHero
-                        eyebrow="Геополитический барометр · оценка Basis"
-                        asOf={baro.as_of}
-                        score={baro.barometer?.overall}
-                        verdict={baro.barometer?.label}
-                        polarity="higherWorse"
-                        scaleLabels={["низкий риск", "высокий риск"]}
-                        subindices={baro.subindices}
-                        meta={baro._meta}
-                      />
-                    ) : (
+                    {/* Общий барометр рынка остаётся ТОЛЬКО компактной строкой-фоном:
+                        режим «Весь рынок» убран (владелец 2026-08-01), а 13 показателей
+                        G1-G13 — сквозные оси рынка РФ, не свойство очага, поэтому в
+                        витрине очага им не место (иначе снова «всё замешано»). */}
+                    {(
                       <div className="obs-baro-compact">
                         <div className="obs-baro-compact-score" style={{ color: compactTier ? compactTier.color : "var(--text-tertiary)" }}>
                           {baro.barometer?.overall != null ? Number(baro.barometer.overall).toFixed(1) : "—"}
@@ -4583,7 +4576,11 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                         </div>
                         <div className="obs-baro-compact-meta">
                           <span className="obs-baro-compact-label"><Activity size={11} aria-hidden="true" /> Барометр рынка РФ в целом</span>
-                          {baro.barometer?.label && <span className="obs-baro-compact-verdict">{baro.barometer.label}</span>}
+                          {/* baro.barometer.label НЕ показываем: это сводный вердикт по
+                              всем очагам сразу («…мирный трек буксует, ближневосточное
+                              перемирие рушится») — на витрине одного очага он снова
+                              приносит рассказ про соседний (владелец 2026-08-01).
+                              Число оставляем: это честный фон рынка, оно не «про СВО». */}
                         </div>
                         <span className="obs-baro-compact-note">Фон рынка в целом{baro.as_of ? ` · срез на ${baro.as_of}` : ""} — ниже детализация по очагу «{scopeMeta?.label}»</span>
                       </div>
@@ -4598,47 +4595,7 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                         агрегатом (SVO доминирует по весу), это — детализация. */}
                     {baro.regions && (
                       <div>
-                        {assessmentScope === "all" ? (
-                          <>
-                            <div className="obs-synth-head" style={{ marginBottom: 14 }}>По очагам: откуда, на кого и насколько долго</div>
-                            <div className="obs-region-grid">
-                              {GEO_REGION_META.map(({ key, label, icon: Icon }) => {
-                                const r = baro.regions[key];
-                                if (!r) return null;
-                                const dirColor = obsGeoDirColor(r.direction);
-                                return (
-                                  <div key={key} className="obs-region-card">
-                                    <div className="obs-region-card-head">
-                                      <Icon size={16} />
-                                      <span className="obs-region-card-name">{label}</span>
-                                      <span className="obs-region-card-dir" style={{ color: dirColor, borderColor: dirColor }}>{r.direction}</span>
-                                    </div>
-                                    {r.label && <div className="obs-region-card-label">{r.label}</div>}
-                                    {r.duration_estimate && (
-                                      <div className="obs-region-card-duration"><Clock size={12} />{r.duration_estimate}</div>
-                                    )}
-                                    {r.summary && <p className="obs-region-card-summary">{r.summary}</p>}
-                                    {Array.isArray(r.affected) && r.affected.length > 0 && (
-                                      <div className="obs-region-card-affected">
-                                        <div className="obs-region-card-affected-label">Кого касается</div>
-                                        <div className="obs-region-card-chips">
-                                          {r.affected.map((a, i) => <span key={i} className="obs-region-chip">{a}</span>)}
-                                        </div>
-                                      </div>
-                                    )}
-                                    {overlay?.blocks?.[key] && (
-                                      <ObsSituationOverlay
-                                        block={overlay.blocks[key]}
-                                        generatedAt={overlay.generated_at}
-                                        anchorAsOf={r.as_of || baro.as_of}
-                                      />
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </>
-                        ) : (
+                        {(
                           <div className="obs-region-focus">
                             <div className="obs-synth-head" style={{ marginBottom: 14 }}>
                               <Info size={13} aria-hidden="true" style={{ marginRight: 5, verticalAlign: -2 }} />
@@ -4704,35 +4661,48 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                       </div>
                     )}
 
-                    {baro.scenario && (
+                    {/* СЦЕНАРИИ ВЫБРАННОГО ОЧАГА (владелец 2026-08-01: «сценарии
+                        должны быть по каждому очагу отдельно, а не общие — иначе
+                        это какой-то бред, что значит общее»). Раньше здесь висела
+                        лестница S1-S4 из baro.scenario — а это шкала ИМЕННО СВО
+                        (прорыв к миру / перемирие / затяжная война / эскалация),
+                        и для Ближнего Востока с АТР она бессмысленна. Теперь каждый
+                        очаг несёт свой набор (regions.<очаг>.scenarios), см.
+                        backend/app/services/barometer_daily.py::_OUTPUT_SPEC.
+                        Фолбэк: если в барометре ещё старая схема без scenarios у
+                        очага — блок не рисуем вовсе, но общую лестницу СВО поверх
+                        чужого очага НЕ показываем (это и было претензией). */}
+                    {scopeScenarios.length > 0 && (
                       <div className="obs-inst-card">
                         <div className="obs-inst-card-title">
                           <Swords size={16} />
-                          Сценарий: {baro.scenario.current_lean ? baro.scenario.current_lean.split(",")[0].trim() : "—"}
-                          {baro.scenario.confidence && <span className="obs-inst-scenario-current">confidence {baro.scenario.confidence}</span>}
+                          Сценарии · {scopeMeta?.label}
+                          {scopeScenarioMeta?.confidence && (
+                            <span className="obs-inst-scenario-current">уверенность {scopeScenarioMeta.confidence}</span>
+                          )}
                         </div>
-                        {assessmentScope !== "all" && (
-                          <p className="obs-inst-card-sub">Рыночный контекст — общий сценарий не привязан к одному очагу, учитывает все оси барометра (G1–G13).</p>
-                        )}
-                        {baro.scenario.current_lean && (
-                          <p className="obs-inst-card-sub" style={{ maxWidth: "100%" }}>{baro.scenario.current_lean}</p>
-                        )}
+                        <p className="obs-inst-card-sub">
+                          Вероятности — оценка Basis по этому очагу, не прогноз рынка. Сумма по горизонту — 100%.
+                        </p>
                         <div className="obs-seg" style={{ marginBottom: 14 }}>
                           <button className={`obs-seg-opt${geoHorizon === "6m" ? " obs-seg-opt--on" : ""}`} onClick={() => setGeoHorizon("6m")}>6 мес.</button>
                           <button className={`obs-seg-opt${geoHorizon === "18m" ? " obs-seg-opt--on" : ""}`} onClick={() => setGeoHorizon("18m")}>18 мес.</button>
                         </div>
-                        <ObsBaroLadder items={ladderItems} currentKey={currentKey} />
-                        {Array.isArray(baro.scenario.triggers) && baro.scenario.triggers.length > 0 && (
+                        <ObsBaroLadder items={scopeLadderItems} currentKey={scopeScenarioMeta?.current_lean || null} />
+                        {scopeScenarioNote && (
+                          <p className="obs-inst-card-sub" style={{ maxWidth: "100%", marginTop: 10 }}>{scopeScenarioNote}</p>
+                        )}
+                        {Array.isArray(scopeScenarioMeta?.triggers) && scopeScenarioMeta.triggers.length > 0 && (
                           <>
                             <div className="obs-inst-checkpoint">
                               <div className="obs-inst-checkpoint-label"><Info size={12} />Ближайший триггер пересмотра</div>
-                              <div className="obs-inst-checkpoint-text">{baro.scenario.triggers[0]}</div>
+                              <div className="obs-inst-checkpoint-text">{scopeScenarioMeta.triggers[0]}</div>
                             </div>
-                            {baro.scenario.triggers.length > 1 && (
+                            {scopeScenarioMeta.triggers.length > 1 && (
                               <details className="obs-inst-details">
-                                <summary>Другие триггеры ({baro.scenario.triggers.length - 1})<ChevronDown size={15} className="obs-inst-chev" /></summary>
+                                <summary>Другие триггеры ({scopeScenarioMeta.triggers.length - 1})<ChevronDown size={15} className="obs-inst-chev" /></summary>
                                 <div className="obs-inst-details-body">
-                                  {baro.scenario.triggers.slice(1).map((t, i) => <p key={i}>{t}</p>)}
+                                  {scopeScenarioMeta.triggers.slice(1).map((t, i) => <p key={i}>{t}</p>)}
                                 </div>
                               </details>
                             )}
@@ -4742,11 +4712,11 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                     )}
 
                     {/* Секторные последствия — сразу под сценариями: «что это значит для моих бумаг» читается раньше, чем расхождение с рынком/детальные оси. */}
-                    {Array.isArray(baro.sector_flags) && baro.sector_flags.length > 0 && (
+                    {scopeSectorFlags.length > 0 && (
                       <div className="obs-inst-card">
-                        <div className="obs-inst-card-title"><Briefcase size={16} />Секторные последствия</div>
+                        <div className="obs-inst-card-title"><Briefcase size={16} />Секторные последствия · {scopeMeta?.label}</div>
                         <div className="obs-inst-list">
-                          {baro.sector_flags.map((s, i) => {
+                          {scopeSectorFlags.map((s, i) => {
                             const neg = /негатив/i.test(s.direction || "");
                             const pos = /позитив/i.test(s.direction || "");
                             return (
@@ -4766,6 +4736,20 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                       </div>
                     )}
 
+                    {/* ── ФОН РЫНКА В ЦЕЛОМ, НЕ ПРО ЭТОТ ОЧАГ ──
+                        Владелец (2026-08-01): «когда я читаю про Ближний Восток,
+                        чтобы там не было рассказов про СВО». Всё ниже — сквозное
+                        по рынку РФ: расхождение с рынком, внешние оси, резюме
+                        (в нём доминирует СВО по весу), 13 показателей G1-G13,
+                        watchlist. Это НЕ свойство выбранного очага, поэтому убрано
+                        из потока чтения в свёрнутый раздел: не смешивается, но и не
+                        теряется — методическая база остаётся доступной в один клик. */}
+                    <details className="obs-inst-details obs-baro-market-wide">
+                      <summary>
+                        Фон рынка в целом — не про этот очаг
+                        <ChevronDown size={15} className="obs-inst-chev" />
+                      </summary>
+                      <div className="obs-inst-details-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                     {baro.implied_market && (
                       <div className="obs-inst-card">
                         <div className="obs-inst-card-title"><BarChart2 size={16} />Расхождение с рынком</div>
@@ -4824,6 +4808,8 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                         </div>
                       </div>
                     )}
+                      </div>
+                    </details>
                   </div>
                 );
               })()}

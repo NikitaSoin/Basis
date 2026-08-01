@@ -16,7 +16,7 @@
 
 // Заголовки вкладок: у каждой свой, иначе в браузере и в выдаче все вкладки раздела
 // выглядят одинаково. Ключ — «раздел:вкладка».
-import { trackPageView } from "./analytics";
+import { trackPageView, logPageView, logAction } from "./analytics";
 
 const TAB_TITLES = {
   // Рынок
@@ -54,6 +54,8 @@ export function syncTabUrl(view, tab) {
       // Вкладки разделов меняют адрес в обход syncUrl — без этой строки переходы
       // «Акции → Облигации» или «Состав → Риск» в аналитике не видны вовсе.
       trackPageView(url);
+      logPageView();
+      logAction("вкладка раздела", { view, tab });
     }
     const t = tabTitle(view, tab);
     if (t) document.title = t;

@@ -56,3 +56,91 @@ export function trackEvent(name, params) {
 
 /** Оставлено для совместимости вызова из App.js: загрузка идёт сниппетом, здесь нечего делать. */
 export function initAnalytics() {}
+
+/* ─── Свой лог событий: то, чего Метрика не умеет ────────────────────────────────────
+ * Метрика считает ВИЗИТЫ и не знает, кто их совершил. Она не ответит на вопрос
+ * «пользователи с портфелем из пяти и более бумаг чаще открывают корреляции?» — а такие
+ * вопросы и двигают продукт. Эти события ложатся в НАШУ базу рядом с users и portfolios,
+ * поэтому джойнятся обычным SQL (см. /api/debug/sql-console).
+ *
+ * 🔴 ОТПРАВКА ПАЧКАМИ, А НЕ ПО СОБЫТИЮ. Запрос на каждый клик — это лишняя нагрузка на
+ * бэкенд и подтормаживание интерфейса. Копим и шлём раз в несколько секунд, а также при
+ * уходе со страницы через sendBeacon: он доставляет данные даже когда вкладку уже
+ * закрывают, обычный fetch в этот момент отменяется.
+ *
+ * 🔴 БЕЗ ПЕРСОНАЛЬНЫХ ДАННЫХ: анонимный идентификатор устройства из localStorage и
+ * идентификатор сессии. Ни почт, ни имён — их и не требуется, а хранить лишнее значит
+ * брать на себя обязательства по 152-ФЗ без надобности.
+ */
+const API = process.env.REACT_APP_API_URL || "";
+const KEY_ANON = "basisAnonId";
+
+function anonId() {
+  try {
+    let v = localStorage.getItem(KEY_ANON);
+    if (!v) {
+      v = "a" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem(KEY_ANON, v);
+    }
+    return v;
+  } catch { return null; }
+}
+
+// Сессия живёт в памяти вкладки: перезагрузка = новая сессия, это и нужно для «как часто
+// заходят».
+const SESSION_ID = "s" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+let queue = [];
+let timer = null;
+
+function flush(useBeacon) {
+  if (!queue.length || !API) return;
+  const body = JSON.stringify({ events: queue.slice(0, 20) });
+  queue = [];
+  try {
+    if (useBeacon && navigator.sendBeacon) {
+      navigator.sendBeacon(`${API}/api/events`, new Blob([body], { type: "application/json" }));
+      return;
+    }
+    const token = localStorage.getItem("token") || localStorage.getItem("basisToken");
+    fetch(`${API}/api/events`, {
+      method: "POST",
+      headers: Object.assign({ "Content-Type": "application/json" },
+        token ? { Authorization: `Bearer ${token}` } : {}),
+      body,
+      keepalive: true,
+    }).catch(() => { /* аналитика не повод ломать экран */ });
+  } catch { /* молча */ }
+}
+
+function push(kind, name, meta) {
+  try {
+    queue.push({
+      kind, name: name || null,
+      path: window.location.pathname + window.location.search,
+      referrer: document.referrer || null,
+      meta: meta || null,
+      anon_id: anonId(), session_id: SESSION_ID,
+    });
+    if (queue.length >= 10) { flush(false); return; }
+    if (!timer) timer = setTimeout(() => { timer = null; flush(false); }, 4000);
+  } catch { /* молча */ }
+}
+
+/** Просмотр страницы в собственный лог (Метрике он уходит отдельно, см. trackPageView). */
+export function logPageView() { push("pageview", null, null); }
+
+/** Действие пользователя: открыл вкладку, применил фильтр, добавил бумагу. */
+export function logAction(name, meta) { push("action", name, meta); }
+
+/** Клик по заметному элементу. */
+export function logClick(name, meta) { push("click", name, meta); }
+
+// Досылаем накопленное, когда человек уходит: иначе теряется последнее и самое
+// интересное — на чём именно он закрыл вкладку.
+if (typeof window !== "undefined") {
+  window.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flush(true);
+  });
+  window.addEventListener("pagehide", () => flush(true));
+}
