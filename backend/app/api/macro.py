@@ -207,7 +207,7 @@ def macro_interpretation_get(db: Session = Depends(get_db)):
     if not row:
         return {"sections": None}
     return {"sections": row.sections, "generated_at": row.generated_at.isoformat(),
-            "model_used": row.model_used}
+            "model_used": row.model_used, "source_snapshot": row.source_snapshot}
 
 
 @router.post("/market/macro/interpretation")

@@ -448,7 +448,14 @@ def generate(db: Session) -> MacroInterpretation:
         sections=sections, generated_at=datetime.now(timezone.utc),
         model_used=f"{llm.provider_info().get('provider')}:{model}",
         source_snapshot={"indicators_count": len(snapshot["indicators"]),
-                         "has_rate": bool(snapshot["rate"]), "docs": len(snapshot["analytics"])})
+                         "has_rate": bool(snapshot["rate"]), "docs": len(snapshot["analytics"]),
+                         # Наблюдаемость: по этим флагам видно, КАКОЙ версией кода
+                         # сгенерирован срез. Без них при отладке нельзя отличить
+                         # «фикс не сработал» от «фикс ещё не доехал на бой» —
+                         # ровно на это ушло 4 лишних прогона 2026-08-01.
+                         "has_key_facts": bool(snapshot.get("key_facts")),
+                         "chronicle": len((snapshot.get("context") or {}).get("chronicle") or []),
+                         "prev_issues": len(snapshot.get("previous_issues") or [])})
     db.add(row)
     db.commit()
     db.refresh(row)
