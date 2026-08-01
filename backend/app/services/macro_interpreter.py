@@ -295,8 +295,8 @@ _MACRO_THEMES = ("key_rate", "inflation", "budget_fiscal", "oil_prices", "ruble_
 
 # 🔴 Лимиты подняты 2026-08-01 (владелец: «токены дешёвые, не паримся»). Окно модели
 # 1 048 576 токенов, использовали 7% — экономить было не на чем.
-_DOCS_LIMIT = 20          # записок ЦБ/ЦМАКП, теперь с полными текстами (было 12 выжимок)
-_CHRONICLE_LIMIT = 80     # записей летописи (было 30)
+_DOCS_LIMIT = 16          # записок ЦБ/ЦМАКП с полными текстами (было 12 выжимок)
+_CHRONICLE_LIMIT = 60     # записей летописи (было 30)
 
 # Источники-ШУМ: поток заголовков без аналитической ценности. Владелец прямо:
 # «все новости с MarketTwits нет смысла». Ценность несут разборы (ЦБ, ЦМАКП, Economist,
@@ -342,7 +342,7 @@ def _context(db: Session, limit: int | None = None) -> dict:
         try:
             from app.services.article_texts import ensure_full_texts
             deep = [r for r in selected if r.kind in ("article", "report")]
-            ensure_full_texts(db, deep, limit=15)
+            ensure_full_texts(db, deep, limit=10)
         except Exception:  # noqa: BLE001
             logger.warning("Интерпретатор: дозагрузка текстов летописи не отработала", exc_info=True)
         picked = []
