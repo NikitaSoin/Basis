@@ -135,7 +135,21 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
 ul{padding-left:22px}
 `.trim();
 
-function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, dataDate }) {
+// 🔴 Страницы, которым нечего сказать. У 661 выпуска нет ни рыночной доходности, ни
+// рейтинга: заголовок обещает «доходность, купон, риск», а на странице — «оценить
+// «риск за доходность» по рынку нельзя». Яндекс уже пометил одну такую (СберИОС748,
+// RU000A10C667) статусом BAD_QUALITY в выгрузке от 29.07.2026.
+//
+// Такие страницы не просто бесполезны — они тянут вниз оценку ВСЕГО хоста: поиск
+// смотрит на долю качественных страниц сайта. Поэтому они остаются доступными людям
+// (прямая ссылка работает, во внутренней навигации есть), но помечаются noindex и не
+// попадают в карту сайта. Признак пересчитывается на каждой сборке: как только у бумаги
+// появятся котировки и доходность, страница вернётся в индекс сама.
+function bondIsThin(b) {
+  return b && b.vkind === "nodata" && !b.agency_rating;
+}
+
+function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, dataDate, noindex }) {
   const url = _SITE + canonicalPath;
   const crumbsHtml = breadcrumbs
     .map((b, i) => (i < breadcrumbs.length - 1 && b.href ? `<a href="${b.href}">${escapeHtml(b.label)}</a>` : escapeHtml(b.label)))
@@ -161,7 +175,7 @@ function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, 
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(desc)}">
 <link rel="canonical" href="${url}">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="${noindex ? "noindex, follow" : "index, follow"}">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Basis">
 <meta property="og:title" content="${escapeHtml(title)}">
@@ -280,7 +294,7 @@ function basisBlock(b) {
   return `<div class="box"><p class="tag">Оценка Basis: доходность vs риск · оценка, не рекомендация</p>${parts.join("\n")}</div>`;
 }
 
-function bondPage(b, ctx) {
+function bondPage(b, ctx, noindex) {
   const { dataDate, collectionsOf, neighborsOf } = ctx;
   const typeLabel = BOND_TYPE_LABEL[b.bond_type] || "Облигация";
   // issuer_name в данных — ПОЛНОЕ ИМЯ ВЫПУСКА (часто с эмитентом внутри), не
@@ -333,6 +347,7 @@ ${chips ? `<h2>Подборки с этой бумагой</h2><div class="grid"
 ${nbs ? `<h2>Похожие выпуски</h2><div class="grid">${nbs}</div>` : ""}
 <p><a href="/bonds/">← Все облигации: каталог и подборки Basis</a></p>`;
   return pageShell({
+    noindex,
     title: bondTitle(b),
     desc: bondDesc(b, dataDate),
     canonicalPath: `/bonds/${b.secid}/`,
@@ -855,10 +870,14 @@ function main() {
     const ctx = { dataDate, collections, collectionsOf, neighborsOf };
 
     // страницы выпусков
+    let thinCount = 0;
     for (const b of bonds) {
-      writePage(path.join("bonds", b.secid), bondPage(b, ctx));
+      const thin = bondIsThin(b);
+      writePage(path.join("bonds", b.secid), bondPage(b, ctx, thin));
+      if (thin) { thinCount++; continue; }   // в карту сайта не добавляем
       sitemap.push({ loc: `${_SITE}/bonds/${b.secid}/`, lastmod: snapDay, pri: "0.6" });
     }
+    console.log(`  из них без рыночной оценки (noindex, не в карте сайта): ${thinCount}`);
 
     // подборки
     for (const col of collections) {
