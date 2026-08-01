@@ -97,7 +97,7 @@ def _gate(result: dict, seen_texts: str) -> tuple[bool, list[str]]:
     return (not notes), notes
 
 
-def answer_question(db: Session, question: dict, *, max_steps: int = 7) -> dict:
+def answer_question(db: Session, question: dict, *, max_steps: int = 10) -> dict:
     """Один вопрос — один прогон. Возвращает находку с вердиктом гейта."""
     code = question.get("code")
     task = (f"{question['question']}\n\n"
@@ -120,7 +120,12 @@ def answer_question(db: Session, question: dict, *, max_steps: int = 7) -> dict:
                     # диалога — расход растёт нелинейно. 30k хватало на два обращения к
                     # инструментам, и агент упирался в лимит, не дойдя до ответа.
                     # 90k при цене входа ~$0.44/M — это ~4 цента за вопрос.
-                    max_steps=max_steps, max_tokens_total=90_000,
+                    # Поднято до 140k/10 шагов: по трассе видно, что пропуск за НЕСКОЛЬКО
+                    # периодов требует нескольких заходов (в ленте нашёлся июнь, за май
+                    # пришлось идти в веб), и на прежних лимитах агент иногда не
+                    # добирался до ответа — результат «нашёл/не нашёл» плавал от прогона
+                    # к прогону. Дешевле дать шаги, чем терять находку.
+                    max_steps=max_steps, max_tokens_total=140_000,
                     web_call_cap=3, executor=_executor)
     result = run.get("result")
     ok, notes = _gate(result or {}, "\n".join(seen))
