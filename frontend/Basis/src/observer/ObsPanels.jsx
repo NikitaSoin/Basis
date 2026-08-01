@@ -4357,31 +4357,19 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
 
   const regions = Array.from(regionMap.keys());
   const activeRegion = region || regions[0] || null;
-  const regionData = activeRegion ? regionMap.get(activeRegion) : null;
+  // regionMap нужен только чтобы получить СПИСОК регионов для чипов-фильтров:
+  // сами блоки региона (regionData) больше не рендерятся — карточка «Обзор · факты»
+  // убрана (2026-08-01, см. комментарий в разметке).
 
   useEffect(() => {
     if (activeRegion) loadDigest(activeRegion);
   }, [activeRegion, loadDigest]);
 
-  // Блок для текущего режима
-  const overviewBlock = regionData?.overview;
-  const deepBlock = regionData?.deep;
-
-  // Секторы из active block (объединяем оба источника)
-  const affectedSectors = [
-    ...new Set([
-      ...(overviewBlock?.affected_sectors || []),
-      ...(deepBlock?.affected_sectors || []),
-    ])
-  ];
-  const affectedTickers = [
-    ...new Set([
-      ...(overviewBlock?.affected_tickers || []),
-      ...(deepBlock?.affected_tickers || []),
-    ])
-  ];
-
-  const titleBlock = overviewBlock || deepBlock;
+  // overviewBlock/deepBlock/affectedSectors/affectedTickers/titleBlock удалены
+  // вместе с карточкой «Обзор · факты» (см. комментарий в разметке ниже) — они
+  // использовались ТОЛЬКО в ней, оставлять их значило бы держать мёртвый код.
+  // Данные никуда не делись: эндпоинт /market/geopolitics по-прежнему отдаёт
+  // status_text и affected_*, просто витрина их больше не рисует.
 
   return (
     <div>
@@ -4479,32 +4467,16 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
 
       {!loading && !error && activeRegion && (
         <>
-          {/* ===== ОБЗОР: deep-card с фактами ===== */}
-          {mode === "overview" && (
-            <div className="obs-deep-card">
-              <div className="obs-deep-eyebrow">Обзор · факты</div>
-              <h3>{titleBlock?.title || activeRegion}</h3>
-              {overviewBlock?.status_text && (
-                <p style={{ marginBottom: 18 }}>{overviewBlock.status_text}</p>
-              )}
-              {(affectedSectors.length > 0 || affectedTickers.length > 0) && (
-                <div className="obs-deep-chips">
-                  {affectedSectors.map((s, i) => (
-                    <span key={"s" + i} className="obs-deep-chip-sector">{s}</span>
-                  ))}
-                  {affectedTickers.map((t, i) => (
-                    <button
-                      key={"t" + i}
-                      className="obs-deep-chip-ticker"
-                      onClick={() => onSelectCompany && onSelectCompany(t)}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          {/* Карточка «Обзор · факты» (заголовок региона + status_text + чипы
+              секторов/тикеров) УБРАНА по просьбе владельца (2026-08-01): это была
+              обобщённая проза модели («Событийная динамика АТР характеризуется
+              усилением военно-политической активности…»), одинаковая по тону для
+              всех трёх очагов и не добавлявшая фактов. Вкладка «Обзор» теперь
+              сразу показывает материалы по региону — то, что и обещает подпись
+              «Обзор — что произошло (факты)». Прогноз и оценка живут во вкладке
+              «Оценка ситуации» (барометр + оверлей по ленте), там они не потеряны.
+              Вместе с карточкой ушли чипы затронутых секторов/тикеров — они были
+              её частью; если понадобятся, возвращать отдельным блоком. */}
 
           {/* ===== ОБЗОР: лента материалов по региону (Рыбарь/Carnegie/re:russia/Economist/ISW) ===== */}
           {mode === "overview" && (
