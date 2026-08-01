@@ -11,6 +11,7 @@ import json
 import logging
 import os
 import re
+import threading
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
@@ -295,8 +296,8 @@ _MACRO_THEMES = ("key_rate", "inflation", "budget_fiscal", "oil_prices", "ruble_
 
 # 🔴 Лимиты подняты 2026-08-01 (владелец: «токены дешёвые, не паримся»). Окно модели
 # 1 048 576 токенов, использовали 7% — экономить было не на чем.
-_DOCS_LIMIT = 16          # записок ЦБ/ЦМАКП с полными текстами (было 12 выжимок)
-_CHRONICLE_LIMIT = 60     # записей летописи (было 30)
+_DOCS_LIMIT = 20          # записок ЦБ/ЦМАКП с полными текстами (было 12 выжимок)
+_CHRONICLE_LIMIT = 80     # записей летописи (было 30)
 
 # Источники-ШУМ: поток заголовков без аналитической ценности. Владелец прямо:
 # «все новости с MarketTwits нет смысла». Ценность несут разборы (ЦБ, ЦМАКП, Economist,
@@ -342,7 +343,7 @@ def _context(db: Session, limit: int | None = None) -> dict:
         try:
             from app.services.article_texts import ensure_full_texts
             deep = [r for r in selected if r.kind in ("article", "report")]
-            ensure_full_texts(db, deep, limit=10)
+            ensure_full_texts(db, deep, limit=20)
         except Exception:  # noqa: BLE001
             logger.warning("Интерпретатор: дозагрузка текстов летописи не отработала", exc_info=True)
         picked = []
@@ -565,6 +566,56 @@ def generate(db: Session) -> MacroInterpretation:
     db.refresh(row)
     logger.info("Интерпретатор: сгенерирован срез #%d (%s)", row.id, row.model_used)
     return row
+
+
+# ────────────────── фоновый запуск (обход таймаута прокси) ──────────────────
+# 🔴 Владелец 2026-08-01: «не надо резать, нужно целиком». Полные первоисточники дают
+# ~490k токенов входа, и генерация не укладывается в таймаут прокси Timeweb — ручное
+# обновление отдавало 502 через 219 секунд. Резать контекст ради HTTP-таймаута
+# неправильно: ограничение чисто транспортное, окно модели свободно на 53%.
+# Решение: HTTP-запрос больше НЕ ЖДЁТ генерацию. POST ставит задачу в фоновый поток и
+# сразу отвечает, фронт опрашивает GET. Ночной крон вызывает generate() напрямую —
+# ему прокси не мешает.
+_run_lock = threading.Lock()
+_run_state: dict = {"running": False, "started_at": None, "error": None, "finished_at": None}
+
+
+def run_state() -> dict:
+    """Статус фоновой генерации для фронта (идёт / когда началась / чем кончилась)."""
+    st = dict(_run_state)
+    st["started_at"] = st["started_at"].isoformat() if st["started_at"] else None
+    st["finished_at"] = st["finished_at"].isoformat() if st["finished_at"] else None
+    return st
+
+
+def start_background_generation() -> dict:
+    """Поставить генерацию в фон. Повторный запуск во время работы игнорируется —
+    каждый прогон стоит денег и минут, дважды кликнутая кнопка не должна их удваивать."""
+    with _run_lock:
+        if _run_state["running"]:
+            return {"started": False, "reason": "already_running", **run_state()}
+        _run_state.update(running=True, started_at=datetime.now(timezone.utc),
+                          error=None, finished_at=None)
+
+    def _worker() -> None:
+        from app.db.session import SessionLocal
+        db = SessionLocal()
+        try:
+            row = generate(db)
+            logger.info("Интерпретатор: фоновая генерация завершена (срез #%s)", row.id)
+            with _run_lock:
+                _run_state.update(running=False, error=None,
+                                  finished_at=datetime.now(timezone.utc))
+        except Exception as e:  # noqa: BLE001
+            logger.exception("Интерпретатор: фоновая генерация упала")
+            with _run_lock:
+                _run_state.update(running=False, error=str(e)[:300],
+                                  finished_at=datetime.now(timezone.utc))
+        finally:
+            db.close()
+
+    threading.Thread(target=_worker, name="macro-interpretation", daemon=True).start()
+    return {"started": True, **run_state()}
 
 
 def get_latest(db: Session) -> MacroInterpretation | None:

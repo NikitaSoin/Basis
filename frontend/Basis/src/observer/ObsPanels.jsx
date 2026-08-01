@@ -1843,6 +1843,29 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
     }
   }, [mode, apiUrl, interp]);
 
+  // 🔴 Генерация идёт В ФОНЕ (полные первоисточники — это минуты работы модели, HTTP
+  // столько не живёт: прокси Timeweb обрывал запрос и отдавал 502). Поэтому клиент не
+  // ждёт ответа, а опрашивает статус, пока сборка не закончится.
+  const interpRunning = Boolean(interp?.status?.running);
+  useEffect(() => {
+    if (!interpRunning) return undefined;
+    const t = setInterval(() => {
+      fetch(`${apiUrl}/api/market/macro/interpretation`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => { if (d) setInterp(d); })
+        .catch(() => {});
+    }, 15000);
+    return () => clearInterval(t);
+  }, [interpRunning, apiUrl]);
+
+  const rebuildInterp = () => {
+    fetch(`${apiUrl}/api/market/macro/interpretation`, { method: "POST" })
+      .then((r) => r.json())
+      .then(() => fetch(`${apiUrl}/api/market/macro/interpretation`).then((r) => r.json()))
+      .then((d) => { if (d) setInterp(d); })
+      .catch(() => {});
+  };
+
   const SOURCE_CHIPS = [
     { id: "all", label: "Все" },
     { id: "cmakp", label: "ЦМАКП" },
@@ -1974,10 +1997,21 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
               <div className="obs-deep-eyebrow">Оценка ситуации · суждение Basis</div>
               <h3>Интерпретация ещё не сформирована</h3>
               <p>
-                Обновите анализ на вкладке «Макроэкономика → Экономическая статистика»,
-                нажав кнопку «Обновить анализ» — ИИ-интерпретатор соберёт связную картину
-                по всем показателям, аналитике ЦБ/ЦМАКП и прогнозу (~1–2 мин).
+                Анализ собирается автоматически раз в сутки и заново — после решения ЦБ по
+                ставке. Можно запустить пересборку вручную: интерпретатор перечитает
+                показатели, первоисточники ЦБ/ЦМАКП и ленту, это занимает несколько минут.
               </p>
+              <button className="obs-rebuild-btn" onClick={rebuildInterp} disabled={interpRunning}>
+                {interpRunning ? "Собираем…" : "Пересобрать анализ"}
+              </button>
+            </div>
+          )}
+
+          {/* Фоновая пересборка: показываем, что работа идёт, и сами опрашиваем результат */}
+          {interpRunning && interpSections && (
+            <div className="obs-macro-rebuilding">
+              <RotateCcw size={13} />
+              <span>Пересобираем анализ на свежих данных — это несколько минут. Ниже пока предыдущий срез.</span>
             </div>
           )}
 

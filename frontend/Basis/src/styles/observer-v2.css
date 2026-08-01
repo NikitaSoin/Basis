@@ -5987,3 +5987,19 @@ details[open] > summary .obs-inst-chev,
 .obs-macro-caveats-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-tertiary); margin-top: 8px; }
 .obs-macro-caveats ul { margin: 5px 0 0; padding-left: 18px; }
 .obs-macro-caveats li { line-height: 1.5; margin-bottom: 4px; color: var(--text-secondary); }
+
+/* Фоновая пересборка «Оценки ситуации» (2026-08-01): генерация на полных
+   первоисточниках занимает минуты и идёт в фоне — HTTP её не ждёт. */
+.obs-macro-rebuilding {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 10px; margin-bottom: 4px;
+  background: var(--obs-surface-2, rgba(255,255,255,.03));
+  border: 1px dashed var(--border-strong);
+  font-size: 12.5px; color: var(--text-tertiary);
+}
+.obs-rebuild-btn {
+  margin-top: 12px; padding: 8px 16px; border-radius: 8px; cursor: pointer;
+  background: var(--accent-soft, rgba(201,122,74,.12)); color: var(--accent, #C97A4A);
+  border: 1px solid var(--accent, #C97A4A); font-size: 13px; font-weight: 600;
+}
+.obs-rebuild-btn:disabled { opacity: .55; cursor: default; }

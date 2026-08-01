@@ -8,6 +8,7 @@ GET /api/market/macro/analytics  — выжимки ЦБ/ЦМАКП
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import JSONResponse
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
@@ -202,25 +203,33 @@ def macro_expert_survey(db: Session = Depends(get_db)):
 
 @router.get("/market/macro/interpretation")
 def macro_interpretation_get(db: Session = Depends(get_db)):
-    from app.services.macro_interpreter import get_latest
+    from app.services.macro_interpreter import get_latest, run_state
     row = get_latest(db)
+    # status нужен фронту, чтобы показать «пересобираем…» и опрашивать до готовности:
+    # генерация теперь идёт в фоне и НЕ ждёт HTTP-запрос (см. POST ниже).
+    status = run_state()
     if not row:
-        return {"sections": None}
+        return {"sections": None, "status": status}
     return {"sections": row.sections, "generated_at": row.generated_at.isoformat(),
-            "model_used": row.model_used, "source_snapshot": row.source_snapshot}
+            "model_used": row.model_used, "source_snapshot": row.source_snapshot,
+            "status": status}
 
 
 @router.post("/market/macro/interpretation")
-def macro_interpretation_post(db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
-    """Ручная перегенерация интерпретации (DeepSeek Pro reasoning, ~1-2 мин)."""
-    from app.services.macro_interpreter import generate
-    from app.services.llm import LLMError
-    try:
-        row = generate(db)
-    except LLMError as e:
-        raise HTTPException(status_code=503, detail=f"Интерпретатор недоступен: {e}")
-    return {"sections": row.sections, "generated_at": row.generated_at.isoformat(),
-            "model_used": row.model_used}
+def macro_interpretation_post(user=Depends(get_current_user_optional)):
+    """Поставить перегенерацию в ФОН и сразу ответить (202).
+
+    🔴 Раньше эндпоинт ждал генерацию целиком и на полном контексте первоисточников
+    отдавал 502: прокси Timeweb обрывает долгий запрос (~219 c). Резать контекст ради
+    транспортного лимита неправильно — окно модели свободно наполовину. Поэтому HTTP
+    больше не ждёт: клиент получает ответ мгновенно и опрашивает GET, пока
+    status.running не станет false.
+    """
+    from app.services.macro_interpreter import start_background_generation
+    out = start_background_generation()
+    # 202 — «принято, выполняется»; при повторном клике во время работы вернём то же
+    # состояние без запуска второго дорогого прогона.
+    return JSONResponse(status_code=202, content=out)
 
 
 @router.get("/market/macro/data-quality")
