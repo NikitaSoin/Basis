@@ -185,14 +185,27 @@ class TestReleaseReviewer:
             assert claims, f"утверждение потеряно при поле {field!r}"
             assert "5,9%" in claims[0]
 
-    def test_judgements_are_not_sent_to_review(self):
-        """Проверяем факты, а не суждения: у суждения нет источника, ревизия его
-        всегда завалит и выпуск утонет в ложных замечаниях."""
+    def test_numbers_under_a_judgement_are_still_checked(self):
+        """Тег относится к ВЫВОДУ, а не к числам под ним.
+
+        В выпуске #7 тезис с тегом «суждение» опирался на «дефицит 5731 млрд руб.» —
+        фактическое число. При отборе «только тег факт» его не проверил бы никто.
+        """
         from app.services.macro_release_reviewer import _claims_to_check
 
-        assert _claims_to_check({"theses": [
-            {"claim": "Пространство для снижения ставки ограничено на 2 п.п.",
-             "tag": "суждение", "chain": "риски"}]}) == []
+        claims = _claims_to_check({"theses": [
+            {"claim": "Бюджетный импульс подогревает спрос", "tag": "суждение",
+             "evidence": "сальдо −5731 млрд руб., расходы +16,1% г/г"}]})
+        assert claims and "5731" in claims[0]
+
+    def test_declared_facts_are_checked_first(self):
+        """Бюджет ревизии мал — заявленные факты идут раньше оценок."""
+        from app.services.macro_release_reviewer import _claims_to_check
+
+        claims = _claims_to_check({"theses": [
+            {"claim": "оценка", "tag": "оценка", "evidence": "рост 7,7% г/г"},
+            {"claim": "факт", "tag": "факт", "evidence": "инфляция 5,9%"}]}, limit=1)
+        assert claims == ["факт инфляция 5,9%"]
 
     def test_facts_without_numbers_are_skipped(self):
         from app.services.macro_release_reviewer import _claims_to_check
@@ -221,6 +234,10 @@ class TestReleaseReviewer:
         assert _foreign_numbers("инвестиции -14,3% г/г", ours | {14.3}) == []
         # «4-5%» — диапазон, а не величина −5: дефис не знак
         assert _foreign_numbers("устойчивое ядро 4-5% SAAR", ours) == []
+        # 🔴 Цена нефти и курс — самые чувствительные числа выпуска. Без валютных
+        # единиц тезис «Urals $60,7/барр.» не попадал в отбор вообще.
+        assert _foreign_numbers("Urals подскочил до $60,7/барр.", ours) == ["60,7"]
+        assert _foreign_numbers("курс 92 ₽/$", ours) == ["92"]
 
 
 class TestEventAgent:

@@ -55,15 +55,21 @@ _SYSTEM = """Ты — ревизор аналитической платформ
   "note": "<если contradicted/unsupported — в чём расхождение>"
 }"""
 
-# Утверждение достойно проверки, если в нём есть число И оно подано как факт.
-_NUM_RE = re.compile(r"\d+[.,]?\d*\s*(?:%|млрд|млн|трлн|п\.п\.|пункт)")
+# Единицы, по которым число опознаётся как ВЕЛИЧИНА, а не порядковый номер.
+# 🔴 Валюту и «за баррель» добавили не для полноты: без них тезис про нефть
+# («Urals $60,7/барр.») не попадал в отбор ВООБЩЕ — цена нефти и курс рубля,
+# то есть самые чувствительные числа выпуска, не проверялись никем.
+_UNIT = r"%|млрд|млн|трлн|тыс|п\.п\.|пункт|руб|₽|долл|барр"
+_NUM_RE = re.compile(rf"(?:\d+[.,]?\d*\s*(?:{_UNIT}))|(?:[$€₽]\s*\d+[.,]?\d*)")
 
 _ANY_NUM_RE = re.compile(r"-?\d+[.,]?\d*")
 # Величина = число С ЕДИНИЦЕЙ. Без этого требования в «чужие» попадали «2» из «2кв2026»
 # и «4» из диапазона «4-5% SAAR» — порядковые номера, а не данные.
 # (?<![\d.,-]) — минус берём как знак, только если перед ним не цифра: в «4-5% SAAR»
 # это дефис диапазона, и «-5» уходило ревизору как отдельная величина.
-_VALUE_RE = re.compile(r"(?<![\d.,-])(-?\d+[.,]?\d*)\s*(?:%|млрд|млн|трлн|п\.п\.|пункт)")
+# Вторая ветка — валюта знаком ПЕРЕД числом («$60,7»).
+_VALUE_RE = re.compile(
+    rf"(?<![\d.,-])(-?\d+[.,]?\d*)\s*(?:{_UNIT})|[$€₽]\s*(\d+[.,]?\d*)")
 
 
 def _our_numbers(snapshot: dict | None) -> set[float]:
@@ -100,7 +106,8 @@ def _foreign_numbers(claim: str, ours: set[float]) -> list[str]:
     знак в прозе часто несёт направление («падение на 14,3%»), не арифметику.
     """
     out: list[str] = []
-    for m in _VALUE_RE.findall(claim):
+    for suffixed, prefixed in _VALUE_RE.findall(claim):
+        m = suffixed or prefixed      # величина пришла либо «60,7%», либо «$60,7»
         try:
             v = round(abs(float(m.replace(",", "."))), 2)
         except ValueError:
@@ -124,21 +131,27 @@ def _text_of(block: dict) -> str:
 
 
 def _claims_to_check(sections: dict, limit: int = 3) -> list[str]:
-    """Отобрать самые рискованные утверждения: числа под тегом «факт»."""
-    out: list[str] = []
-    for t in sections.get("theses") or []:
-        if not isinstance(t, dict):
-            continue
-        text = _text_of(t)
-        if t.get("tag") == "факт" and _NUM_RE.search(text):
-            out.append(text)
+    """Отобрать самые рискованные утверждения: блоки с конкретными величинами.
+
+    🔴 Тег НЕ является фильтром, только приоритетом. Он относится к ВЫВОДУ, а не к
+    числам под ним: в выпуске #7 тезис с тегом «суждение» опирался на «дефицит
+    бюджета 5731 млрд руб.» — вполне фактическое число, которое при отборе «только
+    тег факт» не проверил бы никто. Сначала берём заявленные факты, следом остальное;
+    что реально уйдёт на платную проверку, решает предфильтр своих чисел.
+    """
+    facts: list[str] = []
+    rest: list[str] = []
+    blocks = [b for b in (sections.get("theses") or []) if isinstance(b, dict)]
     ev = sections.get("event_context")
     if isinstance(ev, dict) and ev.get("event"):
-        blob = _text_of(ev)
-        if _NUM_RE.search(blob):
-            out.append(blob)
+        blocks.append(ev)
+    for b in blocks:
+        text = _text_of(b)
+        if not _NUM_RE.search(text):
+            continue                      # без величины проверять нечего
+        (facts if b.get("tag") == "факт" else rest).append(text)
     # длинные утверждения режем: ревизору нужен тезис, а не абзац
-    return [c[:400] for c in out[:limit]]
+    return [c[:400] for c in (facts + rest)[:limit]]
 
 
 def review_release(db: Session, sections: dict, *, limit: int = 3,
