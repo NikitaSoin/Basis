@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
@@ -100,6 +101,20 @@ _OUTPUT_SPEC = (
     "тег «факт», сверь число с current_value: тег «факт» на числе, которого нет в "
     "данных, — грубейшая ошибка, она разрушает доверие к платформе сильнее, чем "
     "осторожная формулировка.\n"
+    "9. 🔴 ЕДИНСТВЕННЫЙ ИСТОЧНИК ЧИСЕЛ О ТЕКУЩЕМ СОСТОЯНИИ — блок indicators "
+    "(поле current_value). Числа из analytics (записки ЦБ/ЦМАКП), context.chronicle и "
+    "previous_issues бери как СМЫСЛ и аргумент, но НЕ как факт о сегодняшнем уровне: "
+    "они могли устареть, относиться к другому периоду ИЛИ К ДРУГОМУ ПОКАЗАТЕЛЮ.\n"
+    "   Частая и грубая подмена, которую надо исключить: опрос инФОМ даёт РАЗНЫЕ "
+    "величины — «наблюдаемая инфляция» (как население оценивает УЖЕ ПРОШЕДШИЙ рост цен) "
+    "и «ожидаемая инфляция на год вперёд». Это НЕ одно и то же, и ни одна из них не "
+    "заменяет наш показатель inflation_expectations. Пишешь про инфляционные ожидания — "
+    "бери current_value показателя inflation_expectations, а не первое похожее число из "
+    "текста записки.\n"
+    "10. previous_issues — это ТВОИ ПРОШЛЫЕ СУЖДЕНИЯ, а не данные. Никогда не переноси "
+    "оттуда числа в новый выпуск: если в прошлом выпуске была ошибка, копирование "
+    "закрепит её навсегда. Сверяй прошлые утверждения с текущими indicators и, если "
+    "расходятся, исправляй — и скажи об этом в changed_since_last.\n"
     "Тон спокойный, без «купить/продать». Никакого текста вне JSON."
 )
 
@@ -344,14 +359,32 @@ def _previous_issues(db: Session, limit: int = 4) -> list[dict]:
     for r in rows:
         s = r.sections or {}
         out.append({
+            "_note": "ПРОШЛОЕ СУЖДЕНИЕ, не данные. Числа отсюда брать нельзя.",
             "generated_at": r.generated_at.date().isoformat(),
-            "headline": s.get("headline"),
-            "rate_path": (s.get("rate_path") or {}).get("base") if isinstance(s.get("rate_path"), dict) else None,
+            "headline": _strip_numbers(s.get("headline")),
+            "rate_path": _strip_numbers((s.get("rate_path") or {}).get("base")
+                                        if isinstance(s.get("rate_path"), dict) else None),
             "forks": [f.get("event") for f in (s.get("forks") or []) if isinstance(f, dict)][:4],
             # старый формат (до переделки) — чтобы переход не потерял историю
-            "legacy_theses": [t.get("claim") for t in (s.get("theses") or []) if isinstance(t, dict)][:3],
+            "legacy_theses": [_strip_numbers(t.get("claim"))
+                              for t in (s.get("theses") or []) if isinstance(t, dict)][:3],
         })
     return out
+
+
+def _strip_numbers(text: str | None) -> str | None:
+    """Убирает числа из прошлых формулировок, оставляя смысл.
+
+    🔴 Найдено 2026-08-01 на первом же прогоне с памятью: прошлый выпуск содержал
+    ошибочное «инфляционные ожидания 14,7%» (модель тогда спутала наблюдаемую инфляцию
+    из записки ЦБ с ожиданиями), и следующий выпуск ЭТО СКОПИРОВАЛ. Память, задуманная
+    как механизм доверия, начала закреплять ошибку — самовоспроизводящаяся неправда
+    опаснее разового промаха. Смысл суждения («ждали паузу в снижении») для трекшена
+    сохраняется, а числовые утверждения модель обязана заново взять из indicators.
+    """
+    if not text:
+        return text
+    return re.sub(r"\d+[.,]?\d*\s*%?", "…", text)
 
 
 def generate(db: Session) -> MacroInterpretation:
