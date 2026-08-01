@@ -429,6 +429,52 @@ def _strip_numbers(text: str | None) -> str | None:
     return re.sub(r"\d+[.,]?\d*\s*%?", "…", text)
 
 
+# Показатели, чьё числовое значение проверяем в тексте вывода: (код, метрика,
+# регулярка-триггер «о чём идёт речь», допуск). Проверяем только те, где ошибка
+# критична и распознаётся однозначно.
+_NUMBER_CHECKS = (
+    ("inflation_expectations", "level", r"инфляционн\w*\s+ожидани\w*|ожидани\w*\s+населени", 0.35),
+    ("key_rate", "level", r"ключев\w*\s+ставк|ставка\s+ЦБ", 0.30),
+)
+
+
+def _check_numbers(sections: dict, snapshot: dict) -> list[str]:
+    """Ищет в тексте вывода числа, приписанные показателю, но не совпадающие с данными.
+
+    Логика намеренно узкая: берём предложение, где упомянут показатель, вытаскиваем
+    из него проценты и сверяем с фактическим значением. Если НИ ОДНО число рядом не
+    похоже на факт — это подмена (модель взяла величину из чужого контекста).
+    Прогнозные фразы («до 11-12% к концу года») законно содержат другие числа,
+    поэтому нарушением считаем только случай, когда фактического значения рядом нет
+    вовсе, а какое-то число есть.
+    """
+    facts = {(i.get("code"), i.get("metric")): i for i in snapshot.get("indicators") or []}
+    text = json.dumps(sections, ensure_ascii=False)
+    # разбиваем на предложения, чтобы не сцеплять несвязанные утверждения
+    chunks = re.split(r"(?<=[.!?;])\s+|\",\s*\"", text)
+    out: list[str] = []
+    for code, metric, trigger, tol in _NUMBER_CHECKS:
+        ind = facts.get((code, metric))
+        if not ind or ind.get("current_value") is None:
+            continue
+        actual = float(ind["current_value"])
+        for chunk in chunks:
+            if not re.search(trigger, chunk, re.I):
+                continue
+            nums = [float(n.replace(",", ".")) for n in re.findall(r"\d+[.,]?\d*(?=\s*%)", chunk)]
+            if not nums:
+                continue
+            if any(abs(n - actual) <= tol for n in nums):
+                continue  # факт рядом есть — прогнозные числа в том же предложении ок
+            out.append(
+                f"«{ind.get('title') or code}» сейчас {actual}{ind.get('unit') or ''} "
+                f"(на {ind.get('as_of')}), а в тексте рядом стоят {nums} — "
+                f"похоже, число взято из чужого источника"
+            )
+            break
+    return out
+
+
 def generate(db: Session) -> MacroInterpretation:
     """Сгенерировать интерпретацию (Pro reasoning) и сохранить срез."""
     snapshot = gather_snapshot(db)
@@ -444,6 +490,33 @@ def generate(db: Session) -> MacroInterpretation:
     sections = out.get("sections") if isinstance(out, dict) else None
     if not sections:
         raise llm.LLMError("Интерпретатор: модель не вернула sections")
+
+    # 🔴 Код-проверка чисел с ОДНОЙ автопоправкой (2026-08-01). История вопроса:
+    # модель четыре прогона подряд писала «инфляционные ожидания 14,7%» при
+    # фактических 12,2% — брала первое похожее число из прозы записки ЦБ (там 14,7 —
+    # это «наблюдаемая инфляция», другая величина того же опроса). Не помогли ни
+    # самоописательные имена полей, ни два прямых запрета в промпте, ни блок key_facts
+    # с готовыми формулировками первым в снапшоте. Вывод: уговорами класс ошибки не
+    # лечится, нужна проверка кодом — тот же принцип, что в «ОТК данных» Макрообзора.
+    violations = _check_numbers(sections, snapshot)
+    if violations:
+        logger.warning("Интерпретатор: числа разошлись с данными, повтор: %s", violations)
+        fix = ("\n\n🔴 ПРЕДЫДУЩАЯ ПОПЫТКА СОДЕРЖАЛА ФАКТИЧЕСКИЕ ОШИБКИ В ЧИСЛАХ:\n"
+               + "\n".join(f"— {v}" for v in violations)
+               + "\n\nПерепиши ответ целиком, взяв эти величины СТРОГО из блока key_facts. "
+                 "Остальные выводы можешь сохранить.")
+        out2 = llm.complete(system, user + fix, json_mode=True, thinking=True,
+                            model=model, max_tokens=16000, temperature=0.2)
+        s2 = out2.get("sections") if isinstance(out2, dict) else None
+        if s2:
+            left = _check_numbers(s2, snapshot)
+            if len(left) < len(violations):
+                sections, violations = s2, left
+        if violations:
+            # Не роняем блок: лучше показать срез с пометкой, чем пустой экран. Но
+            # пометку видно и в логах, и в записи — молча публиковать неверное нельзя.
+            logger.error("Интерпретатор: ошибки в числах остались после повтора: %s", violations)
+            sections["_data_warnings"] = violations
     row = MacroInterpretation(
         sections=sections, generated_at=datetime.now(timezone.utc),
         model_used=f"{llm.provider_info().get('provider')}:{model}",
