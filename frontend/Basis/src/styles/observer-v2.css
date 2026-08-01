@@ -5939,3 +5939,51 @@ details[open] > summary .obs-inst-chev,
   font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;
 }
 .obs-macro-changed b { color: var(--text-tertiary); }
+
+/* ═══ Макро v3 (методика macro_interpreter_methodology_v3.md, 2026-08-01) ═══
+   Часть 19: тезисы с видимой цепочкой, прогноз пяти переменных, обязательные
+   контраргументы, противоречия и качество данных наружу. */
+
+/* Тезис: вывод → цепочка → доказательство */
+.obs-thesis-row { padding: 12px 0; border-bottom: 1px solid var(--border-subtle); }
+.obs-thesis-row:last-child { border-bottom: none; }
+.obs-thesis-claim { font-size: 14px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.obs-thesis-chain { font-size: 12.5px; color: var(--text-secondary); margin-top: 5px; line-height: 1.5; }
+.obs-thesis-evidence { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; font-family: var(--font-mono, monospace); }
+
+/* Контекст момента */
+.obs-macro-event { padding: 16px 18px; margin: 16px 0; border-left: 3px solid var(--warning, #C97A4A); }
+.obs-macro-event-name { font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 6px 0 4px; }
+.obs-macro-event-effect { font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin: 0; }
+
+/* Прогноз пяти переменных */
+.obs-fc-list { display: flex; flex-direction: column; }
+.obs-fc-row { padding: 14px 0; border-bottom: 1px solid var(--border-subtle); }
+.obs-fc-row:last-child { border-bottom: none; }
+.obs-fc-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.obs-fc-var { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.obs-fc-horizon { font-size: 11.5px; color: var(--text-tertiary); }
+.obs-fc-conf { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; padding: 2px 7px; border-radius: 999px; }
+.obs-fc-conf--high { background: var(--success-soft, rgba(60,150,90,.14)); color: var(--success); }
+.obs-fc-conf--mid  { background: var(--bg-hover); color: var(--text-tertiary); }
+.obs-fc-conf--low  { background: var(--warning-soft, rgba(201,122,74,.14)); color: var(--warning, #C97A4A); }
+.obs-fc-nums { display: flex; align-items: baseline; gap: 12px; margin: 6px 0; flex-wrap: wrap; }
+.obs-fc-center { font-family: var(--font-mono, monospace); font-size: 19px; font-weight: 700; color: var(--text-primary); }
+.obs-fc-range { font-size: 12.5px; color: var(--text-tertiary); }
+.obs-fc-meta { display: flex; flex-direction: column; gap: 3px; }
+.obs-fc-meta div { font-size: 12.5px; color: var(--text-secondary); line-height: 1.45; }
+.obs-fc-meta b { color: var(--text-tertiary); font-weight: 700; }
+.obs-fc-against { color: var(--warning, #C97A4A) !important; }
+
+/* Контраргументы ко всей картине */
+.obs-macro-against { margin: 16px 0; padding: 14px 16px; border-radius: 10px;
+  background: var(--warning-soft, rgba(201,122,74,.08)); border: 1px solid var(--border-subtle); }
+.obs-macro-against ul { margin: 8px 0 0; padding-left: 18px; }
+.obs-macro-against li { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 5px; }
+
+/* Оговорки: противоречия и качество данных */
+.obs-macro-caveats { margin: 14px 0; font-size: 12.5px; color: var(--text-tertiary); }
+.obs-macro-caveats summary { cursor: pointer; padding: 8px 0; }
+.obs-macro-caveats-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-tertiary); margin-top: 8px; }
+.obs-macro-caveats ul { margin: 5px 0 0; padding-left: 18px; }
+.obs-macro-caveats li { line-height: 1.5; margin-bottom: 4px; color: var(--text-secondary); }

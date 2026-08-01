@@ -2037,8 +2037,90 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                 </div>
               )}
 
-              {/* ТРАЕКТОРИЯ — главный ответ блока: куда идут ставка и инфляция.
-                  Коридор + якорь на прогноз ЦБ, чтобы не читалось как обещание. */}
+              {/* ТЕЗИСЫ С ЦЕПОЧКОЙ (методика v3, Часть 19.3 п.2): в каждом видно
+                  фактор → механизм → следствие, а не голый вывод. */}
+              {Array.isArray(interpSections.theses) && interpSections.theses.some((t) => t?.chain) && (
+                <div className="obs-inst-card">
+                  <div className="obs-inst-card-title"><Sparkles size={16} />Что происходит и почему</div>
+                  <div className="obs-inst-list">
+                    {interpSections.theses.map((t, i) => (
+                      <div key={i} className="obs-thesis-row">
+                        <div className="obs-thesis-claim">
+                          {t.claim}
+                          {t.tag && <span className={t.tag === "факт" ? "obs-tag-fact" : "obs-tag-judgment"}>{t.tag}</span>}
+                        </div>
+                        {t.chain && <div className="obs-thesis-chain">{t.chain}</div>}
+                        {t.evidence && <div className="obs-thesis-evidence">{t.evidence}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* КОНТЕКСТ МОМЕНТА — значимое событие и как оно отражается на макро */}
+              {interpSections.event_context?.event && (
+                <div className="obs-macro-card obs-macro-event">
+                  <div className="obs-macro-eyebrow">
+                    <AlertTriangle size={12} style={{ marginRight: 5, verticalAlign: -2 }} />
+                    Контекст момента
+                    {interpSections.event_context.persistence && (
+                      <span className="obs-fork-status" style={{ marginLeft: 8 }}>{interpSections.event_context.persistence}</span>
+                    )}
+                  </div>
+                  <div className="obs-macro-event-name">{interpSections.event_context.event}</div>
+                  {interpSections.event_context.macro_effect && (
+                    <p className="obs-macro-event-effect">{interpSections.event_context.macro_effect}</p>
+                  )}
+                </div>
+              )}
+
+              {/* ПРОГНОЗ ПЯТИ ПЕРЕМЕННЫХ (Часть 14) — ядро ценности для инвестора.
+                  У каждой: центр, диапазон, драйвер, триггеры, уверенность и
+                  ОБЯЗАТЕЛЬНЫЙ контраргумент — прогноз не должен читаться как обещание. */}
+              {Array.isArray(interpSections.forecasts) && interpSections.forecasts.length > 0 && (
+                <div className="obs-inst-card">
+                  <div className="obs-inst-card-title">
+                    <TrendingUp size={16} />Прогноз ключевых переменных
+                    <span className="obs-tag-judgment" style={{ marginLeft: 8 }}>оценка Basis, не обещание</span>
+                  </div>
+                  <div className="obs-fc-list">
+                    {interpSections.forecasts.map((f, i) => (
+                      <div key={i} className="obs-fc-row">
+                        <div className="obs-fc-head">
+                          <span className="obs-fc-var">{f.variable}</span>
+                          {f.horizon && <span className="obs-fc-horizon">{f.horizon}</span>}
+                          {f.confidence && (
+                            <span className={`obs-fc-conf obs-fc-conf--${
+                              /высок/i.test(f.confidence) ? "high" : /низк/i.test(f.confidence) ? "low" : "mid"}`}>
+                              уверенность: {f.confidence}
+                            </span>
+                          )}
+                        </div>
+                        <div className="obs-fc-nums">
+                          {f.center && <span className="obs-fc-center">{f.center}</span>}
+                          {f.range && <span className="obs-fc-range">коридор {f.range}</span>}
+                        </div>
+                        <div className="obs-fc-meta">
+                          {f.driver && <div><b>Драйвер:</b> {f.driver}</div>}
+                          {f.triggers && <div><b>Пересмотрим, если:</b> {f.triggers}</div>}
+                          {f.vs_anchor && <div><b>Против консенсуса:</b> {f.vs_anchor}</div>}
+                          {f.against && <div className="obs-fc-against"><b>Что говорит против:</b> {f.against}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ЧТО ГОВОРИТ ПРОТИВ НАС (Часть 19.3 п.5) — обязательный блок доверия */}
+              {Array.isArray(interpSections.against_us) && interpSections.against_us.length > 0 && (
+                <div className="obs-macro-against">
+                  <div className="obs-macro-eyebrow"><ShieldAlert size={12} style={{ marginRight: 5, verticalAlign: -2 }} />Что говорит против нашей картины</div>
+                  <ul>{interpSections.against_us.map((a, i) => <li key={i}>{a}</li>)}</ul>
+                </div>
+              )}
+
+              {/* ТРАЕКТОРИЯ — формат v2 (старые срезы). Коридор + якорь на прогноз ЦБ. */}
               {(interpSections.rate_path || interpSections.inflation_path) && (
                 <div className="obs-macro-paths">
                   {[
@@ -2175,6 +2257,41 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                 <div className="obs-macro-changed">
                   <Clock size={13} />
                   <span><b>С прошлого выпуска:</b> {interpSections.changed_since_last}</span>
+                </div>
+              )}
+
+              {/* ПРОТИВОРЕЧИЯ ВО ВХОДНЫХ СИГНАЛАХ + качество данных (Часть 19.2):
+                  методика требует показывать их, а не прятать. */}
+              {(interpSections.contradictions?.length > 0 || interpSections.data_flags?.length > 0) && (
+                <details className="obs-macro-caveats">
+                  <summary>
+                    Оговорки: противоречия в сигналах и качество данных
+                    {" "}({(interpSections.contradictions?.length || 0) + (interpSections.data_flags?.length || 0)})
+                  </summary>
+                  {interpSections.contradictions?.length > 0 && (
+                    <>
+                      <div className="obs-macro-caveats-lbl">Сигналы против нашего вывода</div>
+                      <ul>{interpSections.contradictions.map((c, i) => <li key={i}>{c}</li>)}</ul>
+                    </>
+                  )}
+                  {interpSections.data_flags?.length > 0 && (
+                    <>
+                      <div className="obs-macro-caveats-lbl">Где данных не хватило</div>
+                      <ul>{interpSections.data_flags.map((c, i) => <li key={i}>{c}</li>)}</ul>
+                    </>
+                  )}
+                </details>
+              )}
+
+              {/* Триггеры (v3) — что подтвердит или сломает картину */}
+              {Array.isArray(interpSections.triggers) && interpSections.triggers.length > 0 && (
+                <div className="obs-inst-checkpoint">
+                  <div className="obs-inst-checkpoint-label"><Info size={12} />Что подтвердит или сломает картину</div>
+                  {interpSections.triggers.map((w, i) => (
+                    <div key={i} className="obs-inst-checkpoint-text">
+                      {typeof w === "string" ? w : <><b>{w.signal}</b>{w.why ? ` — ${w.why}` : ""}</>}
+                    </div>
+                  ))}
                 </div>
               )}
 
