@@ -221,6 +221,45 @@ _SECTOR_REQUIRED_FACTORS = {
 }
 
 
+def test_coefficient_units_are_handled(exposures_by_ticker):
+    """Единица коэффициентов карточки (млрд_руб / млн_руб) обязана учитываться.
+
+    🔴 2026-08-01: первая версия нормировки делила коэффициент на капитализацию в
+    МЛРД, не глядя на `quant_inputs.unit`. У 47 карточек единица — млн_руб, и их
+    экспозиции были завышены в 1000 раз. Кламп [-2;+2] это ПРЯТАЛ: микрокапы просто
+    упирались в максимум по всем факторам, что для distressed equity выглядит
+    правдоподобно и потому не резало глаз. Поймано случайно, при попытке показать
+    владельцу список «кто выигрывает от снижения ставки» — там вылезло +11823 %
+    капитализации.
+
+    Тест держит границу: доля упирающихся в кламп не должна быть аномальной.
+    """
+    import json
+
+    from app.services.factor_exposures import COMPANIES_DIR
+
+    mln = []
+    for ticker in exposures_by_ticker:
+        path = COMPANIES_DIR / ticker / "macro.json"
+        if not path.exists():
+            continue
+        try:
+            qi = (json.loads(path.read_text(encoding="utf-8")).get("quant_inputs") or {})
+        except Exception:  # noqa: BLE001
+            continue
+        if "млн" in str(qi.get("unit") or "") and qi.get("coefficients"):
+            mln.append(ticker)
+    if len(mln) < 5:
+        pytest.skip("в карточках почти нет млн-единиц — проверять нечего")
+
+    # Если бы масштаб не учитывался, ВСЕ они упёрлись бы в кламп разом.
+    capped = [t for t in mln if abs(exposures_by_ticker[t].get("rate") or 0) >= 1.99]
+    assert len(capped) / len(mln) < 0.75, (
+        f"{len(capped)}/{len(mln)} карточек с млн-единицей упираются в кламп по ставке — "
+        f"похоже, единица коэффициентов снова не приводится к млрд"
+    )
+
+
 @pytest.mark.parametrize("sector,required", sorted(_SECTOR_REQUIRED_FACTORS.items()))
 def test_sector_required_factors_present(sector, required, exposures_by_ticker):
     """У сектора обязаны быть заполнены профильные факторы хотя бы у большинства."""

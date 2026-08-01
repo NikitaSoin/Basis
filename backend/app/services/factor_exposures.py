@@ -122,6 +122,11 @@ _CHANNEL_SHOCK = {
 # экспозицией |2|. Произвол, задокументированный: 12% стоимости на один шок — уже
 # экстремальная чувствительность.
 _EXPOSURE_FULL_SCALE = 0.12
+
+# Приведение единицы коэффициентов карточки к МЛРД ₽ (в них считается капитализация).
+# млн_usd оставлен незакрытым сознательно: курс тут не подставить без риска соврать,
+# таких карточек 2 — они честно выпадают в None, а не считаются наугад.
+_COEF_UNIT_TO_BLN = {"млрд_руб": 1.0, "млн_руб": 0.001}
 # 🔴 УСТАРЕЛ (2026-07-30): geo.json ключа `factors` больше не имеет — схема сменилась
 # при миграции geo-system v0.9 (коммит 2335f41ee1, 2026-07-12). Оставлен как фолбэк
 # на случай старых файлов; новый путь — gre_profile, см. _sanctions_exposure/
@@ -293,12 +298,22 @@ def _exposures_from_coefficients(ticker: str, macro: dict | None) -> dict[str, f
     убыточные и закредитованные при малой капитализации получают большую экспозицию
     (distressed equity действительно гиперчувствителен), хвосты режет кламп.
     """
-    coefs = ((macro or {}).get("quant_inputs") or {}).get("coefficients") or {}
+    qi = (macro or {}).get("quant_inputs") or {}
+    coefs = qi.get("coefficients") or {}
     if not coefs:
         return {}
     cap = _load_market_caps().get((ticker or "").upper())
     if not cap:
         return {}
+    # 🔴 Единица коэффициентов НЕ одна на всю вселенную (найдено 2026-08-01): в карточках
+    # `quant_inputs.unit` = млрд_руб у 215 компаний, но млн_руб у 47 и млн_usd у 2.
+    # Первая версия делила на капитализацию в МЛРД, не глядя на unit, — у 49 компаний
+    # экспозиция завышалась в 1000 раз. Кламп [-2;+2] это скрывал: микрокапы просто
+    # упирались в максимум по всем факторам и выглядели «гиперчувствительными», что
+    # правдоподобно для distressed equity и потому не резало глаз.
+    scale = _COEF_UNIT_TO_BLN.get(str(qi.get("unit") or "").strip().lower())
+    if scale is None:
+        return {}  # незнакомая единица — честно молчим, а не считаем наугад
 
     acc: dict[str, float] = {}
     for channel, spec in coefs.items():
@@ -313,7 +328,7 @@ def _exposures_from_coefficients(ticker: str, macro: dict | None) -> dict[str, f
             continue
         if channel in _COEF_CHANNEL_INVERTED:
             shock = -shock
-        acc[factor] = acc.get(factor, 0.0) + (delta * shock) / cap
+        acc[factor] = acc.get(factor, 0.0) + (delta * scale * shock) / cap
 
     return {
         f: round(max(-2.0, min(2.0, v / _EXPOSURE_FULL_SCALE * 2)), 2)
