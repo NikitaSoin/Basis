@@ -2129,8 +2129,12 @@ def sql_readonly(q: str = Query(..., description="SQL, только SELECT/WITH"
         return {"error": "разрешены только SELECT и WITH"}
     if ";" in s:
         return {"error": "точка с запятой запрещена — только один оператор за раз"}
+    # 🔴 Сверять ПО ГРАНИЦАМ СЛОВ, а не по подстроке. Проверка `kw in low` забраковала
+    # совершенно законный SELECT из таблицы market_updates — в её имени есть «update».
+    # Так же пострадали бы любые поля вроде updated_at, created_at, is_deleted.
+    import re as _re
     for kw in _SQL_FORBIDDEN:
-        if kw in low:
+        if _re.search(rf"\b{_re.escape(kw.strip())}\b", low):
             return {"error": f"запрещённое слово: {kw.strip()}"}
 
     db = SessionLocal()
