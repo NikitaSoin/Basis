@@ -2046,23 +2046,40 @@ def users_stats():
 
         since = lambda d: (now - timedelta(days=d)).isoformat()  # noqa: E731
 
+        # 🔴 СЛУЖЕБНЫЕ АККАУНТЫ СЧИТАЕМ ОТДЕЛЬНО. Владелец 2026-08-01 поймал меня на том,
+        # что «20 зарегистрировано» — цифра, вводящая в заблуждение: из них 12 на
+        # example.com (claude-test-*, test_bench-*, qa-*, obs_test-*, tier-prod-check —
+        # следы тестовых прогонов, в том числе моих), один QA на @inbasis.ru и четыре
+        # аккаунта самого владельца. Живых внешних людей — единицы.
+        # Смешивать их в одном числе нельзя: на такой основе принимаются неверные
+        # продуктовые выводы, что и произошло.
+        SERVICE = ("email LIKE '%@example.com' OR email LIKE 'qa-%' "
+                   "OR email LIKE 'test_%' OR email LIKE '%@inbasis.ru'")
+        REAL = f"NOT ({SERVICE})"
+
         total = scalar("SELECT count(*) FROM users")
         stats = {
-            "всего_зарегистрировано": total,
+            "живых_аккаунтов": scalar(f"SELECT count(*) FROM users WHERE {REAL}"),
+            "служебных_и_тестовых": scalar(f"SELECT count(*) FROM users WHERE {SERVICE}"),
+            "всего_строк_в_таблице": total,
             "активных": scalar("SELECT count(*) FROM users WHERE is_active"),
             "по_тарифу": {},
-            "новых_за": {
-                "сутки": scalar("SELECT count(*) FROM users WHERE created_at >= :d", d=since(1)),
-                "неделю": scalar("SELECT count(*) FROM users WHERE created_at >= :d", d=since(7)),
-                "месяц": scalar("SELECT count(*) FROM users WHERE created_at >= :d", d=since(30)),
+            # Приток считаем ТОЛЬКО по живым: тестовые прогоны создают аккаунты пачками
+            # (24 июля — шесть за несколько минут) и рисуют несуществующий рост.
+            "новых_живых_за": {
+                "сутки": scalar(f"SELECT count(*) FROM users WHERE {REAL} AND created_at >= :d", d=since(1)),
+                "неделю": scalar(f"SELECT count(*) FROM users WHERE {REAL} AND created_at >= :d", d=since(7)),
+                "месяц": scalar(f"SELECT count(*) FROM users WHERE {REAL} AND created_at >= :d", d=since(30)),
             },
             # Регистрация без единого действия — это не клиент, а строка в таблице.
             # Портфель и сохранённый фильтр показывают, что человек реально пользовался.
-            "дошли_до_действия": {
+            "дошли_до_действия_живые": {
                 "создали_портфель": scalar(
-                    "SELECT count(DISTINCT user_id) FROM portfolios WHERE user_id IS NOT NULL"),
+                    "SELECT count(DISTINCT p.user_id) FROM portfolios p JOIN users u ON u.id = p.user_id "
+                    f"WHERE {REAL.replace('email', 'u.email')}"),
                 "сохранили_фильтр_скрининга": scalar(
-                    "SELECT count(DISTINCT user_id) FROM screener_saved_filters WHERE user_id IS NOT NULL"),
+                    "SELECT count(DISTINCT f.user_id) FROM screener_saved_filters f JOIN users u ON u.id = f.user_id "
+                    f"WHERE {REAL.replace('email', 'u.email')}"),
             },
             "портфелей_всего": scalar("SELECT count(*) FROM portfolios"),
             "позиций_в_портфелях": scalar("SELECT count(*) FROM portfolio_positions"),
@@ -2081,7 +2098,7 @@ def users_stats():
         try:
             rows = db.execute(text(
                 "SELECT date(created_at) AS d, count(*) FROM users "
-                "WHERE created_at >= :since GROUP BY d ORDER BY d DESC"
+                f"WHERE {REAL} AND created_at >= :since GROUP BY d ORDER BY d DESC"
             ), {"since": since(30)}).all()
             stats["регистрации_по_дням"] = {str(r[0]): int(r[1]) for r in rows}
         except Exception:  # noqa: BLE001
