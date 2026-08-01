@@ -2212,8 +2212,8 @@ var SCHEMA=[{"g": "Пользователи и продукт", "t": [["users", 
     h+='<h3 style="margin:16px 0 6px;font-size:15px">'+g.g+'</h3><table>'
       +'<tr><th>Таблица</th><th>Строк</th><th>Что внутри</th></tr>';
     g.t.forEach(function(r){
-      h+='<tr><td><a onclick="set(\'SELECT * FROM '+r[0]+' LIMIT 50\')" '
-        +'style="color:#C97A4A;cursor:pointer">'+r[0]+'</a></td>'
+      h+='<tr><td><a onclick="set(this.dataset.q)" data-q="SELECT * FROM '+r[0]+' LIMIT 50"'
+        +' style="color:#C97A4A;cursor:pointer">'+r[0]+'</a></td>'
         +'<td style="text-align:right">'+(r[1]==null?'—':r[1])+'</td><td>'+r[2]+'</td></tr>';
     });
     h+='</table>';
