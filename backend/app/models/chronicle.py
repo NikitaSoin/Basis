@@ -65,6 +65,10 @@ class ChronicleEntry(Base):
     source_table: Mapped[str | None] = mapped_column(String(32))  # market_updates|geo_digest_articles
     source_id: Mapped[int | None] = mapped_column(Integer)
 
+    # Полный текст первоисточника для макро-интерпретатора (2026-08-01). Заполняется
+    # лениво в article_texts.ensure_full_texts, см. миграцию d1f4a9c2e7b3.
+    full_text: Mapped[str | None] = mapped_column(Text)
+    full_text_fetched_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     model_used: Mapped[str | None] = mapped_column(String(64))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

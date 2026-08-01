@@ -205,9 +205,23 @@ def gather_snapshot(db: Session) -> dict:
                 "rate_value": float(meeting.rate_value) if meeting.rate_value else None,
                 "signal": meeting.signal, "next_meeting_date": meeting.next_meeting_date.isoformat() if meeting.next_meeting_date else None,
                 "consensus_forecast": meeting.consensus_forecast, "press_summary": meeting.press_summary}
+    # 🔴 ЦЕЛИКОМ, а не пересказом (владелец 2026-08-01). Записки ЦБ/ЦМАКП — первый по
+    # ценности источник, и до сих пор модель видела только НАШУ выжимку, сделанную
+    # другой LLM и ничем не проверенную. Контекстное окно 1M токенов — места хватает.
+    doc_rows = (db.query(MacroAnalyticsDoc)
+                .order_by(MacroAnalyticsDoc.created_at.desc()).limit(_DOCS_LIMIT).all())
+    try:
+        from app.services.article_texts import ensure_full_texts
+        ensure_full_texts(db, doc_rows)
+    except Exception:  # noqa: BLE001
+        logger.warning("Интерпретатор: дозагрузка текстов записок не отработала", exc_info=True)
     docs = [{"source": d.source, "doc_type": d.doc_type, "title": d.title,
-             "summary": d.summary, "key_takeaways": d.key_takeaways}
-            for d in db.query(MacroAnalyticsDoc).order_by(MacroAnalyticsDoc.created_at.desc()).limit(12).all()]
+             "published_at": d.published_at.isoformat() if d.published_at else None,
+             "summary": d.summary, "key_takeaways": d.key_takeaways,
+             "source_url": d.source_url,
+             # full_text — ПЕРВОИСТОЧНИК; summary оставляем рядом как быстрый ориентир
+             "full_text": d.full_text}
+            for d in doc_rows]
     forecast = [{"scenario": f.scenario, "indicator": f.indicator, "year": f.year, "value": f.value}
                 for f in db.query(MacroForecast).order_by(MacroForecast.as_of.desc()).limit(40).all()]
     return {"key_facts": _key_facts(indicators),
@@ -276,10 +290,22 @@ def _platform_tickers(db: Session) -> list[str]:
 # про отдельные бумаги, для макрокартины шум.
 _MACRO_THEMES = ("key_rate", "inflation", "budget_fiscal", "oil_prices", "ruble_fx",
                  "refinery_strikes", "global_macro", "labor_demography", "regulation",
-                 "bonds_credit", "commodities", "nationalization")
+                 "bonds_credit", "commodities", "nationalization", "taxes",
+                 "trade_logistics", "sanctions")
+
+# 🔴 Лимиты подняты 2026-08-01 (владелец: «токены дешёвые, не паримся»). Окно модели
+# 1 048 576 токенов, использовали 7% — экономить было не на чем.
+_DOCS_LIMIT = 20          # записок ЦБ/ЦМАКП, теперь с полными текстами (было 12 выжимок)
+_CHRONICLE_LIMIT = 80     # записей летописи (было 30)
+
+# Источники-ШУМ: поток заголовков без аналитической ценности. Владелец прямо:
+# «все новости с MarketTwits нет смысла». Ценность несут разборы (ЦБ, ЦМАКП, Economist,
+# Carnegie, Re:Russia, отраслевые материалы, аналитические телеграм-каналы), а не лента
+# однострочных сообщений — она бы просто вытеснила их из выборки объёмом.
+_NOISE_SOURCES = {"markettwits", "market twits", "marketwits"}
 
 
-def _context(db: Session, limit: int = 30) -> dict:
+def _context(db: Session, limit: int | None = None) -> dict:
     """Живой контекст, в котором блок рассуждает: летопись + барометры.
 
     🔴 До 2026-08-01 модель видела только цифры и 12 записок ЦБ/ЦМАКП — то есть
@@ -294,25 +320,43 @@ def _context(db: Session, limit: int = 30) -> dict:
     out: dict = {}
     try:
         from app.models.chronicle import ChronicleEntry
+        limit = limit or _CHRONICLE_LIMIT
         rows = (db.query(ChronicleEntry)
                 .filter(ChronicleEntry.themes.isnot(None))
                 .order_by(ChronicleEntry.published_at.desc(), ChronicleEntry.id.desc())
-                .limit(400).all())
-        picked = []
+                .limit(1200).all())
+        selected = []
         for r in rows:
             if not set(r.themes or []) & set(_MACRO_THEMES):
                 continue
+            # Отсеиваем поток заголовков без аналитики (владелец: «все новости с
+            # MarketTwits нет смысла») — иначе объёмом вытеснит содержательные разборы.
+            src = f"{r.source_key or ''} {r.source_url or ''}".lower()
+            if any(n in src for n in _NOISE_SOURCES):
+                continue
+            selected.append(r)
+            if len(selected) >= limit:
+                break
+        # Первоисточники целиком — для содержательных материалов (разборы, статьи,
+        # отраслевые обзоры). Для коротких новостных записей текста и так достаточно.
+        try:
+            from app.services.article_texts import ensure_full_texts
+            deep = [r for r in selected if r.kind in ("article", "report")]
+            ensure_full_texts(db, deep, limit=15)
+        except Exception:  # noqa: BLE001
+            logger.warning("Интерпретатор: дозагрузка текстов летописи не отработала", exc_info=True)
+        picked = []
+        for r in selected:
             picked.append({
                 "date": (r.event_date or (r.published_at.date() if r.published_at else None)).isoformat()
                         if (r.event_date or r.published_at) else None,
                 "kind": r.kind, "title": r.title,
-                "summary": (r.summary or "")[:400],
-                "why_it_mattered": (r.interpretation or "")[:300] or None,
+                "summary": r.summary,
+                "why_it_mattered": r.interpretation or None,
                 "themes": r.themes, "sectors": r.sectors, "tickers": r.tickers,
                 "source_url": r.source_url,
+                "full_text": getattr(r, "full_text", None),
             })
-            if len(picked) >= limit:
-                break
         if picked:
             out["chronicle"] = picked
     except Exception:  # noqa: BLE001

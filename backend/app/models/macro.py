@@ -100,6 +100,10 @@ class MacroAnalyticsDoc(Base):
     published_at: Mapped[date_type | None] = mapped_column(Date)
     source_url: Mapped[str] = mapped_column(String(1000), nullable=False)
     interpretation: Mapped[str | None] = mapped_column(Text)  # F: на что влияет (Pro reasoning)
+    # Полный текст первоисточника — уходит в промпт интерпретатора целиком (владелец
+    # 2026-08-01: пересказ «местами без сути»). Заполняется лениво, см. article_texts.py.
+    full_text: Mapped[str | None] = mapped_column(Text)
+    full_text_fetched_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     model_used: Mapped[str | None] = mapped_column(String(64))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
