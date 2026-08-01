@@ -101,7 +101,8 @@ _OUTPUT_SPEC = (
     "тег «факт», сверь число с current_value: тег «факт» на числе, которого нет в "
     "данных, — грубейшая ошибка, она разрушает доверие к платформе сильнее, чем "
     "осторожная формулировка.\n"
-    "9. 🔴 ЕДИНСТВЕННЫЙ ИСТОЧНИК ЧИСЕЛ О ТЕКУЩЕМ СОСТОЯНИИ — блок indicators "
+    "9. 🔴 ЕДИНСТВЕННЫЙ ИСТОЧНИК ЧИСЕЛ О ТЕКУЩЕМ СОСТОЯНИИ — блок key_facts (готовые "
+    "выверенные формулировки, СНАЧАЛА смотри туда) и блок indicators "
     "(поле current_value). Числа из analytics (записки ЦБ/ЦМАКП), context.chronicle и "
     "previous_issues бери как СМЫСЛ и аргумент, но НЕ как факт о сегодняшнем уровне: "
     "они могли устареть, относиться к другому периоду ИЛИ К ДРУГОМУ ПОКАЗАТЕЛЮ.\n"
@@ -220,10 +221,51 @@ def gather_snapshot(db: Session) -> dict:
             for d in db.query(MacroAnalyticsDoc).order_by(MacroAnalyticsDoc.created_at.desc()).limit(12).all()]
     forecast = [{"scenario": f.scenario, "indicator": f.indicator, "year": f.year, "value": f.value}
                 for f in db.query(MacroForecast).order_by(MacroForecast.as_of.desc()).limit(40).all()]
-    return {"indicators": indicators, "rate": rate, "analytics": docs,
+    return {"key_facts": _key_facts(indicators),
+            "indicators": indicators, "rate": rate, "analytics": docs,
             "cb_forecast": forecast, "sectors": _sectors_list(),
             "previous_issues": _previous_issues(db),
             "context": {**_context(db), "platform_tickers": _platform_tickers(db)}}
+
+
+# Показатели, по которым модель чаще всего ошибается или которые несёт в headline.
+# (код, метрика) → человеческая формулировка, однозначно отделяющая похожие величины.
+_KEY_FACT_SPECS = (
+    ("key_rate", "level", "Ключевая ставка ЦБ"),
+    ("inflation", "yoy", "Инфляция год к году"),
+    ("inflation_expectations", "level",
+     "Инфляционные ОЖИДАНИЯ населения на год вперёд (инФОМ). "
+     "НЕ путать с «наблюдаемой инфляцией» из записок — это другая величина"),
+    ("usdrub", "level", "Курс USD/RUB"),
+    ("urals", "level", "Нефть Urals"),
+    ("gdp", "yoy", "ВВП год к году"),
+)
+
+
+def _key_facts(indicators: list[dict]) -> dict:
+    """Готовые формулировки по самым важным показателям — первыми в снапшоте.
+
+    🔴 Три прогона подряд (2026-08-01) модель писала «инфляционные ожидания 14,7%»,
+    хотя фактически 12,2%: 14,7% — это «наблюдаемая инфляция» из текста записки ЦБ,
+    другая величина того же опроса. Запреты в промпте не помогли — модель тянулась к
+    первому похожему числу в прозе. Вывод: полагаться на послушание модели нельзя,
+    надо дать данные в форме, где ошибиться труднее, чем сделать правильно. Здесь
+    величина, дата и направление уже собраны в одну строку — её проще процитировать,
+    чем выуживать число из записки.
+    """
+    by_key = {(i.get("code"), i.get("metric")): i for i in indicators}
+    out: dict = {}
+    for code, metric, label in _KEY_FACT_SPECS:
+        ind = by_key.get((code, metric))
+        if not ind or ind.get("current_value") is None:
+            continue
+        unit = ind.get("unit") or ""
+        val = f"{ind['current_value']}{'%' if unit == '%' else (' ' + unit if unit else '')}"
+        parts = [f"{val} (на {ind.get('as_of')})"]
+        if ind.get("direction_vs_previous_point"):
+            parts.append(ind["direction_vs_previous_point"])
+        out[label] = ", ".join(parts)
+    return out
 
 
 def _platform_tickers(db: Session) -> list[str]:
