@@ -105,6 +105,8 @@ def run_round(db: Session, limit: int = 2, *, dry_run: bool = False) -> dict:
     from app.services.macro_gap_agent import run_gap_round
 
     started = datetime.now(timezone.utc)
+    from app.services.macro_data_questions import record_attempt
+
     findings = run_gap_round(db, limit=limit)
     processed = []
     for f in findings:
@@ -112,6 +114,9 @@ def run_round(db: Session, limit: int = 2, *, dry_run: bool = False) -> dict:
         if not f.get("accepted"):
             processed.append({"code": f.get("code"), "status": "no_finding",
                               "reason": f.get("gate_notes") or f.get("stopped_reason")})
+            # Отказ засчитываем: три подряд — и вопрос отступает на две недели, иначе
+            # неподдающиеся дыры съедают маленький лимит раунда каждую ночь.
+            record_attempt(db, f.get("code"), success=False)
             continue
         for item in res.get("values") or []:
             try:
@@ -121,6 +126,14 @@ def run_round(db: Session, limit: int = 2, *, dry_run: bool = False) -> dict:
                 db.rollback()
                 logger.exception("gap_pipeline: обработка находки упала")
                 processed.append({"code": f.get("code"), "status": "error", "reason": str(e)[:200]})
+    for f in findings:
+        if not f.get("accepted"):
+            continue
+        # Успехом считаем только реальную запись: «нашёл, но чекер не подтвердил» —
+        # это тот же тупик, и повторять его каждую ночь смысла нет.
+        wrote = any(p.get("code") == f.get("code") and p.get("status") == "written"
+                    for p in processed)
+        record_attempt(db, f.get("code"), success=wrote)
     return {"started_at": started.isoformat(), "questions": len(findings),
             "results": processed,
             "written": sum(1 for p in processed if p.get("status") == "written")}

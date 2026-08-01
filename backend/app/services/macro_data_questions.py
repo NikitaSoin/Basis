@@ -20,8 +20,9 @@ from __future__ import annotations
 
 import logging
 import statistics
-from datetime import date
+from datetime import date, datetime, timezone
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
@@ -58,8 +59,58 @@ def collect_questions(db: Session, limit: int = 8) -> list[dict]:
     questions: list[dict] = []
     questions += _stale_series(db)
     questions += _failed_quality_checks(db)
+    questions = _apply_backoff(db, questions)
     questions.sort(key=lambda q: (q["priority"], -q.get("age_days", 0)))
     return questions[:limit]
+
+
+# Сколько раундов подряд вопрос может не давать результата, прежде чем отступит,
+# и на сколько дней он тогда уходит из очереди.
+_MAX_FAILS, _BACKOFF_DAYS = 3, 14
+
+
+def _apply_backoff(db: Session, questions: list[dict]) -> list[dict]:
+    """Убрать из очереди вопросы, которые раз за разом не закрываются.
+
+    🔴 Иначе очередь встаёт колом. Часть дыр не закрывается в принципе: Росстат режет
+    машинный доступ, китайские ряды — за платным терминалом. Без отступа агент каждую
+    ночь тратит прогоны на те же три нерешаемых вопроса, а решаемые до него не доходят:
+    лимит раунда маленький намеренно (2 вопроса), и «вечные» съедают его целиком.
+
+    Отступ ВРЕМЕННЫЙ, не отказ: через две недели вопрос вернётся — источник мог
+    открыться, ряд мог возобновиться.
+    """
+    try:
+        rows = db.execute(text(
+            "SELECT code, fails, last_try FROM macro_question_attempts")).all()
+    except Exception:  # noqa: BLE001
+        db.rollback()
+        return questions        # таблицы ещё нет — работаем как раньше
+    now = datetime.now(timezone.utc)
+    muted = set()
+    for code, fails, last_try in rows:
+        if (fails or 0) < _MAX_FAILS or not last_try:
+            continue
+        if (now - last_try).days < _BACKOFF_DAYS:
+            muted.add(code)
+    if muted:
+        logger.info("data_questions: отложены как неподдающиеся: %s", sorted(muted))
+    return [q for q in questions if q["code"] not in muted]
+
+
+def record_attempt(db: Session, code: str, *, success: bool) -> None:
+    """Отметить исход попытки закрыть вопрос. Успех обнуляет счётчик отказов."""
+    try:
+        db.execute(text(
+            "INSERT INTO macro_question_attempts (code, fails, last_try) "
+            "VALUES (:c, :f, :t) ON CONFLICT (code) DO UPDATE SET "
+            "fails = CASE WHEN :f = 0 THEN 0 ELSE macro_question_attempts.fails + 1 END, "
+            "last_try = :t"),
+            {"c": code, "f": 0 if success else 1, "t": datetime.now(timezone.utc)})
+        db.commit()
+    except Exception:  # noqa: BLE001
+        db.rollback()
+        logger.warning("data_questions: попытка не записана (%s)", code, exc_info=True)
 
 
 def _stale_series(db: Session) -> list[dict]:

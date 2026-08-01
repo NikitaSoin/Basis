@@ -258,3 +258,35 @@ class TestEventAgent:
 
         assert "step_max_tokens" in inspect.signature(agent_runner.run_agent).parameters
         assert "step_max_tokens" in inspect.getsource(macro_event_agent.research_event)
+
+
+class TestQuestionBackoff:
+    """Неподдающийся вопрос обязан отступать, иначе очередь встаёт колом.
+
+    Часть дыр не закрывается в принципе (Росстат режет машинный доступ, китайские ряды
+    за платным терминалом). Лимит раунда — 2 вопроса; без отступа «вечные» съедают его
+    каждую ночь, и решаемые дыры до агента не доходят.
+    """
+
+    def test_repeated_failures_mute_the_question(self, db):
+        from app.services import macro_ingest as mi
+        from app.services.macro_data_questions import _MAX_FAILS, _apply_backoff, record_attempt
+
+        mi.seed_indicators(db)
+        db.commit()
+        qs = [{"code": "pmi_composite", "priority": 2, "kind": "stale_series"}]
+        assert _apply_backoff(db, qs) == qs
+
+        for _ in range(_MAX_FAILS):
+            record_attempt(db, "pmi_composite", success=False)
+        assert _apply_backoff(db, qs) == [], "вопрос обязан уйти из очереди"
+
+    def test_success_clears_the_counter(self, db):
+        from app.services.macro_data_questions import _MAX_FAILS, _apply_backoff, record_attempt
+
+        qs = [{"code": "real_wage", "priority": 2, "kind": "stale_series"}]
+        for _ in range(_MAX_FAILS):
+            record_attempt(db, "real_wage", success=False)
+        assert _apply_backoff(db, qs) == []
+        record_attempt(db, "real_wage", success=True)   # источник открылся
+        assert _apply_backoff(db, qs) == qs

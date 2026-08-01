@@ -191,3 +191,19 @@ class MacroVerification(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
+
+
+class MacroQuestionAttempt(Base):
+    """Исходы попыток закрыть вопрос к данным — чтобы неподдающиеся отступали.
+
+    🔴 Зачем: часть дыр не закрывается в принципе (Росстат режет машинный доступ,
+    китайские ряды за платным терминалом). Лимит раунда маленький намеренно — два
+    вопроса за ночь; без отступа «вечные» съедали бы его целиком, и решаемые дыры до
+    агента не доходили. Отступ ВРЕМЕННЫЙ: через две недели вопрос вернётся — источник
+    мог открыться, ряд мог возобновиться.
+    """
+    __tablename__ = "macro_question_attempts"
+
+    code: Mapped[str] = mapped_column(String(64), primary_key=True)
+    fails: Mapped[int] = mapped_column(default=0, nullable=False)
+    last_try: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
