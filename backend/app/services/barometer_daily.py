@@ -270,7 +270,25 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
         if k not in fresh and k in prev:
             fresh[k] = prev[k]
 
+    # То же ВНУТРИ каждого очага. Найдено на боевом прогоне 2026-08-02: один и тот
+    # же промпт то возвращает regions.<очаг>.barometer/scenarios, то молча их
+    # опускает — при суточной пересборке очаг случайным образом терял бы свой балл
+    # и лестницу сценариев, и витрина откатывалась бы на общий рыночный показатель.
+    # Переносим вчерашнее значение вместо потери (данные не выдумываются: это ровно
+    # то, что уже было опубликовано вчера).
+    carried: list[str] = []
+    prev_regions = prev.get("regions") or {}
+    for rkey, r in (fresh.get("regions") or {}).items():
+        if not isinstance(r, dict):
+            continue
+        prev_r = prev_regions.get(rkey) or {}
+        for field in ("barometer", "scenarios", "sector_flags"):
+            if not r.get(field) and prev_r.get(field):
+                r[field] = prev_r[field]
+                carried.append(f"{rkey}.{field}: не вернулось — перенесено со вчера")
+
     fresh, notes = _gate(fresh, prev)
+    notes = carried + notes
     fresh = _sanitize_sources(fresh)
 
     ok, why = compliance_ok(fresh)
