@@ -37,14 +37,26 @@ const BUILD = path.join(__dirname, "..", "build");
 const ENDPOINT = "https://yandex.com/indexnow";
 const CHUNK = 5000;          // протокол разрешает 10 000; берём с запасом
 
-function urlsFromSitemaps() {
+// 🔴 Адреса берём с ЖИВОГО САЙТА, а не из локальной сборки. Локальная папка build/ —
+// ненадёжный источник: параллельные сессии работают в той же рабочей копии, и голый
+// craco build ужимает её до 31 файла, подменяя sitemap.xml заготовкой из public/ с
+// ОДНИМ адресом. Именно так первая отправка ушла в Яндекс с одним адресом вместо 4692 —
+// формально успешно, фактически впустую. Живая карта отражает то, что реально
+// опубликовано, и от состояния рабочей папки не зависит.
+async function urlsFromSitemaps() {
   const maps = ["sitemap.xml", "sitemap-instruments.xml", "sitemap-indicators.xml"];
   const out = [];
   for (const m of maps) {
-    const p = path.join(BUILD, m);
-    if (!fs.existsSync(p)) continue;
-    const xml = fs.readFileSync(p, "utf8");
-    for (const m2 of xml.matchAll(/<loc>([^<]+)<\/loc>/g)) out.push(m2[1]);
+    try {
+      const r = await fetch(`${SITE}/${m}`);
+      if (!r.ok) { console.log(`  ${m}: HTTP ${r.status}, пропускаю`); continue; }
+      const xml = await r.text();
+      const found = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((x) => x[1]);
+      console.log(`  ${m}: ${found.length} адресов`);
+      out.push(...found);
+    } catch (e) {
+      console.log(`  ${m}: не скачался (${e.message})`);
+    }
   }
   return [...new Set(out)];
 }
@@ -70,10 +82,18 @@ async function main() {
 
   let urls = fileIdx >= 0
     ? fs.readFileSync(args[fileIdx + 1], "utf8").split("\n").map((s) => s.trim()).filter((s) => s.startsWith("http"))
-    : urlsFromSitemaps();
+    : await urlsFromSitemaps();
   if (limIdx >= 0) urls = urls.slice(0, Number(args[limIdx + 1]) || 100);
 
-  if (!urls.length) { console.log("Адресов нет — карты сайта не собраны?"); return; }
+  if (!urls.length) { console.log("Адресов нет — карты сайта недоступны?"); return; }
+  // Подозрительно короткий список почти всегда означает подменённую карту, а не то, что
+  // сайт вдруг усох. Лучше остановиться и разобраться, чем отправить пустышку и считать
+  // задачу выполненной.
+  if (fileIdx < 0 && limIdx < 0 && urls.length < 100) {
+    console.log(`⚠️  В картах всего ${urls.length} адресов — это не похоже на правду.`);
+    console.log("    Отправка отменена. Проверьте https://inbasis.ru/sitemap.xml");
+    return;
+  }
   console.log(`Адресов к отправке: ${urls.length}`);
 
   // Проверяем ключ ДО отправки: без доступного файла поисковик отвергнет весь запрос,
