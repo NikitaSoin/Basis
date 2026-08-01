@@ -6003,3 +6003,38 @@ details[open] > summary .obs-inst-chev,
   border: 1px solid var(--accent, #C97A4A); font-size: 13px; font-weight: 600;
 }
 .obs-rebuild-btn:disabled { opacity: .55; cursor: default; }
+
+/* =============================================================
+   InfoTip (design/InfoTip.jsx) — кружок «i» с пояснением по клику.
+   Владелец (2026-08-02): длинные методические оговорки под графиками
+   Геополитики убраны из потока чтения в такую подсказку.
+   Классы bs-* (не obs-*) намеренно: компонент общий, живёт в design/ и
+   может использоваться вне Обозревателя. Токены берём глобальные
+   (cc-, text-, accent), а не локальные алиасы раздела, иначе в другом
+   разделе кнопка окажется без цвета.
+   NB: не писать в комментарии звёздочку со слэшем подряд — она закрывает
+   комментарий раньше времени и роняет сборку (уже наступали).
+   ============================================================= */
+.bs-infotip { display: inline-flex; align-items: center; }
+.bs-infotip-btn {
+  width: 15px; height: 15px; border-radius: 50%;
+  border: 1px solid var(--border-strong, #ccc);
+  background: var(--bg-base); color: var(--text-tertiary);
+  font: 600 10px/1 var(--cc-mono, "IBM Plex Mono", monospace);
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0; cursor: pointer; flex: none;
+  text-transform: none; letter-spacing: 0;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.bs-infotip-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.bs-infotip-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.bs-infotip-pop {
+  z-index: 200;
+  background: var(--bg-elevated); border: 1px solid var(--border-strong);
+  border-radius: 10px; box-shadow: var(--shadow-lg, 0 14px 40px rgba(0,0,0,.22));
+  padding: 12px 14px;
+  font: 400 12.5px/1.5 var(--cc-sans, "Inter", system-ui, sans-serif);
+  color: var(--text-secondary);
+  text-transform: none; letter-spacing: 0; white-space: normal; cursor: auto;
+  max-height: 60vh; overflow-y: auto;
+}
