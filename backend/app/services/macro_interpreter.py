@@ -570,20 +570,23 @@ def generate(db: Session) -> MacroInterpretation:
     # самоописательные имена полей, ни два прямых запрета в промпте, ни блок key_facts
     # с готовыми формулировками первым в снапшоте. Вывод: уговорами класс ошибки не
     # лечится, нужна проверка кодом — тот же принцип, что в «ОТК данных» Макрообзора.
-    # Код-проверка чисел — пока в режиме НАБЛЮДЕНИЯ (только лог), без авто-повтора.
-    # История: 2026-08-01 я принял за ошибку модели верное значение (ожидания 14,7%),
-    # потому что сверял с ЛОКАЛЬНОЙ базой, где лежала испорченная точка 12,2% — тот
-    # самый дефект XLSX-LLM-пути, который владелец уже дважды ловил (см. macro_cb_sync,
-    # first-write-wins). Правило простое: пока проверка даёт ложные срабатывания,
-    # она НЕ должна ни тратить повторный платный вызов, ни клеить предупреждения в
-    # публикуемый срез — только сигналить в лог, чтобы её можно было доотладить на
-    # реальном потоке.
+    # 🔴 АВТОГЕЙТ ВЫПУСКА (2026-08-02). Проверяет КОД, не LLM — тот же принцип, что в
+    # «ОТК данных». Раньше проверка жила только у пилотного агента по одной компании, а
+    # самый дорогой по доверию артефакт платформы выходил без неё.
+    # Гейт НЕ роняет блок: reject только на грубых структурных дефектах (тогда на
+    # витрине остаётся предыдущий срез — это честнее пустого экрана), всё остальное
+    # публикуется с записанными заметками.
+    verdict, gate_notes = "ok", []
     try:
-        violations = _check_numbers(sections, snapshot)
-        if violations:
-            logger.warning("Интерпретатор: возможное расхождение чисел (наблюдение): %s", violations)
+        from app.services.macro_release_gate import check_release
+        verdict, gate_notes = check_release(sections, snapshot)
+        if gate_notes:
+            logger.warning("Интерпретатор: гейт (%s): %s", verdict, gate_notes[:10])
     except Exception:  # noqa: BLE001
-        logger.warning("Интерпретатор: проверка чисел не отработала", exc_info=True)
+        logger.warning("Интерпретатор: гейт не отработал", exc_info=True)
+    if verdict == "reject":
+        raise llm.LLMError(f"Выпуск отклонён гейтом: {gate_notes[:5]}")
+
     row = MacroInterpretation(
         sections=sections, generated_at=datetime.now(timezone.utc),
         model_used=f"{llm.provider_info().get('provider')}:{model}",
@@ -594,6 +597,7 @@ def generate(db: Session) -> MacroInterpretation:
                          # «фикс не сработал» от «фикс ещё не доехал на бой» —
                          # ровно на это ушло 4 лишних прогона 2026-08-01.
                          "has_key_facts": bool(snapshot.get("key_facts")),
+                         "gate": verdict, "gate_notes": gate_notes[:12] or None,
                          "chronicle": len((snapshot.get("context") or {}).get("chronicle") or []),
                          "prev_issues": len(snapshot.get("previous_issues") or [])})
     db.add(row)
