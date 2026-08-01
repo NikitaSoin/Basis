@@ -1983,3 +1983,80 @@ def debug_trigger_index_backfill(tickers: str = Query(..., description="чере
         return out
     finally:
         db.close()
+
+
+@router.get("/debug/users-stats")
+def users_stats():
+    """Сводка по регистрациям на платформе — сколько людей завело аккаунт и что делают.
+
+    ЗАЧЕМ: владелец 2026-08-01 спросил, как смотреть количество зарегистрированных.
+    Раньше это можно было узнать ТОЛЬКО прямым запросом в базу — то есть практически
+    никак без разработчика. Аналитика посещений (Метрика) на этот вопрос не отвечает:
+    она считает визиты, а не аккаунты, и не знает, что человек сделал внутри.
+
+    🔴 БЕЗ ПЕРСОНАЛЬНЫХ ДАННЫХ. Отдаются только агрегаты: почты, имена и любые поля,
+    по которым можно опознать человека, сюда НЕ ПОПАДАЮТ. Эндпоинт живёт под /api/debug/,
+    который закрывается заголовком X-Debug-Token — если DEBUG_API_TOKEN не задан в
+    окружении, ручка открыта всем, а число клиентов — сведения не для публики.
+    """
+    from datetime import datetime, timedelta, timezone
+    from sqlalchemy import text
+    from app.db.session import SessionLocal
+
+    db = SessionLocal()
+    try:
+        now = datetime.now(timezone.utc)
+
+        def scalar(sql: str, **params):
+            try:
+                return int(db.execute(text(sql), params).scalar() or 0)
+            except Exception:  # noqa: BLE001 — таблицы может не быть на старой БД
+                db.rollback()
+                return None
+
+        since = lambda d: (now - timedelta(days=d)).isoformat()  # noqa: E731
+
+        total = scalar("SELECT count(*) FROM users")
+        stats = {
+            "всего_зарегистрировано": total,
+            "активных": scalar("SELECT count(*) FROM users WHERE is_active"),
+            "по_тарифу": {},
+            "новых_за": {
+                "сутки": scalar("SELECT count(*) FROM users WHERE created_at >= :d", d=since(1)),
+                "неделю": scalar("SELECT count(*) FROM users WHERE created_at >= :d", d=since(7)),
+                "месяц": scalar("SELECT count(*) FROM users WHERE created_at >= :d", d=since(30)),
+            },
+            # Регистрация без единого действия — это не клиент, а строка в таблице.
+            # Портфель и сохранённый фильтр показывают, что человек реально пользовался.
+            "дошли_до_действия": {
+                "создали_портфель": scalar(
+                    "SELECT count(DISTINCT user_id) FROM portfolios WHERE user_id IS NOT NULL"),
+                "сохранили_фильтр_скрининга": scalar(
+                    "SELECT count(DISTINCT user_id) FROM screener_saved_filters WHERE user_id IS NOT NULL"),
+            },
+            "портфелей_всего": scalar("SELECT count(*) FROM portfolios"),
+            "позиций_в_портфелях": scalar("SELECT count(*) FROM portfolio_positions"),
+            "на_момент_запроса": now.isoformat(timespec="seconds"),
+        }
+
+        try:
+            rows = db.execute(text(
+                "SELECT subscription_type, count(*) FROM users GROUP BY subscription_type"
+            )).all()
+            stats["по_тарифу"] = {str(r[0]): int(r[1]) for r in rows}
+        except Exception:  # noqa: BLE001
+            db.rollback()
+
+        # Регистрации по дням за последний месяц — видно, есть ли приток вообще.
+        try:
+            rows = db.execute(text(
+                "SELECT date(created_at) AS d, count(*) FROM users "
+                "WHERE created_at >= :since GROUP BY d ORDER BY d DESC"
+            ), {"since": since(30)}).all()
+            stats["регистрации_по_дням"] = {str(r[0]): int(r[1]) for r in rows}
+        except Exception:  # noqa: BLE001
+            db.rollback()
+
+        return stats
+    finally:
+        db.close()
