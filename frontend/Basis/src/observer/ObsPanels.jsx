@@ -3291,6 +3291,12 @@ function unionGeoBounds(boundsList) {
 // (см. ObsGeoTheaters — один параллельный фетч на всех трёх потребителей,
 // не дублируем запрос).
 // =========================
+// 🔴 СЕЙЧАС НЕ ИСПОЛЬЗУЕТСЯ (владелец 2026-08-02: «"СВО — контроль территории,
+// повестка" уберём вообще, не вижу в этом ценности»). Оставлен, а не удалён:
+// внутри — разбор base_map.control_legend, «заявлено, но не подтверждено ISW»,
+// data_flags и территориальная сводка; если решим вернуть часть этого отдельным
+// блоком, переписывать не придётся. Не пригодится за пару месяцев — удалить
+// вместе с CSS obs-geomap-brief/-territorial-*/-claimed-*/-prose.
 function ObsGeoTheaterBrief({ theater, data }) {
   const { label, icon: Icon, direction, directionColor } = theater;
   const hasControlLegend = Object.keys(data?.base_map?.control_legend || GEOMAP_EMPTY_OBJ).length > 0;
@@ -4106,7 +4112,11 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
           очагов означали бы РАЗНОЕ (Россия-как-территория в СВО vs «ось Ирана»
           в БВ vs «ось Китая» в АТР) без подписи рядом. */}
       <div className="obs-geomap-legend">
-        {theaters.map((t) => {
+        {/* Легенда — только по ВЫБРАННОМУ очагу (владелец 2026-08-02: «если фильтр
+            СВО — оставить только то, что про СВО»). Раньше висели все три группы
+            сразу: под картой СВО читатель разбирал «ось Ирана» и «ось Китая».
+            Если очаг не выбран — показываем все, как раньше. */}
+        {(activeTheater ? theaters.filter((t) => t.key === activeTheater) : theaters).map((t) => {
           const st = theaterStates[t.key];
           if (!st?.hasControlLegend) return null;
           return (
@@ -4156,7 +4166,12 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
           СВО, если пользователь в этот момент смотрит на другой очаг/весь
           мир — иначе движение слайдера было бы невидимым эффектом где-то
           вне кадра. */}
-      {hasIsochrone && (
+      {/* Ползунок и динамика линии фронта — СВО-специфичны. Показываем ТОЛЬКО
+          когда выбран СВО (или очаг не выбран): при активном Ближнем Востоке/АТР
+          график наступления в зоне СВО — ровно та «чужая зона», на которую
+          жаловался владелец (2026-08-02). Слои карты при этом не трогаем:
+          hasIsochrone продолжает управлять отрисовкой исторической заливки. */}
+      {hasIsochrone && (!activeTheater || activeTheater === svoKey) && (
         <div className="obs-geomap-timeslider">
           <div className="obs-geomap-timeslider-banner">
             <History size={14} aria-hidden="true" />
@@ -4292,16 +4307,13 @@ function ObsGeoTheaters({ regions, token, activeTheater = null }) {
   return (
     <>
       <ObsGeoWorldMap theaters={loadedRegions} dataByTheater={dataByTheater} activeTheater={activeTheater} />
-      {/* Карточка-бриф — ТОЛЬКО по выбранному очагу (владелец 2026-08-02:
-          «Ближний Восток в Ближнем Востоке, АТР в АТР — что они там делают?»).
-          Раньше рендерились все три сразу, и под картой СВО висели ещё две
-          чужие карточки. Карта выше остаётся общей: на ней все очаги показаны
-          как точки, и это осознанно — по ней видно, где вообще что происходит,
-          камера при этом наведена на выбранный очаг (activeTheater).
-          Если очаг не выбран (activeTheater=null) — показываем все, как раньше. */}
-      {(activeTheater ? loadedRegions.filter((r) => r.key === activeTheater) : loadedRegions).map((r) => (
-        <ObsGeoTheaterBrief key={r.key} theater={r} data={dataByTheater[r.key]} />
-      ))}
+      {/* Карточка-бриф «<очаг> — контроль территории, повестка» УБРАНА целиком
+          (владелец 2026-08-02: «не вижу в этом ценности»). Что в ней было и где
+          это теперь: сводная цифра км²/мес и темп — в динамике под картой;
+          обстановка и повестка — в ленте «Обзора» и в сценариях очага
+          («Оценка ситуации»); контроль территории — на самой карте с легендой.
+          Компонент ObsGeoTheaterBrief остаётся в файле неиспользуемым — см.
+          пометку у его определения. */}
     </>
   );
 }
@@ -4469,7 +4481,7 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
       {mode === "assessment" && (
         <div className="obs-baro-note">
           <Info size={14} />
-          <span>Ниже — оценка <b>только по выбранному очагу</b>: его сценарии, направление и секторные последствия. Барометр рынка в целом (13 показателей) показан компактно как фон.</span>
+          <span>Ниже — всё <b>только по выбранному очагу</b>: его балл остроты, сценарии, направление и секторные последствия. Сквозные показатели рынка (G1–G13) — в свёрнутом блоке «Фон рынка в целом» внизу.</span>
         </div>
       )}
 
@@ -4537,7 +4549,15 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                 const ScopeIcon = scopeMeta?.icon || null;
                 const scopeRegionData = scopeKey ? baro.regions?.[scopeKey] : null;
                 const scopeDirColor = scopeRegionData ? obsGeoDirColor(scopeRegionData.direction) : null;
-                const compactTier = baro.barometer?.overall != null ? obsScoreTier(baro.barometer.overall, "higherWorse") : null;
+                // Барометр ОЧАГА (владелец 2026-08-02: «барометр в самом начале для
+                // СВО/Востока/АТР должен считаться отдельно, не общий»). Балл берём
+                // из regions.<очаг>.barometer; если его ещё нет (барометр старой
+                // схемы) — честно показываем общий и подписываем это, а не выдаём
+                // рыночный агрегат за оценку очага.
+                const scopeBaro = scopeRegionData?.barometer || null;
+                const scopeScore = scopeBaro?.overall != null ? scopeBaro.overall : baro.barometer?.overall;
+                const scopeScoreIsOwn = scopeBaro?.overall != null;
+                const compactTier = scopeScore != null ? obsScoreTier(scopeScore, "higherWorse") : null;
 
                 // ── Данные ВЫБРАННОГО ОЧАГА (владелец 2026-08-01: материал одного
                 // очага не должен попадать в другой). Сценарии и секторные флаги
@@ -4570,18 +4590,28 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                     {(
                       <div className="obs-baro-compact">
                         <div className="obs-baro-compact-score" style={{ color: compactTier ? compactTier.color : "var(--text-tertiary)" }}>
-                          {baro.barometer?.overall != null ? Number(baro.barometer.overall).toFixed(1) : "—"}
+                          {scopeScore != null ? Number(scopeScore).toFixed(1) : "—"}
                           <span className="obs-baro-compact-score-max">/5</span>
                         </div>
                         <div className="obs-baro-compact-meta">
-                          <span className="obs-baro-compact-label"><Activity size={11} aria-hidden="true" /> Барометр рынка РФ в целом</span>
+                          <span className="obs-baro-compact-label">
+                            <Activity size={11} aria-hidden="true" />
+                            {scopeScoreIsOwn ? `Барометр очага «${scopeMeta?.label}»` : "Барометр рынка РФ в целом"}
+                          </span>
+                          {scopeScoreIsOwn && scopeBaro?.label && (
+                            <span className="obs-baro-compact-verdict">{scopeBaro.label}</span>
+                          )}
                           {/* baro.barometer.label НЕ показываем: это сводный вердикт по
                               всем очагам сразу («…мирный трек буксует, ближневосточное
                               перемирие рушится») — на витрине одного очага он снова
                               приносит рассказ про соседний (владелец 2026-08-01).
                               Число оставляем: это честный фон рынка, оно не «про СВО». */}
                         </div>
-                        <span className="obs-baro-compact-note">Фон рынка в целом{baro.as_of ? ` · срез на ${baro.as_of}` : ""} — ниже детализация по очагу «{scopeMeta?.label}»</span>
+                        <span className="obs-baro-compact-note">
+                          {scopeScoreIsOwn
+                            ? `Острота по этому очагу${baro.as_of ? ` · срез на ${baro.as_of}` : ""} · 5 = максимальный риск`
+                            : `Своего балла у очага пока нет — показан общий фон рынка${baro.as_of ? ` · срез на ${baro.as_of}` : ""}`}
+                        </span>
                       </div>
                     )}
 
