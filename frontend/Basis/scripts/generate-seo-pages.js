@@ -1154,7 +1154,7 @@ function hubPage(c, tabsWritten, sectorPeers, assets) {
       `<a class="chip" href="/company/${c.ticker}/${t.slug}/">${escapeHtml(t.label)}</a>`).join("")}</div>`);
   }
 
-  parts.push(`<a class="cta" href="/?company=${c.ticker}">Открыть полный разбор ${escapeHtml(c.short)} в Basis →</a>`);
+  parts.push(`<a class="cta" href="/company/${c.ticker}/">Открыть полный разбор ${escapeHtml(c.short)} в Basis →</a>`);
 
   if (sectorPeers.length) {
     parts.push(`<h2>Похожие компании — ${escapeHtml(c.sector)}</h2><div class="grid">${sectorPeers.map((p) =>
@@ -1185,7 +1185,7 @@ function tabPage(c, spec, contentHtml, tabsWritten, assets) {
 <p class="tag">${escapeHtml(c.sectorFull || c.sector)} · MOEX: ${c.ticker}</p>
 <h1>${escapeHtml(spec.label)}: ${escapeHtml(c.short)} <span style="color:var(--faint)">(${c.ticker})</span></h1>
 ${contentHtml}
-<a class="cta" href="/?company=${c.ticker}&amp;tab=${spec.appTab}">Продолжить в приложении: ${escapeHtml(spec.label.toLowerCase())} ${escapeHtml(c.short)} →</a>
+<a class="cta" href="/company/${c.ticker}/${spec.slug}/">Продолжить в приложении: ${escapeHtml(spec.label.toLowerCase())} ${escapeHtml(c.short)} →</a>
 ${othersHtml}`;
   return pageShell({
     title: spec.title(c),
@@ -2337,7 +2337,7 @@ ${sectorHtml}
 <a href="/company/${c.ticker}/finance/">полный разбор отчётности</a>.
 Что за бизнес стоит за этими цифрами — в
 <a href="/company/${c.ticker}/business/">разборе бизнес-модели</a>.</p>
-<a class="cta" href="/?company=${c.ticker}">Открыть разбор ${escapeHtml(c.short)} в Basis →</a>`;
+<a class="cta" href="/company/${c.ticker}/">Открыть разбор ${escapeHtml(c.short)} в Basis →</a>`;
 
   return pageShell({
     title, desc, canonicalPath: `/company/${c.ticker}/spravedlivaya-tsena/`,
@@ -2438,7 +2438,7 @@ ${sectorContext(c, spec, last.value, sectorAll || [], fmt)}
 <div class="grid">${others.map((m) =>
     `<a class="chip" href="/company/${c.ticker}/${m.slug}/">${escapeHtml(m.bankLabel && isBank ? m.bankLabel : m.label)}</a>`).join("")}
 <a class="chip" href="/company/${c.ticker}/">Полный разбор ${escapeHtml(c.ticker)}</a></div>
-<a class="cta" href="/?company=${c.ticker}&tab=finance">Открыть финансы ${escapeHtml(c.short)} в Basis →</a>`;
+<a class="cta" href="/company/${c.ticker}/finance/">Открыть финансы ${escapeHtml(c.short)} в Basis →</a>`;
 
   return pageShell({
     title, desc, canonicalPath: `/company/${c.ticker}/${spec.slug}/`,
@@ -2481,7 +2481,12 @@ function landingPage(l, assets) {
 <p class="sub">${escapeHtml(l.lead)}</p>
 ${l.body}
 ${faqHtml}
-<a class="cta" href="${escapeHtml(l.appHref)}">${escapeHtml(l.appLabel)} →</a>
+<!-- rel="nofollow": CTA ведёт в приложение по адресу с параметрами (/?view=portfolio).
+     Чистого адреса-альтернативы у него нет — сам лендинг им и является. Без nofollow
+     робот заводит адрес с параметрами отдельной страницей: в выгрузке Вебмастера от
+     29.07 такие уже есть (?company=SBER&tab=finance получил статус SEARCHABLE, то есть
+     попал в поиск дублем нашей же карточки). -->
+<a class="cta" rel="nofollow" href="${escapeHtml(l.appHref)}">${escapeHtml(l.appLabel)} →</a>
 ${relatedHtml}`;
   // WebPage теперь описывается в pageShell единообразно для ВСЕХ страниц (с @id и
   // связью с WebSite), поэтому свой дубль лендинга убран — две сущности WebPage на одной

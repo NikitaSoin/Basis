@@ -170,7 +170,7 @@ ${seriesHtml(ind.code, v.unit || ind.unit)}
 ставка через доходность ОФЗ входит в расчёт
 <a href="/spravedlivaya-tsena-aktsiy/">справедливой цены</a> каждой акции, поэтому её
 изменение двигает оценку компаний, а не только заголовки.</p>
-<a class="cta" href="/?view=overview&obs=economy">Открыть экономическую статистику →</a>
+<a class="cta" href="/ekonomicheskaya-statistika-rossii/">Открыть экономическую статистику →</a>
 <h2>Другие показатели</h2>
 <div>${related.map((x) => `<a class="chip" href="/statistika/${slugOf(x.code)}/">${esc(x.title)}</a>`).join("")}</div>`;
   return shell({
@@ -210,7 +210,7 @@ function indexPage(ix, assets, all) {
 Поэтому рядом с индексом полезно смотреть ширину рынка и
 <a href="/karta-rynka-aktsiy/">карту рынка</a> — там видно, какая часть бумаг реально
 росла.</p>
-<a class="cta" href="/?view=overview&obs=pulse">Открыть обзор рынка →</a>
+<a class="cta" href="/obzor-rynka/">Открыть обзор рынка →</a>
 ${related.length ? `<h2>Другие индексы</h2><div>${related.map((x) =>
     `<a class="chip" href="/indeks/${String(x.ticker).toLowerCase()}/">${esc(x.name)}</a>`).join("")}</div>` : ""}
 <div><a class="chip" href="/indeks-strakha-i-zhadnosti/">Индекс страха и жадности</a></div>`;
@@ -261,7 +261,7 @@ function sectorPage(sx, assets, all) {
 какие сектора тянут рынок, а какие отстают. Для портфеля это ещё и проверка
 диверсификации: несколько бумаг одного сектора движутся почти как одна позиция — это
 видно в <a href="/analiz-portfelya/">матрице корреляций</a>.</p>
-<a class="cta" href="/?view=overview&obs=pulse">Открыть обзор рынка →</a>
+<a class="cta" href="/obzor-rynka/">Открыть обзор рынка →</a>
 <h2>Другие секторы</h2>
 <div>${others.map((x) => `<a class="chip" href="/indeks/sektor/${sectorSlug(x.ticker)}/">${esc(x.name)}</a>`).join("")}</div>
 <div style="margin-top:10px"><a class="chip" href="/indeks/imoex/">Индекс МосБиржи</a><a class="chip" href="/karta-rynka-aktsiy/">Карта рынка</a></div>`;
@@ -291,7 +291,7 @@ function fearGreedPage(assets) {
 плохого, — но не о том, что падение закончилось. Сильная жадность означает, что хорошие
 ожидания уже в ценах. Поэтому индикатор смотрят вместе с фундаментальной оценкой:
 <a href="/spravedlivaya-tsena-aktsiy/">справедливой ценой бумаги</a>, а не вместо неё.</p>
-<a class="cta" href="/?view=overview&obs=pulse">Посмотреть текущее значение →</a>
+<a class="cta" href="/obzor-rynka/">Посмотреть текущее значение →</a>
 <div><a class="chip" href="/indeks/imoex/">Индекс МосБиржи</a><a class="chip" href="/indeks/rtsi/">Индекс РТС</a><a class="chip" href="/karta-rynka-aktsiy/">Карта рынка</a></div>`;
   return shell({
     title: "Индекс страха и жадности российского рынка — Basis",
