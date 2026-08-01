@@ -21,6 +21,7 @@ import urllib.request
 import urllib.error
 
 from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi.responses import HTMLResponse
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +39,13 @@ async def _debug_guard(request: Request):
 from fastapi import Depends as _Depends  # noqa: E402 — рядом с местом использования
 
 router = APIRouter(dependencies=[_Depends(_debug_guard)])
+
+# 🔴 Отдельный роутер БЕЗ токена — ровно для одной страницы: HTML-консоли SQL. Браузер
+# не умеет слать заголовок X-Debug-Token при открытии адреса, поэтому под общим гардом
+# страница была бы недоступна вообще. Данных на ней НЕТ: это форма, которая сама
+# спрашивает токен и шлёт его в /api/debug/sql, где гард на месте. Без токена не
+# выполнится ни один запрос.
+open_router = APIRouter()
 
 TINKOFF_TOKEN = os.environ.get("TINKOFF_API_TOKEN", "").strip()
 _API = "https://invest-public-api.tinkoff.ru/rest"
@@ -2060,3 +2068,134 @@ def users_stats():
         return stats
     finally:
         db.close()
+
+
+_SQL_FORBIDDEN = (
+    "insert", "update", "delete", "drop", "alter", "create", "truncate",
+    "grant", "revoke", "copy", "vacuum", "reindex", "call", "do ",
+)
+
+
+@router.get("/debug/sql")
+def sql_readonly(q: str = Query(..., description="SQL, только SELECT/WITH"),
+                 limit: int = Query(200, ge=1, le=2000)):
+    """Выполнить запрос НА ЧТЕНИЕ к боевой базе и вернуть строки.
+
+    ЗАЧЕМ: владелец 2026-08-01 спросил, где писать SQL. Боевая база наружу НЕ выведена —
+    в docker-compose у сервиса `db` нет проброса портов, доступен только фронт на 80.
+    Подключить GUI-клиент с ноутбука нельзя, а выводить Postgres в интернет ради
+    аналитики — плохой размен: это постоянная поверхность атаки ради разовых вопросов.
+
+    🔴 ТРИ УРОВНЯ ЗАЩИТЫ, а не один:
+    1. Транзакция объявляется READ ONLY на стороне БД — даже если фильтр ниже обойти,
+       любая запись будет отклонена самим Postgres. Это единственная надёжная гарантия;
+       проверка текста запроса — лишь удобная подсказка, обмануть её можно.
+    2. Разрешены только запросы, начинающиеся с SELECT или WITH; запрещены ключевые
+       слова изменения; запрещена точка с запятой внутри — чтобы нельзя было подклеить
+       второй оператор.
+    3. statement_timeout 15 секунд: тяжёлый запрос не подвесит базу, как это уже
+       случалось с LLM- и FRED-кронами.
+
+    Доступ — под общим X-Debug-Token роутера /api/debug/.
+    """
+    from sqlalchemy import text
+    from app.db.session import SessionLocal
+
+    s = (q or "").strip().rstrip(";").strip()
+    low = s.lower()
+    if not (low.startswith("select") or low.startswith("with")):
+        return {"error": "разрешены только SELECT и WITH"}
+    if ";" in s:
+        return {"error": "точка с запятой запрещена — только один оператор за раз"}
+    for kw in _SQL_FORBIDDEN:
+        if kw in low:
+            return {"error": f"запрещённое слово: {kw.strip()}"}
+
+    db = SessionLocal()
+    try:
+        db.execute(text("SET TRANSACTION READ ONLY"))
+        db.execute(text("SET LOCAL statement_timeout = '15s'"))
+        res = db.execute(text(s))
+        cols = list(res.keys())
+        rows = res.fetchmany(limit)
+        out = []
+        for r in rows:
+            # Значения приводим к JSON-совместимым: Decimal, date, datetime и прочее
+            # иначе валят сериализацию ответа.
+            out.append({c: (v if isinstance(v, (int, float, str, bool, type(None))) else str(v))
+                        for c, v in zip(cols, r)})
+        return {"колонки": cols, "строк": len(out), "строки": out,
+                "усечено": len(out) >= limit}
+    except Exception as e:  # noqa: BLE001
+        db.rollback()
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
+@open_router.get("/debug/sql-console", response_class=HTMLResponse)
+def sql_console():
+    """Простая страница с полем для SQL — чтобы не собирать curl руками.
+
+    Токен вводится один раз и хранится в localStorage браузера; на сервер он уходит
+    заголовком, как и для остальных /api/debug/. Готовые запросы под рукой — потому что
+    самое трудное в аналитике не написать SELECT, а вспомнить, как называются таблицы.
+    """
+    return HTMLResponse("""<!doctype html><html lang="ru"><head><meta charset="utf-8">
+<title>SQL-консоль Basis</title><meta name="robots" content="noindex">
+<style>
+body{font:15px/1.6 -apple-system,Inter,sans-serif;max-width:1000px;margin:0 auto;padding:24px;
+background:#F7F5F0;color:#1F1B16}
+h1{font-size:22px;margin:0 0 4px}p.sub{color:#5A5248;margin:0 0 20px}
+textarea{width:100%;height:110px;font:14px/1.5 ui-monospace,Menlo,monospace;padding:10px;
+border:1px solid #E4DFD5;border-radius:8px;background:#fff}
+input{padding:8px;border:1px solid #E4DFD5;border-radius:8px;font:14px ui-monospace,monospace}
+button{background:#C97A4A;color:#fff;border:0;border-radius:8px;padding:10px 18px;
+font-size:15px;cursor:pointer}button:hover{opacity:.9}
+table{border-collapse:collapse;width:100%;margin-top:16px;font-size:14px;background:#fff}
+th,td{border:1px solid #E4DFD5;padding:6px 9px;text-align:left}th{background:#F0EBE2}
+.err{color:#B4432B;background:#fff;padding:10px;border-radius:8px;border:1px solid #E4DFD5}
+.ex{margin:14px 0}.ex a{display:inline-block;margin:3px 6px 3px 0;padding:5px 10px;
+background:#fff;border:1px solid #E4DFD5;border-radius:14px;color:#C97A4A;text-decoration:none;
+font-size:13px;cursor:pointer}
+.wrap{overflow-x:auto}
+</style></head><body>
+<h1>SQL-консоль Basis</h1>
+<p class="sub">Только чтение: транзакция объявлена READ ONLY на стороне базы, запись
+отклонит сам Postgres. Ограничение — 15 секунд на запрос.</p>
+<p><input id="tok" placeholder="X-Debug-Token" size="46"> <span id="saved"></span></p>
+<textarea id="q">SELECT count(*) AS всего FROM users</textarea>
+<p><button onclick="run()">Выполнить</button></p>
+<div class="ex">Готовые запросы:
+<a onclick="set('SELECT count(*) AS всего, count(*) FILTER (WHERE is_active) AS активных FROM users')">пользователи</a>
+<a onclick="set('SELECT date(created_at) AS день, count(*) FROM users GROUP BY 1 ORDER BY 1 DESC')">регистрации по дням</a>
+<a onclick="set('SELECT subscription_type, count(*) FROM users GROUP BY 1')">по тарифам</a>
+<a onclick="set('SELECT u.id, u.created_at, count(p.id) AS портфелей FROM users u LEFT JOIN portfolios p ON p.user_id = u.id GROUP BY 1,2 ORDER BY 2 DESC')">активность по людям</a>
+<a onclick="set('SELECT ticker, count(*) AS в_портфелях FROM portfolio_positions GROUP BY 1 ORDER BY 2 DESC')">популярные бумаги</a>
+<a onclick="set(&quot;SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY 1&quot;)">список таблиц</a>
+</div>
+<div id="out"></div>
+<script>
+var t=document.getElementById('tok');
+t.value=localStorage.getItem('basisDebugToken')||'';
+t.onchange=function(){localStorage.setItem('basisDebugToken',t.value);
+document.getElementById('saved').textContent='сохранён';};
+function set(s){document.getElementById('q').value=s;}
+function esc(v){return String(v==null?'':v).replace(/[&<>]/g,function(m){
+return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];});}
+function run(){
+  var out=document.getElementById('out'); out.innerHTML='считаю…';
+  fetch('/api/debug/sql?limit=500&q='+encodeURIComponent(document.getElementById('q').value),
+    {headers:{'X-Debug-Token':t.value}})
+   .then(function(r){return r.json();})
+   .then(function(d){
+     if(d.error||d.detail){out.innerHTML='<p class="err">'+esc(d.error||d.detail)+'</p>';return;}
+     if(!d.строки.length){out.innerHTML='<p>Пусто.</p>';return;}
+     var h='<div class="wrap"><table><tr>'+d.колонки.map(function(c){return '<th>'+esc(c)+'</th>';}).join('')+'</tr>';
+     d.строки.forEach(function(row){h+='<tr>'+d.колонки.map(function(c){
+       return '<td>'+esc(row[c])+'</td>';}).join('')+'</tr>';});
+     h+='</table></div><p class="sub">строк: '+d.строк+(d.усечено?' (показаны не все)':'')+'</p>';
+     out.innerHTML=h;
+   }).catch(function(e){out.innerHTML='<p class="err">'+esc(e)+'</p>';});
+}
+</script></body></html>""")

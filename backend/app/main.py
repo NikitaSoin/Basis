@@ -11,7 +11,7 @@ from app.api.auth import router as auth_router
 from app.api.companies import router as companies_router
 from app.api.portfolios import router as portfolios_router
 from app.api.market import router as market_router
-from app.api.debug import router as debug_router
+from app.api.debug import router as debug_router, open_router as debug_open_router
 from app.api.bonds import router as bonds_router
 from app.api.futures import router as futures_router
 from app.api.funds import router as funds_router
@@ -1318,6 +1318,7 @@ app.include_router(companies_router, prefix="/api")
 app.include_router(portfolios_router, prefix="/api")
 app.include_router(market_router, prefix="/api")
 app.include_router(debug_router, prefix="/api")
+app.include_router(debug_open_router, prefix="/api")
 app.include_router(bonds_router, prefix="/api")
 app.include_router(futures_router, prefix="/api")
 app.include_router(funds_router, prefix="/api")
