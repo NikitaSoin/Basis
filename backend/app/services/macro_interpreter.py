@@ -239,8 +239,29 @@ def gather_snapshot(db: Session) -> dict:
             "cb_forecast": forecast, "sectors": _sectors_list(),
             "previous_issues": _previous_issues(db),
             "data_gaps": _data_gaps(db),
+            "event_research": _event_research(db),
             "context": {**_context(db), "platform_tickers": _platform_tickers(db),
                         "company_sensitivity": _sensitivity_map()}}
+
+
+def _event_research(db: Session) -> dict | None:
+    """Разобранное агентом событие повестки (методичка v3, Часть 16).
+
+    До этого синтез узнавал о событии из пересказов ленты — то есть без чисел о
+    масштабе и без проверки у источника. Агент собирает факты и раскладывает их по
+    каналам входа в экономику, а СУЖДЕНИЕ о траектории остаётся за синтезом: тот
+    видит всю картину, а агент — только одно событие и переоценил бы его значимость.
+
+    Отключается флагом MACRO_EVENT_AGENT=0 — это дополнительный платный прогон.
+    """
+    if os.environ.get("MACRO_EVENT_AGENT", "1") != "1":
+        return None
+    try:
+        from app.services.macro_event_agent import research_current_event
+        return research_current_event(db)
+    except Exception:  # noqa: BLE001
+        logger.warning("Интерпретатор: разбор события не отработал", exc_info=True)
+        return None
 
 
 def _data_gaps(db: Session) -> list[str]:
@@ -607,6 +628,21 @@ def generate(db: Session) -> MacroInterpretation:
     if verdict == "reject":
         raise llm.LLMError(f"Выпуск отклонён гейтом: {gate_notes[:5]}")
 
+    # Агент-ревизор: выборочно проверяет числовые утверждения, поданные как ФАКТ.
+    # Гейт ловит формальное (структура, сверка с key_facts), ревизор — то, ради чего
+    # надо пойти и посмотреть источник. Выпуск не переписывает: правка чужого суждения
+    # моделью — подмена автора, а не проверка.
+    review = None
+    if os.environ.get("MACRO_RELEASE_REVIEW", "1") == "1":
+        try:
+            from app.services.macro_release_reviewer import review_release
+            review = review_release(db, sections, snapshot=snapshot)
+            if review.get("issues"):
+                logger.warning("Интерпретатор: ревизор нашёл спорные утверждения: %s",
+                               [i["claim"][:80] for i in review["issues"]])
+        except Exception:  # noqa: BLE001
+            logger.warning("Интерпретатор: ревизор не отработал", exc_info=True)
+
     row = MacroInterpretation(
         sections=sections, generated_at=datetime.now(timezone.utc),
         model_used=f"{llm.provider_info().get('provider')}:{model}",
@@ -618,6 +654,7 @@ def generate(db: Session) -> MacroInterpretation:
                          # ровно на это ушло 4 лишних прогона 2026-08-01.
                          "has_key_facts": bool(snapshot.get("key_facts")),
                          "gate": verdict, "gate_notes": gate_notes[:12] or None,
+                         "review": review,
                          "chronicle": len((snapshot.get("context") or {}).get("chronicle") or []),
                          "prev_issues": len(snapshot.get("previous_issues") or [])})
     db.add(row)

@@ -39,14 +39,17 @@ _SEARCH_TOOLS = {"web_search", "search_our_feed"}
 
 def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[dict],
               allowed_ticker: str = "", max_steps: int = 8, max_tokens_total: int = 40_000,
-              web_call_cap: int = 2, executor=None) -> dict:
+              web_call_cap: int = 2, executor=None, step_max_tokens: int = 1600) -> dict:
     """Возвращает {"result": dict|None, "trace": list, "tokens_used": int,
     "stopped_reason": str}. result=None — агент не дал валидного JSON-финала.
     web_call_cap — сколько раз всего разрешён веб-поиск/открытие документа: после
     исчерпания веб-инструменты убираются из схемы (не даём агенту зациклиться на
     поиске — реальная проблема без кэпа: 7 web_search → max_steps без ответа).
     executor — свой диспетчер инструментов execute(db, name, args). По умолчанию
-    тикер-контур пилота; макро-вопросы тикера не имеют и приносят свой (2026-08-02)."""
+    тикер-контур пилота; макро-вопросы тикера не имеют и приносят свой (2026-08-02).
+    step_max_tokens — потолок ответа модели на шаг. 1600 рассчитан на короткие
+    структурные ответы пилота; агент с объёмным финалом (разбор события с фактами и
+    цитатами) на нём ОБРЕЗАЕТСЯ на середине JSON, и финал не парсится."""
     messages: list[dict] = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": task},
@@ -67,7 +70,7 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
             step_tools = [t for t in tools_schema
                           if (t.get("function") or {}).get("name") not in _SEARCH_TOOLS]
         try:
-            resp = complete_messages(messages, tools=step_tools, max_tokens=1600, temperature=0.2)
+            resp = complete_messages(messages, tools=step_tools, max_tokens=step_max_tokens, temperature=0.2)
         except LLMError as e:
             trace.append({"step": step, "event": "llm_error", "detail": str(e)})
             return {"result": None, "trace": trace, "tokens_used": tokens_used,

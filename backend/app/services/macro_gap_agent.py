@@ -137,7 +137,7 @@ def answer_question(db: Session, question: dict, *, max_steps: int = 10) -> dict
                     # добирался до ответа — результат «нашёл/не нашёл» плавал от прогона
                     # к прогону. Дешевле дать шаги, чем терять находку.
                     max_steps=max_steps, max_tokens_total=140_000,
-                    web_call_cap=3, executor=_executor)
+                    web_call_cap=3, executor=_executor, step_max_tokens=2500)
     result = run.get("result")
     ok, notes = _gate(result or {}, "\n".join(seen))
     out = {

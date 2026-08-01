@@ -164,3 +164,80 @@ def test_search_budget_is_enforced_on_execution():
     src = inspect.getsource(agent_runner.run_agent)
     assert "search_budget_exhausted" in src, "кап должен отказывать в исполнении"
     assert "_SEARCH_TOOLS" in src
+
+
+class TestReleaseReviewer:
+    """Ревизор выпуска. Главный риск здесь — не ошибиться, а МОЛЧА НЕ СРАБОТАТЬ."""
+
+    def test_claims_survive_schema_change(self):
+        """Отбор утверждений не должен зависеть от имён полей тезиса.
+
+        Прецедент 2026-08-02: схема сменилась («detail» → «chain»/«evidence»), ревизор
+        с белым списком ключей отработал «успешно», проверив НОЛЬ утверждений. Такой
+        отказ не виден ни в логах, ни в срезе.
+        """
+        from app.services.macro_release_reviewer import _claims_to_check
+
+        for field in ("detail", "evidence", "chain", "полностью_новое_поле"):
+            claims = _claims_to_check({"theses": [
+                {"claim": "Инфляция повышенная", "tag": "факт",
+                 field: "годовая 5,9%, ядро 4-5% SAAR"}]})
+            assert claims, f"утверждение потеряно при поле {field!r}"
+            assert "5,9%" in claims[0]
+
+    def test_judgements_are_not_sent_to_review(self):
+        """Проверяем факты, а не суждения: у суждения нет источника, ревизия его
+        всегда завалит и выпуск утонет в ложных замечаниях."""
+        from app.services.macro_release_reviewer import _claims_to_check
+
+        assert _claims_to_check({"theses": [
+            {"claim": "Пространство для снижения ставки ограничено на 2 п.п.",
+             "tag": "суждение", "chain": "риски"}]}) == []
+
+    def test_facts_without_numbers_are_skipped(self):
+        from app.services.macro_release_reviewer import _claims_to_check
+
+        assert _claims_to_check({"theses": [
+            {"claim": "Экономика охлаждается", "tag": "факт", "chain": "спрос слабеет"}]}) == []
+
+
+    def test_own_data_is_not_sent_to_external_review(self):
+        """Числа из наших рядов не отправляем во внешнюю ревизию.
+
+        Первый живой прогон 2026-08-02 дал два «unsupported» на числах из НАШЕЙ базы:
+        внешний источник не повторял их дословно. Это не дефект выпуска, а шум, и он
+        стоил платного прогона за штуку.
+        """
+        from app.services.macro_release_reviewer import _foreign_numbers, _our_numbers
+
+        snap = {"indicators": [{"code": "inflation", "current_value": 5.9}],
+                "key_facts": {"Розница": "+9.8% (на 2026-06-30), ускоряется"}}
+        ours = _our_numbers(snap)
+        assert _foreign_numbers("инфляция 5,9%, розница +9.8% г/г", ours) == []
+        # порядковые номера и годы — не данные: «2кв2026» не должен стать «чужим числом»
+        assert _foreign_numbers("ВВП вырос в 2кв2026, PMI 50.8 пункта", ours) == ["50.8"]
+        # знак в прозе несёт направление, а не арифметику: −14,3% и 14.3 — одна величина
+        assert _foreign_numbers("инвестиции -14,3% г/г", ours) == ["-14,3"]
+        assert _foreign_numbers("инвестиции -14,3% г/г", ours | {14.3}) == []
+        # «4-5%» — диапазон, а не величина −5: дефис не знак
+        assert _foreign_numbers("устойчивое ядро 4-5% SAAR", ours) == []
+
+
+class TestEventAgent:
+    def test_only_methodology_channels_survive(self):
+        """Канал входа — закрытый список Части 16.2. Свободная формулировка
+        превращает разбор события в пересказ."""
+        from app.services.macro_event_agent import _CHANNELS
+
+        assert "логистика" in _CHANNELS and "курс" in _CHANNELS
+        assert len(_CHANNELS) == 7
+
+    def test_step_limit_is_configurable(self):
+        """Финал event-агента объёмный (факты с цитатами). На потолке пилота (1600)
+        ответ обрывался на середине JSON и давал unparseable_final."""
+        import inspect
+
+        from app.services import agent_runner, macro_event_agent
+
+        assert "step_max_tokens" in inspect.signature(agent_runner.run_agent).parameters
+        assert "step_max_tokens" in inspect.getsource(macro_event_agent.research_event)
