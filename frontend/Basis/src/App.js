@@ -120,7 +120,7 @@ function ObserverV2({
   token, onSelectCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot,
   onSelectIndex, onOpenFearGreed, onOpenIndexHub,
   indexTicker, showIndexHub, onCloseIndexUI,
-  forceSection, driverChart, forceEconIndicator,
+  forceSection, driverChart, forceEconIndicator, onOpenPortfolio,
 }) {
   // forceSection — вход с Рынка (клик по драйверу «Нефть»/«USD·RUB»/«ОФЗ» → "pulse",
   // «Ставка ЦБ» → "economy"); ObserverV2 монтируется заново при каждом входе на
@@ -229,7 +229,7 @@ function ObserverV2({
               <h2 className="obs-sec-title">Макроэкономика</h2>
               <ObsHorizonChip>горизонт актуальности: дни-недели</ObsHorizonChip>
             </div>
-            <ObsMacroArticles token={token} />
+            <ObsMacroArticles token={token} onSelectCompany={onSelectCompany} onOpenPortfolio={onOpenPortfolio} />
           </div>
         );
       case "business":
@@ -1218,6 +1218,7 @@ export default function App() {
             forceSection={forceObsSection}
             driverChart={driverChart}
             forceEconIndicator={forceEconIndicator}
+            onOpenPortfolio={() => navigate("portfolio")}
           />
         );
       case "portfolio":

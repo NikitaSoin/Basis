@@ -5875,3 +5875,67 @@ details[open] > summary .obs-inst-chev,
 @media (max-width: 480px) {
   .obs-geomap-popup .obs-geomap-detail { width: 240px; }
 }
+
+/* ═══ Макро «Оценка ситуации» v2 (2026-08-01) ═══
+   Формат переписан под реальную потребность инвестора: не витрина текущих цифр
+   (они в «Экон.статистике»), а ТРАЕКТОРИЯ ставки/инфляции, реальные развилки с
+   повестки, секторное влияние с дисперсией и именами бумаг. */
+
+/* Светофор режима — направления одной строкой */
+.obs-macro-regime {
+  display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 18px;
+}
+.obs-macro-regime-chip {
+  display: inline-flex; align-items: baseline; gap: 6px;
+  padding: 6px 12px; border-radius: 999px;
+  background: var(--obs-surface-2, rgba(255,255,255,0.04));
+  border: 1px solid var(--border-subtle);
+  font-size: 12.5px; color: var(--text-secondary);
+}
+.obs-macro-regime-chip b { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-tertiary); font-weight: 700; }
+
+/* Траектории ставки и инфляции — две карточки рядом */
+.obs-macro-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+@media (max-width: 760px) { .obs-macro-paths { grid-template-columns: 1fr; } }
+.obs-macro-path-card { padding: 18px 20px; }
+.obs-macro-path-base { font-size: 15px; font-weight: 600; color: var(--text-primary); line-height: 1.45; margin: 8px 0 6px; }
+.obs-macro-path-range,
+.obs-macro-path-anchor { font-size: 12.5px; color: var(--text-tertiary); margin-top: 3px; }
+.obs-macro-path-gates { margin: 10px 0 0; padding-left: 18px; }
+.obs-macro-path-gates li { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 4px; line-height: 1.4; }
+
+/* Развилки — цепочка «событие → инфляция → ставка → рынок» */
+.obs-fork-row { padding: 12px 0; border-bottom: 1px solid var(--border-subtle); }
+.obs-fork-row:last-child { border-bottom: none; }
+.obs-fork-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.obs-fork-event { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.obs-fork-status {
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  padding: 2px 8px; border-radius: 999px;
+  background: var(--warning-soft, rgba(201,122,74,0.14)); color: var(--warning, #C97A4A);
+}
+.obs-fork-chain { display: flex; flex-direction: column; gap: 3px; }
+.obs-fork-chain div { font-size: 12.5px; color: var(--text-secondary); line-height: 1.45; }
+.obs-fork-chain b { color: var(--text-tertiary); font-weight: 700; }
+
+/* Сектор: дисперсия + конкретные бумаги */
+.obs-sector-dispersion { font-size: 12.5px; color: var(--text-secondary); margin-top: 5px; line-height: 1.45; font-style: italic; }
+.obs-sector-names { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 6px; font-size: 12px; color: var(--text-tertiary); }
+.obs-sector-side b { font-weight: 700; margin-right: 3px; }
+.obs-ticker-link {
+  background: none; border: none; padding: 0 4px 0 0; cursor: pointer;
+  font-family: var(--font-mono, monospace); font-size: 12px; font-weight: 600;
+  color: var(--accent, #C97A4A);
+}
+.obs-ticker-link:hover { text-decoration: underline; }
+
+/* Приглашение заполнить портфель + трекшен прошлых выпусков */
+.obs-macro-portfolio-cta,
+.obs-macro-changed {
+  display: flex; gap: 8px; align-items: flex-start;
+  margin: 16px 0; padding: 12px 14px; border-radius: 10px;
+  background: var(--obs-surface-2, rgba(255,255,255,0.03));
+  border: 1px solid var(--border-subtle);
+  font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;
+}
+.obs-macro-changed b { color: var(--text-tertiary); }

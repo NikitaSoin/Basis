@@ -51,6 +51,7 @@ import {
   ZoomOut,
   Maximize2,
   History,
+  GitBranch,
 } from "lucide-react";
 import { Disclosure, ANALYST_MD } from "../design/textblocks";
 import { CompanyLogo } from "../design/CompanyLogo";
@@ -1785,7 +1786,7 @@ function ObsBusinessArticles() {
 // Две вкладки: Обзор (article-cards из /macro/analytics) +
 //              Оценка ситуации (deep-card из /macro/interpretation).
 // =========================
-function ObsMacroArticles({ token }) {
+function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
   const [mode, setMode] = useState("overview"); // overview | assessment
   const [docs, setDocs] = useState([]);
   const [interp, setInterp] = useState(null);
@@ -2007,6 +2008,22 @@ function ObsMacroArticles({ token }) {
                 </div>
               )}
 
+              {/* Режим одной строкой — светофор направлений (формат v2, 2026-08-01) */}
+              {interpSections.regime && (
+                <div className="obs-macro-regime">
+                  {[
+                    { k: "rate", label: "Ставка" },
+                    { k: "inflation", label: "Инфляция" },
+                    { k: "economy", label: "Экономика" },
+                    { k: "external", label: "Внешний фон" },
+                  ].filter(({ k }) => interpSections.regime[k]).map(({ k, label }) => (
+                    <span key={k} className="obs-macro-regime-chip">
+                      <b>{label}</b> {interpSections.regime[k]}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               {/* ДОКАЗАТЕЛЬСТВО, шаг 1: плитка твёрдых чисел — ФАКТ */}
               {macroTiles.length > 0 && (
                 <div className="obs-grid8" role="list" aria-label="Ключевые макропоказатели">
@@ -2017,6 +2034,58 @@ function ObsMacroArticles({ token }) {
                       {t.asOf && <div className="obs-tile-date">{t.asOf}</div>}
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* ТРАЕКТОРИЯ — главный ответ блока: куда идут ставка и инфляция.
+                  Коридор + якорь на прогноз ЦБ, чтобы не читалось как обещание. */}
+              {(interpSections.rate_path || interpSections.inflation_path) && (
+                <div className="obs-macro-paths">
+                  {[
+                    { p: interpSections.rate_path, title: "Куда идёт ключевая ставка" },
+                    { p: interpSections.inflation_path, title: "Куда идёт инфляция" },
+                  ].filter(({ p }) => p && (p.base || p.range)).map(({ p, title }, i) => (
+                    <div key={i} className="obs-macro-card obs-macro-path-card">
+                      <div className="obs-macro-eyebrow">
+                        <TrendingUp size={12} style={{ marginRight: 5, verticalAlign: -2 }} />
+                        {title} · <span className="obs-tag-judgment">оценка Basis</span>
+                      </div>
+                      {p.base && <div className="obs-macro-path-base">{p.base}</div>}
+                      {p.range && <div className="obs-macro-path-range">Коридор: {p.range}</div>}
+                      {p.anchor && <div className="obs-macro-path-anchor">Опора: {p.anchor}</div>}
+                      {Array.isArray(p.gates) && p.gates.length > 0 && (
+                        <ul className="obs-macro-path-gates">
+                          {p.gates.map((g, j) => <li key={j}>{g}</li>)}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* РАЗВИЛКИ — только те, что реально стоят на повестке. Вероятность
+                  словом, без процентов: мы их не калибруем (решение владельца). */}
+              {Array.isArray(interpSections.forks) && interpSections.forks.length > 0 && (
+                <div className="obs-inst-card">
+                  <div className="obs-inst-card-title"><GitBranch size={16} />Развилки на повестке</div>
+                  <div className="obs-inst-list">
+                    {interpSections.forks.map((f, i) => (
+                      <div key={i} className="obs-fork-row">
+                        <div className="obs-fork-head">
+                          <span className="obs-fork-event">{f.event}</span>
+                          {f.status && <span className="obs-fork-status">{f.status}</span>}
+                          {f.tag && (
+                            <span className={f.tag === "факт" ? "obs-tag-fact" : "obs-tag-judgment"}>{f.tag}</span>
+                          )}
+                        </div>
+                        <div className="obs-fork-chain">
+                          {f.to_inflation && <div><b>Инфляция:</b> {f.to_inflation}</div>}
+                          {f.to_rate && <div><b>Ставка:</b> {f.to_rate}</div>}
+                          {f.to_market && <div><b>Рынок:</b> {f.to_market}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -2060,6 +2129,28 @@ function ObsMacroArticles({ token }) {
                               <span style={{ fontSize: 11, fontWeight: 700, color: neg ? "var(--danger)" : pos ? "var(--success)" : "var(--text-tertiary)", textTransform: "uppercase" }}>· {s.wind}</span>
                             </div>
                             {s.channel && <div className="obs-inst-row-why">{s.channel}</div>}
+                            {/* Дисперсия внутри сектора: почему одни выигрывают, другие нет */}
+                            {s.dispersion && <div className="obs-sector-dispersion">{s.dispersion}</div>}
+                            {(s.winners?.length > 0 || s.losers?.length > 0) && (
+                              <div className="obs-sector-names">
+                                {s.winners?.length > 0 && (
+                                  <span className="obs-sector-side">
+                                    <b>выигрывают:</b>{" "}
+                                    {s.winners.map((t) => (
+                                      <button key={t} className="obs-ticker-link" onClick={() => onSelectCompany?.(t)}>{t}</button>
+                                    ))}
+                                  </span>
+                                )}
+                                {s.losers?.length > 0 && (
+                                  <span className="obs-sector-side">
+                                    <b>под давлением:</b>{" "}
+                                    {s.losers.map((t) => (
+                                      <button key={t} className="obs-ticker-link" onClick={() => onSelectCompany?.(t)}>{t}</button>
+                                    ))}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       );
@@ -2068,12 +2159,39 @@ function ObsMacroArticles({ token }) {
                 </div>
               )}
 
-              {/* ДЕЙСТВИЕ, шаг 0: на что смотреть дальше */}
+              {/* Связка с портфелем — пока приглашение. Сам разбор по бумагам инвестора
+                  считается в волне 2 (нужен join с портфелем и сверка чисел с карточкой). */}
+              <div className="obs-macro-portfolio-cta">
+                <Info size={13} />
+                <span>
+                  Если бы у вас был заполнен портфель, здесь был бы разбор: какие именно
+                  ваши бумаги задевает эта макрокартина и через какой канал.{" "}
+                  <button className="obs-ticker-link" onClick={() => onOpenPortfolio?.()}>Заполнить портфель</button>
+                </span>
+              </div>
+
+              {/* ТРЕКШЕН: что изменилось с прошлого выпуска и пересмотрели ли мы оценку */}
+              {interpSections.changed_since_last && (
+                <div className="obs-macro-changed">
+                  <Clock size={13} />
+                  <span><b>С прошлого выпуска:</b> {interpSections.changed_since_last}</span>
+                </div>
+              )}
+
+              {/* ДЕЙСТВИЕ, шаг 0: на что смотреть дальше. Формат v2 — объекты
+                  {signal, why}; старые срезы отдавали строки, поддерживаем оба. */}
               {Array.isArray(interpSections.watch) && interpSections.watch.length > 0 && (
                 <div className="obs-inst-checkpoint">
                   <div className="obs-inst-checkpoint-label"><Info size={12} />На что смотреть дальше</div>
                   {interpSections.watch.map((w, i) => (
-                    <div key={i} className="obs-inst-checkpoint-text">{w}</div>
+                    <div key={i} className="obs-inst-checkpoint-text">
+                      {typeof w === "string" ? w : (
+                        <>
+                          <b>{w.signal}</b>
+                          {w.why ? ` — ${w.why}` : ""}
+                        </>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}

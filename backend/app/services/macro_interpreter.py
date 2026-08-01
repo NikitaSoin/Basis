@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
 
@@ -31,32 +31,66 @@ _SECTORS = os.path.join(_REPO, "config", "sectors.json")
 # Теперь вывод — атомарные тезисы: каждое поле самостоятельный факт/оценка, без прозы.
 _OUTPUT_SPEC = (
     "\n\n================================================================\n"
-    "ФОРМАТ ОТВЕТА (СТРОГО JSON, на русском). НИКАКОЙ СВЯЗНОЙ ПРОЗЫ — каждое поле "
-    "самостоятельный факт или тезис, читается за 1-2 секунды. Числа живут ВНУТРИ "
-    "полей detail/channel, не растворяются в повествовательных предложениях.\n"
+    "ФОРМАТ ОТВЕТА (СТРОГО JSON, на русском). Главный вопрос блока: КУДА ИДУТ СТАВКА И "
+    "ИНФЛЯЦИЯ, какие реальные развилки это сдвинут и что каждая делает с секторами и "
+    "компаниями. Текущие значения показателей пересказывать НЕ надо — они уже показаны "
+    "пользователю в разделе «Экономическая статистика». Твоя ценность — ТРАЕКТОРИЯ и "
+    "ТРАНСМИССИЯ, а не витрина цифр.\n"
+    "Никакой связной прозы: каждое поле — самостоятельный тезис, читается за 1-2 секунды. "
+    "Числа живут внутри полей detail/effect, не растворяются в повествовании.\n\n"
     "Верни {\"sections\": {\n"
-    "  \"headline\": \"<ГЛАВНЫЙ ВЫВОД одним предложением, максимум 25 слов — вердикт Basis по текущей макрокартине>\",\n"
-    "  \"theses\": [ // 4-6 штук, покрывают: экономика/ВВП, потребление, инфляция, ставка, прогноз ЦБ\n"
-    "    {\"topic\": \"<2-3 слова>\", \"tag\": \"факт|оценка\",\n"
-    "     \"claim\": \"<тезис максимум 15 слов, БЕЗ чисел>\",\n"
-    "     \"detail\": \"<числа-доказательство максимум 18 слов>\"}\n"
+    "  \"headline\": \"<режим одним предложением, максимум 25 слов: куда идёт ставка/инфляция и что главный риск>\",\n"
+    "  \"regime\": { // светофор режима, по одному слову-направлению\n"
+    "    \"rate\": \"снижается|held|растёт\", \"inflation\": \"замедляется|стоит|ускоряется\",\n"
+    "    \"economy\": \"рост|стагнация|спад\", \"external\": \"<гео/санкционный фон, 2-3 слова>\"\n"
+    "  },\n"
+    "  \"rate_path\": { // ТРАЕКТОРИЯ ставки — коридор, НЕ точка\n"
+    "    \"base\": \"<базовый путь словами с числами и горизонтом, напр. '14% сейчас → 11-12% к концу 2026'>\",\n"
+    "    \"range\": \"<нижняя-верхняя границы разумного коридора на том же горизонте>\",\n"
+    "    \"anchor\": \"<на что опираешься: прогноз ЦБ/консенсус — с числом>\",\n"
+    "    \"gates\": [\"<что должно случиться, чтобы путь пошёл вниз/вверх, максимум 14 слов>\"] // 2-3\n"
+    "  },\n"
+    "  \"inflation_path\": {\"base\": \"<...>\", \"range\": \"<...>\", \"anchor\": \"<...>\", \"gates\": [\"<...>\"]},\n"
+    "  \"forks\": [ // РЕАЛЬНЫЕ развилки, которые стоят на повестке ПРЯМО СЕЙЧАС\n"
+    "    {\"event\": \"<развилка, максимум 8 слов>\",\n"
+    "     \"status\": \"<уже реализуется|высокая вероятность|возможно|маловероятно, но бьёт сильно>\",\n"
+    "     \"to_inflation\": \"<эффект на инфляцию, с числом если можно, максимум 16 слов>\",\n"
+    "     \"to_rate\": \"<что сделает ЦБ и почему, максимум 16 слов>\",\n"
+    "     \"to_market\": \"<кого задевает и через какой канал, максимум 18 слов>\",\n"
+    "     \"tag\": \"факт|оценка|суждение\"}\n"
     "  ],\n"
-    "  \"sectors\": [ // по КАЖДОМУ сектору платформы (список ниже в данных)\n"
+    "  \"sectors\": [ // 4-6 САМЫХ затронутых, не все подряд; ранжируй по силе влияния\n"
     "    {\"sector\": \"<имя сектора из списка платформы>\", \"wind\": \"попутный|встречный|смешанный\",\n"
-    "     \"channel\": \"<через какой канал, максимум 15 слов>\"}\n"
+    "     \"channel\": \"<механизм, максимум 16 слов>\",\n"
+    "     \"dispersion\": \"<ПОЧЕМУ внутри сектора расходятся: какой признак делит выигравших и проигравших, максимум 18 слов>\",\n"
+    "     \"winners\": [\"<ТИКЕР>\"], \"losers\": [\"<ТИКЕР>\"]} // 1-2 тикера с каждой стороны, ТОЛЬКО из компаний платформы\n"
     "  ],\n"
-    "  \"watch\": [\"<что подтвердит/сдвинет картину дальше, максимум 12 слов>\", \"...\", \"...\"], // 2-3 штуки\n"
-    "  \"scenarios\": {\n"
-    "    \"base\": {\"probability\": \"<строка, напр. '55%'>\", \"key_numbers\": \"<ключевые ориентиры: ставка/инфляция/курс на горизонте>\", \"triggers\": \"<что подтвердит именно этот сценарий>\"},\n"
-    "    \"bull\": {\"probability\": \"<строка>\", \"key_numbers\": \"<...>\", \"triggers\": \"<...>\"},\n"
-    "    \"bear\": {\"probability\": \"<строка>\", \"key_numbers\": \"<...>\", \"triggers\": \"<...>\"}\n"
-    "  }\n"
-    "}}. scenarios — СТРОГО объект с тремя ключами base/bull/bear, каждый со всеми тремя "
-    "полями (probability/key_numbers/triggers) как короткие строки. Вероятности трёх "
-    "сценариев должны в сумме давать ~100%. theses[].tag: 'факт' — если claim прямо следует "
-    "из переданных чисел без интерпретации, 'оценка' — если это суждение Basis. Опирайся на "
-    "КОНКРЕТНЫЕ значения показателей из переданных данных. Тон спокойный, без "
-    "‘купить/продать’. Никакого текста вне JSON."
+    "  \"changed_since_last\": \"<что изменилось с прошлого выпуска и пересмотрел ли ты свою оценку; если по сути ничего — так и скажи, максимум 22 слова>\",\n"
+    "  \"watch\": [{\"signal\": \"<событие/дата>\", \"why\": \"<как сдвинет траекторию, максимум 12 слов>\"}] // 2-3\n"
+    "}}.\n\n"
+    "ЖЁСТКИЕ ПРАВИЛА:\n"
+    "1. forks — ТОЛЬКО реальные развилки с повестки: бери их из context.chronicle (что "
+    "реально происходит), context.geo_barometer.watchlist_30d и scenario.triggers, "
+    "cb_forecast. НЕ выдумывай абстрактные «бык/база/медведь» ради симметрии. Если "
+    "живых развилок три — верни три; если пять — пять. Пустой список недопустим, но "
+    "набивать его вымыслом ради количества ЗАПРЕЩЕНО.\n"
+    "2. Вероятность — только словом в поле status. НИКАКИХ процентов: мы их не "
+    "калибруем, а цифра создаёт ложную точность.\n"
+    "3. Траектория — это ОЦЕНКА, а не обещание: всегда давай коридор (range) и якорь "
+    "(anchor) на публичный прогноз ЦБ или консенсус, чтобы читатель видел, что мы не "
+    "выдумываем путь из воздуха.\n"
+    "4. tag: 'факт' — прямо следует из переданных чисел; 'оценка' — расчёт/проекция "
+    "на их основе; 'суждение' — наше мнение о вероятности или реакции ЦБ.\n"
+    "5. sectors[].winners/losers — тикеры ТОЛЬКО из списка компаний платформы "
+    "(context.platform_tickers). Если для сектора не можешь назвать конкретные бумаги "
+    "обоснованно — верни пустые списки, но dispersion объясни всё равно. Выдумывать "
+    "тикеры или ставить компанию не из списка ЗАПРЕЩЕНО.\n"
+    "6. changed_since_last — сверься с previous_issues. Если поменял оценку "
+    "траектории, скажи об этом прямо и назови причину. Молча переписывать прошлый "
+    "прогноз нельзя: признание пересмотра — это доверие, а не слабость.\n"
+    "7. Опирайся на ДИНАМИКУ рядов (series/anchors/range_24m/direction), а не только "
+    "на последнее значение: «инфляция замедляется третий месяц» сильнее, чем «инфляция "
+    "6%». Тон спокойный, без «купить/продать». Никакого текста вне JSON."
 )
 
 
@@ -77,17 +111,65 @@ def _sectors_list() -> list[str]:
         return []
 
 
+# Мастер-переменные: по ним даём ПЛОТНЫЙ ряд, а не только опорные точки — именно их
+# траекторию инвестор и приходит понять (продуктовая постановка 2026-08-01).
+_DENSE_SERIES = {"key_rate", "inflation", "inflation_weekly", "inflation_expectations",
+                 "usdrub", "urals", "gdp"}
+_DENSE_POINTS = 24        # последние N точек по мастер-переменным
+_ANCHOR_MONTHS = (1, 3, 6, 12, 24)   # опорные отсечки по остальным рядам
+
+
+def _series_digest(db: Session, code: str, metric: str) -> dict | None:
+    """Компактная ДИНАМИКА ряда вместо одной последней точки.
+
+    🔴 Найдено 2026-08-01: интерпретатору отдавалось только последнее значение каждого
+    показателя, при том что в базе 14 377 точек. Модель рассуждала про «инфляция
+    застревает» по одному числу — это догадка из записок ЦБ, а не вывод из ряда.
+    Отдавать ряды целиком нельзя (промпт раздуется в разы), поэтому: по мастер-
+    переменным — плотный хвост, по остальным — значения на опорных отсечках плюс
+    диапазон и направление. Достаточно, чтобы увидеть траекторию, дёшево по токенам.
+    """
+    rows = (db.query(MacroDataPoint).filter_by(indicator_code=code, metric=metric)
+            .order_by(MacroDataPoint.as_of.desc()).limit(900).all())
+    if not rows:
+        return None
+    last = rows[0]
+    out: dict = {"value": float(last.value), "as_of": last.as_of.isoformat(),
+                 "preliminary": last.is_preliminary}
+    if len(rows) < 2:
+        return out
+
+    if code in _DENSE_SERIES:
+        tail = list(reversed(rows[:_DENSE_POINTS]))
+        out["series"] = [{"d": r.as_of.isoformat(), "v": round(float(r.value), 4)} for r in tail]
+    else:
+        anchors = {}
+        for months in _ANCHOR_MONTHS:
+            cutoff = last.as_of - timedelta(days=int(months * 30.44))
+            past = next((r for r in rows if r.as_of <= cutoff), None)
+            if past is not None:
+                anchors[f"{months}m_ago"] = round(float(past.value), 4)
+        if anchors:
+            out["anchors"] = anchors
+
+    window = [float(r.value) for r in rows if r.as_of >= last.as_of - timedelta(days=730)]
+    if len(window) >= 3:
+        out["range_24m"] = {"min": round(min(window), 4), "max": round(max(window), 4)}
+        prev = window[1] if len(window) > 1 else None
+        if prev is not None and prev != 0:
+            out["direction"] = "растёт" if window[0] > prev else "снижается" if window[0] < prev else "без изменений"
+    return out
+
+
 def gather_snapshot(db: Session) -> dict:
     """Срез текущих данных платформы для интерпретатора."""
     indicators = []
     for ind in db.query(MacroIndicator).order_by(MacroIndicator.sort_order).all():
         for m in (ind.metric_types or ["level"]):
-            p = (db.query(MacroDataPoint).filter_by(indicator_code=ind.code, metric=m)
-                 .order_by(MacroDataPoint.as_of.desc()).first())
-            if p:
+            dig = _series_digest(db, ind.code, m)
+            if dig:
                 indicators.append({"code": ind.code, "title": ind.title, "country": ind.country,
-                                   "metric": m, "value": float(p.value), "unit": ind.unit,
-                                   "as_of": p.as_of.isoformat(), "preliminary": p.is_preliminary})
+                                   "metric": m, "unit": ind.unit, **dig})
     meeting = db.query(RateMeeting).order_by(RateMeeting.decision_date.desc()).first()
     rate = None
     if meeting:
@@ -101,7 +183,152 @@ def gather_snapshot(db: Session) -> dict:
     forecast = [{"scenario": f.scenario, "indicator": f.indicator, "year": f.year, "value": f.value}
                 for f in db.query(MacroForecast).order_by(MacroForecast.as_of.desc()).limit(40).all()]
     return {"indicators": indicators, "rate": rate, "analytics": docs,
-            "cb_forecast": forecast, "sectors": _sectors_list()}
+            "cb_forecast": forecast, "sectors": _sectors_list(),
+            "previous_issues": _previous_issues(db),
+            "context": {**_context(db), "platform_tickers": _platform_tickers(db)}}
+
+
+def _platform_tickers(db: Session) -> list[str]:
+    """Тикеры компаний платформы — чтобы модель называла победителей/проигравших
+    ТОЛЬКО из нашего покрытия. Без этого списка она сошлётся на бумагу, которой у нас
+    нет, и ссылка на карточку никуда не приведёт."""
+    try:
+        from sqlalchemy import text
+        return [r[0] for r in db.execute(text(
+            "SELECT ticker FROM companies WHERE ticker IS NOT NULL ORDER BY market_cap DESC NULLS LAST"
+        )).all()]
+    except Exception:  # noqa: BLE001
+        logger.warning("Интерпретатор: список тикеров недоступен", exc_info=True)
+        return []
+
+
+# Темы летописи, релевантные макро-рассуждению (контролируемый словарь chronicle).
+# Сознательно НЕ берём корпоративные (dividends/earnings_guidance/ipo_placement) — они
+# про отдельные бумаги, для макрокартины шум.
+_MACRO_THEMES = ("key_rate", "inflation", "budget_fiscal", "oil_prices", "ruble_fx",
+                 "refinery_strikes", "global_macro", "labor_demography", "regulation",
+                 "bonds_credit", "commodities", "nationalization")
+
+
+def _context(db: Session, limit: int = 30) -> dict:
+    """Живой контекст, в котором блок рассуждает: летопись + барометры.
+
+    🔴 До 2026-08-01 модель видела только цифры и 12 записок ЦБ/ЦМАКП — то есть
+    рассуждала о рынке, не зная, ЧТО НА ПОВЕСТКЕ. Именно из-за этого сценарии выходили
+    «сценариями ради сценариев»: без ленты неоткуда узнать, что прямо сейчас реальная
+    развилка — топливный кризис, а не абстрактный «бык/медведь». Летопись уже
+    LLM-размечена по темам/секторам/тикерам, поэтому отбор дешёвый и точный.
+
+    Всё в try/except: контекст — усиление, а не обязательное условие. Отсутствие
+    таблицы (напр. на свежей базе) не должно ронять генерацию блока.
+    """
+    out: dict = {}
+    try:
+        from app.models.chronicle import ChronicleEntry
+        rows = (db.query(ChronicleEntry)
+                .filter(ChronicleEntry.themes.isnot(None))
+                .order_by(ChronicleEntry.published_at.desc(), ChronicleEntry.id.desc())
+                .limit(400).all())
+        picked = []
+        for r in rows:
+            if not set(r.themes or []) & set(_MACRO_THEMES):
+                continue
+            picked.append({
+                "date": (r.event_date or (r.published_at.date() if r.published_at else None)).isoformat()
+                        if (r.event_date or r.published_at) else None,
+                "kind": r.kind, "title": r.title,
+                "summary": (r.summary or "")[:400],
+                "why_it_mattered": (r.interpretation or "")[:300] or None,
+                "themes": r.themes, "sectors": r.sectors, "tickers": r.tickers,
+                "source_url": r.source_url,
+            })
+            if len(picked) >= limit:
+                break
+        if picked:
+            out["chronicle"] = picked
+    except Exception:  # noqa: BLE001
+        logger.warning("Интерпретатор: летопись недоступна", exc_info=True)
+
+    for key, label in (("geo", "geo_barometer"), ("inst", "institutional_barometer")):
+        try:
+            from app.services.barometer_store import get_payload_with_meta
+            payload = get_payload_with_meta(db, key)
+            if payload:
+                out[label] = _compact_barometer(payload)
+        except Exception:  # noqa: BLE001
+            logger.warning("Интерпретатор: барометр %s недоступен", key, exc_info=True)
+    return out
+
+
+def _compact_barometer(payload: dict) -> dict:
+    """Из барометра берём рамку: что изменилось, чем сейчас живёт повестка, какие
+    переходы возможны и на что смотреть в ближайший месяц.
+
+    Полный барометр — десятки килобайт прозы, целиком в промпт не нужен. Но именно
+    здесь лежат РЕАЛЬНЫЕ развилки (а не выдуманные «бык/медведь»): триггеры переходов
+    между сценариями, вотчлист на 30 дней с ожидаемым эффектом и секторные флаги с
+    обоснованием. Ровно то, чего блоку не хватало, чтобы не сочинять сценарии ради
+    сценариев.
+    """
+    out: dict = {"as_of": payload.get("as_of")}
+    summary = payload.get("summary")
+    if isinstance(summary, str):
+        out["what_changed"] = summary[:900]
+
+    sc = payload.get("scenario")
+    if isinstance(sc, dict):
+        out["scenario"] = {k: v for k, v in sc.items()
+                           if k in ("current", "mix_6m", "mix_18m", "probabilities", "triggers", "label")}
+    elif isinstance(sc, str):
+        out["scenario"] = sc[:400]
+
+    watch = payload.get("watchlist_30d")
+    if isinstance(watch, list):
+        out["watchlist_30d"] = [
+            {k: w.get(k) for k in ("signal", "window", "expected_effect") if w.get(k)}
+            for w in watch[:8] if isinstance(w, dict)
+        ]
+
+    flags = payload.get("sector_flags")
+    if isinstance(flags, list):
+        out["sector_flags"] = [
+            {k: (str(f.get(k))[:260] if k == "reasoning" else f.get(k))
+             for k in ("sector", "direction", "channel", "reasoning") if f.get(k)}
+            for f in flags[:10] if isinstance(f, dict)
+        ]
+
+    alerts = [a.get("label") or a.get("text") or a.get("title") if isinstance(a, dict) else a
+              for a in (payload.get("alerts") or [])[:6]]
+    alerts = [str(a)[:200] for a in alerts if a]
+    if alerts:
+        out["alerts"] = alerts
+    return {k: v for k, v in out.items() if v}
+
+
+def _previous_issues(db: Session, limit: int = 4) -> list[dict]:
+    """Прошлые выпуски этого же блока — чтобы модель видела СВОЙ трекшен.
+
+    🔴 До 2026-08-01 каждый прогон начинался с чистого листа: модель не знала, что сама
+    писала вчера, и не могла ни признать пересмотр оценки, ни сослаться на него. Для
+    платформы, чья главная ценность — доверие, аналитик, молча переписывающий прогноз
+    задним числом, хуже, чем аналитик, который говорит «месяц назад ждали иначе, вот
+    почему поменяли». Отдаём только каркас прошлого суждения (вердикт + путь ставки +
+    развилки), не весь JSON — иначе модель начнёт копировать формулировки.
+    """
+    rows = (db.query(MacroInterpretation)
+            .order_by(MacroInterpretation.generated_at.desc()).limit(limit).all())
+    out = []
+    for r in rows:
+        s = r.sections or {}
+        out.append({
+            "generated_at": r.generated_at.date().isoformat(),
+            "headline": s.get("headline"),
+            "rate_path": (s.get("rate_path") or {}).get("base") if isinstance(s.get("rate_path"), dict) else None,
+            "forks": [f.get("event") for f in (s.get("forks") or []) if isinstance(f, dict)][:4],
+            # старый формат (до переделки) — чтобы переход не потерял историю
+            "legacy_theses": [t.get("claim") for t in (s.get("theses") or []) if isinstance(t, dict)][:3],
+        })
+    return out
 
 
 def generate(db: Session) -> MacroInterpretation:
