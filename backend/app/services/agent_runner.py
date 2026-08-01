@@ -34,13 +34,15 @@ _WEB_TOOLS = {"web_search", "fetch_document"}
 
 
 def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[dict],
-              allowed_ticker: str, max_steps: int = 8, max_tokens_total: int = 40_000,
-              web_call_cap: int = 2) -> dict:
+              allowed_ticker: str = "", max_steps: int = 8, max_tokens_total: int = 40_000,
+              web_call_cap: int = 2, executor=None) -> dict:
     """Возвращает {"result": dict|None, "trace": list, "tokens_used": int,
     "stopped_reason": str}. result=None — агент не дал валидного JSON-финала.
     web_call_cap — сколько раз всего разрешён веб-поиск/открытие документа: после
     исчерпания веб-инструменты убираются из схемы (не даём агенту зациклиться на
-    поиске — реальная проблема без кэпа: 7 web_search → max_steps без ответа)."""
+    поиске — реальная проблема без кэпа: 7 web_search → max_steps без ответа).
+    executor — свой диспетчер инструментов execute(db, name, args). По умолчанию
+    тикер-контур пилота; макро-вопросы тикера не имеют и приносят свой (2026-08-02)."""
     messages: list[dict] = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": task},
@@ -101,7 +103,8 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
                 args = {}
             if name in _WEB_TOOLS:
                 web_calls += 1
-            out = execute_tool(db, name, args, allowed_ticker)
+            out = (executor(db, name, args) if executor
+                   else execute_tool(db, name, args, allowed_ticker))
             payload = json.dumps(out, ensure_ascii=False)
             trace.append({"step": step, "event": "tool", "name": name,
                           "args": args, "result_bytes": len(payload)})
