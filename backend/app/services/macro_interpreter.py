@@ -265,7 +265,16 @@ _KEY_FACT_SPECS = (
     ("usdrub", "level", "Курс USD/RUB"),
     ("urals", "level", "Нефть Urals"),
     ("gdp", "yoy", "ВВП год к году"),
+    ("budget_balance_ytd", "level",
+     "Сальдо федерального бюджета НАКОПЛЕННЫМ ИТОГОМ с начала года, млрд ₽ "
+     "(минус = дефицит). Это НЕ месячная величина и НЕ % ВВП — не пересчитывай"),
 )
+
+
+# Ряды, которые фактически не обновляются и не должны звучать как актуальные.
+# budget_balance (%ВВП) — разовый бэкфилл из CSV: одно значение размножено по месяцам,
+# последняя точка март 2026. Считать бюджет надо по budget_balance_ytd (Минфин, млрд ₽).
+_DEPRECATED_SERIES = {"budget_balance": "устаревший ряд, используй budget_balance_ytd (млрд ₽)"}
 
 
 def _key_facts(indicators: list[dict]) -> dict:
@@ -279,6 +288,10 @@ def _key_facts(indicators: list[dict]) -> dict:
     величина, дата и направление уже собраны в одну строку — её проще процитировать,
     чем выуживать число из записки.
     """
+    for ind in indicators:
+        note = _DEPRECATED_SERIES.get(ind.get("code"))
+        if note:
+            ind["deprecated"] = note
     by_key = {(i.get("code"), i.get("metric")): i for i in indicators}
     out: dict = {}
     for code, metric, label in _KEY_FACT_SPECS:

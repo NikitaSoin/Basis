@@ -1,236 +1,1338 @@
 {
   "_comment": "Справочник показателей Макрообзора + маппинг столбцов cb_model_big.csv. ML-фичи (Anchor/Was/Toughness/Exceeding/*_6/*_3/Real_ruble_rate/Wage_pressure/Nairy/Un_gap/*_delta_*) НЕ маппятся — на витрину не идут. influence_* — стартовый авторский текст из эталонов ТЗ, владелец дорабатывает (контент, не код).",
   "indicators": [
-    {"code": "key_rate", "title": "Ключевая ставка ЦБ", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["level"], "display_group": "rate", "sort_order": 1, "source_type": "cbr",
-     "influence_short": "Выше ставка — дороже деньги: ниже оценки бизнеса и выше процентные расходы; облигации и депозиты привлекательнее акций.",
-     "influence_full": "Ключевая ставка задаёт стоимость денег в экономике. Рост ставки повышает ставку дисконтирования будущих прибылей → снижает справедливую оценку бизнеса, особенно длинных/растущих компаний; увеличивает процентные расходы у закредитованных эмитентов. Облигации и депозиты становятся доходнее → переток из акций. Снижение ставки действует обратно: смягчение поддерживает оценки."},
-    {"code": "inflation", "title": "Инфляция", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["mom", "yoy"], "display_group": "ru", "sort_order": 2, "source_type": "news",
-     "influence_short": "Высокая/ускоряющаяся инфляция + незаякоренные ожидания → давление на ЦБ держать ставку высокой; плюс давление на маржу через издержки.",
-     "influence_full": "Инфляция — ключевой вход для решения ЦБ по ставке. Ускорение при незаякоренных ожиданиях вынуждает ЦБ держать/повышать ставку (см. эффект ставки). Для компаний — рост издержек давит на маржу, если переложить в цены не удаётся."},
-    {"code": "inflation_weekly", "title": "Недельная инфляция", "unit": "%", "country": "ru", "frequency": "weekly", "metric_types": ["wow"], "display_group": "ru", "sort_order": 3, "source_type": "news",
-     "influence_short": "Оперативный индикатор ценового давления между месячными отчётами — ранний сигнал к решению ЦБ."},
-    {"code": "inflation_expectations", "title": "Инфляционные ожидания населения", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["level"], "display_group": "ru", "sort_order": 4, "source_type": "news",
-     "influence_short": "Незаякоренные ожидания самоусиливают инфляцию и вынуждают ЦБ держать ставку жёстче."},
-    {"code": "usdrub", "title": "Курс USD/RUB", "unit": "руб", "country": "ru", "frequency": "daily", "metric_types": ["level"], "display_group": "ru", "sort_order": 5, "source_type": "cbr",
-     "influence_short": "Слабый рубль — выигрыш экспортёров, давление на импортёров и компании с валютным долгом; влияет на инфляцию и бюджет.",
-     "influence_full": "Курс рубля распределяет выгоду между экспортёрами (выручка в валюте) и импортёрами/компаниями с валютным долгом. Слабый рубль проинфляционен (дорожает импорт) и пополняет бюджет (нефтегазовые доходы в рублях выше)."},
-    {"code": "cnyrub", "title": "Курс CNY/RUB", "unit": "руб", "country": "ru", "frequency": "daily", "metric_types": ["level"], "display_group": "ru", "sort_order": 6, "source_type": "cbr",
-     "influence_short": "Юань — основная расчётная валюта внешней торговли РФ; курс важен для импортёров и юаневых облигаций."},
-    {"code": "eurrub", "title": "Курс EUR/RUB", "unit": "руб", "country": "ru", "frequency": "daily", "metric_types": ["level"], "display_group": "ru", "sort_order": 7, "source_type": "cbr",
-     "influence_short": "Курс евро влияет на импортёров из ЕС и валютную переоценку."},
-    {"code": "gdp", "title": "ВВП (реальный, г/г)", "unit": "%", "country": "ru", "frequency": "quarterly", "metric_types": ["yoy"], "display_group": "ru", "sort_order": 8, "source_type": "fred",
-     "influence_short": "Темпы ВВП задают динамику выручки/прибылей и аппетит рынка; перегрев → инфляция → ужесточение ставки.",
-     "influence_full": "Рост ВВП — это рост совокупной выручки и прибылей бизнеса и аппетита инвесторов к риску. Но перегрев экономики выше потенциала разгоняет инфляцию и провоцирует ужесточение ДКП, что бьёт по оценкам."},
-    {"code": "unemployment", "title": "Безработица", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["level"], "display_group": "ru", "sort_order": 9, "source_type": "news",
-     "influence_short": "Ниже естественного уровня → перегрев рынка труда → рост зарплат → проинфляционно → давление вверх на ставку (кривая Филлипса).",
-     "influence_full": "Сверхнизкая безработица означает дефицит рабочей силы → работодатели повышают зарплаты → растут издержки и потребительский спрос → проинфляционное давление → ЦБ вынужден держать ставку жёстче."},
-    {"code": "hh_index", "title": "Индекс рынка труда hh.ru", "unit": "ед", "country": "ru", "frequency": "monthly", "metric_types": ["level"], "display_group": "ru", "sort_order": 10, "source_type": "news",
-     "influence_short": "Резюме на вакансию: ниже — острее дефицит кадров (проинфляционно), выше — рынок труда остывает."},
-    {"code": "pmi_composite", "title": "PMI композитный", "unit": "ед", "country": "ru", "frequency": "monthly", "metric_types": ["level"], "display_group": "ru", "sort_order": 11, "source_type": "news",
-     "influence_short": "Выше 50 — экономика расширяется, ниже 50 — сжимается; опережающий индикатор деловой активности."},
-    {"code": "ppi", "title": "Индекс цен производителей (ИЦП)", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["yoy"], "display_group": "ru", "sort_order": 12, "source_type": "news",
-     "influence_short": "Опережает потребительскую инфляцию: рост цен производителей со временем перекладывается в розницу."},
-    {"code": "urals", "title": "Нефть Urals", "unit": "usd", "country": "ru", "frequency": "daily", "metric_types": ["level"], "display_group": "ru", "sort_order": 13, "source_type": "tankermap",
-     "influence_short": "Дорогая нефть — выигрыш нефтегаза и пополнение бюджета; влияет на курс рубля и инфляцию."},
-    {"code": "budget_balance", "title": "Баланс бюджета", "unit": "%ВВП", "country": "ru", "frequency": "monthly", "metric_types": ["level"], "display_group": "ru", "sort_order": 14, "source_type": "minfin",
-     "influence_short": "Рост дефицита → больше заимствований (рост предложения ОФЗ и доходностей) + фискальный импульс → проинфляционно → давление на ставку.",
-     "influence_full": "Дефицит бюджета финансируется заимствованиями: рост размещений ОФЗ давит на их цены вверх по доходности (вниз по цене). Фискальный импульс (госрасходы) добавляет спроса в экономику → проинфляционно → ужесточение ДКП."},
-    {"code": "gov_spending_growth", "title": "Рост госрасходов", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["level"], "display_group": "ru", "sort_order": 15, "source_type": "minfin",
-     "influence_short": "Фискальный импульс: ускорение госрасходов добавляет спроса → проинфляционно."},
-    {"code": "m2", "title": "Денежная масса M2", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["level"], "display_group": "ru", "sort_order": 16, "source_type": "cbr",
-     "influence_short": "Темп роста денежной массы — индикатор монетарного давления на инфляцию."},
-    {"code": "nominal_wage", "title": "Номинальная зарплата", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["level"], "display_group": "ru", "sort_order": 17, "source_type": "news",
-     "influence_short": "Быстрый рост зарплат разгоняет потребление и издержки → проинфляционно."},
-    {"code": "credit_economy", "title": "Кредит экономике", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["yoy"], "display_group": "ru", "sort_order": 18, "source_type": "cbr",
-     "influence_short": "Темп кредитования отражает спрос на деньги и трансмиссию ставки; перегрев кредита проинфляционен."},
-    {"code": "claims_organizations", "title": "Кредиты организациям", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["yoy"], "display_group": "ru", "sort_order": 19, "source_type": "cbr",
-     "influence_short": "Корпоративное кредитование — индикатор инвестиционной активности и чувствительности к ставке."},
-    {"code": "claims_households", "title": "Кредиты населению", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["yoy"], "display_group": "ru", "sort_order": 20, "source_type": "cbr",
-     "influence_short": "Розничное кредитование — индикатор потребительского спроса; перегрев усиливает инфляцию."},
-
-    {"code": "real_wage", "title": "Реальная зарплата", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["yoy"], "display_group": "ru", "sort_order": 21, "source_type": "rosstat",
-     "influence_short": "Рост реальных зарплат — топливо потребительского спроса; ускорение проинфляционно и держит ставку выше."},
-    {"code": "fixed_capital_investment", "title": "Инвестиции в основной капитал", "unit": "%", "country": "ru", "frequency": "quarterly", "metric_types": ["yoy"], "display_group": "ru", "sort_order": 23, "source_type": "news",
-     "influence_short": "Опережающий индикатор деловой активности: рост инвестиций — бизнес расширяет мощности и верит в будущий спрос; резкое падение (как в 1кв2026, -14,3%) — сигнал охлаждения экономики и осторожности ЦБ при снижении ставки.",
-     "influence_full": "Инвестиции в основной капитал — вложения бизнеса и государства в здания, оборудование, инфраструктуру. Опережающий индикатор: решение инвестировать принимается на основе ожиданий будущего спроса и доступности финансирования (ставка). Падение инвестиций сигнализирует охлаждение экономики и осторожность бизнеса при высокой ставке; рост — расширение мощностей, которое со временем увеличивает потенциал предложения и может снижать инфляционное давление."},
-    {"code": "business_climate_indicator", "title": "Индикатор бизнес-климата (ИБК)", "unit": "п", "country": "ru", "frequency": "monthly", "metric_types": ["level"], "display_group": "ru", "sort_order": 24, "source_type": "cbr",
-     "influence_short": "Опросный индикатор ожиданий бизнеса (ЦБ, >15 тыс. компаний): отрицательные значения — замедление деловой активности, положительные — оживление; опережает официальную статистику на месяцы.",
-     "influence_full": "Индикатор бизнес-климата (ИБК) Банка России — среднее геометрическое балансов текущих оценок и ожиданий предприятий по производству и спросу, ежемесячный опрос >15 тыс. компаний из ключевых отраслей (без финсектора). Публикуется РАНЬШЕ официальной статистики промпроизводства/ВВП — ранний сигнал разворота цикла. Устойчиво отрицательные значения предупреждают о замедлении экономики до того, как это отразится в жёстких данных; ЦБ учитывает ИБК при решениях по ставке наравне с инфляционными ожиданиями."},
-    {"code": "real_income", "title": "Реальные доходы населения", "unit": "%", "country": "ru", "frequency": "quarterly", "metric_types": ["yoy"], "display_group": "ru", "sort_order": 22, "source_type": "rosstat",
-     "influence_short": "Динамика реальных доходов задаёт потребительский спрос и спрос на товары/услуги компаний."},
-    {"code": "us_rate", "title": "Ставка ФРС (США)", "unit": "%", "country": "us", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 30, "source_type": "fred",
-     "influence_short": "Глобальная стоимость денег: высокая ставка ФРС укрепляет доллар и оттягивает капитал с развивающихся рынков."},
-    {"code": "us_inflation", "title": "Инфляция США", "unit": "%", "country": "us", "frequency": "monthly", "metric_types": ["yoy"], "display_group": "world", "sort_order": 31, "source_type": "fred",
-     "influence_short": "Определяет траекторию ставки ФРС → мировые рынки и аппетит к риску."},
-    {"code": "us_gdp", "title": "ВВП США", "unit": "%", "country": "us", "frequency": "quarterly", "metric_types": ["yoy"], "display_group": "world", "sort_order": 32, "source_type": "fred",
-     "influence_short": "Крупнейшая экономика мира — задаёт глобальный спрос и настроения рынков."},
-    {"code": "us_unemployment", "title": "Безработица США", "unit": "%", "country": "us", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 33, "source_type": "fred",
-     "influence_short": "Вход в решение ФРС по ставке (двойной мандат: занятость + инфляция)."},
-    {"code": "eu_rate", "title": "Ставка ЕЦБ (ЕС)", "unit": "%", "country": "eu", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 40, "source_type": "fred",
-     "influence_short": "Стоимость денег в еврозоне — влияет на евро и европейский спрос."},
-    {"code": "eu_inflation", "title": "Инфляция ЕС", "unit": "%", "country": "eu", "frequency": "monthly", "metric_types": ["yoy"], "display_group": "world", "sort_order": 41, "source_type": "fred",
-     "influence_short": "Определяет траекторию ставки ЕЦБ."},
-    {"code": "eu_gdp", "title": "ВВП ЕС", "unit": "%", "country": "eu", "frequency": "quarterly", "metric_types": ["yoy"], "display_group": "world", "sort_order": 42, "source_type": "fred",
-     "influence_short": "Динамика европейского спроса — важна для экспортёров."},
-    {"code": "eu_unemployment", "title": "Безработица ЕС", "unit": "%", "country": "eu", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 43, "source_type": "fred",
-     "influence_short": "Индикатор состояния экономики еврозоны."},
-    {"code": "cn_rate", "title": "Ставка НБК (КНР)", "unit": "%", "country": "cn", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 50, "source_type": "fred",
-     "influence_short": "ДКП Китая — ключевого торгового партнёра РФ; влияет на юань и спрос на сырьё."},
-    {"code": "cn_inflation", "title": "Инфляция КНР", "unit": "%", "country": "cn", "frequency": "monthly", "metric_types": ["yoy"], "display_group": "world", "sort_order": 51, "source_type": "fred",
-     "influence_short": "Состояние спроса в Китае; дефляция в КНР — сигнал слабого спроса на сырьё."},
-    {"code": "cn_gdp", "title": "ВВП КНР", "unit": "%", "country": "cn", "frequency": "quarterly", "metric_types": ["yoy"], "display_group": "world", "sort_order": 52, "source_type": "fred",
-     "influence_short": "Главный покупатель российского сырья — темпы КНР задают спрос на нефть/металлы."},
-    {"code": "cn_unemployment", "title": "Безработица КНР", "unit": "%", "country": "cn", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 53, "source_type": "fred",
-     "influence_short": "Индикатор состояния китайской экономики."},
-    {"code": "world_gdp", "title": "Мировой ВВП", "unit": "%", "country": "world", "frequency": "yearly", "metric_types": ["yoy"], "display_group": "world", "sort_order": 60, "source_type": "fred",
-     "influence_short": "Глобальный экономический рост — общий фон спроса на сырьё и риск-аппетита."},
-
-    {"code": "wb_aluminum", "title": "Алюминий (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 70, "source_type": "wb",
-     "influence_short": "Мировая цена алюминия — выручка и рентабельность производителей (Русал); также сырьевой вход для потребителей проката."},
-    {"code": "wb_nickel", "title": "Никель (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 71, "source_type": "wb",
-     "influence_short": "Мировая цена никеля — ключевой драйвер выручки диверсифицированных металлургов (Норникель)."},
-    {"code": "wb_coal", "title": "Уголь (мировая цена, австралийский бенчмарк)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 72, "source_type": "wb",
-     "influence_short": "Мировая цена энергетического угля — выручка угольных экспортёров; ориентир для экспортных контрактов при дисконте к российским сортам."},
-    {"code": "wb_iron_ore", "title": "Железная руда (мировая цена)", "unit": "usd/dmtu", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 73, "source_type": "wb",
-     "influence_short": "Мировая цена железной руды — сырьевой вход для чёрной металлургии (себестоимость стали) и выручка добывающих сегментов."},
-    {"code": "wb_phosphate_rock", "title": "Фосфатная руда (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 74, "source_type": "wb",
-     "influence_short": "Мировая цена фосфатного сырья — сырьевой вход для производителей фосфорных удобрений."},
-    {"code": "wb_dap", "title": "Диаммонийфосфат DAP (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 75, "source_type": "wb",
-     "influence_short": "Мировая цена фосфорных удобрений (DAP) — выручка производителей удобрений (ФосАгро)."},
-    {"code": "wb_potash", "title": "Хлористый калий (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 76, "source_type": "wb",
-     "influence_short": "Мировая цена калийных удобрений — выручка калийных производителей (Уралкалий)."},
-    {"code": "wb_urea", "title": "Карбамид (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 77, "source_type": "wb",
-     "influence_short": "Мировая цена азотных удобрений (карбамид) — выручка азотных производителей (Акрон, ФосАгро)."},
-    {"code": "wb_oil_brent", "title": "Нефть Brent (мировая цена)", "unit": "usd/bbl", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 78, "source_type": "wb",
-     "influence_short": "Североморский датированный бенчмарк — ориентир для мировой цены нефти и дисконта Urals."},
-    {"code": "wb_oil_wti", "title": "Нефть WTI (мировая цена)", "unit": "usd/bbl", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 79, "source_type": "wb",
-     "influence_short": "Американский бенчмарк нефти — вторичный ориентир мирового нефтяного цикла."},
-    {"code": "wb_gas_us", "title": "Газ США Henry Hub (мировая цена)", "unit": "usd/mmbtu", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 80, "source_type": "wb",
-     "influence_short": "Американский бенчмарк газа — контекст мирового газового цикла и цены СПГ."},
-    {"code": "wb_gas_europe", "title": "Газ Европа (мировая цена)", "unit": "usd/mmbtu", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 81, "source_type": "wb",
-     "influence_short": "Европейский бенчмарк газа (аналог TTF) — цена основного альтернативного рынка сбыта для российского трубопроводного газа/СПГ."},
-    {"code": "wb_gas_lng_japan", "title": "СПГ Япония (мировая цена)", "unit": "usd/mmbtu", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 82, "source_type": "wb",
-     "influence_short": "Азиатский бенчмарк СПГ (аналог JKM) — цена ключевого рынка сбыта для российского СПГ (НОВАТЭК)."},
-    {"code": "wb_copper", "title": "Медь (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 83, "source_type": "wb",
-     "influence_short": "Мировая цена меди — выручка производителей (Норникень, РМК) и сырьевой вход для электротехники/строительства."},
-    {"code": "wb_lead", "title": "Свинец (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 84, "source_type": "wb",
-     "influence_short": "Мировая цена свинца — второстепенный товар для диверсифицированных металлургов и производителей аккумуляторов."},
-    {"code": "wb_tin", "title": "Олово (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 85, "source_type": "wb",
-     "influence_short": "Мировая цена олова — нишевый товар (Русолово)."},
-    {"code": "wb_zinc", "title": "Цинк (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 86, "source_type": "wb",
-     "influence_short": "Мировая цена цинка — выручка диверсифицированных металлургов и сырьевой вход для оцинковки/стройматериалов."},
-    {"code": "wb_gold", "title": "Золото (мировая цена)", "unit": "usd/oz", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 87, "source_type": "wb",
-     "influence_short": "Мировая цена золота — выручка золотодобытчиков (Полюс, ЮГК) и залоговая стоимость для скупки/ломбардов (МГКЛ)."},
-    {"code": "wb_platinum", "title": "Платина (мировая цена)", "unit": "usd/oz", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 88, "source_type": "wb",
-     "influence_short": "Мировая цена платины — выручка производителей металлов платиновой группы (Норникель)."},
-    {"code": "wb_silver", "title": "Серебро (мировая цена)", "unit": "usd/oz", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 89, "source_type": "wb",
-     "influence_short": "Мировая цена серебра — второстепенная выручка драгметаллических производителей."},
-    {"code": "wb_cocoa", "title": "Какао (мировая цена)", "unit": "usd/kg", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 90, "source_type": "wb",
-     "influence_short": "Мировая цена какао — главная статья себестоимости шоколадной кондитерки (Красный Октябрь)."},
-    {"code": "wb_sugar_world", "title": "Сахар (мировая цена)", "unit": "usd/kg", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 91, "source_type": "wb",
-     "influence_short": "Мировая биржевая цена сахара — ориентир для внутреннего российского рынка (декоррелирован при самообеспеченности из свёклы)."},
-    {"code": "wb_wheat", "title": "Пшеница (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 92, "source_type": "wb",
-     "influence_short": "Мировая цена пшеницы (US HRW) — ориентир для кормового зерна и себестоимости животноводства/птицеводства."},
-    {"code": "wb_fish_meal", "title": "Рыбная мука (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 93, "source_type": "wb",
-     "influence_short": "Мировая цена рыбной муки — компонент кормов для аквакультуры (Инарктика)."},
-    {"code": "wb_soybean_meal", "title": "Соевый шрот (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 94, "source_type": "wb",
-     "influence_short": "Мировая цена соевого шрота — белковый компонент животноводческих кормов."},
-    {"code": "yahoo_palladium", "title": "Палладий (мировая цена)", "unit": "usd/oz", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 95, "source_type": "yahoo",
-     "influence_short": "Мировая цена палладия — выручка производителей металлов платиновой группы (Норникель). 🔴 Источник неофициальный (Yahoo Finance, без ключа/соглашения) — World Bank/FRED палладий не покрывают."},
-    {"code": "yahoo_lumber", "title": "Пиломатериалы (мировая цена)", "unit": "usd/mbf", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 96, "source_type": "yahoo",
-     "influence_short": "Североамериканская цена пиломатериалов (CME) — ориентир для выручки лесопромышленников (Сегежа). 🔴 Источник неофициальный (Yahoo Finance); история короче остальных — старый контракт CME остановлен в 2022, преемник моложе."},
-    {"code": "yahoo_steel_hrc", "title": "Стальной г/к прокат (мировая цена, США)", "unit": "usd/st", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 97, "source_type": "yahoo",
-     "influence_short": "Цена г/к проката США Midwest (CME HRC) — направление МИРОВОГО цикла стали, ориентир для металлургов (НЛМК/Северсталь/ММК/Мечел). НЕ российская цена — свободного индекса цены проката в РФ нет; внутренние цены формируются в основном спросом (стройка, ставка ЦБ), а не мировым паритетом. 🔴 Источник неофициальный (Yahoo Finance)."},
-    {"code": "metaltorg_steel_index", "title": "Сводный индекс цен чёрных металлов (Россия)", "unit": "индекс", "country": "ru", "frequency": "weekly", "metric_types": ["level"], "display_group": "ru", "sort_order": 98, "source_type": "metaltorg",
-     "influence_short": "Композитный индекс цен на российском рынке чёрных металлов (Металл Торг.Ру) — общее направление внутреннего цикла для металлургов (НЛМК/Северсталь/ММК/Мечел/ЧМК). 🔴 Источник неофициальный, разрешение фактически недельное."},
-    {"code": "metaltorg_hrc", "title": "Лист горячекатаный, руб/т (Россия)", "unit": "руб/т", "country": "ru", "frequency": "daily", "metric_types": ["level"], "display_group": "ru", "sort_order": 99, "source_type": "metaltorg",
-     "influence_short": "Внутрироссийская рублёвая цена г/к проката (Металл Торг.Ру) — прямой ориентир выручки НЛМК/Северстали/ММК и стоимости сырья ПРОФНАСТИЛа. 🔴 Источник неофициальный; глубокий архив истории платный — ряд копится с даты подключения (2026-07-28), не бэкфиллен в прошлое."},
-    {"code": "metaltorg_rebar", "title": "Арматура А3, руб/т (Россия)", "unit": "руб/т", "country": "ru", "frequency": "daily", "metric_types": ["level"], "display_group": "ru", "sort_order": 100, "source_type": "metaltorg",
-     "influence_short": "Внутрироссийская рублёвая цена арматуры (Металл Торг.Ру) — ориентир для сортового проката ЧМК/Мечела. 🔴 Источник неофициальный; глубокий архив истории платный — ряд копится с даты подключения (2026-07-28), не бэкфиллен в прошлое."},
-    {"code": "idex_diamond", "title": "IDEX Diamond Index (мировая цена алмазов)", "unit": "индекс", "country": "world", "frequency": "daily", "metric_types": ["level"], "display_group": "world", "sort_order": 101, "source_type": "idex",
-     "influence_short": "Композитный индекс биржи необработанных алмазов IDEX — прямой ориентир выручки АЛРОСА. 🔴 Источник неофициальный (не биржа/ЦБ), но с полной бесплатной историей с 2015 года."}
+    {
+      "code": "key_rate",
+      "title": "Ключевая ставка ЦБ",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "rate",
+      "sort_order": 1,
+      "source_type": "cbr",
+      "influence_short": "Выше ставка — дороже деньги: ниже оценки бизнеса и выше процентные расходы; облигации и депозиты привлекательнее акций.",
+      "influence_full": "Ключевая ставка задаёт стоимость денег в экономике. Рост ставки повышает ставку дисконтирования будущих прибылей → снижает справедливую оценку бизнеса, особенно длинных/растущих компаний; увеличивает процентные расходы у закредитованных эмитентов. Облигации и депозиты становятся доходнее → переток из акций. Снижение ставки действует обратно: смягчение поддерживает оценки."
+    },
+    {
+      "code": "inflation",
+      "title": "Инфляция",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "mom",
+        "yoy"
+      ],
+      "display_group": "ru",
+      "sort_order": 2,
+      "source_type": "news",
+      "influence_short": "Высокая/ускоряющаяся инфляция + незаякоренные ожидания → давление на ЦБ держать ставку высокой; плюс давление на маржу через издержки.",
+      "influence_full": "Инфляция — ключевой вход для решения ЦБ по ставке. Ускорение при незаякоренных ожиданиях вынуждает ЦБ держать/повышать ставку (см. эффект ставки). Для компаний — рост издержек давит на маржу, если переложить в цены не удаётся."
+    },
+    {
+      "code": "inflation_weekly",
+      "title": "Недельная инфляция",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "weekly",
+      "metric_types": [
+        "wow"
+      ],
+      "display_group": "ru",
+      "sort_order": 3,
+      "source_type": "news",
+      "influence_short": "Оперативный индикатор ценового давления между месячными отчётами — ранний сигнал к решению ЦБ."
+    },
+    {
+      "code": "inflation_expectations",
+      "title": "Инфляционные ожидания населения",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 4,
+      "source_type": "news",
+      "influence_short": "Незаякоренные ожидания самоусиливают инфляцию и вынуждают ЦБ держать ставку жёстче."
+    },
+    {
+      "code": "usdrub",
+      "title": "Курс USD/RUB",
+      "unit": "руб",
+      "country": "ru",
+      "frequency": "daily",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 5,
+      "source_type": "cbr",
+      "influence_short": "Слабый рубль — выигрыш экспортёров, давление на импортёров и компании с валютным долгом; влияет на инфляцию и бюджет.",
+      "influence_full": "Курс рубля распределяет выгоду между экспортёрами (выручка в валюте) и импортёрами/компаниями с валютным долгом. Слабый рубль проинфляционен (дорожает импорт) и пополняет бюджет (нефтегазовые доходы в рублях выше)."
+    },
+    {
+      "code": "cnyrub",
+      "title": "Курс CNY/RUB",
+      "unit": "руб",
+      "country": "ru",
+      "frequency": "daily",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 6,
+      "source_type": "cbr",
+      "influence_short": "Юань — основная расчётная валюта внешней торговли РФ; курс важен для импортёров и юаневых облигаций."
+    },
+    {
+      "code": "eurrub",
+      "title": "Курс EUR/RUB",
+      "unit": "руб",
+      "country": "ru",
+      "frequency": "daily",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 7,
+      "source_type": "cbr",
+      "influence_short": "Курс евро влияет на импортёров из ЕС и валютную переоценку."
+    },
+    {
+      "code": "gdp",
+      "title": "ВВП (реальный, г/г)",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "quarterly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "ru",
+      "sort_order": 8,
+      "source_type": "fred",
+      "influence_short": "Темпы ВВП задают динамику выручки/прибылей и аппетит рынка; перегрев → инфляция → ужесточение ставки.",
+      "influence_full": "Рост ВВП — это рост совокупной выручки и прибылей бизнеса и аппетита инвесторов к риску. Но перегрев экономики выше потенциала разгоняет инфляцию и провоцирует ужесточение ДКП, что бьёт по оценкам."
+    },
+    {
+      "code": "unemployment",
+      "title": "Безработица",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 9,
+      "source_type": "news",
+      "influence_short": "Ниже естественного уровня → перегрев рынка труда → рост зарплат → проинфляционно → давление вверх на ставку (кривая Филлипса).",
+      "influence_full": "Сверхнизкая безработица означает дефицит рабочей силы → работодатели повышают зарплаты → растут издержки и потребительский спрос → проинфляционное давление → ЦБ вынужден держать ставку жёстче."
+    },
+    {
+      "code": "hh_index",
+      "title": "Индекс рынка труда hh.ru",
+      "unit": "ед",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 10,
+      "source_type": "news",
+      "influence_short": "Резюме на вакансию: ниже — острее дефицит кадров (проинфляционно), выше — рынок труда остывает."
+    },
+    {
+      "code": "pmi_composite",
+      "title": "PMI композитный",
+      "unit": "ед",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 11,
+      "source_type": "news",
+      "influence_short": "Выше 50 — экономика расширяется, ниже 50 — сжимается; опережающий индикатор деловой активности."
+    },
+    {
+      "code": "ppi",
+      "title": "Индекс цен производителей (ИЦП)",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "ru",
+      "sort_order": 12,
+      "source_type": "news",
+      "influence_short": "Опережает потребительскую инфляцию: рост цен производителей со временем перекладывается в розницу."
+    },
+    {
+      "code": "urals",
+      "title": "Нефть Urals",
+      "unit": "usd",
+      "country": "ru",
+      "frequency": "daily",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 13,
+      "source_type": "tankermap",
+      "influence_short": "Дорогая нефть — выигрыш нефтегаза и пополнение бюджета; влияет на курс рубля и инфляцию."
+    },
+    {
+      "code": "budget_balance",
+      "title": "Баланс бюджета",
+      "unit": "%ВВП",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 14,
+      "source_type": "minfin",
+      "influence_short": "Рост дефицита → больше заимствований (рост предложения ОФЗ и доходностей) + фискальный импульс → проинфляционно → давление на ставку.",
+      "influence_full": "Дефицит бюджета финансируется заимствованиями: рост размещений ОФЗ давит на их цены вверх по доходности (вниз по цене). Фискальный импульс (госрасходы) добавляет спроса в экономику → проинфляционно → ужесточение ДКП."
+    },
+    {
+      "code": "budget_balance_ytd",
+      "title": "Сальдо федерального бюджета (накопленным итогом с начала года)",
+      "unit": "млрд ₽",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 14,
+      "source_type": "minfin",
+      "influence_short": "Дефицит финансируется занятиями и тратой резервов — это проинфляционный импульс и давление на ставку.",
+      "influence_full": "Дефицит бюджета финансируется заимствованиями: рост размещений ОФЗ давит на их цены вверх по доходности (вниз по цене). Фискальный импульс (госрасходы) добавляет спроса в экономику → проинфляционно → ужесточение ДКП."
+    },
+    {
+      "code": "gov_spending_growth",
+      "title": "Рост госрасходов",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 15,
+      "source_type": "minfin",
+      "influence_short": "Фискальный импульс: ускорение госрасходов добавляет спроса → проинфляционно."
+    },
+    {
+      "code": "m2",
+      "title": "Денежная масса M2",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 16,
+      "source_type": "cbr",
+      "influence_short": "Темп роста денежной массы — индикатор монетарного давления на инфляцию."
+    },
+    {
+      "code": "nominal_wage",
+      "title": "Номинальная зарплата",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 17,
+      "source_type": "news",
+      "influence_short": "Быстрый рост зарплат разгоняет потребление и издержки → проинфляционно."
+    },
+    {
+      "code": "credit_economy",
+      "title": "Кредит экономике",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "ru",
+      "sort_order": 18,
+      "source_type": "cbr",
+      "influence_short": "Темп кредитования отражает спрос на деньги и трансмиссию ставки; перегрев кредита проинфляционен."
+    },
+    {
+      "code": "claims_organizations",
+      "title": "Кредиты организациям",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "ru",
+      "sort_order": 19,
+      "source_type": "cbr",
+      "influence_short": "Корпоративное кредитование — индикатор инвестиционной активности и чувствительности к ставке."
+    },
+    {
+      "code": "claims_households",
+      "title": "Кредиты населению",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "ru",
+      "sort_order": 20,
+      "source_type": "cbr",
+      "influence_short": "Розничное кредитование — индикатор потребительского спроса; перегрев усиливает инфляцию."
+    },
+    {
+      "code": "real_wage",
+      "title": "Реальная зарплата",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "ru",
+      "sort_order": 21,
+      "source_type": "rosstat",
+      "influence_short": "Рост реальных зарплат — топливо потребительского спроса; ускорение проинфляционно и держит ставку выше."
+    },
+    {
+      "code": "fixed_capital_investment",
+      "title": "Инвестиции в основной капитал",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "quarterly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "ru",
+      "sort_order": 23,
+      "source_type": "news",
+      "influence_short": "Опережающий индикатор деловой активности: рост инвестиций — бизнес расширяет мощности и верит в будущий спрос; резкое падение (как в 1кв2026, -14,3%) — сигнал охлаждения экономики и осторожности ЦБ при снижении ставки.",
+      "influence_full": "Инвестиции в основной капитал — вложения бизнеса и государства в здания, оборудование, инфраструктуру. Опережающий индикатор: решение инвестировать принимается на основе ожиданий будущего спроса и доступности финансирования (ставка). Падение инвестиций сигнализирует охлаждение экономики и осторожность бизнеса при высокой ставке; рост — расширение мощностей, которое со временем увеличивает потенциал предложения и может снижать инфляционное давление."
+    },
+    {
+      "code": "business_climate_indicator",
+      "title": "Индикатор бизнес-климата (ИБК)",
+      "unit": "п",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 24,
+      "source_type": "cbr",
+      "influence_short": "Опросный индикатор ожиданий бизнеса (ЦБ, >15 тыс. компаний): отрицательные значения — замедление деловой активности, положительные — оживление; опережает официальную статистику на месяцы.",
+      "influence_full": "Индикатор бизнес-климата (ИБК) Банка России — среднее геометрическое балансов текущих оценок и ожиданий предприятий по производству и спросу, ежемесячный опрос >15 тыс. компаний из ключевых отраслей (без финсектора). Публикуется РАНЬШЕ официальной статистики промпроизводства/ВВП — ранний сигнал разворота цикла. Устойчиво отрицательные значения предупреждают о замедлении экономики до того, как это отразится в жёстких данных; ЦБ учитывает ИБК при решениях по ставке наравне с инфляционными ожиданиями."
+    },
+    {
+      "code": "real_income",
+      "title": "Реальные доходы населения",
+      "unit": "%",
+      "country": "ru",
+      "frequency": "quarterly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "ru",
+      "sort_order": 22,
+      "source_type": "rosstat",
+      "influence_short": "Динамика реальных доходов задаёт потребительский спрос и спрос на товары/услуги компаний."
+    },
+    {
+      "code": "us_rate",
+      "title": "Ставка ФРС (США)",
+      "unit": "%",
+      "country": "us",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 30,
+      "source_type": "fred",
+      "influence_short": "Глобальная стоимость денег: высокая ставка ФРС укрепляет доллар и оттягивает капитал с развивающихся рынков."
+    },
+    {
+      "code": "us_inflation",
+      "title": "Инфляция США",
+      "unit": "%",
+      "country": "us",
+      "frequency": "monthly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "world",
+      "sort_order": 31,
+      "source_type": "fred",
+      "influence_short": "Определяет траекторию ставки ФРС → мировые рынки и аппетит к риску."
+    },
+    {
+      "code": "us_gdp",
+      "title": "ВВП США",
+      "unit": "%",
+      "country": "us",
+      "frequency": "quarterly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "world",
+      "sort_order": 32,
+      "source_type": "fred",
+      "influence_short": "Крупнейшая экономика мира — задаёт глобальный спрос и настроения рынков."
+    },
+    {
+      "code": "us_unemployment",
+      "title": "Безработица США",
+      "unit": "%",
+      "country": "us",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 33,
+      "source_type": "fred",
+      "influence_short": "Вход в решение ФРС по ставке (двойной мандат: занятость + инфляция)."
+    },
+    {
+      "code": "eu_rate",
+      "title": "Ставка ЕЦБ (ЕС)",
+      "unit": "%",
+      "country": "eu",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 40,
+      "source_type": "fred",
+      "influence_short": "Стоимость денег в еврозоне — влияет на евро и европейский спрос."
+    },
+    {
+      "code": "eu_inflation",
+      "title": "Инфляция ЕС",
+      "unit": "%",
+      "country": "eu",
+      "frequency": "monthly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "world",
+      "sort_order": 41,
+      "source_type": "fred",
+      "influence_short": "Определяет траекторию ставки ЕЦБ."
+    },
+    {
+      "code": "eu_gdp",
+      "title": "ВВП ЕС",
+      "unit": "%",
+      "country": "eu",
+      "frequency": "quarterly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "world",
+      "sort_order": 42,
+      "source_type": "fred",
+      "influence_short": "Динамика европейского спроса — важна для экспортёров."
+    },
+    {
+      "code": "eu_unemployment",
+      "title": "Безработица ЕС",
+      "unit": "%",
+      "country": "eu",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 43,
+      "source_type": "fred",
+      "influence_short": "Индикатор состояния экономики еврозоны."
+    },
+    {
+      "code": "cn_rate",
+      "title": "Ставка НБК (КНР)",
+      "unit": "%",
+      "country": "cn",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 50,
+      "source_type": "fred",
+      "influence_short": "ДКП Китая — ключевого торгового партнёра РФ; влияет на юань и спрос на сырьё."
+    },
+    {
+      "code": "cn_inflation",
+      "title": "Инфляция КНР",
+      "unit": "%",
+      "country": "cn",
+      "frequency": "monthly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "world",
+      "sort_order": 51,
+      "source_type": "fred",
+      "influence_short": "Состояние спроса в Китае; дефляция в КНР — сигнал слабого спроса на сырьё."
+    },
+    {
+      "code": "cn_gdp",
+      "title": "ВВП КНР",
+      "unit": "%",
+      "country": "cn",
+      "frequency": "quarterly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "world",
+      "sort_order": 52,
+      "source_type": "fred",
+      "influence_short": "Главный покупатель российского сырья — темпы КНР задают спрос на нефть/металлы."
+    },
+    {
+      "code": "cn_unemployment",
+      "title": "Безработица КНР",
+      "unit": "%",
+      "country": "cn",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 53,
+      "source_type": "fred",
+      "influence_short": "Индикатор состояния китайской экономики."
+    },
+    {
+      "code": "world_gdp",
+      "title": "Мировой ВВП",
+      "unit": "%",
+      "country": "world",
+      "frequency": "yearly",
+      "metric_types": [
+        "yoy"
+      ],
+      "display_group": "world",
+      "sort_order": 60,
+      "source_type": "fred",
+      "influence_short": "Глобальный экономический рост — общий фон спроса на сырьё и риск-аппетита."
+    },
+    {
+      "code": "wb_aluminum",
+      "title": "Алюминий (мировая цена)",
+      "unit": "usd/mt",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 70,
+      "source_type": "wb",
+      "influence_short": "Мировая цена алюминия — выручка и рентабельность производителей (Русал); также сырьевой вход для потребителей проката."
+    },
+    {
+      "code": "wb_nickel",
+      "title": "Никель (мировая цена)",
+      "unit": "usd/mt",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 71,
+      "source_type": "wb",
+      "influence_short": "Мировая цена никеля — ключевой драйвер выручки диверсифицированных металлургов (Норникель)."
+    },
+    {
+      "code": "wb_coal",
+      "title": "Уголь (мировая цена, австралийский бенчмарк)",
+      "unit": "usd/mt",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 72,
+      "source_type": "wb",
+      "influence_short": "Мировая цена энергетического угля — выручка угольных экспортёров; ориентир для экспортных контрактов при дисконте к российским сортам."
+    },
+    {
+      "code": "wb_iron_ore",
+      "title": "Железная руда (мировая цена)",
+      "unit": "usd/dmtu",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 73,
+      "source_type": "wb",
+      "influence_short": "Мировая цена железной руды — сырьевой вход для чёрной металлургии (себестоимость стали) и выручка добывающих сегментов."
+    },
+    {
+      "code": "wb_phosphate_rock",
+      "title": "Фосфатная руда (мировая цена)",
+      "unit": "usd/mt",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 74,
+      "source_type": "wb",
+      "influence_short": "Мировая цена фосфатного сырья — сырьевой вход для производителей фосфорных удобрений."
+    },
+    {
+      "code": "wb_dap",
+      "title": "Диаммонийфосфат DAP (мировая цена)",
+      "unit": "usd/mt",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 75,
+      "source_type": "wb",
+      "influence_short": "Мировая цена фосфорных удобрений (DAP) — выручка производителей удобрений (ФосАгро)."
+    },
+    {
+      "code": "wb_potash",
+      "title": "Хлористый калий (мировая цена)",
+      "unit": "usd/mt",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 76,
+      "source_type": "wb",
+      "influence_short": "Мировая цена калийных удобрений — выручка калийных производителей (Уралкалий)."
+    },
+    {
+      "code": "wb_urea",
+      "title": "Карбамид (мировая цена)",
+      "unit": "usd/mt",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 77,
+      "source_type": "wb",
+      "influence_short": "Мировая цена азотных удобрений (карбамид) — выручка азотных производителей (Акрон, ФосАгро)."
+    },
+    {
+      "code": "wb_oil_brent",
+      "title": "Нефть Brent (мировая цена)",
+      "unit": "usd/bbl",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 78,
+      "source_type": "wb",
+      "influence_short": "Североморский датированный бенчмарк — ориентир для мировой цены нефти и дисконта Urals."
+    },
+    {
+      "code": "wb_oil_wti",
+      "title": "Нефть WTI (мировая цена)",
+      "unit": "usd/bbl",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 79,
+      "source_type": "wb",
+      "influence_short": "Американский бенчмарк нефти — вторичный ориентир мирового нефтяного цикла."
+    },
+    {
+      "code": "wb_gas_us",
+      "title": "Газ США Henry Hub (мировая цена)",
+      "unit": "usd/mmbtu",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 80,
+      "source_type": "wb",
+      "influence_short": "Американский бенчмарк газа — контекст мирового газового цикла и цены СПГ."
+    },
+    {
+      "code": "wb_gas_europe",
+      "title": "Газ Европа (мировая цена)",
+      "unit": "usd/mmbtu",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 81,
+      "source_type": "wb",
+      "influence_short": "Европейский бенчмарк газа (аналог TTF) — цена основного альтернативного рынка сбыта для российского трубопроводного газа/СПГ."
+    },
+    {
+      "code": "wb_gas_lng_japan",
+      "title": "СПГ Япония (мировая цена)",
+      "unit": "usd/mmbtu",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 82,
+      "source_type": "wb",
+      "influence_short": "Азиатский бенчмарк СПГ (аналог JKM) — цена ключевого рынка сбыта для российского СПГ (НОВАТЭК)."
+    },
+    {
+      "code": "wb_copper",
+      "title": "Медь (мировая цена)",
+      "unit": "usd/mt",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 83,
+      "source_type": "wb",
+      "influence_short": "Мировая цена меди — выручка производителей (Норникень, РМК) и сырьевой вход для электротехники/строительства."
+    },
+    {
+      "code": "wb_lead",
+      "title": "Свинец (мировая цена)",
+      "unit": "usd/mt",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 84,
+      "source_type": "wb",
+      "influence_short": "Мировая цена свинца — второстепенный товар для диверсифицированных металлургов и производителей аккумуляторов."
+    },
+    {
+      "code": "wb_tin",
+      "title": "Олово (мировая цена)",
+      "unit": "usd/mt",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 85,
+      "source_type": "wb",
+      "influence_short": "Мировая цена олова — нишевый товар (Русолово)."
+    },
+    {
+      "code": "wb_zinc",
+      "title": "Цинк (мировая цена)",
+      "unit": "usd/mt",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 86,
+      "source_type": "wb",
+      "influence_short": "Мировая цена цинка — выручка диверсифицированных металлургов и сырьевой вход для оцинковки/стройматериалов."
+    },
+    {
+      "code": "wb_gold",
+      "title": "Золото (мировая цена)",
+      "unit": "usd/oz",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 87,
+      "source_type": "wb",
+      "influence_short": "Мировая цена золота — выручка золотодобытчиков (Полюс, ЮГК) и залоговая стоимость для скупки/ломбардов (МГКЛ)."
+    },
+    {
+      "code": "wb_platinum",
+      "title": "Платина (мировая цена)",
+      "unit": "usd/oz",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 88,
+      "source_type": "wb",
+      "influence_short": "Мировая цена платины — выручка производителей металлов платиновой группы (Норникель)."
+    },
+    {
+      "code": "wb_silver",
+      "title": "Серебро (мировая цена)",
+      "unit": "usd/oz",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 89,
+      "source_type": "wb",
+      "influence_short": "Мировая цена серебра — второстепенная выручка драгметаллических производителей."
+    },
+    {
+      "code": "wb_cocoa",
+      "title": "Какао (мировая цена)",
+      "unit": "usd/kg",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 90,
+      "source_type": "wb",
+      "influence_short": "Мировая цена какао — главная статья себестоимости шоколадной кондитерки (Красный Октябрь)."
+    },
+    {
+      "code": "wb_sugar_world",
+      "title": "Сахар (мировая цена)",
+      "unit": "usd/kg",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 91,
+      "source_type": "wb",
+      "influence_short": "Мировая биржевая цена сахара — ориентир для внутреннего российского рынка (декоррелирован при самообеспеченности из свёклы)."
+    },
+    {
+      "code": "wb_wheat",
+      "title": "Пшеница (мировая цена)",
+      "unit": "usd/mt",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 92,
+      "source_type": "wb",
+      "influence_short": "Мировая цена пшеницы (US HRW) — ориентир для кормового зерна и себестоимости животноводства/птицеводства."
+    },
+    {
+      "code": "wb_fish_meal",
+      "title": "Рыбная мука (мировая цена)",
+      "unit": "usd/mt",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 93,
+      "source_type": "wb",
+      "influence_short": "Мировая цена рыбной муки — компонент кормов для аквакультуры (Инарктика)."
+    },
+    {
+      "code": "wb_soybean_meal",
+      "title": "Соевый шрот (мировая цена)",
+      "unit": "usd/mt",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 94,
+      "source_type": "wb",
+      "influence_short": "Мировая цена соевого шрота — белковый компонент животноводческих кормов."
+    },
+    {
+      "code": "yahoo_palladium",
+      "title": "Палладий (мировая цена)",
+      "unit": "usd/oz",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 95,
+      "source_type": "yahoo",
+      "influence_short": "Мировая цена палладия — выручка производителей металлов платиновой группы (Норникель). 🔴 Источник неофициальный (Yahoo Finance, без ключа/соглашения) — World Bank/FRED палладий не покрывают."
+    },
+    {
+      "code": "yahoo_lumber",
+      "title": "Пиломатериалы (мировая цена)",
+      "unit": "usd/mbf",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 96,
+      "source_type": "yahoo",
+      "influence_short": "Североамериканская цена пиломатериалов (CME) — ориентир для выручки лесопромышленников (Сегежа). 🔴 Источник неофициальный (Yahoo Finance); история короче остальных — старый контракт CME остановлен в 2022, преемник моложе."
+    },
+    {
+      "code": "yahoo_steel_hrc",
+      "title": "Стальной г/к прокат (мировая цена, США)",
+      "unit": "usd/st",
+      "country": "world",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 97,
+      "source_type": "yahoo",
+      "influence_short": "Цена г/к проката США Midwest (CME HRC) — направление МИРОВОГО цикла стали, ориентир для металлургов (НЛМК/Северсталь/ММК/Мечел). НЕ российская цена — свободного индекса цены проката в РФ нет; внутренние цены формируются в основном спросом (стройка, ставка ЦБ), а не мировым паритетом. 🔴 Источник неофициальный (Yahoo Finance)."
+    },
+    {
+      "code": "metaltorg_steel_index",
+      "title": "Сводный индекс цен чёрных металлов (Россия)",
+      "unit": "индекс",
+      "country": "ru",
+      "frequency": "weekly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 98,
+      "source_type": "metaltorg",
+      "influence_short": "Композитный индекс цен на российском рынке чёрных металлов (Металл Торг.Ру) — общее направление внутреннего цикла для металлургов (НЛМК/Северсталь/ММК/Мечел/ЧМК). 🔴 Источник неофициальный, разрешение фактически недельное."
+    },
+    {
+      "code": "metaltorg_hrc",
+      "title": "Лист горячекатаный, руб/т (Россия)",
+      "unit": "руб/т",
+      "country": "ru",
+      "frequency": "daily",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 99,
+      "source_type": "metaltorg",
+      "influence_short": "Внутрироссийская рублёвая цена г/к проката (Металл Торг.Ру) — прямой ориентир выручки НЛМК/Северстали/ММК и стоимости сырья ПРОФНАСТИЛа. 🔴 Источник неофициальный; глубокий архив истории платный — ряд копится с даты подключения (2026-07-28), не бэкфиллен в прошлое."
+    },
+    {
+      "code": "metaltorg_rebar",
+      "title": "Арматура А3, руб/т (Россия)",
+      "unit": "руб/т",
+      "country": "ru",
+      "frequency": "daily",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 100,
+      "source_type": "metaltorg",
+      "influence_short": "Внутрироссийская рублёвая цена арматуры (Металл Торг.Ру) — ориентир для сортового проката ЧМК/Мечела. 🔴 Источник неофициальный; глубокий архив истории платный — ряд копится с даты подключения (2026-07-28), не бэкфиллен в прошлое."
+    },
+    {
+      "code": "idex_diamond",
+      "title": "IDEX Diamond Index (мировая цена алмазов)",
+      "unit": "индекс",
+      "country": "world",
+      "frequency": "daily",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "sort_order": 101,
+      "source_type": "idex",
+      "influence_short": "Композитный индекс биржи необработанных алмазов IDEX — прямой ориентир выручки АЛРОСА. 🔴 Источник неофициальный (не биржа/ЦБ), но с полной бесплатной историей с 2015 года."
+    }
   ],
   "csv_mapping": {
-    "Key_rate": {"code": "key_rate", "metric": "level"},
-    "Inflation_m": {"code": "inflation", "metric": "mom"},
-    "Inflation_y": {"code": "inflation", "metric": "yoy"},
-    "Inflation_expectantions": {"code": "inflation_expectations", "metric": "level"},
-    "GDP_m": {"code": "gdp", "metric": "level"},
-    "Unemployment": {"code": "unemployment", "metric": "level"},
-    "PPI_y": {"code": "ppi", "metric": "yoy"},
-    "PMI_comp": {"code": "pmi_composite", "metric": "level"},
-    "Ruble_rate": {"code": "usdrub", "metric": "level"},
-    "Urals_cost": {"code": "urals", "metric": "level"},
-    "Budget_balance": {"code": "budget_balance", "metric": "level"},
-    "Government_spending_growth": {"code": "gov_spending_growth", "metric": "level"},
-    "M2": {"code": "m2", "metric": "level"},
-    "hh-index": {"code": "hh_index", "metric": "level"},
-    "Nominal_wage": {"code": "nominal_wage", "metric": "level"},
-    "Iflation_us": {"code": "us_inflation", "metric": "yoy"},
-    "credit_economy_yoy_pct": {"code": "credit_economy", "metric": "yoy"},
-    "claims_to_organizations_yoy_pct": {"code": "claims_organizations", "metric": "yoy"},
-    "claims_to_households_yoy_pct": {"code": "claims_households", "metric": "yoy"}
+    "Key_rate": {
+      "code": "key_rate",
+      "metric": "level"
+    },
+    "Inflation_m": {
+      "code": "inflation",
+      "metric": "mom"
+    },
+    "Inflation_y": {
+      "code": "inflation",
+      "metric": "yoy"
+    },
+    "Inflation_expectantions": {
+      "code": "inflation_expectations",
+      "metric": "level"
+    },
+    "GDP_m": {
+      "code": "gdp",
+      "metric": "level"
+    },
+    "Unemployment": {
+      "code": "unemployment",
+      "metric": "level"
+    },
+    "PPI_y": {
+      "code": "ppi",
+      "metric": "yoy"
+    },
+    "PMI_comp": {
+      "code": "pmi_composite",
+      "metric": "level"
+    },
+    "Ruble_rate": {
+      "code": "usdrub",
+      "metric": "level"
+    },
+    "Urals_cost": {
+      "code": "urals",
+      "metric": "level"
+    },
+    "Budget_balance": {
+      "code": "budget_balance",
+      "metric": "level"
+    },
+    "Government_spending_growth": {
+      "code": "gov_spending_growth",
+      "metric": "level"
+    },
+    "M2": {
+      "code": "m2",
+      "metric": "level"
+    },
+    "hh-index": {
+      "code": "hh_index",
+      "metric": "level"
+    },
+    "Nominal_wage": {
+      "code": "nominal_wage",
+      "metric": "level"
+    },
+    "Iflation_us": {
+      "code": "us_inflation",
+      "metric": "yoy"
+    },
+    "credit_economy_yoy_pct": {
+      "code": "credit_economy",
+      "metric": "yoy"
+    },
+    "claims_to_organizations_yoy_pct": {
+      "code": "claims_organizations",
+      "metric": "yoy"
+    },
+    "claims_to_households_yoy_pct": {
+      "code": "claims_households",
+      "metric": "yoy"
+    }
   },
   "fred_series": {
-    "us_rate": {"series": "FEDFUNDS", "units": "lin", "metric": "level"},
-    "us_inflation": {"series": "CPIAUCSL", "units": "pc1", "metric": "yoy"},
-    "us_gdp": {"series": "GDPC1", "units": "pc1", "metric": "yoy"},
-    "us_unemployment": {"series": "UNRATE", "units": "lin", "metric": "level"},
-    "eu_rate": {"series": "ECBDFR", "units": "lin", "metric": "level"},
-    "eu_inflation": {"series": "CP0000EZ19M086NEST", "units": "pc1", "metric": "yoy"},
-    "eu_gdp": {"series": "CLVMNACSCAB1GQEA19", "units": "pc1", "metric": "yoy"},
-    "cn_inflation": {"series": "CHNCPIALLMINMEI", "units": "pc1", "metric": "yoy"},
-    "cn_gdp": {"series": "CHNGDPNQDSMEI", "units": "pc1", "metric": "yoy"},
-    "cn_rate": {"series": "IR3TIB01CNM156N", "units": "lin", "metric": "level"},
-    "gdp": {"series": "NGDPRNSAXDCRUQ", "units": "pc1", "metric": "yoy"}
+    "us_rate": {
+      "series": "FEDFUNDS",
+      "units": "lin",
+      "metric": "level"
+    },
+    "us_inflation": {
+      "series": "CPIAUCSL",
+      "units": "pc1",
+      "metric": "yoy"
+    },
+    "us_gdp": {
+      "series": "GDPC1",
+      "units": "pc1",
+      "metric": "yoy"
+    },
+    "us_unemployment": {
+      "series": "UNRATE",
+      "units": "lin",
+      "metric": "level"
+    },
+    "eu_rate": {
+      "series": "ECBDFR",
+      "units": "lin",
+      "metric": "level"
+    },
+    "eu_inflation": {
+      "series": "CP0000EZ19M086NEST",
+      "units": "pc1",
+      "metric": "yoy"
+    },
+    "eu_gdp": {
+      "series": "CLVMNACSCAB1GQEA19",
+      "units": "pc1",
+      "metric": "yoy"
+    },
+    "cn_inflation": {
+      "series": "CHNCPIALLMINMEI",
+      "units": "pc1",
+      "metric": "yoy"
+    },
+    "cn_gdp": {
+      "series": "CHNGDPNQDSMEI",
+      "units": "pc1",
+      "metric": "yoy"
+    },
+    "cn_rate": {
+      "series": "IR3TIB01CNM156N",
+      "units": "lin",
+      "metric": "level"
+    },
+    "gdp": {
+      "series": "NGDPRNSAXDCRUQ",
+      "units": "pc1",
+      "metric": "yoy"
+    }
   },
   "_fred_ru_note": "gdp — реальный ВВП РФ (FRED NGDPRNSAXDCRUQ, кв., pc1=г/г), актуален до Q4-2025 и обновляется машинно. Остальные РФ-ряды FRED (безработица/ИЦП/CPI/зарплата) ЗАМОРОЖЕНЫ на 2021-2022 (OECD/IMF перестали обновлять после санкций) — не используем. Приоритет ingested_via: rosstat(файл)=3 > fred=2, поэтому ручная выгрузка Росстата при наличии перекрывает FRED.",
   "_fred_note": "eu_unemployment/cn_unemployment — нет свежего бесплатного ряда в FRED (стале/битый код); показатели в справочнике остаются, данные пустые (честно) до подключения Eurostat — точка расширения.",
   "worldbank_series": {
-    "world_gdp": {"indicator": "NY.GDP.MKTP.KD.ZG", "metric": "yoy"}
+    "world_gdp": {
+      "indicator": "NY.GDP.MKTP.KD.ZG",
+      "metric": "yoy"
+    }
   },
   "fedstat_series": {
     "_comment": "Росстат. ВАЖНО: fedstat.ru закрыт антибот-WAF (403 на всё, включая главную) даже с боевого сервера РФ — подтверждено диагностикой; машинный ингест невозможен. Данные грузятся из ручной выгрузки config/rosstat_manual.csv (ingest_rosstat_file). id — для ссылки на источник; min/max — валидация значения; unit — единица; metric — метрика по умолчанию.",
     "gdp": {
-     "id": 33223,
-     "metric": "yoy",
-     "unit": "%",
-     "min": -20,
-     "max": 20
+      "id": 33223,
+      "metric": "yoy",
+      "unit": "%",
+      "min": -20,
+      "max": 20
     },
     "real_income": {
-     "id": 33464,
-     "metric": "yoy",
-     "unit": "%",
-     "min": -30,
-     "max": 30
+      "id": 33464,
+      "metric": "yoy",
+      "unit": "%",
+      "min": -30,
+      "max": 30
     },
-    "unemployment": {"id": 43062, "metric": "level", "expect": "безработиц", "unit": "%", "min": 1, "max": 20},
-    "ppi": {"id": 57609, "metric": "yoy", "expect": "цен производител", "unit": "%", "min": -30, "max": 60},
-    "real_wage": {"id": 43245, "metric": "yoy", "expect": "реальн", "unit": "%", "min": -30, "max": 50}
+    "unemployment": {
+      "id": 43062,
+      "metric": "level",
+      "expect": "безработиц",
+      "unit": "%",
+      "min": 1,
+      "max": 20
+    },
+    "ppi": {
+      "id": 57609,
+      "metric": "yoy",
+      "expect": "цен производител",
+      "unit": "%",
+      "min": -30,
+      "max": 60
+    },
+    "real_wage": {
+      "id": 43245,
+      "metric": "yoy",
+      "expect": "реальн",
+      "unit": "%",
+      "min": -30,
+      "max": 50
+    }
   },
-  "analytics_exclude_url_patterns": ["analytic_note"],
+  "analytics_exclude_url_patterns": [
+    "analytic_note"
+  ],
   "_analytics_exclude_note": "Исключаем тангенциальные ДИП-записки (analytic_note) — это research-папки, а не профильные обзоры ДКП/инфляции/стабильности. По просьбе владельца.",
   "analytics_sources": [
-    {"source": "cbr", "doc_type": "Доклад/комментарий ДКП", "page_url": "https://www.cbr.ru/dkp/", "base_url": "https://www.cbr.ru", "ext": ".pdf", "max": 2},
-    {"source": "cbr", "doc_type": "О чём говорят тренды", "page_url": "https://www.cbr.ru/ec_research/", "base_url": "https://www.cbr.ru", "ext": ".pdf", "max": 2},
-    {"source": "cbr", "doc_type": "Инфляционные ожидания и потребнастроения", "page_url": "https://www.cbr.ru/analytics/dkp/inflationary_expectations/", "base_url": "https://www.cbr.ru", "ext": ".pdf", "max": 2},
-    {"source": "cbr", "doc_type": "Обзор финансовой стабильности", "page_url": "https://www.cbr.ru/analytics/finstab/ofs/", "base_url": "https://www.cbr.ru", "ext": ".pdf", "max": 2},
-    {"source": "cmakp", "doc_type": "Аналитическая записка", "page_url": "http://www.forecast.ru/", "base_url": "http://www.forecast.ru", "ext": ".pdf", "max": 4}
+    {
+      "source": "cbr",
+      "doc_type": "Доклад/комментарий ДКП",
+      "page_url": "https://www.cbr.ru/dkp/",
+      "base_url": "https://www.cbr.ru",
+      "ext": ".pdf",
+      "max": 2
+    },
+    {
+      "source": "cbr",
+      "doc_type": "О чём говорят тренды",
+      "page_url": "https://www.cbr.ru/ec_research/",
+      "base_url": "https://www.cbr.ru",
+      "ext": ".pdf",
+      "max": 2
+    },
+    {
+      "source": "cbr",
+      "doc_type": "Инфляционные ожидания и потребнастроения",
+      "page_url": "https://www.cbr.ru/analytics/dkp/inflationary_expectations/",
+      "base_url": "https://www.cbr.ru",
+      "ext": ".pdf",
+      "max": 2
+    },
+    {
+      "source": "cbr",
+      "doc_type": "Обзор финансовой стабильности",
+      "page_url": "https://www.cbr.ru/analytics/finstab/ofs/",
+      "base_url": "https://www.cbr.ru",
+      "ext": ".pdf",
+      "max": 2
+    },
+    {
+      "source": "cmakp",
+      "doc_type": "Аналитическая записка",
+      "page_url": "http://www.forecast.ru/",
+      "base_url": "http://www.forecast.ru",
+      "ext": ".pdf",
+      "max": 4
+    }
   ],
   "news_extract": {
     "_comment": "Показатели, извлекаемые из статрелизов в Ленте. min/max — допустимый диапазон (валидация: за пределами — отбрасываем как ошибку распознавания).",
-    "inflation": {"name": "общая потребительская инфляция РФ (ИПЦ, вся корзина товаров и услуг — НЕ отдельный товар/категория)", "metrics": ["mom", "yoy"], "unit": "%", "min": -5, "max": 60},
-    "inflation_weekly": {"name": "общая недельная инфляция РФ (ИПЦ Росстата за неделю, вся корзина — НЕ рост цены отдельного товара вроде сахара/бензина)", "metrics": ["wow"], "unit": "%", "min": -1, "max": 2},
-    "inflation_expectations": {"name": "инфляционные ожидания населения РФ НА ГОД ВПЕРЁД (медианная оценка БУДУЩЕЙ инфляции опрошенных) — в опросе ЦБ есть ДВЕ РАЗНЫЕ цифры: «наблюдаемая»/«текущая» инфляция (про уже случившийся рост цен — это НЕ этот показатель) и «ожидаемая через год» (про будущее — ИМЕННО этот показатель); значения обычно РАЗНЫЕ, не путай их местами", "metrics": ["level"], "unit": "%", "min": 0, "max": 40},
-    "gdp": {"name": "ВВП РФ (темп)", "metrics": ["yoy"], "unit": "%", "min": -20, "max": 20},
-    "unemployment": {"name": "безработица РФ", "metrics": ["level"], "unit": "%", "min": 1, "max": 20},
-    "ppi": {"name": "индекс цен производителей РФ (ИЦП)", "metrics": ["yoy", "mom"], "unit": "%", "min": -30, "max": 60},
-    "pmi_composite": {"name": "PMI РФ (композит/пром/услуги, итоговое число)", "metrics": ["level"], "unit": "ед", "min": 20, "max": 70},
-    "nominal_wage": {"name": "номинальная зарплата РФ (темп)", "metrics": ["yoy"], "unit": "%", "min": -20, "max": 50},
-    "budget_balance": {"name": "баланс федерального бюджета РФ", "metrics": ["level"], "unit": "трлн руб", "min": -20, "max": 20},
-    "hh_index": {"name": "индекс рынка труда hh.ru (резюме на вакансию)", "metrics": ["level"], "unit": "ед", "min": 0.1, "max": 20},
-    "real_wage": {"name": "реальная заработная плата РФ (темп г/г)", "metrics": ["yoy"], "unit": "%", "min": -30, "max": 50},
-    "fixed_capital_investment": {"name": "инвестиции в основной капитал РФ (темп г/г, Росстат — квартальный показатель, НЕ путать с иностранными/портфельными инвестициями и не с объёмом в рублях)", "metrics": ["yoy"], "unit": "%", "min": -40, "max": 60}
+    "inflation": {
+      "name": "общая потребительская инфляция РФ (ИПЦ, вся корзина товаров и услуг — НЕ отдельный товар/категория)",
+      "metrics": [
+        "mom",
+        "yoy"
+      ],
+      "unit": "%",
+      "min": -5,
+      "max": 60
+    },
+    "inflation_weekly": {
+      "name": "общая недельная инфляция РФ (ИПЦ Росстата за неделю, вся корзина — НЕ рост цены отдельного товара вроде сахара/бензина)",
+      "metrics": [
+        "wow"
+      ],
+      "unit": "%",
+      "min": -1,
+      "max": 2
+    },
+    "inflation_expectations": {
+      "name": "инфляционные ожидания населения РФ НА ГОД ВПЕРЁД (медианная оценка БУДУЩЕЙ инфляции опрошенных) — в опросе ЦБ есть ДВЕ РАЗНЫЕ цифры: «наблюдаемая»/«текущая» инфляция (про уже случившийся рост цен — это НЕ этот показатель) и «ожидаемая через год» (про будущее — ИМЕННО этот показатель); значения обычно РАЗНЫЕ, не путай их местами",
+      "metrics": [
+        "level"
+      ],
+      "unit": "%",
+      "min": 0,
+      "max": 40
+    },
+    "gdp": {
+      "name": "ВВП РФ (темп)",
+      "metrics": [
+        "yoy"
+      ],
+      "unit": "%",
+      "min": -20,
+      "max": 20
+    },
+    "unemployment": {
+      "name": "безработица РФ",
+      "metrics": [
+        "level"
+      ],
+      "unit": "%",
+      "min": 1,
+      "max": 20
+    },
+    "ppi": {
+      "name": "индекс цен производителей РФ (ИЦП)",
+      "metrics": [
+        "yoy",
+        "mom"
+      ],
+      "unit": "%",
+      "min": -30,
+      "max": 60
+    },
+    "pmi_composite": {
+      "name": "PMI РФ (композит/пром/услуги, итоговое число)",
+      "metrics": [
+        "level"
+      ],
+      "unit": "ед",
+      "min": 20,
+      "max": 70
+    },
+    "nominal_wage": {
+      "name": "номинальная зарплата РФ (темп)",
+      "metrics": [
+        "yoy"
+      ],
+      "unit": "%",
+      "min": -20,
+      "max": 50
+    },
+    "budget_balance": {
+      "name": "баланс федерального бюджета РФ",
+      "metrics": [
+        "level"
+      ],
+      "unit": "трлн руб",
+      "min": -20,
+      "max": 20
+    },
+    "hh_index": {
+      "name": "индекс рынка труда hh.ru (резюме на вакансию)",
+      "metrics": [
+        "level"
+      ],
+      "unit": "ед",
+      "min": 0.1,
+      "max": 20
+    },
+    "real_wage": {
+      "name": "реальная заработная плата РФ (темп г/г)",
+      "metrics": [
+        "yoy"
+      ],
+      "unit": "%",
+      "min": -30,
+      "max": 50
+    },
+    "fixed_capital_investment": {
+      "name": "инвестиции в основной капитал РФ (темп г/г, Росстат — квартальный показатель, НЕ путать с иностранными/портфельными инвестициями и не с объёмом в рублях)",
+      "metrics": [
+        "yoy"
+      ],
+      "unit": "%",
+      "min": -40,
+      "max": 60
+    }
   }
 }

@@ -56,11 +56,16 @@ _TRANSLIT_MONTHS = {
 
 _SYS = (
     "Это пресс-релиз Минфина России «Предварительная оценка исполнения федерального "
-    "бюджета». Извлеки темп роста РАСХОДОВ федерального бюджета год-к-году (%, "
-    "накопленным итогом с начала года) — фраза вида «...объём расходов федерального "
-    "бюджета... составил ... что выше показателей предыдущего года на X% г/г». "
-    "Верни строго JSON: {\"spending_growth_yoy\":<число>}. Число может быть отрицательным. "
-    "Только из текста, без выдумок. Без текста вне JSON."
+    "бюджета». Извлеки ДВА показателя, оба НАКОПЛЕННЫМ ИТОГОМ с начала года:\n"
+    "1) spending_growth_yoy — темп роста РАСХОДОВ год-к-году в %, фраза вида «...объём "
+    "расходов федерального бюджета... составил ... что выше показателей предыдущего года "
+    "на X% г/г»;\n"
+    "2) budget_balance_ytd_bln — сальдо бюджета в МЛРД РУБЛЕЙ, фраза вида «федеральный "
+    "бюджет сложился с дефицитом в размере N млрд рублей» (дефицит → число ОТРИЦАТЕЛЬНОЕ, "
+    "профицит → положительное).\n"
+    "Верни строго JSON: {\"spending_growth_yoy\":<число|null>, "
+    "\"budget_balance_ytd_bln\":<число|null>}. Только из текста, без выдумок и без "
+    "пересчёта в проценты ВВП. Без текста вне JSON."
 )
 
 
@@ -113,11 +118,28 @@ def _process_release(db: Session, url: str, d: date) -> dict:
         val = float(out.get("spending_growth_yoy"))
     except (TypeError, ValueError):
         val = None
-    if val is None or not (-30 <= val <= 60):
+    if val is not None and not (-30 <= val <= 60):
+        val = None
+    if val is None and out.get("budget_balance_ytd_bln") is None:
         return {"error": "stale_or_parse"}
-    upsert_point(db, "gov_spending_growth", d, "level", val, unit="%", source="Минфин России",
-                 source_url=url, ingested_via="minfin")
-    return {"date": str(d), "spending_growth_yoy": val}
+    if val is not None:
+        upsert_point(db, "gov_spending_growth", d, "level", val, unit="%", source="Минфин России",
+                     source_url=url, ingested_via="minfin")
+    # 🔴 Сальдо бюджета НАКОПЛЕННЫМ ИТОГОМ в млрд ₽ (владелец 2026-08-02: «там не 0,28
+    # процента ВВП, а 0,28 триллиона рублей — и это конкретный месяц; надо оценивать в
+    # целом по году»). Старый ряд budget_balance (%ВВП) — мёртвый бэкфилл из CSV: одно
+    # значение размножено на месяцы и не обновлялось с марта. В %ВВП пересчитать нечем
+    # (нужен номинальный ВВП, которого в конвейере нет), а абсолютную величину Минфин
+    # публикует прямым текстом — берём её и НЕ гадаем масштаб.
+    bal = out.get("budget_balance_ytd_bln")
+    try:
+        bal = float(bal) if bal is not None else None
+    except (TypeError, ValueError):
+        bal = None
+    if bal is not None and -30_000 <= bal <= 30_000:
+        upsert_point(db, "budget_balance_ytd", d, "level", bal, unit="млрд ₽",
+                     source="Минфин России", source_url=url, ingested_via="minfin")
+    return {"date": str(d), "spending_growth_yoy": val, "budget_balance_ytd_bln": bal}
 
 
 def sync_gov_spending(db: Session, months_back: int = 1) -> dict:
