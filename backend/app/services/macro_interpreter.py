@@ -104,6 +104,10 @@ _OUTPUT_SPEC = (
     "НЕ СЧИТАЙ и не оценивай на глаз: у платформы одна цифра по компании — та, что в "
     "карточке, иначе разделы начнут противоречить друг другу. Где у компании стоит "
     "warning о пересечении каналов — не складывай их как два независимых удара.\n"
+    "7в. В снапшоте есть data_gaps — известные слабые места данных (ряд не обновляется, "
+    "автопроверка подняла флаг). Если строишь вывод на таком показателе, ОБЯЗАН сказать "
+    "об этом в data_flags и снизить уверенность соответствующего прогноза. Молча "
+    "прогнозировать по устаревшему ряду нельзя.\n"
     "8. Не делай разворотных выводов по одному месяцу (Часть 1): топливо, плодоовощи, "
     "тарифы волатильны. Смотри тренд 3+ месяца и устойчивые компоненты.\n"
     "9. Язык — простой, с видимой логикой. Профессиональный аппарат (Тейлор, кривая "
@@ -234,8 +238,24 @@ def gather_snapshot(db: Session) -> dict:
             "indicators": indicators, "rate": rate, "analytics": docs,
             "cb_forecast": forecast, "sectors": _sectors_list(),
             "previous_issues": _previous_issues(db),
+            "data_gaps": _data_gaps(db),
             "context": {**_context(db), "platform_tickers": _platform_tickers(db),
                         "company_sensitivity": _sensitivity_map()}}
+
+
+def _data_gaps(db: Session) -> list[str]:
+    """Слабые места данных — модель обязана их видеть и оговаривать.
+
+    Раньше протухший ряд был невидим: безработица не обновлялась 94 дня, а выпуск
+    спокойно прогнозировал её по апрельскому значению. Методичка v3 требует блок
+    data_flags — но заполнить его честно можно только зная, где дыры.
+    """
+    try:
+        from app.services.macro_data_questions import collect_questions, summarize_for_prompt
+        return summarize_for_prompt(collect_questions(db))
+    except Exception:  # noqa: BLE001
+        logger.warning("Интерпретатор: список дыр не собран", exc_info=True)
+        return []
 
 
 def _sensitivity_map() -> dict:
