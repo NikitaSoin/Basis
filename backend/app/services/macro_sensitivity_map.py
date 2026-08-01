@@ -93,6 +93,12 @@ def build_sensitivity_map(tickers: list[str] | None = None, top_n: int = 120) ->
     names = tickers or sorted(
         d.name for d in COMPANIES_DIR.iterdir() if d.is_dir() and not d.name.startswith(".")
     )
+    try:
+        from app.services.sensitivity_audit import audit_rate_sensitivity
+        disputed = {r["ticker"]: r["issue"] for r in audit_rate_sensitivity()}
+    except Exception:  # noqa: BLE001
+        logger.warning("sensitivity_map: аудит коэффициентов не отработал", exc_info=True)
+        disputed = {}
     rows = []
     for ticker in names:
         macro = _load(ticker, "macro.json")
@@ -133,6 +139,13 @@ def build_sensitivity_map(tickers: list[str] | None = None, top_n: int = 120) ->
         for a, b in _OVERLAPPING:
             if a in effects and b in effects:
                 warning = "каналы ставки и стоимости риска пересекаются — не складывать"
+        # 🔴 Флаг качества коэффициента (владелец: «в карточках могут быть плохо
+        # посчитанные числа»). Независимая сверка по процентному каналу — отдельным
+        # модулем; спорные помечаем прямо в таблице, чтобы модель не цитировала их как
+        # твёрдый факт карточки, а оговаривала.
+        if ticker in disputed:
+            warning = (warning + "; " if warning else "") + \
+                f"коэффициент ставки спорный ({disputed[ticker]}) — ссылайся осторожно"
         fin_meta = (_load(ticker, "financials.json") or {}).get("meta") or {}
         rows.append({
             "ticker": ticker,
