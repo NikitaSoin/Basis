@@ -100,18 +100,62 @@ def test_interpreter_generate(db, monkeypatch):
     mi.seed_indicators(db)
     mi.upsert_point(db, "key_rate", date(2026, 3, 1), "level", 15, ingested_via="file")
     captured = {}
+
+    # Формат выпуска задан методичкой v3 (Часть 19): пять прогнозов с центром и
+    # диапазоном, контраргументы, эпистемические теги. Мок обязан ему соответствовать —
+    # иначе автогейт (macro_release_gate) законно отклонит выпуск.
+    def _forecast(var):
+        return {"variable": var, "horizon": "12 мес", "center": "10", "range": "9-11",
+                "driver": "драйвер", "triggers": "триггер", "confidence": "средняя",
+                "confidence_why": "почему", "against": "контраргумент",
+                "vs_anchor": "против консенсуса"}
+
     def fake_complete(system, user, **k):
         captured["thinking"] = k.get("thinking"); captured["model"] = k.get("model")
-        return {"sections": {"current_picture": "Картина", "rate_outlook": "Ставка",
-                             "cb_forecast_view": "Прогноз", "market_sectors": "Сектора",
-                             "scenarios": "Сценарии"}}
+        return {"sections": {
+            "headline": "Главный вывод",
+            "regime": {"rate": "снижается", "inflation": "замедляется"},
+            "theses": [{"claim": "тезис", "chain": "фактор → механизм → следствие",
+                        "evidence": "числа", "tag": "оценка"}],
+            "forecasts": [_forecast(v) for v in ("Ключевая ставка", "Инфляция",
+                                                 "Курс рубля", "ВВП", "Безработица")],
+            "against_us": ["сильнейший контраргумент"],
+            "sectors": [{"sector": "Финансы", "wind": "смешанный", "channel": "канал",
+                         "dispersion": "почему расходятся", "winners": [], "losers": []}],
+        }}
     monkeypatch.setattr(llm, "complete", fake_complete)
     monkeypatch.setattr(llm, "pro_model", lambda: "deepseek-v4-pro")
     row = ip.generate(db)
-    assert row.sections["current_picture"] == "Картина"
+    assert row.sections["headline"] == "Главный вывод"
     assert captured["thinking"] is True  # Интерпретатор — РАССУЖДЕНИЕ
     assert captured["model"] == "deepseek-v4-pro"  # Pro, не Flash
     assert ip.get_latest(db).id == row.id
+    # гейт отработал и записал вердикт — выпуск не уходит на витрину неотмеченным
+    assert row.source_snapshot.get("gate") in ("ok", "warn")
+
+
+def test_release_gate_rejects_broken_structure():
+    """Гейт обязан отклонять выпуск без обязательных блоков — до публикации.
+
+    Именно этого не хватало: проверка жила у пилотного агента по одной компании, а
+    главный артефакт платформы выходил без неё.
+    """
+    from app.services.macro_release_gate import check_release
+    verdict, notes = check_release({"headline": "есть, а остального нет"}, {})
+    assert verdict == "reject"
+    assert any(n.startswith("missing:") for n in notes)
+
+
+def test_release_gate_flags_forecast_without_range():
+    """Часть 14 методички: точечный прогноз без диапазона запрещён."""
+    from app.services.macro_release_gate import check_release
+    sections = {"headline": "h", "sectors": [{"sector": "Финансы"}],
+                "against_us": ["контраргумент"],
+                "forecasts": [{"variable": "Ключевая ставка", "center": "14%"}]}
+    verdict, notes = check_release(sections, {})
+    assert verdict == "warn"
+    assert "forecast_0_no_range" in notes
+    assert "forecast_0_no_counterargument" in notes
 
 
 def test_interpretation_endpoint_empty(client, db):
