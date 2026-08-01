@@ -41,7 +41,12 @@ from app.services.barometer_history import get_revision_timeline, format_timelin
 
 logger = logging.getLogger(__name__)
 
-_KIND_SCOPES = {"geo": ("svo", "middle_east", "atr"), "inst": ("institutions",)}
+# 🔴 geo УБРАН 2026-08-01: гео-барометр теперь пересобирается ЦЕЛИКОМ каждый день
+# (barometer_daily.rebuild, владелец: «слой 1 перестроить так же, как в
+# макроэкономике — ежедневный крон, где DeepSeek всё обновляет»). Оставить его
+# здесь значило бы, что два механизма правят один и тот же документ.
+# Ревизор с его событийным триггером и поводком остаётся для ИНСТИТУТОВ.
+_KIND_SCOPES = {"inst": ("institutions",)}
 
 # --- поводок и кэпы (гейт) ---
 _MAX_STEP = 0.5          # |Δ| одного субиндекса за одну ревизию
@@ -305,9 +310,11 @@ def revise(db: Session, kind: str, force: bool = False) -> BarometerVersion | No
 
 
 def run_all(db: Session, force: bool = False) -> dict:
-    """Обе барометра за прогон (крон). Прошедшее гейт публикуется сразу."""
+    """Барометры на ревизоре за прогон (крон). Прошедшее гейт публикуется сразу.
+    С 2026-08-01 это только институты — гео ушёл на ежедневную пересборку
+    (barometer_daily), см. комментарий у _KIND_SCOPES."""
     out = {}
-    for kind in ("geo", "inst"):
+    for kind in _KIND_SCOPES:
         try:
             row = revise(db, kind, force=force)
             out[kind] = {"id": row.id, "status": row.status, "trigger": row.trigger_reason,

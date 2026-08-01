@@ -1499,6 +1499,28 @@ def debug_trigger_geo_digest_backfill_strikes(days: int = 7):
         db.close()
 
 
+@router.post("/debug/trigger-barometer-daily")
+def debug_trigger_barometer_daily():
+    """Ручной запуск ежедневной пересборки ГЕО-барометра (обычно крон 21:50).
+    Владелец 2026-08-01: «слой 1 — ежедневный крон, где DeepSeek всё обновляет».
+    Возвращает id/status/заметки гейта; при пустой ленте — сообщение, барометр
+    не трогается."""
+    from app.db.session import SessionLocal
+    from app.services.barometer_daily import rebuild
+    db = SessionLocal()
+    try:
+        row = rebuild(db)
+        if row is None:
+            return {"result": "лента пуста — барометр не трогали"}
+        return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes,
+                "as_of": (row.payload or {}).get("as_of")}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-barometer-daily: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-macro-business-split")
 def debug_trigger_macro_business_split(limit: int = 200):
     """Разовый проход geo_digest.split_macro_business() — разложить уже накопленные

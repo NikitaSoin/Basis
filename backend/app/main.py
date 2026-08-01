@@ -928,6 +928,31 @@ async def _barometer_reviser_job():
         logger.exception("Ошибка ревизора барометров: %s", e)
 
 
+async def _barometer_daily_job():
+    """ЕЖЕДНЕВНАЯ полная пересборка ГЕО-барометра (владелец 2026-08-01: «слой 1
+    перестроить так же, как в макроэкономике — ежедневный крон, где DeepSeek всё
+    обновляет»). Заменяет для гео событийный ревизор с поводком: модель каждый
+    день пересобирает все 13 субиндексов, сценарии и вероятности целиком, опираясь
+    на вчерашнюю версию и свежую ленту. Стоит ПОСЛЕ geo_digest/geopolitics — им
+    нужен собранный за день поток. Fail-closed внутри rebuild()."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.barometer_daily import rebuild
+        db = SessionLocal()
+        try:
+            row = rebuild(db)
+            if row is None:
+                return "лента пуста — барометр не трогали"
+            return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes}
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Ежедневная пересборка гео-барометра: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка ежедневной пересборки гео-барометра: %s", e)
+
+
 async def _situation_overlay_job():
     """Оверлей «текущая ситуация по ленте» (гео 3 очага + институты). После
     _geo_job (21:00): тот же новостной поток digest, что уже собран за день,
@@ -1201,7 +1226,8 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("report_watch", _report_watch_job), "cron", hour="*/2", minute=45, id="report_watch")
         scheduler.add_job(_with_heartbeat("geopolitics", _geo_job), "cron", hour=21, minute=0, id="geopolitics")
         scheduler.add_job(_with_heartbeat("situation_overlay", _situation_overlay_job), "cron", hour=21, minute=20, id="situation_overlay")  # оверлей ситуации гео/институты — после geopolitics (тот же дневной digest)
-        scheduler.add_job(_with_heartbeat("barometer_reviser", _barometer_reviser_job), "cron", hour=21, minute=40, id="barometer_reviser")  # SHADOW-ревизор барометров — после оверлея (его вердикт = триггер); cooldown 5 дней внутри
+        scheduler.add_job(_with_heartbeat("barometer_reviser", _barometer_reviser_job), "cron", hour=21, minute=40, id="barometer_reviser")  # ревизор ИНСТИТУТОВ (гео ушёл на barometer_daily) — после оверлея (его вердикт = триггер); cooldown 5 дней внутри
+        scheduler.add_job(_with_heartbeat("barometer_daily", _barometer_daily_job), "cron", hour=21, minute=50, id="barometer_daily")  # ЕЖЕДНЕВНАЯ полная пересборка гео-барометра DeepSeek (владелец 2026-08-01) — последней в цепочке гео: digest(:10 ежечасно) → geopolitics(21:00) → overlay(21:20) → reviser inst(21:40) → сюда
         scheduler.add_job(_with_heartbeat("geo_digest", _geo_digest_job), "cron", minute=10, id="geo_digest")  # каждый час
         scheduler.add_job(_with_heartbeat("company_signals", _company_signals_job), "cron", minute=35, id="company_signals")  # шина: после news(5)+geo_digest(10), их выход = вход
         scheduler.add_job(_with_heartbeat("rating_agencies", _rating_agencies_job), "cron", hour=20, minute=55, id="rating_agencies")  # рейтинговые действия АКРА/НКР → сигналы + освежение agency_rating бумаг
