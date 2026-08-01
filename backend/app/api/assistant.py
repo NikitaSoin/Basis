@@ -43,6 +43,10 @@ def ask(data: AskRequest, db: Session = Depends(get_db), user: User = Depends(ge
         raise HTTPException(status_code=400, detail="Пустой вопрос")
     if len(data.message) > 2000:
         raise HTTPException(status_code=400, detail="Слишком длинный вопрос (макс. 2000 символов)")
+    # Суточный лимит бесплатного тарифа. Пока TIER_LIMITS_ENFORCED не выставлен —
+    # проверка всегда пропускает (см. app/services/entitlements.py).
+    from app.services.entitlements import check_assistant_quota
+    check_assistant_quota(db, user)
     from app.services.assistant import ask as ask_service
     from app.services.llm import LLMError
     try:

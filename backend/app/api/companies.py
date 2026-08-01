@@ -40,7 +40,7 @@ def _prose_or_overlay(path) -> str:
         pass
     return path.read_text(encoding="utf-8")
 from app.db.session import get_db
-from app.auth import require_ops_token
+from app.auth import get_current_user_optional, require_ops_token
 from app.models.company_profile import CompanyProfile
 from app.schemas.company import (
     CompanyCreate, CompanyResponse,
@@ -435,12 +435,17 @@ def get_financial_model_endpoint(ticker: str, db: Session = Depends(get_db)):
 
 
 @router.get("/companies/by-ticker/{ticker}/bfv")
-def get_bfv_endpoint(ticker: str, spread_pp: float | None = None, db: Session = Depends(get_db)):
+def get_bfv_endpoint(ticker: str, spread_pp: float | None = None, db: Session = Depends(get_db),
+                     user=Depends(get_current_user_optional)):
     """BFV-D — справедливая цена и ожидаемая доходность по новой дивидендной методике
     (docs/basis_fair_price.md), ТЕСТОВАЯ версия. Пересчитывается на каждый запрос от
     живых цены/кривой ОФЗ/беты (не статичное число). spread_pp — требуемый спред сверх
     ОФЗ в п.п. (дефолт платформы 5). 404 — компании нет; status внутри тела:
     ok / no_data (нет BVPS/ROE — напр. отр. капитал) / no_price / no_rate."""
+    # Граница тарифа: справедливая цена — на Max. Пока TIER_LIMITS_ENFORCED не
+    # выставлен, пропускает всех (см. app/services/entitlements.py).
+    from app.services.entitlements import FEATURE_FAIR_PRICE, require_feature
+    require_feature(user, FEATURE_FAIR_PRICE, "Справедливая цена по методике Basis")
     from app.services.bfv.service import get_bfv
     from app.services.bfv.compute import DEFAULT_REQUIRED_SPREAD
     spread = (spread_pp / 100.0) if isinstance(spread_pp, (int, float)) and spread_pp > 0 else DEFAULT_REQUIRED_SPREAD

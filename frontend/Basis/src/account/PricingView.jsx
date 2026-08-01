@@ -39,10 +39,7 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
   // Годовой выбран по умолчанию: он выгоднее, и это честнее показать сразу, а не
   // прятать за переключателем.
   const [billing, setBilling] = useState("year"); // "month" | "year"
-  // Тариф в БД мог остаться "plus" (убран из UI, см. tierCatalog) — показываем
-  // такого пользователя как Max, иначе он увидел бы «Бесплатный».
-  const rawTierId = user ? user.subscription_type || "free" : null;
-  const currentTierId = rawTierId === "plus" ? "premium" : rawTierId;
+  const currentTierId = user ? user.subscription_type || "free" : null;
 
   async function changeTier(tierId) {
     if (!token) { onShowAuth && onShowAuth(); return; }
@@ -201,9 +198,9 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
               </div>
               {TIERS.map((t) => {
                 const isTierCol = t.priceRub > 0;
-                // Plus/Max читаются медным ВСЕГДА (владелец, 2026-07-12) — «текущий
+                // Max читается медным ВСЕГДА (владелец, 2026-07-12) — «текущий
                 // тариф» подсвечивается тем же accent-soft только у Бесплатного,
-                // иначе на Plus/Max наложились бы два одинаковых фона без смысла.
+                // иначе на Max наложились бы два одинаковых фона без смысла.
                 const isCurrentCol = currentTierId === t.id && !isTierCol;
                 return (
                   <div

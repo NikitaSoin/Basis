@@ -2,17 +2,13 @@
 // BASIS ACCOUNT — tier catalog (single source of truth).
 // Pure data, no JSX — both PricingView and ProfileView read tier copy
 // from here so the two pages can never disagree on what each tier
-// includes. Backend contract: SubscriptionType.free|plus|premium
+// includes. Backend contract: SubscriptionType.free|premium
 // (backend/app/models/user.py).
 //
 // 🔴 ДВА ТАРИФА (владелец, 2026-08-01): «пусть останется один тариф Max,
 // без Плюс; в Max доступно всё; у Max две стоимости — 390 ₽/мес и 1990 ₽/год».
-// "plus" УБРАН ИЗ UI, но ОСТАВЛЕН в enum БД (backend/app/models/user.py):
-// удаление значения из PG-энума — миграция с риском уронить существующие
-// строки, а пользы ноль. Вместо этого разовый перевод plus → premium
-// (Plus стоил ровно 390 ₽, столько же теперь стоит Max — никто не теряет).
-// TIER_RANK держит plus между free и premium, чтобы старая запись в БД
-// (если вдруг всплывёт) сравнивалась предсказуемо, а не падала на undefined.
+// "plus" удалён полностью — и из UI, и из enum БД (владелец: «клиентов нет,
+// записей никаких нет, поэтому удалить можно»), миграция c4e18a7b2d90.
 //
 // 🔴 ЧЕСТНОСТЬ ПРО ЛИМИТЫ БЕСПЛАТНОГО. Владелец: «в обычном тарифе ПОКА
 // глобально всё должно быть открыто, но стратегически надо будет ограничить».
@@ -24,7 +20,7 @@
 // снять плашку (FREE_LIMITS_ENFORCED ниже).
 // =============================================================
 
-export const TIER_RANK = { free: 0, plus: 1, premium: 2 };
+export const TIER_RANK = { free: 0, premium: 1 };
 
 // Ограничения бесплатного тарифа ещё не включены в коде (см. шапку файла).
 // Переключить в true ОДНОВРЕМЕННО с появлением реальных гейтов.
@@ -109,8 +105,5 @@ export const COMPARE_GROUPS = [
 ];
 
 export function getTier(id) {
-  // plus убран из UI (см. шапку) — старую запись в БД показываем как Max:
-  // Plus стоил столько же, сколько теперь Max, и Max включает всё, что было в Plus.
-  if (id === "plus") return TIERS.find((t) => t.id === "premium");
   return TIERS.find((t) => t.id === id) || TIERS[0];
 }

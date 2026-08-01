@@ -4,9 +4,16 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_user_optional
 from app.db.session import get_db
+from app.services.entitlements import FEATURE_STRESS_CUSTOM, require_feature
 
 router = APIRouter()
+
+# Граница тарифа: ГОТОВЫЕ сценарии открыты всем, СВОИ (произвольные параметры и
+# свободный текст) — на Max. Пока TIER_LIMITS_ENFORCED не выставлен, require_feature
+# пропускает всех (см. app/services/entitlements.py).
+_CUSTOM_SCENARIO_LABEL = "Свои сценарии стресс-теста"
 
 
 @router.get("/stress-test/scenarios")
@@ -34,7 +41,11 @@ def stress_test_impact(
     oil_usd: float | None = Query(None, description="Целевая цена нефти, $/барр. (свой сценарий)"),
     rub_usd: float | None = Query(None, description="Целевой курс USD/RUB (свой сценарий)"),
     db: Session = Depends(get_db),
+    user=Depends(get_current_user_optional),
 ):
+    # Свой сценарий = переданы произвольные параметры вместо ключа пресета.
+    if oil_usd is not None or rub_usd is not None:
+        require_feature(user, FEATURE_STRESS_CUSTOM, _CUSTOM_SCENARIO_LABEL)
     from app.services.stress_scenarios import build_scenario_result
     return build_scenario_result(db, scenario, oil_usd, rub_usd)
 
@@ -55,6 +66,7 @@ def stress_test_numeric(
     fx_usdrub: float | None = Query(None, ge=10, le=500, description="Целевой курс USD/RUB"),
     oil_brent_usd: float | None = Query(None, ge=5, le=500, description="Целевая цена Brent, $/барр."),
     db: Session = Depends(get_db),
+    user=Depends(get_current_user_optional),
 ):
     """Числовой контур v2: Δ выручки/EBITDA/чистой прибыли по каждой компании
     (млрд ₽ и % от базы года) при целевых макро-условиях — детерминированно, по
@@ -62,13 +74,17 @@ def stress_test_numeric(
     from app.services.stress_numeric import numeric_impact
     if all(v is None for v in (key_rate_pct, fx_usdrub, oil_brent_usd)):
         return {"error": "no_inputs", "note": "Задайте хотя бы один параметр: ставка, курс или нефть."}
+    # Весь этот контур — произвольные параметры, то есть свой сценарий.
+    require_feature(user, FEATURE_STRESS_CUSTOM, _CUSTOM_SCENARIO_LABEL)
     return numeric_impact(db, key_rate_pct, fx_usdrub, oil_brent_usd)
 
 
 @router.post("/stress-test/ask")
-def stress_test_ask(payload: dict, db: Session = Depends(get_db)):
+def stress_test_ask(payload: dict, db: Session = Depends(get_db),
+                    user=Depends(get_current_user_optional)):
     """Свободный сценарий текстом («что будет если ...») → LLM-парсер (DeepSeek)
     переводит в вектор шоков → числа считает код (stress_numeric), направления —
     факторный движок. ДЕМО — интерпретация сценария возвращается явно."""
+    require_feature(user, FEATURE_STRESS_CUSTOM, _CUSTOM_SCENARIO_LABEL)
     from app.services.stress_ask import ask_scenario
     return ask_scenario(db, str(payload.get("question", "")))

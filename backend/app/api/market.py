@@ -1071,6 +1071,10 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
     Feb-Apr 2026 (реальные даты сдачи годовой отчётности) — вся эта старая пачка легла
     поверх ленты, вытеснив свежие отчёты. Сортировка по реальной дате события чинит это:
     записи без published_at (часть ручного financials.json-пути) деградируют на created_at."""
+    # Граница тарифа: разборы отчётов — на Max (в таблице тарифов строка
+    # observerDeep). Пока TIER_LIMITS_ENFORCED не выставлен, пропускает всех.
+    from app.services.entitlements import FEATURE_OBSERVER_DEEP, require_feature
+    require_feature(user, FEATURE_OBSERVER_DEEP, "Разборы отчётов")
     from datetime import date as _date, timedelta as _timedelta
     from app.models.earnings import EarningsReport, EarningsDigest, EarningsFigures
     # 🔴 Окно свежести (жалоба владельца 2026-07-25: «в Отчётах старые отчёты за

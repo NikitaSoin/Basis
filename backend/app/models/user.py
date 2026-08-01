@@ -6,8 +6,13 @@ from app.db.session import Base
 
 
 class SubscriptionType(str, enum.Enum):
+    """Тарифы: free («Бесплатный») и premium («Max» в UI).
+
+    "plus" удалён 2026-08-01 (владелец: «клиентов нет, записей никаких нет,
+    поэтому удалить можно») — миграция c4e18a7b2d90, она же на всякий случай
+    переводит возможные plus-строки в premium перед удалением значения."""
+
     free = "free"
-    plus = "plus"
     premium = "premium"
 
 
