@@ -39,8 +39,15 @@ GROUP BY 1, 2 ORDER BY 2 DESC;
 
 ```sql
 -- какие бумаги люди реально держат
-SELECT secid, count(*) AS в_портфелях, sum(quantity) AS всего_штук
-FROM portfolio_positions GROUP BY 1 ORDER BY 2 DESC;
+-- ВНИМАНИЕ: у акций secid пустой, тикер лежит через company_id → companies.
+-- secid заполнен только у облигаций, фондов и фьючерсов. coalesce сшивает оба случая.
+SELECT coalesce(c.ticker, p.secid) AS бумага,
+       p.instrument_type            AS тип,
+       count(*)                     AS в_портфелях,
+       sum(p.quantity)              AS штук
+FROM portfolio_positions p
+LEFT JOIN companies c ON c.id = p.company_id
+GROUP BY 1, 2 ORDER BY 3 DESC;
 ```
 
 ```sql
@@ -56,7 +63,7 @@ SELECT max(date) AS последняя_дата, count(*) AS всего_стро
 |---|---:|---|
 | `users` | 20 | Аккаунты. email, тариф (free/premium), дата регистрации, активен ли. |
 | `portfolios` | 15 | Портфели пользователей: чей, название, когда создан. |
-| `portfolio_positions` | 33 | Бумаги внутри портфелей: тикер, количество, средняя цена покупки. |
+| `portfolio_positions` | 33 | Бумаги внутри портфелей: количество, средняя цена. 🔴 У акций тикера тут НЕТ — связь через company_id; поле secid заполнено только у облигаций, фондов, фьючерсов. |
 | `portfolio_transactions` | 50 | Сделки внутри портфеля: покупка/продажа, цена, комиссия, дата. |
 | `portfolio_diagnoses` | 2 | Сохранённые ИИ-диагнозы портфелей. |
 | `screener_saved_filters` | 0 | Сохранённые пользователями фильтры скрининга. |

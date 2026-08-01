@@ -2197,7 +2197,7 @@ font-size:13px;cursor:pointer}
 <a onclick="set('SELECT date(created_at) AS день, count(*) FROM users GROUP BY 1 ORDER BY 1 DESC')">регистрации по дням</a>
 <a onclick="set('SELECT subscription_type, count(*) FROM users GROUP BY 1')">по тарифам</a>
 <a onclick="set('SELECT u.id, u.created_at, count(p.id) AS портфелей FROM users u LEFT JOIN portfolios p ON p.user_id = u.id GROUP BY 1,2 ORDER BY 2 DESC')">активность по людям</a>
-<a onclick="set('SELECT ticker, count(*) AS в_портфелях FROM portfolio_positions GROUP BY 1 ORDER BY 2 DESC')">популярные бумаги</a>
+<a onclick="set('SELECT coalesce(c.ticker, p.secid) AS бумага, p.instrument_type AS тип, count(*) AS в_портфелях, sum(p.quantity) AS штук FROM portfolio_positions p LEFT JOIN companies c ON c.id = p.company_id GROUP BY 1,2 ORDER BY 3 DESC')">популярные бумаги</a>
 <a onclick="set(&quot;SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY 1&quot;)">список таблиц</a>
 </div>
 <details style="margin:18px 0"><summary style="cursor:pointer;color:#C97A4A">
