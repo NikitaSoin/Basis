@@ -5881,18 +5881,9 @@ details[open] > summary .obs-inst-chev,
    (они в «Экон.статистике»), а ТРАЕКТОРИЯ ставки/инфляции, реальные развилки с
    повестки, секторное влияние с дисперсией и именами бумаг. */
 
-/* Светофор режима — направления одной строкой */
-.obs-macro-regime {
-  display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 18px;
-}
-.obs-macro-regime-chip {
-  display: inline-flex; align-items: baseline; gap: 6px;
-  padding: 6px 12px; border-radius: 999px;
-  background: var(--obs-surface-2, rgba(255,255,255,0.04));
-  border: 1px solid var(--border-subtle);
-  font-size: 12.5px; color: var(--text-secondary);
-}
-.obs-macro-regime-chip b { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-tertiary); font-weight: 700; }
+/* (Светофор режима убран 2026-08-02 по замечанию владельца — чипсы «Ставка
+   снижается / Инфляция ускоряется» дублировали тезисы. Стили удалены вместе
+   с разметкой, чтобы мёртвое правило не всплывало при проверке деплоя.) */
 
 /* Траектории ставки и инфляции — две карточки рядом */
 .obs-macro-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
