@@ -572,6 +572,14 @@ def debug_trigger_macro_data_fixes():
             out["expectations"] = sync_expectations(db)
         except Exception as e:  # noqa: BLE001
             out["expectations"] = {"error": f"{type(e).__name__}: {e}"}
+        try:
+            # Ручные ряды Росстата лежат в репозитории (config/rosstat_manual.csv) —
+            # перечитываем их здесь же: именно так восстанавливаются серии, которые
+            # источник машинно не отдаёт.
+            from app.services.macro_rosstat import ingest_rosstat_file
+            out["rosstat_manual"] = ingest_rosstat_file(db)
+        except Exception as e:  # noqa: BLE001
+            out["rosstat_manual"] = {"error": f"{type(e).__name__}: {e}"}
         return out
     except Exception as e:  # noqa: BLE001
         logger.exception("debug trigger-macro-data-fixes: %s", e)
