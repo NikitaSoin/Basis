@@ -1799,6 +1799,7 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
   const [rate, setRate] = useState(null);        // /macro/rate — ставка + сигнал ЦБ (факт)
   const [numbers, setNumbers] = useState([]);     // /macro — твёрдые числа для плитки (факт)
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const interpAuth = token ? { Authorization: `Bearer ${token}` } : {};
 
   // Загружаем список аналитических записок один раз
   useEffect(() => {
@@ -1837,12 +1838,15 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
   useEffect(() => {
     if (mode === "assessment" && interp === null) {
       setInterpLoading(true);
-      fetch(`${apiUrl}/api/market/macro/interpretation`)
+      // Токен обязателен: по нему бэкенд отдаёт разбор ИМЕННО этого портфеля.
+      // Без него ответ тот же, но с приглашением завести портфель.
+      fetch(`${apiUrl}/api/market/macro/interpretation`,
+            { headers: token ? { Authorization: `Bearer ${token}` } : {} })
         .then((r) => (r.ok ? r.json() : null))
         .then((d) => { setInterp(d); setInterpLoading(false); })
         .catch(() => setInterpLoading(false));
     }
-  }, [mode, apiUrl, interp]);
+  }, [mode, apiUrl, interp, token]);
 
   // 🔴 Генерация идёт В ФОНЕ (полные первоисточники — это минуты работы модели, HTTP
   // столько не живёт: прокси Timeweb обрывал запрос и отдавал 502). Поэтому клиент не
@@ -1851,18 +1855,19 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
   useEffect(() => {
     if (!interpRunning) return undefined;
     const t = setInterval(() => {
-      fetch(`${apiUrl}/api/market/macro/interpretation`)
+      fetch(`${apiUrl}/api/market/macro/interpretation`,
+            { headers: token ? { Authorization: `Bearer ${token}` } : {} })
         .then((r) => (r.ok ? r.json() : null))
         .then((d) => { if (d) setInterp(d); })
         .catch(() => {});
     }, 15000);
     return () => clearInterval(t);
-  }, [interpRunning, apiUrl]);
+  }, [interpRunning, apiUrl, token]);
 
   const rebuildInterp = () => {
     fetch(`${apiUrl}/api/market/macro/interpretation`, { method: "POST" })
       .then((r) => r.json())
-      .then(() => fetch(`${apiUrl}/api/market/macro/interpretation`).then((r) => r.json()))
+      .then(() => fetch(`${apiUrl}/api/market/macro/interpretation`, { headers: interpAuth }).then((r) => r.json()))
       .then((d) => { if (d) setInterp(d); })
       .catch(() => {});
   };
@@ -2276,16 +2281,57 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                 </div>
               )}
 
-              {/* Связка с портфелем — пока приглашение. Сам разбор по бумагам инвестора
-                  считается в волне 2 (нужен join с портфелем и сверка чисел с карточкой). */}
-              <div className="obs-macro-portfolio-cta">
-                <Info size={13} />
-                <span>
-                  Если бы у вас был заполнен портфель, здесь был бы разбор: какие именно
-                  ваши бумаги задевает эта макрокартина и через какой канал.{" "}
-                  <button className="obs-ticker-link" onClick={() => onOpenPortfolio?.()}>Заполнить портфель</button>
-                </span>
-              </div>
+              {/* Связка с портфелем. Считается на бэкенде КОДОМ поверх готового выпуска:
+                  секторные ветры выпуска × коэффициенты чувствительности карточек. */}
+              {interp?.portfolio?.available ? (
+                <div className="obs-inst-card">
+                  <div className="obs-inst-card-title"><Briefcase size={16} />Что это значит для вашего портфеля</div>
+                  <div className="obs-inst-list">
+                    {interp.portfolio.items.map((p) => {
+                      const neg = /встречный/i.test(p.wind || "");
+                      const pos = /попутный/i.test(p.wind || "");
+                      return (
+                        <div key={p.ticker} className="obs-inst-row">
+                          <div className="obs-inst-row-main">
+                            <div className="obs-inst-row-title" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              {neg ? <TrendingDown size={14} style={{ color: "var(--danger)" }} /> : pos ? <TrendingUp size={14} style={{ color: "var(--success)" }} /> : null}
+                              <button className="obs-ticker-link" onClick={() => onSelectCompany?.(p.ticker)}>{p.ticker}</button>
+                              {p.weight != null && <span className="obs-pf-weight">{p.weight}% портфеля</span>}
+                              <span style={{ fontSize: 11, fontWeight: 700, color: neg ? "var(--danger)" : pos ? "var(--success)" : "var(--text-tertiary)", textTransform: "uppercase" }}>· {p.wind}</span>
+                            </div>
+                            {p.why && <div className="obs-inst-row-why">{p.why}</div>}
+                            {/* Число отвечает на ГИПОТЕТИЧЕСКИЙ шок — условие «если» внутри
+                                фразы, иначе рядом с «попутный» читается как противоречие. */}
+                            {p.sensitivity?.phrase && (
+                              <div className="obs-pf-sens">
+                                {p.sensitivity.phrase}
+                                <span className="obs-tag-fact">{p.sensitivity.tag}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {interp.portfolio.uncovered?.length > 0 && (
+                    /* Молчание про бумагу читалось бы как «влияния нет» — говорим прямо. */
+                    <div className="obs-pf-uncovered">
+                      Без разбора: {interp.portfolio.uncovered.join(", ")} — выпуск не высказывался
+                      об этих секторах, а посчитанных каналов в карточках нет.
+                    </div>
+                  )}
+                  <div className="obs-pf-note">{interp.portfolio.note}</div>
+                </div>
+              ) : (
+                <div className="obs-macro-portfolio-cta">
+                  <Info size={13} />
+                  <span>
+                    {interp?.portfolio?.empty_state
+                      || "Если бы у вас был заполнен портфель, здесь был бы разбор: какие именно ваши бумаги задевает эта макрокартина и через какой канал."}{" "}
+                    <button className="obs-ticker-link" onClick={() => onOpenPortfolio?.()}>Заполнить портфель</button>
+                  </span>
+                </div>
+              )}
 
               {/* ТРЕКШЕН: что изменилось с прошлого выпуска и пересмотрели ли мы оценку */}
               {interpSections.changed_since_last && (

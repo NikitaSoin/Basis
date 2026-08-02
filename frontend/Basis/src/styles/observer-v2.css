@@ -6038,3 +6038,22 @@ details[open] > summary .obs-inst-chev,
   text-transform: none; letter-spacing: 0; white-space: normal; cursor: auto;
   max-height: 60vh; overflow-y: auto;
 }
+
+/* ═══ Макро → портфель: проекция выпуска на бумаги пользователя (2026-08-02) ═══
+   Считается кодом поверх готового выпуска, поэтому здесь только подача. */
+.obs-pf-weight {
+  font-family: var(--font-mono, monospace); font-size: 11px; font-weight: 600;
+  color: var(--text-tertiary); font-variant-numeric: tabular-nums;
+}
+/* Число отвечает на гипотетический шок — держим его визуально СПОКОЙНЫМ, без
+   красного/зелёного: цвет здесь солгал бы, что это уже случилось. */
+.obs-pf-sens {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-top: 6px; font-size: 12.5px; color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.obs-pf-uncovered {
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-subtle);
+  font-size: 12px; color: var(--text-tertiary); line-height: 1.5;
+}
+.obs-pf-note { margin-top: 8px; font-size: 11.5px; color: var(--text-tertiary); line-height: 1.5; }
