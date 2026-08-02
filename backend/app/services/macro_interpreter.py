@@ -638,6 +638,17 @@ def generate(db: Session) -> MacroInterpretation:
     if verdict == "reject":
         raise llm.LLMError(f"Выпуск отклонён гейтом: {gate_notes[:5]}")
 
+    # Несуществующие тикеры убираем ДО сохранения: фронт делает из каждого кнопку
+    # перехода на карточку, и «VTB» вместо «VTBR» — это ссылка в никуда в выпуске.
+    try:
+        from app.services.macro_release_gate import strip_unknown_tickers
+        removed = strip_unknown_tickers(sections, snapshot)
+        if removed:
+            logger.warning("Интерпретатор: убраны несуществующие тикеры: %s", removed)
+            gate_notes = list(gate_notes) + [f"stripped:{','.join(removed)}"]
+    except Exception:  # noqa: BLE001
+        logger.warning("Интерпретатор: чистка тикеров не отработала", exc_info=True)
+
     # Агент-ревизор: выборочно проверяет числовые утверждения, поданные как ФАКТ.
     # Гейт ловит формальное (структура, сверка с key_facts), ревизор — то, ради чего
     # надо пойти и посмотреть источник. Выпуск не переписывает: правка чужого суждения

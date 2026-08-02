@@ -114,8 +114,17 @@ def _check_numbers_vs_facts(blob: str, snapshot: dict) -> list[str]:
                 v = float(str(m).replace(",", "."))
             except ValueError:
                 continue
-            if 0.3 * actual < v < 3 * actual and abs(v - actual) / actual > tol:
-                out.append(f"number_mismatch:{code}={v}!={actual}")
+            if not (0.3 * actual < v < 3 * actual) or abs(v - actual) / actual <= tol:
+                continue
+            # 🔴 Число из ИСТОРИИ этого же ряда — не чужой источник, а показ динамики
+            # («ожидания выросли с 13,0 до 14,7»). Живой выпуск дал 3 таких замечания
+            # из 5, и шум обесценивает гейт: на реальные ошибки перестают смотреть.
+            history = {round(float(p["v"]), 2) for p in (ind.get("series") or [])
+                       if isinstance(p, dict) and isinstance(p.get("v"), (int, float))}
+            if any(abs(v - h) <= 0.05 for h in history):
+                out.append(f"historical_value_cited:{code}={v}")
+                continue
+            out.append(f"number_mismatch:{code}={v}!={actual}")
     return out
 
 
@@ -144,3 +153,31 @@ def _check_epistemics(sections: dict) -> list[str]:
     if not sections.get("against_us"):
         out.append("no_counterargument_block")   # Часть 19.3 п.5 — обязателен
     return out
+
+
+def strip_unknown_tickers(sections: dict, snapshot: dict) -> list[str]:
+    """Убрать из выпуска бумаги, которых нет в покрытии платформы.
+
+    🔴 Не косметика: фронт делает из каждого тикера КНОПКУ перехода на карточку.
+    Модель назвала «VTB» и «LNTE» (на бирже — VTBR и LENT), и это были бы две ссылки
+    в никуда прямо в выпуске. Угадывать «что имелось в виду» нельзя — VTB похоже на
+    VTBR, но подстановка по догадке однажды подставит не ту компанию. Поэтому
+    неизвестное убираем, а факт убирания остаётся в gate_notes.
+    """
+    allowed = set((snapshot.get("context") or {}).get("platform_tickers") or [])
+    if not allowed:
+        return []
+    removed: list[str] = []
+    for sec in sections.get("sectors") or []:
+        if not isinstance(sec, dict):
+            continue
+        for side in ("winners", "losers"):
+            kept = []
+            for t in sec.get(side) or []:
+                if isinstance(t, str) and t.upper() in allowed:
+                    kept.append(t)
+                elif isinstance(t, str):
+                    removed.append(t)
+            if sec.get(side) is not None:
+                sec[side] = kept
+    return removed

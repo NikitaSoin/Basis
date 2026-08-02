@@ -336,3 +336,65 @@ class TestMissingPeriodsInQuestion:
         """Недельный ряд перечислять бессмысленно — вопрос останется общим."""
         from app.services.macro_data_questions import _missing_periods
         assert _missing_periods("2026-03-28", "weekly") == []
+
+
+class TestUnknownTickersAreStripped:
+    """Тикер из выпуска становится КНОПКОЙ перехода на карточку.
+
+    Живой выпуск 2026-08-02 назвал «VTB» и «LNTE» (на бирже — VTBR и LENT): две
+    ссылки в никуда прямо в тексте. Гейт их находил, но выпуск публиковался как есть.
+    """
+
+    SNAP = {"context": {"platform_tickers": ["SBER", "VTBR", "LENT"]}}
+
+    def test_unknown_ticker_is_removed_and_reported(self):
+        from app.services.macro_release_gate import strip_unknown_tickers
+        sections = {"sectors": [{"sector": "Финансы", "winners": ["SBER", "VTB"],
+                                 "losers": ["LNTE"]}]}
+        removed = strip_unknown_tickers(sections, self.SNAP)
+        assert sorted(removed) == ["LNTE", "VTB"]
+        assert sections["sectors"][0]["winners"] == ["SBER"]
+        assert sections["sectors"][0]["losers"] == []
+
+    def test_no_guessing_of_similar_tickers(self):
+        """VTB похоже на VTBR, но подстановка по догадке однажды подставит не ту
+        компанию — убираем, а не «исправляем»."""
+        from app.services.macro_release_gate import strip_unknown_tickers
+        sections = {"sectors": [{"sector": "Финансы", "winners": ["VTB"]}]}
+        strip_unknown_tickers(sections, self.SNAP)
+        assert sections["sectors"][0]["winners"] == []
+
+    def test_empty_coverage_changes_nothing(self):
+        """Нет списка покрытия — не трогаем выпуск вовсе, иначе вычистим всё."""
+        from app.services.macro_release_gate import strip_unknown_tickers
+        sections = {"sectors": [{"sector": "Финансы", "winners": ["VTB"]}]}
+        assert strip_unknown_tickers(sections, {}) == []
+        assert sections["sectors"][0]["winners"] == ["VTB"]
+
+
+class TestGateDistinguishesHistoryFromForeignNumbers:
+    """Число из истории ряда — показ динамики, а не «взято из чужого источника».
+
+    Живой выпуск 2026-08-02 дал 3 таких замечания из 5 («ожидания выросли с 13,0 до
+    14,7»). Шум обесценивает гейт: на реальные ошибки перестают смотреть.
+    """
+
+    SNAP = {"indicators": [{"code": "inflation_expectations", "metric": "level",
+                            "current_value": 14.7,
+                            "series": [{"d": "2026-06-30", "v": 13.0},
+                                       {"d": "2026-05-31", "v": 12.4}]}]}
+
+    def test_past_value_is_flagged_softly(self):
+        from app.services.macro_release_gate import _check_numbers_vs_facts
+        notes = _check_numbers_vs_facts(
+            "инфляционные ожидания 13,0% месяцем ранее", self.SNAP)
+        assert notes == ["historical_value_cited:inflation_expectations=13.0"]
+
+    def test_number_from_nowhere_is_still_a_mismatch(self):
+        from app.services.macro_release_gate import _check_numbers_vs_facts
+        notes = _check_numbers_vs_facts("инфляционные ожидания 19,5%", self.SNAP)
+        assert notes == ["number_mismatch:inflation_expectations=19.5!=14.7"]
+
+    def test_current_value_passes_clean(self):
+        from app.services.macro_release_gate import _check_numbers_vs_facts
+        assert _check_numbers_vs_facts("инфляционные ожидания 14,7%", self.SNAP) == []
