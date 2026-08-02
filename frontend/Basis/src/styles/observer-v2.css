@@ -6805,3 +6805,33 @@ details[open] > summary .obs-inst-chev,
   border-left: 2px solid var(--accent);
   padding-left: 8px;
 }
+
+/* --- Зоны передела (замена «карты конфликтов элит») --- */
+.obs-inst-zone {
+  padding: 10px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.obs-inst-zone:first-of-type { border-top: 0; padding-top: 2px; }
+.obs-inst-zone-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.obs-inst-zone-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.obs-inst-zone-what {
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+.obs-inst-zone-leads {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-tertiary);
+}

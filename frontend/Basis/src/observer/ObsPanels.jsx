@@ -5644,6 +5644,30 @@ function ObsInstitutions({ token }) {
                       </div>
                     )}
 
+                    {Array.isArray(profile.redistribution_zones) && profile.redistribution_zones.length > 0 && (
+                      <details className="obs-inst-details">
+                        <summary>Где сейчас перераспределяются активы</summary>
+                        <div className="obs-inst-details-body">
+                          {profile.redistribution_zones.map((z, i) => (
+                            <div key={i} className="obs-inst-zone">
+                              <div className="obs-inst-zone-head">
+                                <span className="obs-inst-zone-name">{z.zone}</span>
+                                <ObsInstTag tag={z.tag} />
+                              </div>
+                              {z.what && <div className="obs-inst-zone-what">{z.what}</div>}
+                              {Array.isArray(z.sectors) && z.sectors.length > 0 && (
+                                <div className="obs-region-card-chips">
+                                  {z.sectors.map((sx, j) => <span key={j} className="obs-region-chip">{sx}</span>)}
+                                </div>
+                              )}
+                              {z.for_investor && <div className="obs-inst-dom-inv">{z.for_investor}</div>}
+                              {z.where_it_leads && <div className="obs-inst-zone-leads">К чему ведёт: {z.where_it_leads}</div>}
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    )}
+
                     {profile.as_of && <div className="obs-profile-foot">Разбор Basis, обновляется еженедельно · срез на {profile.as_of}</div>}
                   </div>
                 )}
@@ -5833,7 +5857,18 @@ function ObsInstitutions({ token }) {
                   </details>
                 )}
 
-                {Array.isArray(baro.power_map_top_conflicts) && baro.power_map_top_conflicts.length > 0 && (
+                {/* 🔴 «Карта конфликтов элит» СНЯТА С ВИТРИНЫ (2026-08-02).
+                    Данные приходят из экспертного барометра и содержат ФАМИЛИИ
+                    должностных лиц и владельцев в поле parties — они были видны
+                    на живом сайте. Владелец: «людей конкретных не называть».
+                    Обезличивать регуляркой ненадёжно: имена стоят и внутри
+                    скобок, и в прозе статуса. Замена — секция «Где сейчас
+                    перераспределяются активы» в портрете выше: она отвечает на
+                    вопрос владельца («что это значит для инвестора, на какие
+                    компании влияет, к чему приведёт») и генерируется с прямым
+                    запретом на фамилии плюс гейтом. Данные в барометре
+                    остаются — их читает агент разбора компании. */}
+                {false && Array.isArray(baro.power_map_top_conflicts) && baro.power_map_top_conflicts.length > 0 && (
                   <div className="obs-inst-card">
                     <div className="obs-inst-card-title"><Swords size={16} />Карта конфликтов элит</div>
                     <div className="obs-inst-card-sub">Реконструкция по открытым источникам — версии, не подтверждённые факты аппаратной борьбы.</div>
