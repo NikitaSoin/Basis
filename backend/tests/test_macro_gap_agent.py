@@ -593,3 +593,33 @@ class TestWebSearchResilience:
         monkeypatch.setattr(agent_web.time, "sleep", lambda *_: None)
         res = agent_web._search_ddg("что угодно", 3)
         assert res.get("error") == "search_unavailable"
+
+
+class TestOnlyAgentSolvableQuestions:
+    """Агенту не поручаем ряды, у которых есть СВОЙ машинный загрузчик.
+
+    🔴 Проверено на живых случаях: сводный индекс чёрных металлов завис на 02.07 —
+    наш синк исправен, товарные позиции с ТОЙ ЖЕ страницы приходят ежедневно, а график
+    композитного индекса источник просто не обновляет. Ряды КНР — прекращённые серии
+    OECD. В обоих случаях агент жёг бы прогоны на том, чего нет.
+    """
+
+    def test_series_with_a_feeder_is_not_queued(self, db):
+        from app.services import macro_ingest as mi
+        from app.services.macro_data_questions import _has_own_feeder
+
+        mi.seed_indicators(db)
+        db.commit()
+        assert _has_own_feeder(db, "metaltorg_steel_index") is True
+        assert _has_own_feeder(db, "cn_gdp") is True
+
+    def test_rosstat_stays_in_the_queue(self, db):
+        """Росстат закрыт машинно (WAF) — там поиск реально помогает, и агент уже
+        закрывал этим безработицу и реальную зарплату."""
+        from app.services import macro_ingest as mi
+        from app.services.macro_data_questions import _has_own_feeder
+
+        mi.seed_indicators(db)
+        db.commit()
+        assert _has_own_feeder(db, "real_wage") is False
+        assert _has_own_feeder(db, "pmi_composite") is False

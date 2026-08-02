@@ -147,6 +147,23 @@ def record_attempt(db: Session, code: str, *, success: bool) -> None:
         logger.warning("data_questions: попытка не записана (%s)", code, exc_info=True)
 
 
+# Источники, у которых есть СВОЙ машинный загрузчик. Такой ряд агенту поручать
+# бессмысленно: он протух не потому, что число негде взять, а потому что замолчал
+# конкретный сайт или сам поставщик прекратил серию.
+# 🔴 Проверено на живых случаях: сводный индекс чёрных металлов завис на 02.07 —
+# наш синк исправен, товарные позиции с ТОЙ ЖЕ страницы приходят ежедневно, а график
+# композитного индекса источник просто не обновляет. Ряды ВВП и инфляции КНР — вовсе
+# прекращённые серии OECD. Агент в обоих случаях жёг бы прогоны впустую.
+# `rosstat` НЕ исключаем: Росстат закрыт машинно (WAF), и там поиск реально помогает.
+_HAS_FEEDER = {"metaltorg", "fred", "wb", "tankermap", "idex", "hh", "yahoo", "cbr", "minfin"}
+
+
+def _has_own_feeder(db: Session, code: str) -> bool:
+    from app.models.macro import MacroIndicator
+    ind = db.get(MacroIndicator, code)
+    return bool(ind and (ind.source_type or "") in _HAS_FEEDER)
+
+
 def _stale_series(db: Session) -> list[dict]:
     """Ряды, переставшие обновляться. Основной поставщик работы для агента."""
     try:
@@ -162,6 +179,8 @@ def _stale_series(db: Session) -> list[dict]:
     out = []
     for s in stale:
         if s["code"] in _RETIRED:
+            continue
+        if _has_own_feeder(db, s["code"]):
             continue
         ind = db.get(MacroIndicator, s["code"])
         title = ind.title if ind else s["code"]
