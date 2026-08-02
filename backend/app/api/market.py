@@ -651,6 +651,20 @@ def market_geo_profile(db: Session = Depends(get_db)):
             "available": bool(payload)}
 
 
+@router.get("/market/institutions/profile")
+def market_institutions_profile(db: Session = Depends(get_db)):
+    """«Институциональный портрет» — человеческий слой поверх барометра:
+    ось «правила для всех ↔ решает доступ», связь с ценой акций, что происходит
+    и что это значит, факторы в обе стороны, во что обходится среда, кто
+    выигрывает и проигрывает, связки с макро и гео. Обновляется недельным
+    кроном institutions_profile. Мягкая деградация: пока слой не отработал —
+    available=false, витрина просто не рисует секцию."""
+    from app.services.institutions_profile import get_latest
+    payload = get_latest(db) or {}
+    return {"profile": payload, "available": bool(payload),
+            "as_of": payload.get("as_of")}
+
+
 @router.get("/market/geo/data-quality")
 def market_geo_data_quality(db: Session = Depends(get_db)):
     """«ОТК данных» геополитики — результат последнего прогона проверок БЕЗ LLM

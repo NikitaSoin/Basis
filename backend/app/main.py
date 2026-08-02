@@ -810,6 +810,28 @@ async def _geo_profile_job():
         logger.exception("Ошибка портрета очагов: %s", e)
 
 
+async def _institutions_profile_job():
+    """«Институциональный портрет» — человеческий слой поверх барометра
+    институтов (что происходит простыми словами, что это значит для денег,
+    факторы в обе стороны, кто выигрывает и проигрывает, связки с макро и гео).
+    НЕДЕЛЬНЫЙ, как и портрет очага: институциональная среда меняется медленно,
+    ежедневная перегенерация давала бы шум вместо опоры."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.institutions_profile import rebuild
+        db = SessionLocal()
+        try:
+            row = rebuild(db)
+            return f"версия {row.id} ({row.status})" if row else "не собрано"
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Портрет институтов: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка портрета институтов: %s", e)
+
+
 async def _geo_verification_job():
     """«ОТК данных» геополитики — проверки БЕЗ LLM (живость конвейера,
     согласованность вероятностей, полнота секций). Вечером, ПОСЛЕ всей гео-цепочки,
@@ -1327,6 +1349,7 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("barometer_reviser", _barometer_reviser_job), "cron", hour=21, minute=40, id="barometer_reviser")  # ревизор ИНСТИТУТОВ (гео ушёл на barometer_daily) — после оверлея (его вердикт = триггер); cooldown 5 дней внутри
         scheduler.add_job(_with_heartbeat("barometer_daily", _barometer_daily_job), "cron", hour=21, minute=50, id="barometer_daily")  # ЕЖЕДНЕВНАЯ полная пересборка гео-барометра DeepSeek (владелец 2026-08-01) — последней в цепочке гео: digest(:10 ежечасно) → geopolitics(21:00) → overlay(21:20) → reviser inst(21:40) → сюда
         scheduler.add_job(_with_heartbeat("geo_profile", _geo_profile_job), "cron", day_of_week="sun", hour=22, minute=10, id="geo_profile")  # портрет очагов — НЕДЕЛЬНЫЙ слой (медленные данные: стороны/цели/баланс/связки), воскресенье после суточной цепочки
+        scheduler.add_job(_with_heartbeat("institutions_profile", _institutions_profile_job), "cron", day_of_week="sun", hour=22, minute=20, id="institutions_profile")  # портрет институтов — недельный, после portrait очагов (22:10) и до ОТК (22:30)
         scheduler.add_job(_with_heartbeat("geo_verification", _geo_verification_job), "cron", hour=22, minute=30, id="geo_verification")  # «ОТК данных» гео без LLM — последним, меряет то, что реально уехало на витрину
         scheduler.add_job(_with_heartbeat("geo_digest", _geo_digest_job), "cron", minute=10, id="geo_digest")  # каждый час
         scheduler.add_job(_with_heartbeat("company_signals", _company_signals_job), "cron", minute=35, id="company_signals")  # шина: после news(5)+geo_digest(10), их выход = вход

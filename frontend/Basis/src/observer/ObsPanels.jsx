@@ -5644,7 +5644,12 @@ function ObsInstitutions({ token }) {
                   eyebrow="Институциональный барометр · оценка Basis"
                   asOf={baro.as_of}
                   score={baro.barometer?.overall}
-                  verdict={baro.barometer?.label}
+                  // Вердикт экспертной модели написан её языком («экстрактивная
+                  // оболочка усиливается») — ровно то, на что жаловался владелец.
+                  // Когда портрет выше есть, он даёт тот же вывод человеческими
+                  // словами, и дублировать жаргоном незачем. Если портрет ещё не
+                  // собран — вердикт показываем: лучше термин, чем пустой хедер.
+                  verdict={profile ? null : baro.barometer?.label}
                   polarity="higherBetter"
                   scaleLabels={["слабые институты", "сильные институты"]}
                   subindices={restSub}
