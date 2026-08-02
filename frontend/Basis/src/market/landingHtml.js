@@ -416,6 +416,10 @@ const LANDING_HTML = `
       <a class="btn btn-primary btn-lg" href="#" data-route="companies">Открыть платформу →</a>
       <a class="btn btn-ghost btn-lg" href="#" data-route="rosn">Пример — Роснефть</a>
     </div>
+    <div class="final-reg rv d3">
+      <p class="final-reg-p">Для дальнейшего комфортного использования платформы рекомендуем пройти регистрацию — это быстро и не займёт много времени.</p>
+      <a class="feat-link" href="#" data-route="login">Зарегистрироваться <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+    </div>
   </div>
 </section>
 

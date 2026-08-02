@@ -1,0 +1,33 @@
+/* Register nudge — отложенный тост-приглашение к регистрации (account/
+   RegisterNudge.jsx). Позиционирование и мобильный override живут в ОДНОМ
+   файле (не в mobile-nav.css) — урок предыдущей ошибки: override в другом
+   файле молча проигрывает утилитам Tailwind при неверном порядке импорта.
+   Цветовые и типографские классы — tw-утилиты прямо в JSX (алиасятся на
+   канон bs/cc через tokens.css), здесь только то, что нельзя выразить
+   встроенными tw-классами без громоздких arbitrary-value записей. */
+.reg-nudge {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 120; /* выше нижнего мобильного таббара (100), ниже AuthModal (200) */
+  max-width: 340px;
+  animation: reg-nudge-in 320ms var(--ease-out) both;
+}
+
+@keyframes reg-nudge-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* prefers-reduced-motion гасится глобально в tokens.css (animation-duration:
+   0.01ms !important на *) — отдельного правила здесь не нужно, тот же приём,
+   что уже используют .rv.in / .cc-live-dot на лендинге. */
+
+@media (max-width: 760px) {
+  .reg-nudge {
+    left: 12px;
+    right: 12px;
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 10px);
+    max-width: none;
+  }
+}

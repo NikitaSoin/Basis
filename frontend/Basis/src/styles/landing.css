@@ -261,6 +261,14 @@
 .lp-scope .final::before{content:"";position:absolute;inset:0;background:radial-gradient(720px 400px at 50% 118%,var(--glow),transparent 64%);pointer-events:none;}
 .lp-scope .final h2{font-family:"Fraunces",Georgia,serif;font-size:clamp(30px,4.6vw,56px);font-weight:600;letter-spacing:-.022em;line-height:1.04;margin:14px auto 0;max-width:17ch;}
 .lp-scope .final .hero-actions{justify-content:center;margin-top:30px;}
+/* Приглашение зарегистрироваться (владелец, 2026-08-02) — отдельная строка под
+   основными CTA, не третья кнопка того же веса: «Открыть платформу»/«Пример»
+   остаются точкой входа в контент, регистрация — следующий по важности, но не
+   конкурирующий шаг. .feat-link — тот же паттерн ссылки со стрелкой, что уже
+   используется в каждом блоке band (см. #market/#method и т.д.), центрируется
+   сам как inline-flex внутри text-align:center .final. */
+.lp-scope .final-reg{margin-top:32px;padding-top:22px;border-top:1px solid var(--line);max-width:520px;margin-left:auto;margin-right:auto;}
+.lp-scope .final-reg-p{font-size:13.5px;line-height:1.55;color:var(--ink-3);margin:0 0 10px;}
 .lp-scope footer{border-top:1px solid var(--line);padding:42px 0;}
 .lp-scope footer .wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
 .lp-scope .fnote{font-size:12px;color:var(--ink-3);max-width:56ch;line-height:1.5;}

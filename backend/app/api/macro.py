@@ -90,8 +90,28 @@ def macro_summary(country: str | None = None, portfolio_only: bool = False,
             "display_group": ind.display_group, "metric_types": ind.metric_types,
             "influence_short": ind.influence_short, "influence_full": ind.influence_full,
             "values": values, "has_data": bool(values), "in_portfolio": in_portfolio,
+            # 🔴 Свежесть наружу. Ряды ВВП и инфляции КНР — прекращённые серии OECD:
+            # витрина показывала «ВВП КНР 3,47%» с датой 2023 года, и число выглядело
+            # актуальным. Дата рядом была, но её никто не читает — нужна явная метка.
+            **_staleness(ind, values),
         })
     return out
+
+
+def _staleness(ind, values: dict) -> dict:
+    """Насколько просрочен ряд относительно своей частоты."""
+    from app.services.macro_ingest import _STALE_DAYS
+
+    dates = [v.get("as_of") for v in values.values() if v.get("as_of")]
+    if not dates:
+        return {"is_stale": False, "stale_days": None}
+    try:
+        newest = max(date.fromisoformat(str(d)[:10]) for d in dates)
+    except ValueError:
+        return {"is_stale": False, "stale_days": None}
+    age = (date.today() - newest).days
+    limit = _STALE_DAYS.get(ind.frequency or "monthly", 75)
+    return {"is_stale": age > limit, "stale_days": age}
 
 
 @router.get("/market/macro/rate")

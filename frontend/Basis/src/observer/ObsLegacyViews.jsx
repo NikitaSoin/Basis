@@ -415,6 +415,16 @@ function MacroInfoTip({ text }) {
   );
 }
 
+// Возраст последних данных словами: «1128 дней» читается хуже, чем «3 года».
+function _staleAge(days) {
+  if (days >= 365) {
+    const years = Math.floor(days / 365);
+    return years === 1 ? "больше года" : `больше ${years} лет`;
+  }
+  if (days >= 60) return `${Math.floor(days / 30)} мес.`;
+  return `${days} дн.`;
+}
+
 // Плитка-вход: число, изменение, дата, краткое «как влияет». Клик → окно (B).
 function MacroIndicatorCard({ ind, onOpen }) {
   const v = ind.values?.[(ind.metric_types || ["level"])[0]] || Object.values(ind.values || {})[0];
@@ -435,6 +445,10 @@ function MacroIndicatorCard({ ind, onOpen }) {
             <MacroInfoTip text={ind.influence_short || ind.influence_full} />
           </span>
           {v?.is_preliminary && <Badge tone="neutral">предв.</Badge>}
+          {/* 🔴 Ряд перестал обновляться у источника. Без метки витрина показывала
+              «ВВП КНР 3,47%» с датой 2023 года, и число читалось как актуальное:
+              дата рядом стояла, но её никто не читает. */}
+          {ind.is_stale && <Badge tone="neutral">не обновляется</Badge>}
         </div>
         <div className="tw-flex tw-items-baseline tw-gap-2">
           <span className="tw-text-[22px] tw-font-semibold tw-text-text-primary tw-tabular-nums">{_fmtNum(v?.value)}{ind.unit === "%" ? "%" : ""}</span>
@@ -445,7 +459,13 @@ function MacroIndicatorCard({ ind, onOpen }) {
             </span>
           )}
         </div>
-        <div className="tw-text-[11px] tw-text-text-tertiary tw-mb-1.5">{v?.as_of}</div>
+        <div className="tw-text-[11px] tw-text-text-tertiary tw-mb-1.5">
+          {v?.as_of}
+          {/* тон нейтральный: по дизайн-конституции цвет несут ДАННЫЕ, а не хром */}
+          {ind.is_stale && ind.stale_days != null && (
+            <span className="tw-text-text-tertiary"> · источник молчит {_staleAge(ind.stale_days)}</span>
+          )}
+        </div>
         {ind.influence_short && <div className="tw-text-[12px] tw-text-text-secondary tw-leading-[17px] tw-line-clamp-2">{ind.influence_short}</div>}
         <div className="tw-text-[11px] tw-text-accent tw-mt-1.5 tw-inline-flex tw-items-center tw-gap-1"><Activity size={12} /> Подробнее и график</div>
       </button>

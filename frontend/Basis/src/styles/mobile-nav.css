@@ -58,6 +58,17 @@
   .topnav-row .topnav-search-box input {
     font-size: 12.5px;
   }
+  /* Кнопка «Войти» (topnav-actions) — на мобильном остаётся только иконка
+     (User), текстовая подпись скрыта, чтобы не отжимать поле поиска (тот же
+     компромисс, что уже принят для topnav-links выше). Кнопка сохраняет
+     aria-label, так что для скринридеров имя остаётся. */
+  .topnav-login-btn .topnav-login-label {
+    display: none;
+  }
+  .topnav-login-btn {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
 }
 
 /* ---- Нижний фикс-таббар ---- */

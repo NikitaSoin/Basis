@@ -105,6 +105,7 @@ import {
 const PortfolioV2 = React.lazy(() => import("./portfolio/PortfolioViews").then((m) => ({ default: m.PortfolioV2 })));
 const StressTestView = React.lazy(() => import("./portfolio/StressTestView"));
 import { AuthModal } from "./account/AccountPanels";
+import RegisterNudge from "./account/RegisterNudge";
 import PricingView from "./account/PricingView";
 import ProfileView from "./account/ProfileView";
 import { CompanyCard, CompaniesView, NEO_CARD, BondCard, FuturesCard, FundCard, SpotCard } from "./company/CompanyCardView";
@@ -822,7 +823,7 @@ function TopNavSearch({ onOpenCompany }) {
   );
 }
 
-function TopNav({ activeTab, onNav, theme, toggleTheme, onOpenCompany }) {
+function TopNav({ activeTab, onNav, theme, toggleTheme, onOpenCompany, isAuthenticated, onOpenAuth }) {
   return (
     <header
       className="tw-sticky tw-top-0 tw-z-40 tw-border-b tw-border-border-subtle"
@@ -864,6 +865,28 @@ function TopNav({ activeTab, onNav, theme, toggleTheme, onOpenCompany }) {
         <TopNavSearch onOpenCompany={onOpenCompany} />
 
         <div className="tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 topnav-actions">
+          {/* Постоянная точка входа в регистрацию/вход (владелец, 2026-08-02):
+              раньше в шапке НЕ было вообще никакой кнопки логина — единственный
+              путь был пункт «Профиль» в TOPNAV_ITEMS (ведёт во вкладку профиля,
+              не открывает форму входа). Показывается ТОЛЬКО когда пользователь
+              не залогинен; после входа кнопка пропадает, остаётся «Профиль» в
+              общем списке разделов. Сдержанный secondary-вариант (не primary) —
+              не должна спорить по яркости с активной вкладкой навигации.
+              Текстовая подпись прячется на ≤760px (styles/mobile-nav.css,
+              .topnav-login-label) — остаётся иконка + aria-label, по той же
+              логике, что уже сжимает поиск на мобильном. */}
+          {!isAuthenticated && (
+            <Button
+              variant="secondary"
+              size="md"
+              iconLeft={<User size={15} />}
+              onClick={onOpenAuth}
+              aria-label="Войти или зарегистрироваться"
+              className="topnav-login-btn"
+            >
+              <span className="topnav-login-label">Войти</span>
+            </Button>
+          )}
           <IconButton
             aria-label={theme === "dark" ? "Светлая тема" : "Тёмная тема"}
             onClick={toggleTheme}
@@ -1311,6 +1334,8 @@ export default function App() {
           theme={theme}
           toggleTheme={toggleTheme}
           onOpenCompany={selectCompany}
+          isAuthenticated={!!token}
+          onOpenAuth={() => setShowAuthModal(true)}
         />
         {isLanding ? (
           <ViewErrorBoundary routeKey="landing">
@@ -1360,6 +1385,15 @@ export default function App() {
 
       {showAuthModal && (
         <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />
+      )}
+
+      {/* Отложенный тост-приглашение к регистрации (владелец, 2026-08-02) — по
+          всему сайту, не привязан к конкретному разделу. Скрыт, пока открыт
+          AuthModal (иначе просвечивал бы сквозь полупрозрачный скрим), и не
+          рендерится вовсе для залогиненных — сам компонент решает, ждать
+          таймер или нет (см. account/RegisterNudge.jsx). */}
+      {!token && !showAuthModal && (
+        <RegisterNudge onOpenAuth={() => setShowAuthModal(true)} />
       )}
     </div>
   );
