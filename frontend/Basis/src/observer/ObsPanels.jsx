@@ -5490,10 +5490,18 @@ function ObsInstitutions({ token }) {
   // стороны, кто выигрывает и проигрывает, связки с макро и гео. Отдельный
   // недельный слой, поэтому и отдельный запрос (у него своя дата свежести).
   const [profile, setProfile] = useState(null);
+  // Замеры по направлениям (собственность, суды, госдоля, конкуренция…): не
+  // «ещё одна оценка», а возможность увидеть, ЧТО ИМЕННО сдвинулось — у общего
+  // балла барометра этого не видно.
+  const [domains, setDomains] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
+    fetch(`${apiUrl}/api/market/institutions/domains`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setDomains(d && d.available ? d : null))
+      .catch(() => setDomains(null));
     fetch(`${apiUrl}/api/market/institutions/profile`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => setProfile(d && d.available ? d.profile : null))
@@ -5637,6 +5645,53 @@ function ObsInstitutions({ token }) {
                     )}
 
                     {profile.as_of && <div className="obs-profile-foot">Разбор Basis, обновляется еженедельно · срез на {profile.as_of}</div>}
+                  </div>
+                )}
+
+                {/* Замеры по направлениям. Владелец: «нужны детальные отдельные
+                    проходы, которые мониторили бы качество институтов, и по ним
+                    видели, есть ли институциональные изменения». Под катом:
+                    наверху человек читает вывод, сюда идёт, когда хочет знать,
+                    ЧТО КОНКРЕТНО ухудшилось. `changes` показываем снаружи — это
+                    и есть ответ на «есть ли изменения». */}
+                {domains?.domains?.length > 0 && (
+                  <div className="obs-inst-card">
+                    <div className="obs-inst-card-title"><Building2 size={16} />Замеры по направлениям</div>
+                    {domains.changes?.length > 0 && (
+                      <div className="obs-inst-changes">
+                        <div className="obs-inst-factor-title">Сдвинулось с прошлого замера</div>
+                        {domains.changes.map((c, i) => (
+                          <div key={i} className="obs-inst-change">
+                            <span className="obs-inst-change-label">{c.label}</span>
+                            <span className={`obs-inst-change-delta${c.delta < 0 ? " obs-inst-change-delta--down" : " obs-inst-change-delta--up"}`}>
+                              {c.delta < 0 ? "▼" : "▲"} {c.from} → {c.to}
+                            </span>
+                            {c.why && <span className="obs-inst-change-why">{c.why}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <details className="obs-inst-details">
+                      <summary>Все направления ({domains.domains.length})</summary>
+                      <div className="obs-inst-details-body">
+                        {domains.domains.map((d, i) => (
+                          <div key={i} className="obs-inst-dom">
+                            <div className="obs-inst-dom-head">
+                              <span className="obs-inst-dom-score">{d.score}</span>
+                              <span className="obs-inst-dom-label">{d.label}</span>
+                              <span className={`obs-inst-dom-dir${/ухудш/i.test(d.direction || "") ? " obs-inst-dom-dir--worse" : /улучш/i.test(d.direction || "") ? " obs-inst-dom-dir--better" : ""}`}>{d.direction}</span>
+                              {/* Уверенность показываем только когда она низкая:
+                                  это честное предупреждение «по направлению почти
+                                  не было материала», а не украшение. */}
+                              {/низк/i.test(d.confidence || "") && <span className="obs-inst-dom-conf">мало данных</span>}
+                            </div>
+                            {d.verdict && <div className="obs-inst-dom-verdict">{d.verdict}</div>}
+                            {d.for_investor && <div className="obs-inst-dom-inv">{d.for_investor}</div>}
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                    {domains.as_of && <div className="obs-profile-foot">Замер Basis · {domains.as_of}</div>}
                   </div>
                 )}
 

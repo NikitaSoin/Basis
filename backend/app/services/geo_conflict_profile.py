@@ -440,6 +440,20 @@ def build_one(db: Session, scope: str, prev: dict | None,
         user_parts.append(
             "ТЕКУЩАЯ ОЦЕНКА ОЧАГА ИЗ БАРОМЕТРА (контекст, не переписывай его выводы):\n"
             + json.dumps(region, ensure_ascii=False, indent=1)[:6000])
+
+    # Состояние внутренних институтов — вход для секции institutional_link:
+    # без него «как институты влияют на ход конфликта» пишется из общих
+    # соображений. Мягкий импорт — сервис может доехать на бой позже.
+    try:
+        from app.services.institutions_domains import for_agents as _inst_domains
+        dom = _inst_domains(db)
+        if dom.get("domains"):
+            user_parts.append(
+                "ЗАМЕРЫ ВНУТРЕННИХ ИНСТИТУТОВ (балл 1-5 и направление; опирайся на них "
+                "в разделе institutional_link, не выдумывай состояние заново):\n"
+                + json.dumps(dom, ensure_ascii=False, indent=1)[:3000])
+    except Exception:  # noqa: BLE001
+        logger.debug("geo_conflict_profile: замеры институтов недоступны", exc_info=True)
     user_parts.append(
         f"ЛЕНТА ОЧАГА за {window_days} дней ({len(articles)} материалов):\n"
         + json.dumps(articles, ensure_ascii=False, indent=1))

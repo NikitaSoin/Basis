@@ -6735,3 +6735,73 @@ details[open] > summary .obs-inst-chev,
   margin-left: 4px; font-family: var(--font-sans);
   font-size: 11.5px; font-weight: 400; color: var(--text-tertiary);
 }
+
+/* --- Замеры институтов по направлениям --- */
+.obs-inst-changes { margin: 8px 0 12px; }
+.obs-inst-change {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12.5px;
+}
+.obs-inst-change:first-of-type { border-top: 0; }
+.obs-inst-change-label { font-weight: 600; color: var(--text-primary); }
+.obs-inst-change-delta {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+.obs-inst-change-delta--down { color: var(--down); }
+.obs-inst-change-delta--up { color: var(--up); }
+.obs-inst-change-why { color: var(--text-secondary); flex: 1 1 220px; }
+.obs-inst-dom {
+  padding: 9px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.obs-inst-dom:first-of-type { border-top: 0; padding-top: 2px; }
+.obs-inst-dom-head {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+.obs-inst-dom-score {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  min-width: 26px;
+}
+.obs-inst-dom-label { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.obs-inst-dom-dir {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+}
+.obs-inst-dom-dir--worse { color: var(--down); }
+.obs-inst-dom-dir--better { color: var(--up); }
+.obs-inst-dom-conf {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+.obs-inst-dom-verdict {
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.obs-inst-dom-inv {
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  border-left: 2px solid var(--accent);
+  padding-left: 8px;
+}

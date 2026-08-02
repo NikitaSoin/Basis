@@ -665,6 +665,20 @@ def market_institutions_profile(db: Session = Depends(get_db)):
             "as_of": payload.get("as_of")}
 
 
+@router.get("/market/institutions/domains")
+def market_institutions_domains(db: Session = Depends(get_db)):
+    """Замеры качества институтов по направлениям: собственность, суды,
+    законотворчество, доля государства, монополизация, конкуренция,
+    регуляторная нагрузка, рыночные институты, конфликты бизнеса и государства,
+    лоббизм. У каждого — балл, направление движения, свидетельства из потока и
+    «что это меняет для инвестора». `changes` — что сдвинулось с прошлого замера
+    (ради этого замер и ведётся)."""
+    from app.services.institutions_domains import get_latest
+    p = get_latest(db) or {}
+    return {"domains": p.get("domains") or [], "changes": p.get("changes") or [],
+            "as_of": p.get("as_of"), "available": bool(p.get("domains"))}
+
+
 @router.get("/market/geo/data-quality")
 def market_geo_data_quality(db: Session = Depends(get_db)):
     """«ОТК данных» геополитики — результат последнего прогона проверок БЕЗ LLM

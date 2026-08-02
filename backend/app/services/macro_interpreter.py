@@ -568,6 +568,21 @@ def _context(db: Session, limit: int | None = None) -> dict:
                 out[label] = _compact_barometer(payload)
         except Exception:  # noqa: BLE001
             logger.warning("Интерпретатор: барометр %s недоступен", key, exc_info=True)
+
+    # Замеры институтов по направлениям (собственность, суды, госдоля,
+    # конкуренция, регуляторная нагрузка…). Владелец 2026-08-02 просил, чтобы
+    # домены обменивались материалом: макро должен видеть не только общий балл
+    # институтов, но и КУДА двинулись отдельные направления — инвестиционный
+    # климат и стоимость капитала объясняются именно ими, а не сводным числом.
+    # Импорт мягкий: Timeweb выкатывает файлы неравномерно, и модуль-потребитель
+    # может доехать раньше нового сервиса (память timeweb-uneven-file-rollout).
+    try:
+        from app.services.institutions_domains import for_agents as _inst_domains
+        dom = _inst_domains(db)
+        if dom.get("domains"):
+            out["institutional_domains"] = dom
+    except Exception:  # noqa: BLE001
+        logger.debug("Интерпретатор: замеры институтов недоступны", exc_info=True)
     return out
 
 

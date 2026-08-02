@@ -408,6 +408,34 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
         "институтов в понятные последствия для доходности и риска.\n\n"
         + _COMPLIANCE_HEAD + _TX_DIGEST + _OUTPUT_SPEC
     )
+    # 🔴 ОБРАТНЫЙ ПОТОК: макро → институты. Разведка показала, что его не было
+    # вообще (макро читал оба барометра, институты о макро не знали ничего), а
+    # владелец просил системной взаимосвязи. Без него секция links.from_macro
+    # («как экономика влияет на сами правила игры») пишется из общих
+    # соображений, хотя бюджетное давление и ставка — наблюдаемые величины.
+    macro_ctx = None
+    try:
+        from app.services.macro_interpreter import get_latest as _macro_latest
+        mi = _macro_latest(db)
+        sec = (getattr(mi, "sections", None) or {}) if mi else {}
+        if sec:
+            macro_ctx = {"вывод_макро": sec.get("headline"),
+                         "режим": sec.get("regime"),
+                         "противоречия": (sec.get("contradictions") or [])[:3]}
+    except Exception:  # noqa: BLE001
+        logger.debug("institutions_profile: макро-контекст недоступен", exc_info=True)
+
+    # Замеры направлений — фактура для факторов «толкает к ухудшению/улучшению»:
+    # без них модель перечисляет новости, а с ними видит, ЧТО СДВИНУЛОСЬ.
+    domains_ctx = None
+    try:
+        from app.services.institutions_domains import for_agents as _inst_domains
+        d = _inst_domains(db)
+        if d.get("domains"):
+            domains_ctx = d
+    except Exception:  # noqa: BLE001
+        logger.debug("institutions_profile: замеры направлений недоступны", exc_info=True)
+
     user_parts = [
         "ЭКСПЕРТНАЯ ОЦЕНКА СРЕДЫ (внутренняя модель платформы — используй как "
         "ориентир, но НЕ переноси в текст её коды и термины):\n"
@@ -415,6 +443,16 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
         f"ЛЕНТА ПО ИНСТИТУТАМ за {window_days} дней ({len(articles)} материалов):\n"
         + json.dumps(articles, ensure_ascii=False, indent=1),
     ]
+    if domains_ctx:
+        user_parts.append(
+            "ЗАМЕРЫ ПО НАПРАВЛЕНИЯМ (балл 1-5 и куда движется; опирайся на них в "
+            "факторах «толкает к ухудшению / работает в обратную сторону»):\n"
+            + json.dumps(domains_ctx, ensure_ascii=False, indent=1)[:3000])
+    if macro_ctx:
+        user_parts.append(
+            "ТЕКУЩЕЕ СОСТОЯНИЕ ЭКОНОМИКИ (для раздела links.from_macro — как "
+            "экономика давит на сами правила игры):\n"
+            + json.dumps(macro_ctx, ensure_ascii=False, indent=1)[:2500])
     if prev:
         user_parts.append(
             "ПРОШЛЫЙ ПОРТРЕТ (отправная точка; среда меняется медленно — сохраняй "
