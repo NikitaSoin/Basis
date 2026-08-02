@@ -242,7 +242,11 @@ def gather_snapshot(db: Session) -> dict:
             dig = _series_digest(db, ind.code, m)
             if dig:
                 indicators.append({"code": ind.code, "title": ind.title, "country": ind.country,
-                                   "metric": m, "unit": ind.unit, **dig})
+                                   # frequency нужна, чтобы подписать период словами:
+                                   # квартальный ряд ведётся по дате НАЧАЛА квартала, и
+                                   # «2026-04-01» модель прочитала как «I квартал».
+                                   "metric": m, "unit": ind.unit,
+                                   "frequency": ind.frequency, **dig})
     meeting = db.query(RateMeeting).order_by(RateMeeting.decision_date.desc()).first()
     rate = None
     if meeting:
@@ -382,6 +386,23 @@ _DEPRECATED_SERIES = {
 }
 
 
+_QUARTER_BY_MONTH = {1: "1кв", 4: "2кв", 7: "3кв", 10: "4кв"}
+
+
+def _period_label(ind: dict) -> str:
+    """Человеческое имя периода: «2кв2026» для квартальных, дата — для остальных."""
+    as_of = str(ind.get("as_of") or "")
+    if (ind.get("frequency") or "") == "quarterly" and len(as_of) >= 10:
+        try:
+            y, m = int(as_of[:4]), int(as_of[5:7])
+        except ValueError:
+            return f"на {as_of}"
+        q = _QUARTER_BY_MONTH.get(m)
+        if q:
+            return f"{q}{y}"
+    return f"на {as_of}"
+
+
 def _key_facts(indicators: list[dict]) -> dict:
     """Готовые формулировки по самым важным показателям — первыми в снапшоте.
 
@@ -405,7 +426,12 @@ def _key_facts(indicators: list[dict]) -> dict:
             continue
         unit = ind.get("unit") or ""
         val = f"{ind['current_value']}{'%' if unit == '%' else (' ' + unit if unit else '')}"
-        parts = [f"{val} (на {ind.get('as_of')})"]
+        # 🔴 Для КВАРТАЛЬНЫХ рядов пишем период словами. Ряд ведётся по конвенции FRED
+        # (дата = НАЧАЛО квартала), и «2026-04-01» модель прочитала как «I квартал»,
+        # хотя это второй: в выпуске появилось «ВВП I кв. +0,9%» при том, что первый
+        # квартал был −0,2%. Дата начала периода — не название периода.
+        period = _period_label(ind)
+        parts = [f"{val} ({period})"]
         if code == "budget_balance_ytd" and isinstance(ind.get("current_value"), (int, float)):
             # Дефицит в % годового ВВП — так его называют ЦБ, Минфин и пресса, и
             # именно в этом виде он сопоставим между годами.
