@@ -505,3 +505,47 @@ class TestFeedSearchPrecision:
 
         res = _search_our_feed(db, "инфляция 5,84% (инФОМ) [июль]", 30, 5)
         assert "error" not in res or res.get("error") != "search_failed"
+
+
+class TestPeriodMustBeNewer:
+    """Значение за БОЛЕЕ РАННИЙ период дыру не закрывает — оно её имитирует.
+
+    🔴 Прецедент: по композитному PMI первые ссылки выдачи дают «47,8 в июле» — это
+    июль ПРОШЛОГО года. Рядом с апрельскими 49,1 число выглядит совершенно
+    правдоподобно, и ни гейт цитаты, ни проверка правдоподобия его не остановят.
+    """
+
+    def test_last_year_value_is_rejected(self, db):
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+        from app.services.macro_gap_pipeline import process_finding
+
+        mi.seed_indicators(db)
+        mi.upsert_point(db, "pmi_composite", date(2026, 4, 28), "level", 49.1,
+                        ingested_via="file")
+        db.commit()
+        res = process_finding(db, "pmi_composite", "level",
+                              {"period": "2025-07-31", "value": 47.8, "unit": "ед"},
+                              "https://source", dry_run=True)
+        assert res["status"] == "rejected"
+        assert "period_not_newer" in res["reason"]
+
+    def test_fresh_period_passes_the_check(self, db, monkeypatch):
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+        from app.services import macro_gap_pipeline as gp
+        from app.services.macro_gap_pipeline import process_finding
+
+        mi.seed_indicators(db)
+        mi.upsert_point(db, "pmi_composite", date(2026, 4, 28), "level", 49.1,
+                        ingested_via="file")
+        db.commit()
+        monkeypatch.setattr(gp, "_plausible", lambda *a, **k: (True, "тест"))
+        monkeypatch.setattr("app.services.macro_fact_checker.check_finding",
+                            lambda *a, **k: {"verdict": "confirmed", "source_url": "https://y"})
+        res = process_finding(db, "pmi_composite", "level",
+                              {"period": "2026-05-31", "value": 48.2, "unit": "ед"},
+                              "https://source", dry_run=True)
+        assert res["status"] == "would_write"

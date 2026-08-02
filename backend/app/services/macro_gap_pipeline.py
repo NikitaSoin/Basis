@@ -71,6 +71,18 @@ def process_finding(db: Session, code: str, metric: str, item: dict,
         # Не перезаписываем: агент дозаполняет дыры, а не правит опубликованное.
         return {"code": code, "period": period, "status": "skipped", "reason": "point_exists"}
 
+    # 🔴 Период обязан быть НОВЕЕ последней точки ряда. Вопрос всегда звучит как «ряд
+    # не обновляется, нужны такие-то месяцы», поэтому значение за более ранний период
+    # дыру не закрывает — оно её ИМИТИРУЕТ. Прецедент прямой: по композитному PMI
+    # первые ссылки выдачи дают «47,8 в июле» — это июль ПРОШЛОГО года, и число
+    # выглядит совершенно правдоподобно рядом с апрельскими 49,1.
+    last = db.execute(text(
+        "SELECT max(as_of) FROM macro_data_points WHERE indicator_code=:c AND metric=:m"),
+        {"c": code, "m": metric}).scalar()
+    if last is not None and date.fromisoformat(period) <= last:
+        return {"code": code, "period": period, "value": value, "status": "rejected",
+                "reason": f"period_not_newer (последняя точка ряда {last})"}
+
     ok, why = _plausible(db, code, metric, value)
     if not ok:
         return {"code": code, "period": period, "value": value,
