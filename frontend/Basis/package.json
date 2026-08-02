@@ -27,7 +27,9 @@
     "start": "craco start",
     "build": "craco build && node scripts/refresh-earnings-snapshot.js && node scripts/generate-seo-pages.js && node scripts/generate-seo-instruments.js && node scripts/generate-seo-indicators.js",
     "test": "craco test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "build:prebuilt": "node scripts/build-prebuilt.js",
+    "build:lowmem": "NODE_OPTIONS=--max-old-space-size=1536 craco build && node scripts/refresh-earnings-snapshot.js && node scripts/generate-seo-pages.js && node scripts/generate-seo-instruments.js && node scripts/generate-seo-indicators.js"
   },
   "browserslist": [
     ">0.2%",
