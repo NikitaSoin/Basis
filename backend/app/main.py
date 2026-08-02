@@ -344,6 +344,10 @@ async def _macro_job():
                 # Brent/WTI/Urals + дисконт Urals-Brent. Раньше здесь был TankerMap,
                 # но его фид давал Urals $60,7 при рыночных $84,6 (см. macro_oil_sync).
                 urals = sync_oil_prices(db)
+                # Официальный спот EIA (Brent/WTI) — авторитетный якорь ряда;
+                # выходит с задержкой и перекрывает оперативную точку, когда доходит.
+                from app.services.macro_oil_sync import sync_eia_spot
+                eia_oil = sync_eia_spot(db)
             except Exception as e:  # noqa: BLE001
                 logger.exception("TankerMap-Urals упал: %s", e)
                 db.rollback()

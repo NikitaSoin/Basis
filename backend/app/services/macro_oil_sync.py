@@ -96,11 +96,14 @@ def sync_oil_prices(db: Session) -> dict:
         logger.warning("oil-sync: страница недоступна: %s", type(e).__name__)
         return {"error": f"fetch_failed:{type(e).__name__}"}
     prices = _parse(text)
-    # Биржевые котировки перекрывают страничную оценку: для Brent и WTI существует
-    # реальный рынок, и брать их «со страницы» нет причин.
-    exchange = _exchange_quotes()
-    if exchange:
-        prices.update(exchange)
+    # 🔴 Порядок источников по смыслу, а не по «свежести любой ценой». Владелец:
+    # «не фьючерс — нужен спот». Поэтому: официальный спот EIA (пишется отдельно,
+    # с задержкой в несколько дней) → оперативный СПОТ со страницы → и только если
+    # спота нет, биржевой ФЬЮЧЕРС BZ=F как последний фолбэк, чтобы цена нефти не
+    # исчезла с витрины совсем.
+    exchange = _exchange_quotes() if not prices else {}
+    for code, val in exchange.items():
+        prices.setdefault(code, val)
     if not prices:
         logger.warning("oil-sync: цены не распознаны (изменилась вёрстка?)")
         return {"error": "not_parsed"}
@@ -108,7 +111,7 @@ def sync_oil_prices(db: Session) -> dict:
     today = date.today()
     saved = {}
     for code, val in prices.items():
-        on_exchange = code in exchange
+        on_exchange = code in exchange and code not in _parse(text)
         res = upsert_point(
             db, code, today, "level", val, unit="usd/bbl",
             source=("ICE/NYMEX (биржевая котировка)" if on_exchange
@@ -128,3 +131,56 @@ def sync_oil_prices(db: Session) -> dict:
     db.commit()
     logger.info("oil-sync: %s", {k: v.get("value") for k, v in saved.items()})
     return saved
+
+# 🔴 Официальный якорь ряда — EIA (U.S. Energy Information Administration), серия
+# «Europe Brent Spot Price FOB» через FRED. Владелец: «возьми спот с известной
+# площадки — чтобы авторитетный источник был». Это СПОТ, а не фьючерс, и это
+# госстатистика, а не оценка агрегатора. Минус один: EIA публикует с задержкой в
+# несколько дней, поэтому сегодняшнюю цену закрывает оперативная котировка, а когда
+# EIA выходит — она эту точку ПЕРЕКРЫВАЕТ (приоритет via 'eia' выше 'oilprice').
+_EIA_SERIES = {"DCOILBRENTEU": "oil_brent", "DCOILWTICO": "oil_wti"}
+
+
+def sync_eia_spot(db: Session, recent: int = 30) -> dict:
+    """Официальный спот EIA за последние `recent` наблюдений."""
+    import os
+
+    import httpx
+
+    key = os.environ.get("FRED_API_KEY")
+    if not key:
+        return {"error": "no_fred_key"}
+    base = (os.environ.get("FRED_BASE_URL") or "https://api.stlouisfed.org").rstrip("/")
+    out: dict = {}
+    for sid, code in _EIA_SERIES.items():
+        try:
+            r = httpx.get(f"{base}/fred/series/observations",
+                          params={"series_id": sid, "api_key": key, "file_type": "json",
+                                  "sort_order": "desc", "limit": recent}, timeout=25)
+            r.raise_for_status()
+            obs = r.json().get("observations") or []
+        except Exception as e:  # noqa: BLE001
+            logger.warning("oil-sync: EIA %s недоступен: %s", sid, type(e).__name__)
+            out[code] = {"error": type(e).__name__}
+            continue
+        saved = 0
+        for o in obs:
+            val = o.get("value")
+            if val in (".", None, ""):
+                continue
+            try:
+                v = float(val)
+                d = date.fromisoformat(o["date"])
+            except (ValueError, KeyError):
+                continue
+            if not (_MIN <= v <= _MAX):
+                continue
+            res = upsert_point(db, code, d, "level", v, unit="usd/bbl",
+                               source="EIA (Europe Brent Spot FOB)",
+                               source_url=f"https://fred.stlouisfed.org/series/{sid}",
+                               ingested_via="eia", commit=False)
+            if res in ("insert", "revise"):
+                saved += 1
+        out[code] = {"saved": saved, "points": len(obs)}
+    db.commit()
+    return out

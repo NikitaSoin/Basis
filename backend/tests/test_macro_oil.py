@@ -73,13 +73,14 @@ class TestSpread:
         assert oil.sync_oil_prices(db) == {"error": "not_parsed"}
 
 
-class TestExchangeQuoteWins:
-    """🔴 Владелец: «фьючерс с мосбиржи не годится — нужны свежие настоящие данные с
-    лондонской биржи». Контракт BR Мосбиржи привязан к Brent, но это ВТОРИЧНЫЙ
-    инструмент: своя ликвидность, свой базис, остановки в российские праздники.
+class TestSourcePriority:
+    """🔴 Владелец: «не фьючерс — возьми спот с известной площадки, чтобы источник был
+    авторитетный». Порядок: официальный спот EIA (пишется отдельно, с задержкой) →
+    оперативный СПОТ со страницы → биржевой ФЬЮЧЕРС только фолбэком, чтобы цена нефти
+    не исчезла с витрины совсем.
     """
 
-    def test_exchange_price_overrides_page_estimate(self, db, monkeypatch):
+    def test_spot_page_beats_futures_quote(self, db, monkeypatch):
         from app.services import macro_ingest as mi
         from app.services import macro_oil_sync as oil
 
@@ -90,8 +91,7 @@ class TestExchangeQuoteWins:
         monkeypatch.setattr(oil, "_exchange_quotes",
                             lambda: {"oil_brent": 91.55, "oil_wti": 85.0})
         out = oil.sync_oil_prices(db)
-        assert out["oil_brent"]["value"] == 91.55, "биржа должна перекрывать страницу"
-        # Urals биржевой котировки не имеет — остаётся оценка со страницы
+        assert out["oil_brent"]["value"] == 90.12, "спот должен победить фьючерс"
         assert out["urals"]["value"] == 84.56
 
     def test_unavailable_exchange_falls_back_to_page(self, db, monkeypatch):
@@ -117,3 +117,41 @@ class TestExchangeQuoteWins:
         snap = _oil_snapshot(db)
         assert snap["source"] == "exchange_quote"
         assert snap["level"] == 90.12
+
+
+class TestEiaAnchor:
+    """Официальный спот EIA — авторитетный якорь ряда."""
+
+    def test_eia_overrides_operational_quote(self, db, monkeypatch):
+        """Когда официальная цена выходит, она ПЕРЕКРЫВАЕТ оперативную оценку за тот
+        же день: приоритет via 'eia' выше 'oilprice'."""
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+        from app.models.macro import MacroDataPoint
+
+        mi.seed_indicators(db)
+        db.query(MacroDataPoint).filter_by(indicator_code="oil_brent").delete()
+        db.commit()
+        mi.upsert_point(db, "oil_brent", date(2026, 7, 27), "level", 90.0,
+                        ingested_via="oilprice")
+        mi.upsert_point(db, "oil_brent", date(2026, 7, 27), "level", 91.82,
+                        ingested_via="eia")
+        db.commit()
+        row = (db.query(MacroDataPoint)
+               .filter_by(indicator_code="oil_brent", as_of=date(2026, 7, 27)).first())
+        assert float(row.value) == 91.82
+
+    def test_operational_quote_does_not_overwrite_eia(self, db):
+        """И наоборот: оперативная оценка не затирает официальную цифру."""
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+        from app.models.macro import MacroDataPoint
+
+        mi.upsert_point(db, "oil_brent", date(2026, 7, 27), "level", 88.0,
+                        ingested_via="oilprice")
+        db.commit()
+        row = (db.query(MacroDataPoint)
+               .filter_by(indicator_code="oil_brent", as_of=date(2026, 7, 27)).first())
+        assert float(row.value) == 91.82
