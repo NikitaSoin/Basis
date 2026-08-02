@@ -122,3 +122,56 @@ class TestSeriesTidyUp:
         # уехала бы на 2023-03-31, если бы метка не защищала от повторного сдвига
         assert db.query(MacroDataPoint).filter_by(
             indicator_code="inflation_expectations", as_of=date(2023, 3, 31)).first() is None
+
+
+class TestKnownCorrections:
+    """Адресные исправления точек, сверенных с первоисточником.
+
+    Точка ВВП за 2кв2026 пришла из пересказа новости как +0,4% г/г. Это число не
+    соответствовало НИ ОДНОМУ периоду: квартал +0,9, июнь +1,1, май +0,3, полугодие
+    +0,3 (МЭР). Обычный ингест такую точку не трогает — first-write-wins защищает
+    верные значения от затирания, поэтому исправление должно быть адресным.
+    """
+
+    def test_correction_overwrites_wrong_point(self, db):
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+
+        mi.seed_indicators(db)
+        mi.upsert_point(db, "gdp", date(2026, 6, 30), "yoy", 0.4, ingested_via="news")
+        db.commit()
+
+        out = mi.apply_known_corrections(db)
+        assert out["applied"] == 1
+        from app.models.macro import MacroDataPoint
+        p = db.query(MacroDataPoint).filter_by(
+            indicator_code="gdp", metric="yoy", as_of=date(2026, 6, 30)).first()
+        assert float(p.value) == 0.9
+
+    def test_second_run_is_a_no_op(self, db):
+        from app.services import macro_ingest as mi
+        mi.apply_known_corrections(db)
+        assert mi.apply_known_corrections(db)["applied"] == 0
+
+    def test_regular_ingest_cannot_undo_a_correction(self, db):
+        """🔴 Иначе следующий же прогон новостного канала вернёт ошибку на место."""
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+        from app.models.macro import MacroDataPoint
+
+        mi.apply_known_corrections(db)
+        mi.upsert_point(db, "gdp", date(2026, 6, 30), "yoy", 0.4, ingested_via="news")
+        db.commit()
+        p = db.query(MacroDataPoint).filter_by(
+            indicator_code="gdp", metric="yoy", as_of=date(2026, 6, 30)).first()
+        assert float(p.value) == 0.9
+
+    def test_every_correction_carries_a_source_and_reason(self):
+        """Без проверяемой ссылки и причины это ручная подгонка чисел."""
+        from app.services.macro_ingest import _KNOWN_CORRECTIONS
+
+        for c in _KNOWN_CORRECTIONS:
+            assert c.get("source_url", "").startswith("http"), c
+            assert len(c.get("why", "")) > 15, c

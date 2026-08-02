@@ -296,7 +296,8 @@ async def _macro_job():
         if not _wait_for_db():
             logger.error("Макрообзор: БД так и не стала доступна за отведённые попытки — джоб пропущен")
             return {"error": "db_unavailable"}
-        from app.services.macro_ingest import seed_indicators, ingest_all_world, check_staleness
+        from app.services.macro_ingest import (seed_indicators, ingest_all_world,
+                                               check_staleness, apply_known_corrections)
         from app.services.macro_analytics import process as analytics_process
         from app.services.macro_cb_sync import sync_cb
         from app.db.session import SessionLocal
@@ -311,6 +312,13 @@ async def _macro_job():
             from app.services.macro_metaltorg_steel_sync import sync_metaltorg_steel
             from app.services.macro_idex_diamond_sync import sync_idex_diamond
             seed_indicators(db)
+            # Адресные исправления точек (сверены с первоисточником) — ДО ингеста, чтобы
+            # верное значение было на месте, даже если очередной источник промолчит.
+            try:
+                corrections = apply_known_corrections(db)
+            except Exception:  # noqa: BLE001
+                logger.warning("Макрообзор: исправления точек не применились", exc_info=True)
+                corrections = {"applied": 0}
             world = ingest_all_world(db)
             cb = sync_cb(db)  # ЦБ: ставка/прогноз/инфляция/ожидания/M2+кредит экономике (машинный первоисточник)
             ros = ingest_rosstat_file(db)  # Росстат: ручная выгрузка из fedstat (WAF блокирует машину)
@@ -364,7 +372,8 @@ async def _macro_job():
                 idex = {"error": f"unhandled:{type(e).__name__}"}
             analytics = analytics_process(db)
             stale = check_staleness(db)  # алерт по рядам, которые перестали обновляться
-            return {"world": world, "cb": cb, "rosstat": ros, "ppi": ppi, "minfin": minfin,
+            return {"corrections": corrections,
+                    "world": world, "cb": cb, "rosstat": ros, "ppi": ppi, "minfin": minfin,
                     "hh": hh, "urals": urals, "wb_commodities": wb_comm, "yahoo_commodities": yahoo_comm,
                     "metaltorg_steel": metaltorg, "idex_diamond": idex,
                     "analytics": analytics, "stale": len(stale)}

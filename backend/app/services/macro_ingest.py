@@ -74,7 +74,10 @@ def seed_indicators(db: Session) -> int:
 # сигнал/резерв и НЕ перезаписывает официальную точку; официальный канал перезаписывает
 # ленточную, когда выходит. file — исторический бэкфилл.
 _VIA_PRIORITY = {"news": 0, "file": 1, "fred": 2, "wb": 2, "tankermap": 2, "yahoo": 2, "metaltorg": 2, "idex": 2,
-                 "cbr": 3, "rosstat": 3, "minfin": 3, "hh": 3}
+                 "cbr": 3, "rosstat": 3, "minfin": 3, "hh": 3,
+                 # адресное исправление, сверенное с первоисточником вручную, — выше
+                 # автоматических каналов: иначе следующий же прогон вернёт ошибку
+                 "correction": 4}
 
 
 # ----------------------------- общий upsert точки -----------------------------
@@ -375,3 +378,52 @@ def check_staleness(db: Session) -> list[dict]:
         logger.warning("МАКРО-АЛЕРТ: %d рядов не обновляются дольше нормы: %s",
                        len(stale), ", ".join(f"{s['code']}/{s['metric']}({s['age_days']}д)" for s in stale[:15]))
     return stale
+
+
+# ─── Известные исправления точек ───────────────────────────────────────────────
+# 🔴 Что это и почему в коде. Отдельные точки попадают в базу из НОВОСТЕЙ, где число
+# может относиться к другому периоду или к другой величине. Проверить это можно только
+# по первоисточнику, а исправить — только адресно: обычный ингест такую точку не
+# трогает (first-write-wins защищает от затирания верных значений).
+#
+# Список живёт в коде, а не в разовом скрипте, потому что баз несколько (локальная и
+# боевая) и исправление должно доехать до каждой само. Применение идемпотентно: если
+# значение уже верное, ничего не происходит.
+#
+# Каждая запись обязана нести ПРОВЕРЯЕМУЮ ссылку и причину — иначе это просто ручная
+# подгонка чисел, от которой платформа и защищается.
+_KNOWN_CORRECTIONS = [
+    {
+        "code": "gdp", "metric": "yoy", "as_of": date(2026, 6, 30), "value": 0.9,
+        "unit": "%",
+        "source": "Минэкономразвития (оценка; Росстат — 12.08)",
+        "source_url": "https://www.interfax.ru/business/1106360",
+        # Было 0,4 из пересказа новости — величина не соответствует ни кварталу (+0,9),
+        # ни июню (+1,1), ни маю (+0,3), ни полугодию (+0,3). Сходимость проверена:
+        # 1кв −0,2 + 2кв +0,9 → полугодие +0,3, как и сообщает МЭР.
+        "why": "число из новости не соответствовало ни одному периоду",
+    },
+]
+
+
+def apply_known_corrections(db: Session) -> dict:
+    """Применить адресные исправления точек, подтверждённые первоисточником."""
+    from app.models.macro import MacroDataPoint
+
+    fixed = []
+    for c in _KNOWN_CORRECTIONS:
+        existing = (db.query(MacroDataPoint)
+                    .filter_by(indicator_code=c["code"], metric=c["metric"], as_of=c["as_of"])
+                    .first())
+        if existing is not None and abs(float(existing.value) - c["value"]) <= 0.001:
+            continue
+        old = float(existing.value) if existing is not None else None
+        upsert_point(db, c["code"], c["as_of"], c["metric"], c["value"], unit=c.get("unit"),
+                     source=c["source"], source_url=c["source_url"], ingested_via="correction")
+        fixed.append({"code": c["code"], "as_of": str(c["as_of"]), "was": old,
+                      "now": c["value"], "why": c["why"]})
+        logger.warning("Макро: точка %s %s исправлена %s → %s (%s)",
+                       c["code"], c["as_of"], old, c["value"], c["why"])
+    if fixed:
+        db.commit()
+    return {"applied": len(fixed), "details": fixed}
