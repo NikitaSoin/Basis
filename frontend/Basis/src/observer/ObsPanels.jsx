@@ -1870,15 +1870,11 @@ function ObsGeoProfile({ profile, generatedAt, scopeLabel }) {
         {gen && <span className="obs-profile-asof">портрет от {gen}</span>}
       </div>
 
-      {/* «Почему это важно» и watchpoints — НЕ под катом: это ответ на вопрос
-          «и что мне с этим делать», ради которого пользователь пришёл. */}
-      {profile.why_matters && (
-        <p className="obs-profile-why">
-          <span className="obs-tag-estimate">суждение Basis</span>
-          {profile.why_matters}
-        </p>
-      )}
-
+      {/* why_matters здесь НЕ рисуется: он поднят в сигнальную плитку очага выше
+          (постановка, слой 2 «сигнал» — одна строка «для рынка РФ это значит…»
+          должна стоять рядом с вердиктом, а не через экран под катом). Здесь
+          остались watchpoints — тоже не под катом: это ответ на «и что мне
+          с этим делать», ради которого пользователь и пришёл. */}
       {watch.length > 0 && (
         <div className="obs-profile-watch">
           <div className="obs-profile-watch-label">За чем следить</div>
@@ -5088,6 +5084,23 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                                   <div className="obs-region-card-duration"><Clock size={13} />{scopeRegionData.duration_estimate}</div>
                                 )}
                                 {scopeRegionData.summary && <p className="obs-region-card-summary">{scopeRegionData.summary}</p>}
+
+                                {/* «Что это значит для рынка РФ» — вывод ПОВЕРХ разбора.
+                                    Владелец: стартовая плитка «бедновата»; постановка
+                                    (§2, слой «сигнал») требует рядом с вердиктом одну
+                                    строку про деньги, иначе экран отвечает «что
+                                    происходит», но не «и что мне с этим делать».
+                                    Текст берётся из недельного портрета очага, поэтому
+                                    появляется только когда портрет есть. */}
+                                {(profiles?.profiles || {})[scopeKey]?.why_matters && (
+                                  <div className="obs-region-card-means">
+                                    <span className="obs-region-card-means-label">Что это значит для рынка РФ</span>
+                                    <p>
+                                      <span className="obs-tag-estimate">суждение Basis</span>
+                                      {(profiles.profiles[scopeKey] || {}).why_matters}
+                                    </p>
+                                  </div>
+                                )}
                                 {Array.isArray(scopeRegionData.affected) && scopeRegionData.affected.length > 0 && (
                                   <div className="obs-region-card-affected">
                                     <div className="obs-region-card-affected-label">Кого касается</div>

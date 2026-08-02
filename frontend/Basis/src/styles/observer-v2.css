@@ -6479,3 +6479,34 @@ details[open] > summary .obs-inst-chev,
 }
 .obs-geo-dq-mark--fail { color: var(--danger); }
 .obs-geo-dq-mark--warn { color: var(--warning); }
+
+/* «Что это значит для рынка РФ» — вывод внутри карточки очага, поверх разбора.
+   Отбит фоном и медной линией, чтобы читался как ответ, а не как ещё один
+   абзац сводки (владелец: плитка «бедновата» и сливается с новостями). */
+.obs-region-card-means {
+  margin-top: 12px;
+  padding: 10px 13px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--bg-base);
+}
+.obs-region-card-means-label {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-tertiary);
+  margin-bottom: 5px;
+}
+.obs-region-card-means p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+.obs-region-card-means .obs-tag-estimate {
+  margin-right: 8px;
+  vertical-align: 1px;
+}
