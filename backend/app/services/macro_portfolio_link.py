@@ -152,8 +152,15 @@ def build_link(db: Session, portfolio_id: int | None, sections: dict,
             continue
 
         item = {"ticker": t, "name": row.get("name"), "weight": h["weight"],
-                "wind": (hit or {}).get("wind") or _NO_WIND,
-                "why": (hit or {}).get("channel"),
+                # Отсутствие ветра отдаём ОТДЕЛЬНЫМ полем, а не строкой в поле wind:
+                # иначе «выпуск не высказывался» встаёт на место «попутный» и читается
+                # как значение ветра, то есть как ошибка (замечание ОТК).
+                "wind": (hit or {}).get("wind"),
+                "no_wind_note": None if (hit or {}).get("wind") else _NO_WIND,
+                # Если выпуск не дал канал по сектору, берём хотя бы признак дисперсии —
+                # иначе у одной бумаги есть объяснение, у соседней пусто, и пустота
+                # выглядит недоделкой.
+                "why": (hit or {}).get("channel") or (hit or {}).get("dispersion"),
                 "sector": (hit or {}).get("sector") or row.get("sector"),
                 "named_in_release": bool((hit or {}).get("named")),
                 "dispersion": (hit or {}).get("dispersion")}
@@ -172,8 +179,10 @@ def build_link(db: Session, portfolio_id: int | None, sections: dict,
                 "phrase": (f"если {shock} → прибыль {'+' if val > 0 else '−'}"
                            f"{abs(round(val, 1))}%" if shock else
                            f"{name_ru}: {'+' if val > 0 else '−'}{abs(round(val, 1))}% прибыли"),
-                # 🔴 Тег обязателен: это ФАКТ карточки компании, а не наша новая оценка.
-                "tag": "факт карточки",
+                # 🔴 Тег «модель», а не «факт»: это расчёт чувствительности на
+                # стандартный шок, а не наблюдённая величина. ОТК-персона поймала:
+                # «факт карточки» читается как «так и произошло».
+                "tag": "модель карточки",
             }
         items.append(item)
 
@@ -189,7 +198,8 @@ def build_link(db: Session, portfolio_id: int | None, sections: dict,
                     "covered": len(items), "positions": len(holdings)},
         # Честно говорим про непокрытое: молчание читалось бы как «влияния нет».
         "uncovered": uncovered,
-        "note": ("Разбор опирается на секторные выводы выпуска и на коэффициенты "
-                 "чувствительности из карточек компаний. Это не рекомендация — "
-                 "показываем, каким каналом макро доходит до ваших бумаг."),
+        "note": ("Ветер — оценка сегодняшней макроситуации из выпуска. Числа ниже — "
+                 "стресс-тест по коэффициентам из карточек компаний: шок одинаковый "
+                 "для всех бумаг, чтобы их можно было сравнивать между собой. Это "
+                 "не прогноз и не рекомендация."),
     }

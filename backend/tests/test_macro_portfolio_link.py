@@ -49,13 +49,14 @@ class TestNoInventedInfluence:
         assert [i["ticker"] for i in res["items"]] == ["ROSN"]
         assert res["summary"]["positions"] == 2 and res["summary"]["covered"] == 1
 
-    def test_sensitivity_is_tagged_as_card_fact(self, db, monkeypatch):
-        """Коэффициент — ФАКТ карточки компании, а не новая оценка этого блока."""
+    def test_sensitivity_is_tagged_as_model(self, db, monkeypatch):
+        """Коэффициент — МОДЕЛЬНЫЙ расчёт карточки, не наблюдённый факт: «факт
+        карточки» читалось как «так и произошло» (замечание ОТК)."""
         import app.services.macro_portfolio_link as m
         monkeypatch.setattr(m, "_holdings", lambda db_, pid: [
             {"ticker": "ROSN", "value": 100.0, "weight": 100.0}])
         item = build_link(db, 1, SECTIONS, sens_map=SENS)["items"][0]
-        assert item["sensitivity"]["tag"] == "факт карточки"
+        assert item["sensitivity"]["tag"] == "модель карточки"
         assert item["sensitivity"]["channel"] == "цена нефти"   # сильнейший по модулю
         assert item["sensitivity"]["effect_pct"] == -12.0
 
@@ -111,7 +112,9 @@ class TestReadability:
         monkeypatch.setattr(m, "_holdings", lambda db_, pid: [
             {"ticker": "MGNT", "value": 1.0, "weight": 100.0}])
         item = build_link(db, 1, SECTIONS, sens_map=SENS)["items"][0]
-        assert item["wind"] == m._NO_WIND
+        # Отсутствие ветра — отдельное поле: в поле wind оно вставало на место
+        # «попутный» и читалось как значение, то есть как ошибка (замечание ОТК).
+        assert item["wind"] is None and item["no_wind_note"] == m._NO_WIND
 
     def test_all_shock_channels_have_russian_names(self):
         """Канал из карты чувствительности не должен вылезать латиницей."""

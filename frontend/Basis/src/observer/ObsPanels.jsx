@@ -2297,13 +2297,17 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                               {neg ? <TrendingDown size={14} style={{ color: "var(--danger)" }} /> : pos ? <TrendingUp size={14} style={{ color: "var(--success)" }} /> : null}
                               <button className="obs-ticker-link" onClick={() => onSelectCompany?.(p.ticker)}>{p.ticker}</button>
                               {p.weight != null && <span className="obs-pf-weight">{p.weight}% портфеля</span>}
-                              <span style={{ fontSize: 11, fontWeight: 700, color: neg ? "var(--danger)" : pos ? "var(--success)" : "var(--text-tertiary)", textTransform: "uppercase" }}>· {p.wind}</span>
+                              {p.wind && <span style={{ fontSize: 11, fontWeight: 700, color: neg ? "var(--danger)" : pos ? "var(--success)" : "var(--text-tertiary)", textTransform: "uppercase" }}>· {p.wind} ветер</span>}
                             </div>
                             {p.why && <div className="obs-inst-row-why">{p.why}</div>}
-                            {/* Число отвечает на ГИПОТЕТИЧЕСКИЙ шок — условие «если» внутри
-                                фразы, иначе рядом с «попутный» читается как противоречие. */}
+                            {p.no_wind_note && <div className="obs-pf-nowind">{p.no_wind_note}</div>}
+                            {/* 🔴 Число отвечает на ГИПОТЕТИЧЕСКИЙ шок и стоит рядом с
+                                «попутный ветер» — без явной подписи это читается как
+                                противоречие (поймано на ОТК). Поэтому отдельная строка
+                                с меткой «стресс-тест», а не приписка к ветру. */}
                             {p.sensitivity?.phrase && (
                               <div className="obs-pf-sens">
+                                <span className="obs-pf-sens-label">стресс-тест</span>
                                 {p.sensitivity.phrase}
                                 <span className="obs-tag-fact">{p.sensitivity.tag}</span>
                               </div>
