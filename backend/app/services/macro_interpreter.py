@@ -753,10 +753,23 @@ def generate(db: Session) -> MacroInterpretation:
                 out2 = _ask(format_for_prompt(logic))
                 sec2 = out2.get("sections") if isinstance(out2, dict) else None
                 if sec2:
-                    sections = sec2
-                    logic_after = review_logic(db, sections)
-                    logic = {**logic, "after_rewrite": logic_after,
-                             "rewritten": True}
+                    logic_after = review_logic(db, sec2)
+                    before = logic.get("hard_count") or 0
+                    after = logic_after.get("hard_count") or 0
+                    # 🔴 Берём ЛУЧШУЮ версию, а не последнюю. На живом прогоне
+                    # переписывание ухудшило результат: было 2 грубых замечания, стало
+                    # 3 — модель починила указанное и внесла новое. «Переписал» не
+                    # равно «стало лучше», и молча публиковать вторую попытку нельзя.
+                    if after <= before:
+                        sections = sec2
+                        logic = {**logic_after, "rewritten": True,
+                                 "hard_before": before}
+                    else:
+                        logger.warning("Интерпретатор: перегенерация ухудшила логику "
+                                       "(%s → %s грубых) — оставлена первая версия",
+                                       before, after)
+                        logic = {**logic, "rewritten": False,
+                                 "rewrite_rejected": True, "hard_after_try": after}
         except Exception:  # noqa: BLE001
             logger.warning("Интерпретатор: критик логики не отработал", exc_info=True)
 

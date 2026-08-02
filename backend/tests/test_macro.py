@@ -186,3 +186,55 @@ def test_rate_endpoint(client, db):
     j = r.json()
     assert j["key_rate"]["value"] == 15.0
     assert j["meeting"]["signal"] == "нейтральный"
+
+
+def test_rewrite_is_kept_only_if_it_improves_logic(db, monkeypatch):
+    """🔴 Переписывание после критика может УХУДШИТЬ выпуск.
+
+    На живом прогоне 2026-08-02 было 2 грубых замечания, после перегенерации стало 3:
+    модель починила указанное и внесла новое. Публиковать вторую попытку молча нельзя —
+    берём лучшую из двух версий.
+    """
+    from app.services import llm
+    from app.services import macro_interpreter as ip
+    from app.services import macro_logic_critic as critic
+
+    mi.seed_indicators(db)
+    mi.upsert_point(db, "key_rate", date(2026, 3, 1), "level", 15, ingested_via="file")
+    db.commit()
+    monkeypatch.setenv("MACRO_EVENT_AGENT", "0")
+    monkeypatch.setenv("MACRO_RELEASE_REVIEW", "0")
+
+    calls = {"n": 0}
+
+    def fake_complete(system, user, **kw):
+        calls["n"] += 1
+        headline = "Первая версия" if calls["n"] == 1 else "Вторая версия"
+        # Минимально валидный по гейту выпуск: без forecasts/sectors он отклоняется
+        # ещё до проверки логики, и тест мерил бы не то.
+        return {"sections": {
+            "headline": headline,
+            "theses": [{"claim": "тезис", "chain": "цепочка", "evidence": "5%",
+                        "tag": "факт"}],
+            "forecasts": [
+                {"variable": v, "horizon": "год", "center": "1", "range": "0-2",
+                 "driver": "d", "against": "a"}
+                for v in ("Ключевая ставка", "Инфляция", "Курс рубля", "ВВП", "Безработица")],
+            "sectors": [{"sector": "Финансы", "wind": "попутный", "channel": "ставка"}],
+        }}
+
+    # критик: у первой версии 2 грубых, у второй — 3 (стало хуже)
+    seen = {"n": 0}
+
+    def fake_review(db_, sections):
+        seen["n"] += 1
+        return {"issues": [{"problem": "p", "severity": "грубая"}],
+                "hard_count": 2 if seen["n"] == 1 else 3}
+
+    monkeypatch.setattr(llm, "complete", fake_complete)
+    monkeypatch.setattr(llm, "pro_model", lambda: "m")
+    monkeypatch.setattr(critic, "review_logic", fake_review)
+
+    row = ip.generate(db)
+    assert row.sections["headline"] == "Первая версия", "худшая версия не должна публиковаться"
+    assert row.source_snapshot["logic"]["rewrite_rejected"] is True
