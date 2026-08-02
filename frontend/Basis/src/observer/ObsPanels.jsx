@@ -2115,6 +2115,15 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                           {f.center && <span className="obs-fc-center">{f.center}</span>}
                           {f.range && <span className="obs-fc-range">коридор {f.range}</span>}
                         </div>
+                        {/* 🔴 Траектория и сценарий — НЕ в мелком сером блоке ниже:
+                            без них число «14%» не читается («это когда? а дальше?»),
+                            и именно об этом спрашивал владелец. */}
+                        {f.path && <div className="obs-fc-path">{f.path}</div>}
+                        {f.scenario_note && (
+                          <div className="obs-fc-scenario">
+                            <b>При каком сценарии:</b> {f.scenario_note}
+                          </div>
+                        )}
                         <div className="obs-fc-meta">
                           {f.driver && <div><b>Драйвер:</b> {f.driver}</div>}
                           {f.triggers && <div><b>Пересмотрим, если:</b> {f.triggers}</div>}
@@ -2208,6 +2217,7 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                             {s.channel && <div className="obs-inst-row-why">{s.channel}</div>}
                             {/* Дисперсия внутри сектора: почему одни выигрывают, другие нет */}
                             {s.dispersion && <div className="obs-sector-dispersion">{s.dispersion}</div>}
+                            {s.why_names && <div className="obs-sector-why-names">{s.why_names}</div>}
                             {(s.winners?.length > 0 || s.losers?.length > 0) && (
                               <div className="obs-sector-names">
                                 {s.winners?.length > 0 && (

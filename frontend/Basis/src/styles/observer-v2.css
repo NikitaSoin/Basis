@@ -6068,3 +6068,18 @@ details[open] > summary .obs-inst-chev,
 /* Ряд перестал обновляться у источника — метка рядом с датой, тон нейтральный
    (по дизайн-конституции цвет несут данные, а не хром). */
 .obs-tile-stale { color: var(--text-tertiary); font-style: italic; }
+
+/* Прогноз: траектория и сценарная привязка. 🔴 Крупнее и темнее мелкого серого мета-блока —
+   без ответа «это когда и что дальше» само число прогноза не читается. */
+.obs-fc-path {
+  margin-top: 6px; font-size: 13.5px; color: var(--text-primary); line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+.obs-fc-scenario {
+  margin-top: 5px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;
+}
+.obs-fc-scenario b { color: var(--text-tertiary); font-weight: 700; }
+/* Почему названы именно эти бумаги — без этого список тикеров бесполезен. */
+.obs-sector-why-names {
+  margin-top: 5px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.45;
+}
