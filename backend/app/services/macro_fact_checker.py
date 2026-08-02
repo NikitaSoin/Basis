@@ -69,13 +69,40 @@ def _domain(url: str | None) -> str:
         return ""
 
 
+_COUNTRY_RU = {"ru": "Россия", "cn": "Китай", "us": "США", "eu": "Еврозона", "world": "мир"}
+
+
+def _describe(db: Session, code: str) -> tuple[str, str, str]:
+    """Человеческое имя показателя, страна и единица — из справочника."""
+    try:
+        from app.models.macro import MacroIndicator
+        ind = db.get(MacroIndicator, code)
+    except Exception:  # noqa: BLE001
+        ind = None
+    if ind is None:
+        return code, "", ""
+    return (ind.title or code, _COUNTRY_RU.get(ind.country or "", ind.country or ""),
+            ind.unit or "")
+
+
 def check_finding(db: Session, code: str, period: str, value: float, unit: str,
                   origin_url: str | None, *, max_steps: int = 6) -> dict:
     """Независимая проверка одного значения. Возвращает вердикт + метаданные."""
     origin = _domain(origin_url)
+    # 🔴 Чекеру нужно ЧЕЛОВЕЧЕСКОЕ имя показателя, а не код. Раньше в задании стояло
+    # «показатель "real_wage"» — агент шёл искать в веб буквально это и, разумеется,
+    # ничего не находил. Добытчик при этом получал нормальный вопрос с названием и
+    # страной, находил число за один поиск, а чекер отбраковывал его как
+    # неподтверждённое: контур работал вхолостую.
+    title, country, unit_ru = _describe(db, code)
     task = (
-        f"Проверь утверждение: показатель «{code}» за период {period} имеет значение "
-        f"{value} {unit}.\n"
+        f"Проверь утверждение: «{title}»"
+        + (f" (страна: {country})" if country else "")
+        + f" за период {period} имеет значение {value} {unit or unit_ru}.\n"
+        f"🔴 Ищи по НАЗВАНИЮ показателя (у него может быть другое официальное имя в "
+        f"статистике), а не по служебному коду «{code}».\n"
+        f"Единица: {unit or unit_ru or 'не указана'} — уровень и темп роста это РАЗНЫЕ "
+        f"величины, не спутай их.\n"
         f"Первый агент ссылался на источник с домена «{origin or 'неизвестен'}» — "
         f"НАЙДИ ДРУГОЙ источник, этот подтверждением не считается.\n"
         f"Сегодня {datetime.now(timezone.utc).date().isoformat()}."

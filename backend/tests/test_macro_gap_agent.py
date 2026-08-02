@@ -417,3 +417,91 @@ def test_question_carries_unit_and_magnitude(db):
             continue
         assert "ЕДИНИЦА РЯДА" in q["question"], q["code"]
         assert "последние известные значения" in q["question"], q["code"]
+
+
+class TestFactCheckerGetsHumanNames:
+    """Чекеру нужно ЧЕЛОВЕЧЕСКОЕ имя показателя, а не служебный код.
+
+    🔴 В задании стояло «показатель "real_wage"» — агент шёл искать в веб буквально
+    это и ничего не находил. Добытчик при этом получал нормальный вопрос с названием
+    и страной, находил число за один поиск, а чекер отбраковывал его как
+    неподтверждённое: контур работал вхолостую.
+    """
+
+    def test_describe_returns_title_country_unit(self, db):
+        from app.services import macro_ingest as mi
+        from app.services.macro_fact_checker import _describe
+
+        mi.seed_indicators(db)
+        db.commit()
+        title, country, unit = _describe(db, "real_wage")
+        assert title and title != "real_wage"
+        assert country == "Россия"
+        assert unit == "%"
+
+    def test_unknown_code_degrades_to_the_code(self, db):
+        from app.services.macro_fact_checker import _describe
+        assert _describe(db, "no_such_indicator")[0] == "no_such_indicator"
+
+    def test_task_carries_the_title_not_only_the_code(self, db, monkeypatch):
+        """Проверяем сам текст задания: код в нём допустим лишь как пометка «не ищи
+        по нему», а искать чекер должен по названию."""
+        import app.services.macro_fact_checker as fc
+        from app.services import macro_ingest as mi
+
+        mi.seed_indicators(db)
+        db.commit()
+        captured = {}
+
+        def fake_run_agent(db_, **kw):
+            captured["task"] = kw.get("task")
+            return {"result": {"verdict": "unverified"}, "tokens_used": 0}
+
+        monkeypatch.setattr(fc, "run_agent", fake_run_agent)
+        fc.check_finding(db, "real_wage", "2026-05-31", 4.5, "%", "https://x.ru/1")
+        task = captured["task"]
+        assert "Реальная зарплата" in task
+        assert "Россия" in task
+        assert "не по служебному коду" in task
+
+
+class TestFeedSearchPrecision:
+    """Поиск по ленте: подстрока вместо слова наполняла выдачу мусором.
+
+    🔴 На запрос про зарплаты за МАЙ первым шёл «в Москве запретят МАЙнинг» — «%май%»
+    совпало внутри слова. Агент принимал такую выдачу за материал по теме и не уходил
+    в веб, где данные и лежат.
+    """
+
+    def test_short_word_does_not_match_inside_another(self, db):
+        from app.services.macro_gap_tools import _search_our_feed
+        from sqlalchemy import text
+
+        db.execute(text(
+            "INSERT INTO chronicle_entries (kind, title, summary, source_url, "
+            "published_at, created_at) VALUES ('news', 'В Москве запретят майнинг', "
+            "'про майнинг', 'https://x.ru/1', now(), now())"))
+        db.execute(text(
+            "INSERT INTO chronicle_entries (kind, title, summary, source_url, "
+            "published_at, created_at) VALUES ('news', 'Зарплаты в мае выросли', "
+            "'Росстат: май 2026', 'https://x.ru/2', now(), now())"))
+        db.commit()
+        titles = [i["title"] for i in
+                  (_search_our_feed(db, "зарплаты май", 30, 5).get("items") or [])]
+        assert not any("майнинг" in t for t in titles)
+
+    def test_empty_result_says_so_explicitly(self, db):
+        """Пустая выдача честнее слабых совпадений: по ней агент сразу идёт в веб."""
+        from app.services.macro_gap_tools import _search_our_feed
+
+        res = _search_our_feed(db, "предельная склонность к импорту Мадагаскара", 30, 5)
+        assert res.get("items") == []
+        assert "вебе" in (res.get("note") or "")
+
+    def test_query_with_regex_chars_does_not_crash(self, db):
+        """Слово из запроса идёт в шаблон регулярки: «5,84%» или «(инФОМ)» не должны
+        ронять поиск целиком."""
+        from app.services.macro_gap_tools import _search_our_feed
+
+        res = _search_our_feed(db, "инфляция 5,84% (инФОМ) [июль]", 30, 5)
+        assert "error" not in res or res.get("error") != "search_failed"

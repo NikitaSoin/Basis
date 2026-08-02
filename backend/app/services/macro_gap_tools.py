@@ -67,6 +67,9 @@ def _search_our_feed(db: Session, query: str, days: int, limit: int) -> dict:
     words = [w for w in str(query or "").split() if len(w) > 2][:6]
     if not words:
         return {"error": "empty_query"}
+    # 🔴 Экранируем спецсимволы регулярки: слово из запроса идёт В ШАБЛОН, и «5,84%»
+    # или «(инФОМ)» иначе уронят поиск целиком.
+    words = [re.sub(r"([\\^$.|?*+()\[\]{}])", r"\\\1", w) for w in words]
     # 🔴 РАНЖИРОВАНИЕ ПО ЧИСЛУ СОВПАВШИХ СЛОВ, а не «подходит любое слово».
     # Первая версия склеивала условия через OR и сортировала по дате: на запрос
     # «PMI России индекс деловой активности» первыми шли «Трамп допустил захват
@@ -77,13 +80,23 @@ def _search_our_feed(db: Session, query: str, days: int, limit: int) -> dict:
     params = {"days": days, "lim": limit}
     score_parts, where_parts = [], []
     for i, w in enumerate(words):
-        params[f"w{i}"] = f"%{w}%"
-        score_parts.append(f"(CASE WHEN title ILIKE :w{i} THEN 2 ELSE 0 END)")
-        score_parts.append(f"(CASE WHEN summary ILIKE :w{i} THEN 1 ELSE 0 END)")
-        where_parts.append(f"(title ILIKE :w{i} OR summary ILIKE :w{i})")
+        # 🔴 Граница слова, а не подстрока. С «%май%» по запросу про зарплаты за МАЙ
+        # первым шёл «в Москве запретят МАЙнинг»: подстрока совпала, релевантность
+        # набралась, агент принимал мусор за материал по теме.
+        # Длинному слову хватает границы СЛЕВА (\m) — так ловятся словоформы
+        # («Росстат» → «Росстата»). Короткому нужна граница с ОБЕИХ сторон (\y),
+        # иначе «май» снова цепляет «майнинг».
+        params[f"w{i}"] = (r"\y" + w + r"\y") if len(w) <= 4 else (r"\m" + w)
+        score_parts.append(f"(CASE WHEN title ~* :w{i} THEN 2 ELSE 0 END)")
+        score_parts.append(f"(CASE WHEN summary ~* :w{i} THEN 1 ELSE 0 END)")
+        where_parts.append(f"(title ~* :w{i} OR summary ~* :w{i})")
     score = " + ".join(score_parts)
-    # порог: для 1-2 слов достаточно одного совпадения, дальше требуем минимум два
-    params["min_score"] = 2 if len(words) <= 2 else 3
+    # 🔴 Порог пропорционален длине запроса: примерно половина слов должна реально
+    # встретиться. С фиксированным порогом 3 запрос из шести слов проходил по двум
+    # случайным совпадениям («2026», «плата»), и агент получал ленту про АЗС и
+    # банковские карты вместо материала о зарплатах — а пустая выдача честнее:
+    # по ней он сразу уходит в веб, где данные и лежат.
+    params["min_score"] = 2 if len(words) <= 2 else max(3, len(words))
     sql = (f"SELECT id, title, summary, source_key, source_url, "
            f"COALESCE(event_date, published_at::date) AS d, ({score}) AS rel "
            f"FROM chronicle_entries "
@@ -96,6 +109,11 @@ def _search_our_feed(db: Session, query: str, days: int, limit: int) -> dict:
     except Exception:  # noqa: BLE001
         logger.warning("gap_tools: поиск по ленте не отработал", exc_info=True)
         return {"error": "search_failed"}
+    if not rows:
+        # Явная подсказка вместо пустого списка: агент не должен гадать, «плохо
+        # искал» или «в ленте этого нет».
+        return {"found": 0, "items": [],
+                "note": "в ленте платформы ничего релевантного — ищи в вебе"}
     return {"found": len(rows), "items": [
         {"id": r[0], "date": str(r[5]) if r[5] else None, "title": r[1],
          "summary": (r[2] or "")[:220], "source": r[3], "url": r[4], "relevance": r[6]}
