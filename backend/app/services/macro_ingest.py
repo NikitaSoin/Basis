@@ -11,6 +11,7 @@ import csv
 import json
 import logging
 import os
+import statistics
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from xml.etree import ElementTree as ET
@@ -80,6 +81,37 @@ _VIA_PRIORITY = {"news": 0, "file": 1, "fred": 2, "wb": 2, "tankermap": 2, "yaho
                  "correction": 4}
 
 
+# Каналы, чьи значения проходят проверку правдоподобия против истории самого ряда.
+# 🔴 Новостной ингест берёт числа из ПЕРЕСКАЗОВ, и трижды за сессию это дало мусор:
+# ВВП 0,4% (не соответствовало ни одному периоду), недельная инфляция 2,6% (это годовая
+# под 200%), ожидания 12,2 вместо 14,7. Официальные каналы читают таблицу и в проверке
+# не нуждаются — им она только мешала бы при настоящем скачке.
+_PLAUSIBILITY_CHECKED_VIA = {"news"}
+# Во сколько раз значение может отличаться от медианы истории, прежде чем считать его
+# не «новостью», а ошибкой пересказа. Порог грубый намеренно: он ловит опечатку в
+# порядке величины, а не спорит с экономикой.
+_PLAUSIBLE_FACTOR = 4.0
+_PLAUSIBLE_MIN_HISTORY = 6
+
+
+def _implausible(db: Session, code: str, metric: str, value: float) -> str | None:
+    """Грубо ли значение выбивается из собственной истории ряда? Вернуть причину."""
+    rows = (db.query(MacroDataPoint.value)
+            .filter_by(indicator_code=code, metric=metric)
+            .order_by(MacroDataPoint.as_of.desc()).limit(24).all())
+    vals = [abs(float(r[0])) for r in rows if r[0] is not None]
+    vals = [v for v in vals if v > 0]
+    if len(vals) < _PLAUSIBLE_MIN_HISTORY:
+        return None                     # истории мало — не выдумываем ограничения
+    med = statistics.median(vals)
+    if med <= 0:
+        return None
+    v = abs(float(value))
+    if v > med * _PLAUSIBLE_FACTOR or (v > 0 and v * _PLAUSIBLE_FACTOR < med):
+        return f"{value} против медианы ряда {med:g} (порог ×{_PLAUSIBLE_FACTOR:g})"
+    return None
+
+
 # ----------------------------- общий upsert точки -----------------------------
 def upsert_point(db: Session, code: str, as_of: date, metric: str, value, *,
                  unit: str | None = None, is_preliminary: bool = False,
@@ -113,6 +145,12 @@ def upsert_point(db: Session, code: str, as_of: date, metric: str, value, *,
         val = Decimal(str(value))
     except (InvalidOperation, TypeError, ValueError):
         return "skip"
+    if ingested_via in _PLAUSIBILITY_CHECKED_VIA:
+        why = _implausible(db, code, metric, float(val))
+        if why:
+            logger.warning("upsert_point: ОТБРОШЕНО неправдоподобное значение из ленты "
+                           "%s/%s@%s — %s (источник: %s)", code, metric, as_of, why, source)
+            return "skip"
     existing = (db.query(MacroDataPoint)
                 .filter_by(indicator_code=code, as_of=as_of, metric=metric).first())
     if existing is not None and ingested_via:
@@ -402,6 +440,15 @@ _KNOWN_CORRECTIONS = [
         # ни июню (+1,1), ни маю (+0,3), ни полугодию (+0,3). Сходимость проверена:
         # 1кв −0,2 + 2кв +0,9 → полугодие +0,3, как и сообщает МЭР.
         "why": "число из новости не соответствовало ни одному периоду",
+    },
+    {
+        "code": "inflation_weekly", "metric": "wow", "as_of": date(2026, 7, 20), "value": 0.17,
+        "unit": "%",
+        "source": "Росстат (недельная оценка ИПЦ)",
+        "source_url": "https://www.interfax.ru/business/1104873",
+        # Было 2,6 — недельная инфляция такого размера означала бы годовую под 200%.
+        # Росстат за 14-20 июля даёт 0,17% (годовая 5,84%); неделей ранее тоже 0,17%.
+        "why": "2,6% за неделю физически невозможны при годовой 5,84%",
     },
 ]
 

@@ -367,7 +367,25 @@ def _check_cross_expectations(db: Session) -> dict:
     key, t, title = "cross_expectations", "cross", "Инфл. ожидания сверены с бюллетенем инФОМ"
     from app.models.macro import MacroAnalyticsDoc
     from app.services.macro_analytics import _pdf_text
-    from app.services.macro_cb_sync import _parse_infom_chart
+    from app.services.macro_cb_sync import _parse_infom_chart, latest_expectations_reference
+
+    # Сначала XLSX-таблица бюллетеня: это точный ряд по метке строки. PDF-график ниже
+    # остаётся фолбэком — он месяцами возвращал «вёрстка изменилась», и проверка всё
+    # это время висела в unavailable, то есть НЕ проверяла ничего.
+    ref = latest_expectations_reference()
+    if ref is not None:
+        ref_val, ref_url = ref
+        p = _latest_point(db, "inflation_expectations", "level")
+        if p is None:
+            return _res(key, t, title, "fail", "В БД нет точек инфляционных ожиданий")
+        db_val = float(p.value)
+        if abs(db_val - ref_val) <= 0.05:
+            return _res(key, t, title, "ok", f"Совпадает с таблицей инФОМ: {db_val}%",
+                        db_value=db_val, ref_value=ref_val, ref_url=ref_url)
+        return _res(key, t, title, "fail",
+                    f"РАСХОЖДЕНИЕ: в БД {db_val}%, в таблице инФОМ {ref_val}%",
+                    db_value=db_val, ref_value=ref_val, ref_url=ref_url)
+
     doc = (db.query(MacroAnalyticsDoc)
            .filter(MacroAnalyticsDoc.source == "cbr",
                    MacroAnalyticsDoc.doc_type.ilike("%инфляционные ожидания%"))

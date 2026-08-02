@@ -142,8 +142,8 @@ class TestKnownCorrections:
         mi.upsert_point(db, "gdp", date(2026, 6, 30), "yoy", 0.4, ingested_via="news")
         db.commit()
 
-        out = mi.apply_known_corrections(db)
-        assert out["applied"] == 1
+        mi.apply_known_corrections(db)
+        # Счётчик не проверяем: список исправлений растёт, а тест — про конкретную точку.
         from app.models.macro import MacroDataPoint
         p = db.query(MacroDataPoint).filter_by(
             indicator_code="gdp", metric="yoy", as_of=date(2026, 6, 30)).first()
@@ -175,3 +175,68 @@ class TestKnownCorrections:
         for c in _KNOWN_CORRECTIONS:
             assert c.get("source_url", "").startswith("http"), c
             assert len(c.get("why", "")) > 15, c
+
+
+class TestNewsPlausibilityGate:
+    """Новостной канал берёт числа из ПЕРЕСКАЗОВ — и трижды за сессию дал мусор:
+    ВВП 0,4% (не соответствовало ни одному периоду), недельная инфляция 2,6% (это
+    годовая под 200%), ожидания 12,2 вместо 14,7. Чинить точки по одной бесполезно,
+    пока канал может писать что угодно."""
+
+    def _history(self, db, code="inflation_weekly", metric="wow"):
+        from datetime import date, timedelta
+
+        from app.services import macro_ingest as mi
+        from app.models.macro import MacroDataPoint
+        mi.seed_indicators(db)
+        db.query(MacroDataPoint).filter_by(indicator_code=code).delete()
+        db.commit()
+        base = date(2026, 1, 5)
+        for i, v in enumerate([0.11, 0.17, 0.23, 0.09, 0.14, 0.2, 0.16, 0.12]):
+            mi.upsert_point(db, code, base + timedelta(days=7 * i), metric, v,
+                            ingested_via="rosstat")
+        db.commit()
+
+    def test_absurd_weekly_inflation_is_rejected(self, db):
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+        from app.models.macro import MacroDataPoint
+
+        self._history(db)
+        assert mi.upsert_point(db, "inflation_weekly", date(2026, 3, 9), "wow", 2.6,
+                               ingested_via="news") == "skip"
+        assert db.query(MacroDataPoint).filter_by(
+            indicator_code="inflation_weekly", as_of=date(2026, 3, 9)).first() is None
+
+    def test_normal_value_from_news_still_passes(self, db):
+        """Гейт ловит порядок величины, а не спорит с экономикой."""
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+
+        self._history(db)
+        assert mi.upsert_point(db, "inflation_weekly", date(2026, 3, 9), "wow", 0.31,
+                               ingested_via="news") == "insert"
+
+    def test_official_channel_is_not_gated(self, db):
+        """У официального источника настоящий скачок — это данные, а не ошибка."""
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+
+        self._history(db)
+        assert mi.upsert_point(db, "inflation_weekly", date(2026, 3, 9), "wow", 2.6,
+                               ingested_via="rosstat") == "insert"
+
+    def test_short_history_does_not_invent_limits(self, db):
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+        from app.models.macro import MacroDataPoint
+
+        mi.seed_indicators(db)
+        db.query(MacroDataPoint).filter_by(indicator_code="inflation_weekly").delete()
+        db.commit()
+        assert mi.upsert_point(db, "inflation_weekly", date(2026, 3, 9), "wow", 2.6,
+                               ingested_via="news") == "insert"

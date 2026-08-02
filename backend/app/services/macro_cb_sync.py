@@ -539,6 +539,28 @@ def _expectations_from_xlsx(content: bytes) -> list[tuple[date, float]]:
 _HIST_FIXED_SRC = "инФОМ (истор., сдвиг исправлен)"
 
 
+def latest_expectations_reference() -> tuple[float, str] | None:
+    """Эталонное значение ожиданий прямо из свежего XLSX инФОМ (значение, ссылка).
+
+    Отдельная точка входа для ОТК данных: проверка обязана брать эталон У ИСТОЧНИКА,
+    а не из нашей же базы, иначе она сверяет число само с собой.
+    """
+    try:
+        r = httpx.Client(timeout=25, headers=_HTTP, follow_redirects=True).get(_EXP_INDEX)
+        r.raise_for_status()
+        links = re.findall(r'href="([^"]*Infl_exp_\d{2}-\d{2}[^"]*)"', r.text)
+        if not links:
+            return None
+        latest = sorted(links, key=lambda u: re.search(r"(\d{2}-\d{2})", u).group(1))[-1]
+        url = latest if latest.startswith("http") else "https://www.cbr.ru" + latest
+        series = _expectations_from_xlsx(
+            httpx.Client(timeout=40, headers=_HTTP, follow_redirects=True).get(url).content)
+        return (series[-1][1], url) if series else None
+    except Exception as e:  # noqa: BLE001
+        logger.warning("CB-sync: эталон ожиданий недоступен: %s", type(e).__name__)
+        return None
+
+
 def _dedupe_and_fix_history(db: Session, covered_from: date) -> dict:
     """Убрать дубли ряда ожиданий и исправить сдвиг исторической части.
 
