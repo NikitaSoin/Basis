@@ -491,11 +491,20 @@ def latest_results(db: Session) -> dict:
     """Последний прогон для витрины: {run_at, overall, checks:[...]}. overall:
     fail > warn > ok; unavailable не портит overall (сеть моргнула — не повод
     пугать пользователя), но виден в списке."""
-    last = (db.query(MacroVerification.run_at)
+    # 🔴 Фильтр по check_type ОБЯЗАТЕЛЕН. Таблицу macro_verifications с 2026-08-02
+    # делит «ОТК данных» геополитики (geo_verification, check_type="geo") — заводить
+    # вторую таблицу под тот же набор полей было бы дублированием схемы. Но его крон
+    # идёт в 22:30, ПОЗЖЕ макро-ОТК (18:30), поэтому «последний прогон» без фильтра
+    # каждый вечер оказывался бы геополитическим, и на витрине Экономической
+    # статистики появлялись бы строки вида «Лента по очагам приходит».
+    # Исключаем "geo", а не перечисляем макро-типы: так новый макро-тип проверки
+    # попадёт на витрину сам, без правки этого запроса.
+    macro_only = MacroVerification.check_type != "geo"
+    last = (db.query(MacroVerification.run_at).filter(macro_only)
             .order_by(MacroVerification.run_at.desc()).first())
     if not last:
         return {"run_at": None, "overall": None, "checks": []}
-    rows = (db.query(MacroVerification).filter_by(run_at=last[0])
+    rows = (db.query(MacroVerification).filter(macro_only, MacroVerification.run_at == last[0])
             .order_by(MacroVerification.id).all())
     statuses = {r.status for r in rows}
     overall = "fail" if "fail" in statuses else "warn" if "warn" in statuses else "ok"
