@@ -2550,12 +2550,15 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                             <b>При каком сценарии:</b> {f.scenario_note}
                           </div>
                         )}
+                        <details className="obs-fc-details">
+                          <summary>Почему так и что может пойти иначе</summary>
                         <div className="obs-fc-meta">
                           {f.driver && <div><b>Драйвер:</b> {f.driver}</div>}
                           {f.triggers && <div><b>Пересмотрим, если:</b> {f.triggers}</div>}
                           {f.vs_anchor && <div><b>Против консенсуса:</b> {f.vs_anchor}</div>}
                           {f.against && <div className="obs-fc-against"><b>Что говорит против:</b> {f.against}</div>}
                         </div>
+                        </details>
                       </div>
                     ))}
                   </div>
@@ -2754,11 +2757,15 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
               {/* ПРОТИВОРЕЧИЯ ВО ВХОДНЫХ СИГНАЛАХ + качество данных (Часть 19.2):
                   методика требует показывать их, а не прятать. */}
               {(interpSections.contradictions?.length > 0 || interpSections.data_flags?.length > 0) && (
-                <details className="obs-macro-caveats">
+                <details className="obs-macro-caveats" open={interpSections.contradictions?.length > 0}>
                   <summary>
                     Оговорки: противоречия в сигналах и качество данных
                     {" "}({(interpSections.contradictions?.length || 0) + (interpSections.data_flags?.length || 0)})
                   </summary>
+                  {/* 🔴 Блок раскрыт, когда есть ПРОТИВОРЕЧИЯ: методика требует их
+                      показывать, а свёрнутая гармошка означает «инвестор их не увидит».
+                      Замечание ОТК: «звучит как секреты в подвале». Если противоречий
+                      нет и остались только замечания к данным — остаётся свёрнутым. */}
                   {interpSections.contradictions?.length > 0 && (
                     <>
                       <div className="obs-macro-caveats-lbl">Сигналы против нашего вывода</div>
