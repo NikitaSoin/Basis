@@ -588,6 +588,14 @@ def debug_trigger_macro_data_fixes():
             out["worldbank"] = ingest_worldbank(db)
         except Exception as e:  # noqa: BLE001
             out["worldbank"] = {"error": f"{type(e).__name__}: {e}"}
+        try:
+            # Цены нефти: сюда переведён Urals после того, как прежний фид показывал
+            # $60,7 при рыночных $84,6. Без этого вызова новая цена и дисконт
+            # Urals-Brent появятся только с ночным кроном.
+            from app.services.macro_oil_sync import sync_oil_prices
+            out["oil"] = sync_oil_prices(db)
+        except Exception as e:  # noqa: BLE001
+            out["oil"] = {"error": f"{type(e).__name__}: {e}"}
         return out
     except Exception as e:  # noqa: BLE001
         logger.exception("debug trigger-macro-data-fixes: %s", e)
