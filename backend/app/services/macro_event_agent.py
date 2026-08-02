@@ -45,6 +45,13 @@ _SYSTEM = f"""Ты — аналитик-исследователь платфо�
 Максимум 3-4 поиска. Нашёл подходящее — открывай, а не ищи дальше.
 
 Что важно:
+- 🔴 ВАЖНОСТЬ И СТАДИЮ оценивай САМ, опираясь на величины. Одно и то же событие в
+  разные недели значит разное: топливный кризис на пике и он же на спаде — это разные
+  выводы. «Удары по складам» могут быть локальным эпизодом (importance 1-2), а могут
+  означать перенос войны на гражданскую логистику (4-5) — решает МАСШТАБ: какая доля
+  оборота/мощностей/перевозок затронута.
+- Событие УЖЕ ОТЫГРАННОЕ рынком и затухающее помечай stage="затухает" или
+  "исчерпано" — это ценнее, чем пересказывать его как новость.
 - Числа бери ТОЛЬКО из текста источника, дословно. Не оценивай «на глаз».
 - Различай факт и чью-то оценку: «переработка упала на 25%» и «эксперты ожидают падения»
   это разные вещи, помечай.
@@ -59,6 +66,14 @@ _SYSTEM = f"""Ты — аналитик-исследователь платфо�
               "quote": "<дословный фрагмент, до 200 знаков>", "kind": "факт|оценка"}}],
   "channels": ["<канал из списка>"],
   "scale": "<порядок величины: сколько процентов рынка/объёма/бюджета затронуто>",
+  "importance": "<1-5, где 1 — локальный эпизод без макроэффекта, 3 — заметно для
+     отдельных отраслей, 5 — меняет траекторию ставки/инфляции/курса для всей экономики>",
+  "importance_why": "<чем измеряется этот балл: доля рынка, объёмы, число занятых, сумма
+     в бюджете. Без опоры на величину балл не ставь>",
+  "stage": "<нарастает|пик|затухает|исчерпано> — на какой стадии событие СЕЙЧАС",
+  "stage_why": "<по каким наблюдаемым признакам видно стадию>",
+  "scenario_link": "<как событие соотносится с текущим геополитическим сценарием: он
+     подтверждается, приближается переход к другому или ничего не меняется>",
   "lag": "<сразу|кварталы|отложенно> — и почему",
   "persistence": "<разовый шок|структурный сдвиг> — и почему",
   "affected_sectors": ["<сектор>"],
@@ -91,12 +106,41 @@ def pick_current_event(db: Session) -> str | None:
         return None
 
 
+def _geo_context(db: Session) -> str:
+    """Короткая рамка из гео-барометра: текущий сценарий и вероятности.
+
+    🔴 Без неё агент оценивает событие в вакууме. «Слухи о мобилизации» значат разное
+    при сценарии затяжной войны и при сценарии перемирия — и именно связку со
+    сценарием владелец назвал ненастроенной.
+    """
+    try:
+        from app.services.barometer_store import get_payload_with_meta
+        sc = ((get_payload_with_meta(db, "geo") or {}).get("scenario") or {})
+        if not isinstance(sc, dict):
+            return ""
+        parts = []
+        if sc.get("current_lean"):
+            parts.append(f"текущий сценарий {sc['current_lean']}")
+        probs = sc.get("probabilities_6m")
+        if isinstance(probs, dict):
+            top = sorted(probs.items(), key=lambda kv: -float(kv[1] or 0))[:3]
+            parts.append("вероятности 6м: " + ", ".join(f"{k} {float(v):.0%}" for k, v in top))
+        trig = sc.get("triggers")
+        if isinstance(trig, list) and trig:
+            parts.append("триггеры перехода: " + "; ".join(str(t)[:110] for t in trig[:3]))
+        return ". ".join(parts)[:700]
+    except Exception:  # noqa: BLE001
+        return ""
+
+
 def research_event(db: Session, event_hint: str, *, max_steps: int = 8) -> dict:
     """Разобрать событие по маршруту Части 16. Возвращает факты, не суждения."""
+    geo = _geo_context(db)
     task = (f"Событие на повестке: {event_hint}\n\n"
-            f"Разбери его по маршруту: что произошло (факты с числами и ссылками), каким "
+            + (f"Текущая геополитическая рамка (барометр платформы): {geo}\n\n" if geo else "")
+            + (f"Разбери его по маршруту: что произошло (факты с числами и ссылками), каким "
             f"каналом входит в экономику, масштаб, лаг, разовое или структурное, какие "
-            f"секторы затрагивает. Сегодня {datetime.now(timezone.utc).date().isoformat()}.")
+            f"секторы затрагивает. Сегодня {datetime.now(timezone.utc).date().isoformat()}."))
     seen: list[str] = []
 
     def _executor(db_, name, args):
@@ -132,6 +176,11 @@ def research_event(db: Session, event_hint: str, *, max_steps: int = 8) -> dict:
     channels = [c for c in (result.get("channels") or []) if c in _CHANNELS]
     return {
         "event": result.get("event"),
+        "importance": result.get("importance"),
+        "importance_why": result.get("importance_why"),
+        "stage": result.get("stage"),
+        "stage_why": result.get("stage_why"),
+        "scenario_link": result.get("scenario_link"),
         "facts": verified[:8],
         "channels": channels,
         "scale": result.get("scale"),

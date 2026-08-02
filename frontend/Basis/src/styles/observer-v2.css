@@ -6096,3 +6096,98 @@ details[open] > summary .obs-inst-chev,
 .obs-geomap-agefilter-label {
   font-size: 11px; color: var(--text-tertiary); white-space: nowrap;
 }
+
+/* ═══ ГЕРОЙ макро-выпуска (2026-08-02, по замечанию владельца «бедноватый») ═══
+   Было: две бледные строки — «факт: ставка 14%…» мелким шрифтом и серая карточка с
+   выводом. Стало: слои чтения видны глазом — ЯКОРЬ (что известно точно) слева,
+   ВЕРДИКТ (что из этого следует) справа. Цвет несут данные, хром монохромный. */
+.obs-macro-hero {
+  display: grid;
+  grid-template-columns: minmax(150px, 200px) 1fr;
+  gap: 26px;
+  align-items: start;
+  padding: 24px 26px;
+  /* 🔴 Фон и рамка — как у соседнего героя вкладки «Институты» (.obs-inst-hero).
+     Сначала здесь стоял var(--obs-surface-2), которого в системе НЕ СУЩЕСТВУЕТ: он
+     резолвился в fallback rgba(255,255,255,0.03), и на кремовом фоне страницы герой
+     был почти невидим — то есть формально появился, но читался слабее соседей. */
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-sm);
+}
+/* ЯКОРЬ: единственное число, которое известно ТОЧНО — от него читается всё остальное. */
+.obs-macro-hero-anchor {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  padding-right: 22px;
+  border-right: 1px solid var(--border-subtle);
+}
+.obs-macro-hero-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.obs-macro-hero-value {
+  font-family: var(--font-mono, monospace);
+  font-size: 40px; line-height: 1.05; font-weight: 600;
+  color: var(--text-primary); font-variant-numeric: tabular-nums;
+}
+.obs-macro-hero-asof { font-size: 11.5px; color: var(--text-tertiary); }
+.obs-macro-hero-body { min-width: 0; }
+.obs-macro-hero-eyebrow {
+  display: flex; align-items: center; gap: 7px; margin-bottom: 10px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+/* Вердикт — главное предложение экрана: serif, крупно, но без «кричащих» приёмов. */
+.obs-macro-hero-verdict {
+  margin: 0;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 23px; line-height: 1.42; font-weight: 500;
+  color: var(--text-primary);
+  max-width: 62ch;
+}
+.obs-macro-hero-signal {
+  margin: 14px 0 0; padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 13px; line-height: 1.5; color: var(--text-secondary);
+  max-width: 76ch;
+}
+.obs-macro-hero-signal { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.obs-macro-hero-signal b { color: var(--text-tertiary); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .obs-macro-hero { grid-template-columns: 1fr; gap: 16px; padding: 18px; }
+  .obs-macro-hero-anchor {
+    flex-direction: row; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    padding-right: 0; padding-bottom: 14px;
+    border-right: none; border-bottom: 1px solid var(--border-subtle);
+  }
+  .obs-macro-hero-value { font-size: 30px; }
+  .obs-macro-hero-verdict { font-size: 19px; }
+}
+
+/* Событие: значимость и стадия. Одно и то же событие на пике и на спаде значит
+   разное — без этих двух меток «контекст момента» читается как пересказ новости. */
+.obs-macro-event-meter {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 8px 0 4px;
+}
+.obs-macro-event-power {
+  font-family: var(--font-mono, monospace); font-size: 11.5px; font-weight: 700;
+  letter-spacing: 0.03em; color: var(--text-primary);
+  border: 1px solid var(--border-subtle); border-radius: var(--radius-sm, 6px);
+  padding: 2px 8px; font-variant-numeric: tabular-nums;
+}
+.obs-macro-event-stage {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.obs-macro-event-why { font-size: 12px; color: var(--text-secondary); line-height: 1.45; }
+.obs-macro-event-scenario {
+  margin: 10px 0 0; padding-top: 10px; border-top: 1px solid var(--border-subtle);
+  font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;
+}
+.obs-macro-event-scenario b { color: var(--text-tertiary); font-weight: 700; }

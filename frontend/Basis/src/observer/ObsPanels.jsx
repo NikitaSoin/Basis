@@ -1911,13 +1911,18 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
   const scenarios = interpSections?.scenarios;
 
   // Сигнал одной строкой: ставка сейчас + сигнал ЦБ — ФАКТ из БД (не суждение LLM).
-  const rateHeadline = rate?.key_rate?.value != null
-    ? `Ключевая ставка ${_fmtNum(rate.key_rate.value)}%${rate.key_rate.as_of ? ` (на ${rate.key_rate.as_of})` : ""}`
-      + (rate.meeting?.signal ? ` · сигнал ЦБ: ${rate.meeting.signal}` : "")
-    : null;
+  // Герою нужны ЧАСТИ, а не склеенная строка: число — крупным моно, сигнал ЦБ —
+  // прозой рядом. Раньше всё шло одной строкой мелким шрифтом и читалось как подпись.
+  const rateAnchor = rate?.key_rate?.value != null ? {
+    value: `${_fmtNum(rate.key_rate.value)}%`,
+    asOf: rate.key_rate.as_of || null,
+    signal: rate.meeting?.signal || null,
+  } : null;
 
   // Плитка твёрдых чисел перед prose-интерпретацией — ФАКТ, не суждение.
-  const MACRO_TILE_CODES = ["key_rate", "inflation", "gdp", "budget_balance"];
+  // budget_balance (%ВВП) — мёртвый ряд, заменён на накопленный итог в рублях;
+  // urals_brent_spread показывает, сколько теряет экспортёр против мировой цены.
+  const MACRO_TILE_CODES = ["inflation", "gdp", "budget_balance_ytd", "urals_brent_spread"];
   const macroTiles = MACRO_TILE_CODES
     .map((code) => numbers.find((n) => n.code === code))
     .filter((n) => n && n.has_data)
@@ -2027,20 +2032,43 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                   2026-08-02): дата и модель — служебная информация, а дисклеймер
                   дублируется тегами «оценка/суждение» на каждом утверждении. */}
 
-              {/* СИГНАЛ, строка 1: ставка сейчас + сигнал ЦБ — ФАКТ из БД, не суждение LLM */}
-              {rateHeadline && (
-                <div className="obs-macro-headline">
-                  <span className="obs-tag-fact">факт</span>
-                  <span>{rateHeadline}</span>
-                </div>
-              )}
-
-              {/* СИГНАЛ, строка 2: headline — одно предложение-вердикт, не абзац */}
-              {interpSections.headline && (
-                <div className="obs-macro-card obs-macro-lede-card">
-                  <div className="obs-macro-eyebrow"><Activity size={12} style={{ marginRight: 5, verticalAlign: -2 }} />Главный вывод · суждение Basis</div>
-                  <p className="obs-macro-lede">{interpSections.headline}</p>
-                </div>
+              {/* 🔴 ГЕРОЙ ЭКРАНА. Раньше это были две бледные строки: «факт: ставка 14%…»
+                  мелким шрифтом и серая карточка с выводом — владелец справедливо назвал
+                  «бедноватым». Слои чтения теперь читаются глазом: ЯКОРЬ (что известно
+                  точно — ставка, факт из БД) → ВЕРДИКТ (что из этого следует, суждение
+                  Basis) → доказательства ниже плитками. */}
+              {(rateAnchor || interpSections.headline) && (
+                <section className="obs-macro-hero" aria-label="Главный вывод">
+                  {rateAnchor && (
+                    <div className="obs-macro-hero-anchor">
+                      <span className="obs-macro-hero-label">Ключевая ставка</span>
+                      <span className="obs-macro-hero-value">{rateAnchor.value}</span>
+                      {rateAnchor.asOf && (
+                        <span className="obs-macro-hero-asof">на {rateAnchor.asOf}</span>
+                      )}
+                      <span className="obs-tag-fact">факт</span>
+                    </div>
+                  )}
+                  <div className="obs-macro-hero-body">
+                    {interpSections.headline && (
+                      <>
+                        <div className="obs-macro-hero-eyebrow">
+                          <Activity size={12} aria-hidden="true" />Главный вывод
+                          <span className="obs-tag-judgment">суждение Basis</span>
+                        </div>
+                        <p className="obs-macro-hero-verdict">{interpSections.headline}</p>
+                      </>
+                    )}
+                    {rateAnchor?.signal && (
+                      <p className="obs-macro-hero-signal">
+                        {/* Тег обязателен: строка стоит под шапкой «суждение Basis»,
+                            но это ФАКТ из коммюнике ЦБ, а не наш вывод. */}
+                        <span className="obs-tag-fact">факт</span>
+                        <b>Сигнал ЦБ:</b> {rateAnchor.signal}
+                      </p>
+                    )}
+                  </div>
+                </section>
               )}
 
               {/* ДОКАЗАТЕЛЬСТВО, шаг 1: плитка твёрдых чисел — ФАКТ */}
@@ -2087,8 +2115,31 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                     )}
                   </div>
                   <div className="obs-macro-event-name">{interpSections.event_context.event}</div>
+                  {/* 🔴 Важность и стадия — главное, чего не хватало: одно и то же
+                      событие на пике и на спаде значит разное. Владелец: агент должен
+                      сам оценивать, насколько событие сильно В МОМЕНТЕ. */}
+                  {(interpSections.event_context.importance || interpSections.event_context.stage) && (
+                    <div className="obs-macro-event-meter">
+                      {interpSections.event_context.importance && (
+                        <span className="obs-macro-event-power">
+                          значимость {String(interpSections.event_context.importance).replace(/[^0-9]/g, "") || "?"}/5
+                        </span>
+                      )}
+                      {interpSections.event_context.stage && (
+                        <span className="obs-macro-event-stage">{interpSections.event_context.stage}</span>
+                      )}
+                      {interpSections.event_context.importance_why && (
+                        <span className="obs-macro-event-why">{interpSections.event_context.importance_why}</span>
+                      )}
+                    </div>
+                  )}
                   {interpSections.event_context.macro_effect && (
                     <p className="obs-macro-event-effect">{interpSections.event_context.macro_effect}</p>
+                  )}
+                  {interpSections.event_context.scenario_link && (
+                    <p className="obs-macro-event-scenario">
+                      <b>Геополитический сценарий:</b> {interpSections.event_context.scenario_link}
+                    </p>
                   )}
                 </div>
               )}
@@ -3415,7 +3466,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
     return () => { alive = false; };
   }, []);
   const [styleLoaded, setStyleLoaded] = useState(false);
-  const [activeType, setActiveType] = useState("all");
   // Свежесть ударов (владелец 2026-08-02: «хотелось бы видеть именно сегодняшние/
   // вчерашние отдельно; по умолчанию — недавние, по включению фильтра — все
   // текущие»). Бэкенд отдаёт удары за ~2 недели (ретеншен в geo_digest), и на
@@ -3555,6 +3605,21 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
     if (!s.event_date) return false;             // недатированное не выдаём за свежее
     const ms = Date.parse(`${strikeLatestDate}T00:00:00Z`) - Date.parse(`${s.event_date}T00:00:00Z`);
     if (Number.isNaN(ms)) return true;
+    return ms / 86400000 < RECENT_DAYS;
+  }, [strikeAge, strikeLatestDate]);
+
+  // Статичные (курируемые) события датированы СВОБОДНОЙ строкой: «2026-07-02»,
+  // «2026-07», «2025-12 — статус подтверждён на июль 2026». Берём ведущий
+  // ISO-префикс YYYY-MM-DD; если его нет (только месяц или проза) — считаем
+  // событие НЕсвежим: выдавать «2026-07» за сегодняшнее нельзя, а спрятать под
+  // «все» честнее, чем показать как свежий удар.
+  const eventPassesAge = useCallback((e) => {
+    if (strikeAge === "all") return true;
+    if (!strikeLatestDate) return true;
+    const m = /^(\d{4}-\d{2}-\d{2})/.exec(String(e.date || ""));
+    if (!m) return false;
+    const ms = Date.parse(`${strikeLatestDate}T00:00:00Z`) - Date.parse(`${m[1]}T00:00:00Z`);
+    if (Number.isNaN(ms)) return false;
     return ms / 86400000 < RECENT_DAYS;
   }, [strikeAge, strikeLatestDate]);
 
@@ -3940,7 +4005,14 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
       const st = theaterStates[t.key];
       if (!st) return;
       const grouped = new Map();
-      st.onMapEvents.filter((e) => activeType === "all" || activeType === e.type).forEach((e) => {
+      // Владелец (2026-08-02): «убери разделения инфраструктура и другие — сбивают
+      // с толку, оставь только удары». Из статичного слоя событий на карту идут
+      // ТОЛЬКО type="strike"; линия фронта, инфраструктура, базы и флот больше не
+      // рисуются кружками (линия фронта и так есть отдельным слоем-контуром).
+      // Фильтр свежести применяется и к ним — иначе единичный курируемый удар
+      // месячной давности висел бы рядом со свежими из ленты и читался бы как
+      // «старый удар», с чего претензия и началась.
+      st.onMapEvents.filter((e) => e.type === "strike" && eventPassesAge(e)).forEach((e) => {
         if (!grouped.has(e.waypoint)) grouped.set(e.waypoint, []);
         grouped.get(e.waypoint).push(e);
       });
@@ -3985,7 +4057,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
         });
       });
     });
-  }, [styleLoaded, theaters, theaterStates, activeType]);
+  }, [styleLoaded, theaters, theaterStates, eventPassesAge]);
 
   // --- Маркеры «заявлено, не подтверждено ISW» — по всем очагам, где такие
   // точки реально есть в данных (сейчас — только СВО, claimedCapturesList
@@ -4159,16 +4231,13 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
         )}
       </div>
 
-      {/* Фильтр по типу события — общий для всех очагов сразу (владелец, п.7). */}
+      {/* Чипы типов события (Все / Линия фронта / Удары / Инфраструктура / Базы /
+          Флот) УБРАНЫ — владелец 2026-08-02: «эти разделения сбивают с толку,
+          оставь только удары». На карте теперь один смысловой слой точек, и
+          выбирать между типами больше нечего; осталась ОДНА ось фильтра —
+          свежесть. Линия фронта не потерялась: она рисуется отдельным
+          слоем-контуром, а не кружком-маркером. */}
       <div className="obs-geomap-filterbar">
-        <button type="button" className={`obs-chip${activeType === "all" ? " obs-chip--active" : ""}`} onClick={() => setActiveType("all")}>Все</button>
-        {Object.entries(GEOMAP_TYPE_META).map(([type, meta]) => (
-          <button
-            key={type} type="button"
-            className={`obs-chip${activeType === type ? " obs-chip--active" : ""}`}
-            onClick={() => setActiveType(type)}
-          >{meta.label}</button>
-        ))}
         {/* Свежесть ударов (владелец 2026-08-02). По умолчанию «недавние» —
             сегодня/вчера: за две недели ретеншена ударов набирается под сотню,
             и свежий было не отличить от двухнедельного. Счётчики в подписи —
@@ -4237,9 +4306,11 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
           );
         })}
         <div className="obs-geomap-legend-group">
-          {Object.entries(GEOMAP_TYPE_META).map(([type, meta]) => (
-            <span key={type} className="obs-geomap-legend-item"><meta.icon size={12} aria-hidden="true" />{meta.label}</span>
-          ))}
+          {/* Перечисление всех типов события убрано вместе с чипами-фильтрами
+              (владелец 2026-08-02): на карте остался один слой точек — удары,
+              и легенда из пяти типов только сбивала. Ниже — то, что реально
+              различается визуально: заявленные-неподтверждённые, удары из ленты
+              и нейтральные ориентиры. */}
           {aggClaimedCount > 0 && (
             <span className="obs-geomap-legend-item obs-geomap-legend-item--claimed">
               <CircleHelp size={12} aria-hidden="true" />Заявлено, не подтверждено
