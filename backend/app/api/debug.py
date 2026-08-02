@@ -580,6 +580,14 @@ def debug_trigger_macro_data_fixes():
             out["rosstat_manual"] = ingest_rosstat_file(db)
         except Exception as e:  # noqa: BLE001
             out["rosstat_manual"] = {"error": f"{type(e).__name__}: {e}"}
+        try:
+            # World Bank: сюда переведены китайские ряды после того, как OECD прекратил
+            # свои серии на FRED. Без этого вызова смена источника доедет только с
+            # ночным ингестом, а до утра витрина показывает данные 2023 года.
+            from app.services.macro_ingest import ingest_worldbank
+            out["worldbank"] = ingest_worldbank(db)
+        except Exception as e:  # noqa: BLE001
+            out["worldbank"] = {"error": f"{type(e).__name__}: {e}"}
         return out
     except Exception as e:  # noqa: BLE001
         logger.exception("debug trigger-macro-data-fixes: %s", e)
