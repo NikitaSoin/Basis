@@ -201,7 +201,11 @@ function ObsNewsFeed({ token, portfolioOnly, onSelectCompany }) {
 
   // Client-side filters
   const filtered = sorted.filter((n) => {
-    const impOk = importance === "all" || (importance === "important" && n.importance === "high");
+    // Рекалибровка важности (владелец 2026-08-02): high теперь ЭКСТРАОРДИНАРНОЕ
+    // (единицы в неделю), значимая рутина — medium. Дефолтная вкладка «Значимое»
+    // показывает high+medium (тот же объём, что раньше давал старый high), а
+    // бейдж «важное» и каллаут «Почему это важно» остаются только у high.
+    const impOk = importance === "all" || (importance === "important" && (n.importance === "high" || n.importance === "medium"));
     const cat = n.category || "";
     const topicOk = topic === "all" || (_NEWS_TOPIC_MAP[topic] || []).some((t) => cat.includes(t));
     return impOk && topicOk;
@@ -234,7 +238,7 @@ function ObsNewsFeed({ token, portfolioOnly, onSelectCompany }) {
         <div className="obs-news-filterbar">
           {[
             { id: "all",       label: "Все" },
-            { id: "important", label: "Важное" },
+            { id: "important", label: "Значимое" },
           ].map((o) => (
             <button
               key={o.id}
