@@ -475,7 +475,7 @@
     },
     {
       "code": "cn_rate",
-      "title": "Ставка НБК (КНР)",
+      "title": "Межбанковская ставка 3М (КНР)",
       "unit": "%",
       "country": "cn",
       "frequency": "monthly",

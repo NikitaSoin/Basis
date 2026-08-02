@@ -249,3 +249,39 @@ class TestNewsPlausibilityGate:
         db.commit()
         assert mi.upsert_point(db, "inflation_weekly", date(2026, 3, 9), "wow", 2.6,
                                ingested_via="news") == "insert"
+
+
+class TestDeadSeriesAreLabelled:
+    """Ряд, который источник перестал вести, обязан быть помечен для модели.
+
+    🔴 Иначе выпуск принимает последнюю точку за текущее состояние: китайский ВВП стоял
+    на 2023 годе, инфляция КНР — на 2025-м. А ряд «Ставка НБК» на деле тянется из FRED
+    IR3TIB01CNM156N — это 3-месячная МЕЖБАНКОВСКАЯ ставка (1,5%), тогда как ставка НБК
+    (LPR 1Y) равна 3,0%: разница вдвое, и вывод про ДКП Китая был бы обратным.
+    """
+
+    def test_dead_and_mislabelled_series_carry_a_note(self):
+        from app.services.macro_interpreter import _DEPRECATED_SERIES
+
+        for code in ("cn_gdp", "cn_inflation", "cn_rate"):
+            assert code in _DEPRECATED_SERIES, code
+            assert len(_DEPRECATED_SERIES[code]) > 20
+
+    def test_note_reaches_the_snapshot(self):
+        from app.services.macro_interpreter import _key_facts
+
+        indicators = [{"code": "cn_rate", "metric": "level", "current_value": 1.51,
+                       "unit": "%", "as_of": "2026-05-01"}]
+        _key_facts(indicators)
+        assert "МЕЖБАНКОВСКАЯ" in indicators[0]["deprecated"]
+
+    def test_interbank_series_is_not_called_a_central_bank_rate(self):
+        import json
+        import os
+
+        base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        cfg = json.load(open(os.path.join(base, "config", "macro_indicators.json"),
+                             encoding="utf-8"))
+        items = cfg["indicators"] if isinstance(cfg, dict) and "indicators" in cfg else cfg
+        title = next(i["title"] for i in items if i.get("code") == "cn_rate")
+        assert "НБК" not in title or "Межбанк" in title
