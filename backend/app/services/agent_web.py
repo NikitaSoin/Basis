@@ -24,6 +24,7 @@ import io
 import logging
 import os
 import re
+import time
 
 import httpx
 
@@ -92,15 +93,27 @@ def _ddg_unwrap(href: str) -> str:
 def _search_ddg(query: str, max_results: int) -> dict:
     """Keyless DuckDuckGo (html-эндпоинт, result__a). Парсинг регэкспом (bs4 нет).
     Фрагильно — для демо/фолбэка; при egress-блокировке отдаёт error."""
-    try:
-        with _client() as c:
-            r = c.get("https://html.duckduckgo.com/html/", params={"q": query},
-                      headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-            r.raise_for_status()
-            html = r.text
-    except Exception as e:  # noqa: BLE001
-        logger.warning("web_search ddg fail: %s", type(e).__name__)
-        return {"error": "search_unavailable", "detail": type(e).__name__,
+    # 🔴 Ретраи, потому что ключа Tavily нет и DDG — ЕДИНСТВЕННЫЙ канал поиска для всех
+    # агентов. Его ConnectTimeout обычно разовый, но без повтора он равен «в вебе ничего
+    # нет»: агент честно отказывается от вопроса, который на самом деле решается.
+    # Два зеркала: у html-эндпоинта и основного домена таймауты не совпадают.
+    html, last_err = None, None
+    for attempt, host in enumerate(("https://html.duckduckgo.com/html/",
+                                    "https://duckduckgo.com/html/",
+                                    "https://html.duckduckgo.com/html/")):
+        try:
+            with _client() as c:
+                r = c.get(host, params={"q": query},
+                          headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+                r.raise_for_status()
+                html = r.text
+                break
+        except Exception as e:  # noqa: BLE001
+            last_err = type(e).__name__
+            logger.warning("web_search ddg попытка %s/3 (%s): %s", attempt + 1, host, last_err)
+            time.sleep(1.5 * (attempt + 1))
+    if html is None:
+        return {"error": "search_unavailable", "detail": last_err,
                 "note": "Веб-поиск с сервера недоступен (вероятно egress) — работаю на внутренних данных."}
     results = []
     # результат: <a class="result__a" href="...">Title</a> + рядом result__snippet

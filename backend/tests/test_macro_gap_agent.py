@@ -549,3 +549,47 @@ class TestPeriodMustBeNewer:
                               {"period": "2026-05-31", "value": 48.2, "unit": "ед"},
                               "https://source", dry_run=True)
         assert res["status"] == "would_write"
+
+
+class TestWebSearchResilience:
+    """Веб-поиск — единственный канал для всех агентов: ключа Tavily нет, работает
+    только парсинг DuckDuckGo. Его разовый ConnectTimeout без повтора равен «в вебе
+    ничего нет», и агент отказывается от вопроса, который на самом деле решается.
+    """
+
+    def test_retries_before_giving_up(self, monkeypatch):
+        from app.services import agent_web
+
+        calls = {"n": 0}
+
+        class _Resp:
+            text = '<a class="result__a" href="https://x.ru/1">Заголовок</a>'
+            def raise_for_status(self): pass
+
+        class _C:
+            def __enter__(self): return self
+            def __exit__(self, *a): return False
+            def get(self, *a, **kw):
+                calls["n"] += 1
+                if calls["n"] < 3:
+                    raise TimeoutError("ConnectTimeout")
+                return _Resp()
+
+        monkeypatch.setattr(agent_web, "_client", lambda: _C())
+        monkeypatch.setattr(agent_web.time, "sleep", lambda *_: None)
+        res = agent_web._search_ddg("что угодно", 3)
+        assert calls["n"] == 3, "должен повторить, а не сдаться с первой ошибки"
+        assert res.get("results"), "после успешной попытки результаты обязаны вернуться"
+
+    def test_gives_up_honestly_after_all_attempts(self, monkeypatch):
+        from app.services import agent_web
+
+        class _C:
+            def __enter__(self): return self
+            def __exit__(self, *a): return False
+            def get(self, *a, **kw): raise TimeoutError("ConnectTimeout")
+
+        monkeypatch.setattr(agent_web, "_client", lambda: _C())
+        monkeypatch.setattr(agent_web.time, "sleep", lambda *_: None)
+        res = agent_web._search_ddg("что угодно", 3)
+        assert res.get("error") == "search_unavailable"
