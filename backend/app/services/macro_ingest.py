@@ -499,6 +499,18 @@ def drop_offgrid_quarterly_points(db: Session) -> dict:
     for code in codes:
         points = (db.query(MacroDataPoint)
                   .filter_by(indicator_code=code).all())
+        on_grid = [p for p in points
+                   if p.as_of.day == 1 and p.as_of.month in (1, 4, 7, 10)]
+        # 🔴 ПРЕДОХРАНИТЕЛЬ. Если на сетке нет НИ ОДНОЙ точки, значит ряд просто ведётся
+        # по другой конвенции дат — и «чужеродные» здесь как раз все, то есть правило
+        # снесёт ряд целиком. Ровно это и случилось: «Реальные доходы населения» и
+        # «Инвестиции в основной капитал» (обе даты — конец квартала) обнулились.
+        # Удаляем только там, где сетка подтверждена самими данными.
+        if not on_grid:
+            if points:
+                logger.info("Макро: ряд %s ведётся не по сетке кварталов (%s точек) — "
+                            "чистка пропущена", code, len(points))
+            continue
         for p in points:
             if p.as_of.day == 1 and p.as_of.month in (1, 4, 7, 10):
                 continue

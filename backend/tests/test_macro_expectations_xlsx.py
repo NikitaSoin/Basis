@@ -327,3 +327,25 @@ class TestQuarterlyGrid:
         mi.drop_offgrid_quarterly_points(db)
         assert db.query(MacroDataPoint).filter_by(
             indicator_code="unemployment", as_of=date(2026, 6, 30)).first() is not None
+
+    def test_series_with_its_own_convention_is_not_wiped(self, db):
+        """🔴 ПРЕДОХРАНИТЕЛЬ. Если на сетке нет ни одной точки, ряд просто ведётся по
+        другой конвенции дат — правило снесло бы его ЦЕЛИКОМ. Ровно это и случилось
+        с «Реальными доходами населения» и «Инвестициями в основной капитал»: обе
+        серии стоят на КОНЦЕ квартала, и чистка обнулила их.
+        """
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+        from app.models.macro import MacroDataPoint
+
+        mi.seed_indicators(db)
+        db.query(MacroDataPoint).filter_by(indicator_code="real_income").delete()
+        db.commit()
+        for d, v in ((date(2025, 12, 31), 5.8), (date(2026, 3, 31), 1.5)):
+            mi.upsert_point(db, "real_income", d, "yoy", v, ingested_via="rosstat")
+        db.commit()
+
+        mi.drop_offgrid_quarterly_points(db)
+        left = db.query(MacroDataPoint).filter_by(indicator_code="real_income").count()
+        assert left == 2, "ряд со своей конвенцией дат не должен вычищаться"

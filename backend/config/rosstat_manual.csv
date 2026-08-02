@@ -17,3 +17,8 @@ inflation,2026-05,0.17,mom
 inflation,2026-04,5.58,yoy
 inflation,2026-05,5.31,yoy
 inflation_weekly,2026-06-08,0.23,wow
+fixed_capital_investment,2025-Q1,6.5,yoy
+fixed_capital_investment,2025-Q2,-1.0,yoy
+fixed_capital_investment,2025-Q3,-4.3,yoy
+fixed_capital_investment,2025-Q4,-5.3,yoy
+fixed_capital_investment,2026-Q1,-14.3,yoy

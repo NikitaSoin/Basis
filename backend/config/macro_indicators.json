@@ -1174,6 +1174,13 @@
       "unit": "%",
       "min": -30,
       "max": 50
+    },
+    "fixed_capital_investment": {
+      "id": 30952,
+      "metric": "yoy",
+      "unit": "%",
+      "min": -40,
+      "max": 60
     }
   },
   "analytics_exclude_url_patterns": [
