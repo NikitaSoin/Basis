@@ -619,6 +619,45 @@ ${sections}
 
 /* ============================= ФЬЮЧЕРСЫ ============================= */
 
+// 🔴 РАЗЛИЧАЕМ БЛИЗНЕЦОВ. Владелец 2026-08-02: по запросу «si 9 26» находится Si-9.27,
+// а не Si-9.26. Причина не в ошибке, а в устройстве: 479 страниц фьючерсов отличаются
+// друг от друга кодом, датой и двумя числами — 240 слов почти идентичного шаблона.
+// Поисковику приходится выбирать между близнецами, и он ошибается серией.
+//
+// Лечим тем, что делает страницу узнаваемой ИМЕННО для своего контракта:
+//   • месяц исполнения СЛОВАМИ («сентябрь 2026») — «26» и «27» в коде отличаются одним
+//     символом, а «сентябрь 2026» и «сентябрь 2027» различаются целым словом;
+//   • альтернативные написания кода — люди набирают «si 9.26», «si926», «siu6», и в
+//     тексте страницы этих вариантов не было вовсе;
+//   • пометка ближайшего контракта серии: чаще всего ищут именно его.
+// Две формы месяца: «исполнение — сентябрь 2026» (именительный) и «исполняется в
+// сентябре 2026» (предложный). С одним списком выходило «исполнение сентября 2026»
+// и «в сентября 2026» — на витрине это выглядит как машинный перевод.
+const _MONTHS_NOM = ["январь","февраль","март","апрель","май","июнь",
+                     "июль","август","сентябрь","октябрь","ноябрь","декабрь"];
+const _MONTHS_PREP = ["январе","феврале","марте","апреле","мае","июне",
+                      "июле","августе","сентябре","октябре","ноябре","декабре"];
+
+function expiryWords(iso, form = "nom") {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d)) return null;
+  const m = form === "prep" ? _MONTHS_PREP[d.getMonth()] : _MONTHS_NOM[d.getMonth()];
+  return `${m} ${d.getFullYear()}`;
+}
+
+/** Варианты написания кода контракта, как их набирают в поиске. */
+function codeAliases(f) {
+  const short = String(f.short_name || "");      // Si-9.26
+  const m = short.match(/^([A-Za-z]+)-(\d{1,2})\.(\d{2})$/);
+  if (!m) return [];
+  const [, base, mm, yy] = m;
+  return [...new Set([
+    `${base}-${mm}.${yy}`, `${base} ${mm}.${yy}`, `${base}${mm}${yy}`,
+    `${base} ${mm} ${yy}`, String(f.secid || ""),
+  ])].filter(Boolean);
+}
+
 function futurePage(f, all, ctx) {
   const { dataDate } = ctx;
   const asset = strip(f.asset_name || f.asset_code);
@@ -648,8 +687,31 @@ function futurePage(f, all, ctx) {
     .map((s) => `<a class="chip" href="/futures/${encodeURIComponent(s.secid)}/">${escapeHtml(s.short_name)}${s.expiration_date ? ` · ${fmtDate(s.expiration_date)}` : ""}</a>`).join("");
   const body = `
 <p class="tag">${escapeHtml(f.kind_label || "Фьючерс")} · срочный рынок FORTS · MOEX: ${escapeHtml(f.secid)}</p>
-<h1>${escapeHtml(f.short_name)} — фьючерс на ${escapeHtml(asset)}</h1>
+<h1>${escapeHtml(f.short_name)} — фьючерс на ${escapeHtml(asset)}${
+    expiryWords(f.expiration_date) ? `, исполнение ${expiryWords(f.expiration_date)}` : ""}</h1>
 ${f.sec_name && strip(f.sec_name) !== f.short_name ? `<p class="sub">${escapeHtml(strip(f.sec_name))}</p>` : ""}
+${(() => {
+    const al = codeAliases(f).filter((x) => x !== f.short_name);
+    const nearest = all.filter((x) => x.asset_code === f.asset_code && x.expiration_date)
+      .sort((a, b) => String(a.expiration_date).localeCompare(String(b.expiration_date)))[0];
+    const isNearest = nearest && nearest.secid === f.secid;
+    const bits = [];
+    if (expiryWords(f.expiration_date)) {
+      bits.push(`Контракт исполняется в ${expiryWords(f.expiration_date, "prep")}`
+        + (f.days_to_expiry != null ? ` — через ${fmtN(f.days_to_expiry, 0)} дн. на дату данных` : "")
+        + ".");
+    }
+    if (isNearest) {
+      // Ближайший контракт серии — тот, который чаще всего и ищут: у него основной
+      // объём торгов, остальные месяцы неликвидны.
+      bits.push(`Это ближайший контракт серии ${escapeHtml(f.asset_code)}: у него, как правило, `
+        + `основной объём торгов, дальние месяцы заметно менее ликвидны.`);
+    }
+    if (al.length) {
+      bits.push(`Встречается в записи как ${al.map((x) => escapeHtml(x)).join(", ")}.`);
+    }
+    return bits.length ? `<p>${bits.join(" ")}</p>` : "";
+  })()}
 <h2>Параметры контракта</h2>
 <p class="tag">Факт — данные Московской биржи</p>
 ${params}
@@ -660,11 +722,17 @@ ${riskBlock}
 ${series ? `<h2>Другие серии на этот актив</h2><div class="grid">${series}</div>` : ""}
 <p><a href="/futures/">← Все фьючерсы: каталог Basis</a></p>`;
   const descBits = [];
-  if (f.expiration_date) descBits.push(`экспирация ${fmtDate(f.expiration_date)}`);
+  // Месяц СЛОВАМИ в описании: в выдаче именно оно отличает Si-9.26 от Si-9.27, где
+  // коды различаются одним символом.
+  const expWords = expiryWords(f.expiration_date);
+  if (f.expiration_date) {
+    descBits.push(`экспирация ${fmtDate(f.expiration_date)}${expWords ? ` (${expWords})` : ""}`);
+  }
   if (f.initial_margin != null) descBits.push(`ГО ${fmtN(Math.round(f.initial_margin), 0)} ₽`);
   if (f.leverage != null) descBits.push(`плечо ≈ ${fmtN(f.leverage, 1)}×`);
   return pageShell({
-    title: `${f.short_name} (${f.secid}): фьючерс на ${truncate(asset, 40)} — ГО, плечо, экспирация | Basis`,
+    title: `${f.short_name} (${f.secid}): фьючерс на ${truncate(asset, 34)}`
+      + `${expiryWords(f.expiration_date) ? ` — исполнение ${expiryWords(f.expiration_date)}` : ""} | Basis`,
     desc: descWithDate(`Фьючерс ${f.short_name} на ${asset}${descBits.length ? ": " + descBits.join(", ") : ""}. Параметры контракта и риск плеча — разбор Basis.`, dataDate),
     canonicalPath: `/futures/${f.secid}/`,
     breadcrumbs: [

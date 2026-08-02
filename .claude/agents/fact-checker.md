@@ -7,7 +7,7 @@ description: >
   и помечает что подтверждено, что нет, что требует уточнения. Вызывай
   по тикеру или по конкретному файлу business_model.md.
 tools: WebSearch, WebFetch, Read, Write
-model: claude-opus-4-8
+model: claude-sonnet-5
 ---
 
 # РОЛЬ
