@@ -6083,3 +6083,16 @@ details[open] > summary .obs-inst-chev,
 .obs-sector-why-names {
   margin-top: 5px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.45;
 }
+
+/* Переключатель свежести ударов на карте (владелец 2026-08-02): «недавние»
+   (сегодня-вчера) по умолчанию, «все» — весь период ретеншена ленты. Отделён
+   от чипов типа события вертикальной чертой, чтобы читался как ДРУГАЯ ось
+   фильтра, а не ещё один тип. */
+.obs-geomap-agefilter {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-left: 6px; padding-left: 10px;
+  border-left: 1px solid var(--border-subtle);
+}
+.obs-geomap-agefilter-label {
+  font-size: 11px; color: var(--text-tertiary); white-space: nowrap;
+}

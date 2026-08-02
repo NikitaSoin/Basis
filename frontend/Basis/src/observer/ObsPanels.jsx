@@ -3416,6 +3416,12 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
   }, []);
   const [styleLoaded, setStyleLoaded] = useState(false);
   const [activeType, setActiveType] = useState("all");
+  // Свежесть ударов (владелец 2026-08-02: «хотелось бы видеть именно сегодняшние/
+  // вчерашние отдельно; по умолчанию — недавние, по включению фильтра — все
+  // текущие»). Бэкенд отдаёт удары за ~2 недели (ретеншен в geo_digest), и на
+  // карте они сливались в сплошную кучу: свежий удар было не отличить от
+  // двухнедельного. "recent" = сегодня/вчера, "all" = весь отданный период.
+  const [strikeAge, setStrikeAge] = useState("recent"); // recent | all
   const [focus, setFocus] = useState("world"); // "world" | theaterKey
   // svoView — переключатель «очаг ↔ вся Россия целиком» ТОЛЬКО для очага,
   // реально несущего russia_wide_map (сейчас — СВО, детектируется по данным,
@@ -3524,6 +3530,46 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
     });
     return out;
   }, [theaters, dataByTheater, svoKey, onRussiaMap, russiaMap]);
+
+  // --- Свежесть ударов: "недавние" = сегодня/вчера. Точку отсчёта берём НЕ от
+  // системной даты браузера, а от САМОГО СВЕЖЕГО удара в данных: у пользователя
+  // может быть сбита дата, а поток обновляется кроном и в выходные/при сбое
+  // источника может отставать — тогда «сегодня/вчера» от now() дали бы пустую
+  // карту, и человек решил бы, что ударов нет. Отсчёт от последнего события
+  // означает «свежайшее, что у нас есть, и день до него».
+  const RECENT_DAYS = 2;
+  const strikeLatestDate = useMemo(() => {
+    let latest = null;
+    Object.values(theaterStates).forEach((st) => {
+      (st?.strikeEventsList || []).forEach((s) => {
+        const d = s.event_date;
+        if (d && (!latest || d > latest)) latest = d;
+      });
+    });
+    return latest;
+  }, [theaterStates]);
+
+  const strikePassesAge = useCallback((s) => {
+    if (strikeAge === "all") return true;
+    if (!strikeLatestDate) return true;          // дат нет — не прячем ничего
+    if (!s.event_date) return false;             // недатированное не выдаём за свежее
+    const ms = Date.parse(`${strikeLatestDate}T00:00:00Z`) - Date.parse(`${s.event_date}T00:00:00Z`);
+    if (Number.isNaN(ms)) return true;
+    return ms / 86400000 < RECENT_DAYS;
+  }, [strikeAge, strikeLatestDate]);
+
+  const strikeCounts = useMemo(() => {
+    let all = 0, recent = 0;
+    Object.values(theaterStates).forEach((st) => {
+      (st?.strikeEventsList || []).forEach((s) => {
+        all += 1;
+        if (!strikeLatestDate || !s.event_date) return;
+        const ms = Date.parse(`${strikeLatestDate}T00:00:00Z`) - Date.parse(`${s.event_date}T00:00:00Z`);
+        if (!Number.isNaN(ms) && ms / 86400000 < RECENT_DAYS) recent += 1;
+      });
+    });
+    return { all, recent };
+  }, [theaterStates, strikeLatestDate]);
 
   // --- Временной ползунок «как менялась линия фронта» — данные всегда берём у
   // очага с russia_wide_map (сейчас СВО), это единственный очаг, для которого
@@ -3772,13 +3818,21 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
   // и т.п.) — сравниваем ЗНАЧЕНИЕ activeTheater, а не полагаемся на то, что
   // эффект вызвался.
   const appliedActiveTheaterRef = useRef(undefined);
+  // 🔴 styleLoaded В ЗАВИСИМОСТЯХ ОБЯЗАТЕЛЕН (баг, найден 2026-08-02 замером):
+  // на ПЕРВОМ монтировании карта ещё не создана (maplibregl приезжает асинхронно),
+  // эффект упирался в `if (!mapRef.current) return` и выходил. Дальше он НЕ
+  // перезапускался: создание карты — это состояние ДОЧЕРНЕГО компонента, родитель
+  // не ре-рендерится, значит ссылки theaters/goTheater/goWorld не меняются и React
+  // эффект не вызывает. Итог: при заходе фильтр стоял на «СВО», а карта показывала
+  // «Весь мир» — переключение чипов потом работало, поэтому баг и не бросался в глаза.
+  // styleLoaded становится true ровно когда картой уже можно управлять.
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || !styleLoaded) return;
     if (appliedActiveTheaterRef.current === activeTheater) return;
     appliedActiveTheaterRef.current = activeTheater;
     if (activeTheater && theaters.some((t) => t.key === activeTheater)) goTheater(activeTheater);
     else goWorld();
-  }, [activeTheater, theaters, goTheater, goWorld]);
+  }, [activeTheater, theaters, goTheater, goWorld, styleLoaded]);
 
   // --- Речевой пузырь деталей клика: тот же паттерн, что раньше (один Popup +
   // один React-root на карту, без пересоздания), контент читает данные
@@ -3988,7 +4042,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
     theaters.forEach((t) => {
       const st = theaterStates[t.key];
       if (!st) return;
-      st.strikeEventsList.forEach((s) => {
+      st.strikeEventsList.filter(strikePassesAge).forEach((s) => {
         const isMajor = s.significance === "major";
         const el = document.createElement("button");
         el.type = "button";
@@ -4016,7 +4070,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
         strikeMarkersRef.current.push({ id: `${t.key}:${s.id}`, theaterKey: t.key, key: s.id, marker, root, el });
       });
     });
-  }, [styleLoaded, theaters, theaterStates, selectStrike]);
+  }, [styleLoaded, theaters, theaterStates, selectStrike, strikePassesAge]);
 
   // --- Визуальное состояние «выбрано» — маркеры (по theaterKey+key) и контур
   // области (отдельный source "<theater>-regions-active" на очаг).
@@ -4115,6 +4169,31 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
             onClick={() => setActiveType(type)}
           >{meta.label}</button>
         ))}
+        {/* Свежесть ударов (владелец 2026-08-02). По умолчанию «недавние» —
+            сегодня/вчера: за две недели ретеншена ударов набирается под сотню,
+            и свежий было не отличить от двухнедельного. Счётчики в подписи —
+            чтобы сразу видеть, сколько всего скрыто за фильтром. */}
+        {strikeCounts.all > 0 && (
+          <span className="obs-geomap-agefilter">
+            <span className="obs-geomap-agefilter-label">Удары:</span>
+            <button
+              type="button"
+              className={`obs-chip${strikeAge === "recent" ? " obs-chip--active" : ""}`}
+              onClick={() => setStrikeAge("recent")}
+              title="Только самые свежие — за последние сутки-двое"
+            >
+              недавние{strikeCounts.recent ? ` · ${strikeCounts.recent}` : ""}
+            </button>
+            <button
+              type="button"
+              className={`obs-chip${strikeAge === "all" ? " obs-chip--active" : ""}`}
+              onClick={() => setStrikeAge("all")}
+              title="Все удары за период, который отдаёт лента (около двух недель)"
+            >
+              все · {strikeCounts.all}
+            </button>
+          </span>
+        )}
       </div>
 
       <div className="obs-geomap-frame" style={{ aspectRatio: aspect }}>
