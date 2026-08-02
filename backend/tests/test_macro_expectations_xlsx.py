@@ -285,3 +285,45 @@ class TestDeadSeriesAreLabelled:
         items = cfg["indicators"] if isinstance(cfg, dict) and "indicators" in cfg else cfg
         title = next(i["title"] for i in items if i.get("code") == "cn_rate")
         assert "НБК" not in title or "Межбанк" in title
+
+
+class TestQuarterlyGrid:
+    """В квартальный ряд новостной канал кладёт месячные и полугодовые величины.
+
+    За один день в ряду ВВП оказались 0,4 и 1,1 на 30 июня (июньские) и 0,3 на 31 мая
+    (полугодовой показатель). Каждая становилась «последней» и подменяла собой квартал.
+    """
+
+    def test_offgrid_points_are_removed(self, db):
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+        from app.models.macro import MacroDataPoint
+
+        mi.seed_indicators(db)
+        db.query(MacroDataPoint).filter_by(indicator_code="gdp").delete()
+        db.commit()
+        mi.upsert_point(db, "gdp", date(2026, 4, 1), "yoy", 0.9, ingested_via="correction")
+        mi.upsert_point(db, "gdp", date(2026, 5, 31), "yoy", 0.3, ingested_via="news")
+        mi.upsert_point(db, "gdp", date(2026, 6, 30), "yoy", 1.1, ingested_via="news")
+        db.commit()
+
+        out = mi.drop_offgrid_quarterly_points(db)
+        assert out["removed"] >= 2
+        left = db.query(MacroDataPoint).filter_by(indicator_code="gdp").all()
+        assert [str(p.as_of) for p in left] == ["2026-04-01"]
+
+    def test_monthly_series_is_untouched(self, db):
+        """Правило только для квартальных: месячный ряд стоит на концах месяцев."""
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+        from app.models.macro import MacroDataPoint
+
+        mi.seed_indicators(db)
+        mi.upsert_point(db, "unemployment", date(2026, 6, 30), "level", 2.2,
+                        ingested_via="rosstat")
+        db.commit()
+        mi.drop_offgrid_quarterly_points(db)
+        assert db.query(MacroDataPoint).filter_by(
+            indicator_code="unemployment", as_of=date(2026, 6, 30)).first() is not None

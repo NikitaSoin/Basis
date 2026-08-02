@@ -479,6 +479,38 @@ _KNOWN_CORRECTIONS = [
 ]
 
 
+def drop_offgrid_quarterly_points(db: Session) -> dict:
+    """Убрать из КВАРТАЛЬНЫХ рядов точки, стоящие не на начале квартала.
+
+    🔴 Почему правилом, а не списком дат. Новостной канал кладёт в квартальный ряд
+    месячные величины: за один день в ряду ВВП появились 0,4 на 30 июня (июньская),
+    1,1 на 30 июня (снова июньская) и 0,3 на 31 мая (это ПОЛУГОДОВОЙ показатель).
+    Каждая становится «последней» и подменяет собой квартал. Перечислять такие даты
+    вручную бессмысленно — завтра придёт новая.
+
+    Сетка квартального ряда: 1 января / 1 апреля / 1 июля / 1 октября (конвенция FRED,
+    по которой ведётся история). Всё остальное в таком ряду — величина другой частоты.
+    """
+    from app.models.macro import MacroDataPoint, MacroIndicator
+
+    codes = [r[0] for r in db.query(MacroIndicator.code)
+             .filter(MacroIndicator.frequency == "quarterly").all()]
+    removed = []
+    for code in codes:
+        points = (db.query(MacroDataPoint)
+                  .filter_by(indicator_code=code).all())
+        for p in points:
+            if p.as_of.day == 1 and p.as_of.month in (1, 4, 7, 10):
+                continue
+            removed.append(f"{code}@{p.as_of}={float(p.value):g}")
+            db.delete(p)
+    if removed:
+        db.commit()
+        logger.warning("Макро: из квартальных рядов убраны точки чужой частоты: %s",
+                       removed[:10])
+    return {"removed": len(removed), "details": removed[:20]}
+
+
 def apply_known_corrections(db: Session) -> dict:
     """Применить адресные исправления точек, подтверждённые первоисточником."""
     from app.models.macro import MacroDataPoint
@@ -509,4 +541,5 @@ def apply_known_corrections(db: Session) -> dict:
                        c["code"], c["as_of"], old, c["value"], c["why"])
     if fixed:
         db.commit()
-    return {"applied": len(fixed), "details": fixed}
+    return {"applied": len(fixed), "details": fixed,
+            "offgrid": drop_offgrid_quarterly_points(db)}
