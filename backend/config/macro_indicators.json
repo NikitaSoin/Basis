@@ -198,7 +198,7 @@
       "metric_types": [
         "level"
       ],
-      "display_group": "ru",
+      "display_group": "retired",
       "sort_order": 14,
       "source_type": "minfin",
       "influence_short": "Рост дефицита → больше заимствований (рост предложения ОФЗ и доходностей) + фискальный импульс → проинфляционно → давление на ставку.",
