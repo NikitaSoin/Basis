@@ -4841,7 +4841,15 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
     else regionMap.get(b.region).deep = b;
   });
 
-  const regions = Array.from(regionMap.keys());
+  // Список очагов берём из GEO_REGION_META, а не из ответа /market/geopolitics.
+  // Раньше он выводился из geo_blocks, и это была единственная причина, по
+  // которой ежедневный крон `geopolitics` (Pro + thinking) вообще был нужен:
+  // карточку «Обзор · факты» из тех же данных витрина не рисует с 2026-08-01,
+  // то есть дорогой синтез каждый вечер уходил в никуда. Порядок и подписи всё
+  // равно задавались здесь же, из константы; ответ API влиял только на то,
+  // какие ключи попадут в список — и при пустом ответе фильтры очагов молча
+  // исчезали. Теперь три очага есть всегда, независимо от бэкенда.
+  const regions = GEO_REGION_META.map((m) => m.key);
   const activeRegion = region || regions[0] || null;
   // regionMap нужен только чтобы получить СПИСОК регионов для чипов-фильтров:
   // сами блоки региона (regionData) больше не рендерятся — карточка «Обзор · факты»
@@ -4871,8 +4879,14 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
       {mode === "overview" && regions.length > 0 && (
         <div className="obs-filterbar">
           {regions.map((r) => {
+            // b может быть undefined: список очагов теперь константа
+            // (GEO_REGION_META), а geo_blocks — необязательный источник подписи.
+            // Раньше regions строились ИЗ regionMap, поэтому запись всегда
+            // существовала; после отвязки прямое обращение b.overview падало бы
+            // с TypeError при пустом ответе бэкенда.
             const b = regionMap.get(r);
-            const lbl = (b.overview?.title || b.deep?.title || r);
+            const lbl = b?.overview?.title || b?.deep?.title
+              || GEO_REGION_META.find((m) => m.key === r)?.label || r;
             return (
               <button
                 key={r}

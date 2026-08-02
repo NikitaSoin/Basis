@@ -1311,7 +1311,18 @@ async def lifespan(app: FastAPI):
         # слой защиты от той же гонки (напр. если новость пришла НЕ через Ленту, а
         # только через MOEX ir-calendar/ГИР БО, которые этот триггер не покрывает).
         scheduler.add_job(_with_heartbeat("report_watch", _report_watch_job), "cron", hour="*/2", minute=45, id="report_watch")
-        scheduler.add_job(_with_heartbeat("geopolitics", _geo_job), "cron", hour=21, minute=0, id="geopolitics")
+        # 🔴 Крон `geopolitics` (ежедневный слитый синтез в geo_blocks, Pro +
+        # thinking) ВЫКЛЮЧЕН 2026-08-02. Его результат витрина не рисует с
+        # 2026-08-01: карточка «Обзор · факты» удалена по просьбе владельца
+        # («обобщённая проза модели, одинаковая по тону для всех трёх очагов»),
+        # а список очагов фронт с этого коммита берёт из константы
+        # GEO_REGION_META, а не из geo_blocks. То есть дорогой reasoning-прогон
+        # каждый вечер уходил в никуда. Его бюджет занял недельный geo_profile,
+        # результат которого на экране виден.
+        # Сам сервис geopolitics.py и эндпоинт /market/geopolitics оставлены:
+        # данные в geo_blocks лежат, ручной триггер работает — если формат
+        # понадобится, достаточно вернуть строку ниже.
+        # scheduler.add_job(_with_heartbeat("geopolitics", _geo_job), "cron", hour=21, minute=0, id="geopolitics")
         scheduler.add_job(_with_heartbeat("situation_overlay", _situation_overlay_job), "cron", hour=21, minute=20, id="situation_overlay")  # оверлей ситуации гео/институты — после geopolitics (тот же дневной digest)
         scheduler.add_job(_with_heartbeat("barometer_reviser", _barometer_reviser_job), "cron", hour=21, minute=40, id="barometer_reviser")  # ревизор ИНСТИТУТОВ (гео ушёл на barometer_daily) — после оверлея (его вердикт = триггер); cooldown 5 дней внутри
         scheduler.add_job(_with_heartbeat("barometer_daily", _barometer_daily_job), "cron", hour=21, minute=50, id="barometer_daily")  # ЕЖЕДНЕВНАЯ полная пересборка гео-барометра DeepSeek (владелец 2026-08-01) — последней в цепочке гео: digest(:10 ежечасно) → geopolitics(21:00) → overlay(21:20) → reviser inst(21:40) → сюда
