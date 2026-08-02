@@ -97,6 +97,12 @@ def test_interpreter_generate(db, monkeypatch):
     """G: интерпретатор зовёт Pro reasoning и сохраняет разделы."""
     from app.services import macro_interpreter as ip
     from app.services import llm
+    # Критик логики и агент события — отдельные платные прогоны через тот же
+    # llm.complete: в этом тесте они перехватили бы мок и captured показывал бы ИХ
+    # вызов, а не генерацию выпуска.
+    monkeypatch.setenv("MACRO_LOGIC_CRITIC", "0")
+    monkeypatch.setenv("MACRO_EVENT_AGENT", "0")
+    monkeypatch.setenv("MACRO_RELEASE_REVIEW", "0")
     mi.seed_indicators(db)
     mi.upsert_point(db, "key_rate", date(2026, 3, 1), "level", 15, ingested_via="file")
     captured = {}
