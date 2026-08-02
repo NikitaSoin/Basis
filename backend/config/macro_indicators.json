@@ -249,8 +249,8 @@
     },
     {
       "code": "nominal_wage",
-      "title": "Номинальная зарплата",
-      "unit": "%",
+      "title": "Номинальная зарплата (среднемесячная)",
+      "unit": "₽",
       "country": "ru",
       "frequency": "monthly",
       "metric_types": [

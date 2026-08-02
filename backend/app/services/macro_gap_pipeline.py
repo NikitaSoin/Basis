@@ -121,7 +121,8 @@ def run_round(db: Session, limit: int = 2, *, dry_run: bool = False) -> dict:
         for item in res.get("values") or []:
             try:
                 processed.append(process_finding(
-                    db, f["code"], "level", item, res.get("source_url"), dry_run=dry_run))
+                    db, f["code"], f.get("metric") or "level", item,
+                    res.get("source_url"), dry_run=dry_run))
             except Exception as e:  # noqa: BLE001
                 db.rollback()
                 logger.exception("gap_pipeline: обработка находки упала")

@@ -139,6 +139,8 @@ class TestKnownCorrections:
         from app.services import macro_ingest as mi
 
         mi.seed_indicators(db)
+        # Точка стояла на конце квартала — чужая для ряда конвенция (ряд ведётся по
+        # началу квартала), поэтому исправление её удаляет и пишет на 2026-04-01.
         mi.upsert_point(db, "gdp", date(2026, 6, 30), "yoy", 0.4, ingested_via="news")
         db.commit()
 
@@ -146,8 +148,10 @@ class TestKnownCorrections:
         # Счётчик не проверяем: список исправлений растёт, а тест — про конкретную точку.
         from app.models.macro import MacroDataPoint
         p = db.query(MacroDataPoint).filter_by(
-            indicator_code="gdp", metric="yoy", as_of=date(2026, 6, 30)).first()
+            indicator_code="gdp", metric="yoy", as_of=date(2026, 4, 1)).first()
         assert float(p.value) == 0.9
+        assert db.query(MacroDataPoint).filter_by(
+            indicator_code="gdp", metric="yoy", as_of=date(2026, 6, 30)).first() is None
 
     def test_second_run_is_a_no_op(self, db):
         from app.services import macro_ingest as mi
@@ -162,11 +166,16 @@ class TestKnownCorrections:
         from app.models.macro import MacroDataPoint
 
         mi.apply_known_corrections(db)
+        # Новостной канал снова кладёт своё число на чужую для ряда дату
         mi.upsert_point(db, "gdp", date(2026, 6, 30), "yoy", 0.4, ingested_via="news")
         db.commit()
         p = db.query(MacroDataPoint).filter_by(
-            indicator_code="gdp", metric="yoy", as_of=date(2026, 6, 30)).first()
-        assert float(p.value) == 0.9
+            indicator_code="gdp", metric="yoy", as_of=date(2026, 4, 1)).first()
+        assert float(p.value) == 0.9, "исправление не должно откатываться"
+        # следующий прогон снова убирает чужеродную точку
+        mi.apply_known_corrections(db)
+        assert db.query(MacroDataPoint).filter_by(
+            indicator_code="gdp", metric="yoy", as_of=date(2026, 6, 30)).first() is None
 
     def test_every_correction_carries_a_source_and_reason(self):
         """Без проверяемой ссылки и причины это ручная подгонка чисел."""

@@ -142,6 +142,10 @@ def answer_question(db: Session, question: dict, *, max_steps: int = 10) -> dict
     ok, notes = _gate(result or {}, "\n".join(seen))
     out = {
         "code": code,
+        # 🔴 Метрику несём из вопроса. Пайплайн писал жёстко "level", и находка по
+        # «Реальной зарплате» (ряд ведётся в yoy) легла в параллельную ветку level:
+        # ряд остался протухшим, а рядом появилась точка, которую никто не читает.
+        "metric": question.get("metric") or "level",
         "question": question.get("question"),
         "accepted": ok,
         "gate_notes": notes,
