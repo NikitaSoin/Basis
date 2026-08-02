@@ -298,7 +298,15 @@ def gather_snapshot(db: Session) -> dict:
              # full_text — ПЕРВОИСТОЧНИК; summary оставляем рядом как быстрый ориентир
              "full_text": d.full_text}
             for d in doc_rows]
-    forecast = [{"scenario": f.scenario, "indicator": f.indicator, "year": f.year, "value": f.value}
+    # 🔴 Прогноз ЦБ по ставке — СРЕДНЯЯ ЗА ГОД, и без этой пометки модель сравнивала
+    # с ним точечный прогноз на конец года («мы у нижней границы прогноза ЦБ»). Числа
+    # приходили голыми («14,5–14,6»), а смысл величины жил только в промпте — правило
+    # проигрывало данным. Ставим пояснение рядом с самим числом.
+    forecast = [{"scenario": f.scenario, "indicator": f.indicator, "year": f.year,
+                 "value": f.value,
+                 **({"note": "это СРЕДНЯЯ ЗА ГОД, а не уровень на конец года; "
+                             "с точечным прогнозом напрямую не сравнивать"}
+                    if "ставка" in (f.indicator or "").lower() else {})}
                 for f in db.query(MacroForecast).order_by(MacroForecast.as_of.desc()).limit(40).all()]
     return {"key_facts": _key_facts(indicators),
             "indicators": indicators, "rate": rate, "analytics": docs,
