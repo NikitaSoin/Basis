@@ -58,18 +58,28 @@ class TestXlsxParsing:
 class TestSeriesTidyUp:
     """Дубли и сдвиг: в ряд писали три источника с разными конвенциями дат."""
 
-    def _seed(self, db):
+    def _seed(self, db, hist_year: int):
+        """Историческую точку каждый тест кладёт в СВОЙ год.
+
+        Тестовая база одна на сессию и не откатывается между тестами: с общей датой
+        второй тест видел уже сдвинутую точку первого и мерил не то, что проверяет.
+        """
         from datetime import date
 
+        from app.models.macro import MacroDataPoint
         from app.services import macro_ingest as mi
         mi.seed_indicators(db)
+        # Чистим ряд начисто: тестовая база одна на сессию, и соседние тесты сеют в
+        # тот же показатель — без этого проверяем чужие точки, а не свои.
+        db.query(MacroDataPoint).filter_by(indicator_code="inflation_expectations").delete()
+        db.commit()
         # официальная точка (конец месяца) и дубль бэкфилла (28-е) за тот же месяц
         mi.upsert_point(db, "inflation_expectations", date(2026, 7, 31), "level", 14.7,
                         ingested_via="cbr")
         mi.upsert_point(db, "inflation_expectations", date(2026, 7, 28), "level", 12.2,
                         ingested_via="file")
         # историческая точка вне зоны покрытия — сдвинута на месяц вперёд
-        mi.upsert_point(db, "inflation_expectations", date(2023, 5, 28), "level", 11.5,
+        mi.upsert_point(db, "inflation_expectations", date(hist_year, 5, 28), "level", 11.5,
                         ingested_via="file")
         db.commit()
 
@@ -77,9 +87,12 @@ class TestSeriesTidyUp:
         from datetime import date
         from app.models.macro import MacroDataPoint
 
-        self._seed(db)
-        out = _dedupe_and_fix_history(db, date(2026, 1, 1))
-        assert out["removed"] == 1
+        self._seed(db, 2021)
+        _dedupe_and_fix_history(db, date(2026, 1, 1))
+        # Проверяем КОНКРЕТНЫЕ точки, а не счётчик: тестовая база общая на сессию и
+        # накапливает данные соседних тестов — счётчик тогда меряет чужое.
+        assert db.query(MacroDataPoint).filter_by(
+            indicator_code="inflation_expectations", as_of=date(2026, 7, 28)).first() is None
         left = db.query(MacroDataPoint).filter_by(
             indicator_code="inflation_expectations", as_of=date(2026, 7, 31)).all()
         assert len(left) == 1 and float(left[0].value) == 14.7
@@ -88,10 +101,10 @@ class TestSeriesTidyUp:
         from datetime import date
         from app.models.macro import MacroDataPoint
 
-        self._seed(db)
+        self._seed(db, 2022)
         _dedupe_and_fix_history(db, date(2026, 1, 1))
         moved = db.query(MacroDataPoint).filter_by(
-            indicator_code="inflation_expectations", as_of=date(2023, 4, 30)).first()
+            indicator_code="inflation_expectations", as_of=date(2022, 4, 30)).first()
         assert moved is not None and float(moved.value) == 11.5
 
     def test_second_run_does_not_shift_twice(self, db):
@@ -100,10 +113,12 @@ class TestSeriesTidyUp:
         from datetime import date
         from app.models.macro import MacroDataPoint
 
-        self._seed(db)
+        self._seed(db, 2023)
         _dedupe_and_fix_history(db, date(2026, 1, 1))
-        second = _dedupe_and_fix_history(db, date(2026, 1, 1))
-        assert second == {"removed": 0, "shifted": 0}
+        _dedupe_and_fix_history(db, date(2026, 1, 1))
         still = db.query(MacroDataPoint).filter_by(
             indicator_code="inflation_expectations", as_of=date(2023, 4, 30)).first()
         assert still is not None and still.source == _HIST_FIXED_SRC
+        # уехала бы на 2023-03-31, если бы метка не защищала от повторного сдвига
+        assert db.query(MacroDataPoint).filter_by(
+            indicator_code="inflation_expectations", as_of=date(2023, 3, 31)).first() is None
