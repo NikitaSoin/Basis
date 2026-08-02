@@ -6196,3 +6196,24 @@ details[open] > summary .obs-inst-chev,
    high теперь редкий по замыслу — пустая вкладка объясняет себя и даёт выход */
 .obs-news-empty-link{background:none;border:none;padding:0;color:var(--obs-accent, #C97A4A);cursor:pointer;font:inherit;text-decoration:underline;text-underline-offset:2px;}
 .obs-news-empty-link:hover{opacity:.8;}
+
+/* Свёрнутые тезисы оверлея «по ленте» внутри карточки барометра очага.
+   Обычный obs-inst-details рисует шеврон отдельной иконкой в JSX; здесь
+   summary состоит из одной строки текста, поэтому индикатор — CSS-треугольник,
+   чтобы не тянуть иконку в компонент ради одного места. */
+.obs-overlay-details > summary::before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 5px solid currentColor;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  flex: 0 0 auto;
+  transition: transform 150ms ease;
+}
+.obs-overlay-details[open] > summary::before {
+  transform: rotate(90deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .obs-overlay-details > summary::before { transition: none; }
+}

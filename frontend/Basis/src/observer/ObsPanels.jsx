@@ -1660,10 +1660,28 @@ function ObsSituationOverlay({ block, generatedAt, anchorAsOf, nested = true }) 
 
       {block.headline && <p className="obs-overlay-headline">{block.headline}</p>}
 
+      {/* Тезисы по ленте — СВЁРНУТЫ по умолчанию (владелец 2026-08-02: «ленты из
+          новостей надо базово чтобы были скрыты, и если человек хочет прочитать —
+          пусть развернёт, местами много занимает»). Наверху остаётся вывод
+          (headline + бейдж «подтверждает/сдвигает/противоречит») — то, ради чего
+          блок и нужен; доказательная база под ним по клику. Исключение —
+          alignment «противоречит»: расхождение ленты с экспертной оценкой прятать
+          нельзя, там доказательства и есть главное сообщение. */}
       {theses.length > 0 && (
-        <div className="obs-overlay-theses">
-          {theses.map((t, i) => <ObsOverlayThesis key={i} t={t} />)}
-        </div>
+        isConflict ? (
+          <div className="obs-overlay-theses">
+            {theses.map((t, i) => <ObsOverlayThesis key={i} t={t} />)}
+          </div>
+        ) : (
+          <details className="obs-inst-details obs-overlay-details">
+            <summary>Что стоит за выводом — {theses.length} {theses.length === 1 ? "тезис" : theses.length < 5 ? "тезиса" : "тезисов"} из ленты</summary>
+            <div className="obs-inst-details-body">
+              <div className="obs-overlay-theses">
+                {theses.map((t, i) => <ObsOverlayThesis key={i} t={t} />)}
+              </div>
+            </div>
+          </details>
+        )
       )}
 
       <div className="obs-overlay-foot">
