@@ -85,5 +85,33 @@ ym(111213378,"init",{ssr:true,webvisor:true,clickmap:true,accurateTrackBounce:tr
 оценка соотношения доходности и риска по открытой методике, а не рейтинг и не совет.
 Материал не является индивидуальной инвестиционной рекомендацией.</p>
 </div>
+<div id="root"></div>
+<script>
+(function () {
+  var b = document.createElement("div");
+  b.id = "seo-boot";
+  b.innerHTML = '<div class="b-mark">Basis</div>'
+    + '<div class="b-bar"><i></i></div>'
+    + '<div class="b-cap">Открываем разбор…</div>';
+  document.body.appendChild(b);
+  // Страховка: если приложение не стартовало за 12 с, убираем экран — статика
+  // полноценная, лучше показать её, чем бесконечную загрузку.
+  setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
+})();
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
+  var el = document.getElementById("seo-static");
+  if (el) el.remove();
+  var ld = document.getElementById("seo-boot");
+  if (ld) ld.remove();
+  document.body.style.background = "";
+  document.body.style.color = "";
+  document.body.style.font = "";
+  document.documentElement.classList.add("basis-app-mounted");
+});
+});
+</script>
+<link rel="stylesheet" href="/static/css/main.15b96491.css">
+<script defer src="/static/js/main.39ec5800.js"></script>
 </body>
 </html>

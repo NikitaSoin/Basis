@@ -108,6 +108,16 @@ function descWithDate(core, dataDate, cap) {
 // роутера под /bonds/… в приложении нет, takeover невозможен, грузить 3 МБ зря.
 
 const CSS = `
+#seo-boot{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;gap:14px;background:#F7F5F0;
+ font:15px/1.5 Inter,-apple-system,sans-serif;color:#5A5248}
+#seo-boot .b-mark{font-family:Fraunces,Georgia,serif;font-size:26px;color:#1F1B16}
+#seo-boot .b-bar{width:180px;height:3px;background:#E4DFD5;border-radius:2px;overflow:hidden}
+#seo-boot .b-bar i{display:block;width:40%;height:100%;background:#C97A4A;border-radius:2px}
+@media (prefers-reduced-motion:no-preference){#seo-boot .b-bar i{animation:bs 1.1s ease-in-out infinite}}
+@keyframes bs{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+@media (prefers-color-scheme:dark){#seo-boot{background:#14110E}}
+
 :root{--paper:#F7F5F0;--ink:#1F1B16;--muted:#5A5248;--faint:#8A8072;--copper:#C97A4A;--line:#E4DFD5}
 *{box-sizing:border-box}
 body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--paper);color:var(--ink);max-width:860px;margin:0 auto;padding:28px 20px 56px;line-height:1.5}
@@ -147,6 +157,65 @@ ul{padding-left:22px}
 // появятся котировки и доходность, страница вернётся в индекс сама.
 function bondIsThin(b) {
   return b && b.vkind === "nodata" && !b.agency_rating;
+}
+
+
+// 🔴 ПРИЛОЖЕНИЕ НА СТРАНИЦАХ ИНСТРУМЕНТОВ. Владелец 2026-08-02: «вбил si 9 26 — открылась
+// SEO-страница, а должна подгружаться настоящая». Так и было: этот генератор собирал
+// ЧИСТУЮ статику без бандла — 3757 страниц облигаций, фондов и фьючерсов вели себя иначе,
+// чем все остальные 5000. Причина в том, что генераторов два, и общий каркас с
+// монтированием приложения жил только в generate-seo-pages.js.
+//
+// Робот по-прежнему получает полноценный текст (он не исполняет скрипты), человек —
+// экран загрузки и через мгновение настоящую карточку бумаги.
+function loadAppAssets() {
+  try {
+    const m = JSON.parse(fs.readFileSync(path.join(_OUT, "asset-manifest.json"), "utf8"));
+    const js = m && m.files && m.files["main.js"];
+    return js ? { js, css: m.files["main.css"] || null } : null;
+  } catch (e) {
+    // 🔴 НЕ МОЛЧА. Первая версия писала `path.join(BUILD, …)` — в этом файле каталог
+    // сборки называется _OUT, и ReferenceError ушёл в пустой catch. Результат: экран
+    // загрузки на страницах появился, а бандл — нет, то есть «Открываем разбор…» висел
+    // бы 12 секунд и гас. Тихий catch превратил опечатку в поведение, которое заметил бы
+    // только пользователь.
+    console.log(`  ⚠️  бандл приложения не подключён: ${e.message}`);
+    return null;
+  }
+}
+
+function appMountHtml(assets) {
+  if (!assets || !assets.js) return "";
+  const css = assets.css ? `<link rel="stylesheet" href="${assets.css}">` : "";
+  return `
+<div id="root"></div>
+<script>
+(function () {
+  var b = document.createElement("div");
+  b.id = "seo-boot";
+  b.innerHTML = '<div class="b-mark">Basis</div>'
+    + '<div class="b-bar"><i></i></div>'
+    + '<div class="b-cap">Открываем разбор…</div>';
+  document.body.appendChild(b);
+  // Страховка: если приложение не стартовало за 12 с, убираем экран — статика
+  // полноценная, лучше показать её, чем бесконечную загрузку.
+  setTimeout(function () { var x = document.getElementById("seo-boot"); if (x) x.remove(); }, 12000);
+})();
+["basis:company-ready", "basis:app-ready"].forEach(function (evt) {
+window.addEventListener(evt, function () {
+  var el = document.getElementById("seo-static");
+  if (el) el.remove();
+  var ld = document.getElementById("seo-boot");
+  if (ld) ld.remove();
+  document.body.style.background = "";
+  document.body.style.color = "";
+  document.body.style.font = "";
+  document.documentElement.classList.add("basis-app-mounted");
+});
+});
+</script>
+${css}
+<script defer src="${assets.js}"></script>`;
 }
 
 function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, dataDate, noindex }) {
@@ -191,6 +260,7 @@ function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, 
 ${metrikaSnippet()}
 </head>
 <body>
+<div id="seo-static">
 <nav class="crumbs">${crumbsHtml}</nav>
 ${bodyHtml}
 <p class="note">Basis — аналитический слой, не брокер: без сигналов
@@ -198,6 +268,7 @@ ${bodyHtml}
 ${dataDate}; актуальные котировки и полный разбор — в приложении. «Оценка Basis» —
 оценка соотношения доходности и риска по открытой методике, а не рейтинг и не совет.
 Материал не является индивидуальной инвестиционной рекомендацией.</p>
+</div>${appMountHtml(loadAppAssets())}
 </body>
 </html>`;
 }
