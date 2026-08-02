@@ -6958,6 +6958,16 @@ const _INVERSE_SIGN = new Set([
   "cn_inflation",
 ]);
 
+// Возраст последних данных словами: «1128 дней» читается хуже, чем «больше 3 лет».
+function _staleAge(days) {
+  if (days >= 365) {
+    const years = Math.floor(days / 365);
+    return years === 1 ? "больше года" : `больше ${years} лет`;
+  }
+  if (days >= 60) return `${Math.floor(days / 30)} мес.`;
+  return `${days} дн.`;
+}
+
 function ObsEconomy({ token, forceIndicator }) {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -7243,7 +7253,17 @@ function ObsEconomy({ token, forceIndicator }) {
                       {deltaStr || ind.influence_short}
                     </div>
                   )}
-                  {v?.as_of && <div className="obs-tile-date">{v.as_of}</div>}
+                  {v?.as_of && (
+                    <div className="obs-tile-date">
+                      {v.as_of}
+                      {/* 🔴 Ряд перестал обновляться У ИСТОЧНИКА. Без метки витрина
+                          показывала «ВВП КНР 3,47%» с датой 2023 года, и число
+                          читалось как актуальное: дата рядом стояла, но её не читают. */}
+                      {ind.is_stale && ind.stale_days != null && (
+                        <span className="obs-tile-stale"> · молчит {_staleAge(ind.stale_days)}</span>
+                      )}
+                    </div>
+                  )}
                   <button
                     type="button"
                     className="obs-tile-link"

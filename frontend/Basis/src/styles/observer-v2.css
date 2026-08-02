@@ -6065,3 +6065,6 @@ details[open] > summary .obs-inst-chev,
   border-radius: var(--radius-sm, 6px); padding: 2px 6px;
 }
 .obs-pf-nowind { margin-top: 5px; font-size: 12px; color: var(--text-tertiary); font-style: italic; }
+/* Ряд перестал обновляться у источника — метка рядом с датой, тон нейтральный
+   (по дизайн-конституции цвет несут данные, а не хром). */
+.obs-tile-stale { color: var(--text-tertiary); font-style: italic; }
