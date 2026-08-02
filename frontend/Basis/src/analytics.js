@@ -98,11 +98,18 @@ function flush(useBeacon) {
   const body = JSON.stringify({ events: queue.slice(0, 20) });
   queue = [];
   try {
+    // sendBeacon не умеет слать заголовки — эти события всегда анонимны. Их немного
+    // (только последняя пачка при уходе со страницы), а связать их с человеком всё равно
+    // можно через anon_id: он один и тот же и в анонимных, и в опознанных событиях.
     if (useBeacon && navigator.sendBeacon) {
       navigator.sendBeacon(`${API}/api/events`, new Blob([body], { type: "application/json" }));
       return;
     }
-    const token = localStorage.getItem("token") || localStorage.getItem("basisToken");
+    // 🔴 Ключ ИМЕННО "basis_token" — так его кладёт AccountPanels.jsx при входе.
+    // Я угадывал ("token"/"basisToken") и промахнулся: заголовок не уходил, и ВСЕ 682
+    // события записались как анонимные, включая события вошедших пользователей. Запрос
+    // «сколько залогиненных заходило» честно возвращал ноль — данных просто не было.
+    const token = localStorage.getItem("basis_token");
     fetch(`${API}/api/events`, {
       method: "POST",
       headers: Object.assign({ "Content-Type": "application/json" },

@@ -2252,7 +2252,11 @@ font-size:13px;cursor:pointer}
 <a onclick="set(this.dataset.q)" data-q="SELECT u.email, date(u.created_at) AS регистрация, u.subscription_type AS тариф, count(DISTINCT p.id) AS портфелей, count(pos.id) AS позиций, string_agg(DISTINCT coalesce(c.ticker, pos.secid), ', ') AS бумаги FROM users u LEFT JOIN portfolios p ON p.user_id = u.id LEFT JOIN portfolio_positions pos ON pos.portfolio_id = p.id AND pos.instrument_type <> 'cash' LEFT JOIN companies c ON c.id = pos.company_id WHERE NOT (u.email LIKE '%@example.com' OR u.email LIKE '%@inbasis.ru') GROUP BY 1,2,3 ORDER BY 5 DESC">клиенты и их портфели</a>
 <a onclick="set(this.dataset.q)" data-q="SELECT u.email, p.name AS портфель, coalesce(c.ticker, pos.secid) AS бумага, pos.instrument_type AS тип, pos.quantity AS количество, pos.avg_buy_price AS средняя_цена FROM portfolio_positions pos JOIN portfolios p ON p.id = pos.portfolio_id JOIN users u ON u.id = p.user_id LEFT JOIN companies c ON c.id = pos.company_id ORDER BY u.email, p.name">все позиции с почтами</a>
 <a onclick="set(this.dataset.q)" data-q="SELECT u.email, count(*) AS событий, count(DISTINCT e.session_id) AS сессий, count(DISTINCT date(e.created_at)) AS дней_заходил, max(e.created_at) AS последний_раз FROM user_events e JOIN users u ON u.id = e.user_id GROUP BY 1 ORDER BY 2 DESC">активность клиентов</a>
-<a onclick="set(this.dataset.q)" data-q="SELECT path AS страница, count(*) AS просмотров, count(DISTINCT coalesce(anon_id, user_id::text)) AS людей FROM user_events WHERE kind = 'pageview' GROUP BY 1 ORDER BY 2 DESC LIMIT 40">какие страницы смотрят</a>
+<a onclick="set(this.dataset.q)" data-q="SELECT count(DISTINCT anon_id) AS уникальных_посетителей, count(DISTINCT session_id) AS визитов, count(*) AS просмотров, round(count(*)::numeric / nullif(count(DISTINCT anon_id),0), 1) AS страниц_на_человека FROM user_events WHERE is_bot IS FALSE AND kind = 'pageview'">сколько людей заходило</a>
+<a onclick="set(this.dataset.q)" data-q="SELECT date(created_at) AS день, count(DISTINCT anon_id) AS людей, count(DISTINCT session_id) AS визитов, count(*) AS просмотров FROM user_events WHERE is_bot IS FALSE AND kind = 'pageview' GROUP BY 1 ORDER BY 1 DESC">люди по дням</a>
+<a onclick="set(this.dataset.q)" data-q="SELECT anon_id AS посетитель, count(DISTINCT session_id) AS визитов, count(*) AS просмотров, count(DISTINCT path) AS разных_страниц, min(created_at) AS первый_раз, max(created_at) AS последний_раз FROM user_events WHERE is_bot IS FALSE GROUP BY 1 ORDER BY 3 DESC LIMIT 50">каждый посетитель по отдельности</a>
+<a onclick="set(this.dataset.q)" data-q="SELECT CASE WHEN is_bot THEN 'роботы' WHEN is_bot IS NULL THEN 'до появления детектора' ELSE 'люди' END AS кто, count(DISTINCT anon_id) AS устройств, count(*) AS событий FROM user_events GROUP BY 1 ORDER BY 3 DESC">люди против роботов</a>
+<a onclick="set(this.dataset.q)" data-q="SELECT path AS страница, count(*) AS просмотров, count(DISTINCT anon_id) AS людей FROM user_events WHERE is_bot IS FALSE AND kind = 'pageview' GROUP BY 1 ORDER BY 2 DESC LIMIT 40">какие страницы смотрят люди</a>
 <a onclick="set(this.dataset.q)" data-q="SELECT name AS действие, count(*) AS раз, count(DISTINCT coalesce(anon_id, user_id::text)) AS людей FROM user_events WHERE kind IN ('click','action') GROUP BY 1 ORDER BY 2 DESC LIMIT 40">что нажимают</a>
 </div>
 <details style="margin:18px 0"><summary style="cursor:pointer;color:#C97A4A">
@@ -2443,6 +2447,14 @@ def sql_assist(ask: str = Query(..., description="вопрос на русско
         "- portfolio_positions.instrument_type='cash' — это денежный остаток, а не бумага; "
         "исключай его, когда речь о бумагах.\n"
         "- portfolios.user_id может быть NULL (портфели, созданные до привязки к аккаунту).\n"
+        "- 🔴 user_events: ПОСЕТИТЕЛЬ ОПОЗНАЁТСЯ ПО anon_id, а НЕ по user_id. Большинство "
+        "заходят без входа в аккаунт, и user_id у них NULL — считать уникальных людей "
+        "через user_id НЕВЕРНО, получится ноль. Уникальные посетители = "
+        "count(DISTINCT anon_id); визиты = count(DISTINCT session_id).\n"
+        "- 🔴 user_events.is_bot: TRUE — поисковый робот, FALSE — человек, NULL — записи "
+        "до появления детектора. Для вопросов про людей ВСЕГДА добавляй is_bot IS FALSE, "
+        "иначе в ответ попадёт обход поисковика (за первые сутки это 382 «посетителя» "
+        "при двух живых пользователях).\n"
         "- Служебные аккаунты: email как '%@example.com', '%@inbasis.ru', 'qa-%', 'test_%' — "
         "исключай их, когда речь о живых пользователях.\n"
         "- Цены акций: quotes (company_id, date, close). Цены прочих инструментов: "

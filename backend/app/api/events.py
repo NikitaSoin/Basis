@@ -36,6 +36,26 @@ _MAX_BATCH = 20          # событий за один запрос
 _MAX_STR = 512
 
 
+
+# 🔴 Роботов отделяем НА СЕРВЕРЕ по User-Agent: со стороны браузера этого не видно, а без
+# разделения метрики бессмысленны. За первые 12 часов лога 382 «посетителя» оказались
+# поисковым обходом — они пришли через час после отправки адресов в IndexNow, обошли 426
+# разных страниц по 1-2 события каждый и все без источника перехода.
+_BOT_MARKERS = (
+    "bot", "crawler", "spider", "crawling", "yandex", "google", "bing", "duckduck",
+    "baidu", "mail.ru", "petalbot", "ahrefs", "semrush", "mj12", "dotbot", "slurp",
+    "facebookexternalhit", "telegrambot", "whatsapp", "headlesschrome", "phantomjs",
+    "python-requests", "curl/", "wget", "go-http-client", "java/", "okhttp",
+)
+
+
+def _looks_like_bot(ua: str) -> bool:
+    u = (ua or "").lower()
+    if not u:
+        return True          # без User-Agent живые браузеры не ходят
+    return any(m in u for m in _BOT_MARKERS)
+
+
 class EventIn(BaseModel):
     kind: str = Field(max_length=24)              # pageview | click | action
     name: str | None = Field(default=None, max_length=120)
@@ -57,6 +77,7 @@ def collect_events(payload: EventsIn, request: Request,
     """Принять пачку событий. Всегда отвечает 200, даже при сбое записи."""
     try:
         uid = getattr(user, "id", None)
+        is_bot = _looks_like_bot(request.headers.get("user-agent", ""))
         rows = payload.events[:_MAX_BATCH]
         if not rows:
             return {"принято": 0}
@@ -70,8 +91,8 @@ def collect_events(payload: EventsIn, request: Request,
             if meta and len(str(meta)) > 2000:
                 meta = {"_обрезано": True}
             db.execute(text(
-                "INSERT INTO user_events (user_id, anon_id, session_id, kind, name, path, referrer, meta) "
-                "VALUES (:uid, :anon, :sess, :kind, :name, :path, :ref, CAST(:meta AS JSON))"
+                "INSERT INTO user_events (user_id, anon_id, session_id, kind, name, path, referrer, meta, is_bot) "
+                "VALUES (:uid, :anon, :sess, :kind, :name, :path, :ref, CAST(:meta AS JSON), :bot)"
             ), {
                 "uid": uid,
                 "anon": (e.anon_id or None), "sess": (e.session_id or None),
@@ -79,6 +100,7 @@ def collect_events(payload: EventsIn, request: Request,
                 "path": (e.path or None)[:_MAX_STR] if e.path else None,
                 "ref": (e.referrer or None)[:_MAX_STR] if e.referrer else None,
                 "meta": __import__("json").dumps(meta, ensure_ascii=False) if meta else None,
+                "bot": is_bot,
             })
             записано += 1
         db.commit()
