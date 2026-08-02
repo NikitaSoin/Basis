@@ -69,6 +69,40 @@ def collect_questions(db: Session, limit: int = 8) -> list[dict]:
 _MAX_FAILS, _BACKOFF_DAYS = 3, 14
 
 
+def _missing_periods(last: str, frequency: str | None, limit: int = 4) -> list[str]:
+    """Каких периодов не хватает после последней точки — списком, до limit штук.
+
+    🔴 Зачем. Вопрос «ряд обновлялся 2026-03-28, найди за пропущенные периоды» агент
+    дважды закрыл тем, что принёс РОВНО эту же точку: она первой попадается в поиске,
+    формально «значение показателя» найдено. Прогон впустую, а пайплайн отвечает
+    point_exists. Названные вслух месяцы («нужны апрель, май, июнь») убирают эту
+    неоднозначность.
+    """
+    try:
+        d = date.fromisoformat(str(last))
+    except (TypeError, ValueError):
+        return []
+    freq = (frequency or "monthly").lower()
+    step_months = {"quarterly": 3, "monthly": 1}.get(freq)
+    if not step_months:
+        return []           # недельные/дневные ряды перечислять бессмысленно
+    months_ru = ("январь", "февраль", "март", "апрель", "май", "июнь", "июль",
+                 "август", "сентябрь", "октябрь", "ноябрь", "декабрь")
+    out, today = [], date.today()
+    y, m = d.year, d.month
+    while len(out) < limit:
+        m += step_months
+        while m > 12:
+            m -= 12
+            y += 1
+        # Текущий месяц отсекаем: данные за него ещё не опубликованы (выходят в
+        # следующем). Просить их — гарантированно отправить агента за несуществующим.
+        if (y, m) >= (today.year, today.month):
+            break
+        out.append(f"{months_ru[m - 1]} {y}")
+    return out
+
+
 def _apply_backoff(db: Session, questions: list[dict]) -> list[dict]:
     """Убрать из очереди вопросы, которые раз за разом не закрываются.
 
@@ -135,19 +169,22 @@ def _stale_series(db: Session) -> list[dict]:
         country = {"ru": "Россия", "cn": "Китай", "us": "США", "eu": "Еврозона",
                    "world": "мир"}.get(getattr(ind, "country", None),
                                        getattr(ind, "country", None) or "не указана")
+        missing = _missing_periods(s["last"], getattr(ind, "frequency", None))
+        missing_hint = (f"Нужны периоды: {', '.join(missing)}. " if missing else "")
         out.append({
             "kind": "stale_series",
             "code": s["code"], "metric": s["metric"],
+            "missing_periods": missing,
             "priority": _priority(s["code"]),
             "age_days": s["age_days"],
             "have": f"последняя точка {s['last']} ({s['age_days']} дн. назад)",
             "question": (
                 f"Показатель «{title}» ({s['code']}, {unit}) ПО СТРАНЕ: {country}. "
                 f"У нас обновлялся последний раз {s['last']} — это {s['age_days']} дней "
-                f"назад, хотя ряд регулярный. Найди опубликованные значения за "
-                f"пропущенные периоды ИМЕННО по этой стране и именно этого показателя "
-                f"(похожие названия — другие величины). Верни число, дату периода "
-                f"(не дату публикации) и ссылку на источник."
+                f"назад, хотя ряд регулярный. {missing_hint}Значение за {s['last']} у "
+                f"нас УЖЕ ЕСТЬ — приносить его повторно бесполезно. Ищи ИМЕННО по этой "
+                f"стране и именно этот показатель (похожие названия — другие величины). "
+                f"Верни число, дату периода (не дату публикации) и ссылку на источник."
             ),
         })
     return out

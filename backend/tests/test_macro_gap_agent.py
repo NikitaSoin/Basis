@@ -290,3 +290,49 @@ class TestQuestionBackoff:
         assert _apply_backoff(db, qs) == []
         record_attempt(db, "real_wage", success=True)   # источник открылся
         assert _apply_backoff(db, qs) == qs
+
+
+def test_release_has_a_soft_time_budget():
+    """Затянувшийся выпуск обязан отбрасывать НЕОБЯЗАТЕЛЬНОЕ, а не наползать на
+    следующий крон: выпуск стоит в 07:15, agent_pilot — в 07:40, и вдвоём они уже
+    вешали БД. Ревизия — замечания, а не содержание, ею и жертвуем."""
+    import inspect
+
+    from app.services import macro_interpreter as mi
+    src = inspect.getsource(mi.generate)
+    assert "_SOFT_BUDGET_SEC" in src
+    assert mi._SOFT_BUDGET_SEC <= 25 * 60, "бюджет должен укладываться в окно до 07:40"
+
+
+class TestMissingPeriodsInQuestion:
+    """Вопрос обязан называть недостающие месяцы поимённо.
+
+    Дважды подряд агент закрывал вопрос тем, что приносил РОВНО последнюю имеющуюся
+    точку: она первой попадается в поиске, формально «значение найдено». Прогон
+    впустую, пайплайн отвечает point_exists, счётчик отказов растёт.
+    """
+
+    def test_lists_months_after_the_last_point(self):
+        from app.services.macro_data_questions import _missing_periods
+        out = _missing_periods("2026-03-28", "monthly", limit=3)
+        assert out == ["апрель 2026", "май 2026", "июнь 2026"]
+
+    def test_current_month_is_never_requested(self):
+        """Данные за текущий месяц выходят в следующем — просить их бессмысленно."""
+        from datetime import date
+
+        from app.services.macro_data_questions import _missing_periods
+        today = date.today()
+        months_ru = ("январь", "февраль", "март", "апрель", "май", "июнь", "июль",
+                     "август", "сентябрь", "октябрь", "ноябрь", "декабрь")
+        current = f"{months_ru[today.month - 1]} {today.year}"
+        assert current not in _missing_periods("2020-01-31", "monthly", limit=12)
+
+    def test_quarterly_series_steps_by_three_months(self):
+        from app.services.macro_data_questions import _missing_periods
+        assert _missing_periods("2025-12-31", "quarterly", limit=2) == ["март 2026", "июнь 2026"]
+
+    def test_weekly_series_is_not_enumerated(self):
+        """Недельный ряд перечислять бессмысленно — вопрос останется общим."""
+        from app.services.macro_data_questions import _missing_periods
+        assert _missing_periods("2026-03-28", "weekly") == []

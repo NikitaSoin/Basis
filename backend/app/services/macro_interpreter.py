@@ -12,6 +12,7 @@ import logging
 import os
 import re
 import threading
+import time
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
@@ -588,8 +589,17 @@ def _check_numbers(sections: dict, snapshot: dict) -> list[str]:
     return out
 
 
+# Сколько всего времени отпущено выпуску, прежде чем НЕОБЯЗАТЕЛЬНЫЕ шаги начинают
+# отбрасываться. Ночью выпуск стоит в 07:15, а в 07:40 стартует следующий крон:
+# затянувшаяся генерация наложится на него и будет грузить инстанс вдвоём — на этих
+# граблях уже вешали БД (LLM/FRED-кроны). Выпуск важнее ревизии: она замечания, а
+# не содержание.
+_SOFT_BUDGET_SEC = 20 * 60
+
+
 def generate(db: Session) -> MacroInterpretation:
     """Сгенерировать интерпретацию (Pro reasoning) и сохранить срез."""
+    t0 = time.monotonic()
     snapshot = gather_snapshot(db)
     system = _methodology() + _OUTPUT_SPEC
     user = ("Данные платформы на текущий момент (используй конкретные значения):\n\n"
@@ -633,7 +643,12 @@ def generate(db: Session) -> MacroInterpretation:
     # надо пойти и посмотреть источник. Выпуск не переписывает: правка чужого суждения
     # моделью — подмена автора, а не проверка.
     review = None
-    if os.environ.get("MACRO_RELEASE_REVIEW", "1") == "1":
+    elapsed = time.monotonic() - t0
+    if elapsed > _SOFT_BUDGET_SEC:
+        review = {"checked": 0, "issues": [],
+                  "note": f"ревизия пропущена: выпуск занял {elapsed / 60:.0f} мин"}
+        logger.warning("Интерпретатор: ревизия пропущена, выпуск занял %.0f мин", elapsed / 60)
+    elif os.environ.get("MACRO_RELEASE_REVIEW", "1") == "1":
         try:
             from app.services.macro_release_reviewer import review_release
             review = review_release(db, sections, snapshot=snapshot)
