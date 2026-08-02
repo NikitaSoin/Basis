@@ -122,7 +122,15 @@ const CSS = `
 
 :root{--paper:#F7F5F0;--ink:#1F1B16;--muted:#5A5248;--faint:#8A8072;--copper:#C97A4A;--line:#E4DFD5}
 *{box-sizing:border-box}
-body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--paper);color:var(--ink);max-width:860px;margin:0 auto;padding:28px 20px 56px;line-height:1.5}
+/* 🔴 Ограничения ширины — на КОНТЕЙНЕР статики, а не на body. Владелец ловит это
+   ВТОРОЙ раз («открывается на полэкрана»): первый — 2026-07-30 на страницах компаний,
+   теперь здесь. Причина одна: когда поверх статики монтируется приложение, оно
+   наследует зажатую ширину body — интерфейс платформы ужимается в узкую колонку, справа
+   пустота. Статику мы убираем из DOM, а стиль body остаётся жить.
+   Скрипт монтирования сбрасывает background/color/font, но НЕ ширину и отступы —
+   поэтому они не должны попадать на body вовсе. */
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--paper);color:var(--ink);line-height:1.5}
+#seo-static{max-width:860px;margin:0 auto;padding:28px 20px 56px}
 h1{font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.25;margin:8px 0 4px}
 h2{font-family:Georgia,serif;font-size:20px;margin:26px 0 8px}
 h3{font-family:Georgia,serif;font-size:16px;margin:18px 0 6px}
