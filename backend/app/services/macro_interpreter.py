@@ -709,7 +709,16 @@ def generate(db: Session) -> MacroInterpretation:
         try:
             from app.services.macro_logic_critic import format_for_prompt, review_logic
             logic = review_logic(db, sections)
-            if logic.get("hard_count"):
+            # Перегенерация удваивает самый долгий шаг выпуска. Если времени уже
+            # потрачено больше половины мягкого бюджета, замечания критика остаются
+            # в срезе, но переписывать не начинаем: иначе ночной выпуск наползёт на
+            # следующий крон (07:40).
+            budget_left = _SOFT_BUDGET_SEC / 2 - (time.monotonic() - t0)
+            if logic.get("hard_count") and budget_left <= 0:
+                logger.warning("Интерпретатор: логика — %s грубых замечаний, но времени "
+                               "на перегенерацию нет (осталось %.0f с)",
+                               logic["hard_count"], budget_left)
+            if logic.get("hard_count") and budget_left > 0:
                 # Одна перегенерация с замечаниями в промпте: критик показывает, ЧТО
                 # именно не следует из чего, и модель переписывает сама — мы её
                 # суждение не правим.
