@@ -322,7 +322,13 @@ def ingest_worldbank(db: Session) -> dict:
     units = {i["code"]: i.get("unit") for i in cfg["indicators"]}
     n = 0
     for code, spec in cfg.get("worldbank_series", {}).items():
-        url = (f"https://api.worldbank.org/v2/country/WLD/indicator/{spec['indicator']}"
+        # 🔴 Страна берётся из спеки, а не зашита как WLD: World Bank — единственный
+        # СТАБИЛЬНЫЙ машинный источник по Китаю после того, как OECD прекратил свои
+        # серии на FRED (наши ряды застряли на 2023 и 2025 годах). Частота ниже —
+        # годовая вместо квартальной, но живые годовые данные полезнее мёртвых
+        # квартальных.
+        country = spec.get("country", "WLD")
+        url = (f"https://api.worldbank.org/v2/country/{country}/indicator/{spec['indicator']}"
                f"?format=json&per_page=20&mrv=20")
         try:
             r = httpx.Client(timeout=20, headers=_HTTP).get(url)
@@ -475,6 +481,16 @@ _KNOWN_CORRECTIONS = [
         "source": "Росстат (реальная зарплата, г/г)",
         "source_url": "https://www.interfax.ru/business/1106366",
         "why": "рост реальных зарплат в мае 2026 замедлился до 4,5% г/г",
+    },
+    {
+        # Дозапись: агент закрыл май (49,2, подтверждено независимо), июнь вышел
+        # позже. Значение согласуется с нашей же майской точкой — источник пишет
+        # «снизился до 48,90 в июне с 49,20 в мае 2026».
+        "code": "pmi_composite", "metric": "level", "as_of": date(2026, 6, 28),
+        "value": 48.9, "unit": "ед",
+        "source": "S&P Global (композитный PMI РФ)",
+        "source_url": "https://ru.tradingeconomics.com/russia/composite-pmi",
+        "why": "июнь 2026: 48,9 после 49,2 в мае — ряд шёл с апреля",
     },
 ]
 

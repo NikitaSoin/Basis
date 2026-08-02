@@ -492,7 +492,7 @@
       "title": "Инфляция КНР",
       "unit": "%",
       "country": "cn",
-      "frequency": "monthly",
+      "frequency": "yearly",
       "metric_types": [
         "yoy"
       ],
@@ -506,7 +506,7 @@
       "title": "ВВП КНР",
       "unit": "%",
       "country": "cn",
-      "frequency": "quarterly",
+      "frequency": "yearly",
       "metric_types": [
         "yoy"
       ],
@@ -1106,16 +1106,6 @@
       "units": "pc1",
       "metric": "yoy"
     },
-    "cn_inflation": {
-      "series": "CHNCPIALLMINMEI",
-      "units": "pc1",
-      "metric": "yoy"
-    },
-    "cn_gdp": {
-      "series": "CHNGDPNQDSMEI",
-      "units": "pc1",
-      "metric": "yoy"
-    },
     "cn_rate": {
       "series": "IR3TIB01CNM156N",
       "units": "lin",
@@ -1133,6 +1123,16 @@
     "world_gdp": {
       "indicator": "NY.GDP.MKTP.KD.ZG",
       "metric": "yoy"
+    },
+    "cn_gdp": {
+      "indicator": "NY.GDP.MKTP.KD.ZG",
+      "metric": "yoy",
+      "country": "CHN"
+    },
+    "cn_inflation": {
+      "indicator": "FP.CPI.TOTL.ZG",
+      "metric": "yoy",
+      "country": "CHN"
     }
   },
   "fedstat_series": {

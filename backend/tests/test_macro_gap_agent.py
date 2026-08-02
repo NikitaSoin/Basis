@@ -521,7 +521,11 @@ class TestPeriodMustBeNewer:
         from app.services import macro_ingest as mi
         from app.services.macro_gap_pipeline import process_finding
 
+        from app.models.macro import MacroDataPoint
+
         mi.seed_indicators(db)
+        db.query(MacroDataPoint).filter_by(indicator_code="pmi_composite").delete()
+        db.commit()
         mi.upsert_point(db, "pmi_composite", date(2026, 4, 28), "level", 49.1,
                         ingested_via="file")
         db.commit()
@@ -534,11 +538,16 @@ class TestPeriodMustBeNewer:
     def test_fresh_period_passes_the_check(self, db, monkeypatch):
         from datetime import date
 
+        from app.models.macro import MacroDataPoint
         from app.services import macro_ingest as mi
         from app.services import macro_gap_pipeline as gp
         from app.services.macro_gap_pipeline import process_finding
 
         mi.seed_indicators(db)
+        # Тестовая база общая на сессию: соседние тесты (и apply_known_corrections)
+        # кладут в этот же ряд более свежие точки — проверяли бы не то.
+        db.query(MacroDataPoint).filter_by(indicator_code="pmi_composite").delete()
+        db.commit()
         mi.upsert_point(db, "pmi_composite", date(2026, 4, 28), "level", 49.1,
                         ingested_via="file")
         db.commit()
