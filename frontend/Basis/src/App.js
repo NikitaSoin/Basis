@@ -1031,6 +1031,26 @@ export default function App() {
         if (mappedTab) setInitialCardTab(mappedTab);
         return;
       }
+      // 🔴 Страницы инструментов: /bonds/<КОД>/, /futures/<КОД>/, /funds/<КОД>/.
+      // Владелец 2026-08-02: «вбил si 9 26 — открылась SEO-страница, а должна
+      // подгружаться настоящая». Так и было: 3757 страниц облигаций, фондов и фьючерсов
+      // вообще не поднимали приложение, потому что их собирает отдельный генератор, и
+      // разбора адреса для них не существовало. Теперь адрес открывает карточку бумаги.
+      //
+      // Отличаем КОД БУМАГИ от подборки простым признаком: подборки называются строчными
+      // латиницей (/bonds/ofz/, /bonds/vdo/, /bonds/vse/2/), а коды инструментов всегда
+      // содержат заглавные — RU000A10FEP7, SU26247RMFS5, SiU6, TMOS. Проверять по списку
+      // подборок хуже: список растёт, и про новую забудут.
+      const mInstr = window.location.pathname.match(/^\/(bonds|futures|funds)\/([^/]+)\/?$/);
+      if (mInstr && /[A-Z]/.test(mInstr[2])) {
+        const code = mInstr[2];
+        if (mInstr[1] === "bonds") setSelectedBond(code);
+        else if (mInstr[1] === "futures") setSelectedFuture(code);
+        else setSelectedFund(code);
+        try { window.dispatchEvent(new Event("basis:app-ready")); } catch {}
+        return;
+      }
+
       // Путь человекочитаемого раздела (/karta-rynka-aktsiy/ и т.п.)
       const landing = window.location.pathname.replace(/^\/|\/$/g, "");
       // 🔴 Страницы показателей и индексов (/statistika/…, /indeks/…) — их адреса

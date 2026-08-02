@@ -177,7 +177,7 @@
     },
     {
       "code": "urals",
-      "title": "Нефть Urals",
+      "title": "Нефть Urals (спот)",
       "unit": "usd",
       "country": "ru",
       "frequency": "daily",
@@ -186,7 +186,7 @@
       ],
       "display_group": "ru",
       "sort_order": 13,
-      "source_type": "tankermap",
+      "source_type": "oilprice",
       "influence_short": "Дорогая нефть — выигрыш нефтегаза и пополнение бюджета; влияет на курс рубля и инфляцию."
     },
     {
@@ -990,6 +990,45 @@
       "sort_order": 101,
       "source_type": "idex",
       "influence_short": "Композитный индекс биржи необработанных алмазов IDEX — прямой ориентир выручки АЛРОСА. 🔴 Источник неофициальный (не биржа/ЦБ), но с полной бесплатной историей с 2015 года."
+    },
+    {
+      "code": "oil_brent",
+      "title": "Нефть Brent (спот)",
+      "unit": "usd/bbl",
+      "country": "world",
+      "frequency": "daily",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "source_type": "oilprice",
+      "influence_short": "Мировой эталон: задаёт цену экспорта РФ до дисконта."
+    },
+    {
+      "code": "oil_wti",
+      "title": "Нефть WTI (спот)",
+      "unit": "usd/bbl",
+      "country": "world",
+      "frequency": "daily",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "world",
+      "source_type": "oilprice",
+      "influence_short": "Американский эталон — ориентир мирового спроса."
+    },
+    {
+      "code": "urals_brent_spread",
+      "title": "Дисконт Urals к Brent",
+      "unit": "usd/bbl",
+      "country": "ru",
+      "frequency": "daily",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "source_type": "oilprice",
+      "influence_short": "Сколько теряет российский экспортёр против мировой цены: рост мировой нефти при расширении дисконта доходов НЕ добавляет."
     }
   ],
   "csv_mapping": {

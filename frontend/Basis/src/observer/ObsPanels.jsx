@@ -1932,10 +1932,6 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
 
   return (
     <div>
-      <p className="obs-art-desc">
-        «Обзор» — записки ЦБ, ЦМАКП и внешние источники (Economist, ISW, Carnegie и др.) как есть.
-        «Оценка ситуации» — что из этого следует, по мнению Basis.
-      </p>
 
       {/* Сег-переключатель */}
       <div className="obs-seg">
@@ -2023,14 +2019,9 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
 
           {!interpLoading && interpSections && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {interp.generated_at && (
-                <div className="obs-inst-hero-eyebrow" style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <Clock size={13} />
-                  Срез на {new Date(interp.generated_at).toLocaleString("ru-RU")}
-                  {interp.model_used ? ` · ${interp.model_used}` : ""}
-                  {" · оценка Basis, не факт и не рекомендация"}
-                </div>
-              )}
+              {/* Техническая строка «срез · модель · дисклеймер» убрана (владелец,
+                  2026-08-02): дата и модель — служебная информация, а дисклеймер
+                  дублируется тегами «оценка/суждение» на каждом утверждении. */}
 
               {/* СИГНАЛ, строка 1: ставка сейчас + сигнал ЦБ — ФАКТ из БД, не суждение LLM */}
               {rateHeadline && (
@@ -2045,22 +2036,6 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                 <div className="obs-macro-card obs-macro-lede-card">
                   <div className="obs-macro-eyebrow"><Activity size={12} style={{ marginRight: 5, verticalAlign: -2 }} />Главный вывод · суждение Basis</div>
                   <p className="obs-macro-lede">{interpSections.headline}</p>
-                </div>
-              )}
-
-              {/* Режим одной строкой — светофор направлений (формат v2, 2026-08-01) */}
-              {interpSections.regime && (
-                <div className="obs-macro-regime">
-                  {[
-                    { k: "rate", label: "Ставка" },
-                    { k: "inflation", label: "Инфляция" },
-                    { k: "economy", label: "Экономика" },
-                    { k: "external", label: "Внешний фон" },
-                  ].filter(({ k }) => interpSections.regime[k]).map(({ k, label }) => (
-                    <span key={k} className="obs-macro-regime-chip">
-                      <b>{label}</b> {interpSections.regime[k]}
-                    </span>
-                  ))}
                 </div>
               )}
 
@@ -2211,28 +2186,8 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                 </div>
               )}
 
-              {/* ДОКАЗАТЕЛЬСТВО, шаг 2: тезисы — атомарные точки, ВИДИМЫ по умолчанию (не в details:
-                  простыня была не в упаковке, а в связной прозе; список даёт 4-6 точек приземления) */}
-              {Array.isArray(interpSections.theses) && interpSections.theses.length > 0 && (
-                <div className="obs-inst-card">
-                  <div className="obs-inst-card-title"><Sparkles size={16} />По пунктам</div>
-                  <div className="obs-inst-list">
-                    {interpSections.theses.map((t, i) => (
-                      <div key={i} className="obs-inst-row">
-                        <div className="obs-inst-row-main">
-                          <div className="obs-inst-row-title" style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            {t.topic}
-                            <span className={t.tag === "факт" ? "obs-tag-fact" : "obs-tag-judgment"}>{t.tag || "оценка"}</span>
-                          </div>
-                          {t.claim && <div style={{ fontWeight: 600, fontSize: 13.5, marginTop: 2 }}>{t.claim}</div>}
-                          {t.detail && <div className="obs-inst-row-why">{t.detail}</div>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
+              {/* Блок «По пунктам» убран (владелец, 2026-08-02): он дословно повторял
+                  тезисы из «Что происходит и почему», только без цепочки рассуждения. */}
               {/* ДОКАЗАТЕЛЬСТВО, шаг 3: сектора — попутный/встречный ветер, тот же визуальный
                   словарь, что и sector_flags в геополитике (единое семейство барометров) */}
               {Array.isArray(interpSections.sectors) && interpSections.sectors.length > 0 && (

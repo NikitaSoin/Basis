@@ -306,7 +306,7 @@ async def _macro_job():
             from app.services.macro_rosstat import ingest_rosstat_file, sync_ppi
             from app.services.macro_minfin_sync import sync_gov_spending
             from app.services.macro_hh_sync import sync_hh_index
-            from app.services.macro_tankermap_sync import sync_urals
+            from app.services.macro_oil_sync import sync_oil_prices
             from app.services.macro_wb_commodities_sync import sync_wb_commodities
             from app.services.macro_yahoo_commodities_sync import sync_yahoo_commodities
             from app.services.macro_metaltorg_steel_sync import sync_metaltorg_steel
@@ -341,7 +341,9 @@ async def _macro_job():
                 db.rollback()
                 hh = {"error": f"unhandled:{type(e).__name__}"}
             try:
-                urals = sync_urals(db)  # Urals дневной ряд — TankerMap (не офиц. источник, см. докстринг)
+                # Brent/WTI/Urals + дисконт Urals-Brent. Раньше здесь был TankerMap,
+                # но его фид давал Urals $60,7 при рыночных $84,6 (см. macro_oil_sync).
+                urals = sync_oil_prices(db)
             except Exception as e:  # noqa: BLE001
                 logger.exception("TankerMap-Urals упал: %s", e)
                 db.rollback()
