@@ -481,6 +481,142 @@ def _expectations_from_pdf_fallback(db: Session) -> tuple | None:
     return (d, exp, doc.source_url)
 
 
+# Метка ряда в листе «Данные для графиков» бюллетеня инФОМ. Именно этот ряд —
+# показатель «инфляционные ожидания населения»; рядом лежат «наблюдаемая инфляция»
+# (систематически ВЫШЕ на 2-3 п.п.) и «ожидаемая через пять лет».
+_EXP_ROW_LABEL = "годовая инфляция, ожидаемая через год"
+_EXP_SHEET = "Данные для графиков"
+
+
+def _expectations_from_xlsx(content: bytes) -> list[tuple[date, float]]:
+    """Ряд ожидаемой инфляции из XLSX инФОМ — БЕЗ LLM, по метке строки.
+
+    🔴 Зачем это написано. Раньше значение извлекала модель из «текста» файла, но
+    `_fetch_text` рассчитан на HTML: для XLSX он декодировал ZIP-архив как строку и
+    отдавал в LLM бинарный мусор, обрезанный на 14 000 знаков. Модель возвращала
+    правдоподобное число из шума — и на разных прогонах РАЗНОЕ: локальная база
+    получила 12,2 за июль 2026, боевая 14,7 (верное — проверено по этому же файлу).
+    Ключевой показатель ДКП заполнялся случайно, и совпадение с истиной было везением.
+
+    Возвращает весь ряд парами (месяц, значение): по нему же чинится история.
+    """
+    import io
+
+    import openpyxl
+
+    wb = openpyxl.load_workbook(io.BytesIO(content), data_only=True, read_only=True)
+    if _EXP_SHEET not in wb.sheetnames:
+        return []
+    ws = wb[_EXP_SHEET]
+    rows = list(ws.iter_rows(values_only=False))
+    target = None
+    for i, row in enumerate(rows):
+        label = row[0].value if row else None
+        if isinstance(label, str) and _EXP_ROW_LABEL in label.strip().lower():
+            target = i
+            break
+    if target is None:
+        return []
+    # Строка с датами — ближайшая ВЫШЕ строки значений (у каждого блока графика своя).
+    dates_row = None
+    for j in range(target - 1, max(-1, target - 12), -1):
+        if any(isinstance(c.value, datetime) for c in rows[j][1:12]):
+            dates_row = rows[j]
+            break
+    if dates_row is None:
+        return []
+    out: list[tuple[date, float]] = []
+    values_row = rows[target]
+    for k in range(1, min(len(values_row), len(dates_row))):
+        d, v = dates_row[k].value, values_row[k].value
+        if isinstance(d, datetime) and isinstance(v, (int, float)):
+            out.append((_month_end(f"{d.year}-{d.month:02d}"), round(float(v), 2)))
+    return out
+
+
+# Метка уже исправленной исторической точки. 🔴 Обязательна для ИДЕМПОТЕНТНОСТИ:
+# без неё повторный прогон сдвинул бы ту же точку второй раз.
+_HIST_FIXED_SRC = "инФОМ (истор., сдвиг исправлен)"
+
+
+def _dedupe_and_fix_history(db: Session, covered_from: date) -> dict:
+    """Убрать дубли ряда ожиданий и исправить сдвиг исторической части.
+
+    🔴 Что было. В ряд писали три источника с РАЗНЫМИ конвенциями дат: исторический
+    бэкфилл `cb_model file` (28-е число), разовая точка из новости Интерфакса и
+    официальный ингест ЦБ (конец месяца). В 25 месяцах лежало по две точки.
+
+    Хуже дублей: бэкфилл оказался СДВИНУТ на месяц вперёд — значение января стояло под
+    февралём. Проверено на перекрытии с официальным рядом: 20 из 25 сравнимых точек
+    совпали с ПРЕДЫДУЩИМ месяцем, а не со своим. Поэтому в зоне, которую покрывает
+    XLSX, неавторитетные точки удаляем, а более раннюю историю сдвигаем на месяц назад.
+    """
+    from app.models.macro import MacroDataPoint
+
+    removed = (db.query(MacroDataPoint)
+               .filter(MacroDataPoint.indicator_code == "inflation_expectations",
+                       MacroDataPoint.ingested_via != "cbr",
+                       MacroDataPoint.as_of >= covered_from)
+               .delete(synchronize_session=False))
+
+    # 🔴 or_(is_(None), ...) обязателен: в SQL «NULL <> 'строка'» даёт NULL, а не TRUE,
+    # и точки без источника молча не попадают в выборку — фильтр отработал бы
+    # «успешно», сдвинув ноль записей.
+    from sqlalchemy import or_
+
+    stale = (db.query(MacroDataPoint)
+             .filter(MacroDataPoint.indicator_code == "inflation_expectations",
+                     MacroDataPoint.ingested_via == "file",
+                     or_(MacroDataPoint.source.is_(None),
+                         MacroDataPoint.source != _HIST_FIXED_SRC))
+             .order_by(MacroDataPoint.as_of).all())
+    moved = 0
+    for point in stale:
+        new_d = point.as_of.replace(day=1) - timedelta(days=1)
+        clash = (db.query(MacroDataPoint)
+                 .filter_by(indicator_code="inflation_expectations", metric=point.metric,
+                            as_of=new_d).first())
+        if clash is not None:
+            db.delete(point)      # на этом месте уже есть точка — сдвигать некуда
+            continue
+        point.as_of = new_d
+        point.source = _HIST_FIXED_SRC
+        moved += 1
+    db.commit()
+    if removed or moved:
+        logger.warning("CB-sync: ряд ожиданий приведён в порядок — удалено дублей %s, "
+                       "исторических точек сдвинуто на месяц назад %s", removed, moved)
+    return {"removed": removed, "shifted": moved}
+
+
+def _write_expectations_series(db: Session, series: list[tuple[date, float]], url: str) -> int:
+    """Записать ряд из бюллетеня, ИСПРАВЛЯЯ расхождения. Возвращает число исправленных.
+
+    🔴 Осознанное исключение из first-write-wins. Правило защищает верное значение от
+    затирания автоматикой — но здесь ровно обратный случай: официальная таблица ЦБ
+    исправляет числа, которые модель вытащила из шума. Приоритет по источнику, а не по
+    порядку записи: XLSX инФОМ авторитетнее для этого ряда, чем что угодно ещё.
+    Перезаписываем только явные расхождения и каждое пишем в лог.
+    """
+    from app.models.macro import MacroDataPoint
+
+    fixed = 0
+    for d, v in series:
+        existing = (db.query(MacroDataPoint)
+                    .filter_by(indicator_code="inflation_expectations", as_of=d, metric="level")
+                    .first())
+        if existing is not None and abs(float(existing.value) - v) <= 0.05:
+            continue
+        if existing is not None:
+            logger.warning("CB-sync: ожидания за %s ИСПРАВЛЕНЫ %.2f → %.2f (источник: %s)",
+                           d, float(existing.value), v, url)
+            fixed += 1
+        upsert_point(db, "inflation_expectations", d, "level", v, unit="%",
+                     source="ЦБ РФ (инФОМ, XLSX)", source_url=url, ingested_via="cbr")
+    db.commit()
+    return fixed
+
+
 def sync_expectations(db: Session) -> dict:
     """Инфляционные ожидания населения (год вперёд) с бюллетеня ЦБ → inflation_expectations.
     Основной путь — XLSX-индекс; фолбэк на PDF-бюллетень (_expectations_from_pdf_fallback),
@@ -499,6 +635,27 @@ def sync_expectations(db: Session) -> dict:
         url = latest if latest.startswith("http") else "https://www.cbr.ru" + latest
         mm = re.search(r"(\d{2})-(\d{2})", url)  # месяц берём из URL (надёжно)
         d = _month_end(f"20{mm.group(1)}-{mm.group(2)}") if mm else None
+
+        # 🔴 СНАЧАЛА читаем XLSX как XLSX — это точный ряд по метке строки, без модели.
+        # LLM ниже остаётся фолбэком: раньше он был единственным путём и получал
+        # бинарный мусор (см. _expectations_from_xlsx), возвращая на разных прогонах
+        # разные числа для одного и того же файла.
+        try:
+            raw = httpx.Client(timeout=40, headers=_HTTP,
+                               follow_redirects=True).get(url).content
+            series = _expectations_from_xlsx(raw)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("CB-sync: XLSX ожиданий не разобран: %s", type(e).__name__)
+            series = []
+        if series:
+            fixed = _write_expectations_series(db, series, url)
+            tidy = _dedupe_and_fix_history(db, series[0][0].replace(day=1))
+            last_d, last_v = series[-1]
+            logger.info("CB-sync: ожидания из XLSX — %s = %.2f (точек в ряду %d, исправлено %d)",
+                        last_d, last_v, len(series), fixed)
+            return {"month": str(last_d), "expectation": last_v, "source": "xlsx",
+                    "points": len(series), "corrected": fixed, **tidy}
+
         text = _fetch_text(url)
         if text and d is not None:
             try:
