@@ -1047,6 +1047,10 @@ export default function App() {
         if (mInstr[1] === "bonds") setSelectedBond(code);
         else if (mInstr[1] === "futures") setSelectedFuture(code);
         else setSelectedFund(code);
+        // 🔴 Без переключения раздела activeTab остаётся "landing", и приложение
+        // рисует лендинг ВОКРУГ карточки — владелец увидел «половину лендинга»
+        // вместо страницы фьючерса. Инструменты живут в разделе «Рынок».
+        setActiveTab("companies");
         try { window.dispatchEvent(new Event("basis:app-ready")); } catch {}
         return;
       }
@@ -1342,7 +1346,10 @@ export default function App() {
     );
   }
 
-  const isLanding = activeTab === "landing" && !selectedCompany;
+  // Лендинг — только когда НИЧЕГО не открыто. Раньше проверялась одна компания, и
+  // открытая карточка облигации/фьючерса/фонда соседствовала с лендингом на экране.
+  const isLanding = activeTab === "landing" && !selectedCompany
+    && !selectedBond && !selectedFuture && !selectedFund && !selectedSpot;
   const toggleTheme = () => setTheme(t => t === "dark" ? "light" : "dark");
 
   // Ключ текущего «экрана» для RegisterNudge (владелец, 2026-08-02): смена

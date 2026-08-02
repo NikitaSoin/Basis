@@ -105,18 +105,20 @@ function descWithDate(core, dataDate, cap) {
 /* --------------------------- HTML-шаблон --------------------------- */
 // Компактный (страниц ~3,9 тыс. — каждый байт ×3900). Палитра — токены Basis
 // (бумага/медь), но сами страницы — лёгкая статика без бандла приложения:
-// роутера под /bonds/… в приложении нет, takeover невозможен, грузить 3 МБ зря.
+// ОБНОВЛЕНО 2026-08-02: роутер под /bonds/, /futures/, /funds/ в приложении
+// ПОЯВИЛСЯ (App.js, разбор mInstr), поэтому приложение здесь монтируется —
+// человек получает настоящую карточку бумаги, робот по-прежнему статику.
 
 const CSS = `
-#seo-boot{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;
- align-items:center;justify-content:center;gap:14px;background:#F7F5F0;
- font:15px/1.5 Inter,-apple-system,sans-serif;color:#5A5248}
-#seo-boot .b-mark{font-family:Fraunces,Georgia,serif;font-size:26px;color:#1F1B16}
-#seo-boot .b-bar{width:180px;height:3px;background:#E4DFD5;border-radius:2px;overflow:hidden}
-#seo-boot .b-bar i{display:block;width:40%;height:100%;background:#C97A4A;border-radius:2px}
-@media (prefers-reduced-motion:no-preference){#seo-boot .b-bar i{animation:bs 1.1s ease-in-out infinite}}
-@keyframes bs{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
-@media (prefers-color-scheme:dark){#seo-boot{background:#14110E}}
+#seo-boot{position:fixed;inset:0;z-index:99999;background:var(--paper);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+#seo-boot .b-mark{font:700 26px/1 Georgia,'Times New Roman',serif;color:var(--copper);letter-spacing:.02em}
+#seo-boot .b-cap{font:400 13px/1.5 -apple-system,'Segoe UI',Roboto,sans-serif;color:var(--faint)}
+#seo-boot .b-bar{width:180px;height:3px;border-radius:2px;background:var(--line);overflow:hidden}
+#seo-boot .b-bar i{display:block;width:40%;height:100%;background:var(--copper)}
+@media (prefers-reduced-motion:no-preference){#seo-boot .b-bar i{animation:bootSlide 1.1s ease-in-out infinite}}
+@keyframes bootSlide{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+@media (prefers-color-scheme:dark){#seo-boot{background:#14110E}#seo-boot .b-cap{color:#8A8072}}
 
 :root{--paper:#F7F5F0;--ink:#1F1B16;--muted:#5A5248;--faint:#8A8072;--copper:#C97A4A;--line:#E4DFD5}
 *{box-sizing:border-box}
