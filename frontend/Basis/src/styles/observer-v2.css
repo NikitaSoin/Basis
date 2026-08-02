@@ -6191,3 +6191,8 @@ details[open] > summary .obs-inst-chev,
   font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;
 }
 .obs-macro-event-scenario b { color: var(--text-tertiary); font-weight: 700; }
+
+/* кнопка-ссылка внутри пустого состояния «Важного» (рекалибровка 2026-08-02):
+   high теперь редкий по замыслу — пустая вкладка объясняет себя и даёт выход */
+.obs-news-empty-link{background:none;border:none;padding:0;color:var(--obs-accent, #C97A4A);cursor:pointer;font:inherit;text-decoration:underline;text-underline-offset:2px;}
+.obs-news-empty-link:hover{opacity:.8;}

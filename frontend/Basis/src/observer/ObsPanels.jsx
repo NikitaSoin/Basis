@@ -201,11 +201,11 @@ function ObsNewsFeed({ token, portfolioOnly, onSelectCompany }) {
 
   // Client-side filters
   const filtered = sorted.filter((n) => {
-    // Рекалибровка важности (владелец 2026-08-02): high теперь ЭКСТРАОРДИНАРНОЕ
-    // (единицы в неделю), значимая рутина — medium. Дефолтная вкладка «Значимое»
-    // показывает high+medium (тот же объём, что раньше давал старый high), а
-    // бейдж «важное» и каллаут «Почему это важно» остаются только у high.
-    const impOk = importance === "all" || (importance === "important" && (n.importance === "high" || n.importance === "medium"));
+    // Рекалибровка важности (владелец 2026-08-02): high — ЭКСТРАОРДИНАРНОЕ.
+    // «Важное» = ТОЛЬКО high: вариант high+medium оказался пустышкой — low в БД
+    // почти не публикуется (keep-фильтр), и high+medium ≡ все записи («кнопка
+    // не работает, по дефолту всё сразу идёт» — владелец, 2026-08-02).
+    const impOk = importance === "all" || (importance === "important" && n.importance === "high");
     const cat = n.category || "";
     const topicOk = topic === "all" || (_NEWS_TOPIC_MAP[topic] || []).some((t) => cat.includes(t));
     return impOk && topicOk;
@@ -238,7 +238,7 @@ function ObsNewsFeed({ token, portfolioOnly, onSelectCompany }) {
         <div className="obs-news-filterbar">
           {[
             { id: "all",       label: "Все" },
-            { id: "important", label: "Значимое" },
+            { id: "important", label: "Важное" },
           ].map((o) => (
             <button
               key={o.id}
@@ -281,7 +281,13 @@ function ObsNewsFeed({ token, portfolioOnly, onSelectCompany }) {
         <div className="obs-news-empty">
           {portfolioOnly
             ? "По вашему портфелю значимых новостей за этот период нет."
-            : "Новостей по выбранным фильтрам нет."}
+            : importance === "important"
+              ? <>Экстраординарных событий сейчас нет — и это нормально: «Важное» после
+                 рекалибровки ловит только события уровня решения ЦБ или закрытия
+                 Ормузского пролива.{" "}
+                 <button type="button" className="obs-news-empty-link"
+                         onClick={() => setImportance("all")}>Показать все новости</button></>
+              : "Новостей по выбранным фильтрам нет."}
         </div>
       ) : (
         <div className="obs-news-list">
@@ -3623,14 +3629,24 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
     return ms / 86400000 < RECENT_DAYS;
   }, [strikeAge, strikeLatestDate]);
 
+  // Счётчик в чипах должен совпадать с тем, что реально видно на карте, поэтому
+  // считаем ОБА слоя ударов: автоматические из ленты (strikeEventsList) и
+  // курируемые статичные (onMapEvents с type="strike"). Раньше считался только
+  // первый — подпись «все · 72» расходилась с числом точек.
   const strikeCounts = useMemo(() => {
     let all = 0, recent = 0;
+    const bump = (iso) => {
+      all += 1;
+      if (!strikeLatestDate || !iso) return;
+      const ms = Date.parse(`${strikeLatestDate}T00:00:00Z`) - Date.parse(`${iso}T00:00:00Z`);
+      if (!Number.isNaN(ms) && ms / 86400000 < RECENT_DAYS) recent += 1;
+    };
     Object.values(theaterStates).forEach((st) => {
-      (st?.strikeEventsList || []).forEach((s) => {
-        all += 1;
-        if (!strikeLatestDate || !s.event_date) return;
-        const ms = Date.parse(`${strikeLatestDate}T00:00:00Z`) - Date.parse(`${s.event_date}T00:00:00Z`);
-        if (!Number.isNaN(ms) && ms / 86400000 < RECENT_DAYS) recent += 1;
+      (st?.strikeEventsList || []).forEach((s) => bump(s.event_date));
+      (st?.onMapEvents || []).forEach((e) => {
+        if (e.type !== "strike") return;
+        const m = /^(\d{4}-\d{2}-\d{2})/.exec(String(e.date || ""));
+        bump(m ? m[1] : null);
       });
     });
     return { all, recent };

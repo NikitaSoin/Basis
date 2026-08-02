@@ -1802,6 +1802,33 @@ def debug_trigger_macro_interp(batch: int = 8, ticker: str | None = None):
         db.close()
 
 
+@router.post("/debug/downgrade-legacy-high-news")
+def debug_downgrade_legacy_high_news(before: str = "2026-08-02T15:30:00"):
+    """Разовый чистый переход на рекалиброванную шкалу важности Ленты (владелец
+    2026-08-02): записи, размеченные СТАРОЙ шкалой (инфлированный high — 16 из 40),
+    опускаются high→medium, чтобы вкладка «Важное» сразу показывала только новую
+    семантику (экстраординарное), а не вчерашнюю рутину с бейджем «важное».
+    before — граница (UTC): момент деплоя рекалибровки; новее — не трогаем."""
+    from datetime import datetime as _dt
+    from app.db.session import SessionLocal
+    from app.models.market import MarketUpdate
+    db = SessionLocal()
+    try:
+        cutoff = _dt.fromisoformat(before)
+        n = (db.query(MarketUpdate)
+             .filter(MarketUpdate.importance == "high",
+                     MarketUpdate.published_at < cutoff)
+             .update({MarketUpdate.importance: "medium"}, synchronize_session=False))
+        db.commit()
+        return {"downgraded": n, "before": before}
+    except Exception as e:  # noqa: BLE001
+        db.rollback()
+        logger.exception("debug downgrade-legacy-high-news: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-prose-patcher")
 def debug_trigger_prose_patcher(signal_id: int | None = None, kind: str = "fact",
                                 weekly: bool = False, ticker: str | None = None,
