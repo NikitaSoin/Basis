@@ -550,6 +550,37 @@ async def debug_ping():
     return {"pong": True}
 
 
+@router.post("/debug/trigger-macro-data-fixes")
+def debug_trigger_macro_data_fixes():
+    """Применить исправления рядов немедленно, не дожидаясь дневного крона (06:30).
+
+    Зачем эндпоинт: код с исправлением доезжает на бой за минуты, а сами ДАННЫЕ
+    чинятся только в ингесте — то есть до следующего утра боевой выпуск продолжает
+    строиться на неверных числах. Здесь: адресные исправления точек + перечитывание
+    ряда инфляционных ожиданий из XLSX-таблицы инФОМ (с чисткой дублей и сдвига).
+    Без LLM.
+    """
+    from app.db.session import SessionLocal
+    from app.services.macro_ingest import apply_known_corrections, seed_indicators
+    db = SessionLocal()
+    try:
+        seed_indicators(db)     # подхватить правки справочника (единицы, названия)
+        db.commit()
+        out = {"corrections": apply_known_corrections(db)}
+        try:
+            from app.services.macro_cb_sync import sync_expectations
+            out["expectations"] = sync_expectations(db)
+        except Exception as e:  # noqa: BLE001
+            out["expectations"] = {"error": f"{type(e).__name__}: {e}"}
+        return out
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-macro-data-fixes: %s", e)
+        db.rollback()
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-macro-verification")
 def debug_trigger_macro_verification():
     """Ручной запуск «ОТК данных» (macro_verification.run_verification) синхронно,
