@@ -240,7 +240,32 @@ def macro_interpretation_get(db: Session = Depends(get_db),
             # Персональная проекция выпуска на бумаги пользователя. Считается ЗДЕСЬ,
             # а не в выпуске: выпуск один для всех и живёт сутки, портфель у каждого
             # свой. Без портфеля возвращается приглашение его завести.
-            "portfolio": _portfolio_link(db, user, row.sections)}
+            "portfolio": _portfolio_link(db, user, row.sections),
+            # 🔴 Названия компаний к тикерам выпуска. Владелец: «в рынке и сектора
+            # названия компаний использовать». Голый тикер читает только тот, кто уже
+            # знает рынок; фронт подставляет имя рядом.
+            "company_names": _company_names(db, row.sections)}
+
+
+def _company_names(db: Session, sections: dict) -> dict:
+    """{тикер: короткое имя} для бумаг, названных в выпуске."""
+    tickers: set[str] = set()
+    for sec in (sections or {}).get("sectors") or []:
+        if not isinstance(sec, dict):
+            continue
+        for side in ("winners", "losers"):
+            for t in sec.get(side) or []:
+                if isinstance(t, str):
+                    tickers.add(t.upper())
+    if not tickers:
+        return {}
+    try:
+        rows = (db.query(Company.ticker, Company.name)
+                .filter(Company.ticker.in_(sorted(tickers))).all())
+        return {t: n for t, n in rows if t and n}
+    except Exception:  # noqa: BLE001
+        logger.warning("Макро: имена компаний не прочитаны", exc_info=True)
+        return {}
 
 
 def _portfolio_link(db: Session, user, sections: dict) -> dict:

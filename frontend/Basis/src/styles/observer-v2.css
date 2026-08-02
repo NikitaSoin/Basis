@@ -6094,10 +6094,10 @@ details[open] > summary .obs-inst-chev,
    ВЕРДИКТ (что из этого следует) справа. Цвет несут данные, хром монохромный. */
 .obs-macro-hero {
   display: grid;
-  grid-template-columns: minmax(150px, 200px) 1fr;
-  gap: 26px;
+  grid-template-columns: minmax(130px, 168px) 1fr;
+  gap: 22px;
   align-items: start;
-  padding: 24px 26px;
+  padding: 18px 22px;
   /* 🔴 Фон и рамка — как у соседнего героя вкладки «Институты» (.obs-inst-hero).
      Сначала здесь стоял var(--obs-surface-2), которого в системе НЕ СУЩЕСТВУЕТ: он
      резолвился в fallback rgba(255,255,255,0.03), и на кремовом фоне страницы герой
@@ -6123,7 +6123,7 @@ details[open] > summary .obs-inst-chev,
 }
 .obs-macro-hero-value {
   font-family: var(--font-mono, monospace);
-  font-size: 40px; line-height: 1.05; font-weight: 600;
+  font-size: 30px; line-height: 1.1; font-weight: 600;
   color: var(--text-primary); font-variant-numeric: tabular-nums;
 }
 .obs-macro-hero-asof { font-size: 11.5px; color: var(--text-tertiary); }
@@ -6137,9 +6137,9 @@ details[open] > summary .obs-inst-chev,
 .obs-macro-hero-verdict {
   margin: 0;
   font-family: "Fraunces", Georgia, serif;
-  font-size: 23px; line-height: 1.42; font-weight: 500;
+  font-size: 18.5px; line-height: 1.45; font-weight: 500;
   color: var(--text-primary);
-  max-width: 62ch;
+  max-width: 66ch;
 }
 .obs-macro-hero-signal {
   margin: 14px 0 0; padding-top: 12px;
@@ -6157,8 +6157,8 @@ details[open] > summary .obs-inst-chev,
     padding-right: 0; padding-bottom: 14px;
     border-right: none; border-bottom: 1px solid var(--border-subtle);
   }
-  .obs-macro-hero-value { font-size: 30px; }
-  .obs-macro-hero-verdict { font-size: 19px; }
+  .obs-macro-hero-value { font-size: 26px; }
+  .obs-macro-hero-verdict { font-size: 17px; }
 }
 
 /* Событие: значимость и стадия. Одно и то же событие на пике и на спаде значит
@@ -6500,4 +6500,238 @@ details[open] > summary .obs-inst-chev,
 .obs-region-card-means .obs-tag-estimate {
   margin-right: 8px;
   vertical-align: 1px;
+}
+
+/* Прогноз: подписи перестают быть серой кашей. Владелец: «этот текст выводишь местами
+   блекло» — а именно здесь лежит то, без чего число прогноза нельзя интерпретировать.
+   Ярлык слева фиксированной ширины, значение — основным цветом текста. */
+.obs-fc-meta > div {
+  display: grid;
+  grid-template-columns: minmax(112px, 132px) 1fr;
+  gap: 10px;
+  align-items: baseline;
+  padding: 5px 0;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+.obs-fc-meta > div:first-child { border-top: none; }
+.obs-fc-meta b {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* ============================================================
+   ИНСТИТУЦИОНАЛЬНЫЙ ПОРТРЕТ — человеческий слой над барометром.
+   Владелец: экран начинался с числа и термина «экстрактивность»;
+   теперь сверху ось «правила ↔ доступ» и связь с ценой акций.
+   ============================================================ */
+.obs-inst-portrait {
+  border-left: 3px solid var(--accent);
+}
+
+/* --- Ось «правила для всех ↔ решает доступ» --- */
+.obs-inst-axis {
+  margin: 12px 0 14px;
+}
+.obs-inst-axis-track {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.obs-inst-axis-end {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  line-height: 1.25;
+  flex: 0 0 auto;
+  width: 74px;
+}
+.obs-inst-axis-end--right {
+  text-align: right;
+}
+.obs-inst-axis-bar {
+  flex: 1 1 auto;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--up) 0%, var(--border-strong) 50%, var(--down) 100%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.obs-inst-axis-arrow {
+  font-size: 15px;
+  line-height: 1;
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+.obs-inst-axis-arrow--worse { color: var(--down); }
+.obs-inst-axis-arrow--better { color: var(--up); }
+.obs-inst-axis-pos {
+  margin: 9px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+.obs-inst-axis-why {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* --- Связь с ценой акций: то, ради чего пользователь пришёл --- */
+.obs-inst-price {
+  margin: 14px 0;
+  padding: 11px 13px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--bg-base);
+}
+.obs-inst-price-label {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-tertiary);
+  margin-bottom: 5px;
+}
+.obs-inst-price p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+.obs-inst-price .obs-tag-estimate {
+  margin-right: 8px;
+  vertical-align: 1px;
+}
+.obs-inst-plain {
+  margin: 10px 0 0;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+.obs-inst-plain b { color: var(--text-primary); }
+
+/* --- Весы факторов: что толкает в каждую сторону --- */
+.obs-inst-factors {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+}
+.obs-inst-factor-col {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  background: var(--bg-base);
+}
+.obs-inst-factor-col--worse { border-top: 2px solid var(--down); }
+.obs-inst-factor-col--better { border-top: 2px solid var(--up); }
+.obs-inst-factor-title {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+.obs-inst-factor {
+  padding: 7px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.obs-inst-factor:first-of-type { border-top: 0; padding-top: 0; }
+.obs-inst-factor-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+.obs-inst-factor-effect {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* --- Кто выигрывает / кто проигрывает --- */
+.obs-inst-wl-note {
+  margin: 4px 0 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+.obs-inst-wl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.obs-inst-wl-col--win { border-top: 2px solid var(--up); }
+.obs-inst-wl-col--lose { border-top: 2px solid var(--down); }
+.obs-inst-wl-col {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  background: var(--bg-base);
+}
+.obs-inst-wl-item {
+  padding: 7px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.obs-inst-wl-item:first-of-type { border-top: 0; padding-top: 0; }
+.obs-inst-wl-who {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.obs-inst-wl-why {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+/* Оговорка «но:» — ключ секции: выигрыш бизнеса не равен выигрышу того,
+   кто купил акцию. Выделена, чтобы её не пролистывали. */
+.obs-inst-wl-catch {
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  border-left: 2px solid var(--warning);
+  padding-left: 7px;
+}
+.obs-inst-costs-who {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+}
+.obs-inst-alerts-details > summary {
+  cursor: pointer;
+  list-style: none;
+}
+.obs-inst-alerts-details > summary::-webkit-details-marker { display: none; }
+
+@media (max-width: 760px) {
+  .obs-inst-factors,
+  .obs-inst-wl {
+    grid-template-columns: 1fr;
+  }
+  .obs-inst-axis-end { width: 62px; font-size: 9.5px; }
+}
+/* Имя компании рядом с тикером: голый тикер читает только тот, кто уже знает рынок. */
+.obs-ticker-name {
+  margin-left: 4px; font-family: var(--font-sans);
+  font-size: 11.5px; font-weight: 400; color: var(--text-tertiary);
 }

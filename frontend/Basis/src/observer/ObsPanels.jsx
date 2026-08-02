@@ -1507,8 +1507,11 @@ function ObsBaroSubRow({ s, polarity }) {
   return (
     <div className="obs-inst-sub">
       <div className="obs-inst-sub-head">
-        <span className="obs-inst-sub-key">{s.key}</span>
-        <span className="obs-inst-sub-label">{s.label}</span>
+        {/* Внутренний код (M1/G1) на витрину НЕ выводится — владелец 2026-08-02:
+            «это внутренние названия, их не надо использовать». Он остаётся в
+            данных и в title, чтобы при разборе жалобы можно было сопоставить
+            строку с методичкой, но глазами пользователь видит только смысл. */}
+        <span className="obs-inst-sub-label" title={s.key}>{s.label}</span>
         {s.type === "факт"
           ? <span className="obs-tag-fact">факт</span>
           : <span className="obs-inst-tag obs-inst-tag--est">оценка</span>}
@@ -1908,6 +1911,130 @@ function ObsGeoProfile({ profile, generatedAt, scopeLabel }) {
         Портрет очага — аналитическая реконструкция Basis по открытым источникам,
         не факт и не индивидуальная инвестиционная рекомендация.
       </div>
+    </div>
+  );
+}
+
+// =========================
+// ИНСТИТУЦИОНАЛЬНЫЙ ПОРТРЕТ — человеческий слой поверх барометра институтов.
+//
+// Владелец (2026-08-02) разобрал прежнюю витрину по пунктам: «экстрактивность —
+// этого никто не знает», «институциональный пол — что это вообще?», «M1, M2,
+// M3 — внутренние названия, их не надо использовать», «непонятно, что с этой
+// информацией делать», «не видно, какие компании выигрывают, а какие
+// проигрывают», «мало про транзакционные издержки», «нет связки с геополитикой
+// и макроэкономикой».
+//
+// Отсюда устройство: наверху ОСЬ «правила для всех ↔ решает доступ» (замена
+// академической шкалы теми же смыслами, но без терминов) и абзац про ЦЕНУ —
+// почему российские акции дёшевы и когда это не скидка, а плата за риск. Всё
+// остальное — под катом, в порядке «что происходит → что это значит → что
+// толкает в каждую сторону → во что обходится → кто выигрывает → как связано
+// с макро и гео».
+// =========================
+function ObsInstTag({ tag }) {
+  if (!tag) return null;
+  return /факт/i.test(tag)
+    ? <span className="obs-tag-fact">{tag}</span>
+    : <span className="obs-tag-estimate">{tag}</span>;
+}
+
+// Ось: три позиции («правила» / середина / «доступ») — без числовой шкалы.
+// Числовая шкала здесь была бы ложной точностью: направление наблюдаемо,
+// а «насколько именно» — нет (см. постановку, раздел про анти-конвергенцию).
+function ObsInstAxis({ axis }) {
+  if (!axis?.position) return null;
+  const moving = String(axis.moving || "");
+  const toAccess = /доступ/i.test(moving);
+  const toRules = /правил/i.test(moving);
+  return (
+    <div className="obs-inst-axis">
+      <div className="obs-inst-axis-track">
+        <span className="obs-inst-axis-end">правила<br />для всех</span>
+        <div className="obs-inst-axis-bar">
+          <span className={`obs-inst-axis-arrow${toAccess ? " obs-inst-axis-arrow--worse" : toRules ? " obs-inst-axis-arrow--better" : ""}`}>
+            {toAccess ? "→" : toRules ? "←" : "•"}
+          </span>
+        </div>
+        <span className="obs-inst-axis-end obs-inst-axis-end--right">решает<br />доступ</span>
+      </div>
+      <p className="obs-inst-axis-pos">{axis.position}</p>
+      {axis.why && <p className="obs-inst-axis-why">{axis.why}</p>}
+    </div>
+  );
+}
+
+function ObsInstFactors({ worse, better }) {
+  const w = Array.isArray(worse) ? worse : [];
+  const b = Array.isArray(better) ? better : [];
+  if (!w.length && !b.length) return null;
+  const col = (items, title, cls) => (
+    <div className={`obs-inst-factor-col ${cls}`}>
+      <div className="obs-inst-factor-title">{title}</div>
+      {items.map((f, i) => (
+        <div key={i} className="obs-inst-factor">
+          <div className="obs-inst-factor-name">{f.factor} <ObsInstTag tag={f.tag} /></div>
+          {f.effect && <div className="obs-inst-factor-effect">{f.effect}</div>}
+        </div>
+      ))}
+    </div>
+  );
+  return (
+    <div className="obs-inst-factors">
+      {col(w, "Толкает к ухудшению", "obs-inst-factor-col--worse")}
+      {col(b, "Работает в обратную сторону", "obs-inst-factor-col--better")}
+    </div>
+  );
+}
+
+function ObsInstWinners({ wl }) {
+  if (!wl || (!wl.winners?.length && !wl.losers?.length)) return null;
+  const side = (items, title, cls) => (
+    <div className={`obs-inst-wl-col ${cls}`}>
+      <div className="obs-inst-factor-title">{title}</div>
+      {(items || []).map((x, i) => (
+        <div key={i} className="obs-inst-wl-item">
+          <div className="obs-inst-wl-who">{x.who}</div>
+          {x.why && <div className="obs-inst-wl-why">{x.why}</div>}
+          {/* «Оговорка» — не украшение: именно она отвечает на вопрос владельца
+              про монополию (выигрывает как бизнес, но выгодно ли это тому, кто
+              купил акцию). Без неё секция вводит в заблуждение. */}
+          {x.catch && <div className="obs-inst-wl-catch">но: {x.catch}</div>}
+        </div>
+      ))}
+    </div>
+  );
+  return (
+    <div>
+      {wl.note && <p className="obs-inst-wl-note">{wl.note}</p>}
+      <div className="obs-inst-wl">
+        {side(wl.winners, "Выигрывают", "obs-inst-wl-col--win")}
+        {side(wl.losers, "Проигрывают", "obs-inst-wl-col--lose")}
+      </div>
+    </div>
+  );
+}
+
+function ObsInstLinks({ links }) {
+  if (!links) return null;
+  const grp = (items, label) => (Array.isArray(items) && items.length) ? (
+    <div className="obs-profile-link-group">
+      <div className="obs-profile-link-dir">{label}</div>
+      {items.map((x, i) => (
+        <div key={i} className="obs-profile-link-row">
+          <span className="obs-profile-link-channel">{x.channel}</span>
+          <span className="obs-profile-link-effect">{x.effect}</span>
+          <ObsInstTag tag={x.tag} />
+        </div>
+      ))}
+    </div>
+  ) : null;
+  return (
+    <div className="obs-profile-links">
+      {grp(links.to_macro, "Правила игры → экономика")}
+      {grp(links.from_macro, "Экономика → правила игры")}
+      {grp(links.to_geo, "Правила игры → внешний контур")}
+      {grp(links.from_geo, "Внешний контур → правила игры")}
     </div>
   );
 }
@@ -2523,7 +2650,12 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                                   <span className="obs-sector-side">
                                     <b>выигрывают:</b>{" "}
                                     {s.winners.map((t) => (
-                                      <button key={t} className="obs-ticker-link" onClick={() => onSelectCompany?.(t)}>{t}</button>
+                                      <button key={t} className="obs-ticker-link" onClick={() => onSelectCompany?.(t)}>
+                                        {t}
+                                        {interp?.company_names?.[t] && (
+                                          <span className="obs-ticker-name">{interp.company_names[t]}</span>
+                                        )}
+                                      </button>
                                     ))}
                                   </span>
                                 )}
@@ -2531,7 +2663,12 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                                   <span className="obs-sector-side">
                                     <b>под давлением:</b>{" "}
                                     {s.losers.map((t) => (
-                                      <button key={t} className="obs-ticker-link" onClick={() => onSelectCompany?.(t)}>{t}</button>
+                                      <button key={t} className="obs-ticker-link" onClick={() => onSelectCompany?.(t)}>
+                                        {t}
+                                        {interp?.company_names?.[t] && (
+                                          <span className="obs-ticker-name">{interp.company_names[t]}</span>
+                                        )}
+                                      </button>
                                     ))}
                                   </span>
                                 )}
@@ -5348,10 +5485,19 @@ function ObsInstitutions({ token }) {
   const [baro, setBaro] = useState(null);
   const [baroLoading, setBaroLoading] = useState(true);
   const [overlay, setOverlay] = useState(null); // «текущая ситуация по ленте» — дельта-слой поверх baro
+  // «Институциональный портрет» — человеческий слой поверх барометра: ось
+  // «правила для всех ↔ решает доступ», связь с ценой акций, факторы в обе
+  // стороны, кто выигрывает и проигрывает, связки с макро и гео. Отдельный
+  // недельный слой, поэтому и отдельный запрос (у него своя дата свежести).
+  const [profile, setProfile] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
+    fetch(`${apiUrl}/api/market/institutions/profile`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setProfile(d && d.available ? d.profile : null))
+      .catch(() => setProfile(null));
     fetch(`${apiUrl}/api/market/institutions/digest?limit=40`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => setDigest(d.articles || []))
@@ -5425,6 +5571,75 @@ function ObsInstitutions({ token }) {
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <ObsBaroCaveat flags={baro.data_flags} />
 
+                {/* ПОРТРЕТ — ПЕРВЫМ, до барометра. Прежний экран начинался с
+                    числа 2.4/5 и слова «экстрактивная оболочка»: пользователь
+                    сначала встречал модель и только потом (если дочитывал)
+                    смысл. Владелец: «надо объяснять глобально, что значит и к
+                    чему приводит». Теперь сверху ось и связь с ценой, а
+                    барометр ниже — как обоснование, а не как вход. */}
+                {profile && (
+                  <div className="obs-inst-card obs-inst-portrait">
+                    <div className="obs-inst-card-title"><Landmark size={16} />Правила игры для бизнеса — и что это значит для ваших денег</div>
+                    <ObsInstAxis axis={profile.axis} />
+
+                    {profile.price_tag && (
+                      <div className="obs-inst-price">
+                        <span className="obs-inst-price-label">Почему это про цену акций</span>
+                        <p><span className="obs-tag-estimate">суждение Basis</span>{profile.price_tag}</p>
+                      </div>
+                    )}
+
+                    {profile.plain?.what_happens && (
+                      <p className="obs-inst-plain"><b>Что происходит.</b> {profile.plain.what_happens}</p>
+                    )}
+                    {profile.plain?.what_it_means && (
+                      <p className="obs-inst-plain"><b>Что это значит для рынка.</b> {profile.plain.what_it_means}</p>
+                    )}
+
+                    <ObsInstFactors worse={profile.pushing_worse} better={profile.pushing_better} />
+
+                    {(profile.transaction_costs?.plain || (profile.transaction_costs?.items || []).length > 0) && (
+                      <details className="obs-inst-details">
+                        <summary>Во что обходится нынешняя среда</summary>
+                        <div className="obs-inst-details-body">
+                          {profile.transaction_costs.plain && <p>{profile.transaction_costs.plain}</p>}
+                          {(profile.transaction_costs.items || []).map((it, i) => (
+                            <div key={i} className="obs-profile-link-row">
+                              <span className="obs-profile-link-channel">{it.kind}</span>
+                              <span className="obs-profile-link-effect">{it.what}</span>
+                              {it.who_pays && <span className="obs-inst-costs-who">{it.who_pays}</span>}
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    )}
+
+                    <details className="obs-inst-details">
+                      <summary>Кто выигрывает, а кто проигрывает</summary>
+                      <div className="obs-inst-details-body"><ObsInstWinners wl={profile.winners_losers} /></div>
+                    </details>
+
+                    <details className="obs-inst-details">
+                      <summary>Как это связано с экономикой и внешним контуром</summary>
+                      <div className="obs-inst-details-body"><ObsInstLinks links={profile.links} /></div>
+                    </details>
+
+                    {Array.isArray(profile.watchpoints) && profile.watchpoints.length > 0 && (
+                      <div className="obs-profile-watch">
+                        <div className="obs-profile-watch-label">За чем следить</div>
+                        {profile.watchpoints.map((w, i) => (
+                          <div key={i} className="obs-profile-watch-row">
+                            <span className="obs-profile-watch-signal">{w.signal}</span>
+                            <span className="obs-profile-watch-means">{w.means}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {profile.as_of && <div className="obs-profile-foot">Разбор Basis, обновляется еженедельно · срез на {profile.as_of}</div>}
+                  </div>
+                )}
+
                 <ObsBaroHero
                   eyebrow="Институциональный барометр · оценка Basis"
                   asOf={baro.as_of}
@@ -5436,7 +5651,9 @@ function ObsInstitutions({ token }) {
                   meta={baro._meta}
                   coSignal={baro.institutional_crp_floor_pp != null && (
                     <div className="obs-inst-hero-cosignal">
-                      <span className="obs-inst-hero-cosignal-label">CRP-«пол»</span>
+                      {/* Было «CRP-«пол»» — владелец: «что это вообще? ничего не
+                          понятно». CRP и «пол» — внутренние термины методички. */}
+                      <span className="obs-inst-hero-cosignal-label">надбавка за риск</span>
                       <span className="obs-inst-hero-cosignal-value">
                         {baro.institutional_crp_floor_pp}<span className="obs-inst-hero-cosignal-unit">п.п.</span>
                       </span>
@@ -5444,7 +5661,11 @@ function ObsInstitutions({ token }) {
                   )}
                   extra={drift && (
                     <div className="obs-inst-hero-drift">
-                      <div className="obs-inst-hero-drift-label"><TrendingDown size={12} />{drift.key} · {drift.label}</div>
+                      {/* Без кода субиндекса и без слова «дрейф»: владелец просил
+                          не показывать внутренние обозначения. Смысл («куда
+                          движется среда») раскрыт выше в портрете — здесь только
+                          обоснование модели. */}
+                      <div className="obs-inst-hero-drift-label"><TrendingDown size={12} />Куда движется среда</div>
                       <p>{drift.rationale}</p>
                     </div>
                   )}
@@ -5468,7 +5689,7 @@ function ObsInstitutions({ token }) {
 
                 {baro.crp_floor_rationale && (
                   <div className="obs-inst-card">
-                    <div className="obs-inst-card-title"><Landmark size={16} />Институциональный «пол» CRP</div>
+                    <div className="obs-inst-card-title"><Landmark size={16} />Сколько инвесторы просят сверху за российский риск</div>
                     <div className="obs-inst-crp-value">
                       {baro.institutional_crp_floor_pp}<span className="obs-inst-crp-unit">п.п. к стоимости капитала</span>
                     </div>
@@ -5510,15 +5731,25 @@ function ObsInstitutions({ token }) {
 
                 {restSub.length > 0 && (
                   <div className="obs-inst-card">
-                    <div className="obs-inst-card-title"><Building2 size={16} />Показатели (M1–M12)</div>
+                    {/* Заголовок без внутренних кодов: владелец — «M1, M2, M3 это
+                        внутренние названия, их не надо использовать». Сами коды
+                        скрыты и в строках субиндексов (см. ObsBaroSubRow). */}
+                    <div className="obs-inst-card-title"><Building2 size={16} />Из чего складывается оценка</div>
                     <div className="obs-inst-card-sub">5/5 — сильный институт (низкий риск для держателя акций), 1/5 — слабый (высокий риск).</div>
                     <ObsBaroClusters clusters={INSTITUTIONS_CLUSTERS} subindexMap={subMap} polarity="higherBetter" />
                   </div>
                 )}
 
+                {/* Блок «Что нового» СВЁРНУТ по умолчанию (владелец 2026-08-02:
+                    «статичная плитка, которой не должно быть, если мы уже тянем
+                    из потока»). Совсем убирать не стал: alerts экспертного
+                    барометра — это отобранные события с объяснением «почему
+                    важно», чего в сыром потоке нет. Но наверху им не место:
+                    свежесть даёт лента, а вывод — портрет выше. Когда появится
+                    автогенерация alerts из потока, секция схлопнется в него. */}
                 {alertsSorted.length > 0 && (
-                  <div className="obs-inst-card">
-                    <div className="obs-inst-card-title"><AlertTriangle size={16} />Что нового</div>
+                  <details className="obs-inst-card obs-inst-alerts-details">
+                    <summary className="obs-inst-card-title"><AlertTriangle size={16} />Отобранные события ({alertsSorted.length})</summary>
                     <div className="obs-inst-list">
                       {alertsSorted.map((al, i) => (
                         <div key={i} className="obs-inst-row">
@@ -5539,7 +5770,7 @@ function ObsInstitutions({ token }) {
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </details>
                 )}
 
                 {Array.isArray(baro.power_map_top_conflicts) && baro.power_map_top_conflicts.length > 0 && (
