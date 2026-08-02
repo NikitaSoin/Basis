@@ -49,9 +49,71 @@ class TestSpread:
                    MacroDataPoint.as_of.desc()).first())
         assert row is not None and float(row.value) == 5.56
 
-    def test_broken_page_writes_nothing(self, db, monkeypatch):
+    def test_broken_page_still_saves_exchange_quotes(self, db, monkeypatch):
+        """Страница сломалась, но биржа доступна — Brent и WTI всё равно приходят;
+        без Urals дисконт не считается (нечего вычитать)."""
+        from app.services import macro_ingest as mi
+        from app.services import macro_oil_sync as oil
+
+        mi.seed_indicators(db)
+        db.commit()
+        monkeypatch.setattr("app.services.agent_web.fetch_document",
+                            lambda *a, **k: {"text": "страница изменилась"})
+        monkeypatch.setattr(oil, "_exchange_quotes", lambda: {"oil_brent": 90.5})
+        out = oil.sync_oil_prices(db)
+        assert out["oil_brent"]["value"] == 90.5
+        assert "urals_brent_spread" not in out
+
+    def test_nothing_available_writes_nothing(self, db, monkeypatch):
         from app.services import macro_oil_sync as oil
 
         monkeypatch.setattr("app.services.agent_web.fetch_document",
                             lambda *a, **k: {"text": "страница изменилась"})
+        monkeypatch.setattr(oil, "_exchange_quotes", lambda: {})
         assert oil.sync_oil_prices(db) == {"error": "not_parsed"}
+
+
+class TestExchangeQuoteWins:
+    """🔴 Владелец: «фьючерс с мосбиржи не годится — нужны свежие настоящие данные с
+    лондонской биржи». Контракт BR Мосбиржи привязан к Brent, но это ВТОРИЧНЫЙ
+    инструмент: своя ликвидность, свой базис, остановки в российские праздники.
+    """
+
+    def test_exchange_price_overrides_page_estimate(self, db, monkeypatch):
+        from app.services import macro_ingest as mi
+        from app.services import macro_oil_sync as oil
+
+        mi.seed_indicators(db)
+        db.commit()
+        monkeypatch.setattr("app.services.agent_web.fetch_document",
+                            lambda *a, **k: {"text": PAGE})
+        monkeypatch.setattr(oil, "_exchange_quotes",
+                            lambda: {"oil_brent": 91.55, "oil_wti": 85.0})
+        out = oil.sync_oil_prices(db)
+        assert out["oil_brent"]["value"] == 91.55, "биржа должна перекрывать страницу"
+        # Urals биржевой котировки не имеет — остаётся оценка со страницы
+        assert out["urals"]["value"] == 84.56
+
+    def test_unavailable_exchange_falls_back_to_page(self, db, monkeypatch):
+        from app.services import macro_oil_sync as oil
+
+        monkeypatch.setattr("app.services.agent_web.fetch_document",
+                            lambda *a, **k: {"text": PAGE})
+        monkeypatch.setattr(oil, "_exchange_quotes", lambda: {})
+        out = oil.sync_oil_prices(db)
+        assert out["oil_brent"]["value"] == 90.12
+
+    def test_market_pulse_prefers_exchange_over_moex_future(self, db):
+        """Обзор рынка показывает саму котировку, а фьючерс MOEX — только страховка."""
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+        from app.services.market_pulse import _oil_snapshot
+
+        mi.seed_indicators(db)
+        mi.upsert_point(db, "oil_brent", date(2026, 8, 2), "level", 90.12,
+                        ingested_via="oilprice")
+        db.commit()
+        snap = _oil_snapshot(db)
+        assert snap["source"] == "exchange_quote"
+        assert snap["level"] == 90.12

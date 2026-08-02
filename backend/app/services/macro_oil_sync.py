@@ -41,6 +41,36 @@ _PATTERNS = {
 _MIN, _MAX = 20.0, 200.0
 
 
+# 🔴 Brent берём БИРЖЕВОЙ котировкой, а не страничной оценкой и не фьючерсом Мосбиржи.
+# Владелец 2026-08-02: «фьючерс с мосбиржи не годится — нужны свежие настоящие данные
+# с лондонской биржи». BZ=F — контракт на Brent, расчётный по котировкам ICE Futures
+# Europe (Лондон); цена совпадает с лондонской с точностью до центов и обновляется в
+# течение торгового дня. Прямого бесплатного API у самой ICE нет.
+_YAHOO_CHART = "https://query1.finance.yahoo.com/v8/finance/chart/{sym}"
+_YAHOO_SYMBOLS = {"BZ=F": "oil_brent", "CL=F": "oil_wti"}
+_YAHOO_HTTP = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                             "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"}
+
+
+def _exchange_quotes() -> dict[str, float]:
+    """Живые биржевые котировки Brent и WTI. Пусто — если биржа недоступна."""
+    import httpx
+
+    out: dict[str, float] = {}
+    for sym, code in _YAHOO_SYMBOLS.items():
+        try:
+            r = httpx.get(_YAHOO_CHART.format(sym=sym), params={"range": "5d", "interval": "1d"},
+                          timeout=25, headers=_YAHOO_HTTP, follow_redirects=True)
+            r.raise_for_status()
+            meta = (((r.json().get("chart") or {}).get("result") or [{}])[0].get("meta") or {})
+            price = meta.get("regularMarketPrice")
+            if isinstance(price, (int, float)) and _MIN <= float(price) <= _MAX:
+                out[code] = round(float(price), 2)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("oil-sync: биржевая котировка %s недоступна: %s", sym, type(e).__name__)
+    return out
+
+
 def _parse(text: str) -> dict[str, float]:
     out: dict[str, float] = {}
     for code, pat in _PATTERNS.items():
@@ -66,6 +96,11 @@ def sync_oil_prices(db: Session) -> dict:
         logger.warning("oil-sync: страница недоступна: %s", type(e).__name__)
         return {"error": f"fetch_failed:{type(e).__name__}"}
     prices = _parse(text)
+    # Биржевые котировки перекрывают страничную оценку: для Brent и WTI существует
+    # реальный рынок, и брать их «со страницы» нет причин.
+    exchange = _exchange_quotes()
+    if exchange:
+        prices.update(exchange)
     if not prices:
         logger.warning("oil-sync: цены не распознаны (изменилась вёрстка?)")
         return {"error": "not_parsed"}
@@ -73,9 +108,14 @@ def sync_oil_prices(db: Session) -> dict:
     today = date.today()
     saved = {}
     for code, val in prices.items():
-        res = upsert_point(db, code, today, "level", val, unit="usd/bbl",
-                           source="OilPriceAPI (публичная страница)", source_url=_URL,
-                           ingested_via="oilprice", commit=False)
+        on_exchange = code in exchange
+        res = upsert_point(
+            db, code, today, "level", val, unit="usd/bbl",
+            source=("ICE/NYMEX (биржевая котировка)" if on_exchange
+                    else "OilPriceAPI (публичная страница)"),
+            source_url=(f"https://finance.yahoo.com/quote/{'BZ=F' if code == 'oil_brent' else 'CL=F'}"
+                        if on_exchange else _URL),
+            ingested_via="oilprice", commit=False)
         saved[code] = {"value": val, "res": res}
 
     # Дисконт российской нефти: положительное число = Urals ДЕШЕВЛЕ Brent.

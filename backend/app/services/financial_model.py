@@ -36,7 +36,23 @@ _MAX_DRIVER_SHIFT_PCT = 40.0  # дальше эластичности врут �
 
 # ----------------------------- живые входы -----------------------------
 def _live_brent(db: Session) -> float | None:
-    """Ближайший непогашенный фьючерс BR — тот же источник, что market_drivers."""
+    """Биржевая котировка Brent (ICE/NYMEX через macro_oil_sync).
+
+    🔴 Владелец 2026-08-02: «фьючерс с мосбиржи не годится — нужны свежие настоящие
+    данные с лондонской биржи». Раньше здесь брался ближайший контракт BR Мосбиржи:
+    он привязан к Brent, но это ВТОРИЧНЫЙ инструмент — своя ликвидность, свой базис и
+    остановки торгов в российские праздники. Для модели, где цена нефти задаёт выручку
+    экспортёра, берём саму биржевую котировку; фьючерс MOEX остался фолбэком на случай
+    недоступности внешнего источника.
+    """
+    try:
+        r = db.execute(text(
+            "SELECT value FROM macro_data_points WHERE indicator_code='oil_brent' "
+            "AND metric='level' ORDER BY as_of DESC LIMIT 1")).first()
+        if r and r[0]:
+            return float(r[0])
+    except Exception:  # noqa: BLE001
+        pass
     try:
         r = db.execute(text(
             "SELECT last_price FROM futures "

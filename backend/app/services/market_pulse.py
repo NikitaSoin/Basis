@@ -63,7 +63,7 @@ def _live(ticker: str) -> dict | None:
     return data
 
 
-def _snapshot(db: Session, ticker: str, name: str, days: int = SPARK_DAYS) -> dict | None:
+def _snapshot(db: Session, ticker: str, name: str, days: int = SPARK_DAYS, unit: str | None = None) -> dict | None:
     """Live-уровень (MOEX ISS) + спарклайн из index_history; фолбэк на последний
     дневной close, если live недоступен (та же логика, что indices.get_indices)."""
     rows = db.execute(text(
@@ -103,14 +103,33 @@ def _snapshot(db: Session, ticker: str, name: str, days: int = SPARK_DAYS) -> di
         "level": round(level, 4) if level is not None else None,
         "change_abs": change_abs, "change_pct": change_pct,
         "spark": spark, "source": source, "updated": updated,
+        "unit": unit,
     }
 
 
 def _oil_snapshot(db) -> dict | None:
-    """Ближайший неэкспирировавший фьючерс на нефть Brent (asset_code='BR') как
-    прокси спот-цены — на MOEX физическая нефть не торгуется, это стандартная
-    практика (та же логика, что «цена нефти» в финансовых медиа = цена ближнего
-    фьючерса)."""
+    """Биржевая котировка Brent (ICE/NYMEX), с фолбэком на фьючерс MOEX.
+
+    🔴 Владелец 2026-08-02: «фьючерс с мосбиржи не годится — нужны свежие настоящие
+    данные с лондонской биржи». Контракт BR Мосбиржи привязан к Brent, но это
+    ВТОРИЧНЫЙ инструмент: своя ликвидность, свой базис, остановки в российские
+    праздники. Показываем саму котировку, а MOEX оставляем страховкой.
+    """
+    from sqlalchemy import text as _sql
+
+    row = db.execute(_sql(
+        "SELECT value, as_of FROM macro_data_points WHERE indicator_code='oil_brent' "
+        "AND metric='level' ORDER BY as_of DESC LIMIT 2")).all()
+    if row:
+        last = float(row[0][0])
+        prev = float(row[1][0]) if len(row) > 1 else None
+        return {
+            "ticker": "BZ", "name": "Нефть Brent",
+            "level": last,
+            "change_pct": round((last / prev - 1) * 100, 2) if prev else None,
+            "unit": "$", "note": "биржевая котировка (ICE/NYMEX)",
+            "source": "exchange_quote",
+        }
     from app.models.future import Future
     today = date.today()
     f = (db.query(Future)
@@ -141,7 +160,7 @@ def _metals_snapshot(db) -> list[dict]:
 def get_market_overview(db: Session) -> dict:
     indices = [s for t in PULSE_INDEX_ORDER if (s := _snapshot(db, t, PULSE_INDEX_NAMES[t]))]
     sectors = [s for t in SECTOR_ORDER if (s := _snapshot(db, t, SECTOR_INDEX_NAMES[t]))]
-    rates = [s for t in RATE_ORDER if (s := _snapshot(db, t, RATE_NAMES[t]))]
+    rates = [s for t in RATE_ORDER if (s := _snapshot(db, t, RATE_NAMES[t], unit="%"))]
     return {
         "indices": indices,
         "sectors": sectors,
