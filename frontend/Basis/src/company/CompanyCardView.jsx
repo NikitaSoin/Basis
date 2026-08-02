@@ -1790,6 +1790,19 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
     ]).then(([d, s, a]) => { setData(d); setSummary(s); setAnalysis(a); setLoading(false); }).catch(() => setLoading(false));
   }, [secid]);
 
+
+  // 🔴 Статику убираем ТОЛЬКО когда данные пришли. Раньше событие слал разбор адреса в
+  // App.js — сразу, до загрузки: SEO-текст выкидывался из DOM мгновенно, и в этот момент
+  // на странице не было НИ статики, НИ карточки. Робот, исполняющий скрипты, видел
+  // пустоту вместо содержимого — владелец заметил, что после подключения приложения
+  // страница перестала находиться в поиске, хотя до этого находилась. У карточек
+  // компаний так и было сделано с самого начала (basis:company-ready по приходу данных),
+  // а для инструментов я это упустил.
+  useEffect(() => {
+    if (loading) return;
+    try { window.dispatchEvent(new Event("basis:app-ready")); } catch { /* не критично */ }
+  }, [loading]);
+
   if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем облигацию...</div>;
   if (!data?.bond) return <div className="tw-py-12 tw-text-text-tertiary">Облигация не найдена. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">Назад</button></div>;
 
@@ -2335,6 +2348,19 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
     ]).then(([d, s]) => { setData(d); setSummary(s); setLoading(false); }).catch(() => setLoading(false));
   }, [secid]);
 
+
+  // 🔴 Статику убираем ТОЛЬКО когда данные пришли. Раньше событие слал разбор адреса в
+  // App.js — сразу, до загрузки: SEO-текст выкидывался из DOM мгновенно, и в этот момент
+  // на странице не было НИ статики, НИ карточки. Робот, исполняющий скрипты, видел
+  // пустоту вместо содержимого — владелец заметил, что после подключения приложения
+  // страница перестала находиться в поиске, хотя до этого находилась. У карточек
+  // компаний так и было сделано с самого начала (basis:company-ready по приходу данных),
+  // а для инструментов я это упустил.
+  useEffect(() => {
+    if (loading) return;
+    try { window.dispatchEvent(new Event("basis:app-ready")); } catch { /* не критично */ }
+  }, [loading]);
+
   if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем контракт...</div>;
   if (!data?.future) return <div className="tw-py-12 tw-text-text-tertiary">Контракт не найден. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">Назад</button></div>;
 
@@ -2533,6 +2559,19 @@ const FundCard = ({ secid, onBack }) => {
       fetch(`${base}/summary`).then((r) => (r.ok ? r.text() : null)).catch(() => null),
     ]).then(([d, s]) => { setData(d); setSummary(s); setLoading(false); }).catch(() => setLoading(false));
   }, [secid]);
+
+
+  // 🔴 Статику убираем ТОЛЬКО когда данные пришли. Раньше событие слал разбор адреса в
+  // App.js — сразу, до загрузки: SEO-текст выкидывался из DOM мгновенно, и в этот момент
+  // на странице не было НИ статики, НИ карточки. Робот, исполняющий скрипты, видел
+  // пустоту вместо содержимого — владелец заметил, что после подключения приложения
+  // страница перестала находиться в поиске, хотя до этого находилась. У карточек
+  // компаний так и было сделано с самого начала (basis:company-ready по приходу данных),
+  // а для инструментов я это упустил.
+  useEffect(() => {
+    if (loading) return;
+    try { window.dispatchEvent(new Event("basis:app-ready")); } catch { /* не критично */ }
+  }, [loading]);
 
   if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем фонд...</div>;
   if (!data?.fund) return <div className="tw-py-12 tw-text-text-tertiary">Фонд не найден. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">Назад</button></div>;

@@ -6835,3 +6835,6 @@ details[open] > summary .obs-inst-chev,
   line-height: 1.5;
   color: var(--text-tertiary);
 }
+/* Что наблюдать по сектору — превращает «ветер» в наблюдаемое событие. */
+.obs-sector-watch { margin-top: 5px; font-size: 12px; color: var(--text-secondary); line-height: 1.45; }
+.obs-sector-watch b { color: var(--text-tertiary); font-weight: 700; }

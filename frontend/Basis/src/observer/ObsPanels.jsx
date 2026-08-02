@@ -2644,6 +2644,11 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                             {/* Дисперсия внутри сектора: почему одни выигрывают, другие нет */}
                             {s.dispersion && <div className="obs-sector-dispersion">{s.dispersion}</div>}
                             {s.why_names && <div className="obs-sector-why-names">{s.why_names}</div>}
+                            {s.what_to_watch && (
+                              <div className="obs-sector-watch">
+                                <b>Следить:</b> {s.what_to_watch}
+                              </div>
+                            )}
                             {(s.winners?.length > 0 || s.losers?.length > 0) && (
                               <div className="obs-sector-names">
                                 {s.winners?.length > 0 && (
