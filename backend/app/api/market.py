@@ -632,6 +632,34 @@ def market_geo_barometer(db: Session = Depends(get_db)):
     return JSONResponse(content=payload)
 
 
+@router.get("/market/geo-profile")
+def market_geo_profile(db: Session = Depends(get_db)):
+    """«Портрет очага» — медленный слой блока «Оценка ситуации»: стороны и их
+    цели, баланс сил по осям, важным инвестору, связки с макроэкономикой и
+    институтами В ОБЕ СТОРОНЫ, watchpoints. Обновляется недельным кроном
+    (geo_profile), отдельно от суточного барометра — см. докстринг
+    geo_conflict_profile. Отдаётся последний опубликованный набор по трём очагам.
+
+    Мягкая деградация: пока слой ни разу не отработал, отдаём available=false, а
+    не 404 — витрине нужно отличать «портрета ещё нет» (рисуем без секции) от
+    ошибки сети.
+    """
+    from app.services.geo_conflict_profile import get_latest
+    payload = get_latest(db) or {}
+    generated_at = payload.pop("_generated_at", None) if isinstance(payload, dict) else None
+    return {"profiles": payload, "generated_at": generated_at,
+            "available": bool(payload)}
+
+
+@router.get("/market/geo/data-quality")
+def market_geo_data_quality(db: Session = Depends(get_db)):
+    """«ОТК данных» геополитики — результат последнего прогона проверок БЕЗ LLM
+    (живость конвейера, согласованность вероятностей, полнота секций очагов).
+    Аналог /market/macro/data-quality; фронт рисует плашку состояния данных."""
+    from app.services.geo_verification import latest_results
+    return latest_results(db)
+
+
 @router.get("/market/situation-overlay")
 def market_situation_overlay(db: Session = Depends(get_db)):
     """Оперативный слой «текущая ситуация по ленте» поверх экспертных барометров

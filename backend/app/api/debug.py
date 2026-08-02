@@ -1577,6 +1577,44 @@ def debug_trigger_barometer_daily():
         db.close()
 
 
+@router.post("/debug/trigger-geo-profile")
+def debug_trigger_geo_profile():
+    """Ручной запуск НЕДЕЛЬНОГО портрета очагов (крон geo_profile, вс 22:10):
+    стороны и цели, баланс сил, связки с макро и институтами в обе стороны.
+    Дорогой прогон — три reasoning-вызова, по одному на очаг."""
+    from app.db.session import SessionLocal
+    from app.services.geo_conflict_profile import rebuild
+    db = SessionLocal()
+    try:
+        row = rebuild(db)
+        if row is None:
+            return {"result": "ни один очаг не собран (лента пуста?)"}
+        return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes,
+                "scopes": [k for k in (row.payload or {}) if not k.startswith("_")]}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-geo-profile: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
+@router.post("/debug/trigger-geo-verification")
+def debug_trigger_geo_verification():
+    """Ручной прогон «ОТК данных» геополитики (крон geo_verification, 22:30).
+    Без LLM и быстрый — первое, что стоит дёрнуть при жалобе «в геополитике
+    данные неверные / блок пустой»."""
+    from app.db.session import SessionLocal
+    from app.services.geo_verification import run_verification
+    db = SessionLocal()
+    try:
+        return run_verification(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-geo-verification: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-macro-business-split")
 def debug_trigger_macro_business_split(limit: int = 200):
     """Разовый проход geo_digest.split_macro_business() — разложить уже накопленные

@@ -1692,6 +1692,230 @@ function ObsSituationOverlay({ block, generatedAt, anchorAsOf, nested = true }) 
   );
 }
 
+// =========================
+// ПОРТРЕТ ОЧАГА — секции «кто стороны и чего хотят», «баланс сил», «связки с
+// макро и институтами в обе стороны», «за чем следить».
+//
+// Владелец (2026-08-02): «задача блока — чтобы возникло понимание, что
+// происходит сейчас в этой войне: кто стороны, чего хотят, какие позиции,
+// баланс сил; как это влияет на макроэкономику и институты и в обратную
+// сторону; а потом уже приземлять на сектора».
+//
+// Данные приходят отдельным запросом /market/geo-profile — это МЕДЛЕННЫЙ слой
+// (недельный крон), у него своя дата свежести. Она показывается явно: смешать
+// её с датой суточного барометра значило бы выдать позапрошлонедельный разбор
+// за сегодняшний.
+//
+// Все секции, кроме «за чем следить», свёрнуты по умолчанию: постановка
+// (design-tasks/geo-assessment-brief.md, §3) держит наверху ВЕРДИКТ, а разбор —
+// по клику; владелец отдельно просил не делать простыню.
+// =========================
+function ObsProfileTag({ tag }) {
+  if (!tag) return null;
+  const isFact = /факт/i.test(tag);
+  return <span className={isFact ? "obs-tag-fact" : "obs-tag-estimate"}>{tag}</span>;
+}
+
+function ObsProfileParties({ parties }) {
+  if (!Array.isArray(parties) || !parties.length) return null;
+  return (
+    <div className="obs-profile-parties">
+      {parties.map((p, i) => (
+        <div key={i} className="obs-profile-party">
+          <div className="obs-profile-party-head">
+            <span className="obs-profile-party-name">{p.name}</span>
+            {p.role && <span className="obs-profile-party-role">{p.role}</span>}
+          </div>
+          {/* Заявленная цель и интерпретация — РАЗНЫЕ строки с разными тегами.
+              Постановка называет их слипание главным риском блока: заявление
+              стороны это факт, прочтение её интереса — суждение Basis. */}
+          {p.stated_goal && (
+            <div className="obs-profile-party-row">
+              <span className="obs-tag-fact">заявляет</span>
+              <span>{p.stated_goal}</span>
+            </div>
+          )}
+          {p.real_interest && (
+            <div className="obs-profile-party-row">
+              <span className="obs-tag-estimate">интерес</span>
+              <span>{p.real_interest}</span>
+            </div>
+          )}
+          {(p.constraints || p.leverage) && (
+            <div className="obs-profile-party-foot">
+              {p.leverage && <span><b>чем давит:</b> {p.leverage}</span>}
+              {p.constraints && <span><b>что ограничивает:</b> {p.constraints}</span>}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ObsProfileBalance({ balance }) {
+  const dims = Array.isArray(balance?.dimensions) ? balance.dimensions : [];
+  if (!balance?.verdict && !dims.length) return null;
+  return (
+    <div className="obs-profile-balance">
+      {balance.verdict && (
+        <p className="obs-profile-balance-verdict">
+          <span className="obs-tag-estimate">оценка</span>
+          {balance.verdict}
+        </p>
+      )}
+      {dims.map((d, i) => (
+        <div key={i} className="obs-profile-dim">
+          <span className="obs-profile-dim-axis">{d.axis}</span>
+          <span className="obs-profile-dim-lean">{d.lean}</span>
+          <span className="obs-profile-dim-note">{d.note}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Двусторонняя связка. Обе стороны рисуются ВСЕГДА, когда есть данные: обратное
+// направление («экономика ограничивает конфликт») — то, ради чего блок и
+// переделан, и оно же первым выпадает, если рисовать его «если найдётся место».
+function ObsProfileLinks({ title, forward, back, forwardLabel, backLabel }) {
+  const f = Array.isArray(forward) ? forward : [];
+  const b = Array.isArray(back) ? back : [];
+  if (!f.length && !b.length) return null;
+  const row = (x, i) => (
+    <div key={i} className="obs-profile-link-row">
+      <span className="obs-profile-link-channel">{x.channel}</span>
+      <span className="obs-profile-link-effect">{x.effect}</span>
+      <ObsProfileTag tag={x.tag} />
+    </div>
+  );
+  return (
+    <div className="obs-profile-links">
+      {f.length > 0 && (
+        <div className="obs-profile-link-group">
+          <div className="obs-profile-link-dir">{forwardLabel}</div>
+          {f.map(row)}
+        </div>
+      )}
+      {b.length > 0 && (
+        <div className="obs-profile-link-group">
+          <div className="obs-profile-link-dir">{backLabel}</div>
+          {b.map(row)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Плашка «ОТК данных» геополитики — та же грамматика, что у Экономической
+// статистики (владелец 2026-07-25, вариант «б»): всё чисто → тихая строка,
+// есть замечания → заметный callout со списком. Отдельный компонент, а не
+// переиспользование макро-плашки: у гео другой контракт ответа (results /
+// check_key вместо checks / key), и подгонять его под чужой формат ради
+// экономии двадцати строк — верный способ сломать работающую макро-плашку.
+function ObsGeoDataQuality({ dq }) {
+  if (!dq?.available || !dq?.run_at) return null;
+  const problems = (dq.results || []).filter((c) => c.status === "warn" || c.status === "fail");
+  const hasFail = problems.some((c) => c.status === "fail");
+  const runStr = new Date(dq.run_at).toLocaleString("ru-RU",
+    { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  const plural = (n) => (n % 10 === 1 && n % 100 !== 11 ? "замечание"
+    : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? "замечания" : "замечаний");
+
+  if (!problems.length) {
+    return (
+      <div className="obs-geo-dq obs-geo-dq--ok">
+        <span className="obs-geo-dq-dot" aria-hidden="true">●</span>
+        <span>Слои геополитики проверены автоматически · {runStr} · факт</span>
+      </div>
+    );
+  }
+  return (
+    <div className={`obs-geo-dq obs-geo-dq--issues${hasFail ? " obs-geo-dq--fail" : ""}`}>
+      <div className="obs-geo-dq-title">
+        Автопроверка данных: {problems.length} {plural(problems.length)}
+        <span className="obs-geo-dq-when">{runStr} · часть блоков может быть неактуальна</span>
+      </div>
+      <ul className="obs-geo-dq-list">
+        {problems.map((c) => (
+          <li key={c.check_key}>
+            <span className={c.status === "fail" ? "obs-geo-dq-mark--fail" : "obs-geo-dq-mark--warn"}>
+              {c.status === "fail" ? "✕" : "!"}
+            </span>{" "}
+            <b>{c.title}:</b> {c.message}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ObsGeoProfile({ profile, generatedAt, scopeLabel }) {
+  if (!profile) return null;
+  const gen = generatedAt
+    ? new Date(generatedAt).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" })
+    : profile.as_of || null;
+  const watch = Array.isArray(profile.watchpoints) ? profile.watchpoints : [];
+  const sec = (key, label, node) => node ? (
+    <details key={key} className="obs-inst-details obs-profile-details">
+      <summary>{label}</summary>
+      <div className="obs-inst-details-body">{node}</div>
+    </details>
+  ) : null;
+
+  return (
+    <div className="obs-profile">
+      <div className="obs-synth-head obs-profile-head">
+        Расклад по очагу «{scopeLabel}»
+        {gen && <span className="obs-profile-asof">портрет от {gen}</span>}
+      </div>
+
+      {/* «Почему это важно» и watchpoints — НЕ под катом: это ответ на вопрос
+          «и что мне с этим делать», ради которого пользователь пришёл. */}
+      {profile.why_matters && (
+        <p className="obs-profile-why">
+          <span className="obs-tag-estimate">суждение Basis</span>
+          {profile.why_matters}
+        </p>
+      )}
+
+      {watch.length > 0 && (
+        <div className="obs-profile-watch">
+          <div className="obs-profile-watch-label">За чем следить</div>
+          {watch.map((w, i) => (
+            <div key={i} className="obs-profile-watch-row">
+              <span className="obs-profile-watch-signal">{w.signal}</span>
+              <span className="obs-profile-watch-means">{w.means}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {sec("parties", "Кто стороны и чего добивается каждая",
+        <ObsProfileParties parties={profile.parties} />)}
+      {sec("balance", "Баланс сил — по осям, важным инвестору",
+        <ObsProfileBalance balance={profile.balance} />)}
+      {sec("macro", "Связка с экономикой — в обе стороны",
+        <ObsProfileLinks
+          forward={(profile.macro_link || {}).to_macro}
+          back={(profile.macro_link || {}).from_macro}
+          forwardLabel="Очаг → экономика РФ"
+          backLabel="Экономика → ход конфликта" />)}
+      {sec("inst", "Связка с институтами — в обе стороны",
+        <ObsProfileLinks
+          forward={(profile.institutional_link || {}).to_inst}
+          back={(profile.institutional_link || {}).from_inst}
+          forwardLabel="Очаг → правила игры"
+          backLabel="Правила игры → ход конфликта" />)}
+
+      <div className="obs-profile-foot">
+        Портрет очага — аналитическая реконструкция Basis по открытым источникам,
+        не факт и не индивидуальная инвестиционная рекомендация.
+      </div>
+    </div>
+  );
+}
+
 const INSTITUTIONS_CLUSTERS = [
   { name: "Власть и право", icon: Gavel, keys: ["M1", "M2", "M4"] },
   { name: "Экономика и бюджет", icon: Coins, keys: ["M3", "M6", "M8", "M12"] },
@@ -4547,6 +4771,13 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
   const [baroLoading, setBaroLoading] = useState(true);
   const [overlay, setOverlay] = useState(null); // «текущая ситуация по ленте» — дельта-слой поверх baro
   const [geoHorizon, setGeoHorizon] = useState("6m"); // 6m | 18m — переключатель горизонта сценариев
+  // «Портрет очага» — МЕДЛЕННЫЙ слой (стороны/цели/баланс сил/связки с макро и
+  // институтами в обе стороны). Обновляется недельным кроном отдельно от
+  // суточного барометра, поэтому и приходит отдельным запросом: у него своя
+  // дата свежести, и мешать её с датой барометра нельзя — пользователь решит,
+  // что весь блок собран сегодня.
+  const [profiles, setProfiles] = useState(null);
+  const [geoDq, setGeoDq] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -4562,6 +4793,14 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => setOverlay(d && d.available && d.blocks ? d : null))
       .catch(() => setOverlay(null));
+    fetch(`${apiUrl}/api/market/geo-profile`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setProfiles(d && d.available ? d : null))
+      .catch(() => setProfiles(null));
+    fetch(`${apiUrl}/api/market/geo/data-quality`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setGeoDq(d && d.available ? d : null))
+      .catch(() => setGeoDq(null));
   }, [apiUrl]);
 
   // Лента материалов (Рыбарь/Carnegie/re:russia/Economist/ISW) по региону — грузим лениво,
@@ -4704,6 +4943,11 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
             : "Нет геополитических данных."}
         </div>
       )}
+
+      {/* Плашка «ОТК данных» — над контентом, как в Экономической статистике.
+          Показывается в обоих режимах: если конвейер встал, это одинаково важно
+          и для «Обзора», и для «Оценки ситуации». */}
+      <ObsGeoDataQuality dq={geoDq} />
 
       {!loading && !error && activeRegion && (
         <>
@@ -4869,6 +5113,18 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                             ) : (
                               <div className="obs-art-empty">Оценка по очагу «{scopeMeta?.label}» пока недоступна.</div>
                             )}
+
+                            {/* Портрет очага — СРАЗУ ПОД карточкой-вердиктом и ДО карты и
+                                секторов: постановка требует именно такого порядка чтения
+                                (сигнал → кто стороны → баланс → связки → и только потом
+                                приземление на сектора). Пока недельный слой ни разу не
+                                отработал, profiles === null и секции просто нет — блок
+                                продолжает работать в прежнем виде. */}
+                            <ObsGeoProfile
+                              profile={(profiles?.profiles || {})[scopeKey]}
+                              generatedAt={profiles?.generated_at}
+                              scopeLabel={scopeMeta?.label}
+                            />
                           </div>
                         )}
 

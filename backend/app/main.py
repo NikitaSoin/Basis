@@ -789,6 +789,46 @@ async def _geo_job():
         logger.exception("Ошибка обновления геополитики: %s", e)
 
 
+async def _geo_profile_job():
+    """Портрет очагов (стороны/цели/баланс сил/связки с макро и институтами) —
+    НЕДЕЛЬНЫЙ слой. Раз в неделю, а не ежедневно, намеренно: состав сторон и
+    структурные связки меняются месяцами, ежедневная перегенерация давала бы
+    шевеление текста без событий — см. докстринг geo_conflict_profile."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.geo_conflict_profile import rebuild
+        db = SessionLocal()
+        try:
+            row = rebuild(db)
+            return f"версия {row.id} ({row.status})" if row else "не собрано"
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Портрет очагов: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка портрета очагов: %s", e)
+
+
+async def _geo_verification_job():
+    """«ОТК данных» геополитики — проверки БЕЗ LLM (живость конвейера,
+    согласованность вероятностей, полнота секций). Вечером, ПОСЛЕ всей гео-цепочки,
+    чтобы мерить то, что реально уехало на витрину."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.geo_verification import run_verification
+        db = SessionLocal()
+        try:
+            return run_verification(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("ОТК геополитики: %s %s", res.get("overall"), res.get("counts"))
+    except Exception as e:
+        logger.exception("Ошибка ОТК геополитики: %s", e)
+
+
 async def _company_signals_job():
     """Сигнальная шина «поток Обозревателя → карточка компании» (владелец
     2026-07-27). Конвертирует Ленту (affected_tickers, без LLM) + дайджест
@@ -1275,6 +1315,8 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("situation_overlay", _situation_overlay_job), "cron", hour=21, minute=20, id="situation_overlay")  # оверлей ситуации гео/институты — после geopolitics (тот же дневной digest)
         scheduler.add_job(_with_heartbeat("barometer_reviser", _barometer_reviser_job), "cron", hour=21, minute=40, id="barometer_reviser")  # ревизор ИНСТИТУТОВ (гео ушёл на barometer_daily) — после оверлея (его вердикт = триггер); cooldown 5 дней внутри
         scheduler.add_job(_with_heartbeat("barometer_daily", _barometer_daily_job), "cron", hour=21, minute=50, id="barometer_daily")  # ЕЖЕДНЕВНАЯ полная пересборка гео-барометра DeepSeek (владелец 2026-08-01) — последней в цепочке гео: digest(:10 ежечасно) → geopolitics(21:00) → overlay(21:20) → reviser inst(21:40) → сюда
+        scheduler.add_job(_with_heartbeat("geo_profile", _geo_profile_job), "cron", day_of_week="sun", hour=22, minute=10, id="geo_profile")  # портрет очагов — НЕДЕЛЬНЫЙ слой (медленные данные: стороны/цели/баланс/связки), воскресенье после суточной цепочки
+        scheduler.add_job(_with_heartbeat("geo_verification", _geo_verification_job), "cron", hour=22, minute=30, id="geo_verification")  # «ОТК данных» гео без LLM — последним, меряет то, что реально уехало на витрину
         scheduler.add_job(_with_heartbeat("geo_digest", _geo_digest_job), "cron", minute=10, id="geo_digest")  # каждый час
         scheduler.add_job(_with_heartbeat("company_signals", _company_signals_job), "cron", minute=35, id="company_signals")  # шина: после news(5)+geo_digest(10), их выход = вход
         scheduler.add_job(_with_heartbeat("rating_agencies", _rating_agencies_job), "cron", hour=20, minute=55, id="rating_agencies")  # рейтинговые действия АКРА/НКР → сигналы + освежение agency_rating бумаг
