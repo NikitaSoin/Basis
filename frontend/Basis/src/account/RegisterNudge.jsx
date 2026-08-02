@@ -1,17 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "../design/primitives";
 import "../styles/register-nudge.css";
 
-// Отложенный ненавязчивый тост-приглашение к регистрации (владелец, 2026-08-02):
-// «не надо человека специально вести к ассистенту или в портфель ... надо просто
-// чтобы у незарегистрированного пользователя через какое-то время всплывала
-// менюшка регистрации». Монтируется в App.js рядом с AuthModal, ТОЛЬКО когда
-// !token — сам компонент не проверяет авторизацию повторно.
+// Отложенный ненавязчивый тост-приглашение к регистрации (владелец, 2026-08-02,
+// уточнено 2026-08-02): «одну страницу посмотрел — не трогаем, перешёл на
+// другую — не трогаем, перешёл на третью — тогда показываем. Или если человек
+// пробыл на платформе 10 минут — вкидываем». Монтируется в App.js рядом с
+// AuthModal, ТОЛЬКО когда !token — сам компонент не проверяет авторизацию
+// повторно. `viewKey` — идентификатор текущего «экрана» (карточка компании/
+// бумаги или раздел навигации, см. App.js), меняется при реальной навигации,
+// НЕ при переключении вкладок внутри одной карточки.
 //
-// Механика:
-// - Появляется через SHOW_DELAY_MS после монтирования (захода на сайт), не
-//   сразу — иначе раздражает с порога лендинга.
+// Механика триггера — ЧТО РАНЬШЕ:
+// - PAGE_TRIGGER: 3-й отдельный экран за визит (2 смены viewKey после
+//   стартового — пришёл на страницу 1, перешёл на 2, перешёл на 3 → показываем);
+// - TIME_TRIGGER_MS: 10 минут на сайте, даже если пользователь ни разу не
+//   переключился (читает один длинный разбор).
 // - В момент показа сразу пишем localStorage-штамп (не только по клику
 //   крестика) — так «уже видел в этой сессии» тоже гасит повтор при следующей
 //   перезагрузке, даже если пользователь просто ушёл со страницы, не закрыв
@@ -21,12 +26,27 @@ import "../styles/register-nudge.css";
 //   отверг), но не «увидел один раз и забыли навсегда» — платформа даёт
 //   пользователю ещё несколько напоминаний за первую неделю знакомства.
 const DISMISS_KEY = "basis_reg_nudge_dismissed_at";
-const SHOW_DELAY_MS = 50_000; // 50 c на сайте суммарно (в диапазоне 45–60 с из ТЗ)
+const PAGE_TRIGGER = 3; // считаем стартовый экран страницей №1
+const TIME_TRIGGER_MS = 10 * 60 * 1000; // 10 минут
 const COOLDOWN_MS = 5 * 24 * 60 * 60 * 1000; // 5 дней
 
-export default function RegisterNudge({ onOpenAuth }) {
+export default function RegisterNudge({ onOpenAuth, viewKey }) {
   const [visible, setVisible] = useState(false);
+  const armedRef = useRef(false); // прошли ли гейт cooldown — таймер/счётчик стоит
+  const shownRef = useRef(false); // уже показали в этом монтировании — не триггерить дважды
+  const pageCountRef = useRef(1); // стартовый экран — страница №1
+  const lastViewKeyRef = useRef(viewKey);
 
+  const trigger = () => {
+    if (shownRef.current) return;
+    shownRef.current = true;
+    setVisible(true);
+    try {
+      localStorage.setItem(DISMISS_KEY, String(Date.now()));
+    } catch {}
+  };
+
+  // Гейт cooldown + 10-минутный таймер — один раз на монтирование.
   useEffect(() => {
     let lastShownAt = 0;
     try {
@@ -35,15 +55,20 @@ export default function RegisterNudge({ onOpenAuth }) {
     // Недавно уже показывали (эта сессия ИЛИ более ранний визит в пределах
     // cooldown) — не планируем повторный показ вовсе.
     if (lastShownAt && Date.now() - lastShownAt < COOLDOWN_MS) return undefined;
-
-    const timer = setTimeout(() => {
-      setVisible(true);
-      try {
-        localStorage.setItem(DISMISS_KEY, String(Date.now()));
-      } catch {}
-    }, SHOW_DELAY_MS);
+    armedRef.current = true;
+    const timer = setTimeout(trigger, TIME_TRIGGER_MS);
     return () => clearTimeout(timer);
   }, []);
+
+  // Счётчик «страниц» — реагирует на смену viewKey (реальная навигация, не
+  // ре-рендер той же страницы). Не считает, пока гейт cooldown не пройден.
+  useEffect(() => {
+    if (!armedRef.current) return;
+    if (viewKey === lastViewKeyRef.current) return;
+    lastViewKeyRef.current = viewKey;
+    pageCountRef.current += 1;
+    if (pageCountRef.current >= PAGE_TRIGGER) trigger();
+  }, [viewKey]);
 
   const dismiss = () => setVisible(false);
 

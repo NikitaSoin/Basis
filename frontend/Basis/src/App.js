@@ -1325,6 +1325,18 @@ export default function App() {
   const isLanding = activeTab === "landing" && !selectedCompany;
   const toggleTheme = () => setTheme(t => t === "dark" ? "light" : "dark");
 
+  // Ключ текущего «экрана» для RegisterNudge (владелец, 2026-08-02): смена
+  // карточки компании/бумаги ИЛИ раздела навигации — это «новая страница»;
+  // под-вкладки ВНУТРИ одной карточки (Финансы/Обзор той же компании) в счёт
+  // не идут — счётчик молчит, пока пользователь листает вкладки одной карточки.
+  const viewKey = selectedCompany
+    ? `company:${typeof selectedCompany === "string" ? selectedCompany : selectedCompany.ticker}`
+    : selectedBond ? `bond:${selectedBond}`
+    : selectedFuture ? `future:${selectedFuture}`
+    : selectedFund ? `fund:${selectedFund}`
+    : selectedSpot ? `spot:${selectedSpot}`
+    : `tab:${activeTab}`;
+
   return (
     <div data-theme={theme} className={`tw-bg-bg-base tw-text-text-primary${NEO_CARD ? " cc-root" : ""}`}>
       <div className="app-shell">
@@ -1393,7 +1405,7 @@ export default function App() {
           рендерится вовсе для залогиненных — сам компонент решает, ждать
           таймер или нет (см. account/RegisterNudge.jsx). */}
       {!token && !showAuthModal && (
-        <RegisterNudge onOpenAuth={() => setShowAuthModal(true)} />
+        <RegisterNudge onOpenAuth={() => setShowAuthModal(true)} viewKey={viewKey} />
       )}
     </div>
   );
