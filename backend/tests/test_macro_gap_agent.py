@@ -398,3 +398,22 @@ class TestGateDistinguishesHistoryFromForeignNumbers:
     def test_current_value_passes_clean(self):
         from app.services.macro_release_gate import _check_numbers_vs_facts
         assert _check_numbers_vs_facts("инфляционные ожидания 14,7%", self.SNAP) == []
+
+
+def test_question_carries_unit_and_magnitude(db):
+    """Вопрос обязан нести ЕДИНИЦУ ряда и примеры последних значений.
+
+    Агент дважды приносил ТЕМП роста («+10,1% г/г») в ряд, который хранит УРОВЕНЬ
+    (110 216 ₽), и наоборот. По единице и порядку величины ошибиться труднее, чем
+    по одному названию показателя.
+    """
+    from app.services import macro_ingest as mi
+    from app.services.macro_data_questions import collect_questions
+
+    mi.seed_indicators(db)
+    db.commit()
+    for q in collect_questions(db, limit=6):
+        if q.get("kind") != "stale_series":
+            continue
+        assert "ЕДИНИЦА РЯДА" in q["question"], q["code"]
+        assert "последние известные значения" in q["question"], q["code"]

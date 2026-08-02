@@ -169,6 +169,13 @@ def _stale_series(db: Session) -> list[dict]:
         country = {"ru": "Россия", "cn": "Китай", "us": "США", "eu": "Еврозона",
                    "world": "мир"}.get(getattr(ind, "country", None),
                                        getattr(ind, "country", None) or "не указана")
+        # Примеры последних значений: по ним видно и единицу, и порядок величины —
+        # агент дважды приносил ТЕМП роста в ряд, который хранит УРОВЕНЬ.
+        from app.models.macro import MacroDataPoint
+        recent = (db.query(MacroDataPoint.value)
+                  .filter_by(indicator_code=s["code"], metric=s["metric"])
+                  .order_by(MacroDataPoint.as_of.desc()).limit(3).all())
+        have_examples = ", ".join(f"{float(r[0]):g}" for r in recent) or "нет"
         missing = _missing_periods(s["last"], getattr(ind, "frequency", None))
         missing_hint = (f"Нужны периоды: {', '.join(missing)}. " if missing else "")
         out.append({
@@ -184,6 +191,10 @@ def _stale_series(db: Session) -> list[dict]:
                 f"назад, хотя ряд регулярный. {missing_hint}Значение за {s['last']} у "
                 f"нас УЖЕ ЕСТЬ — приносить его повторно бесполезно. Ищи ИМЕННО по этой "
                 f"стране и именно этот показатель (похожие названия — другие величины). "
+                f"🔴 ЕДИНИЦА РЯДА: {unit or 'не указана'} — вернуть нужно величину именно "
+                f"в этих единицах (уровень и темп роста это РАЗНЫЕ вещи; последние "
+                f"известные значения ряда: {have_examples}). У показателя может быть "
+                f"другое официальное название в статистике — попробуй и его. "
                 f"Верни число, дату периода (не дату публикации) и ссылку на источник."
             ),
         })
