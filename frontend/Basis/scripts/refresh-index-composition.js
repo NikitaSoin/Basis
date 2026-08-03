@@ -20,7 +20,10 @@ const path = require("path");
 
 const OUT = path.join(__dirname, "data", "index-composition-snapshot.json");
 const ISS = "https://iss.moex.com/iss/statistics/engines/stock/markets/index/analytics";
-const INDICES = ["IMOEX", "RTSI", "MCFTR"];
+// Секторальные индексы — тот же спрос, но уже, и без конкуренции: «индекс нефть и газ
+// мосбиржа», «состав индекса металлов». У нас их 10 страниц, и состава на них тоже не было.
+const INDICES = ["IMOEX", "RTSI", "MCFTR",
+  "MOEXOG", "MOEXEU", "MOEXTL", "MOEXCH", "MOEXMM", "MOEXFN", "MOEXCN", "MOEXIT", "MOEXTN", "MOEXRE"];
 const TIMEOUT_MS = 20000;
 
 async function fetchComposition(indexId) {
@@ -52,7 +55,9 @@ async function main() {
       // Пустой ответ биржи — не повод затирать рабочий состав: ноль бумаг в индексе
       // невозможен, значит это сбой источника, а не факт (см. «деструктивное правило
       // нуждается в пределе» — уже сносили живые ряды, приняв сбой за данные).
-      if (rows.length >= 10) {
+      // Порог низкий намеренно: в узких секторах (транспорт, телеком) бумаг всего 4–6.
+      // Задача порога — отсечь ПУСТОЙ ответ биржи, а не малый сектор.
+      if (rows.length >= 3) {
         out.indices[id] = { rows, tradedate: null, count: rows.length };
         ok++;
       } else {

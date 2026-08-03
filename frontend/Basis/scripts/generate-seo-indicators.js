@@ -210,6 +210,21 @@ function compositionFor(ticker) {
   return { rows: [], borrowedFrom: null };
 }
 
+/** Таблица состава: вес — факт биржи, справедливая цена и потенциал — оценка Basis.
+ *  Каждая строка ведёт на карточку: это и польза читателю, и внутренняя перелинковка. */
+function compTable(comp, hasCard) {
+  const rows = comp.map((r, i) => {
+    const f = FAIR.get(r.ticker);
+    const link = hasCard(r.ticker) ? `<a href="/company/${esc(r.ticker)}/">${esc(r.name)}</a>` : esc(r.name);
+    return `<tr><td>${i + 1}</td><td>${link} <span style="color:var(--faint)">${esc(r.ticker)}</span></td>`
+      + `<td>${num(r.weight, 2)}%</td><td>${f && f.price != null ? num(f.price) : "—"}</td>`
+      + `<td>${f && f.fair_value != null ? num(f.fair_value) : "—"}</td>`
+      + `<td>${f && f.upside_pct != null ? signed(f.upside_pct) + "%" : "—"}</td></tr>`;
+  }).join("");
+  return `<table><tr><th>№</th><th>Бумага</th><th>Вес</th><th>Цена, ₽</th><th>Справедливая, ₽</th>`
+    + `<th>Потенциал</th></tr>${rows}</table>`;
+}
+
 const num = (v, d = 2) => (v == null || !isFinite(v) ? "—" : Number(v).toLocaleString("ru-RU",
   { minimumFractionDigits: d, maximumFractionDigits: d }));
 const signed = (v, d = 1) => (v == null || !isFinite(v) ? "—" : `${v > 0 ? "+" : ""}${num(v, d)}`);
@@ -247,15 +262,7 @@ function indexPage(ix, assets, all) {
     pct: ((sp[sp.length - 1] - sp[0]) / sp[0]) * 100,
   } : null;
 
-  const compRows = comp.map((r, i) => {
-    const f = FAIR.get(r.ticker);
-    const link = hasCard(r.ticker)
-      ? `<a href="/company/${esc(r.ticker)}/">${esc(r.name)}</a>` : esc(r.name);
-    return `<tr><td>${i + 1}</td><td>${link} <span style="color:var(--faint)">${esc(r.ticker)}</span></td>`
-      + `<td>${num(r.weight, 2)}%</td><td>${f && f.price != null ? num(f.price) : "—"}</td>`
-      + `<td>${f && f.fair_value != null ? num(f.fair_value) : "—"}</td>`
-      + `<td>${f && f.upside_pct != null ? signed(f.upside_pct) + "%" : "—"}</td></tr>`;
-  }).join("");
+  const compRows = compTable(comp, hasCard);
 
   const related = all.filter((x) => x.ticker !== ix.ticker);
   const body = `
@@ -288,8 +295,7 @@ ${borrowedFrom ? `<p class="sub">Корзина совпадает с Индек
 что ${esc(ix.name)} учитывает выплаченные дивиденды.</p>` : ""}
 <p class="sub">Вес — доля бумаги в индексе по данным Московской биржи (факт). Справедливая цена и
 потенциал — <b>оценка Basis</b> по методике карточки, а не прогноз и не рекомендация.</p>
-<table><tr><th>№</th><th>Бумага</th><th>Вес</th><th>Цена, ₽</th><th>Справедливая, ₽</th><th>Потенциал</th></tr>
-${compRows}</table>
+${compRows}
 <p class="sub">Каждая бумага — ссылка на разбор: финансы, оценка, риски, дивиденды.</p>` : ""}
 
 <h2>Что движет индексом</h2>
@@ -377,11 +383,26 @@ function sectorPage(sx, assets, all) {
     + `${chg != null ? `, изменение ${chg > 0 ? "+" : ""}${chg}% за день` : ""}: что в него входит, `
     + `как читать движение сектора и где смотреть разборы его компаний.`;
   const others = all.filter((x) => x.ticker !== sx.ticker);
+  // Состав сектора: до этого заголовок обещал «состав», а на странице его не было —
+  // худший вид страницы, обманывающий и человека, и поиск.
+  const { rows: comp } = compositionFor(String(sx.ticker));
+  const hasCard = (t) => fs.existsSync(path.join(BUILD, "company", t, "index.html"));
+  const heaviest = comp.length ? comp[0] : null;
   const body = `
-<p class="tag">Секторальные индексы MOEX</p>
+<p class="tag">Секторальные индексы MOEX · факт (данные биржи)</p>
 <h1>Индекс «${esc(sx.name)}» <span style="color:var(--faint)">(${esc(sx.ticker)})</span></h1>
 <div class="val">${esc(sx.level != null ? sx.level : (chg != null ? `${chg > 0 ? "+" : ""}${chg}%` : "—"))}</div>
-<p class="meta">${chg != null ? `Изменение за день: ${chg > 0 ? "+" : ""}${esc(chg)}%` : "Значение обновляется"}</p>
+<p class="meta">${chg != null ? `Изменение за день: ${chg > 0 ? "▲" : chg < 0 ? "▼" : ""} ${signed(chg, 2)}%` : "Значение обновляется"}</p>
+${comp.length ? `<p class="sub"><b>Коротко:</b> в секторе ${comp.length} ${
+  comp.length === 1 ? "бумага" : comp.length < 5 ? "бумаги" : "бумаг"}${
+  heaviest ? `, самая тяжёлая — ${esc(heaviest.name)} (${num(heaviest.weight, 1)}% веса)` : ""}.
+Чем меньше бумаг в индексе, тем сильнее он зависит от одной истории: движение сектора и движение
+лидера тогда почти неразличимы.</p>` : ""}
+${comp.length ? `<h2>Состав индекса «${esc(sx.name)}»: ${comp.length} бумаг</h2>
+<p class="sub">Вес — данные Московской биржи (факт). Справедливая цена и потенциал — оценка Basis,
+не прогноз и не рекомендация.</p>
+${compTable(comp, hasCard)}
+<p class="sub">Каждая бумага ведёт на разбор: финансы, оценка, риски, дивиденды.</p>` : ""}
 <h2>Что показывает</h2>
 <p>Индекс отслеживает бумаги одного сектора, поэтому его движение отвечает на вопрос
 «дело в компании или во всём секторе». Если бумага падает вместе с сектором — причина
