@@ -329,7 +329,23 @@ def gather_snapshot(db: Session) -> dict:
             "event_research": _event_research(db),
             "regulated_tariffs": _regulated_tariffs(),
             "context": {**_context(db), "platform_tickers": _platform_tickers(db),
-                        "company_sensitivity": _sensitivity_map()}}
+                        "company_sensitivity": _sensitivity_map(),
+                        "scenario_impacts": _scenario_board(db)}}
+
+
+def _scenario_board(db: Session) -> dict:
+    """Связка «сценарий барометра → макро-сдвиги → конкретные бумаги».
+
+    🔴 Владелец (2026-08-03): связку надо довести до конца. До этого выпуск знал
+    вероятности сценариев и знал чувствительности компаний, но не соединял их: писал
+    «при эскалации сектор пострадает» вместо «у этой бумаги это −N% стоимости».
+    """
+    try:
+        from app.services.scenario_transmission import scenario_board
+        return scenario_board(db)
+    except Exception:  # noqa: BLE001
+        logger.warning("Интерпретатор: сценарная связка не отработала", exc_info=True)
+        return {}
 
 
 def _event_research(db: Session) -> dict | None:

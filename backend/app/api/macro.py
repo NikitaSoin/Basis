@@ -333,3 +333,23 @@ def macro_series(code: str, metric: str = "level",
         "points": [{"as_of": p.as_of.isoformat(), "value": float(p.value),
                     "is_preliminary": p.is_preliminary} for p in pts],
     }
+
+
+@router.get("/scenario-impact")
+def scenario_impact(scenario: str | None = None, top: int = 10,
+                    db: Session = Depends(get_db)):
+    """Кого двигает геополитический сценарий — с числами по конкретным бумагам.
+
+    Без параметра отдаёт сводку по всем сценариям, с параметром — развёрнутую
+    картину по одному (вклад каждого макро-канала в эффект).
+    """
+    from app.services.scenario_transmission import (
+        load_scenario_shocks, scenario_board, scenario_impacts,
+    )
+    if scenario:
+        known = (load_scenario_shocks().get("scenarios") or {})
+        if scenario not in known:
+            raise HTTPException(status_code=404,
+                                detail=f"Сценарий не найден. Есть: {', '.join(known)}")
+        return scenario_impacts(db, scenario, top_n=max(1, min(top, 40)))
+    return scenario_board(db, per_side=max(1, min(top, 20)))
