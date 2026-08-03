@@ -605,6 +605,37 @@ def market_geopolitics(portfolio_only: bool = False,
     return {"tabs": out, "disclaimer": "Прогнозы — оценка Basis (сценарные, условные). Не является ИИР."}
 
 
+# 🔴 Обезличивание витрины институтов. Экспертный барометр писался как рабочий
+# документ аналитика: в обоснованиях субиндексов встречаются ссылки вида
+# «по Минченко», «(Набиуллина)», в alerts — те же имена. На витрине их быть не
+# должно (владелец 2026-08-02: «людей конкретных не называть»), а в самих данных
+# они нужны — их читает агент разбора карточки компании.
+# Поэтому чистка делается ТОЛЬКО на отдаче витрине, данные в БД не трогаются.
+_INST_PERSON_REFS = [
+    # «по Минченко», «по данным Иванова» — атрибуция мнения человеку
+    (_re.compile(r"\s*\(?по\s+(?:данным\s+)?[А-ЯЁ][а-яё]{3,}(?:у|е|ой|ым|а)?\)?"), ""),
+    # «(Греф)», «(Ким, Иванов)» — скобка целиком из имён собственных
+    (_re.compile(r"\s*\(\s*[А-ЯЁ][а-яё]{2,}(?:\s*[,/]\s*[А-ЯЁ][а-яё]{2,})*\s*\)"), ""),
+    # «Фамилия в ВС», «Фамилия в ЦБ» — человек через место работы
+    (_re.compile(r"\b[А-ЯЁ][а-яё]{3,}\s+в\s+(?:ВС|СК|ГП|ЦБ|АП|Госдуме)\b"), "профильный орган"),
+]
+
+
+def _inst_anonymize(payload: dict) -> dict:
+    """Рекурсивно убирает из текстов ссылки на конкретных людей."""
+    def scrub(x):
+        if isinstance(x, str):
+            for rx, repl in _INST_PERSON_REFS:
+                x = rx.sub(repl, x)
+            return x
+        if isinstance(x, dict):
+            return {k: scrub(v) for k, v in x.items()}
+        if isinstance(x, list):
+            return [scrub(v) for v in x]
+        return x
+    return scrub(payload)
+
+
 @router.get("/market/institutions")
 def market_institutions(db: Session = Depends(get_db)):
     """Институциональная среда (Обозреватель): барометр M1-M13, карта власти/
@@ -612,7 +643,7 @@ def market_institutions(db: Session = Depends(get_db)):
     версия из БД — экспертная ИЛИ авто-обновлённая ревизором; при пустой БД —
     импорт файла-якоря). _meta несёт источник/дату для пометки «авто» на фронте."""
     from app.services.barometer_store import get_payload_with_meta
-    payload = get_payload_with_meta(db, "inst")
+    payload = _inst_anonymize(get_payload_with_meta(db, "inst") or None)
     if payload is None:
         raise HTTPException(status_code=404, detail="Барометр ещё не сформирован")
     return JSONResponse(content=payload)
