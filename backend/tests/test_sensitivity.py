@@ -56,8 +56,8 @@ class TestRateChannel:
         card("FLOAT", _fin(income_statement={"finance_costs": [30.0]}))   # ~15% — плавающий
         cheap = ss.structural_sensitivity("CHEAP")["channels"]["rate"]
         floating = ss.structural_sensitivity("FLOAT")["channels"]["rate"]
-        assert cheap["inputs"]["repricing_share"] < floating["inputs"]["repricing_share"]
         assert abs(cheap["pct"]) < abs(floating["pct"])
+        assert "льготные" in cheap["how"] and "плавающий" in floating["how"]
 
 
 class TestFxChannel:
@@ -70,7 +70,7 @@ class TestFxChannel:
         """
         card("IMPORTER", _fin(geo_split=[{"region": "Россия", "pct": 95.0},
                                          {"region": "Экспорт", "pct": 5.0}]))
-        assert "fx" not in ss.structural_sensitivity("IMPORTER")["channels"]
+        assert "fx" not in (ss.structural_sensitivity("IMPORTER").get("channels") or {})
 
     def test_exporter_wins_from_weak_ruble(self, card):
         card("EXP", _fin(geo_split=[{"region": "Россия", "pct": 20.0},
@@ -82,7 +82,7 @@ class TestFxChannel:
         """Расчёты с СНГ часто рублёвые — завысить валютную долю хуже, чем занизить."""
         card("CIS", _fin(geo_split=[{"region": "Россия", "pct": 40.0},
                                     {"region": "СНГ", "pct": 60.0}]))
-        assert "fx" not in ss.structural_sensitivity("CIS")["channels"]
+        assert "fx" not in (ss.structural_sensitivity("CIS").get("channels") or {})
 
 
 class TestCostChannels:
@@ -163,3 +163,80 @@ class TestAudit:
                                      "coefficients": {"rate": {"net_profit": -5.0}}}})
         flags = sa.audit_sensitivity()
         assert flags and all(f["kind"] == "база" for f in flags)
+
+
+class TestRateChannelDisagreement:
+    """Разбор расхождений 2026-08-03: все пять «ошибок карточек» были ошибками модели."""
+
+    def test_cash_pile_does_not_override_interest_paid(self, card):
+        """🔴 ТНС энерго: чистый долг отрицательный, а процентов платит вдвое больше.
+
+        Деньги на балансе сбыта транзитные (собраны с потребителей), долг короткий и
+        дорогой. Способ «по чистому долгу» объявлял такую компанию выигравшей от роста
+        ставки и обвинял верную карточку в ошибке знака. Способы расходятся — молчим.
+        """
+        card("SBYT", _fin(balance_sheet={"net_debt": [-2865.0]},
+                          income_statement={"finance_costs": [4850.0],
+                                            "finance_income": [2003.0]}))
+        assert "rate" not in (ss.structural_sensitivity("SBYT").get("channels") or {})
+
+    def test_interest_income_does_not_override_real_debt(self, card):
+        """Обратный случай (Аэрофлот): доходы выше расходов, но долг реальный."""
+        card("AIR", _fin(balance_sheet={"net_debt": [143582.0]},
+                         income_statement={"finance_costs": [60467.0],
+                                           "finance_income": [63416.0]}))
+        assert "rate" not in (ss.structural_sensitivity("AIR").get("channels") or {})
+
+    def test_agreeing_methods_are_averaged(self, card):
+        """Когда способы согласны — канал считается, оценка усредняется."""
+        card("OK", _fin(balance_sheet={"net_debt": [200.0]},
+                        income_statement={"finance_costs": [30.0], "finance_income": [5.0]}))
+        rate = ss.structural_sensitivity("OK")["channels"]["rate"]
+        assert rate["pct"] < 0 and rate["inputs"]["methods_agree"] is True
+
+    def test_negative_finance_costs_do_not_flip_the_sign(self, card):
+        """🔴 Знак процентных статей в карточках непоследователен — те же грабли, что с capex."""
+        card("NEG", _fin(balance_sheet={"net_debt": [200.0]},
+                         income_statement={"finance_costs": [-30.0], "finance_income": [5.0]}))
+        card("POS", _fin(balance_sheet={"net_debt": [200.0]},
+                         income_statement={"finance_costs": [30.0], "finance_income": [5.0]}))
+        assert (ss.structural_sensitivity("NEG")["channels"]["rate"]["pct"]
+                == ss.structural_sensitivity("POS")["channels"]["rate"]["pct"])
+
+    def test_banks_are_excluded(self, card):
+        """🔴 У банка проценты — основной бизнес, а не обслуживание долга.
+
+        Формула «платит больше, чем получает» на банке даёт обратный знак: у МКБ
+        нетто-проценты естественно положительные, и модель объявляла, что рост ставки
+        ему на пользу, тогда как ставка сжимает процентную маржу.
+        """
+        card("BANKX", _fin(meta={"profile": "bank", "sector": "Банки"},
+                           balance_sheet={"net_debt": [500.0]},
+                           income_statement={"finance_costs": [100.0],
+                                             "finance_income": [205.0]}))
+        assert "rate" not in (ss.structural_sensitivity("BANKX").get("channels") or {})
+
+
+class TestFxRegionRecognition:
+    def test_domestic_regions_are_not_export(self, card):
+        """🔴 «Москва и Московская область» — не экспорт.
+
+        Чёрный список внутренних регионов всегда неполон: клиника «Мать и дитя»
+        получала 59% «валютной» выручки и +16,8% по курсу там, где карточка честно
+        говорит −2,2% (импортное оборудование).
+        """
+        card("CLINIC", _fin(geo_split=[{"region": "Москва и Московская область", "pct": 59.0},
+                                       {"region": "Регионы РФ", "pct": 41.0}]))
+        assert "fx" not in (ss.structural_sensitivity("CLINIC").get("channels") or {})
+
+    def test_explicit_export_is_recognised(self, card):
+        card("EXPX", _fin(geo_split=[{"region": "Россия", "pct": 30.0},
+                                     {"region": "Экспорт (Азия, Латинская Америка)", "pct": 70.0}]))
+        fx = ss.structural_sensitivity("EXPX")["channels"]["fx"]
+        assert fx["pct"] > 0 and fx["inputs"]["export_share_pct"] == 70.0
+
+    def test_unknown_region_counts_as_domestic(self, card):
+        """Неизвестное — внутреннее: завысить валютную долю хуже, чем занизить."""
+        card("VAGUE", _fin(geo_split=[{"region": "Прочие", "pct": 60.0},
+                                      {"region": "Россия", "pct": 40.0}]))
+        assert "fx" not in (ss.structural_sensitivity("VAGUE").get("channels") or {})

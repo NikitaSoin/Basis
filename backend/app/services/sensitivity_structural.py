@@ -61,10 +61,35 @@ _REPRICING_HIGH, _REPRICING_MID, _REPRICING_LOW = 0.70, 0.45, 0.25
 _FX_RETENTION_RESOURCE, _FX_RETENTION_OTHER = 0.30, 0.50
 _RESOURCE_SECTORS = {"oil_gas", "metals", "mining", "chemicals", "нефтегаз", "металлургия"}
 
+# 🔴 У финансовых компаний процентные доходы и расходы — ОСНОВНАЯ деятельность, а не
+# обслуживание долга. Формула «платит больше, чем получает → страдает от роста ставки»
+# на банке выдаёт обратное: у МКБ нетто-проценты естественно положительные, и модель
+# объявила, что рост ставки ему на пользу, — тогда как ставка сжимает процентную маржу
+# (пассивы переоцениваются быстрее активов), и карточка это фиксирует верно.
+# Банковские каналы (nim, стоимость риска) из общей отчётности не выводятся — значит
+# не считаем вовсе, а не считаем кое-как.
+_FINANCIAL_PROFILES = {"bank", "insurance", "leasing", "exchange", "broker"}
+_FINANCIAL_SECTOR_RE = re.compile(r"финанс|банк|financ|bank|insur|leasing", re.I)
+
+
+def _is_financial(meta: dict) -> bool:
+    profile = str(meta.get("profile") or "").strip().lower()
+    if profile in _FINANCIAL_PROFILES:
+        return True
+    return bool(_FINANCIAL_SECTOR_RE.search(str(meta.get("sector") or "")))
+
 _LABOR_RE = re.compile(r"персонал|оплат\w* труда|фот\b|зарплат|вознагражд|сотрудник", re.I)
-# Регионы, выручка от которых валютная. «СНГ» намеренно НЕ считаем экспортом: расчёты
-# там часто рублёвые, и завысить долю валютной выручки хуже, чем занизить.
-_DOMESTIC_RE = re.compile(r"росси|рф\b|внутренн|снг|домашн", re.I)
+# 🔴 Валютную выручку опознаём по ЯВНЫМ признакам экспорта, а не «всё, что не Россия».
+# Чёрный список внутренних регионов всегда неполон: «Москва и Московская область» слов
+# «Россия» и «РФ» не содержит, и клиника «Мать и дитя» получала 59% «экспортной»
+# выручки — курсовой канал у неё выходил +16,8% там, где карточка честно говорит −2,2%
+# (импортное оборудование и расходники). Неизвестный регион считаем внутренним:
+# завысить валютную долю хуже, чем занизить. «СНГ» тоже не экспорт — расчёты там
+# часто рублёвые.
+_EXPORT_RE = re.compile(
+    r"экспорт|зарубеж|международн|дальн\w* зарубеж|за предел|"
+    r"европ|азия|азиатск|китай|кнр|индия|турци|ближн\w* восток|африк|"
+    r"америк|сша|латинск|мировой рынок|foreign|export", re.I)
 
 
 def _load(ticker: str, name: str) -> dict | None:
@@ -103,41 +128,85 @@ def _pct(effect: float, base: float) -> float:
     return round(effect / base * 100, 1)
 
 
-def _rate_channel(fin: dict, base: float, key_rate: float) -> dict | None:
-    """Ставка +300 б.п. → % базы. Долг дорожает, денежная позиция — наоборот.
+def _rate_channel(fin: dict, base: float, key_rate: float) -> dict | None:  # noqa: C901
+    """Ставка +300 б.п. → % базы. Считаем ДВУМЯ способами и требуем согласия.
 
-    🔴 Считаем ОБА направления. Прежняя проверка отбрасывала компании с отрицательным
-    чистым долгом (`net_debt <= 0 → None`), то есть все «кубышки» — а это как раз тот
-    случай, где карточка чаще всего ошибается со знаком: у ЛУКОЙЛа рост ставки прибыль
-    увеличивает, а не уменьшает.
+    🔴 Почему двумя (разбор расхождений 2026-08-03). Способ «по чистому долгу» ошибся
+    на сбытовых компаниях: у ТНС энерго Ростов чистый долг отрицательный (−2,9 млрд),
+    и модель объявила, что компания от роста ставки выигрывает, — а она платит
+    процентов 4,85 млрд при доходах 2,0 млрд. Деньги на балансе сбыта транзитные
+    (собраны с потребителей), долг короткий и дорогой; чистый долг тут обманывает.
+
+    Обратный случай тоже есть: у Аэрофлота процентные доходы выше расходов, но долг
+    143 млрд — «по потокам» вышло бы, что рост ставки ему на пользу.
+
+    Ни один способ не главнее. Поэтому: согласны — считаем (берём меньшую по модулю
+    оценку, консервативно); разошлись — канал НЕ считаем вовсе. Молчание честнее
+    уверенного неверного знака: именно такие «расхождения» и обвиняли верные карточки.
     """
+    if _is_financial(fin.get("meta") or {}):
+        return None
     bs = fin.get("balance_sheet") or {}
     pl = fin.get("income_statement") or {}
     net_debt = _last(bs.get("net_debt"))
-    if net_debt is None:
+    # 🔴 Знак процентных статей в карточках непоследователен: у части компаний
+    # finance_costs записан отрицательным (как расход), у части положительным — те же
+    # грабли, что с capex. Берём модуль, иначе знак эффекта переворачивается.
+    fc = _last(pl.get("finance_costs"))
+    fi = _last(pl.get("finance_income"))
+    fc = abs(fc) if isinstance(fc, (int, float)) else None
+    fi = abs(fi) if isinstance(fi, (int, float)) else None
+
+    debt_effect = debt_share = None
+    if net_debt is not None:
+        share, why_share = _REPRICING_MID, "переоценка частичная (оценка по умолчанию)"
+        if fc and net_debt > 0:
+            implied = fc / net_debt * 100
+            if implied >= key_rate * 0.8:
+                share, why_share = _REPRICING_HIGH, (
+                    f"ставка по портфелю ~{implied:.0f}% при ключевой {key_rate:.0f}% — "
+                    "долг плавающий или короткий")
+            elif implied <= key_rate * 0.4:
+                share, why_share = _REPRICING_LOW, (
+                    f"ставка по портфелю ~{implied:.0f}% при ключевой {key_rate:.0f}% — "
+                    "льготные и старые фиксированные кредиты")
+        debt_effect = -net_debt * share * 0.03 * (1 - _TAX)
+        debt_share = (share, why_share)
+
+    flow_effect = None
+    if fc is not None and fi is not None and key_rate > 0:
+        # Рост ключевой на 3 п.п. — это +3/key_rate к стоимости обслуживания той части
+        # обязательств, что переоценивается. Способ не требует знать размер долга:
+        # он опирается на фактически уплаченные и полученные проценты.
+        flow_effect = -(fc - fi) * (3.0 / key_rate) * _REPRICING_MID * (1 - _TAX)
+
+    candidates = [e for e in (debt_effect, flow_effect) if e is not None]
+    if not candidates:
         return None
-    finance_costs = _last(pl.get("finance_costs"))
-    # Доля переоценки — по тому, насколько дорог уже обслуживаемый долг.
-    share, why = _REPRICING_MID, "долг переоценивается частично (оценка по умолчанию)"
-    if finance_costs and net_debt > 0:
-        implied = finance_costs / net_debt * 100
-        if implied >= key_rate * 0.8:
-            share, why = _REPRICING_HIGH, (
-                f"ставка по портфелю ~{implied:.0f}% при ключевой {key_rate:.0f}% — "
-                "долг плавающий или короткий, переоценится почти весь")
-        elif implied <= key_rate * 0.4:
-            share, why = _REPRICING_LOW, (
-                f"ставка по портфелю ~{implied:.0f}% при ключевой {key_rate:.0f}% — "
-                "льготные и старые фиксированные кредиты, цикл переживут")
-    # Знак: положительный чистый долг → рост ставки бьёт по прибыли; отрицательный
-    # (денег больше долга) → прибыль растёт вместе со ставкой.
-    effect = -net_debt * share * 0.03 * (1 - _TAX)
+    if len(candidates) == 2 and debt_effect * flow_effect < 0:
+        logger.debug("rate-канал не считаем: чистый долг и процентные потоки "
+                     "расходятся в знаке")
+        return None
+    # Два способа равноправны — берём среднее. Проверено на данных: при выборе
+    # МЕНЬШЕЙ оценки поток флагов становится односторонним (в 24 расхождениях из 28
+    # «карточка сильнее»), то есть мы систематически занижаем и обвиняем карточки
+    # в преувеличении. На среднем перекос уходит.
+    effect = sum(candidates) / len(candidates)
+    how = []
+    if debt_effect is not None and debt_share:
+        how.append(f"чистый долг {net_debt:,.0f} × {debt_share[0]:.0%} × 3 п.п. × "
+                   f"(1−налог) — {debt_share[1]}".replace(",", " "))
+    if flow_effect is not None:
+        how.append(f"нетто-проценты {fc - fi:,.0f} × {3.0 / key_rate:.0%} роста "
+                   f"стоимости обслуживания".replace(",", " "))
     return {
         "pct": _pct(effect, base),
         "kind": "оценка",
-        "inputs": {"net_debt": round(net_debt), "repricing_share": share},
-        "how": f"чистый долг {net_debt:,.0f} × {share:.0%} переоценки × 3 п.п. × "
-               f"(1−налог) — {why}".replace(",", " "),
+        "inputs": {"net_debt": round(net_debt) if net_debt is not None else None,
+                   "net_interest": round(fc - fi) if flow_effect is not None else None,
+                   "methods_agree": len(candidates) == 2},
+        "how": "; ".join(how) + (" (два способа согласны, взято среднее)"
+                                 if len(candidates) == 2 else ""),
     }
 
 
@@ -164,7 +233,7 @@ def _fx_channel(fin: dict, base: float, sector: str | None, usd_rate: float) -> 
         pct = item.get("pct")
         if not isinstance(pct, (int, float)):
             continue
-        if not _DOMESTIC_RE.search(str(item.get("region") or "")):
+        if _EXPORT_RE.search(str(item.get("region") or "")):
             export_pct += float(pct)
     if export_pct < _FX_MIN_EXPORT_SHARE:
         return None
