@@ -12,10 +12,26 @@ from app.services.macro_data_questions import collect_questions
 
 
 def _indicator(db, code, *, source_type, frequency="monthly", title=None):
-    db.add(MacroIndicator(code=code, title=title or code, unit="%",
-                          frequency=frequency, source_type=source_type,
-                          metric_types=["level"], country="ru"))
+    """Завести показатель, не споткнувшись о засев соседних тестов."""
+    existing = db.get(MacroIndicator, code)
+    if existing:
+        existing.source_type = source_type
+        existing.frequency = frequency
+    else:
+        db.add(MacroIndicator(code=code, title=title or code, unit="%",
+                              frequency=frequency, source_type=source_type,
+                              metric_types=["level"], country="ru"))
     db.commit()
+
+
+def _queue_codes(db):
+    """Вся очередь, а не первая страница.
+
+    Умолчание collect_questions — 8 вопросов: столько агент осилит за раунд. В общем
+    прогоне соседние тесты засевают десятки рядов, и проверяемый уезжает за границу
+    страницы — тест падал не на логике, а на размере выдачи.
+    """
+    return [q["code"] for q in collect_questions(db, limit=500)]
 
 
 def test_empty_series_is_visible(db):
@@ -29,9 +45,9 @@ def test_empty_series_is_visible(db):
 def test_empty_series_reaches_the_agent_queue(db):
     """И попадает в очередь добора, несмотря на «свой» фидер: фидер пуст с рождения."""
     _indicator(db, "empty_two", source_type="fred", title="Безработица КНР")
-    codes = [q["code"] for q in collect_questions(db)]
-    assert "empty_two" in codes
-    question = next(q for q in collect_questions(db) if q["code"] == "empty_two")
+    assert "empty_two" in _queue_codes(db)
+    question = next(q for q in collect_questions(db, limit=500)
+                    if q["code"] == "empty_two")
     assert "НЕТ НИ ОДНОГО значения" in question["question"]
     # у пустого ряда нет «последней точки», перечислять пропущенные месяцы нечего
     assert question["missing_periods"] == []
@@ -49,7 +65,7 @@ def test_long_silent_feeder_stops_blocking_web_search(db):
     db.add(MacroDataPoint(indicator_code="silent_feed", metric="level",
                           as_of=old, value=1.0, ingested_via="fred"))
     db.commit()
-    assert "silent_feed" in [q["code"] for q in collect_questions(db)]
+    assert "silent_feed" in _queue_codes(db)
 
 
 def test_working_feeder_still_blocks_web_search(db):
@@ -59,7 +75,7 @@ def test_working_feeder_still_blocks_web_search(db):
     db.add(MacroDataPoint(indicator_code="fresh_feed", metric="level",
                           as_of=recent, value=1.0, ingested_via="fred"))
     db.commit()
-    assert "fresh_feed" not in [q["code"] for q in collect_questions(db)]
+    assert "fresh_feed" not in _queue_codes(db)
 
 
 def test_retired_series_is_not_alerted(db):
