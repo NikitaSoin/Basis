@@ -19,16 +19,28 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 TINKOFF_TOKEN = os.environ.get("TINKOFF_API_TOKEN", "").strip()
-# Релей через Cloudflare Worker (тот же паттерн, что DEEPSEEK_BASE_URL/FRED_BASE_URL,
-# см. app/services/llm.py): найдено 2026-08-04 — egress этого инстанса режет TLS к
-# invest-public-api.tinkoff.ru сертификатной ошибкой (SSL: CERTIFICATE_VERIFY_FAILED:
-# self-signed certificate in certificate chain, воспроизведено /api/debug/tinkoff),
-# котировки тихо деградировали на MOEX ISS (fallback есть), а логотипы — нет фоллбэка,
-# пропали молча. TINKOFF_BASE_URL, если задан, подменяет базовый хост на воркер,
-# который форвардит запрос к Tinkoff со своей сети — без релея Tinkoff недостижим.
+# TINKOFF_BASE_URL — опциональный релей через Cloudflare Worker (тот же паттерн, что
+# DEEPSEEK_BASE_URL/FRED_BASE_URL, см. app/services/llm.py), на случай если egress
+# когда-нибудь заблокирует сам ТРАНСПОРТ до invest-public-api.tinkoff.ru. НЕ помогает
+# от текущей проблемы (см. ниже) — сертификатную ошибку Cloudflare Workers пропускают
+# так же, у них тот же публичный корневой список доверия.
 _API = (os.environ.get("TINKOFF_BASE_URL", "").rstrip("/") or "https://invest-public-api.tinkoff.ru") + "/rest"
 
+# 🔴 Найдено 2026-08-04: логотипы компаний пропали с сайта — /api/companies/logos
+# отдавал {}. Причина НЕ egress-блокировка (в отличие от DeepSeek/FRED) — сертификат
+# *.tinkoff.ru выпущен российским государственным УЦ (issuer «The Ministry of Digital
+# Development and Communications, CN=Russian Trusted Root CA», самоподписанный корень),
+# которого нет в стандартном доверенном хранилище НИГДЕ: ни на бэкенде (Python/certifi),
+# ни в песочнице отладки, ни даже в Cloudflare Worker (проверено — тот же SSL-отказ).
+# Котировки тихо деградировали на MOEX ISS (fallback есть), у логотипов фоллбэка нет.
+# Фикс — явно доверять ЭТОМУ конкретному корню (сверен по SHA-256 fingerprint с
+# официальной раздачей gu-st.ru), а не отключать проверку сертификатов вовсе.
 _ssl_ctx = ssl.create_default_context()
+_RUSSIAN_ROOT_CA = os.path.join(os.path.dirname(__file__), "..", "..", "certs", "russian_trusted_root_ca.pem")
+try:
+    _ssl_ctx.load_verify_locations(cafile=os.path.normpath(_RUSSIAN_ROOT_CA))
+except Exception as e:  # noqa: BLE001
+    logger.error("Tinkoff: не удалось подгрузить российский корневой сертификат: %s", e)
 
 # Кэш: {ticker: str → {price, change_abs, change_pct, prev_close}}
 _prices: dict[str, dict] = {}
