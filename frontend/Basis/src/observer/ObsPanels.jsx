@@ -2209,6 +2209,17 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
       .finally(() => setDigestLoading(false));
   }, [apiUrl]);
 
+  // Связка «сценарий → бумаги»: расчёт платформы, не суждение модели. Грузим вместе
+  // с оценкой ситуации — блок живёт под сценариями и без них не имеет смысла.
+  const [scImpact, setScImpact] = useState(null);
+  useEffect(() => {
+    if (mode !== "assessment" || scImpact !== null) return;
+    fetch(`${apiUrl}/api/market/macro/scenario-impact?top=6`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setScImpact(d || {}))
+      .catch(() => setScImpact({}));
+  }, [mode, apiUrl, scImpact]);
+
   // Загружаем интерпретацию при переключении на «Оценка ситуации»
   useEffect(() => {
     if (mode === "assessment" && interp === null) {
@@ -2849,6 +2860,75 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                   </div>
                 </div>
               )}
+
+              {/* ДЕЙСТВИЕ: кого двигает сценарий — расчёт платформы, не суждение модели.
+                  Замыкает цепочку «сценарий → макро-сдвиги → конкретные бумаги»:
+                  до этого блока сценарии оставались словами про секторы. */}
+              {scImpact?.scenarios && Object.keys(scImpact.scenarios).length > 0 && (
+                <div className="obs-scimpact">
+                  <div className="obs-synth-head" style={{ marginBottom: 6 }}>
+                    Кого двигает сценарий
+                  </div>
+                  <p className="obs-scimpact-note">
+                    Эффект макро-сдвигов сценария на прибыль компании, пересчитанный в
+                    долю её стоимости. <b>Расчёт платформы</b> по чувствительностям
+                    карточек — оценка, а не прогноз цены.
+                  </p>
+                  {Object.entries(scImpact.scenarios).map(([key, sc]) => (
+                    <div key={key} className="obs-scimpact-block">
+                      <div className="obs-scimpact-title">{sc.name}</div>
+                      <div className="obs-scimpact-shocks">
+                        {Object.entries(sc.shocks || {})
+                          .filter(([, v]) => v)
+                          .map(([ch, v]) => (
+                            <span key={ch} className="obs-scimpact-shock">
+                              {OBS_SHOCK_LABEL[ch] || ch}{" "}
+                              {v > 0 ? "+" : "−"}
+                              {Math.abs(v)}
+                              {OBS_SHOCK_UNIT[ch] || ""}
+                            </span>
+                          ))}
+                      </div>
+                      <div className="obs-scimpact-cols">
+                        {[
+                          { rows: sc.winners, title: "Выигрывают", up: true },
+                          { rows: sc.losers, title: "Проигрывают", up: false },
+                        ].map(({ rows, title, up }) => (
+                          <div key={title} className="obs-scimpact-col">
+                            <div className="obs-scimpact-colhead">{title}</div>
+                            {(rows || []).map((r) => (
+                              <button
+                                key={r.ticker}
+                                type="button"
+                                className="obs-scimpact-row"
+                                onClick={() => onSelectCompany && onSelectCompany(r.ticker)}
+                                title={r.warning || "Открыть карточку"}
+                              >
+                                <span className="obs-scimpact-tic">{r.ticker}</span>
+                                <span
+                                  className={`obs-scimpact-val obs-scimpact-val--${up ? "up" : "down"}`}
+                                >
+                                  {up ? "▲" : "▼"} {Math.abs(r.cap_pct)}%
+                                </span>
+                                {r.warning && (
+                                  <span className="obs-scimpact-flag" aria-hidden="true">
+                                    !
+                                  </span>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  <p className="obs-scimpact-foot">
+                    Знак «!» — независимый пересчёт коэффициента расходится с карточкой,
+                    к числу стоит относиться осторожнее. Сдвиги сценариев —
+                    допущения платформы, они описаны в методике.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </>
@@ -2856,6 +2936,25 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
     </div>
   );
 }
+
+// Подписи макро-каналов для блока «Кого двигает сценарий». Держим рядом с местом
+// использования: это не общий словарь платформы, а расшифровка ключей одного ответа.
+const OBS_SHOCK_LABEL = {
+  rate: "ставка",
+  fx: "рубль к доллару",
+  commodity: "цена реализации нефти",
+  demand: "рост ВВП",
+  cost_inflation: "инфляция издержек",
+  labor: "зарплаты",
+};
+const OBS_SHOCK_UNIT = {
+  rate: " п.п.",
+  fx: " ₽",
+  commodity: " $",
+  demand: " п.п.",
+  cost_inflation: " п.п.",
+  labor: " п.п.",
+};
 
 // =========================
 // OBS GEO WORLD MAP — ОДНА общая интерактивная карта («Оценка ситуации» →

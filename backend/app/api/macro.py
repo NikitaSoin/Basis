@@ -335,7 +335,7 @@ def macro_series(code: str, metric: str = "level",
     }
 
 
-@router.get("/scenario-impact")
+@router.get("/market/macro/scenario-impact")
 def scenario_impact(scenario: str | None = None, top: int = 10,
                     db: Session = Depends(get_db)):
     """Кого двигает геополитический сценарий — с числами по конкретным бумагам.
