@@ -1655,17 +1655,22 @@ def debug_trigger_institutions_profile():
 @router.post("/debug/trigger-env-card-interp")
 def debug_trigger_env_card_interp(tab: str = "both", ticker: str | None = None,
                                   batch: int = 8):
-    """Доводка вкладок «Геополитика»/«Институты» карточек под текущее состояние
-    Обозревателя. tab: geo | institutions | both. ticker — прогнать одну
-    компанию (полезно для проверки). В ФОНЕ: это партия LLM-вызовов."""
-    from app.services.card_prose_patcher import run_geo_env_interp, run_inst_env_interp
+    """Доводка вкладок карточек под текущее состояние Обозревателя.
+    tab: geo | institutions | macro | both (гео+институты) | all (и макро тоже).
+    ticker — прогнать одну компанию (полезно для проверки).
+    В ФОНЕ: это партия LLM-вызовов."""
+    from app.services.card_prose_patcher import (
+        run_geo_env_interp, run_inst_env_interp, run_macro_env_interp,
+    )
 
     def _run(db):
         out = {}
-        if tab in ("geo", "both"):
+        if tab in ("geo", "both", "all"):
             out["geo"] = run_geo_env_interp(db, batch=batch, only_ticker=ticker)
-        if tab in ("institutions", "both"):
+        if tab in ("institutions", "both", "all"):
             out["institutions"] = run_inst_env_interp(db, batch=batch, only_ticker=ticker)
+        if tab in ("macro", "all"):
+            out["macro"] = run_macro_env_interp(db, batch=batch, only_ticker=ticker)
         # возвращаем объект-заглушку с полями, которые ждёт _inst_bg
         return type("R", (), {"id": "-", "status": "done", "gate_notes": [str(out)[:400]]})()
 
@@ -2641,3 +2646,25 @@ def sql_assist(ask: str = Query(..., description="вопрос на русско
     for fence in ("```sql", "```"):
         sql = sql.replace(fence, "")
     return {"запрос": sql.strip(), "подсказка": "проверьте поля перед запуском"}
+
+
+@router.get("/debug/macro-drift")
+def debug_macro_drift(limit: int = 25, ticker: str | None = None):
+    """Кого задел макро-дрейф: у чьего разбора условия ушли дальше всего.
+
+    Считает КОД, без LLM — можно смотреть до всякой переработки: видно, из чего
+    сложилась очередь и почему компания в ней оказалась.
+    """
+    from app.db.session import SessionLocal
+    from app.services.macro_drift import company_drift, current_macro, drift_queue
+    db = SessionLocal()
+    try:
+        if ticker:
+            item = company_drift(db, ticker.upper())
+            return item or {"ticker": ticker.upper(),
+                            "note": "дрейфа нет: условия близки к тем, при которых "
+                                    "писался разбор"}
+        queue = drift_queue(db, limit=max(1, min(limit, 200)))
+        return {"current": current_macro(db), "affected": len(queue), "queue": queue}
+    finally:
+        db.close()

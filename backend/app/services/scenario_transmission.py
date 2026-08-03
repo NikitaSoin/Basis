@@ -116,11 +116,18 @@ def _shares_outstanding() -> dict[str, float]:
 
 
 def company_impact(ticker: str, shocks: dict[str, float],
-                   cap_bln: float | None = None) -> dict | None:
+                   cap_bln: float | None = None,
+                   drop_implausible: bool = True) -> dict | None:
     """Эффект набора макро-шоков на одну компанию.
 
     Возвращает вклад каждого канала и итог — в млрд ₽, в % годовой прибыли и, если
     известна капитализация, в % стоимости компании.
+
+    🔴 `drop_implausible=False` нужен детектору дрейфа. На витрине эффект больше двух
+    годовых прибылей означает мусор данных и компания выбрасывается. Но дрейф
+    накопленный — он бывает больше любого сценарного шока (нефть ушла на $35 за
+    месяц), и там зашкал означает ровно обратное: этот разбор устарел сильнее всех,
+    и он должен возглавить очередь, а не исчезнуть из неё.
     """
     macro = _load(ticker, "macro.json")
     if not macro:
@@ -162,7 +169,8 @@ def company_impact(ticker: str, shocks: dict[str, float],
             contributions.pop(weaker)
     total_bln = sum(contributions.values())
     profit_pct = round(total_bln / (base * scale) * 100, 1)
-    if abs(profit_pct) > _MAX_PLAUSIBLE_PROFIT_PCT:
+    implausible = abs(profit_pct) > _MAX_PLAUSIBLE_PROFIT_PCT
+    if implausible and drop_implausible:
         return None
     out = {
         "ticker": ticker,
@@ -171,12 +179,13 @@ def company_impact(ticker: str, shocks: dict[str, float],
         "base": "прибыли" if (isinstance(profit, (int, float)) and profit > 0) else "выручки",
         "by_channel": {k: round(v, 2) for k, v in contributions.items()},
         "shocks_applied": applied,
+        **({"beyond_plausible": True} if implausible else {}),
     }
     if dropped:
         out["dropped_overlapping"] = dropped
     if cap_bln:
         cap_pct = round(total_bln / cap_bln * 100, 1)
-        if abs(cap_pct) > _MAX_PLAUSIBLE_CAP_PCT:
+        if abs(cap_pct) > _MAX_PLAUSIBLE_CAP_PCT and drop_implausible:
             return None
         out["cap_pct"] = cap_pct
     return out

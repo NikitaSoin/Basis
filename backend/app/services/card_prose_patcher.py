@@ -1021,3 +1021,146 @@ def run_inst_env_interp(db: Session, batch: int = _ENV_BATCH,
                                                                 candidates, batch)
     return _run_env_interp(db, tab="institutions", grounding=grounding, queue=queue,
                            kind="interpretation")
+
+
+# =============================================================================
+# МАКРО: доводка вкладки под ТЕКУЩУЮ макросреду, с приоритетом по деньгам
+#
+# Владелец (2026-08-04): «нужно, чтобы вкладка макроэкономика у карточек
+# обновлялась с учётом оценки макроситуации в Обозревателе, статей ЦБ/ЦМАКП/
+# Re:Russia и новых вводных».
+#
+# Что уже было и почему этого мало. `run_macro_interp` (выше) правит вкладку под
+# ПОСЛЕДНЕЕ РЕШЕНИЕ ЦБ — ставка, инфляция, ожидания. Но макросреда — это не только
+# ЦБ: с начала июля, когда писалось большинство разборов, Brent ушёл с ~$69 к ~$90,
+# а рубль с 72 к 79. Такие сдвиги решением ЦБ не описываются и мимо той очереди
+# проходили целиком.
+#
+# Два отличия от соседних env-доводок (гео/институты):
+#   1. ОЧЕРЕДЬ ПО ДЕНЬГАМ, а не по алфавиту. `macro_drift` считает, насколько
+#      условия ушли от тех, при которых писался разбор, и прогоняет этот сдвиг
+#      через КОЭФФИЦИЕНТЫ ЧУВСТВИТЕЛЬНОСТИ самой карточки. Наверх очереди попадает
+#      не самый старый разбор, а тот, чьё расхождение с реальностью дороже стоит:
+#      у защитной компании ставка может ходить на 2 п.п. без последствий, у
+#      нефтяника $35 по нефти переворачивают картину.
+#   2. ПЕРСОНАЛЬНЫЙ КОНТЕКСТ. Каждой компании в задание идёт её собственный дрейф
+#      («нефть 55 → 90 с момента разбора»), а не только общая сводка среды.
+# =============================================================================
+_MACRO_ENV_COOLDOWN_DAYS = 10
+
+
+def _macro_env_grounding(db: Session) -> str | None:
+    """Состояние макросреды: числа + выпуск Обозревателя + свежая аналитика.
+
+    Это же текст ЗАЗЕМЛЕНИЯ: гейт требует, чтобы каждое новое число в правке
+    встречалось здесь. Поэтому кладём значения, а не только словесные выводы.
+    """
+    parts = []
+    anchor = _macro_anchor(db)
+    if anchor:
+        parts.append(_macro_grounding(anchor))
+    from sqlalchemy import text as _sql
+    for code, metric, label, unit in (("oil_brent", "level", "Нефть Brent", "$/барр"),
+                                      ("urals", "level", "Нефть Urals", "$/барр"),
+                                      ("usdrub", "level", "Курс USD/RUB", "₽")):
+        row = db.execute(_sql(
+            "SELECT value, as_of FROM macro_data_points WHERE indicator_code=:c "
+            "AND metric=:m ORDER BY as_of DESC LIMIT 1"), {"c": code, "m": metric}).first()
+        if row:
+            parts.append(f"{label}: {_fmt_num_variants(float(row[0]))} {unit} "
+                         f"(на {row[1].isoformat()})")
+    if not parts:
+        return None
+
+    # Оценка макроситуации Обозревателя — то самое «второе мнение платформы»,
+    # которое владелец просил донести до карточек.
+    try:
+        from app.models.macro import MacroInterpretation
+        issue = (db.query(MacroInterpretation)
+                 .order_by(MacroInterpretation.generated_at.desc()).first())
+        sections = (issue.sections or {}) if issue else {}
+        if sections.get("headline"):
+            parts.append(f"\nОЦЕНКА ОБОЗРЕВАТЕЛЯ ({issue.generated_at.date().isoformat()}): "
+                         f"{str(sections['headline'])[:400]}")
+        for thesis in (sections.get("theses") or [])[:4]:
+            if isinstance(thesis, dict) and thesis.get("claim"):
+                parts.append(f"- {str(thesis['claim'])[:220]}")
+    except Exception:  # noqa: BLE001
+        logger.warning("macro_env: выпуск Обозревателя недоступен", exc_info=True)
+
+    # Аналитика ЦБ / ЦМАКП / Re:Russia: то, чего нет в рядах — трактовка и повестка.
+    try:
+        rows = db.execute(_sql(
+            "SELECT source, title, summary, published_at::date FROM macro_analytics_docs "
+            "WHERE published_at >= now() - interval '45 days' "
+            "ORDER BY published_at DESC LIMIT 5")).fetchall()
+        if rows:
+            parts.append("\nСВЕЖАЯ АНАЛИТИКА:")
+            for source, title, summary, published in rows:
+                parts.append(f"- [{source} {published}] {str(title)[:110]}: "
+                             f"{str(summary or '')[:260]}")
+    except Exception:  # noqa: BLE001
+        logger.warning("macro_env: аналитика недоступна", exc_info=True)
+    parts.append(f"\nСегодня: {datetime.now(timezone.utc).date().isoformat()}")
+    return "\n".join(parts)
+
+
+def _drift_note(item: dict) -> str:
+    """Персональная часть задания: что сдвинулось именно у этой компании."""
+    lines = [f"ЧТО ИЗМЕНИЛОСЬ С МОМЕНТА РАЗБОРА (разбор от {item.get('as_of')}, "
+             f"{item.get('days_old')} дн. назад):"]
+    for spec in (item.get("drift") or {}).values():
+        lines.append(f"- {spec['title']}: было {spec['was']} {spec['unit']}, "
+                     f"стало {spec['now']} {spec['unit']}")
+    impact = item.get("impact_pct")
+    if impact is not None:
+        lines.append(f"По коэффициентам чувствительности САМОЙ карточки это ≈{impact}% "
+                     f"годовой {item.get('impact_base') or 'прибыли'} — то есть разбор "
+                     f"писался в заметно другой обстановке.")
+    return "\n".join(lines)
+
+
+def run_macro_env_interp(db: Session, batch: int = _ENV_BATCH,
+                         only_ticker: str | None = None) -> dict:
+    """Доводка вкладок «Макроэкономика» под текущую макросреду.
+
+    Очередь — из детектора дрейфа (дороже расхождение → раньше в очереди), минус
+    те, кому вкладку уже трогали в окне кулдауна.
+    """
+    grounding = _macro_env_grounding(db)
+    if not grounding:
+        return {"error": "нет макро-контекста"}
+    from app.services.macro_drift import company_drift, drift_queue
+
+    if only_ticker:
+        item = company_drift(db, only_ticker.upper())
+        queue = [item] if item else []
+    else:
+        cut = datetime.now(timezone.utc) - timedelta(days=_MACRO_ENV_COOLDOWN_DAYS)
+        done = {r[0] for r in db.query(CardProseOverlay.ticker)
+                .filter(CardProseOverlay.tab == "macro",
+                        CardProseOverlay.created_at >= cut).all()}
+        queue = [i for i in drift_queue(db, limit=200) if i["ticker"] not in done][:batch]
+
+    stats = {"queued": len(queue), "published": 0, "rejected": 0}
+    for item in queue:
+        ticker = item["ticker"]
+        personal = _drift_note(item)
+        full_grounding = f"{grounding}\n\n{personal}"
+
+        def _tb(prose: str, _tk=ticker, _p=personal) -> str:
+            return (f"Компания: {_tk}. Вкладка: macro.\n\n"
+                    f"АКТУАЛЬНОЕ СОСТОЯНИЕ МАКРОСРЕДЫ:\n{grounding}\n\n{_p}\n\n"
+                    f"ТЕКСТ ВКЛАДКИ (правь точечно ТОЛЬКО смысловые устаревания):\n"
+                    f"<<<\n{prose[:8000]}\n>>>")
+
+        row = _run_patch(db, ticker, "macro", sys=_ENV_INTERP_SYS + _JSON_ONLY,
+                         task_builder=_tb, grounding_text=full_grounding,
+                         kind="interpretation",
+                         evidence_extra={"macro_env": True,
+                                         "drift": item.get("drift"),
+                                         "impact_pct": item.get("impact_pct")})
+        if row is not None:
+            stats[row.status] = stats.get(row.status, 0) + 1
+    logger.info("card_prose_patcher.run_macro_env_interp: %s", stats)
+    return stats
