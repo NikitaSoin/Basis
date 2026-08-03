@@ -1598,6 +1598,52 @@ def debug_trigger_geo_profile():
         db.close()
 
 
+@router.post("/debug/trigger-institutions-domains")
+def debug_trigger_institutions_domains():
+    """Ручной запуск ЗАМЕРОВ ИНСТИТУТОВ ПО НАПРАВЛЕНИЯМ (крон institutions_domains,
+    вс 21:55): собственность, суды, законотворчество, госдоля, монополизация,
+    конкуренция, регуляторная нагрузка, рыночные институты, конфликты бизнеса и
+    государства, лоббизм. Дорогой прогон — четыре reasoning-вызова."""
+    from app.db.session import SessionLocal
+    from app.services.institutions_domains import rebuild
+    db = SessionLocal()
+    try:
+        row = rebuild(db)
+        if row is None:
+            return {"result": "материалов мало — замер пропущен"}
+        p = row.payload or {}
+        return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes,
+                "domains": len(p.get("domains") or []), "changes": len(p.get("changes") or [])}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-institutions-domains: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
+@router.post("/debug/trigger-institutions-profile")
+def debug_trigger_institutions_profile():
+    """Ручной запуск ИНСТИТУЦИОНАЛЬНОГО ПОРТРЕТА (крон institutions_profile,
+    вс 22:20) — человеческий слой поверх барометра: ось «правила ↔ доступ»,
+    связь с ценой акций, факторы в обе стороны, кто выигрывает и проигрывает,
+    зоны передела, связки с макро и гео. Запускать ПОСЛЕ замеров направлений:
+    портрет использует их как вход."""
+    from app.db.session import SessionLocal
+    from app.services.institutions_profile import rebuild
+    db = SessionLocal()
+    try:
+        row = rebuild(db)
+        if row is None:
+            return {"result": "лента пуста или барометра нет — портрет не трогали"}
+        return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes,
+                "sections": [k for k in (row.payload or {})]}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-institutions-profile: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-geo-verification")
 def debug_trigger_geo_verification():
     """Ручной прогон «ОТК данных» геополитики (крон geo_verification, 22:30).
