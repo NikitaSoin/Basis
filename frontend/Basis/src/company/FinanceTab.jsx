@@ -984,7 +984,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
               Base» (движок BFV), рядом исторические P/E и P/B. Обычный DCF / CAPM /
               секторный EV/EBITDA убраны. См. renderOverview в CompanyCardView.jsx. */}
           {/* 3. Ключевые показатели и мультипликаторы */}
-          <div className="card">
+          <div className="card" id="blk-fin-key">
             <h3>Ключевые показатели и мультипликаторы <span className="tag tag-fact">факт</span><span className="hmeta">{livePrice ? `цена ${num(livePrice, 2)} ${ccy} · ` : ""}позиция к {sm ? "среднему по сектору" : "своей 5-летней норме"}</span></h3>
             {/* База капитализации. У эмитентов с несколькими классами акций (а у
                 Транснефти обыкновенные вообще не торгуются) P/E и P/B считаются от
@@ -1022,7 +1022,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
 
           {/* 4. Прибыль и рентабельность */}
           {tabsAvail.length > 0 && (
-            <details className="disc" open>
+            <details className="disc" id="blk-fin-years" open>
               <summary><div><div className="dt">Прибыль и рентабельность по годам</div><div className="dd">Отчётность за {yslice.length} лет · мультипликаторы · нормализация прибыли</div></div><span className="tag tag-fact" style={{ marginLeft: 8 }}>факт</span><span className="tag tag-est">оценка</span><span className="chev">▾</span></summary>
               <div className="disc-body">
                 <div className="subh">Отчётность и мультипликаторы</div>

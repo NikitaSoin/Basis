@@ -609,7 +609,28 @@ const SEO_SLUG_TO_TAB = {
 // приводила в «Корпоративное управление», где сверху структура собственности и баллы,
 // а дивиденды — третьим блоком. Человек, пришедший по запросу про дивиденды, их не видел
 // и не обязан догадываться, что надо листать.
-const SEO_SLUG_TO_ANCHOR = { dividends: "blk-dividends" };
+const SEO_SLUG_TO_ANCHOR = {
+  dividends: "blk-dividends",
+  // Вкладка «Финансы» длинная: сверху разбор отчёта, ниже ключевые показатели с
+  // мультипликаторами, ещё ниже таблицы по годам. Открывать её сверху человеку, который
+  // искал «выручка Сбербанка» или «ROE Лукойла», — та же ошибка, что была с дивидендами.
+  // Два якоря покрывают все 13 страниц показателей:
+  //   blk-fin-key   — ключевые показатели и мультипликаторы (сюда же справедливая цена);
+  //   blk-fin-years — «Прибыль и рентабельность по годам»: P&L, баланс, ОДДС, рентабельность.
+  "spravedlivaya-tsena": "blk-fin-key",
+  vyruchka: "blk-fin-years",
+  "chistaya-pribyl": "blk-fin-years",
+  "operatsionnaya-pribyl": "blk-fin-years",
+  ebitda: "blk-fin-years",
+  aktivy: "blk-fin-years",
+  "sobstvennyy-kapital": "blk-fin-years",
+  "chistyy-dolg": "blk-fin-years",
+  "dolgovaya-nagruzka": "blk-fin-years",
+  "operatsionnyy-denezhnyy-potok": "blk-fin-years",
+  "svobodnyy-denezhnyy-potok": "blk-fin-years",
+  roe: "blk-fin-years",
+  roa: "blk-fin-years",
+};
 
 /**
  * Прокрутка к блоку, когда он появится. Карточка грузит данные асинхронно, поэтому
