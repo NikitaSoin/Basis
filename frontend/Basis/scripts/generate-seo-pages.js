@@ -2121,6 +2121,78 @@ ${a.why_it_matters ? `<br>Почему важно: ${escapeHtml(truncate(strip(S
 // страницу поиск не поднимет, каким бы точным ни был тайтл. Здесь к ним добавляется то,
 // ради чего человек и заходит — текущее состояние в цифрах. Данные из снапшотов,
 // обновляются на каждой сборке.
+/**
+ * Живой блок дивидендного лендинга. До него страница была ЧИСТОЙ ПРОЗОЙ про то, что
+ * «в календаре есть отсечки» — ноль строк данных, при том что «дивиденды 2026» это
+ * 170 728 запросов в месяц, а «выплата дивидендов в 2026» — 24 066.
+ *
+ * Два блока и оба честные:
+ *  1) объявленные ближайшие отсечки — из снапшота календаря (их сейчас мало, это факт
+ *     рынка: рекомендации советов директоров выходят волнами, а не равномерно);
+ *  2) последние выплаты по рынку — из governance.json (185 компаний из 264 платят).
+ *     Год выплаты подписан у каждой строки: выдавать выплату 2024 года за «дивиденды
+ *     2026» нельзя, а без года таблица именно так и читалась бы.
+ */
+function dividendLiveBlock(companies, calRows) {
+  // Свой форматтер: модульного `num` в этом файле нет (он локальный в termExamples),
+  // и обращение к нему валило ВЕСЬ генератор — а падение генератора = деплой не проходит.
+  const num = (v, d = 2) => (v == null || !isFinite(v) ? "—"
+    : Number(v).toLocaleString("ru-RU", { minimumFractionDigits: d, maximumFractionDigits: d }));
+  const byTicker = new Map((companies || []).map((c) => [c.ticker, c]));
+  const today = new Date().toISOString().slice(0, 10);
+
+  const soon = (calRows || [])
+    .filter((r) => r && r.date && String(r.date) >= today && r.amount != null)
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)))
+    .slice(0, 25);
+  const soonHtml = soon.length ? `<h2>Ближайшие дивидендные отсечки</h2>
+<table><thead><tr><th>Компания</th><th class="num">На акцию</th><th class="num">Доходность</th>
+<th>Отсечка</th><th>Купить до</th></tr></thead><tbody>${soon.map((r) => {
+    const c = byTicker.get(r.ticker);
+    const nm = c ? `<a href="/company/${escapeHtml(r.ticker)}/dividends/">${escapeHtml(c.short || r.ticker)}</a>`
+      : escapeHtml(r.ticker);
+    return `<tr><td>${nm}</td><td class="num">${num(r.amount, 2)} ₽</td>`
+      + `<td class="num">${r.yield_pct != null ? `${num(r.yield_pct, 2)}%` : "—"}</td>`
+      + `<td>${escapeHtml(ruDate(r.record_date || r.date) || r.date)}</td>`
+      + `<td>${escapeHtml(ruDate(r.buy_by_date) || "—")}</td></tr>`;
+  }).join("")}</tbody></table>
+<p class="sub">«Купить до» учитывает режим торгов T+1: в день отсечки покупать уже поздно.
+Статус «объявлен» означает рекомендацию совета директоров — до утверждения собранием
+выплата не гарантирована.</p>` : "";
+
+  // Последняя ПОДТВЕРЖДЁННАЯ выплата по каждой компании. paid === false — это
+  // «рекомендован, но не выплачен», в таблицу «кто платил» такому не место.
+  const last = [];
+  for (const c of companies || []) {
+    const h = ((c.dividends || {}).history || [])
+      .filter((x) => x && x.paid !== false && x.dps != null);
+    if (!h.length) continue;
+    const l = h.slice().sort((a, b) => (b.year || 0) - (a.year || 0))[0];
+    last.push({ c, y: l.yield_pct, dps: l.dps, year: l.year, payout: l.payout_pct, special: l.special });
+  }
+  last.sort((a, b) => (b.y == null ? -1 : b.y) - (a.y == null ? -1 : a.y));
+  const SHOW = 100;
+  const tableHtml = last.length ? `<h2>Кто платит дивиденды: последние выплаты по рынку</h2>
+<p class="sub">Из ${(companies || []).length} компаний Мосбиржи выплаты есть у ${last.length}.
+Отсортировано по доходности последней выплаты. <b>Год выплаты указан в каждой строке</b> —
+у части компаний последняя выплата была не в этом году, и это само по себе важный факт.</p>
+<table><thead><tr><th>Компания</th><th class="num">На акцию</th><th class="num">Доходность</th>
+<th class="num">Год</th><th class="num">Доля прибыли</th></tr></thead><tbody>${
+    last.slice(0, SHOW).map((r) => `<tr><td><a href="/company/${escapeHtml(r.c.ticker)}/dividends/">${
+      escapeHtml(r.c.short || r.c.ticker)}</a>${r.special ? ' <span class="sub">спец.</span>' : ""}</td>`
+      + `<td class="num">${num(r.dps, 2)} ₽</td>`
+      + `<td class="num">${r.y != null ? `${num(r.y, 1)}%` : "—"}</td>`
+      + `<td class="num">${r.year || "—"}</td>`
+      + `<td class="num">${r.payout != null ? `${num(r.payout, 0)}%` : "—"}</td></tr>`).join("")}</tbody></table>
+<p class="sub">Показаны ${Math.min(SHOW, last.length)} компаний с наибольшей доходностью последней
+выплаты; остальные — в <a href="/skrining-aktsiy/">скринере</a> с фильтром по дивидендам.
+Доходность приведена к цене на дату обновления разбора, а не к сегодняшней: живой расчёт —
+в приложении. Высокая доходность прошлой выплаты <b>не обещает</b> такую же следующую —
+у половины этих компаний выплата зависит от прибыли года.</p>` : "";
+
+  return `${soonHtml}${tableHtml}`;
+}
+
 function macroLiveBlock(macro) {
   // Коды и МЕТРИКИ берём как они есть в данных: у ставки это values.level, у инфляции
   // и ВВП — values.yoy (уровня там нет вовсе). Слепое обращение к level давало пустую
@@ -2730,6 +2802,7 @@ function main() {
   const LIVE_BLOCKS = {
     "makroobzor-rossiyskoy-ekonomiki": macroLiveBlock(loadRows("macro-snapshot.json")),
     "geopolitika-i-rossiyskiy-rynok": geoLiveBlock(loadRows("geo-barometer-snapshot.json")[0]),
+    "dividendnyy-kalendar": dividendLiveBlock(companies, loadRows("dividend-calendar-snapshot.json")),
   };
   for (const l of LANDINGS) {
     const dir = path.join(_BUILD_DIR, l.slug);
