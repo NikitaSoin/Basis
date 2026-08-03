@@ -20,10 +20,54 @@ def _safe(name: str) -> str:
     return name
 
 
+# 🔴 Внутренняя кухня, просочившаяся в прозу карточек. Аналитические файлы
+# писались агентами, которые ссылались на себя и на свои методички: «Барометр
+# geo-macro-analyst от 12.07.2026 (kb geo-system v0.9)», «по протоколу A02 §1»,
+# «GRE E12». Пользователю это ничего не говорит и выглядит как утечка служебного
+# текста. Масштаб на 2026-08-04: A02 § — 282 файла, geo-macro-analyst — 179.
+#
+# Чистим НА ОТДАЧЕ, а не правкой файлов: массовая замена в сотнях
+# аналитических текстов — операция, которая уже дважды в этом проекте сносила
+# живые данные, и откатывать её нечем. Здесь же исходники целы, а поменять
+# правило можно одной строкой.
+_PROSE_INTERNALS = [
+    # «Барометр geo-macro-analyst от 12.07.2026 (kb geo-system v0.9)» →
+    # «Барометр Basis от 12.07.2026»
+    (re.compile(r"\b(?:geo-macro-analyst|institutional-macro-analyst|"
+                 r"geo-company-analyst|institutional-company-analyst)\b"), "Basis"),
+    # «kb geo-system v0.9» встречается и отдельной скобкой, и ВНУТРИ длинной
+    # («(Барометр Basis от 12.07, kb geo-system v0.9)»). Второй случай первый
+    # шаблон не ловил: он требовал скобку целиком. Убираем сам фрагмент вместе
+    # с ведущим разделителем, скобку оставляем на месте.
+    (re.compile(r"\s*\((?:kb\s+)?(?:geo-system|inst-system)[^)]*\)"), ""),
+    (re.compile(r"\s*[,;]?\s*(?:kb\s+)?(?:geo-system|inst-system)\s*v?[\d.]*"), ""),
+    # ссылки на внутренние протоколы и разделы методичек
+    (re.compile(r"\s*\(?(?:по\s+)?протокол\w*\s+A0\d\s*§\s*\d+[^),.;]*\)?", re.I), ""),
+    # Ведущий предлог убираем вместе с кодом: иначе остаётся обрубок
+    # «это гео-источник по.» — предложение без конца.
+    (re.compile(r"\s*(?:по\s+|согласно\s+|см\.\s*)?\(?A0\d\s*§\s*\d+(?:\.\d+)?\)?"), ""),
+    # Коды скорингов: «GRE E12», «IRI S7». УДАЛЯЕМ вместе с ведущим предлогом,
+    # а не заменяем словами: подстановка ломала падеж («по внутренняя оценка
+    # показывает»), а согласовывать замену со всеми управляющими словами — путь
+    # в бесконечный список исключений. Без кода фраза остаётся грамматичной:
+    # «Оценка по GRE E12 показывает…» → «Оценка показывает…».
+    (re.compile(r"\s*(?:по\s+|согласно\s+)?\b(?:GRE|IRI)\s+[ES]\d{1,2}\b"), ""),
+]
+
+
+def _strip_internals(text: str) -> str:
+    for rx, repl in _PROSE_INTERNALS:
+        text = rx.sub(repl, text)
+    # после вырезаний остаются двойные пробелы и «пустые» скобки
+    text = re.sub(r"\(\s*[,;]?\s*\)", "", text)
+    return re.sub(r"[ \t]{2,}", " ", text)
+
+
 def _prose_or_overlay(path) -> str:
     """Проза вкладки: авто-патч из БД-ОВЕРЛЕЯ (если есть published) → иначе файл.
     Оверлей переживает эфемерность файлов на Timeweb (авто-свежесть прозы, см.
-    app/services/card_prose_patcher.py). При любой ошибке — грациозно читаем файл."""
+    app/services/card_prose_patcher.py). При любой ошибке — грациозно читаем файл.
+    На выходе снимаются внутренние обозначения (см. _PROSE_INTERNALS)."""
     try:
         from app.services.card_prose_patcher import _TAB_FILE, current_overlay
         from app.db.session import SessionLocal
@@ -33,12 +77,12 @@ def _prose_or_overlay(path) -> str:
             try:
                 ov = current_overlay(db, path.parent.name, tab)
                 if ov and ov.patched_md:
-                    return ov.patched_md
+                    return _strip_internals(ov.patched_md)
             finally:
                 db.close()
     except Exception:  # noqa: BLE001 — оверлей не должен ронять отдачу прозы
         pass
-    return path.read_text(encoding="utf-8")
+    return _strip_internals(path.read_text(encoding="utf-8"))
 from app.db.session import get_db
 from app.auth import get_current_user_optional, require_ops_token
 from app.models.company_profile import CompanyProfile
