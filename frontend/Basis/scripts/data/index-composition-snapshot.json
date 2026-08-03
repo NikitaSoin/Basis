@@ -1,0 +1,480 @@
+{
+ "meta": {
+  "source": "https://iss.moex.com/iss/statistics/engines/stock/markets/index/analytics",
+  "fetched_at": "2026-08-03T10:46:31.733Z"
+ },
+ "indices": {
+  "IMOEX": {
+   "rows": [
+    {
+     "ticker": "LKOH",
+     "name": "ЛУКОЙЛ",
+     "weight": 16.32
+    },
+    {
+     "ticker": "SBER",
+     "name": "Сбербанк",
+     "weight": 12.45
+    },
+    {
+     "ticker": "GAZP",
+     "name": "ГАЗПРОМ ао",
+     "weight": 8.9
+    },
+    {
+     "ticker": "YDEX",
+     "name": "ЯНДЕКС",
+     "weight": 7.01
+    },
+    {
+     "ticker": "TATN",
+     "name": "Татнфт 3ао",
+     "weight": 5.11
+    },
+    {
+     "ticker": "T",
+     "name": "Т-Техно ао",
+     "weight": 5.06
+    },
+    {
+     "ticker": "NVTK",
+     "name": "Новатэк ао",
+     "weight": 4.44
+    },
+    {
+     "ticker": "GMKN",
+     "name": "ГМКНорНик",
+     "weight": 4.22
+    },
+    {
+     "ticker": "ROSN",
+     "name": "Роснефть",
+     "weight": 2.82
+    },
+    {
+     "ticker": "OZON",
+     "name": "Озон",
+     "weight": 2.81
+    },
+    {
+     "ticker": "X5",
+     "name": "КЦ ИКС 5",
+     "weight": 2.79
+    },
+    {
+     "ticker": "PLZL",
+     "name": "Полюс",
+     "weight": 2.68
+    },
+    {
+     "ticker": "VTBR",
+     "name": "ВТБ ао",
+     "weight": 2.54
+    },
+    {
+     "ticker": "SBERP",
+     "name": "Сбербанк-п",
+     "weight": 2.41
+    },
+    {
+     "ticker": "SNGSP",
+     "name": "Сургнфгз-п",
+     "weight": 1.96
+    },
+    {
+     "ticker": "SNGS",
+     "name": "Сургнфгз",
+     "weight": 1.63
+    },
+    {
+     "ticker": "HEAD",
+     "name": "Хэдхантер",
+     "weight": 1.18
+    },
+    {
+     "ticker": "MOEX",
+     "name": "МосБиржа",
+     "weight": 1.14
+    },
+    {
+     "ticker": "IRAO",
+     "name": "ИнтерРАОао",
+     "weight": 1.05
+    },
+    {
+     "ticker": "MTSS",
+     "name": "МТС-ао",
+     "weight": 1.04
+    },
+    {
+     "ticker": "TATNP",
+     "name": "Татнфт 3ап",
+     "weight": 0.91
+    },
+    {
+     "ticker": "CHMF",
+     "name": "СевСт-ао",
+     "weight": 0.86
+    },
+    {
+     "ticker": "RUAL",
+     "name": "РУСАЛ ао",
+     "weight": 0.84
+    },
+    {
+     "ticker": "CBOM",
+     "name": "МКБ ао",
+     "weight": 0.83
+    },
+    {
+     "ticker": "NLMK",
+     "name": "НЛМК ао",
+     "weight": 0.79
+    },
+    {
+     "ticker": "DOMRF",
+     "name": "ДОМ.РФ",
+     "weight": 0.7
+    },
+    {
+     "ticker": "PHOR",
+     "name": "ФосАгро ао",
+     "weight": 0.68
+    },
+    {
+     "ticker": "SVCB",
+     "name": "Совкомбанк",
+     "weight": 0.54
+    },
+    {
+     "ticker": "MAGN",
+     "name": "ММК",
+     "weight": 0.49
+    },
+    {
+     "ticker": "RTKM",
+     "name": "Ростел -ао",
+     "weight": 0.48
+    },
+    {
+     "ticker": "AFLT",
+     "name": "Аэрофлот",
+     "weight": 0.46
+    },
+    {
+     "ticker": "ENPG",
+     "name": "ЭН+ГРУП ао",
+     "weight": 0.45
+    },
+    {
+     "ticker": "MDMG",
+     "name": "MDMG-ао",
+     "weight": 0.42
+    },
+    {
+     "ticker": "TRNFP",
+     "name": "Транснф ап",
+     "weight": 0.42
+    },
+    {
+     "ticker": "ALRS",
+     "name": "АЛРОСА ао",
+     "weight": 0.36
+    },
+    {
+     "ticker": "FLOT",
+     "name": "Совкомфлот",
+     "weight": 0.36
+    },
+    {
+     "ticker": "LENT",
+     "name": "Лента ао",
+     "weight": 0.36
+    },
+    {
+     "ticker": "RAGR",
+     "name": "Русагро",
+     "weight": 0.35
+    },
+    {
+     "ticker": "BSPB",
+     "name": "БСП ао",
+     "weight": 0.34
+    },
+    {
+     "ticker": "CNRU",
+     "name": "iЦиан",
+     "weight": 0.33
+    },
+    {
+     "ticker": "AFKS",
+     "name": "Система ао",
+     "weight": 0.3
+    },
+    {
+     "ticker": "UGLD",
+     "name": "ЮГК",
+     "weight": 0.29
+    },
+    {
+     "ticker": "POSI",
+     "name": "iПозитив",
+     "weight": 0.28
+    },
+    {
+     "ticker": "VKCO",
+     "name": "МКПАО \"ВК\"",
+     "weight": 0.27
+    },
+    {
+     "ticker": "RENI",
+     "name": "Ренессанс",
+     "weight": 0.2
+    },
+    {
+     "ticker": "MSNG",
+     "name": "+МосЭнерго",
+     "weight": 0.17
+    }
+   ],
+   "tradedate": null,
+   "count": 46
+  },
+  "RTSI": {
+   "rows": [
+    {
+     "ticker": "LKOH",
+     "name": "ЛУКОЙЛ",
+     "weight": 16.32
+    },
+    {
+     "ticker": "SBER",
+     "name": "Сбербанк",
+     "weight": 12.45
+    },
+    {
+     "ticker": "GAZP",
+     "name": "ГАЗПРОМ ао",
+     "weight": 8.9
+    },
+    {
+     "ticker": "YDEX",
+     "name": "ЯНДЕКС",
+     "weight": 7.01
+    },
+    {
+     "ticker": "TATN",
+     "name": "Татнфт 3ао",
+     "weight": 5.11
+    },
+    {
+     "ticker": "T",
+     "name": "Т-Техно ао",
+     "weight": 5.06
+    },
+    {
+     "ticker": "NVTK",
+     "name": "Новатэк ао",
+     "weight": 4.44
+    },
+    {
+     "ticker": "GMKN",
+     "name": "ГМКНорНик",
+     "weight": 4.22
+    },
+    {
+     "ticker": "ROSN",
+     "name": "Роснефть",
+     "weight": 2.82
+    },
+    {
+     "ticker": "OZON",
+     "name": "Озон",
+     "weight": 2.81
+    },
+    {
+     "ticker": "X5",
+     "name": "КЦ ИКС 5",
+     "weight": 2.79
+    },
+    {
+     "ticker": "PLZL",
+     "name": "Полюс",
+     "weight": 2.68
+    },
+    {
+     "ticker": "VTBR",
+     "name": "ВТБ ао",
+     "weight": 2.54
+    },
+    {
+     "ticker": "SBERP",
+     "name": "Сбербанк-п",
+     "weight": 2.41
+    },
+    {
+     "ticker": "SNGSP",
+     "name": "Сургнфгз-п",
+     "weight": 1.96
+    },
+    {
+     "ticker": "SNGS",
+     "name": "Сургнфгз",
+     "weight": 1.63
+    },
+    {
+     "ticker": "HEAD",
+     "name": "Хэдхантер",
+     "weight": 1.18
+    },
+    {
+     "ticker": "MOEX",
+     "name": "МосБиржа",
+     "weight": 1.14
+    },
+    {
+     "ticker": "IRAO",
+     "name": "ИнтерРАОао",
+     "weight": 1.05
+    },
+    {
+     "ticker": "MTSS",
+     "name": "МТС-ао",
+     "weight": 1.04
+    },
+    {
+     "ticker": "TATNP",
+     "name": "Татнфт 3ап",
+     "weight": 0.91
+    },
+    {
+     "ticker": "CHMF",
+     "name": "СевСт-ао",
+     "weight": 0.86
+    },
+    {
+     "ticker": "RUAL",
+     "name": "РУСАЛ ао",
+     "weight": 0.84
+    },
+    {
+     "ticker": "CBOM",
+     "name": "МКБ ао",
+     "weight": 0.83
+    },
+    {
+     "ticker": "NLMK",
+     "name": "НЛМК ао",
+     "weight": 0.79
+    },
+    {
+     "ticker": "DOMRF",
+     "name": "ДОМ.РФ",
+     "weight": 0.7
+    },
+    {
+     "ticker": "PHOR",
+     "name": "ФосАгро ао",
+     "weight": 0.68
+    },
+    {
+     "ticker": "SVCB",
+     "name": "Совкомбанк",
+     "weight": 0.54
+    },
+    {
+     "ticker": "MAGN",
+     "name": "ММК",
+     "weight": 0.49
+    },
+    {
+     "ticker": "RTKM",
+     "name": "Ростел -ао",
+     "weight": 0.48
+    },
+    {
+     "ticker": "AFLT",
+     "name": "Аэрофлот",
+     "weight": 0.46
+    },
+    {
+     "ticker": "ENPG",
+     "name": "ЭН+ГРУП ао",
+     "weight": 0.45
+    },
+    {
+     "ticker": "MDMG",
+     "name": "MDMG-ао",
+     "weight": 0.42
+    },
+    {
+     "ticker": "TRNFP",
+     "name": "Транснф ап",
+     "weight": 0.42
+    },
+    {
+     "ticker": "ALRS",
+     "name": "АЛРОСА ао",
+     "weight": 0.36
+    },
+    {
+     "ticker": "FLOT",
+     "name": "Совкомфлот",
+     "weight": 0.36
+    },
+    {
+     "ticker": "LENT",
+     "name": "Лента ао",
+     "weight": 0.36
+    },
+    {
+     "ticker": "RAGR",
+     "name": "Русагро",
+     "weight": 0.35
+    },
+    {
+     "ticker": "BSPB",
+     "name": "БСП ао",
+     "weight": 0.34
+    },
+    {
+     "ticker": "CNRU",
+     "name": "iЦиан",
+     "weight": 0.33
+    },
+    {
+     "ticker": "AFKS",
+     "name": "Система ао",
+     "weight": 0.3
+    },
+    {
+     "ticker": "UGLD",
+     "name": "ЮГК",
+     "weight": 0.29
+    },
+    {
+     "ticker": "POSI",
+     "name": "iПозитив",
+     "weight": 0.28
+    },
+    {
+     "ticker": "VKCO",
+     "name": "МКПАО \"ВК\"",
+     "weight": 0.27
+    },
+    {
+     "ticker": "RENI",
+     "name": "Ренессанс",
+     "weight": 0.2
+    },
+    {
+     "ticker": "MSNG",
+     "name": "+МосЭнерго",
+     "weight": 0.17
+    }
+   ],
+   "tradedate": null,
+   "count": 46
+  }
+ }
+}

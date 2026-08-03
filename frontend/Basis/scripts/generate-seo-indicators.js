@@ -188,42 +188,173 @@ ${seriesHtml(ind.code, v.unit || ind.unit)}
   });
 }
 
+// Состав индексов и наши оценки по бумагам — то, чего на странице индекса не было вообще.
+// Запрос «состав индекса мосбиржи» — 1983/мес, и это же 46 внутренних ссылок на карточки.
+const COMPOSITION = (() => {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(__dirname, "data", "index-composition-snapshot.json"), "utf8")).indices || {};
+  } catch { return {}; }
+})();
+const FAIR = (() => {
+  const m = new Map();
+  for (const r of readSnap("fair-value-snapshot.json").rows) if (r && r.ticker) m.set(String(r.ticker), r);
+  return m;
+})();
+
+/** MCFTR — та же корзина, что у IMOEX, отличается только учётом дивидендов. */
+function compositionFor(ticker) {
+  const own = COMPOSITION[ticker];
+  if (own && own.rows && own.rows.length) return { rows: own.rows, borrowedFrom: null };
+  const base = COMPOSITION.IMOEX;
+  if (ticker === "MCFTR" && base && base.rows && base.rows.length) return { rows: base.rows, borrowedFrom: "IMOEX" };
+  return { rows: [], borrowedFrom: null };
+}
+
+const num = (v, d = 2) => (v == null || !isFinite(v) ? "—" : Number(v).toLocaleString("ru-RU",
+  { minimumFractionDigits: d, maximumFractionDigits: d }));
+const signed = (v, d = 1) => (v == null || !isFinite(v) ? "—" : `${v > 0 ? "+" : ""}${num(v, d)}`);
+const median = (a) => {
+  const s = a.filter((x) => x != null && isFinite(x)).sort((x, y) => x - y);
+  if (!s.length) return null;
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+};
+
 function indexPage(ix, assets, all) {
   const chg = ix.change_pct;
-  const title = `${ix.name} (${ix.ticker})${ix.level != null ? `: ${ix.level}` : ""} сегодня — график, состав | Basis`;
+  const key = String(ix.ticker);
+  const { rows: comp, borrowedFrom } = compositionFor(key);
+  const hasCard = (t) => fs.existsSync(path.join(BUILD, "company", t, "index.html"));
+
+  // Концентрация — главный факт об этом индексе, которого нигде не пишут словами.
+  const top5 = comp.slice(0, 5).reduce((s, r) => s + (r.weight || 0), 0);
+  const top10 = comp.slice(0, 10).reduce((s, r) => s + (r.weight || 0), 0);
+  const upsides = comp.map((r) => FAIR.get(r.ticker)).filter(Boolean)
+    .map((f) => f.upside_pct).filter((u) => u != null && isFinite(u));
+  const medUp = median(upsides);
+  const below = upsides.filter((u) => u < 0).length;
+
+  const title = `${ix.name} (${ix.ticker})${ix.level != null ? `: ${ix.level}` : ""} сегодня — состав, вес бумаг, график | Basis`;
   const desc = `${ix.name} (${ix.ticker})${ix.level != null ? ` — ${ix.level}` : ""}`
-    + `${chg != null ? `, изменение ${chg > 0 ? "+" : ""}${chg}%` : ""}. Что показывает индекс, из чего состоит и как читать его движение.`;
+    + `${chg != null ? `, ${chg > 0 ? "+" : ""}${chg}% за день` : ""}.`
+    + (comp.length ? ` Полный состав: ${comp.length} бумаг с весами, на топ-5 приходится ${num(top5, 1)}%.` : "")
+    + " Из чего состоит индекс, что им движет и как читать его динамику.";
+
+  // Динамика по споту: спарклайн — 30 последних значений, это готовый «за месяц».
+  const sp = Array.isArray(ix.spark) ? ix.spark.filter((x) => x != null && isFinite(x)) : [];
+  const dyn = sp.length >= 5 ? {
+    first: sp[0], last: sp[sp.length - 1], max: Math.max(...sp), min: Math.min(...sp),
+    pct: ((sp[sp.length - 1] - sp[0]) / sp[0]) * 100,
+  } : null;
+
+  const compRows = comp.map((r, i) => {
+    const f = FAIR.get(r.ticker);
+    const link = hasCard(r.ticker)
+      ? `<a href="/company/${esc(r.ticker)}/">${esc(r.name)}</a>` : esc(r.name);
+    return `<tr><td>${i + 1}</td><td>${link} <span style="color:var(--faint)">${esc(r.ticker)}</span></td>`
+      + `<td>${num(r.weight, 2)}%</td><td>${f && f.price != null ? num(f.price) : "—"}</td>`
+      + `<td>${f && f.fair_value != null ? num(f.fair_value) : "—"}</td>`
+      + `<td>${f && f.upside_pct != null ? signed(f.upside_pct) + "%" : "—"}</td></tr>`;
+  }).join("");
+
   const related = all.filter((x) => x.ticker !== ix.ticker);
   const body = `
-<p class="tag">Индексы Московской биржи</p>
+<p class="tag">Индексы Московской биржи · факт (данные биржи)</p>
 <h1>${esc(ix.name)} <span style="color:var(--faint)">(${esc(ix.ticker)})</span></h1>
 <div class="val">${esc(ix.level != null ? ix.level : "—")}</div>
-<p class="meta">${chg != null ? `Изменение за день: ${chg > 0 ? "+" : ""}${esc(chg)}%` : "Значение обновляется"}${
-    ix.change_abs != null ? ` (${ix.change_abs > 0 ? "+" : ""}${esc(ix.change_abs)} п.)` : ""}</p>
-<h2>Что показывает индекс</h2>
-<p>Индекс — это корзина бумаг, движение которой показывает состояние рынка в целом, а не
-отдельной компании. По нему сравнивают результат портфеля: обогнали вы рынок или просто
-шли вместе с ним. В разделе «Портфель» такое сравнение считается автоматически.</p>
-<h2>Как читать движение</h2>
-<p>Рост индекса означает, что бумаги корзины в среднем дорожали, но не говорит, что
-дорожало всё: широкий рост и рост за счёт двух-трёх тяжёлых бумаг выглядят одинаково.
-Поэтому рядом с индексом полезно смотреть ширину рынка и
-<a href="/karta-rynka-aktsiy/">карту рынка</a> — там видно, какая часть бумаг реально
-росла.</p>
-<a class="cta" href="/obzor-rynka/">Открыть обзор рынка →</a>
+<p class="meta">${chg != null ? `Изменение за день: ${chg > 0 ? "▲" : chg < 0 ? "▼" : ""} ${signed(chg, 2)}%` : "Значение обновляется"}${
+    ix.change_abs != null ? ` (${signed(ix.change_abs, 2)} п.)` : ""}${
+    ix.updated ? ` · обновлено ${esc(ix.updated)}` : ""}</p>
+
+${comp.length ? `<p class="sub"><b>Коротко:</b> в корзине ${comp.length} бумаг; на пять крупнейших
+приходится ${num(top5, 1)}% веса, на десять — ${num(top10, 1)}%. Это значит, что индекс движут
+несколько тяжёлых бумаг, и «рынок вырос» не равно «выросли все».</p>
+${medUp != null ? `<p class="sub">По модели Basis ${below} из ${upsides.length} бумаг корзины сейчас
+торгуются <b>выше</b> расчётной справедливой цены, медианное расхождение — ${signed(Math.abs(medUp))}%.
+Это <b>оценка модели, а не прогноз</b>: модель опирается на текущую прибыль и денежный поток и
+поэтому строга к компаниям роста, которые оценивают по будущему. Смотрите не итог, а разбор
+конкретной бумаги — в таблице ниже каждая ведёт на свою карточку.</p>` : ""}` : ""}
+
+${dyn ? `<h2>Динамика за последний месяц</h2>
+<table><tr><th>Показатель</th><th>Значение</th></tr>
+<tr><td>Изменение за период</td><td>${signed(dyn.pct)}%</td></tr>
+<tr><td>Максимум</td><td>${num(dyn.max)}</td></tr>
+<tr><td>Минимум</td><td>${num(dyn.min)}</td></tr>
+<tr><td>Размах</td><td>${num(((dyn.max - dyn.min) / dyn.min) * 100, 1)}%</td></tr></table>
+<p class="sub">По последним ${sp.length} торговым дням. Полный график — в разделе «Рынок».</p>` : ""}
+
+${comp.length ? `<h2>Состав индекса ${esc(ix.name)}: ${comp.length} бумаг и их вес</h2>
+${borrowedFrom ? `<p class="sub">Корзина совпадает с Индексом МосБиржи — отличается только тем,
+что ${esc(ix.name)} учитывает выплаченные дивиденды.</p>` : ""}
+<p class="sub">Вес — доля бумаги в индексе по данным Московской биржи (факт). Справедливая цена и
+потенциал — <b>оценка Basis</b> по методике карточки, а не прогноз и не рекомендация.</p>
+<table><tr><th>№</th><th>Бумага</th><th>Вес</th><th>Цена, ₽</th><th>Справедливая, ₽</th><th>Потенциал</th></tr>
+${compRows}</table>
+<p class="sub">Каждая бумага — ссылка на разбор: финансы, оценка, риски, дивиденды.</p>` : ""}
+
+<h2>Что движет индексом</h2>
+<p>Индекс взвешен по капитализации: чем крупнее компания, тем сильнее её движение отражается
+на общем значении.${comp.length ? ` Здесь ${num(top5, 1)}% веса — это ${comp.slice(0, 5).map((r) =>
+  esc(r.ticker)).join(", ")}, поэтому день, когда падают только они, выглядит как падение всего
+рынка.` : ""} Обратная ситуация тоже бывает: индекс стоит на месте, а большинство бумаг
+снижается. Чтобы отличить одно от другого, нужна ширина рынка — сколько бумаг реально росло,
+а не среднее по корзине. Это видно на <a href="/karta-rynka-aktsiy/">карте рынка</a>.</p>
+
+<h2>Что такое индекс МосБиржи простыми словами</h2>
+<p>Это корзина крупнейших российских акций, собранная биржей по правилам ликвидности и
+капитализации. Само число (${esc(ix.level != null ? ix.level : "значение")}) не имеет смысла в
+отрыве от истории — важно не оно, а изменение: индекс показывает, куда двигался рынок в целом.
+Купить сам индекс нельзя, но можно купить фонд, повторяющий его состав, —
+<a href="/funds/">такие фонды есть на бирже</a>.</p>
+
+<h2>Зачем он частному инвестору</h2>
+<p>Это точка отсчёта. Ваш портфель вырос на 8% — много это или мало, зависит от того, что за
+это время сделал рынок. Если индекс прибавил 15%, портфель отстал, хотя формально в плюсе.
+В разделе «Портфель» такое сравнение считается автоматически.</p>
+
+<a class="cta" href="/obzor-rynka/">Что происходит на рынке сегодня →</a>
 ${related.length ? `<h2>Другие индексы</h2><div>${related.map((x) =>
     `<a class="chip" href="/indeks/${String(x.ticker).toLowerCase()}/">${esc(x.name)}</a>`).join("")}</div>` : ""}
-<div><a class="chip" href="/indeks-strakha-i-zhadnosti/">Индекс страха и жадности</a></div>`;
+<div><a class="chip" href="/indeks-strakha-i-zhadnosti/">Индекс страха и жадности</a><a class="chip" href="/skrining-aktsiy/">Скринер акций</a><a class="chip" href="/nedootsenennye-aktsii/">Недооценённые акции</a></div>`;
+
   return shell({
-    title, desc, canonical: `/indeks/${String(ix.ticker).toLowerCase()}/`,
+    title, desc, canonical: `/indeks/${key.toLowerCase()}/`,
     crumbs: `<a href="/">Basis</a> → <a href="/obzor-rynka/">Обзор рынка</a> → ${esc(ix.name)}`,
     body, assets,
     jsonLd: {
-      "@context": "https://schema.org", "@type": "WebPage", name: title,
-      description: desc, url: `${SITE}/indeks/${String(ix.ticker).toLowerCase()}/`,
+      "@context": "https://schema.org", "@type": "FAQPage",
+      name: title, url: `${SITE}/indeks/${key.toLowerCase()}/`,
+      mainEntity: [
+        {
+          "@type": "Question", name: `Что такое ${ix.name} простыми словами?`,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: `Это корзина крупнейших российских акций, собранная Московской биржей. Само значение `
+              + `не важно в отрыве от истории — важно его изменение: индекс показывает, куда двигался рынок в целом.`,
+          },
+        },
+        comp.length ? {
+          "@type": "Question", name: `Из чего состоит ${ix.name}?`,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: `В индекс входят ${comp.length} бумаг. Крупнейшие по весу: `
+              + comp.slice(0, 5).map((r) => `${r.name} — ${r.weight}%`).join(", ")
+              + `. На пять крупнейших приходится ${num(top5, 1)}% веса индекса.`,
+          },
+        } : null,
+        {
+          "@type": "Question", name: `Почему ${ix.name} растёт или падает?`,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: `Индекс взвешен по капитализации, поэтому его движение определяют несколько самых `
+              + `крупных бумаг. Индекс может падать, когда большинство акций растёт, — если снижаются тяжёлые.`,
+          },
+        },
+      ].filter(Boolean),
     },
-    note: "Значения индексов приводятся с Московской биржи. Basis — аналитический слой, не брокер: "
-      + "не проводит сделок и не даёт сигналов «купить/продать».",
+    note: "Значения и веса — данные Московской биржи (факт). Справедливая цена и потенциал — оценка Basis "
+      + "по собственной методике. Basis — аналитический слой, не брокер: не проводит сделок и не даёт "
+      + "сигналов «купить/продать».",
   });
 }
 
