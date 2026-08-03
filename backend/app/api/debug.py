@@ -21,7 +21,7 @@ import urllib.request
 import urllib.error
 
 from fastapi import APIRouter, HTTPException, Query, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 
 logger = logging.getLogger(__name__)
 
@@ -1598,50 +1598,64 @@ def debug_trigger_geo_profile():
         db.close()
 
 
+# 🔴 ФОНОВЫЙ ЗАПУСК, А НЕ ОЖИДАНИЕ В HTTP. Первая версия этих триггеров ждала
+# прогон целиком и на бою не отработала ни разу: замеры направлений — это четыре
+# reasoning-вызова подряд (~15-20 минут), а прокси Timeweb обрывает долгий запрос
+# гораздо раньше (та же причина, по которой POST /market/macro/interpretation
+# отвечает 202 и генерит в фоне — см. комментарий там). Клиент получает ответ
+# сразу, результат смотрит через GET /market/institutions/domains|profile.
+_INST_RUNS: dict = {}
+
+
+def _inst_bg(name: str, fn) -> dict:
+    import threading
+    if _INST_RUNS.get(name, {}).get("running"):
+        return {"running": True, "note": "уже выполняется — второй дорогой прогон не запускаю"}
+
+    def _worker():
+        from app.db.session import SessionLocal
+        db = SessionLocal()
+        try:
+            row = fn(db)
+            _INST_RUNS[name] = {"running": False,
+                                "result": (f"версия {row.id} ({row.status})" if row
+                                           else "не собрано — мало материалов"),
+                                "gate_notes": (row.gate_notes or [])[:10] if row else []}
+        except Exception as e:  # noqa: BLE001
+            logger.exception("debug %s: %s", name, e)
+            _INST_RUNS[name] = {"running": False, "result": f"ошибка: {type(e).__name__}: {e}"}
+        finally:
+            db.close()
+
+    _INST_RUNS[name] = {"running": True, "result": None}
+    threading.Thread(target=_worker, name=name, daemon=True).start()
+    return {"running": True, "note": "запущено в фоне, смотри GET-эндпоинт раздела"}
+
+
 @router.post("/debug/trigger-institutions-domains")
 def debug_trigger_institutions_domains():
-    """Ручной запуск ЗАМЕРОВ ИНСТИТУТОВ ПО НАПРАВЛЕНИЯМ (крон institutions_domains,
-    вс 21:55): собственность, суды, законотворчество, госдоля, монополизация,
-    конкуренция, регуляторная нагрузка, рыночные институты, конфликты бизнеса и
-    государства, лоббизм. Дорогой прогон — четыре reasoning-вызова."""
-    from app.db.session import SessionLocal
+    """Замеры институтов ПО НАПРАВЛЕНИЯМ (крон institutions_domains, вс 21:55):
+    собственность, суды, законотворчество, госдоля, монополизация, конкуренция,
+    регуляторная нагрузка, рыночные институты, конфликты бизнеса и государства,
+    лоббизм. Четыре reasoning-прохода — запускается в ФОНЕ, ответ мгновенный."""
     from app.services.institutions_domains import rebuild
-    db = SessionLocal()
-    try:
-        row = rebuild(db)
-        if row is None:
-            return {"result": "материалов мало — замер пропущен"}
-        p = row.payload or {}
-        return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes,
-                "domains": len(p.get("domains") or []), "changes": len(p.get("changes") or [])}
-    except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-institutions-domains: %s", e)
-        return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
+    return JSONResponse(status_code=202, content=_inst_bg("institutions_domains", rebuild))
 
 
 @router.post("/debug/trigger-institutions-profile")
 def debug_trigger_institutions_profile():
-    """Ручной запуск ИНСТИТУЦИОНАЛЬНОГО ПОРТРЕТА (крон institutions_profile,
-    вс 22:20) — человеческий слой поверх барометра: ось «правила ↔ доступ»,
-    связь с ценой акций, факторы в обе стороны, кто выигрывает и проигрывает,
-    зоны передела, связки с макро и гео. Запускать ПОСЛЕ замеров направлений:
-    портрет использует их как вход."""
-    from app.db.session import SessionLocal
+    """Институциональный портрет (крон institutions_profile, вс 22:20) — ось
+    «правила ↔ доступ», связь с ценой акций, факторы в обе стороны, кто
+    выигрывает и проигрывает, зоны передела, связки с макро и гео. Запускать
+    ПОСЛЕ замеров направлений: портрет использует их как вход. В ФОНЕ."""
     from app.services.institutions_profile import rebuild
-    db = SessionLocal()
-    try:
-        row = rebuild(db)
-        if row is None:
-            return {"result": "лента пуста или барометра нет — портрет не трогали"}
-        return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes,
-                "sections": [k for k in (row.payload or {})]}
-    except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-institutions-profile: %s", e)
-        return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
+    return JSONResponse(status_code=202, content=_inst_bg("institutions_profile", rebuild))
+
+
+@router.get("/debug/institutions-runs")
+def debug_institutions_runs():
+    """Состояние фоновых прогонов институтов: идёт / чем закончился."""
+    return _INST_RUNS or {"note": "прогонов в этой сессии сервера не было"}
 
 
 @router.post("/debug/trigger-geo-verification")
