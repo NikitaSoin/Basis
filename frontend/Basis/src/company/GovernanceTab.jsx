@@ -234,8 +234,12 @@ export default function GovernanceTab({ gov, finJson }) {
           )}
 
           {/* 3. ДИВИДЕНДЫ — политика vs практика */}
+          {/* id — точка прихода со страницы /company/<T>/dividends/. Владелец 04.08:
+              «открывается корпоративное управление, самый её верх, и пользователь вместо
+              дивидендов видит какие-то индексы». Приложение открывало нужную вкладку, но
+              не прокручивало к блоку, ради которого человек пришёл. */}
           {(div.history || []).length > 0 && (
-            <div className="gcard">
+            <div className="gcard" id="blk-dividends">
               <h3>Дивиденды — политика vs практика <Tag k="fact" /><span className="hmeta">DPS, {div.history[0]?.currency || "₽"}</span></h3>
               {div.policy_text && <p className="sub">{div.policy_text}</p>}
               <DivChart history={div.history} />

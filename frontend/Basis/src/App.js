@@ -581,7 +581,55 @@ const SEO_SLUG_TO_TAB = {
   // отчётность и живёт. Без этой строки переход со статической страницы в приложение
   // открывал карточку на «Обзоре», игнорируя раздел, по которому человек пришёл.
   otchet: "finance",
+
+  // 🔴 СТРАНИЦЫ МЕТРИК. Владелец 04.08: «ссылки местами работают криво — открывают не ту
+  // информацию, которая человеку нужна». Диагностика подтвердила и показала масштаб: из
+  // 4378 страниц разделов 2800 уводили не туда. 1767 открывали вообще ГЛАВНУЮ — в их
+  // адресе есть дефис, а группа раздела в разборе пути была [a-z]+ без дефиса, поэтому
+  // совпадения не возникало и приложение уходило в ветку «это не карточка». Сюда попали
+  // ВСЕ 259 страниц справедливой цены. Ещё 1033 открывали карточку, но на «Обзоре»,
+  // потому что их slug просто не был описан здесь.
+  // Все эти показатели живут во вкладке «Финансы и оценка».
+  "spravedlivaya-tsena": "finance",
+  vyruchka: "finance",
+  "chistaya-pribyl": "finance",
+  "operatsionnaya-pribyl": "finance",
+  ebitda: "finance",
+  aktivy: "finance",
+  "sobstvennyy-kapital": "finance",
+  "chistyy-dolg": "finance",
+  "dolgovaya-nagruzka": "finance",
+  "operatsionnyy-denezhnyy-potok": "finance",
+  "svobodnyy-denezhnyy-potok": "finance",
+  roe: "finance",
+  roa: "finance",
 };
+
+// Куда ПРОКРУТИТЬ внутри вкладки. Открыть верную вкладку мало: страница /dividends/
+// приводила в «Корпоративное управление», где сверху структура собственности и баллы,
+// а дивиденды — третьим блоком. Человек, пришедший по запросу про дивиденды, их не видел
+// и не обязан догадываться, что надо листать.
+const SEO_SLUG_TO_ANCHOR = { dividends: "blk-dividends" };
+
+/**
+ * Прокрутка к блоку, когда он появится. Карточка грузит данные асинхронно, поэтому
+ * элемента в момент разбора адреса ещё нет — ждём его появления, но НЕ бесконечно.
+ * Если блока не будет (у компании нет дивидендной истории — таких 79 из 264), просто
+ * останемся наверху вкладки: это корректная деградация, а не поломка.
+ */
+function scrollToBlockWhenReady(anchorId, tries = 20) {
+  if (!anchorId) return;
+  let n = 0;
+  const tick = () => {
+    const el = document.getElementById(anchorId);
+    if (el) {
+      try { el.scrollIntoView({ behavior: "smooth", block: "start" }); } catch { el.scrollIntoView(); }
+      return;
+    }
+    if (++n < tries) setTimeout(tick, 250);
+  };
+  setTimeout(tick, 250);
+}
 
 // Резолвер карточки: значение может быть объектом компании или тикером-строкой.
 const CompanyCardResolver = ({ value, onBack, initialTab, onTabChange }) => {
@@ -989,11 +1037,13 @@ export default function App() {
   useEffect(() => {
     const onPop = () => {
       try {
-        const m = window.location.pathname.match(/^\/company\/([A-Za-z0-9-]+)\/?([a-z]+)?\/?$/);
+        const m = window.location.pathname.match(/^\/company\/([A-Za-z0-9-]+)\/?([a-z-]+)?\/?$/);
         if (m) {
           setSelectedCompany(m[1].toUpperCase());
-          const tab = SEO_SLUG_TO_TAB[(m[2] || "").toLowerCase()];
+          const slug = (m[2] || "").toLowerCase();
+          const tab = SEO_SLUG_TO_TAB[slug];
           if (tab) setInitialCardTab(tab);
+          scrollToBlockWhenReady(SEO_SLUG_TO_ANCHOR[slug]);
           return;
         }
         setSelectedCompany(null);
@@ -1024,11 +1074,13 @@ export default function App() {
   //    (используется CTA-ссылками внутри самих SEO-страниц: /?company=T&tab=X).
   useEffect(() => {
     try {
-      const pathMatch = window.location.pathname.match(/^\/company\/([A-Za-z0-9]+)\/?([a-z]+)?\/?$/);
+      const pathMatch = window.location.pathname.match(/^\/company\/([A-Za-z0-9]+)\/?([a-z-]+)?\/?$/);
       if (pathMatch) {
         setSelectedCompany(pathMatch[1].toUpperCase());
-        const mappedTab = SEO_SLUG_TO_TAB[(pathMatch[2] || "").toLowerCase()];
+        const slug = (pathMatch[2] || "").toLowerCase();
+        const mappedTab = SEO_SLUG_TO_TAB[slug];
         if (mappedTab) setInitialCardTab(mappedTab);
+        scrollToBlockWhenReady(SEO_SLUG_TO_ANCHOR[slug]);
         return;
       }
       // 🔴 Страницы инструментов: /bonds/<КОД>/, /futures/<КОД>/, /funds/<КОД>/.
