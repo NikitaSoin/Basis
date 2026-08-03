@@ -635,20 +635,37 @@ _INST_PERSON_REFS = [
     (_re.compile(r"\b[А-ЯЁ][а-яё]{3,}\s+(Консалтинг|и партнёры|Партнёрс)\b"), "аналитический центр"),
     # Технические префиксы достоверности: на витрине их роль выполняет тег
     (_re.compile(r"^\s*\[(ФАКТ|ОЦЕНКА|СУЖДЕНИЕ)[^\]]*\]\s*"), ""),
+    # Внутренние обозначения методички. Владелец: «M1, M2, M3 — внутренние
+    # названия, их не надо использовать»; CRP и «пол» он же назвал непонятными.
+    # Чистим в ТЕКСТАХ (в subindices[].key код остаётся — он нужен фронту как
+    # стабильный идентификатор и в отображение не попадает).
+    (_re.compile(r'\\bCRP-?[«"]?пол[а-я]*[»"]?', _re.IGNORECASE), "надбавку за российский риск"),
+    (_re.compile(r"\bCRP\b"), "надбавка за риск"),
+    (_re.compile(r"\bM(?:1[0-3]|[1-9])\b(?:\s*[-–—]\s*M(?:1[0-3]|[1-9])\b)?"), "показатель"),
+    (_re.compile(r"\bпротокол\w*\s+A0\d[^,.;)]*"), "методика платформы"),
 ]
 
 
 def _inst_anonymize(payload: dict) -> dict:
     """Рекурсивно убирает из текстов ссылки на конкретных людей."""
-    def scrub(x):
+    # 🔴 Поля-ИДЕНТИФИКАТОРЫ чистить нельзя. Первая версия прогоняла шаблоны по
+    # всем строкам подряд и затёрла subindices[].key («M1» → «показатель») —
+    # фронт группирует показатели по этим ключам, и кластеры бы развалились.
+    # Код в key пользователю не показывается (см. ObsBaroSubRow), так что чистить
+    # его и не требовалось.
+    _KEEP_AS_IS = {"key", "kind", "code", "url", "source_url", "id"}
+
+    def scrub(x, field=None):
         if isinstance(x, str):
+            if field in _KEEP_AS_IS:
+                return x
             for rx, repl in _INST_PERSON_REFS:
                 x = rx.sub(repl, x)
             return x
         if isinstance(x, dict):
-            return {k: scrub(v) for k, v in x.items()}
+            return {k: scrub(v, k) for k, v in x.items()}
         if isinstance(x, list):
-            return [scrub(v) for v in x]
+            return [scrub(v, field) for v in x]
         return x
     out = scrub(payload)
     if not isinstance(out, dict):
@@ -679,8 +696,13 @@ def _inst_anonymize(payload: dict) -> dict:
         return bool(_re.search(r"\b[А-ЯЁ][а-яё]{3,}(?:ов|ев|ин|ко|ук|ян|ая|ий)\b", t)
                     or _re.search(r"\b[А-ЯЁ][а-яё]{3,}(?:овы|евы|ины|берги|ичи)\b", t))
     if isinstance(out.get("data_flags"), list):
+        # Кроме имён выбрасываем чисто технические оговорки: они написаны для
+        # аналитика и после чистки терминов выглядят как ломаный текст
+        # («РАЗДЕЛЕНИЕ надбавка за риск-ПОЛА … institutional_crp_floor_pp …»).
+        def _internal(t: str) -> bool:
+            return bool(_re.search(r"institutional_crp|_pp\b|A0\d\s*§|методологический фикс", t or ""))
         out["data_flags"] = [f for f in out["data_flags"]
-                             if not (isinstance(f, str) and _has_person(f))]
+                             if isinstance(f, str) and not _has_person(f) and not _internal(f)]
     if isinstance(out.get("alerts"), list):
         out["alerts"] = [a for a in out["alerts"]
                          if not _has_person(" ".join(str(v) for v in (a or {}).values())
