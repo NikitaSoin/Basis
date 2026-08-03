@@ -1047,6 +1047,9 @@ def run_inst_env_interp(db: Session, batch: int = _ENV_BATCH,
 #      («нефть 55 → 90 с момента разбора»), а не только общая сводка среды.
 # =============================================================================
 _MACRO_ENV_COOLDOWN_DAYS = 10
+# Отказ гейта — не приговор: через двое суток пробуем снова (причина могла быть
+# устранена правкой кода), но не в тот же прогон, чтобы не жечь бюджет на цикле.
+_MACRO_REJECT_RETRY_DAYS = 2
 
 
 def _num_forms(v: float) -> str:
@@ -1154,10 +1157,23 @@ def run_macro_env_interp(db: Session, batch: int = _ENV_BATCH,
         item = company_drift(db, only_ticker.upper())
         queue = [item] if item else []
     else:
-        cut = datetime.now(timezone.utc) - timedelta(days=_MACRO_ENV_COOLDOWN_DAYS)
-        done = {r[0] for r in db.query(CardProseOverlay.ticker)
-                .filter(CardProseOverlay.tab == "macro",
-                        CardProseOverlay.created_at >= cut).all()}
+        # 🔴 Кулдаун разный для успеха и отказа. Опубликованную правку повторять рано:
+        # вкладку только что тронули. А ОТКЛОНЁННУЮ гейтом — наоборот, надо
+        # перепробовать, когда причина отказа устранена: на боевом прогоне SIBN
+        # отвалился из-за незаземлённого округления, фикс выехал через час, а компания
+        # была бы заперта на десять дней и молча осталась с устаревшим разбором.
+        now = datetime.now(timezone.utc)
+        fresh_ok = {r[0] for r in db.query(CardProseOverlay.ticker)
+                    .filter(CardProseOverlay.tab == "macro",
+                            CardProseOverlay.status == "published",
+                            CardProseOverlay.created_at >= now - timedelta(
+                                days=_MACRO_ENV_COOLDOWN_DAYS)).all()}
+        retry_wait = {r[0] for r in db.query(CardProseOverlay.ticker)
+                      .filter(CardProseOverlay.tab == "macro",
+                              CardProseOverlay.status == "rejected",
+                              CardProseOverlay.created_at >= now - timedelta(
+                                  days=_MACRO_REJECT_RETRY_DAYS)).all()}
+        done = fresh_ok | retry_wait
         queue = [i for i in drift_queue(db, limit=200) if i["ticker"] not in done][:batch]
 
     stats = {"queued": len(queue), "published": 0, "rejected": 0}
