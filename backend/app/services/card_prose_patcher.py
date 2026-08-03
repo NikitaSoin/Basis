@@ -748,3 +748,276 @@ def run_macro_interp(db: Session, batch: int = 8, only_ticker: str | None = None
             stats[row.status] = stats.get(row.status, 0) + 1
     logger.info("card_prose_patcher.run_macro_interp: %s", stats)
     return stats
+
+
+# =============================================================================
+# ГЕОПОЛИТИКА И ИНСТИТУТЫ: доводка вкладок карточек по состоянию Обозревателя
+#
+# Владелец (2026-08-04): «нужно выстроить систему, где вкладка карточки
+# обновляется с учётом оценки ситуации в Обозревателе и статей источников; нужен
+# отдельный агент, который перестраивает вкладки с учётом новых вводных» — задача
+# была поставлена по макро, и он же попросил сделать аналогично для гео и
+# институтов.
+#
+# 🔴 ЧЕМ ЭТО ОТЛИЧАЕТСЯ ОТ УЖЕ РАБОТАЮЩЕГО run_weekly_interp.
+# Тот триггерится ВХОДНЫМ ПОТОКОМ: пришёл сигнал про конкретный тикер — правим
+# его вкладку. Но геополитика и институты меняются не «новостью про компанию», а
+# СРЕДОЙ: сместился балл очага, изменился сценарий, поехали замеры направлений.
+# Такое изменение не порождает сигнала ни по одному тикеру, и вкладки молча
+# устаревают — именно это владелец и увидел. Здесь очередь строится ОТ СРЕДЫ:
+# кого затрагивает текущая картина Обозревателя.
+#
+# Кто в очереди:
+#   • гео — тикеры из affected/sector_flags очагов барометра (кого очаг задевает
+#     по мнению самого барометра) + компании затронутых секторов;
+#   • институты — компании секторов из «зон передела» и из winners/losers
+#     портрета.
+# Cooldown не даёт гонять одно и то же по кругу; batch держит стоимость.
+# =============================================================================
+_ENV_INTERP_COOLDOWN_DAYS = 10
+_ENV_BATCH = 8
+
+
+# 🔴 Модель называет сектора ПРОЗОЙ: «нефтепереработка/downstream (удары по
+# НПЗ)», «ставка-чувствительные: девелоперы, дюрация, IT», «морские перевозки».
+# В БД же 13 фиксированных значений companies.sector. Прямой LIKE по такой
+# строке не находит ничего — первый прогон дал ноль кандидатов при богатом
+# контексте, и это выглядело как «никого не задевает».
+# Поэтому: ищем в тексте сектора ключевые слова и переводим их в значения БД.
+_SECTOR_KEYWORDS = {
+    "Нефть и газ": ("нефт", "газ", "нпз", "downstream", "upstream", "спг", "топлив", "азс"),
+    "Электроэнергетика": ("энергет", "электро", "генерац", "сет", "тэц", "тариф"),
+    "Металлургия": ("металл", "сталь", "уголь", "золот", "руд", "алюмин", "никел"),
+    "Финансы": ("банк", "финанс", "страхов", "биржа", "брокер", "расчёт", "расчет"),
+    "Потребительский сектор": ("ритейл", "потребит", "продукт", "食", "торгов", "маркетплейс"),
+    "IT-сектор": ("it", "айти", "софт", "технолог", "цифров", "интернет", "чип", "полупровод"),
+    "Телеком": ("телеком", "связ", "оператор"),
+    "Транспорт и логистика": ("логист", "транспорт", "перевоз", "порт", "судох", "танкер", "жд"),
+    "Химия": ("хими", "удобрен", "агрохим"),
+    "Машиностроение": ("машиностроен", "оборонк", "оборон", "впк", "судострое", "автопром"),
+    "Девелопмент": ("девелоп", "застройщ", "недвижим", "строительств", "ипотек"),
+    "Здравоохранение": ("здравоохран", "фарм", "медиц"),
+}
+
+
+def _map_to_db_sectors(raw: list[str]) -> list[str]:
+    """Проза модели → значения companies.sector."""
+    hit: set[str] = set()
+    for s in raw:
+        low = (s or "").lower()
+        if not low:
+            continue
+        for db_sector, keys in _SECTOR_KEYWORDS.items():
+            if any(k in low for k in keys):
+                hit.add(db_sector)
+    return sorted(hit)
+
+
+def _tickers_of_sectors(db: Session, sectors: list[str]) -> list[str]:
+    """Тикеры компаний названных секторов. Сектор берём ИЗ БД (companies.sector),
+    а не из meta карточек: в файлах 97 разных значений против 13 чистых в базе,
+    и они противоречат друг другу у трети компаний (память db-sector-is-truth)."""
+    mapped = _map_to_db_sectors(sectors)
+    if not mapped:
+        return []
+    rows = db.execute(text(
+        "SELECT ticker FROM companies WHERE sector = ANY(:s) LIMIT 400"),
+        {"s": mapped}).fetchall()
+    return [r[0] for r in rows if r and r[0]]
+
+
+def _geo_env_grounding(db: Session) -> tuple[str | None, list[str]]:
+    """Контекст «что сейчас в геополитике» + кого это задевает.
+
+    Собирается из ТРЁХ слоёв Обозревателя, а не из одного: балл и сценарий очага
+    (barometer), человеческий разбор очага (портрет) и свежая лента. Один слой
+    даёт либо голое число, либо прозу без привязки к движению.
+    """
+    from app.services import barometer_store
+    from app.services.geo_conflict_profile import get_latest as geo_profiles
+
+    row = barometer_store.current_row(db, "geo")
+    payload = (row.payload or {}) if row else {}
+    if not payload:
+        return None, []
+
+    parts: list[str] = []
+    sectors: set[str] = set()
+    tickers: set[str] = set()
+
+    baro = payload.get("barometer") or {}
+    if baro.get("overall") is not None:
+        parts.append(f"Острота геополитической среды: {baro['overall']} из 5 "
+                     f"(5 — максимальный риск). {baro.get('label') or ''}".strip())
+    sc = payload.get("scenario") or {}
+    if sc.get("current_lean"):
+        parts.append(f"Базовый сценарий сейчас: {sc['current_lean']}.")
+
+    for key, reg in (payload.get("regions") or {}).items():
+        if not isinstance(reg, dict):
+            continue
+        head = f"Очаг «{reg.get('label') or key}»: {reg.get('direction') or ''}"
+        if (reg.get("barometer") or {}).get("overall") is not None:
+            head += f", острота {reg['barometer']['overall']}/5"
+        parts.append(head.strip(" ,") + ".")
+        if reg.get("summary"):
+            parts.append(f"  {reg['summary'][:400]}")
+        for f in (reg.get("sector_flags") or [])[:6]:
+            if isinstance(f, dict) and f.get("sector"):
+                sectors.add(f["sector"])
+                parts.append(f"  Сектор «{f['sector']}» — {f.get('direction') or ''}: "
+                             f"{(f.get('reasoning') or '')[:180]}")
+        for a in (reg.get("affected") or [])[:8]:
+            if isinstance(a, str):
+                sectors.add(a)
+
+    profiles = geo_profiles(db) or {}
+    for key, prof in profiles.items():
+        if key.startswith("_") or not isinstance(prof, dict):
+            continue
+        if prof.get("why_matters"):
+            parts.append(f"Почему очаг «{key}» важен рынку: {prof['why_matters'][:300]}")
+        for w in (prof.get("watchpoints") or [])[:2]:
+            if isinstance(w, dict) and w.get("signal"):
+                parts.append(f"  За чем следить: {w['signal'][:160]}")
+
+    for t in (payload.get("affected_tickers") or [])[:40]:
+        if isinstance(t, str):
+            tickers.add(t.upper())
+
+    tickers.update(_tickers_of_sectors(db, sorted(sectors)))
+    parts.append(f"Сегодня: {datetime.now(timezone.utc).date().isoformat()}")
+    return "\n".join(parts), sorted(tickers)
+
+
+def _inst_env_grounding(db: Session) -> tuple[str | None, list[str]]:
+    """Контекст «что сейчас с правилами игры» + кого это задевает."""
+    from app.services import barometer_store
+    from app.services.institutions_profile import get_latest as inst_profile
+    from app.services.institutions_domains import get_latest as inst_domains
+
+    row = barometer_store.current_row(db, "inst")
+    payload = (row.payload or {}) if row else {}
+    prof = inst_profile(db) or {}
+    doms = inst_domains(db) or {}
+    if not payload and not prof:
+        return None, []
+
+    parts: list[str] = []
+    sectors: set[str] = set()
+
+    baro = payload.get("barometer") or {}
+    if baro.get("overall") is not None:
+        parts.append(f"Оценка институциональной среды: {baro['overall']} из 5 "
+                     f"(выше — надёжнее правила).")
+    if (payload.get("scenario") or {}).get("current"):
+        parts.append(f"Текущий сценарий: {payload['scenario']['current']}.")
+
+    if prof.get("plain", {}).get("what_happens"):
+        parts.append(f"Что происходит: {prof['plain']['what_happens'][:400]}")
+    if prof.get("plain", {}).get("what_it_means"):
+        parts.append(f"Что это значит для рынка: {prof['plain']['what_it_means'][:400]}")
+    for f in (prof.get("pushing_worse") or [])[:4]:
+        if isinstance(f, dict):
+            parts.append(f"  Толкает к ухудшению: {f.get('factor', '')[:160]}")
+    for f in (prof.get("pushing_better") or [])[:3]:
+        if isinstance(f, dict):
+            parts.append(f"  Работает в обратную сторону: {f.get('factor', '')[:160]}")
+
+    # Замеры направлений: в контекст идут только те, что ДВИНУЛИСЬ или стоят
+    # низко — иначе десять строк «без изменений» вытесняют полезное.
+    for d in (doms.get("domains") or []):
+        if not isinstance(d, dict):
+            continue
+        moved = "ухудш" in str(d.get("direction") or "") or "улучш" in str(d.get("direction") or "")
+        low = isinstance(d.get("score"), (int, float)) and float(d["score"]) <= 2.0
+        if moved or low:
+            parts.append(f"  {d.get('label')}: {d.get('score')}/5, {d.get('direction')} — "
+                         f"{(d.get('verdict') or '')[:150]}")
+
+    for z in (prof.get("redistribution_zones") or []):
+        if isinstance(z, dict):
+            for sx in (z.get("sectors") or []):
+                if isinstance(sx, str):
+                    sectors.add(sx)
+            parts.append(f"  Зона передела «{z.get('zone')}»: {(z.get('what') or '')[:180]}")
+    wl = prof.get("winners_losers") or {}
+    for side in ("winners", "losers"):
+        for x in (wl.get(side) or []):
+            if isinstance(x, dict) and x.get("who"):
+                sectors.add(x["who"])
+
+    parts.append(f"Сегодня: {datetime.now(timezone.utc).date().isoformat()}")
+    return "\n".join(parts), _tickers_of_sectors(db, sorted(sectors))
+
+
+_ENV_INTERP_SYS = """Ты — аналитик-редактор платформы Basis (не брокер, без
+«купить/продать» и целевых цен). Даны АКТУАЛЬНОЕ СОСТОЯНИЕ СРЕДЫ (оценка
+Обозревателя) и ТЕКСТ вкладки карточки компании.
+
+Найди в тексте утверждения, которые УСТАРЕЛИ ПО СМЫСЛУ относительно этого
+состояния: описанный сценарий сменился; названо «текущим» то, что уже прошло;
+направление среды в тексте противоречит нынешнему; риск описан как возможный,
+хотя он уже реализовался (или наоборот — как реализованный, хотя откатился).
+Верни точечные правки find/replace ТОЛЬКО для этих мест.
+
+ПРАВЬ МИНИМАЛЬНО. Не трогай специфику компании (бизнес, активы, конкретные
+цифры её отчётности), не переписывай структуру, не добавляй прогнозов сверх
+переданного состояния среды. Если смысловых устареваний нет — confirmed=false.
+
+🔴 Никаких фамилий и имён должностных лиц; про государственные органы — только
+наблюдаемые изменения правил и их экономические последствия, без оценок мотивов.
+"""
+
+
+def _run_env_interp(db: Session, *, tab: str, grounding: str, queue: list[str],
+                    kind: str) -> dict:
+    stats = {"queued": len(queue), "published": 0, "rejected": 0}
+    for tk in queue:
+        def _tb(p: str, _tk=tk) -> str:
+            return (f"Компания: {_tk}. Вкладка: {tab}.\n\n"
+                    f"АКТУАЛЬНОЕ СОСТОЯНИЕ СРЕДЫ:\n{grounding}\n\n"
+                    f"ТЕКСТ ВКЛАДКИ (правь точечно ТОЛЬКО смысловые устаревания):\n"
+                    f"<<<\n{p[:8000]}\n>>>")
+
+        row = _run_patch(db, tk, tab, sys=_ENV_INTERP_SYS + _JSON_ONLY,
+                         task_builder=_tb, grounding_text=grounding,
+                         kind=kind, evidence_extra={"env_interp": tab})
+        if row is not None:
+            stats[row.status] = stats.get(row.status, 0) + 1
+    logger.info("card_prose_patcher.env_interp[%s]: %s", tab, stats)
+    return stats
+
+
+def _env_queue(db: Session, tab: str, candidates: list[str], batch: int) -> list[str]:
+    """Кого правим в этот прогон: из кандидатов убираем тех, кому вкладку уже
+    трогали недавно. Так очередь сама двигается по компаниям, а не долбит
+    первые восемь по алфавиту."""
+    cut = datetime.now(timezone.utc) - timedelta(days=_ENV_INTERP_COOLDOWN_DAYS)
+    done = {r[0] for r in db.query(CardProseOverlay.ticker)
+            .filter(CardProseOverlay.tab == tab,
+                    CardProseOverlay.created_at >= cut).all()}
+    return [t for t in candidates if t not in done][:batch]
+
+
+def run_geo_env_interp(db: Session, batch: int = _ENV_BATCH,
+                       only_ticker: str | None = None) -> dict:
+    """Доводка вкладок «Геополитика» карточек под текущее состояние очагов."""
+    grounding, candidates = _geo_env_grounding(db)
+    if not grounding:
+        return {"error": "нет гео-контекста"}
+    queue = [only_ticker.upper()] if only_ticker else _env_queue(db, "geo", candidates, batch)
+    return _run_env_interp(db, tab="geo", grounding=grounding, queue=queue,
+                           kind="interpretation")
+
+
+def run_inst_env_interp(db: Session, batch: int = _ENV_BATCH,
+                        only_ticker: str | None = None) -> dict:
+    """Доводка вкладок «Институты» карточек под текущее состояние правил игры."""
+    grounding, candidates = _inst_env_grounding(db)
+    if not grounding:
+        return {"error": "нет институционального контекста"}
+    queue = [only_ticker.upper()] if only_ticker else _env_queue(db, "institutions",
+                                                                candidates, batch)
+    return _run_env_interp(db, tab="institutions", grounding=grounding, queue=queue,
+                           kind="interpretation")

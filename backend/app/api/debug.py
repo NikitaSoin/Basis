@@ -1652,6 +1652,26 @@ def debug_trigger_institutions_profile():
     return JSONResponse(status_code=202, content=_inst_bg("institutions_profile", rebuild))
 
 
+@router.post("/debug/trigger-env-card-interp")
+def debug_trigger_env_card_interp(tab: str = "both", ticker: str | None = None,
+                                  batch: int = 8):
+    """Доводка вкладок «Геополитика»/«Институты» карточек под текущее состояние
+    Обозревателя. tab: geo | institutions | both. ticker — прогнать одну
+    компанию (полезно для проверки). В ФОНЕ: это партия LLM-вызовов."""
+    from app.services.card_prose_patcher import run_geo_env_interp, run_inst_env_interp
+
+    def _run(db):
+        out = {}
+        if tab in ("geo", "both"):
+            out["geo"] = run_geo_env_interp(db, batch=batch, only_ticker=ticker)
+        if tab in ("institutions", "both"):
+            out["institutions"] = run_inst_env_interp(db, batch=batch, only_ticker=ticker)
+        # возвращаем объект-заглушку с полями, которые ждёт _inst_bg
+        return type("R", (), {"id": "-", "status": "done", "gate_notes": [str(out)[:400]]})()
+
+    return JSONResponse(status_code=202, content=_inst_bg("env_card_interp", _run))
+
+
 @router.get("/debug/institutions-runs")
 def debug_institutions_runs():
     """Состояние фоновых прогонов институтов: идёт / чем закончился."""

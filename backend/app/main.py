@@ -810,6 +810,30 @@ async def _geo_profile_job():
         logger.exception("Ошибка портрета очагов: %s", e)
 
 
+async def _env_card_interp_job():
+    """Доводка вкладок «Геополитика» и «Институты» КАРТОЧЕК КОМПАНИЙ под текущее
+    состояние Обозревателя (владелец 2026-08-04: «вкладка карточки должна
+    обновляться с учётом оценки ситуации в Обозревателе и новых вводных»).
+
+    Отдельно от run_weekly_interp: тот триггерится новостью ПРО КОМПАНИЮ, а
+    среда меняется без таких новостей — сместился балл очага, поехали замеры
+    направлений. Вкладки при этом молча устаревают.
+    Идёт ПОСЛЕ недельных слоёв (портреты, замеры), чтобы править по свежему."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.card_prose_patcher import run_geo_env_interp, run_inst_env_interp
+        db = SessionLocal()
+        try:
+            return {"geo": run_geo_env_interp(db), "inst": run_inst_env_interp(db)}
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Доводка вкладок карточек по среде: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка доводки вкладок по среде: %s", e)
+
+
 async def _institutions_profile_job():
     """«Институциональный портрет» — человеческий слой поверх барометра
     институтов (что происходит простыми словами, что это значит для денег,
@@ -1373,7 +1397,8 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("geo_profile", _geo_profile_job), "cron", day_of_week="sun", hour=22, minute=10, id="geo_profile")  # портрет очагов — НЕДЕЛЬНЫЙ слой (медленные данные: стороны/цели/баланс/связки), воскресенье после суточной цепочки
         scheduler.add_job(_with_heartbeat("institutions_domains", _institutions_domains_job), "cron", day_of_week="sun", hour=21, minute=55, id="institutions_domains")  # замеры направлений — ДО портрета институтов: портрет использует их как вход
         scheduler.add_job(_with_heartbeat("institutions_profile", _institutions_profile_job), "cron", day_of_week="sun", hour=22, minute=20, id="institutions_profile")  # портрет институтов — недельный, после portrait очагов (22:10) и до ОТК (22:30)
-        scheduler.add_job(_with_heartbeat("geo_verification", _geo_verification_job), "cron", hour=22, minute=30, id="geo_verification")  # «ОТК данных» гео без LLM — последним, меряет то, что реально уехало на витрину
+        scheduler.add_job(_with_heartbeat("geo_verification", _geo_verification_job), "cron", hour=22, minute=30, id="geo_verification")
+        scheduler.add_job(_with_heartbeat("env_card_interp", _env_card_interp_job), "cron", day_of_week="mon", hour=6, minute=40, id="env_card_interp")  # доводка вкладок гео/институты карточек — утро понедельника, по свежим воскресным слоям  # «ОТК данных» гео без LLM — последним, меряет то, что реально уехало на витрину
         scheduler.add_job(_with_heartbeat("geo_digest", _geo_digest_job), "cron", minute=10, id="geo_digest")  # каждый час
         scheduler.add_job(_with_heartbeat("company_signals", _company_signals_job), "cron", minute=35, id="company_signals")  # шина: после news(5)+geo_digest(10), их выход = вход
         scheduler.add_job(_with_heartbeat("rating_agencies", _rating_agencies_job), "cron", hour=20, minute=55, id="rating_agencies")  # рейтинговые действия АКРА/НКР → сигналы + освежение agency_rating бумаг
