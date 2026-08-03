@@ -166,7 +166,169 @@ ul{padding-left:22px}
 // попадают в карту сайта. Признак пересчитывается на каждой сборке: как только у бумаги
 // появятся котировки и доходность, страница вернётся в индекс сама.
 function bondIsThin(b) {
-  return b && b.vkind === "nodata" && !b.agency_rating;
+  if (!b) return true;
+  // ОФЗ и муниципальные оставляем всегда: это опорные бумаги рынка, их ищут по названию
+  // и по ним строится вся кривая доходности.
+  if (b.bond_type === "ofz" || b.bond_type === "muni") return false;
+  // Признак живой бумаги — РЫНОЧНАЯ ДОХОДНОСТЬ. Нет YTM = выпуск не торгуется, сказать о
+  // нём по существу нечего, и страница остаётся шаблоном.
+  //
+  // 🔴 Отсечку выбирал ДВАЖДЫ. Первый вариант («ОФЗ + муни + листинг 1–2 с доходностью»,
+  // 911 страниц) проверил на облигациях, по которым у нас РЕАЛЬНЫЕ запросы из Вебмастера,
+  // и он выбрасывал RU000A108BD9 («ru000a108bd9, когда будет погашение») — бумагу третьего
+  // уровня, но торгующуюся. Критерий, отсекающий подтверждённый спрос, неверен независимо
+  // от того, как логично он звучит. Итог: режем только то, где нет рыночных данных вообще.
+  return !(typeof b.ytm === "number" && b.ytm > 0);
+}
+
+/**
+ * Разбор выпуска ЧИСЛАМИ — то, чего на странице не было и из-за чего Яндекс снимал их
+ * как LOW_QUALITY: 3081 страница, ~1588 знаков текста, 54% словаря одинаковы у всех.
+ *
+ * Здесь всё считается из параметров ИМЕННО ЭТОГО выпуска, поэтому страницы перестают быть
+ * близнецами по существу, а не за счёт перефразирования. Ни одного сгенерированного текста:
+ * врать неоткуда.
+ */
+function bondMathBlock(b, ofzCurve) {
+  if (!b || b.is_defaulted) return "";
+  const items = [];
+  const face = typeof b.face_value === "number" ? b.face_value : null;
+  const priceRub = face != null && typeof b.last_price === "number" ? (face * b.last_price) / 100 : null;
+
+  // 1. Денежный поток: сколько бумага приносит за год деньгами, а не процентами.
+  if (typeof b.coupon_value === "number" && typeof b.coupon_period === "number" && b.coupon_period > 0) {
+    const perYear = (b.coupon_value * 365) / b.coupon_period;
+    const times = Math.round(365 / b.coupon_period);
+    const toPrice = priceRub ? (perYear / priceRub) * 100 : null;
+    items.push([`Купонов в год`, `${times} × ${fmtN(b.coupon_value)} ${curSym(b.currency)} = `
+      + `<b>${fmtN(perYear)} ${curSym(b.currency)}</b> на одну бумагу`
+      + (toPrice != null ? ` (${fmtPct(toPrice, 1)} к текущей цене)` : "")]);
+  }
+
+  // 2. Сколько платит покупатель сегодня — цена плюс накопленный купон.
+  if (priceRub != null) {
+    const nkd = typeof b.accrued_int === "number" ? b.accrued_int : 0;
+    items.push(["Цена входа за одну бумагу", `${fmtN(priceRub)} ${curSym(b.currency)}`
+      + (nkd ? ` + НКД ${fmtN(nkd)} ${curSym(b.currency)} = <b>${fmtN(priceRub + nkd)} ${curSym(b.currency)}</b>` : "")
+      + (b.lot_size && b.lot_size > 1 ? ` · в лоте ${b.lot_size} шт.` : "")]);
+  }
+
+  // 3. Процентный риск: главный вопрос по любой облигации в цикле ставки.
+  // Модифицированная дюрация = D / (1 + y). Для флоатера неприменимо — купон сам идёт
+  // за ставкой, и «переоценка при росте ставки» ввела бы в заблуждение.
+  if (typeof b.duration_years === "number" && b.duration_years > 0
+      && typeof b.ytm === "number" && b.coupon_type !== "floater" && b.coupon_type !== "linker") {
+    const md = b.duration_years / (1 + b.ytm / 100);
+    items.push(["Если ставка вырастет на 1 п.п.",
+      `цена упадёт примерно на <b>${fmtN(md, 1)}%</b> — и настолько же вырастет при снижении на 1 п.п. `
+      + `(оценка по дюрации ${fmtN(b.duration_years, 1)} ${yearsWord(b.duration_years)})`]);
+  }
+
+  // 4. Плата за риск: сравнение с безрисковой кривой той же длины.
+  const ofzY = ofzCurve && typeof b.duration_years === "number" ? ofzCurve(b.duration_years) : null;
+  if (ofzY != null && typeof b.ytm === "number" && b.bond_type !== "ofz" && b.coupon_type === "fixed") {
+    const sp = b.ytm - ofzY;
+    // 🔴 Отрицательный спред НЕ подписывать как «небольшую премию»: корпоративная бумага
+    // доходнее государственной по построению, и доходность НИЖЕ ОФЗ — это не выгода, а
+    // сигнал дефекта данных (неликвид, устаревшая цена, расчёт к оферте). Первая версия
+    // текста выдала «премия −5,1 п.п. — бумага близка к государственной», то есть
+    // успокаивала там, где надо предупреждать.
+    const verdict = sp < -0.5
+      ? "доходность <b>ниже</b> государственной — при нормальном кредитном риске так не бывает. "
+        + "Обычно за этим стоит неликвид, устаревшая цена последней сделки или расчёт к оферте, "
+        + "а не выгодная бумага. Проверяйте объём торгов, прежде чем считать это доходностью"
+      : sp >= 5 ? "премия крупная — рынок видит здесь заметный риск, а не подарок"
+        : sp >= 2 ? "премия умеренная — обычная плата за корпоративный риск"
+          : "премия небольшая: по доходности бумага близка к государственной, а риск у неё выше";
+    items.push(["Сколько добавляет к госбумаге",
+      `${fmtPct(b.ytm, 1)} против <b>${fmtPct(ofzY, 1)}</b> у ОФЗ сопоставимой длины — разница `
+      + `<b>${sp >= 0 ? "+" : ""}${fmtN(sp, 1)} п.п.</b> ${verdict}`
+      + (b.yield_anomaly ? " · доходность помечена как аномальная" : "")
+      + (b.near_offer ? " · близка оферта — доходность к погашению здесь условна" : "")]);
+  }
+
+  // 5. Сколько выплат осталось — «на сколько лет вперёд этот доход».
+  if (b.maturity_date && typeof b.coupon_period === "number" && b.coupon_period > 0) {
+    const days = Math.round((new Date(b.maturity_date) - new Date()) / 86400000);
+    if (days > 0) {
+      const left = Math.max(1, Math.floor(days / b.coupon_period));
+      items.push(["Выплат до погашения", `осталось примерно ${left}, погашение ${fmtDate(b.maturity_date)}`
+        + (b.has_amortization ? " · номинал гасится частями, купон будет уменьшаться" : "")]);
+    }
+  }
+
+  if (!items.length) return "";
+  return `<h2>Что это значит в деньгах</h2>
+<p class="tag">Расчёт Basis по параметрам выпуска — оценка, не рекомендация</p>
+${kvTable(items)}
+${couponScheduleBlock(b)}`;
+}
+
+/**
+ * Календарь ближайших выплат. Отвечает на запрос, который у нас УЖЕ есть в Вебмастере
+ * («ru000a108bd9, когда будет погашение»), и делает страницы разными по существу: даты и
+ * суммы уникальны для каждого выпуска.
+ *
+ * Считаем от ДАТЫ ПОГАШЕНИЯ назад с шагом купонного периода — так устроены выпуски, и это
+ * даёт сетку без дополнительных данных. 🔴 Подписано как расчётная сетка, а не как
+ * официальный график: если у выпуска были переносы или нестандартный первый купон,
+ * реальная дата может отличаться на несколько дней. Выдавать оценку за факт нельзя.
+ */
+function couponScheduleBlock(b) {
+  const per = b.coupon_period;
+  if (!b.maturity_date || typeof per !== "number" || per <= 0) return "";
+  if (b.coupon_type === "floater" || b.coupon_type === "linker") return "";  // сумма будущего купона неизвестна
+  const cv = typeof b.coupon_value === "number" ? b.coupon_value : null;
+  if (cv == null) return "";
+  const mat = new Date(b.maturity_date);
+  const now = new Date();
+  if (!(mat > now)) return "";
+  const dates = [];
+  for (let d = new Date(mat); d > now && dates.length < 40; d = new Date(d.getTime() - per * 86400000)) {
+    dates.push(new Date(d));
+  }
+  dates.reverse();
+  const next = dates.slice(0, 6);
+  if (!next.length) return "";
+  const face = typeof b.face_value === "number" ? b.face_value : null;
+  const rows = next.map((d, i) => {
+    const isLast = d.getTime() === mat.getTime();
+    const sum = isLast && face != null ? `${fmtN(cv)} + номинал ${fmtN(face)} ${curSym(b.currency)}`
+      : `${fmtN(cv)} ${curSym(b.currency)}`;
+    return `<tr><td>${i + 1}</td><td>${escapeHtml(fmtDate(d.toISOString().slice(0, 10)))}</td>`
+      + `<td>${sum}${isLast ? " <b>— погашение</b>" : ""}</td></tr>`;
+  }).join("");
+  const total = next.reduce((s, d) => s + cv + (d.getTime() === mat.getTime() && face ? face : 0), 0);
+  return `<h2>Ближайшие выплаты по выпуску</h2>
+<p class="tag">Расчётная сетка по купонному периоду — не официальный график эмитента</p>
+<table><thead><tr><th>№</th><th>Дата</th><th>Выплата на одну бумагу</th></tr></thead><tbody>${rows}</tbody></table>
+<p class="sub">Всего за эти ${next.length} ${plural(next.length, "выплату", "выплаты", "выплат")} держатель
+получит около ${fmtN(total)} ${curSym(b.currency)} на бумагу. Даты рассчитаны от погашения
+${escapeHtml(fmtDate(b.maturity_date))} с шагом ${per} дн.: при переносах или нестандартном первом
+купоне фактическая дата может отличаться на несколько дней — точный график даёт эмитент.</p>`;
+}
+
+/** Кривая ОФЗ: дюрация → доходность. Нужна, чтобы у каждого корпората была честная
+ *  точка отсчёта «сколько он добавляет к государственной бумаге той же длины».
+ *  Линейная интерполяция между ближайшими выпусками; за краями — крайнее значение. */
+function buildOfzCurve(bonds) {
+  const pts = bonds
+    .filter((b) => b.bond_type === "ofz" && typeof b.ytm === "number" && b.ytm > 0
+      && typeof b.duration_years === "number" && b.duration_years > 0 && b.coupon_type === "fixed")
+    .map((b) => [b.duration_years, b.ytm])
+    .sort((a, b) => a[0] - b[0]);
+  if (pts.length < 3) return null;
+  return (d) => {
+    if (d <= pts[0][0]) return pts[0][1];
+    if (d >= pts[pts.length - 1][0]) return pts[pts.length - 1][1];
+    for (let i = 1; i < pts.length; i++) {
+      if (d <= pts[i][0]) {
+        const [d0, y0] = pts[i - 1]; const [d1, y1] = pts[i];
+        return d1 === d0 ? y0 : y0 + ((y1 - y0) * (d - d0)) / (d1 - d0);
+      }
+    }
+    return null;
+  };
 }
 
 
@@ -423,6 +585,7 @@ ${basisBlock(b)}
 ${params}
 <h2>Рыночные данные на ${dataDate}</h2>
 ${market}
+${bondMathBlock(b, ctx.ofzCurve)}
 <a class="cta" href="/">Открыть в приложении Basis: скринер и карточка облигации →</a>
 ${chips ? `<h2>Подборки с этой бумагой</h2><div class="grid">${chips}</div>` : ""}
 ${nbs ? `<h2>Похожие выпуски</h2><div class="grid">${nbs}</div>` : ""}
@@ -719,6 +882,7 @@ ${params}
 ${market}
 ${riskBlock}
 <a class="cta" href="/">Открыть в приложении Basis: срочная структура, базис, связь с активом →</a>
+${termStructureBlock(f, all)}
 ${series ? `<h2>Другие серии на этот актив</h2><div class="grid">${series}</div>` : ""}
 <p><a href="/futures/">← Все фьючерсы: каталог Basis</a></p>`;
   const descBits = [];
@@ -744,6 +908,54 @@ ${series ? `<h2>Другие серии на этот актив</h2><div class=
     jsonLd: finProductLd(f.short_name, `/futures/${f.secid}/`, "Фьючерсный контракт"),
     dataDate,
   });
+}
+
+/**
+ * Срочная структура серии: цены ВСЕХ контрактов на тот же актив и разница между ними,
+ * приведённая к процентам годовых. До этого страница перечисляла соседние контракты
+ * ссылками, но БЕЗ цен — то есть на вопрос «какой месяц брать» не отвечала, хотя все
+ * данные лежали рядом.
+ *
+ * Контанго (дальний дороже ближнего) на валютных фьючерсах — это по сути ставка: рынок
+ * закладывает разницу процентных ставок. Отсюда и подпись: сколько стоит переносить
+ * позицию дальше во времени.
+ */
+function termStructureBlock(f, all) {
+  const price = (x) => (typeof x.settle_price === "number" ? x.settle_price
+    : typeof x.last_price === "number" ? x.last_price : null);
+  const sibs = (all || [])
+    .filter((x) => x.asset_code === f.asset_code && x.expiration_date && price(x) != null)
+    .sort((a, b) => String(a.expiration_date).localeCompare(String(b.expiration_date)));
+  if (sibs.length < 2) return "";
+  const base = sibs[0];
+  const p0 = price(base);
+  const rows = sibs.map((x) => {
+    const p = price(x);
+    const days = Math.round((new Date(x.expiration_date) - new Date(base.expiration_date)) / 86400000);
+    const diff = p0 ? ((p - p0) / p0) * 100 : null;
+    const ann = diff != null && days > 0 ? (diff * 365) / days : null;
+    const isThis = x.secid === f.secid;
+    const name = isThis ? `<b>${escapeHtml(x.short_name)}</b>`
+      : `<a href="/futures/${encodeURIComponent(x.secid)}/">${escapeHtml(x.short_name)}</a>`;
+    return `<tr><td>${name}${isThis ? " — этот контракт" : ""}</td>`
+      + `<td>${escapeHtml(fmtDate(x.expiration_date))}</td><td>${fmtN(p, 0)}</td>`
+      + `<td>${x.secid === base.secid ? "—" : `${diff >= 0 ? "+" : ""}${fmtN(diff, 2)}%`}</td>`
+      + `<td>${ann == null ? "—" : `${ann >= 0 ? "+" : ""}${fmtN(ann, 1)}% год.`}</td></tr>`;
+  }).join("");
+  const last = sibs[sibs.length - 1];
+  const pl = price(last);
+  const dl = Math.round((new Date(last.expiration_date) - new Date(base.expiration_date)) / 86400000);
+  const annLast = p0 && dl > 0 ? (((pl - p0) / p0) * 100 * 365) / dl : null;
+  const mode = annLast == null ? null : annLast > 0.5 ? "контанго" : annLast < -0.5 ? "бэквордация" : "почти плоская";
+  return `<h2>Срочная структура: сколько стоят дальние месяцы</h2>
+<p class="tag">Расчёт Basis по ценам биржи — оценка, не рекомендация</p>
+<table><thead><tr><th>Контракт</th><th>Экспирация</th><th>Цена</th><th>К ближнему</th><th>В годовых</th></tr></thead>
+<tbody>${rows}</tbody></table>
+${mode ? `<p class="sub">Кривая по серии ${escapeHtml(f.asset_code)} — <b>${mode}</b>${
+  annLast != null ? ` (${annLast >= 0 ? "+" : ""}${fmtN(annLast, 1)}% годовых на дальнем конце)` : ""}.
+${annLast > 0.5 ? "Дальние месяцы дороже ближних: перенос позиции вперёд обходится в эту разницу, и на валютных контрактах она отражает разрыв процентных ставок, а не прогноз курса."
+  : annLast < -0.5 ? "Дальние месяцы дешевле ближних — рынок закладывает снижение цены базового актива либо дефицит бумаги здесь и сейчас."
+    : "Разница между месяцами близка к нулю: выбор контракта здесь определяется ликвидностью и сроком, а не ценой переноса."}</p>` : ""}`;
 }
 
 function futuresIndex(futs, ctx) {
@@ -1016,7 +1228,7 @@ function main() {
       return out;
     };
 
-    const ctx = { dataDate, collections, collectionsOf, neighborsOf };
+    const ctx = { dataDate, collections, collectionsOf, neighborsOf, ofzCurve: buildOfzCurve(bonds) };
 
     // страницы выпусков
     let thinCount = 0;
