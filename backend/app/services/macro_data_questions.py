@@ -158,10 +158,34 @@ def record_attempt(db: Session, code: str, *, success: bool) -> None:
 _HAS_FEEDER = {"metaltorg", "fred", "wb", "tankermap", "idex", "hh", "yahoo", "cbr", "minfin"}
 
 
-def _has_own_feeder(db: Session, code: str) -> bool:
+# Во сколько раз ряд должен просрочить норму, чтобы его фидер считался сломанным.
+# 🔴 Зачем (найдено 2026-08-03). «У ряда есть свой фидер» ≠ «фидер работает». Ряды с
+# source_type=fred стоят мёртвыми 94-128 дней — egress инстанса режет TLS до FRED, —
+# но из очереди веб-добора они исключались НАВСЕГДА именно по признаку наличия фидера.
+# Получалась глухая зона: автоматика не может, а агенту не дают. Владелец: «либо ещё
+# источники, либо втупую веб-серчем». Двойной запас нужен, чтобы не гонять агента за
+# данными, которые фидер принесёт сам через неделю.
+_FEEDER_BROKEN_FACTOR = 2.0
+
+
+def _has_own_feeder(db: Session, code: str, age_days: int | None = None) -> bool:
+    """Есть ли у ряда работающий собственный источник.
+
+    Молчащий дольше двойной нормы фидер работающим не считается: тогда ряд отдаётся
+    веб-добору, где его проверят те же четыре барьера пайплайна.
+    """
     from app.models.macro import MacroIndicator
     ind = db.get(MacroIndicator, code)
-    return bool(ind and (ind.source_type or "") in _HAS_FEEDER)
+    if not (ind and (ind.source_type or "") in _HAS_FEEDER):
+        return False
+    if age_days is not None:
+        from app.services.macro_ingest import _STALE_DAYS
+        thr = _STALE_DAYS.get(ind.frequency or "monthly", 75)
+        if age_days > thr * _FEEDER_BROKEN_FACTOR:
+            logger.warning("data_questions: фидер %s (%s) молчит %s дн. при норме %s — "
+                           "ряд отдан веб-добору", code, ind.source_type, age_days, thr)
+            return False
+    return True
 
 
 def _stale_series(db: Session) -> list[dict]:
@@ -180,7 +204,8 @@ def _stale_series(db: Session) -> list[dict]:
     for s in stale:
         if s["code"] in _RETIRED:
             continue
-        if _has_own_feeder(db, s["code"]):
+        empty = bool(s.get("empty"))
+        if not empty and _has_own_feeder(db, s["code"], s.get("age_days")):
             continue
         ind = db.get(MacroIndicator, s["code"])
         title = ind.title if ind else s["code"]
@@ -195,20 +220,26 @@ def _stale_series(db: Session) -> list[dict]:
                   .filter_by(indicator_code=s["code"], metric=s["metric"])
                   .order_by(MacroDataPoint.as_of.desc()).limit(3).all())
         have_examples = ", ".join(f"{float(r[0]):g}" for r in recent) or "нет"
-        missing = _missing_periods(s["last"], getattr(ind, "frequency", None))
+        missing = ([] if empty
+                   else _missing_periods(s["last"], getattr(ind, "frequency", None)))
         missing_hint = (f"Нужны периоды: {', '.join(missing)}. " if missing else "")
         out.append({
             "kind": "stale_series",
             "code": s["code"], "metric": s["metric"],
             "missing_periods": missing,
             "priority": _priority(s["code"]),
-            "age_days": s["age_days"],
-            "have": f"последняя точка {s['last']} ({s['age_days']} дн. назад)",
+            "age_days": s["age_days"] or 9999,   # пустой ряд — самый старый по смыслу
+            "have": ("данных НЕТ вообще — ряд заведён, но пуст" if empty
+                     else f"последняя точка {s['last']} ({s['age_days']} дн. назад)"),
             "question": (
                 f"Показатель «{title}» ({s['code']}, {unit}) ПО СТРАНЕ: {country}. "
-                f"У нас обновлялся последний раз {s['last']} — это {s['age_days']} дней "
-                f"назад, хотя ряд регулярный. {missing_hint}Значение за {s['last']} у "
-                f"нас УЖЕ ЕСТЬ — приносить его повторно бесполезно. Ищи ИМЕННО по этой "
+                + (f"У нас по нему НЕТ НИ ОДНОГО значения — нужно последнее "
+                   f"опубликованное, с датой периода. "
+                   if empty else
+                   f"У нас обновлялся последний раз {s['last']} — это {s['age_days']} дней "
+                   f"назад, хотя ряд регулярный. {missing_hint}Значение за {s['last']} у "
+                   f"нас УЖЕ ЕСТЬ — приносить его повторно бесполезно. ")
+                + f"Ищи ИМЕННО по этой "
                 f"стране и именно этот показатель (похожие названия — другие величины). "
                 f"🔴 ЕДИНИЦА РЯДА: {unit or 'не указана'} — вернуть нужно величину именно "
                 f"в этих единицах (уровень и темп роста это РАЗНЫЕ вещи; последние "

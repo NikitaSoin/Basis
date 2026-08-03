@@ -409,17 +409,33 @@ def backfill_cbr_currency_history(db: Session, years: int = 4) -> dict:
 _STALE_DAYS = {"daily": 7, "weekly": 21, "monthly": 75, "quarterly": 140, "yearly": 500}
 
 
+# Ряды, которые сознательно больше не ведём (заменены другими) — не «сломались».
+_RETIRED_SERIES = {"budget_balance"}
+
+
 def check_staleness(db: Session) -> list[dict]:
     """Найти ряды, которые перестали обновляться (последняя точка старше нормы частоты).
     Логирует предупреждение по каждому — чтобы владелец узнал, что источник замолчал."""
     today = date.today()
     stale = []
     for ind in db.query(MacroIndicator).all():
+        # Выведенные из эксплуатации ряды в алерте шумят каждый прогон: месячное сальдо
+        # бюджета заменено накопленным (budget_balance_ytd), обновлять его никто не
+        # будет. Шум в алерте опаснее молчания — на фоне вечных строк перестают
+        # замечать новые.
+        if ind.code in _RETIRED_SERIES:
+            continue
         thr = _STALE_DAYS.get(ind.frequency or "monthly", 75)
         for m in (ind.metric_types or ["level"]):
             p = (db.query(MacroDataPoint).filter_by(indicator_code=ind.code, metric=m)
                  .order_by(MacroDataPoint.as_of.desc()).first())
             if p is None:
+                # 🔴 Ряд заведён, но пуст — не «нечего проверять», а самая тихая из
+                # возможных дыр (2026-08-03): показатель числится в системе, витрина
+                # может его ждать, а данных нет НИ ОДНОЙ точки. Пропуская такие ряды,
+                # мы делали их невидимыми и для алерта, и для очереди веб-добора.
+                stale.append({"code": ind.code, "metric": m, "last": None,
+                              "age_days": None, "via": None, "empty": True})
                 continue
             age = (today - p.as_of).days
             if age > thr:
@@ -427,7 +443,10 @@ def check_staleness(db: Session) -> list[dict]:
                               "age_days": age, "via": p.ingested_via})
     if stale:
         logger.warning("МАКРО-АЛЕРТ: %d рядов не обновляются дольше нормы: %s",
-                       len(stale), ", ".join(f"{s['code']}/{s['metric']}({s['age_days']}д)" for s in stale[:15]))
+                       len(stale), ", ".join(
+                           f"{s['code']}/{s['metric']}"
+                           + ("(пусто)" if s.get("empty") else f"({s['age_days']}д)")
+                           for s in stale[:15]))
     return stale
 
 
@@ -459,6 +478,45 @@ _KNOWN_CORRECTIONS = [
         "why": "число из новости не соответствовало ни одному периоду",
         # Месячные значения, попавшие в квартальный ряд под видом квартальных.
         "drop_dates": [date(2026, 6, 30)],
+    },
+    {
+        # 🔴 Ряды были ЗАВЕДЕНЫ, НО ПУСТЫ — ни одной точки с самого создания. Родной
+        # фидер FRED недоступен с инстанса (egress режет TLS), а проверка устаревания
+        # такие ряды не видела вовсе: она смотрит возраст последней точки, а её нет.
+        # Дата — начало периода: конвенция FRED, как у остальных внешних рядов.
+        "code": "cn_unemployment", "metric": "level", "as_of": date(2026, 6, 1), "value": 5.0,
+        "unit": "%",
+        "source": "Госстат КНР (обследование городской безработицы), июнь 2026",
+        "source_url": "https://english.news.cn/20260715/1a646af228624b03b83277c4e19c11d6/c.html",
+        "why": "ряд был пуст: FRED недоступен с инстанса",
+    },
+    {
+        "code": "eu_unemployment", "metric": "level", "as_of": date(2026, 6, 1), "value": 6.3,
+        "unit": "%",
+        "source": "Eurostat, безработица еврозоны, июнь 2026 (публикация 30.07.2026)",
+        "source_url": "https://ec.europa.eu/eurostat/web/products-euro-indicators/w/3-30072026-bp",
+        "why": "ряд был пуст: FRED недоступен с инстанса",
+    },
+    {
+        # Не исправление, а ДОЗАПИСЬ: ряд стоял с марта. Родной фидер hh отдаёт 451,
+        # но у HeadHunter есть машинно доступная витрина stats.hh.ru — оттуда и берут
+        # число пересказы. Значение подтверждено ДВУМЯ независимыми доменами
+        # (smart-lab/Мозговик и habr/vc), оба ссылаются на статистику hh.ru.
+        # 🔴 Шкала официальная: 8,0+ — высокая конкуренция соискателей («рынок
+        # работодателя»), то есть снижение с 9,8 до 8,3 — это ослабление профицита
+        # рабочей силы, а не ужесточение дефицита кадров.
+        "code": "hh_index", "metric": "level", "as_of": date(2026, 5, 28), "value": 9.1,
+        "unit": "ед",
+        "source": "hh.ru (stats.hh.ru), май 2026",
+        "source_url": "https://stats.hh.ru/",
+        "why": "ряд стоял с марта: родной фидер hh.ru отдаёт 451",
+    },
+    {
+        "code": "hh_index", "metric": "level", "as_of": date(2026, 6, 28), "value": 8.3,
+        "unit": "ед",
+        "source": "hh.ru (stats.hh.ru), июнь 2026 — минимум года",
+        "source_url": "https://stats.hh.ru/",
+        "why": "ряд стоял с марта: родной фидер hh.ru отдаёт 451",
     },
     {
         "code": "inflation_weekly", "metric": "wow", "as_of": date(2026, 7, 20), "value": 0.17,
