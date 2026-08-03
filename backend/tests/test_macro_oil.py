@@ -155,3 +155,46 @@ class TestEiaAnchor:
         row = (db.query(MacroDataPoint)
                .filter_by(indicator_code="oil_brent", as_of=date(2026, 7, 27)).first())
         assert float(row.value) == 91.82
+
+
+class TestNegativeSpreadIsArtifact:
+    """Urals физически не может стоить дороже Brent.
+
+    🔴 На бою 03.08 появилась «скидка −0,88»: свежая биржевая котировка Brent
+    сравнивалась со вчерашней страничной оценкой Urals. Отрицательный спред — признак
+    рассинхрона источников, а не рыночная новость, и на витрине он читается как
+    «российская нефть с премией».
+    """
+
+    def test_negative_spread_is_not_written(self, db, monkeypatch):
+        from app.services import macro_ingest as mi
+        from app.services import macro_oil_sync as oil
+
+        mi.seed_indicators(db)
+        db.commit()
+        page = "Brent Мировой Эталон $83.68 USD  Urals Россия $84.56 USD"
+        monkeypatch.setattr("app.services.agent_web.fetch_document",
+                            lambda *a, **k: {"text": page})
+        monkeypatch.setattr(oil, "_exchange_quotes", lambda: {})
+        out = oil.sync_oil_prices(db)
+        assert out["urals_brent_spread"]["skipped"] == "negative_spread"
+
+    def test_existing_negative_point_is_removed(self, db, monkeypatch):
+        from datetime import date
+
+        from app.services import macro_ingest as mi
+        from app.services import macro_oil_sync as oil
+        from app.models.macro import MacroDataPoint
+
+        mi.seed_indicators(db)
+        mi.upsert_point(db, "urals_brent_spread", date(2026, 8, 3), "level", -0.88,
+                        ingested_via="oilprice")
+        db.commit()
+        monkeypatch.setattr("app.services.agent_web.fetch_document",
+                            lambda *a, **k: {"text": "Brent $83.68 USD Urals $84.56 USD"})
+        monkeypatch.setattr(oil, "_exchange_quotes", lambda: {})
+        oil.sync_oil_prices(db)
+        left = (db.query(MacroDataPoint)
+                .filter(MacroDataPoint.indicator_code == "urals_brent_spread",
+                        MacroDataPoint.value < 0).count())
+        assert left == 0, "артефакт должен быть удалён"

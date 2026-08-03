@@ -121,13 +121,31 @@ def sync_oil_prices(db: Session) -> dict:
             ingested_via="oilprice", commit=False)
         saved[code] = {"value": val, "res": res}
 
-    # Дисконт российской нефти: положительное число = Urals ДЕШЕВЛЕ Brent.
+    # Скидка на российскую нефть: положительное число = Urals ДЕШЕВЛЕ Brent.
+    # 🔴 Считаем ТОЛЬКО из цен, полученных в ОДНОМ прогоне. На бою 03.08 вышло −0,88
+    # (Urals «дороже» Brent): свежая биржевая котировка Brent сравнивалась со вчерашней
+    # страничной оценкой Urals. Физически Urals торгуется с дисконтом, поэтому
+    # отрицательный спред — признак рассинхрона источников, а не рыночной новости.
     if "oil_brent" in prices and "urals" in prices:
         spread = round(prices["oil_brent"] - prices["urals"], 2)
-        upsert_point(db, "urals_brent_spread", today, "level", spread, unit="usd/bbl",
-                     source="OilPriceAPI (расчёт: Brent − Urals)", source_url=_URL,
-                     ingested_via="oilprice", commit=False)
-        saved["urals_brent_spread"] = {"value": spread}
+        if spread < 0:
+            logger.warning("oil-sync: спред отрицательный (%.2f) — Brent %.2f и Urals "
+                           "%.2f из разных срезов, точка НЕ записана",
+                           spread, prices["oil_brent"], prices["urals"])
+            # Артефакт мог попасть в ряд предыдущим прогоном — убираем, иначе на
+            # витрине висит «скидка −0,88», то есть Urals дороже Brent.
+            from app.models.macro import MacroDataPoint
+            killed = (db.query(MacroDataPoint)
+                      .filter(MacroDataPoint.indicator_code == "urals_brent_spread",
+                              MacroDataPoint.value < 0)
+                      .delete(synchronize_session=False))
+            saved["urals_brent_spread"] = {"skipped": "negative_spread",
+                                           "value": spread, "removed_artifacts": killed}
+        else:
+            upsert_point(db, "urals_brent_spread", today, "level", spread, unit="usd/bbl",
+                         source="OilPriceAPI (расчёт: Brent − Urals)", source_url=_URL,
+                         ingested_via="oilprice", commit=False)
+            saved["urals_brent_spread"] = {"value": spread}
     db.commit()
     logger.info("oil-sync: %s", {k: v.get("value") for k, v in saved.items()})
     return saved
