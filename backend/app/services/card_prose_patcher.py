@@ -1049,6 +1049,21 @@ def run_inst_env_interp(db: Session, batch: int = _ENV_BATCH,
 _MACRO_ENV_COOLDOWN_DAYS = 10
 
 
+def _num_forms(v: float) -> str:
+    """Число во всех формах, которые может написать аналитик.
+
+    🔴 Найдено на боевом прогоне (SIBN, 2026-08-04): правка была верной по сути, но
+    гейт отклонил её с `ungrounded_numbers: ['84', '79.5']` — в заземлении лежали
+    точные «83,68» и «79,46», а редактор естественно написал «около $84» и «79,5».
+    Требовать от прозы двух знаков после запятой бессмысленно, а пускать любые числа
+    нельзя. Компромисс: заземляем САМО значение вместе с его законными округлениями —
+    выдуманное «90» по-прежнему не пройдёт.
+    """
+    forms = {f"{v:.2f}".rstrip("0").rstrip("."), f"{v:.1f}".rstrip("0").rstrip("."),
+             str(int(round(v)))}
+    return " ".join(sorted(forms | {f.replace(".", ",") for f in forms}))
+
+
 def _macro_env_grounding(db: Session) -> str | None:
     """Состояние макросреды: числа + выпуск Обозревателя + свежая аналитика.
 
@@ -1059,6 +1074,9 @@ def _macro_env_grounding(db: Session) -> str | None:
     anchor = _macro_anchor(db)
     if anchor:
         parts.append(_macro_grounding(anchor))
+        # Те же значения в округлённых формах — иначе «ставка ~14%» не заземляется.
+        parts.append("Допустимые написания: "
+                     + "; ".join(_num_forms(v) for v, _ in anchor.values()))
     from sqlalchemy import text as _sql
     for code, metric, label, unit in (("oil_brent", "level", "Нефть Brent", "$/барр"),
                                       ("urals", "level", "Нефть Urals", "$/барр"),
@@ -1067,7 +1085,7 @@ def _macro_env_grounding(db: Session) -> str | None:
             "SELECT value, as_of FROM macro_data_points WHERE indicator_code=:c "
             "AND metric=:m ORDER BY as_of DESC LIMIT 1"), {"c": code, "m": metric}).first()
         if row:
-            parts.append(f"{label}: {_fmt_num_variants(float(row[0]))} {unit} "
+            parts.append(f"{label}: {_num_forms(float(row[0]))} {unit} "
                          f"(на {row[1].isoformat()})")
     if not parts:
         return None
