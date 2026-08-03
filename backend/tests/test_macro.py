@@ -237,4 +237,109 @@ def test_rewrite_is_kept_only_if_it_improves_logic(db, monkeypatch):
 
     row = ip.generate(db)
     assert row.sections["headline"] == "Первая версия", "худшая версия не должна публиковаться"
-    assert row.source_snapshot["logic"]["rewrite_rejected"] is True
+    assert row.source_snapshot["logic"]["stopped"] == "worse"
+
+
+def test_logic_loop_iterates_until_clean(db, monkeypatch):
+    """Владелец: критик не блокирует, но гоняет выпуск по кругу, пока грубые не сняты.
+
+    Один заход снимает не всё — здесь замечания уходят только к третьей версии, и
+    цикл обязан дойти до неё сам, а не опубликовать первую с ошибками.
+    """
+    from app.services import llm
+    from app.services import macro_interpreter as ip
+    from app.services import macro_logic_critic as critic
+
+    mi.seed_indicators(db)
+    mi.upsert_point(db, "key_rate", date(2026, 3, 1), "level", 15, ingested_via="file")
+    db.commit()
+    monkeypatch.setenv("MACRO_EVENT_AGENT", "0")
+    monkeypatch.setenv("MACRO_RELEASE_REVIEW", "0")
+
+    calls = {"n": 0}
+    fixes_seen = []
+
+    def fake_complete(system, user, **kw):
+        calls["n"] += 1
+        if calls["n"] > 1:
+            fixes_seen.append(user)
+        return {"sections": {
+            "headline": f"Версия {calls['n']}",
+            "theses": [{"claim": "тезис", "chain": "цепочка", "evidence": "5%",
+                        "tag": "факт"}],
+            "forecasts": [
+                {"variable": v, "horizon": "год", "center": "1", "range": "0-2",
+                 "driver": "d", "against": "a"}
+                for v in ("Ключевая ставка", "Инфляция", "Курс рубля", "ВВП", "Безработица")],
+            "sectors": [{"sector": "Финансы", "wind": "попутный", "channel": "ставка"}],
+        }}
+
+    hard_by_call = [3, 1, 0]
+    seen = {"n": 0}
+
+    def fake_review(db_, sections):
+        n = seen["n"]
+        seen["n"] += 1
+        hard = hard_by_call[min(n, len(hard_by_call) - 1)]
+        return {"issues": [{"problem": "p", "severity": "грубая"}] * hard, "hard_count": hard}
+
+    monkeypatch.setattr(llm, "complete", fake_complete)
+    monkeypatch.setattr(llm, "pro_model", lambda: "m")
+    monkeypatch.setattr(critic, "review_logic", fake_review)
+
+    row = ip.generate(db)
+    assert row.sections["headline"] == "Версия 3", "цикл обязан дойти до чистой версии"
+    logic = row.source_snapshot["logic"]
+    assert logic["hard_count"] == 0 and logic["hard_before"] == 3
+    assert [p["pass"] for p in logic["passes"]] == [1, 2]
+    # доработка получает СВОЙ предыдущий текст, а не пишется с нуля
+    assert "ТВОЙ ПРЕДЫДУЩИЙ ВАРИАНТ" in fixes_seen[0]
+    assert "Версия 1" in fixes_seen[0] and "Версия 2" in fixes_seen[1]
+
+
+def test_logic_loop_stops_at_max_passes(db, monkeypatch):
+    """Критик НЕ блокирует: если после предела заходов замечания остались — публикуем."""
+    from app.services import llm
+    from app.services import macro_interpreter as ip
+    from app.services import macro_logic_critic as critic
+
+    mi.seed_indicators(db)
+    mi.upsert_point(db, "key_rate", date(2026, 3, 1), "level", 15, ingested_via="file")
+    db.commit()
+    monkeypatch.setenv("MACRO_EVENT_AGENT", "0")
+    monkeypatch.setenv("MACRO_RELEASE_REVIEW", "0")
+
+    calls = {"n": 0}
+
+    def fake_complete(system, user, **kw):
+        calls["n"] += 1
+        return {"sections": {
+            "headline": f"Версия {calls['n']}",
+            "theses": [{"claim": "тезис", "chain": "цепочка", "evidence": "5%",
+                        "tag": "факт"}],
+            "forecasts": [
+                {"variable": v, "horizon": "год", "center": "1", "range": "0-2",
+                 "driver": "d", "against": "a"}
+                for v in ("Ключевая ставка", "Инфляция", "Курс рубля", "ВВП", "Безработица")],
+            "sectors": [{"sector": "Финансы", "wind": "попутный", "channel": "ставка"}],
+        }}
+
+    # каждый заход снимает по одному замечанию, но до нуля не доходит
+    seq = [5, 4, 3, 2]
+    seen = {"n": 0}
+
+    def fake_review(db_, sections):
+        n = seen["n"]
+        seen["n"] += 1
+        hard = seq[min(n, len(seq) - 1)]
+        return {"issues": [{"problem": "p", "severity": "грубая"}] * hard, "hard_count": hard}
+
+    monkeypatch.setattr(llm, "complete", fake_complete)
+    monkeypatch.setattr(llm, "pro_model", lambda: "m")
+    monkeypatch.setattr(critic, "review_logic", fake_review)
+
+    row = ip.generate(db)
+    assert row.id, "выпуск обязан выйти даже с оставшимися замечаниями"
+    logic = row.source_snapshot["logic"]
+    assert len(logic["passes"]) == ip._MAX_LOGIC_PASSES
+    assert logic["hard_count"] == 2 and logic["hard_before"] == 5

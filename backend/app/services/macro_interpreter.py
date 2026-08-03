@@ -794,6 +794,100 @@ def _check_numbers(sections: dict, snapshot: dict) -> list[str]:
 _SOFT_BUDGET_SEC = 20 * 60
 
 
+# Сколько раз выпуск возвращается на доработку. Владелец (2026-08-03): критик
+# «блокировать не должен, но ошибки должны быть исправлены — возможно, в особых
+# случаях несколько итераций: агент сделал, критик дал обратку, агент исправил,
+# критик указал на шероховатости и отправил переделывать, агент переделал».
+# Три прохода — предел разумного: каждый стоит одной генерации выпуска, а по логам
+# основная часть замечаний снимается на первом-втором.
+_MAX_LOGIC_PASSES = 3
+
+
+def _fix_instruction(prev_sections: dict, review: dict) -> str:
+    """Задание на ТОЧЕЧНУЮ правку: предыдущий текст + замечания критика.
+
+    🔴 Почему не «сгенерируй заново с оглядкой на замечания» (так было до 2026-08-03).
+    Регенерация с нуля чинила указанное, но заносила НОВЫЕ ошибки в местах, которых
+    замечания не касались: на живых прогонах было 2 грубых → стало 3, и 3 → 4. Модель
+    каждый раз писала другой текст, а не исправляла свой. Отдаём ей собственный
+    предыдущий вариант и просим тронуть только то, на что указал критик, — тогда
+    итерации сходятся, а не блуждают.
+    """
+    from app.services.macro_logic_critic import format_for_prompt
+    return (
+        "🔴 ЭТО ДОРАБОТКА, А НЕ НОВЫЙ ВЫПУСК. Ниже — ТВОЙ предыдущий вариант и разбор "
+        "критика макро-логики. Верни тот же выпуск целиком (та же структура), исправив "
+        "ТОЛЬКО то, на что указал критик, и всё, что от этого зависит по смыслу. "
+        "Формулировки, которые критик не трогал, сохраняй как есть — переписывание "
+        "здорового текста заносит новые ошибки. Если считаешь замечание неверным, не "
+        "молчи: оставь своё утверждение и добавь в него оговорку, снимающую претензию.\n\n"
+        + format_for_prompt(review)
+        + "\n\nТВОЙ ПРЕДЫДУЩИЙ ВАРИАНТ:\n"
+        + json.dumps({"sections": prev_sections}, ensure_ascii=False)
+    )
+
+
+def _logic_score(review: dict) -> tuple[int, int]:
+    """Чем меньше — тем лучше: сначала грубые, при равенстве — общее число замечаний."""
+    return (review.get("hard_count") or 0, len(review.get("issues") or []))
+
+
+def _logic_loop(db: Session, sections: dict, ask, t0: float) -> tuple[dict, dict]:
+    """Цикл «выпуск → критик → доработка → критик», пока грубые не исчерпаны.
+
+    Критик НЕ блокирует публикацию (владелец): даже с оставшимися замечаниями выпуск
+    выходит — но выходит ЛУЧШАЯ из полученных версий, а не последняя.
+    """
+    from app.services.macro_logic_critic import review_logic
+
+    review = review_logic(db, sections)
+    best_sections, best_review = sections, review
+    passes = []
+    for attempt in range(1, _MAX_LOGIC_PASSES + 1):
+        if not (best_review.get("hard_count") or 0):
+            break
+        # Каждый заход стоит примерно одной генерации выпуска. Идём на него, только
+        # если до мягкого предела остаётся столько же с запасом: ночной выпуск не
+        # должен наползти на следующий крон (07:40) — на этом уже вешали инстанс.
+        spent = time.monotonic() - t0
+        per_pass = spent / attempt
+        # Потолок цикла — доля бюджета, а не весь: остаток нужен ревизору чисел,
+        # иначе доработки логики съедят его целиком и выпуск выйдет непроверенным.
+        ceiling = _SOFT_BUDGET_SEC * 0.7
+        if spent + per_pass * 1.3 > ceiling:
+            logger.warning("Интерпретатор: логика — %s грубых, но бюджет исчерпан "
+                           "(потрачено %.0f с из %.0f) — публикуем как есть",
+                           best_review["hard_count"], spent, ceiling)
+            best_review = {**best_review, "stopped": "budget"}
+            break
+        logger.warning("Интерпретатор: логика — %s грубых замечаний, доработка %s/%s",
+                       best_review["hard_count"], attempt, _MAX_LOGIC_PASSES)
+        out = ask(_fix_instruction(best_sections, best_review))
+        fixed = out.get("sections") if isinstance(out, dict) else None
+        if not fixed:
+            logger.warning("Интерпретатор: доработка %s не вернула sections", attempt)
+            break
+        after = review_logic(db, fixed)
+        passes.append({"pass": attempt, "before": _logic_score(best_review)[0],
+                       "after": _logic_score(after)[0]})
+        # 🔴 Берём ЛУЧШУЮ версию, а не последнюю: «переписал» ≠ «стало лучше».
+        if _logic_score(after) <= _logic_score(best_review):
+            best_sections, best_review = fixed, after
+        else:
+            # Доработка ухудшила логику — дальше долбить бессмысленно, откатываемся
+            # к лучшей версии и выходим.
+            logger.warning("Интерпретатор: доработка %s ухудшила логику (%s → %s грубых) "
+                           "— оставлена предыдущая версия", attempt,
+                           _logic_score(best_review)[0], _logic_score(after)[0])
+            best_review = {**best_review, "stopped": "worse", "worse_at_pass": attempt}
+            break
+    if passes:
+        best_review = {**best_review, "passes": passes,
+                       "hard_before": passes[0]["before"],
+                       "rewritten": best_sections is not sections}
+    return best_sections, best_review
+
+
 def generate(db: Session) -> MacroInterpretation:
     """Сгенерировать интерпретацию (Pro reasoning) и сохранить срез."""
     t0 = time.monotonic()
@@ -836,43 +930,7 @@ def generate(db: Session) -> MacroInterpretation:
     logic = None
     if sections and os.environ.get("MACRO_LOGIC_CRITIC", "1") == "1":
         try:
-            from app.services.macro_logic_critic import format_for_prompt, review_logic
-            logic = review_logic(db, sections)
-            # Перегенерация удваивает самый долгий шаг выпуска. Если времени уже
-            # потрачено больше половины мягкого бюджета, замечания критика остаются
-            # в срезе, но переписывать не начинаем: иначе ночной выпуск наползёт на
-            # следующий крон (07:40).
-            budget_left = _SOFT_BUDGET_SEC / 2 - (time.monotonic() - t0)
-            if logic.get("hard_count") and budget_left <= 0:
-                logger.warning("Интерпретатор: логика — %s грубых замечаний, но времени "
-                               "на перегенерацию нет (осталось %.0f с)",
-                               logic["hard_count"], budget_left)
-            if logic.get("hard_count") and budget_left > 0:
-                # Одна перегенерация с замечаниями в промпте: критик показывает, ЧТО
-                # именно не следует из чего, и модель переписывает сама — мы её
-                # суждение не правим.
-                logger.warning("Интерпретатор: логика — %s грубых замечаний, "
-                               "перегенерация", logic["hard_count"])
-                out2 = _ask(format_for_prompt(logic))
-                sec2 = out2.get("sections") if isinstance(out2, dict) else None
-                if sec2:
-                    logic_after = review_logic(db, sec2)
-                    before = logic.get("hard_count") or 0
-                    after = logic_after.get("hard_count") or 0
-                    # 🔴 Берём ЛУЧШУЮ версию, а не последнюю. На живом прогоне
-                    # переписывание ухудшило результат: было 2 грубых замечания, стало
-                    # 3 — модель починила указанное и внесла новое. «Переписал» не
-                    # равно «стало лучше», и молча публиковать вторую попытку нельзя.
-                    if after <= before:
-                        sections = sec2
-                        logic = {**logic_after, "rewritten": True,
-                                 "hard_before": before}
-                    else:
-                        logger.warning("Интерпретатор: перегенерация ухудшила логику "
-                                       "(%s → %s грубых) — оставлена первая версия",
-                                       before, after)
-                        logic = {**logic, "rewritten": False,
-                                 "rewrite_rejected": True, "hard_after_try": after}
+            sections, logic = _logic_loop(db, sections, _ask, t0)
         except Exception:  # noqa: BLE001
             logger.warning("Интерпретатор: критик логики не отработал", exc_info=True)
 

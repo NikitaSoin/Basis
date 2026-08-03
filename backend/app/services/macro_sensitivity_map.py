@@ -93,9 +93,13 @@ def build_sensitivity_map(tickers: list[str] | None = None, top_n: int = 120) ->
     names = tickers or sorted(
         d.name for d in COMPANIES_DIR.iterdir() if d.is_dir() and not d.name.startswith(".")
     )
+    # Спорные коэффициенты — по всем проверяемым каналам, а не только по ставке
+    # (расширено 2026-08-03). Ключ — (тикер, канал): помечать всю компанию из-за
+    # одного канала значит обесценить остальные её числа.
     try:
-        from app.services.sensitivity_audit import audit_rate_sensitivity
-        disputed = {r["ticker"]: r["issue"] for r in audit_rate_sensitivity()}
+        from app.services.sensitivity_audit import audit_sensitivity
+        disputed = {(r["ticker"], r["channel"]): r.get("kind") or "расхождение"
+                    for r in audit_sensitivity() if r.get("kind") != "база"}
     except Exception:  # noqa: BLE001
         logger.warning("sensitivity_map: аудит коэффициентов не отработал", exc_info=True)
         disputed = {}
@@ -133,6 +137,23 @@ def build_sensitivity_map(tickers: list[str] | None = None, top_n: int = 120) ->
             if abs(pct) < 0.05:
                 continue
             effects[channel] = round(pct, 1)
+        # 🔴 Заполнение пустот. Если аналитик не поставил коэффициент по каналу, это не
+        # значит, что канала нет — чаще значит, что до него не дошли руки. Там, где
+        # структура отчётности даёт честную ОЦЕНКУ (ставка, курс), подставляем её с
+        # явной пометкой источника. Каналы-«границы» (зарплаты, издержки) не
+        # подставляем: предел удара — не ожидаемый эффект, и на витрине он соврёт.
+        computed = []
+        try:
+            from app.services.sensitivity_structural import structural_sensitivity
+            for channel, calc in (structural_sensitivity(ticker).get("channels") or {}).items():
+                if channel in effects or calc.get("kind") != "оценка":
+                    continue
+                if abs(calc["pct"]) > _MAX_PLAUSIBLE_PCT or abs(calc["pct"]) < 0.05:
+                    continue
+                effects[channel] = round(calc["pct"], 1)
+                computed.append(channel)
+        except Exception:  # noqa: BLE001
+            logger.warning("sensitivity_map: структурный расчёт не отработал для %s", ticker)
         if implausible or not effects:
             continue
         warning = None
@@ -140,18 +161,23 @@ def build_sensitivity_map(tickers: list[str] | None = None, top_n: int = 120) ->
             if a in effects and b in effects:
                 warning = "каналы ставки и стоимости риска пересекаются — не складывать"
         # 🔴 Флаг качества коэффициента (владелец: «в карточках могут быть плохо
-        # посчитанные числа»). Независимая сверка по процентному каналу — отдельным
-        # модулем; спорные помечаем прямо в таблице, чтобы модель не цитировала их как
-        # твёрдый факт карточки, а оговаривала.
-        if ticker in disputed:
+        # посчитанные числа»). Независимая сверка — отдельным модулем; спорные
+        # помечаем прямо в таблице рядом с каналом, чтобы модель не цитировала их
+        # как твёрдый факт карточки, а оговаривала.
+        flagged = [ch for ch in effects if (ticker, ch) in disputed]
+        if flagged:
+            names = ", ".join(f"{ch}: {disputed[(ticker, ch)]}" for ch in flagged)
             warning = (warning + "; " if warning else "") + \
-                f"коэффициент ставки спорный ({disputed[ticker]}) — ссылайся осторожно"
+                f"независимый пересчёт расходится по каналам: {names} — ссылайся осторожно"
         fin_meta = (_load(ticker, "financials.json") or {}).get("meta") or {}
         rows.append({
             "ticker": ticker,
             "sector": fin_meta.get("sector"),
             "base": f"% от годовой {base_kind}",
             "effects": effects,
+            # Какие каналы посчитала платформа, а не аналитик карточки — чтобы модель
+            # не выдавала расчётную оценку за факт карточки.
+            **({"computed_by_platform": computed} if computed else {}),
             **({"warning": warning} if warning else {}),
         })
     rows.sort(key=lambda r: -max(abs(v) for v in r["effects"].values()))
