@@ -19,7 +19,14 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 TINKOFF_TOKEN = os.environ.get("TINKOFF_API_TOKEN", "").strip()
-_API = "https://invest-public-api.tinkoff.ru/rest"
+# Релей через Cloudflare Worker (тот же паттерн, что DEEPSEEK_BASE_URL/FRED_BASE_URL,
+# см. app/services/llm.py): найдено 2026-08-04 — egress этого инстанса режет TLS к
+# invest-public-api.tinkoff.ru сертификатной ошибкой (SSL: CERTIFICATE_VERIFY_FAILED:
+# self-signed certificate in certificate chain, воспроизведено /api/debug/tinkoff),
+# котировки тихо деградировали на MOEX ISS (fallback есть), а логотипы — нет фоллбэка,
+# пропали молча. TINKOFF_BASE_URL, если задан, подменяет базовый хост на воркер,
+# который форвардит запрос к Tinkoff со своей сети — без релея Tinkoff недостижим.
+_API = (os.environ.get("TINKOFF_BASE_URL", "").rstrip("/") or "https://invest-public-api.tinkoff.ru") + "/rest"
 
 _ssl_ctx = ssl.create_default_context()
 
