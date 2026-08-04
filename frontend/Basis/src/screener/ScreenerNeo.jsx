@@ -45,20 +45,31 @@ const METRICS = {
     hint: "Насколько сильно исторически колеблется цена акции. Выше волатильность — шире диапазон возможных движений цены как вверх, так и вниз." },
   mcap:          { label: "Капитализация", unit: "", dir: "high", dom: [0, 9e12], dec: 0, money: true, group: "Размер",
     hint: "Рыночная стоимость всех акций компании — цена акции умноженная на число акций в обращении." },
+  // Балл корпоративного управления — качественная оценка Basis (governance.json →
+  // scoring.overall_score, 8 факторов, раскатан на все компании). В BASIS-балл НЕ
+  // входит (v0 — финансовые метрики), но фильтровать по нему можно.
+  governance:    { label: "Корп. управление", unit: "", dir: "high", dom: [1, 5], dec: 1, group: "Качество",
+    hint: "Балл качества корпоративного управления по методике Basis (1–5): структура собственности, дивидендная политика и история выплат, отношение к миноритариям, прозрачность, риски управления — 8 факторов. Выше 4 — сильное, ниже 3 — слабое." },
 };
 // Общий текст пояснения к справедливой цене — один на всю платформу (fairValueNote.js),
 // чтобы карточка, скринер и портфель объясняли одно и то же число одинаково.
 const FAIR_VALUE_HINT = FAIR_VALUE_NOTE + " Пометка «а» у числа означает, что методика по этой бумаге не рассчиталась и показана оценка аналитика — такие числа не сравнимы напрямую с остальными.";
 const GROUPS = ["Оценка", "Качество", "Устойчивость", "Размер"];
-const TABLE_METRICS = ["fair_value", "pe", "ev_ebitda", "roe", "nd_ebitda", "div_yield", "mcap"];
+// «Потенциал» — отдельная колонка сразу после справедливой цены: сортировка/чтение
+// по ПРОЦЕНТНОМУ апсайду, а не по абсолютной цене (владелец 2026-08-04: «плохо видно
+// апсайд, фильтр по справедливой цене сортирует размер цены, а не потенциал»).
+const TABLE_METRICS = ["fair_value", "upside", "pe", "ev_ebitda", "roe", "nd_ebitda", "div_yield", "mcap"];
 const COL_LABEL = (k) => k === "fair_value" ? "Справ. цена" : METRICS[k].label;
+// Имена пресетов — самоописательные, без маркетинговых обёрток (владелец 2026-08-04:
+// «Дивиденд с покрытием»/«Качество по цене» непонятны). desc уходит в title.
 const PRESETS = [
   { id: "all", name: "Все бумаги", desc: "Без фильтров", ranges: {} },
   // Порог был ≥80 %: он имел смысл на прежней методике. По методике Basis медиана
   // потенциала −44 %, и «недооценённая» бумага — это просто потенциал выше нуля.
   { id: "undervalued", name: "Ниже справедливой цены Basis", desc: "Потенциал к оценке Basis > 0", ranges: { upside: [0, 150] } },
-  { id: "divcov", name: "Дивиденд с покрытием", desc: "Дивдоходность ≥ 11% · долг ≤ 1,5×", ranges: { div_yield: [11, 18], nd_ebitda: [-5, 1.5] } },
-  { id: "qgarp", name: "Качество по цене", desc: "ROE ≥ 20% · P/E ≤ 7", ranges: { roe: [20, 45], pe: [0, 7] } },
+  { id: "divcov", name: "Высокая дивдоходность (и без долга)", desc: "Дивдоходность ≥ 11% · чистый долг/EBITDA ≤ 1,5×", ranges: { div_yield: [11, 18], nd_ebitda: [-5, 1.5] } },
+  { id: "qgarp", name: "P/E < 4", desc: "Цена ниже четырёх годовых прибылей", ranges: { pe: [0, 4] } },
+  { id: "gov", name: "Сильное корпуправление", desc: "Балл корпоративного управления Basis ≥ 4 из 5", ranges: { governance: [4, 5] } },
   { id: "lowlev", name: "Низкий долг", desc: "Чист. долг/EBITDA ≤ 0,5×", ranges: { nd_ebitda: [-5, 0.5] } },
   { id: "calm", name: "Спокойные бумаги", desc: "Бета ≤ 0,8 · волатильность ≤ 30%", ranges: { beta: [0, 0.8], volatility: [0, 30] } },
 ];
@@ -75,6 +86,7 @@ const scoreColor = (s) => { if (s == null) return "var(--ink-3)"; const t = Math
 const fmtMetric = (k, v) => {
   if (v == null) return "—";
   if (k === "fair_value") return num(v, Math.abs(v) >= 100 ? 0 : 2) + " ₽";
+  if (k === "upside") return (v > 0 ? "+" : "") + num(v, 0) + "%";
   const M = METRICS[k]; return M.money ? money(v) : num(v, M.dec) + (M.unit || "");
 };
 const histogram = (arr, dom, buckets = 18) => { const [a, b] = dom; const h = new Array(buckets).fill(0); (arr || []).forEach((v) => { let i = Math.floor((v - a) / (b - a) * buckets); i = Math.max(0, Math.min(buckets - 1, i)); h[i]++; }); return h; };
@@ -145,11 +157,17 @@ function MetricCell({ mkey, v, pct, fvSource }) {
   const noBar = mkey === "mcap" || mkey === "fair_value";
   // Справедливая цена может быть посчитана двумя разными способами (методика Basis или
   // оценка аналитика, когда движок не дал числа). Сортировка по колонке смешивает их,
-  // поэтому источник помечаем прямо в ячейке — «а» у чисел от аналитика.
-  const analyst = mkey === "fair_value" && fvSource === "analyst";
+  // поэтому источник помечаем прямо в ячейке — «а» у чисел от аналитика. Потенциал
+  // считается от той же цены, поэтому помечается тоже.
+  const analyst = (mkey === "fair_value" || mkey === "upside") && fvSource === "analyst";
+  // Потенциал — цвет + глиф по знаку (дизайн-конституция: цвет только в данных, ▲/▼ у дельт)
+  const up = mkey === "upside";
   return (
     <td className="sc-td sc-num" title={analyst ? "Оценка аналитика: методика Basis по этой бумаге не рассчиталась" : undefined}>
-      <span className="sc-cellval">{fmtMetric(mkey, v)}</span>
+      <span className="sc-cellval" style={up ? { color: v >= 0 ? "var(--pos)" : "var(--neg)", fontWeight: 600 } : undefined}>
+        {up && <span aria-hidden="true" style={{ fontSize: 9, marginRight: 2 }}>{v >= 0 ? "▲" : "▼"}</span>}
+        {fmtMetric(mkey, v)}
+      </span>
       {analyst && <sup style={{ marginLeft: 3, fontSize: 9, opacity: 0.6 }}>а</sup>}
       {!noBar && <PctBar pct={pct} />}
     </td>
@@ -288,7 +306,7 @@ function MapView({ rows, onPick, picked, secColor, sectors }) {
 function DetailDrawer({ row, onClose, onOpenCompany, secColor, Logo }) {
   if (!row) return null;
   const subs = [["value", "Оценка"], ["quality", "Качество"], ["stability", "Устойчивость"]];
-  const stats = ["pe", "ev_ebitda", "roe", "ebitda_margin", "nd_ebitda", "div_yield", "fcf_yield", "beta", "volatility"];
+  const stats = ["upside", "pe", "ev_ebitda", "roe", "ebitda_margin", "nd_ebitda", "div_yield", "fcf_yield", "beta", "volatility", "governance"];
   return (
     <>
       <div className="sc-scrim" onClick={onClose} />
@@ -631,7 +649,7 @@ export default function ScreenerNeo({ onOpenCompany, Logo, token, onAuthRequired
         <div className="sc-filter-presets">
           <div className="sc-filter-eyebrow">Готовые скрины</div>
           <div className="sc-presets">
-            {PRESETS.map((p) => <button key={p.id} className={"sc-preset" + (presetId === p.id ? " on" : "")} onClick={() => applyPreset(p)}><div className="pn">{p.name}</div><div className="pd">{p.desc}</div></button>)}
+            {PRESETS.map((p) => <button key={p.id} title={p.desc} className={"sc-preset" + (presetId === p.id ? " on" : "")} onClick={() => applyPreset(p)}><span className="pn">{p.name}</span></button>)}
           </div>
         </div>
       </div>

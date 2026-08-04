@@ -46,9 +46,12 @@ CONFIG = {
     "invert": {"pe", "ev_ebitda", "nd_ebitda", "beta", "volatility"},
     # метрики, искажаемые корп-эффектами → выкидываются у anomaly/low-dq тикеров
     "distortion_prone": {"pe", "ev_ebitda", "nd_ebitda"},
+    # метрики вне BASIS-балла (v0 — финансовый), но с распределением/фильтром на фронте:
+    # балл корпуправления (governance.json → scoring.overall_score, 1–5)
+    "extra_metrics": {"governance"},
 }
 
-_CACHE = {"ts": 0.0, "fin": None}
+_CACHE = {"ts": 0.0, "fin": None, "gov_ts": 0.0, "gov": None}
 _CACHE_TTL = 600  # сек; financials.json меняются только при деплое
 _RESULT_CACHE = {}   # (universe, sector) -> (ts, result) — чтобы ответ был мгновенным
 _RESULT_TTL = 3600   # 1ч: пересчёт (тяжёлый, морозит 1-CPU) делаем редко; данные меняются при деплое
@@ -101,8 +104,34 @@ def _load_financials() -> dict:
     return out
 
 
+def _load_gov_scores() -> dict:
+    """{TICKER: overall_score 1–5} из companies/<T>/governance.json (кэш по TTL).
+    Читаем только scoring.overall_score — файл большой, остальное скринеру не нужно."""
+    now = time.time()
+    if _CACHE["gov"] is not None and (now - _CACHE["gov_ts"]) < _CACHE_TTL:
+        return _CACHE["gov"]
+    out = {}
+    base = os.path.abspath(COMPANIES_DIR)
+    if os.path.isdir(base):
+        for t in os.listdir(base):
+            fp = os.path.join(base, t, "governance.json")
+            if not os.path.isfile(fp):
+                continue
+            try:
+                score = ((json.load(open(fp, encoding="utf-8")) or {})
+                         .get("scoring") or {}).get("overall_score")
+                v = _num(score)
+                if v is not None and 1.0 <= v <= 5.0:
+                    out[t.upper()] = v
+            except Exception:  # noqa: BLE001
+                continue
+    _CACHE["gov"] = out
+    _CACHE["gov_ts"] = now
+    return out
+
+
 def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding, fv_entry=None,
-                 db=None, prices=None):
+                 db=None, prices=None, gov_scores=None):
     """Сырые метрики тикера + флаги достоверности. cm — строка company_metrics (dict)."""
     j = fin.get(ticker.upper()) or {}
     meta = j.get("meta") or {}
@@ -184,6 +213,7 @@ def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding, fv_entr
         "nd_ebitda": _num(_last(rat.get("net_debt_ebitda"))),
         "beta": _num(cm.get("beta")),
         "volatility": _num(cm.get("volatility")),
+        "governance": (gov_scores or {}).get(ticker.upper()),
     }
     if raw["div_yield"] is not None:
         raw["div_yield"] = min(raw["div_yield"], CONFIG["div_yield_cap"])
@@ -256,6 +286,7 @@ def _compute_universe(db: Session, universe: str = "all", sector: str | None = N
     key = (universe, sector or "")
     now = time.time()
     fin = _load_financials()
+    gov_scores = _load_gov_scores()
 
     # компании + свежая цена + капитализация + число акций (для live-пересчёта мультипликаторов)
     rows = db.execute(text("""
@@ -294,7 +325,8 @@ def _compute_universe(db: Session, universe: str = "all", sector: str | None = N
         if t not in metrics_rows or price is None:
             continue
         raw, profile, dq, anomaly, suspect, fair, fair_src, mcap = _extract_raw(
-            t, fin, cm, price, mcap, shares, fair_map.get(t), db=db, prices=price_map)
+            t, fin, cm, price, mcap, shares, fair_map.get(t), db=db, prices=price_map,
+            gov_scores=gov_scores)
         base.append({"ticker": t, "name": d.get("name"), "sector": d.get("sector"),
                      "profile": profile, "data_quality": dq, "anomaly": anomaly,
                      "suspect": suspect, "price": price, "market_cap": mcap,
@@ -319,7 +351,9 @@ def _compute_universe(db: Session, universe: str = "all", sector: str | None = N
         sel = set(b["ticker"] for b in base)
     uni = [b for b in base if b["ticker"] in sel]
 
-    all_metrics = set().union(*CONFIG["subindices"].values())
+    # + extra_metrics: распределение и перцентиль нужны фильтру/гистограмме на фронте,
+    # в субиндексы BASIS они не входят (циклы ниже идут по CONFIG["subindices"])
+    all_metrics = set().union(*CONFIG["subindices"].values()) | CONFIG["extra_metrics"]
 
     # ── распределения по метрикам (чистый пул) + перцентили ──
     distributions = {}
