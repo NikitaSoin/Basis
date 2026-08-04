@@ -70,6 +70,10 @@ function useViewportSize() {
 // какой-то край вышел за safe-margin 16px.
 function useClampedOffset(cardRef, anchor) {
   const [offset, setOffset] = useState({ dx: 0, dy: 0 });
+  // Текущее применённое смещение — в ref, а не в deps эффекта: иначе каждый
+  // пересчёт запускал бы следующий и так по кругу.
+  const offsetRef = useRef(offset);
+  offsetRef.current = offset;
   useLayoutEffect(() => {
     if (!anchor || !cardRef.current) {
       setOffset({ dx: 0, dy: 0 });
@@ -77,12 +81,18 @@ function useClampedOffset(cardRef, anchor) {
     }
     const margin = 16;
     const r = cardRef.current.getBoundingClientRect();
-    let dx = 0;
-    let dy = 0;
-    if (r.left < margin) dx = margin - r.left;
-    else if (r.right > window.innerWidth - margin) dx = window.innerWidth - margin - r.right;
-    if (r.top < margin) dy = margin - r.top;
-    else if (r.bottom > window.innerHeight - margin) dy = window.innerHeight - margin - r.bottom;
+    // 🔴 rect измеряется у карточки, к которой УЖЕ применён прошлый офсет,
+    // поэтому поправка ПРИБАВЛЯЕТСЯ к нему, а не заменяет его. Раньше
+    // заменяла — и приветствие на телефоне уезжало за правый край: первый
+    // расчёт шёл по запасному якорю (кнопка в шапке ещё не измерена) и давал
+    // верное смещение, а второй, уже по реальному якорю, видел карточку
+    // внутри экрана, получал 0 и возвращал её обратно за край.
+    let dx = offsetRef.current.dx;
+    let dy = offsetRef.current.dy;
+    if (r.left < margin) dx += margin - r.left;
+    else if (r.right > window.innerWidth - margin) dx += window.innerWidth - margin - r.right;
+    if (r.top < margin) dy += margin - r.top;
+    else if (r.bottom > window.innerHeight - margin) dy += window.innerHeight - margin - r.bottom;
     setOffset((prev) => (prev.dx === dx && prev.dy === dy ? prev : { dx, dy }));
     // anchor.top/left меняются на каждый ре-скролл цели — специально считаем
     // офсет заново по значениям, а не по ссылке на объект anchor (?. — anchor
