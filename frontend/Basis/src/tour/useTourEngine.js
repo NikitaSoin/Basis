@@ -185,7 +185,11 @@ export default function useTourEngine({ activeTab, navigate, onOpenCompany, show
         return;
       }
       try {
-        el.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
+        // Широкую цель (полоса вкладок карточки, шапка — почти вся ширина экрана)
+        // уводим ВВЕРХ, а не в центр: панель тура стоит в нижнем углу и от такой
+        // цели вбок уже не отодвинется — при центрировании они накладывались.
+        const wide = el.getBoundingClientRect().width > window.innerWidth * 0.6;
+        el.scrollIntoView({ block: wide ? "start" : "center", behavior: reduced ? "auto" : "smooth" });
       } catch {}
       const measure = () => {
         if (!alive) return;
