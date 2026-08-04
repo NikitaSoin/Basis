@@ -272,3 +272,34 @@ class CardProseOverlay(Base):
     tokens_used: Mapped[int | None] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class CardOverviewSynthesis(Base):
+    """Синтез вкладки «Обзор»: свод всех разборов карточки в один вывод.
+
+    🔴 ЗАЧЕМ (владелец, 2026-08-04): «финальная вкладка Обзор — качественное саммари
+    всех остальных вкладок, от бизнес-модели до институтов. Это завершающая часть
+    фундаментального анализа: мы посмотрели на бизнес со всех сторон, теперь надо
+    сделать общий вывод и качественно объяснить справедливую цену — почему мы считаем
+    её выше или ниже».
+
+    Хранится в БД, а не в файле карточки, по той же причине, что и оверлеи прозы:
+    файлы на Timeweb эфемерны, а пересборка синтеза идёт кроном на бою.
+
+    🔴 Своей справедливой цены здесь НЕТ и быть не может. Единственный источник числа —
+    BFV; синтез его ОБЪЯСНЯЕТ. Второе число другой методикой на той же карточке уже
+    ломало доверие (GAZP: тело −11%, рейл +89%)."""
+    __tablename__ = "card_overview_synthesis"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ticker: Mapped[str] = mapped_column(String(20), index=True)
+    status: Mapped[str] = mapped_column(String(16))         # published | rejected
+    verdict: Mapped[str | None] = mapped_column(Text)       # общий вывод о бизнесе
+    pillars: Mapped[list | None] = mapped_column(JSONB)     # что дала каждая вкладка
+    fair_value_story: Mapped[dict | None] = mapped_column(JSONB)  # почему цена такая
+    what_would_change: Mapped[list | None] = mapped_column(JSONB)  # что перевернёт вывод
+    inputs_used: Mapped[dict | None] = mapped_column(JSONB)  # какие вкладки и BFV читали
+    gate_notes: Mapped[list | None] = mapped_column(JSONB)
+    model_used: Mapped[str | None] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

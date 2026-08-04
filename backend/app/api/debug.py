@@ -2668,3 +2668,21 @@ def debug_macro_drift(limit: int = 25, ticker: str | None = None):
         return {"current": current_macro(db), "affected": len(queue), "queue": queue}
     finally:
         db.close()
+
+
+@router.post("/debug/build-overview-synthesis")
+def debug_build_overview_synthesis(ticker: str | None = None, batch: int = 3,
+                                   stale_days: int = 30):
+    """Собрать свод вкладки «Обзор». ticker — одна компания, иначе партия.
+
+    В ФОНЕ: каждая компания — отдельный LLM-прогон по семи разборам.
+    """
+    from app.services.overview_synthesis import run_batch
+
+    def _run(db):
+        out = run_batch(db, batch=max(1, min(batch, 25)), stale_days=stale_days,
+                        only_ticker=ticker)
+        return type("R", (), {"id": "-", "status": "done",
+                              "gate_notes": [str(out)[:400]]})()
+
+    return JSONResponse(status_code=202, content=_inst_bg("overview_synthesis", _run))

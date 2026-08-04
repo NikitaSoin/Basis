@@ -1004,3 +1004,26 @@ def sector_peers_multiples(db: Session = Depends(get_db)):
         out[sec]["years"].sort()
     _SECTOR_PEERS_CACHE.update(ts=now, data=out)
     return out
+
+
+@router.get("/companies/by-ticker/{ticker}/overview-synthesis")
+def get_overview_synthesis(ticker: str, db: Session = Depends(get_db)):
+    """Свод вкладки «Обзор»: общий вывод по всем разборам + объяснение цены.
+
+    Отдаёт последний опубликованный свод. Если его ещё нет — 204, фронт просто не
+    рисует блок: обещать «скоро появится» на целый экран мы уже пробовали, владелец
+    это убрал.
+    """
+    from app.services.overview_synthesis import current
+    row = current(db, _safe(ticker).upper())
+    if not row:
+        return Response(status_code=204)
+    return {
+        "ticker": row.ticker,
+        "verdict": row.verdict,
+        "pillars": row.pillars or [],
+        "fair_value_story": row.fair_value_story or {},
+        "what_would_change": row.what_would_change or [],
+        "built_at": row.created_at.isoformat(),
+        "inputs_used": row.inputs_used or {},
+    }

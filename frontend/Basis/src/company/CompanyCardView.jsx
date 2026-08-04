@@ -3139,6 +3139,7 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
   const [peersMultiples, setPeersMultiples] = useState(null);  // конкуренты по годам (вкладка Финансы)
   const [earnings, setEarnings] = useState(null);
   const [earningsArchive, setEarningsArchive] = useState(null);  // null=не запрошен, []=пусто, [...]=загружен
+  const [synthesis, setSynthesis] = useState(null);   // свод «Обзора»: вывод по всем вкладкам
   const [govMd, setGovMd] = useState(null);
   const [govJson, setGovJson] = useState(null);
   const [govLoading, setGovLoading] = useState(true);
@@ -3267,6 +3268,9 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
       setFinLoading(false);
     });
     fetch(`${base}/earnings/latest`).then(r => r.ok ? r.json() : null).catch(() => null).then(setEarnings);
+    // Свод вкладки «Обзор». 204 = свода ещё нет — блок просто не рисуется.
+    fetch(`${base}/overview-synthesis`)
+      .then(r => (r.ok && r.status !== 204 ? r.json() : null)).catch(() => null).then(setSynthesis);
     fetch(`${apiUrl}/api/sectors/multiples`).then(r => r.ok ? r.json() : null).catch(() => null).then(setSectorMult);
     fetch(`${apiUrl}/api/sectors/peers-multiples`).then(r => r.ok ? r.json() : null).catch(() => null).then(setPeersMultiples);
   }, [company.ticker]);
@@ -3518,6 +3522,107 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
         </p>
       </div>
     );
+    // ═══ СВОД ВКЛАДКИ «ОБЗОР» ═══
+    // Владелец (2026-08-04): «Обзор — завершающая часть фундаментального анализа:
+    // посмотрели на бизнес со всех сторон, теперь общий вывод о нём и качественное
+    // объяснение справедливой цены». Свод собирает бэкенд по всем разборам карточки
+    // (overview_synthesis.py); своей цены он не считает — объясняет посчитанную.
+    const STANCE_UI = {
+      "сила": { glyph: "+", cls: "ok", label: "сильная сторона" },
+      "слабость": { glyph: "−", cls: "no", label: "слабая сторона" },
+      "нейтрально": { glyph: "=", cls: "warn", label: "нейтрально" },
+    };
+    const TAB_TITLES = {
+      business: "Бизнес-модель", finance: "Финансы", governance: "Управление",
+      markets: "Рынки", macro: "Макроэкономика", geo: "Геополитика",
+      institutions: "Институты",
+    };
+    const synthesisCard = synthesis && synthesis.verdict && (
+      <div className="card">
+        <h3>
+          <Layers size={18} />
+          <span>Что мы увидели</span>
+          <span className="tag tag-judg">суждение</span>
+        </h3>
+        <Prose>
+          <p style={{ marginTop: 10 }}>{synthesis.verdict}</p>
+        </Prose>
+        {Array.isArray(synthesis.pillars) && synthesis.pillars.length > 0 && (
+          <div className="verdict" style={{ marginTop: 12 }}>
+            {synthesis.pillars.map((p, i) => {
+              const ui = STANCE_UI[p.stance] || STANCE_UI["нейтрально"];
+              return (
+                <div className="vrow" key={i}>
+                  <span aria-hidden="true" className={`ic ${ui.cls}`} title={ui.label}>{ui.glyph}</span>
+                  <span>
+                    <b>{TAB_TITLES[p.tab] || p.tab}.</b> {p.point}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <p className="fv-note">
+          Свод разборов карточки: каждая сторона раскрыта на своей вкладке. Оценка
+          платформы, а не инвестиционная рекомендация.
+        </p>
+      </div>
+    );
+
+    // Объяснение справедливой цены — отдельной плиткой ПОД самой ценой: сначала
+    // число, потом почему оно такое.
+    const fvStory = synthesis && synthesis.fair_value_story;
+    const fairValueStoryCard = fvStory && fvStory.why && (
+      <div className="card">
+        <h3>
+          <Target size={18} />
+          <span>Почему справедливая цена такая</span>
+          <span className="tag tag-judg">суждение</span>
+          {fvStory.direction && <span className="hmeta">{fvStory.direction}</span>}
+        </h3>
+        <Prose>
+          <p style={{ marginTop: 10 }}>{fvStory.why}</p>
+        </Prose>
+        {(fvStory.supports || fvStory.drags) && (
+          <div className="tw-grid sm:tw-grid-cols-2 tw-gap-3" style={{ marginTop: 12 }}>
+            {[["Поднимает оценку", fvStory.supports, "ok", "+"],
+              ["Тянет вниз", fvStory.drags, "no", "−"]].map(([title, items, cls, glyph]) =>
+              Array.isArray(items) && items.length > 0 ? (
+                <div key={title}>
+                  <div className="subh" style={{ margin: "0 0 6px" }}>{title}</div>
+                  <div className="verdict">
+                    {items.map((x, i) => (
+                      <div className="vrow" key={i}>
+                        <span aria-hidden="true" className={`ic ${cls}`}>{glyph}</span>
+                        <span>{x}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null
+            )}
+          </div>
+        )}
+        {fvStory.confidence && (
+          <p style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5, margin: "12px 0 0" }}>
+            <b>Насколько прочно:</b> {fvStory.confidence}
+          </p>
+        )}
+        {Array.isArray(synthesis.what_would_change) && synthesis.what_would_change.length > 0 && (
+          <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
+            <div className="subh" style={{ margin: "0 0 6px" }}>Что изменит вывод</div>
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: "var(--ink-2)", lineHeight: 1.6 }}>
+              {synthesis.what_would_change.map((x, i) => <li key={i}>{x}</li>)}
+            </ul>
+          </div>
+        )}
+        <p className="fv-note">
+          Объяснение к числу выше — оно посчитано движком платформы, здесь мы его не
+          пересчитываем, а разбираем.
+        </p>
+      </div>
+    );
+
     const basisFairPriceCard = (bfvOk || methodRows.length > 0) && (
       <div className="card">
         <h3>
@@ -3673,8 +3778,10 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
       return (
         <div className="fin-hybrid tw-flex tw-flex-col tw-gap-4">
           {earningsCard}
+          {synthesisCard}
           {basisFairPriceCard}
           {basisFairPriceEmpty}
+          {fairValueStoryCard}
           {analysis && analysis.analyst_note && (
             <div className="card">
               <h3>
