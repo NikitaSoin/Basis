@@ -31,7 +31,6 @@ const STEP_KEY = "basis_tour_step";
 const COMPLETED_KEY = "basis_tour_completed_at";
 const WELCOME_DELAY_MS = 1200;
 const TOAST_MS = 4000;
-const ENTRY_SELECTOR = '[data-tour="tour-entry"]';
 
 function safeGet(key) {
   try {
@@ -149,21 +148,9 @@ export default function useTourEngine({ activeTab, navigate, onOpenCompany, show
     if (showAuthModal) pauseTour("auth");
   }, [showAuthModal, pauseTour]);
 
-  // ---- Позиция цели во время welcome (якорь — кнопка в шапке, БЕЗ скрима).
-  useEffect(() => {
-    if (phase !== "welcome") return undefined;
-    const measure = () => {
-      const el = document.querySelector(ENTRY_SELECTOR);
-      if (el) setTargetRect(el.getBoundingClientRect());
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    window.addEventListener("scroll", measure, { passive: true, capture: true });
-    return () => {
-      window.removeEventListener("resize", measure);
-      window.removeEventListener("scroll", measure, { capture: true });
-    };
-  }, [phase]);
+  // Приветствие БОЛЬШЕ НЕ ЯКОРИТСЯ к кнопке: точка входа переехала в «Профиль»
+  // (владелец 2026-08-05), а сама панель стоит в фиксированном углу экрана —
+  // измерять чужой прямоугольник незачем (tour/TourOverlay.jsx).
 
   // ---- Шаг активного тура: выполняет действие (navigate/openCompany), затем
   // ждёт цель локатором. Эффект завязан на [phase, stepIndex] — двойной
@@ -290,7 +277,9 @@ export default function useTourEngine({ activeTab, navigate, onOpenCompany, show
 
   const step = phase === "running" ? TOUR_STEPS[stepIndex] : null;
   const isLastStep = stepIndex === TOUR_STEPS.length - 1;
-  const buttonLabel = phase === "paused" ? "Продолжить экскурс" : "Экскурс по платформе";
+  // Подпись кнопки в «Профиле» (единственная точка входа после 2026-08-05).
+  const buttonLabel =
+    phase === "paused" ? "Продолжить экскурс" : phase === "completed" ? "Пройти экскурс заново" : "Пройти экскурс";
 
   return {
     phase,

@@ -49,7 +49,6 @@ import {
   ExternalLink,
   Clock,
   MoreHorizontal,
-  Compass,
 } from "lucide-react";
 import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, KpiTile, usePrefersReducedMotion, ComingSoonView } from "./design/primitives";
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
@@ -155,10 +154,7 @@ function ObserverV2({
     switch (activeSection) {
       case "news":
         return (
-          // data-tour="observer" — цель шага тура «Обозреватель» (tour/tourSteps.js).
-          // Секция "news" — дефолтная при входе без forceSection (см. useState выше),
-          // поэтому это то, что реально видно сразу после navigate("overview").
-          <div className="obs-panel" data-tour="observer">
+          <div className="obs-panel">
             <div className="obs-sec-head">
               <span className="obs-sec-eyebrow">Данные</span>
               <h2 className="obs-sec-title">Лента новостей</h2>
@@ -295,6 +291,8 @@ function ObserverV2({
       <nav
         className={`obs-sidebar msd-drawer${drawerOpen ? " msd-drawer--open" : ""}`}
         aria-label="Разделы Обозревателя"
+        /* цель шага тура «Обозреватель» — весь список разделов (tour/tourSteps.js) */
+        data-tour="observer"
         inert={drawerNarrow && !drawerOpen}
       >
         <div className="obs-depth-strip" aria-hidden="true" />
@@ -911,7 +909,7 @@ function TopNavSearch({ onOpenCompany }) {
   );
 }
 
-function TopNav({ activeTab, onNav, theme, toggleTheme, onOpenCompany, isAuthenticated, onOpenAuth, tourLabel, onTourClick }) {
+function TopNav({ activeTab, onNav, theme, toggleTheme, onOpenCompany, isAuthenticated, onOpenAuth }) {
   return (
     <header
       className="tw-sticky tw-top-0 tw-z-40 tw-border-b tw-border-border-subtle"
@@ -953,24 +951,10 @@ function TopNav({ activeTab, onNav, theme, toggleTheme, onOpenCompany, isAuthent
         <TopNavSearch onOpenCompany={onOpenCompany} />
 
         <div className="tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 topnav-actions">
-          {/* Постоянная точка входа в живой тур по платформе (Часть A плана
-              expressive-bubbling-firefly.md) — видна ВСЕГДА, на лендинге тоже,
-              независимо от авторизации (двойная роль: обычная кнопка запуска
-              И якорь приветствия/подсветки — data-tour="tour-entry", движок
-              ищет её по этому же селектору, см. tour/useTourEngine.js).
-              Подпись меняется на «Продолжить экскурс», когда тур на паузе —
-              тот же паттерн схлопывания на ≤760px, что у кнопки «Войти» ниже. */}
-          <Button
-            variant="secondary"
-            size="md"
-            iconLeft={<Compass size={15} />}
-            onClick={onTourClick}
-            aria-label={tourLabel}
-            data-tour="tour-entry"
-            className="topnav-tour-btn"
-          >
-            <span className="topnav-tour-label">{tourLabel}</span>
-          </Button>
+          {/* Кнопки экскурса здесь БОЛЬШЕ НЕТ (владелец, 2026-08-05: «верхний
+              сайдбар, пройти экскурс — перенеси внутрь профиля, на сайдбаре не
+              оставляй»). Точка входа — раздел «Профиль» (account/ProfileView.jsx),
+              она доступна и гостю. */}
           {/* Постоянная точка входа в регистрацию/вход (владелец, 2026-08-02):
               раньше в шапке НЕ было вообще никакой кнопки логина — единственный
               путь был пункт «Профиль» в TOPNAV_ITEMS (ведёт во вкладку профиля,
@@ -1439,6 +1423,10 @@ export default function App() {
             onNavigate={navigate}
             onShowAuth={() => setShowAuthModal(true)}
             onUserUpdate={handleUserUpdate}
+            tourLabel={tour.buttonLabel}
+            onTourClick={tour.onEntryClick}
+            tourCompleted={tour.phase === "completed"}
+            tourPaused={tour.phase === "paused"}
           />
         );
       default:
@@ -1510,8 +1498,6 @@ export default function App() {
           onOpenCompany={selectCompany}
           isAuthenticated={!!token}
           onOpenAuth={() => setShowAuthModal(true)}
-          tourLabel={tour.buttonLabel}
-          onTourClick={tour.onEntryClick}
         />
         {isLanding ? (
           <ViewErrorBoundary routeKey="landing">

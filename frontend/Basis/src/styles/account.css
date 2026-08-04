@@ -397,3 +397,20 @@
 @media (prefers-reduced-motion: reduce) {
   .acct-hero, .acct-panel, .acct-tab, .auth-tab, .auth-input { transition: none; }
 }
+
+/* Экскурс по платформе внутри профиля (владелец 2026-08-05: точка входа
+   переехала из шапки сюда). Панель рисуется и гостю — экскурс работает без
+   регистрации, и прерванный надо куда-то возвращать. */
+.acct-tour-note {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  margin: 0 0 14px;
+}
+.acct-tour-guest {
+  width: 100%;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.acct-tour-guest .acct-tour-note { text-align: center; }

@@ -43,7 +43,7 @@ const TABS = [
   { id: "plan", label: "Подписка" },
 ];
 
-export default function ProfileView({ user, token, onLogout, onNavigate, onShowAuth, onUserUpdate }) {
+export default function ProfileView({ user, token, onLogout, onNavigate, onShowAuth, onUserUpdate, tourLabel, onTourClick, tourCompleted, tourPaused }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("overview");
@@ -67,6 +67,18 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
                 <Button variant="primary" className="acct-pill tw-w-full" onClick={onShowAuth}>
                   Войти / Регистрация
                 </Button>
+                {onTourClick && (
+                  <div className="acct-tour-guest">
+                    <p className="acct-tour-note">
+                      {tourPaused
+                        ? "Экскурс по платформе на паузе — продолжим с того шага, где остановились."
+                        : "Платформа работает и без аккаунта. Хотите посмотреть, что где лежит, — пройдите экскурс."}
+                    </p>
+                    <Button variant="secondary" className="acct-pill tw-w-full" onClick={onTourClick}>
+                      {tourLabel || "Пройти экскурс"}
+                    </Button>
+                  </div>
+                )}
               </div>
             </Card>
           </div>
@@ -97,6 +109,27 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
       setBusy(false);
     }
   }
+
+
+  // ЕДИНСТВЕННАЯ точка входа в живой экскурс по платформе (владелец 2026-08-05:
+  // «верхний сайдбар, пройти экскурс — перенеси внутрь профиля, на сайдбаре не
+  // оставляй»). Рисуется и ГОСТЮ тоже — иначе прерванный экскурс некуда было бы
+  // вернуть без регистрации, а он работает без неё.
+  const tourPanel = onTourClick ? (
+    <section className="acct-panel">
+      <h2 className="acct-panel-title">Экскурс по платформе</h2>
+      <p className="acct-tour-note">
+        {tourPaused
+          ? "Экскурс на паузе — продолжим с того шага, где остановились."
+          : tourCompleted
+          ? "Экскурс пройден. Его можно запустить заново в любой момент."
+          : "Шесть шагов по реальным экранам: рынок, разбор компании, скринер, обозреватель, портфель и стресс-тест. Занимает пару минут, прервать можно в любой момент."}
+      </p>
+      <Button variant={tourPaused ? "primary" : "secondary"} className="acct-pill" onClick={onTourClick}>
+        {tourLabel || "Пройти экскурс"}
+      </Button>
+    </section>
+  ) : null;
 
   const dataPanel = (
     <section className="acct-panel">
@@ -237,6 +270,7 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
             <div className="acct-cols">
               <div className="acct-col">
                 {dataPanel}
+                {tourPanel}
                 {securityPanel}
               </div>
               <div className="acct-col">

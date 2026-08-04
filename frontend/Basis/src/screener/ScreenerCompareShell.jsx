@@ -39,6 +39,8 @@ export default function ScreenerCompareView({ token, onSelectCompany, onAuthRequ
       <nav
         className={`scmp-sidebar msd-drawer${drawerOpen ? " msd-drawer--open" : ""}`}
         aria-label="Скринер и сравнение"
+        /* цель шага тура «Скринер» — весь список разделов (tour/tourSteps.js) */
+        data-tour="screener"
         inert={drawerNarrow && !drawerOpen}
       >
         <div className="scmp-depth-strip" aria-hidden="true" />
@@ -67,10 +69,7 @@ export default function ScreenerCompareView({ token, onSelectCompany, onAuthRequ
 
       <main className="scmp-main">
         <MobileSectionBar title={activeLabel} open={drawerOpen} onOpenMenu={() => setDrawerOpen(true)} />
-        {/* data-tour="screener" — цель шага тура «Скринер» (tour/tourSteps.js).
-            activeSection по умолчанию "screener" — то, что видно сразу после
-            navigate("screener"), контейнер общий для всех трёх under-секций. */}
-        <div className="scmp-panel" data-tour="screener">
+        <div className="scmp-panel">
           {activeSection === "compare" ? (
             <CompareView onOpenCompany={onSelectCompany} />
           ) : activeSection === "portfolio_picks" ? (

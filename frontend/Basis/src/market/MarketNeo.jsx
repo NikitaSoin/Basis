@@ -420,9 +420,7 @@ function StockCards({ stocks, onOpen, Logo }) {
   const order = orderSectors(Object.keys(by));
   if (!stocks.length) return <div className="mk-empty">Ничего не найдено. Измените запрос или сектор.</div>;
   return (
-    // data-tour="market" — цель шага тура «Рынок» (tour/tourSteps.js). Дефолтная
-    // комбинация tab==="stocks"/stockView==="list" рендерит именно эту ветку.
-    <div className="mk-stack" data-tour="market">
+    <div className="mk-stack">
       {/* Что означает «% к справедл.» на карточках — владелец 2026-07-30: пояснение
           нужно не только в карточке компании, но и здесь. Один раз над списком, а не
           в каждой плитке: в мини-карточках (3 в ряд на телефоне) места нет. */}
@@ -1091,6 +1089,10 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
       <nav
         className={`mkt-sidebar msd-drawer${drawerOpen ? " msd-drawer--open" : ""}`}
         aria-label="Классы активов"
+        /* цель шага тура «Рынок» — подсвечиваем СПИСОК классов активов, а не
+           содержимое одной открытой вкладки (владелец 2026-08-05: «нужно
+           сделать про все вкладки»), tour/tourSteps.js */
+        data-tour="market"
         inert={drawerNarrow && !drawerOpen}
       >
         <div className="mkt-depth-strip" aria-hidden="true" />

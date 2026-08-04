@@ -24,8 +24,45 @@ function sameRect(a, b) {
   );
 }
 
+// 🔴 «Видим» НЕ равно `offsetParent !== null`: у элементов с position:fixed
+// offsetParent всегда null по спецификации — а все сайдбары разделов Basis
+// именно fixed, и первая версия локатора молча не находила НИ ОДИН из них
+// (шаги шли без подсветки, поймано прогоном 2026-08-05). Плюс мобильная
+// шторка прячется через translateX(-100%): размеры у неё остаются, и по
+// размерам она ложно «видима» — поэтому дополнительно проверяем, попадает ли
+// прямоугольник в экран.
+function isVisible(el) {
+  if (!el) return false;
+  const cs = window.getComputedStyle(el);
+  if (cs.display === "none" || cs.visibility === "hidden" || parseFloat(cs.opacity || "1") === 0) return false;
+  const r = el.getBoundingClientRect();
+  if (r.width <= 1 || r.height <= 1) return false;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  if (r.right <= 0 || r.bottom <= 0 || r.left >= vw || r.top >= vh) return false;
+  return true;
+}
+
+// Первый ВИДИМЫЙ элемент по списку селекторов — именно по приоритету списка, а не
+// по порядку в документе (querySelector с запятой умеет только второе). Нужно для
+// телефона: сайдбар раздела там скрыт в шторке, и целью становится кнопка её
+// открытия — но только если сайдбара действительно нет на экране.
+function firstVisible(selectors) {
+  for (const sel of selectors) {
+    let el = null;
+    try {
+      el = document.querySelector(sel);
+    } catch {
+      continue; // некорректный селектор — пропускаем, не роняя цикл рендера
+    }
+    if (isVisible(el)) return el;
+  }
+  return null;
+}
+
 /**
- * @param {string} selector — CSS-селектор цели (напр. '[data-tour="market"]')
+ * @param {string|string[]} selector — CSS-селектор цели или список по приоритету
+ *   (напр. ['[data-tour="observer"]', '[data-tour="section-menu"]'])
  * @param {{timeoutMs?: number, intervalMs?: number}} opts
  * @returns {{promise: Promise<Element|null>, cancel: () => void}}
  *   promise разрешается найденным элементом ИЛИ null (таймаут/отмена/нет селектора).
@@ -36,8 +73,10 @@ export function waitForTourTarget(selector, { timeoutMs = 5000, intervalMs = 200
   let lastRect = null;
   const startedAt = Date.now();
 
+  const selectors = Array.isArray(selector) ? selector.filter(Boolean) : selector ? [selector] : [];
+
   const promise = new Promise((resolve) => {
-    if (!selector) {
+    if (!selectors.length) {
       resolve(null);
       return;
     }
@@ -46,17 +85,8 @@ export function waitForTourTarget(selector, { timeoutMs = 5000, intervalMs = 200
         resolve(null);
         return;
       }
-      let el = null;
-      try {
-        el = document.querySelector(selector);
-      } catch {
-        // селектор синтаксически некорректен — не должно случиться (селекторы
-        // приходят из tourSteps.js, но лучше выйти честно, чем кинуть исключение
-        // в чужой цикл рендера).
-        resolve(null);
-        return;
-      }
-      const visible = el && el.offsetParent !== null;
+      const el = firstVisible(selectors);
+      const visible = !!el;
       if (visible) {
         const rect = el.getBoundingClientRect();
         // Таймаут проверяем и ЗДЕСЬ, а не только в ветке «элемента нет»: на

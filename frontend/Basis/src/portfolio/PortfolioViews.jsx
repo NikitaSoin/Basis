@@ -2791,14 +2791,10 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
         <div className="pf-card" style={{ padding: "24px 26px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
             <h3 style={{ fontFamily: "var(--pf-serif)", fontSize: "19px", fontWeight: 600, color: "var(--pf-ink)", margin: 0 }}>Состав портфеля</h3>
-            {/* data-tour="portfolio" — цель шага тура «Портфель» (tour/tourSteps.js).
-                Взаимоисключающая ветка с pf-guest-note ниже (портфель есть vs
-                портфелей нет вовсе) — тот же атрибут стоит на обеих намеренно. */}
             <div
               className="pf-pill pf-pill--soft"
               role="button"
               tabIndex={0}
-              data-tour="portfolio"
               onClick={() => (portfolio ? setShowAddModal(true) : onAuthRequired())}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); (portfolio ? setShowAddModal(true) : onAuthRequired()); } }}
             >
@@ -4202,11 +4198,7 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
         /* Честная коммуникация вместо запрета: человек видит, что работает по-настоящему,
            и понимает, чем платит за отсутствие регистрации. Владелец 2026-08-04:
            «нужна коммуникация — если хотите сохранить портфель, то зарегистрируйтесь». */
-        /* data-tour="portfolio" — см. комментарий у пилюли «+ Добавить позицию» выше
-           (взаимоисключающая ветка: гостевой пустой портфель vs уже есть).
-           🔴 Здесь позиция ВЫРАЖЕНИЯ, а не JSX-детей: фигурные скобки {/* … *​/} тут
-           разбираются как блок и валят сборку — комментарий должен быть обычным. */
-        <div className="pf-guest-note" role="status" data-tour="portfolio">
+        <div className="pf-guest-note" role="status">
           <b>Портфель не сохранится.</b> Он живёт только в этом браузере: закроете вкладку —
           останется, очистите данные или откроете с телефона — пропадёт.{" "}
           <button type="button" className="pf-guest-cta" onClick={onAuthRequired}>
@@ -4248,6 +4240,8 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
       <nav
         className={`pf-sidebar msd-drawer${drawerOpen ? " msd-drawer--open" : ""}`}
         aria-label="Разделы аналитики портфеля"
+        /* цель шага тура «Портфель» — весь список разделов (tour/tourSteps.js) */
+        data-tour="portfolio"
         inert={drawerNarrow && !drawerOpen}
       >
         <div className="pf-depth-strip" aria-hidden="true" />

@@ -142,7 +142,10 @@ export function ResearchTabs({ tabs = [], activeId, onSelect, right }) {
   return (
     <div className="tw-sticky tw-top-0 tw-z-20 tw-flex tw-items-stretch tw-gap-1 tw-border-b"
       style={{ borderColor: "var(--cc-line)", background: "color-mix(in srgb, var(--cc-bg) 86%, transparent)", backdropFilter: "blur(12px)" }}>
-      <div role="tablist" aria-label="Разделы карточки" className="tw-flex tw-gap-1 tw-overflow-x-auto">
+      {/* data-tour="company-tabs" — цель шага тура «Восемь разборов одной бумаги»:
+          подсвечиваем саму полосу вкладок, а карточка тура перечисляет, что в
+          каждой (владелец 2026-08-05: «вкладки в блоках не рассказываются»). */}
+      <div role="tablist" aria-label="Разделы карточки" data-tour="company-tabs" className="tw-flex tw-gap-1 tw-overflow-x-auto">
         {tabs.map((t) => {
           const active = activeId === t.id;
           return (

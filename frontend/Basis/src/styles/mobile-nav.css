@@ -69,18 +69,6 @@
     padding-left: 10px !important;
     padding-right: 10px !important;
   }
-  /* Кнопка живого тура (topnav-actions, data-tour="tour-entry") — тот же
-     компромисс: на мобильном только иконка (Compass), подпись «Экскурс по
-     платформе»/«Продолжить экскурс» скрыта, aria-label остаётся. Кнопка
-     остаётся СМОНТИРОВАННОЙ (не display:none) на всех брейкпоинтах — она же
-     служит DOM-якорем приветствия/локатором tour-entry в tour/useTourEngine.js. */
-  .topnav-tour-btn .topnav-tour-label {
-    display: none;
-  }
-  .topnav-tour-btn {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-  }
 }
 
 /* ---- Нижний фикс-таббар ---- */

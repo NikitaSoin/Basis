@@ -89,7 +89,12 @@ export function useMobileSidebarDrawer() {
  * находишься). На >760px невидима (см. .msd-section-bar). */
 export function MobileSectionBar({ title, open, onOpenMenu }) {
   return (
-    <div className="msd-section-bar">
+    // data-tour="section-menu" — ЗАПАСНАЯ цель шагов тура на телефоне: там
+    // сайдбары разделов живут в выезжающей шторке и по умолчанию скрыты
+    // (display:none ⇒ локатор их не возьмёт), а список разделов открывается
+    // именно этой кнопкой. Шаги перечисляют цели по приоритету:
+    // сайдбар → эта кнопка (tour/tourSteps.js, tour/tourLocator.js).
+    <div className="msd-section-bar" data-tour="section-menu">
       <button
         type="button"
         className="msd-toggle"
