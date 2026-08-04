@@ -1451,7 +1451,15 @@ async def lifespan(app: FastAPI):
         # чтобы содержание прям менялось») — раз в день, очередь = свежие факт-патчи
         scheduler.add_job(_with_heartbeat("macro_interp", _macro_interp_job), "cron", hour=21, minute=5, id="macro_interp")
         scheduler.add_job(_with_heartbeat("overview_synthesis", _overview_synthesis_job), "cron", hour=23, minute=20, id="overview_synthesis")  # свод «Обзора» партиями: общий вывод по всем разборам + объяснение цены
-        scheduler.add_job(_with_heartbeat("agent_pilot", _agent_pilot_job), "cron", hour=7, minute=40, id="agent_pilot")  # автономный агент-пилот (macro addendum)
+        # 🔴 Крон макро-пилота ОТКЛЮЧЁН (владелец, 2026-08-04). Пилот дописывал на
+        # боевую карточку плашки «🤖 Автономное обновление ИИ (демо)» вида
+        # «дивидендная отсечка делает все мультипликаторы и апсайд неактуальными,
+        # требуется пересчёт всей оценки» — тревога о том, что платформа и так
+        # пересчитывает живьём, да ещё с пометкой «демо» на бою. Рендер убран с
+        # витрины, генерация остановлена: копить в БД то, что никто не показывает,
+        # значит жечь бюджет молча. Роль пилота закрыта — его задачу делают
+        # card_prose_patcher (доводка вкладок) и card_consumer_agent (сигналы).
+        # Запустить вручную по-прежнему можно: app/services/macro_addendum_agent.py.
         scheduler.add_job(_with_heartbeat("chronicle_maintenance", _chronicle_maintenance_job), "cron", hour=5, minute=20, id="chronicle_maintenance")  # летопись: бэкфилл + ретеншен Ленты
         logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo/geo_digest)")
     scheduler.start()

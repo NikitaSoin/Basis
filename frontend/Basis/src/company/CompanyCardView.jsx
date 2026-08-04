@@ -2963,9 +2963,15 @@ const AgentAddendaStrip = ({ ticker }) => {
     return () => { alive = false; };
   }, [ticker]);
   if (!items.length) return null;
-  // приоритет — свежайшая СИГНАЛЬНАЯ плашка (реальная фича: точный сигнал →
-  // гейтованный addendum); макро-пилот (демо) показываем, только если сигнальных нет.
-  const latest = items.find((x) => x.kind === "signal_addendum") || items[0];
+  // 🔴 На карточке живут ТОЛЬКО сигнальные плашки: точное событие от официального
+  // источника (рейтинговое действие, отчётность), прошедшее код-гейт.
+  // Демо-плашки макро-пилота убраны с витрины (владелец, 2026-08-04): пилот выдавал
+  // рассуждения вида «дивидендная отсечка делает все мультипликаторы и апсайд в
+  // разборе неактуальными, требуется пересчёт всей оценки» — то есть тревожил
+  // читателя тем, что платформа и так пересчитывает живьём, да ещё с пометкой
+  // «демо» на боевой карточке.
+  const latest = items.find((x) => x.kind === "signal_addendum");
+  if (!latest) return null;
   const c = latest.content || {};
   const isSignal = latest.kind === "signal_addendum";
   const dt = latest.created_at ? new Date(latest.created_at).toLocaleDateString("ru-RU") : "";
@@ -3015,41 +3021,7 @@ const AgentAddendaStrip = ({ ticker }) => {
     );
   }
 
-  // ── макро-пилот (демо) — прежний рендер ──
-  return (
-    <div className="tw-rounded-md tw-border tw-border-accent-border tw-bg-accent-soft tw-px-4 tw-py-3">
-      <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-flex-wrap">
-        <div className="tw-text-[13px] tw-text-text-primary">
-          <span className="tw-font-semibold">🤖 Автономное обновление ИИ ({dt}, демо):</span>{" "}
-          {c.headline || "обновление"}
-        </div>
-        {(c.changes?.length > 0 || c.unchanged_note) && (
-          <button type="button" onClick={() => setOpen(!open)}
-            className="tw-text-[12.5px] tw-font-semibold tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer">
-            {open ? "Свернуть ▴" : "Подробнее ▾"}
-          </button>
-        )}
-      </div>
-      {open && (
-        <div className="tw-mt-3 tw-flex tw-flex-col tw-gap-2.5">
-          {(c.changes || []).map((ch, i) => (
-            <div key={i} className="tw-text-[12.5px] tw-text-text-secondary tw-leading-snug">
-              <b className="tw-text-text-primary">{ch.what}</b>
-              {ch.was && <> — было: {ch.was};</>} сейчас: {ch.now}. {ch.so_what}
-              {ch.certainty && <span className="tw-ml-1.5 tw-text-[10.5px] tw-uppercase tw-text-text-tertiary">[{ch.certainty}]</span>}
-            </div>
-          ))}
-          {c.unchanged_note && (
-            <div className="tw-text-[12.5px] tw-text-text-tertiary tw-leading-snug">Остаётся в силе: {c.unchanged_note}</div>
-          )}
-          <div className="tw-text-[11px] tw-text-text-tertiary">
-            Сгенерировано автономным агентом по данным платформы (разбор от {c.card_as_of || "—"}, живое макро, новости),
-            прошло автоматическую проверку качества. Пилотный режим — не заменяет разбор аналитика.
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return null;
 };
 
 
