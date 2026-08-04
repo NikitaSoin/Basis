@@ -786,6 +786,17 @@ async def get_macro_json(ticker: str, db: Session = Depends(get_db)):
     if data.get("quant_inputs") and not (data.get("computed") or {}).get("attribution"):
         from app.services import macro_quant
         macro_quant.enrich(data)
+    # 🔴 Честная маркировка вместо тихого устаревания (владелец 2026-08-04). Разбор
+    # писался в конкретный день при конкретных условиях; проза догоняет их ночным
+    # агентом, но между прогонами читатель должен видеть, что мир уехал — и насколько
+    # это дорого для ЭТОЙ компании по её же коэффициентам.
+    try:
+        from app.services.macro_drift import company_drift
+        drift = company_drift(db, _safe(ticker).upper())
+        if drift:
+            data["drift"] = drift
+    except Exception:  # noqa: BLE001
+        pass
     return JSONResponse(content=data)
 
 

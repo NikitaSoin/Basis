@@ -6624,11 +6624,36 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
     // сценарии в порядке голубь → база → ястреб (для рельса) и база/ястреб/голубь (для карточек)
     const scOrder = [["dovish", "Голубиный", "🕊"], ["base", "База", "▪"], ["hawkish", "Ястребиный", "🦅"]];
 
+    // 🔴 Честная маркировка устаревания (владелец 2026-08-04). Разбор писался в
+    // конкретный день; ночной агент догоняет прозу под текущую среду, но между
+    // прогонами читатель обязан видеть, что условия уехали — и насколько это дорого
+    // для ЭТОЙ компании по её же коэффициентам. Молчаливое устаревание хуже пометки.
+    const drift = macroJson?.drift;
+    const driftBanner = drift && drift.drift && (
+      <div className="mv3-drift">
+        <span className="mv3-drift-title">Условия изменились с момента разбора</span>
+        <span className="mv3-drift-body">
+          {Object.values(drift.drift).map((d, i) => (
+            <span className="mv3-drift-item" key={i}>
+              {d.title}: {d.was} → {d.now} {d.unit}
+            </span>
+          ))}
+          {drift.impact_pct != null && (
+            <span className="mv3-drift-note">
+              по коэффициентам карточки это ≈{Math.abs(drift.impact_pct)}% годовой{" "}
+              {drift.impact_base || "прибыли"} — разбор от {drift.as_of} писался в другой обстановке
+            </span>
+          )}
+        </span>
+      </div>
+    );
+
     return (
       <div className="mv3-root">
         <div className="mv3-layout">
           {/* ===================== ОСНОВНАЯ КОЛОНКА ===================== */}
           <div className="mv3-dash">
+            {driftBanner}
 
             {/* BLOCK 1 — режим макросреды */}
             <div className="mv3-regime">
