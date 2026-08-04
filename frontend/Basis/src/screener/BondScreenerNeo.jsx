@@ -625,7 +625,10 @@ export default function BondScreenerNeo({ onOpenCompany, token, onAuthRequired }
       <div className="sc-filter-bar">
         <div className="sc-filter-presets">
           <div className="sc-filter-eyebrow">Готовые скрины</div>
-          <div className="sc-presets">{PRESETS.map((p) => <button key={p.id} className={"sc-preset" + (presetId === p.id ? " on" : "")} onClick={() => applyPreset(p)}><div className="pn">{p.name}</div><div className="pd">{p.desc}</div></button>)}</div>
+          {/* Пилюли как в скринере акций: имя одной строкой, критерии — в title
+              (общие стили .sc-preset; двухстрочный вариант с .pd убран 2026-08-05 —
+              без его стилей строки накладывались) */}
+          <div className="sc-presets">{PRESETS.map((p) => <button key={p.id} title={p.desc} className={"sc-preset" + (presetId === p.id ? " on" : "")} onClick={() => applyPreset(p)}><span className="pn">{p.name}</span></button>)}</div>
         </div>
       </div>
 
