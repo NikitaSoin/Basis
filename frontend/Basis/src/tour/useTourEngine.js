@@ -185,11 +185,13 @@ export default function useTourEngine({ activeTab, navigate, onOpenCompany, show
         return;
       }
       try {
-        // Широкую цель (полоса вкладок карточки, шапка — почти вся ширина экрана)
-        // уводим ВВЕРХ, а не в центр: панель тура стоит в нижнем углу и от такой
-        // цели вбок уже не отодвинется — при центрировании они накладывались.
-        const wide = el.getBoundingClientRect().width > window.innerWidth * 0.6;
-        el.scrollIntoView({ block: wide ? "start" : "center", behavior: reduced ? "auto" : "smooth" });
+        // Всегда центрируем. Пробовал уводить широкие цели к верху (чтобы панель
+        // тура в нижнем углу их не перекрывала) — стало ХУЖЕ: полоса вкладок
+        // карточки sticky, при block:"start" она прилипает под верхнюю навигацию
+        // и подсветка встаёт на шапку, а сами вкладки уезжают из кадра
+        // (проверено на бою 2026-08-05). От широкой цели панель и так отъезжает
+        // вбок — перекрытие остаётся лишь частичным.
+        el.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
       } catch {}
       const measure = () => {
         if (!alive) return;
