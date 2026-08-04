@@ -103,7 +103,13 @@ export function MetricStrip({ metrics = [] }) {
       {metrics.map((m, i) => (
         <div key={i} className={cx(panel, "tw-p-[15px] tw-relative")}>
           {m.level && <span className="tw-absolute tw-top-2.5 tw-right-2.5"><FEJTag level={m.level} /></span>}
-          <div className="cc-eyebrow tw-pr-12">{m.caption}</div>
+          {/* Отступ под тег считается по ДЛИНЕ САМОГО ТЕГА, а не один на всех:
+              фиксированный pr-12 (48px) хватало «факту», но «СУЖДЕНИЕ» шире —
+              плашка наезжала на подпись («ПОТЕНЦИАЛ|СУЖДЕНИЕ» на карточке
+              Роснефти, поймано 2026-08-05 на кадре для лендинга). Ставить
+              максимальный отступ всем нельзя: у плитки минимум 150px, лишние
+              30px рвут короткие подписи на лишние строки. */}
+          <div className={cx("cc-eyebrow", !m.level ? "" : (m.level === "judgment" || m.level === "scenario") ? "tw-pr-[82px]" : m.level === "estimate" ? "tw-pr-[70px]" : "tw-pr-12")}>{m.caption}</div>
           <div className="tw-mt-2 tw-flex tw-items-baseline tw-gap-1">
             <span className="cc-num tw-text-[26px] tw-font-medium" style={{ color: "var(--cc-ink)", letterSpacing: "-0.02em" }}>{m.value}</span>
             {m.unit && <span className="cc-num tw-text-[13px]" style={{ color: "var(--cc-ink-3)" }}>{m.unit}</span>}
