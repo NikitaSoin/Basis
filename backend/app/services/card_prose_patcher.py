@@ -826,6 +826,32 @@ def _tickers_of_sectors(db: Session, sectors: list[str]) -> list[str]:
     return [r[0] for r in rows if r and r[0]]
 
 
+def _recent_source_articles(db: Session, targets: tuple[str, ...], limit: int = 8,
+                            days: int = 21) -> list[str]:
+    """Свежие материалы первоисточников (ЦБ, ЦМАКП, re:Russia, Carnegie, ISW и
+    прочие из ленты Обозревателя) по нужным доменам.
+
+    🔴 Зачем отдельно от барометра. Барометр и портрет — это уже СВЁРНУТАЯ
+    оценка: балл, сценарий, вывод. По ней видно, что среда сместилась, но не
+    видно, ЧТО ИМЕННО произошло. Правку вкладки без конкретики модель делает
+    общими словами («риски выросли»), а с конкретикой — привязывает к событию.
+    Владелец в постановке прямо перечислил источники рядом с оценкой
+    Обозревателя, а не вместо неё.
+    """
+    from app.models.geo_digest import GeoDigestArticle
+    cutoff = datetime.now(timezone.utc).date() - timedelta(days=days)
+    rows = (db.query(GeoDigestArticle)
+            .filter(GeoDigestArticle.target.in_(targets),
+                    GeoDigestArticle.published_at >= cutoff)
+            .order_by(GeoDigestArticle.published_at.desc()).limit(limit).all())
+    out = []
+    for r in rows:
+        src = f" [{r.source_label}]" if getattr(r, "source_label", None) else ""
+        date_s = r.published_at.isoformat() if r.published_at else ""
+        out.append(f"  {date_s}{src} {r.title}: {(r.summary or '')[:280]}")
+    return out
+
+
 def _geo_env_grounding(db: Session) -> tuple[str | None, list[str]]:
     """Контекст «что сейчас в геополитике» + кого это задевает.
 
@@ -886,6 +912,12 @@ def _geo_env_grounding(db: Session) -> tuple[str | None, list[str]]:
             tickers.add(t.upper())
 
     tickers.update(_tickers_of_sectors(db, sorted(sectors)))
+
+    arts = _recent_source_articles(db, ("svo", "middle_east", "atr"))
+    if arts:
+        parts.append("СВЕЖИЕ МАТЕРИАЛЫ ИСТОЧНИКОВ (что конкретно произошло):")
+        parts.extend(arts)
+
     parts.append(f"Сегодня: {datetime.now(timezone.utc).date().isoformat()}")
     return "\n".join(parts), sorted(tickers)
 
@@ -946,6 +978,11 @@ def _inst_env_grounding(db: Session) -> tuple[str | None, list[str]]:
         for x in (wl.get(side) or []):
             if isinstance(x, dict) and x.get("who"):
                 sectors.add(x["who"])
+
+    arts = _recent_source_articles(db, ("institutions", "macro"))
+    if arts:
+        parts.append("СВЕЖИЕ МАТЕРИАЛЫ ИСТОЧНИКОВ (что конкретно произошло):")
+        parts.extend(arts)
 
     parts.append(f"Сегодня: {datetime.now(timezone.utc).date().isoformat()}")
     return "\n".join(parts), _tickers_of_sectors(db, sorted(sectors))
