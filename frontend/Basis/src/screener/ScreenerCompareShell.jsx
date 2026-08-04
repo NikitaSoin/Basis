@@ -67,7 +67,10 @@ export default function ScreenerCompareView({ token, onSelectCompany, onAuthRequ
 
       <main className="scmp-main">
         <MobileSectionBar title={activeLabel} open={drawerOpen} onOpenMenu={() => setDrawerOpen(true)} />
-        <div className="scmp-panel">
+        {/* data-tour="screener" — цель шага тура «Скринер» (tour/tourSteps.js).
+            activeSection по умолчанию "screener" — то, что видно сразу после
+            navigate("screener"), контейнер общий для всех трёх under-секций. */}
+        <div className="scmp-panel" data-tour="screener">
           {activeSection === "compare" ? (
             <CompareView onOpenCompany={onSelectCompany} />
           ) : activeSection === "portfolio_picks" ? (

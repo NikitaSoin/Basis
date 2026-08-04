@@ -49,6 +49,7 @@ import {
   ExternalLink,
   Clock,
   MoreHorizontal,
+  Compass,
 } from "lucide-react";
 import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, KpiTile, usePrefersReducedMotion, ComingSoonView } from "./design/primitives";
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
@@ -115,6 +116,8 @@ import "./styles/compare.css";
 const ScreenerCompareView = React.lazy(() => import("./screener/ScreenerCompareShell"));
 import "./styles/mobile-nav.css";
 import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop } from "./design/MobileSidebarDrawer";
+import useTourEngine from "./tour/useTourEngine";
+import TourOverlay from "./tour/TourOverlay";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -152,7 +155,10 @@ function ObserverV2({
     switch (activeSection) {
       case "news":
         return (
-          <div className="obs-panel">
+          // data-tour="observer" — цель шага тура «Обозреватель» (tour/tourSteps.js).
+          // Секция "news" — дефолтная при входе без forceSection (см. useState выше),
+          // поэтому это то, что реально видно сразу после navigate("overview").
+          <div className="obs-panel" data-tour="observer">
             <div className="obs-sec-head">
               <span className="obs-sec-eyebrow">Данные</span>
               <h2 className="obs-sec-title">Лента новостей</h2>
@@ -905,7 +911,7 @@ function TopNavSearch({ onOpenCompany }) {
   );
 }
 
-function TopNav({ activeTab, onNav, theme, toggleTheme, onOpenCompany, isAuthenticated, onOpenAuth }) {
+function TopNav({ activeTab, onNav, theme, toggleTheme, onOpenCompany, isAuthenticated, onOpenAuth, tourLabel, onTourClick }) {
   return (
     <header
       className="tw-sticky tw-top-0 tw-z-40 tw-border-b tw-border-border-subtle"
@@ -947,6 +953,24 @@ function TopNav({ activeTab, onNav, theme, toggleTheme, onOpenCompany, isAuthent
         <TopNavSearch onOpenCompany={onOpenCompany} />
 
         <div className="tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 topnav-actions">
+          {/* Постоянная точка входа в живой тур по платформе (Часть A плана
+              expressive-bubbling-firefly.md) — видна ВСЕГДА, на лендинге тоже,
+              независимо от авторизации (двойная роль: обычная кнопка запуска
+              И якорь приветствия/подсветки — data-tour="tour-entry", движок
+              ищет её по этому же селектору, см. tour/useTourEngine.js).
+              Подпись меняется на «Продолжить экскурс», когда тур на паузе —
+              тот же паттерн схлопывания на ≤760px, что у кнопки «Войти» ниже. */}
+          <Button
+            variant="secondary"
+            size="md"
+            iconLeft={<Compass size={15} />}
+            onClick={onTourClick}
+            aria-label={tourLabel}
+            data-tour="tour-entry"
+            className="topnav-tour-btn"
+          >
+            <span className="topnav-tour-label">{tourLabel}</span>
+          </Button>
           {/* Постоянная точка входа в регистрацию/вход (владелец, 2026-08-02):
               раньше в шапке НЕ было вообще никакой кнопки логина — единственный
               путь был пункт «Профиль» в TOPNAV_ITEMS (ведёт во вкладку профиля,
@@ -1308,6 +1332,13 @@ export default function App() {
     setForceEconIndicator(null);
   };
 
+  // Живой тур по платформе (Часть A плана expressive-bubbling-firefly.md) —
+  // единственный источник правды движка тура, вызывается ОДИН раз здесь,
+  // прокидывается пропами вниз в TopNav (кнопка-точка входа) и TourOverlay
+  // (подсветка + тултипы). Использует УЖЕ существующие navigate/selectCompany —
+  // шаг тура делает РЕАЛЬНУЮ навигацию, не притворную.
+  const tour = useTourEngine({ activeTab, navigate, onOpenCompany: selectCompany, showAuthModal });
+
   // Индекс/хаб индексов/индекс страха и жадности показываются ВНУТРИ
   // ObserverV2 (сайдбар Обозревателя остаётся виден и там), независимо от
   // того, откуда открыли — из «Обозревателя» (Обзор рынка) или из «Рынка»
@@ -1479,6 +1510,8 @@ export default function App() {
           onOpenCompany={selectCompany}
           isAuthenticated={!!token}
           onOpenAuth={() => setShowAuthModal(true)}
+          tourLabel={tour.buttonLabel}
+          onTourClick={tour.onEntryClick}
         />
         {isLanding ? (
           <ViewErrorBoundary routeKey="landing">
@@ -1534,10 +1567,20 @@ export default function App() {
           всему сайту, не привязан к конкретному разделу. Скрыт, пока открыт
           AuthModal (иначе просвечивал бы сквозь полупрозрачный скрим), и не
           рендерится вовсе для залогиненных — сам компонент решает, ждать
-          таймер или нет (см. account/RegisterNudge.jsx). */}
-      {!token && !showAuthModal && (
+          таймер или нет (см. account/RegisterNudge.jsx).
+          🔴 Гасится и на время тура: шаги тура сами переключают разделы, viewKey
+          меняется на каждом шаге и нудж вылезал ровно поверх карточки тура —
+          два приглашения одновременно читаются как каша (поймано прогоном тура
+          2026-08-05). Приглашение к регистрации никуда не денется: тур
+          заканчивается, phase уходит из "running", таймер нуджа продолжится. */}
+      {!token && !showAuthModal && tour.phase !== "running" && tour.phase !== "welcome" && (
         <RegisterNudge onOpenAuth={() => setShowAuthModal(true)} viewKey={viewKey} />
       )}
+
+      {/* Живой тур по платформе — приветствие/подсветка/тултипы/тост паузы.
+          Один инстанс на всё приложение (не привязан к конкретному разделу),
+          сам решает, показывать ли что-то, по tour.phase (design/TourOverlay.jsx). */}
+      <TourOverlay tour={tour} />
     </div>
   );
 }

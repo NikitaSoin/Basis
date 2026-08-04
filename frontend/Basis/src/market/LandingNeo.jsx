@@ -1,17 +1,36 @@
-/* Лендинг v3 (порт docs/Lending_new.zip) как экран платформы. Разметка эталона —
-   landingHtml.js (CTA → data-route), стили — styles/landing.css (под .lp-scope,
-   токены сведены к каноническим cc). Анимации прототипа (canvas-heat, reveal,
-   count-up, ticker, матрица корреляций, mesh) воспроизведены в useEffect c очисткой.
-   Тема — общий переключатель приложения; CTA — реальный роутинг. */
-import React, { useEffect, useRef } from "react";
+/* Лендинг v5 — короткая версия (владелец 2026-08-04: «сильно короче, в двух словах
+   ценность и картинки с платформы»). Статичная разметка — landingHtml.js, разбитая
+   на LANDING_TOP / LANDING_BOTTOM, между ними React-карусель реальных скриншотов
+   (LandingCarousel.jsx). Стили — styles/landing.css (под .lp-scope, токены сведены
+   к каноническим cc). Анимации прототипа (canvas-heat, reveal, count-up, ticker,
+   mesh) воспроизведены в useEffect c очисткой. Тема — общий переключатель
+   приложения; CTA — реальный роутинг (routeTo). */
+import React, { useCallback, useEffect, useRef } from "react";
 import "../styles/landing.css";
-import LANDING_HTML from "./landingHtml";
+import { LANDING_TOP, LANDING_BOTTOM } from "./landingHtml";
+import LandingCarousel from "./LandingCarousel";
 
 const SUN = '<path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="4.2"/>';
 const MOON = '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" stroke-linejoin="round"/>';
 
 export default function LandingNeo({ onNavigate, onOpenCompany, onShowAuth, theme, toggleTheme }) {
   const ref = useRef(null);
+
+  // Единая точка маршрутизации лендинга: её зовёт и делегирование кликов по
+  // статичной разметке (data-route в landingHtml.js), и карусель — настоящий
+  // React-компонент, у которого никакого data-route нет. Раньше правило жило
+  // внутри обработчика, и второй потребитель неизбежно завёл бы свою копию
+  // списка вкладок.
+  const routeTo = useCallback((r) => {
+    if (r === "rosn") onOpenCompany && onOpenCompany("ROSN");
+    else if (r === "login") onShowAuth && onShowAuth();
+    // остальные — вкладки приложения (имена совпадают с case в renderView App.js).
+    // Раньше поддерживались только companies/screener, и CTA новых разделов
+    // (обозреватель, портфель, стресс-тест, ассистент) молча никуда не вели.
+    else if (["companies", "screener", "overview", "portfolio", "stress", "ai"].includes(r)) {
+      onNavigate && onNavigate(r);
+    }
+  }, [onNavigate, onOpenCompany, onShowAuth]);
 
   // CTA-роутинг + переключатель темы (делегирование кликов)
   useEffect(() => {
@@ -23,19 +42,11 @@ export default function LandingNeo({ onNavigate, onOpenCompany, onShowAuth, them
       const a = e.target.closest("[data-route]");
       if (!a) return;
       e.preventDefault();
-      const r = a.getAttribute("data-route");
-      if (r === "rosn") onOpenCompany && onOpenCompany("ROSN");
-      else if (r === "login") onShowAuth && onShowAuth();
-      // остальные — вкладки приложения (имена совпадают с case в renderView App.js).
-      // Раньше поддерживались только companies/screener, и CTA новых разделов
-      // (обозреватель, портфель, стресс-тест, ассистент) молча никуда не вели.
-      else if (["companies", "screener", "overview", "portfolio", "stress", "ai"].includes(r)) {
-        onNavigate && onNavigate(r);
-      }
+      routeTo(a.getAttribute("data-route"));
     };
     el.addEventListener("click", onClick);
     return () => el.removeEventListener("click", onClick);
-  }, [onNavigate, onOpenCompany, onShowAuth, toggleTheme]);
+  }, [routeTo, toggleTheme]);
 
   // Иконка темы в лендинг-навбаре синхронна с темой приложения
   useEffect(() => {
@@ -83,16 +94,9 @@ export default function LandingNeo({ onNavigate, onOpenCompany, onShowAuth, them
       tickerRow.innerHTML = [...TK, ...TK].map(([t, p, c]) => `<span class="tk"><b>${t}</b><span class="px">${p}</span><span class="ch ${c >= 0 ? "up" : "dn"}">${c >= 0 ? "▲" : "▼"} ${Math.abs(c).toLocaleString("ru-RU")}%</span></span>`).join("");
     }
 
-    // матрица корреляций (превью портфеля)
-    const corr = q("#pvCorr");
-    if (corr) {
-      const labels = ["ROSN", "SBER", "GMKN", "YDEX", "PLZL", "MGNT"];
-      const M = [[1, .42, .55, .18, .30, .12], [.42, 1, .38, .34, .22, .40], [.55, .38, 1, .20, .48, .10], [.18, .34, .20, 1, .15, .28], [.30, .22, .48, .15, 1, .08], [.12, .40, .10, .28, .08, 1]];
-      let h = '<span class="cl"></span>';
-      labels.forEach((l) => h += `<span class="cl top">${l.slice(0, 2)}</span>`);
-      for (let i = 0; i < 6; i++) { h += `<span class="cl">${labels[i].slice(0, 2)}</span>`; for (let j = 0; j < 6; j++) { const v = M[i][j]; if (i === j) { h += '<span class="cc dg">1,0</span>'; } else { const col = v > 0.5 ? "var(--neg)" : v > 0.3 ? "var(--amber)" : "var(--pos)"; const pct = Math.round(18 + v * 52); h += `<span class="cc" style="background:color-mix(in srgb, ${col} ${pct}%, transparent)">${v.toFixed(1).replace(".", ",")}</span>`; } } }
-      corr.innerHTML = h;
-    }
+    // (мок-генератор матрицы корреляций #pvCorr удалён вместе с секцией
+    //  «05 · Портфель»: выдуманные коэффициенты по шести тикерам заменены
+    //  скриншотом настоящего портфеля в карусели — landingCarouselSlides.js)
 
     // canvas heat (дышащая карта)
     let raf = 0;
@@ -188,5 +192,15 @@ export default function LandingNeo({ onNavigate, onOpenCompany, onShowAuth, them
     return () => { alive = false; clearInterval(id); };
   }, []);
 
-  return <div className="cc-root lp-scope" ref={ref} dangerouslySetInnerHTML={{ __html: LANDING_HTML }} />;
+  // Три узла вместо одного: статичный верх → карусель (единственный React на
+  // странице) → статичный низ. Делегирование кликов, живые котировки и
+  // reveal-наблюдатель висят на общем ref-контейнере и покрывают всё, включая
+  // карусель (её .rv-классы подхватит тот же IntersectionObserver).
+  return (
+    <div className="cc-root lp-scope" ref={ref}>
+      <div dangerouslySetInnerHTML={{ __html: LANDING_TOP }} />
+      <LandingCarousel onRoute={routeTo} />
+      <div dangerouslySetInnerHTML={{ __html: LANDING_BOTTOM }} />
+    </div>
+  );
 }

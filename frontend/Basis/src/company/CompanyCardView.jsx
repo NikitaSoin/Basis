@@ -3479,7 +3479,10 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
     const bfvFailed = bfv && bfv.status && bfv.status !== "ok";
     const bfvFailReason = bfvFailed && Array.isArray(bfv.warnings) && bfv.warnings.length > 0 ? bfv.warnings[0] : null;
     const basisFairPriceEmpty = !bfvOk && methodRows.length === 0 && bfvFailed && (
-      <div className="card">
+      // data-tour="company" — цель шага тура «Карточка компании» (tour/tourSteps.js).
+      // Взаимоисключающая ветка с basisFairPriceCard ниже (ровно одна из двух в
+      // DOM в любой момент) — тот же атрибут стоит на обеих намеренно.
+      <div className="card" data-tour="company">
         <h3>
           <Target size={18} />
           <span>Справедливая цена по методике Basis</span>
@@ -3596,7 +3599,8 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
     );
 
     const basisFairPriceCard = (bfvOk || methodRows.length > 0) && (
-      <div className="card">
+      // data-tour="company" — см. комментарий у basisFairPriceEmpty выше.
+      <div className="card" data-tour="company">
         <h3>
           <Target size={18} />
           <span>Справедливая цена по методике Basis</span>

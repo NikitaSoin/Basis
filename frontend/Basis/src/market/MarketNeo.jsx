@@ -420,7 +420,9 @@ function StockCards({ stocks, onOpen, Logo }) {
   const order = orderSectors(Object.keys(by));
   if (!stocks.length) return <div className="mk-empty">Ничего не найдено. Измените запрос или сектор.</div>;
   return (
-    <div className="mk-stack">
+    // data-tour="market" — цель шага тура «Рынок» (tour/tourSteps.js). Дефолтная
+    // комбинация tab==="stocks"/stockView==="list" рендерит именно эту ветку.
+    <div className="mk-stack" data-tour="market">
       {/* Что означает «% к справедл.» на карточках — владелец 2026-07-30: пояснение
           нужно не только в карточке компании, но и здесь. Один раз над списком, а не
           в каждой плитке: в мини-карточках (3 в ряд на телефоне) места нет. */}

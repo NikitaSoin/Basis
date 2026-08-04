@@ -991,7 +991,13 @@ export default function StressTestView({ onOpenCompany }) {
           <button type="button" className="st-rail-expand-tab" onClick={() => setRailCollapsed(false)} title="Показать пресеты и слайдеры" aria-label="Показать панель">
             <PanelLeftOpen size={13} />
           </button>
-          <div className="st-rail">
+          {/* data-tour="stress" — цель последнего шага тура (tour/tourSteps.js).
+              Именно рейл, а не вся консоль: подсвечивать нужно пресеты сценариев
+              и слайдеры (то, чем человек двигает сценарий), а не пол-экрана.
+              railCollapsed по умолчанию false; если рейл свёрнут вручную, он
+              получает display:none (stress-test.css) — локатор тура честно
+              отработает «блок не найден», а не подсветит невидимое. */}
+          <div className="st-rail" data-tour="stress">
             <button type="button" className="st-rail-collapse-btn" onClick={() => setRailCollapsed(true)} title="Скрыть панель — карта займёт всю ширину" aria-label="Скрыть панель">
               <PanelLeftClose size={13} />
             </button>
