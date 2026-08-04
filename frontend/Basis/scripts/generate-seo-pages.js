@@ -2259,6 +2259,55 @@ function screenerLiveBlock(companies, fairValues) {
  * вывод. Контент уникален по построению (это анализ конкретного отчёта), и он же
  * обновляется каждый отчётный сезон — то есть повод для переобхода приходит сам.
  */
+/* 🔴 РЕЕСТР СЛАГОВ РАЗБОРОВ. Адрес страницы отчёта НЕЛЬЗЯ выводить из подписи периода:
+ * она в снапшоте меняется между сборками («1П2026» → «6М» → «2 квартал»), и вместе с ней
+ * уезжает URL. Найдено на бою 2026-08-04: локально собралась /company/AFLT/otchet-1-polugodie-2026-rsbu/,
+ * а на сайте этого адреса уже нет — снапшот успел обновиться. Для поиска это худший
+ * сценарий: проиндексированная страница исчезает, и доверие к разделу падает.
+ *
+ * Решение: слаг назначается ОДИН РАЗ по устойчивому ключу (тикер + дата публикации +
+ * стандарт — проверено, уникален для всех записей) и хранится в закоммиченном файле.
+ * Дальше подпись периода может меняться сколько угодно — адрес останется прежним.
+ *
+ * Файл обновляется локальной сборкой, и его нужно КОММИТИТЬ: на билд-окружении Timeweb
+ * запись эфемерна, там реестр работает только на чтение. */
+const REPORT_SLUGS_PATH = path.join(__dirname, "data", "report-slugs.json");
+const REPORT_SLUGS = (() => {
+  try { return JSON.parse(fs.readFileSync(REPORT_SLUGS_PATH, "utf8")); } catch { return {}; }
+})();
+let reportSlugsDirty = false;
+
+function reportKey(r) {
+  return `${r.ticker}|${String(r.published_at || "").slice(0, 10)}|${r.standard || ""}`;
+}
+
+/** Устойчивый адрес разбора: из реестра, а при первой встрече — вычисленный и записанный. */
+function stableReportSlug(r) {
+  const key = reportKey(r);
+  if (REPORT_SLUGS[key]) return REPORT_SLUGS[key];
+  let slug = periodSlug(r);
+  // Столкновение внутри одного тикера (два отчёта с одинаковой подписью периода) —
+  // разводим датой, иначе второй перезапишет первый.
+  const taken = new Set(Object.entries(REPORT_SLUGS)
+    .filter(([k]) => k.startsWith(`${r.ticker}|`)).map(([, v]) => v));
+  if (taken.has(slug)) slug = `${slug}-${String(r.published_at || "").slice(0, 10)}`;
+  REPORT_SLUGS[key] = slug;
+  reportSlugsDirty = true;
+  return slug;
+}
+
+function saveReportSlugs() {
+  if (!reportSlugsDirty) return;
+  try {
+    fs.writeFileSync(REPORT_SLUGS_PATH, JSON.stringify(REPORT_SLUGS, null, 1), "utf8");
+    console.log(`Реестр адресов разборов: ${Object.keys(REPORT_SLUGS).length} записей (обновлён — закоммить файл)`);
+  } catch (e) {
+    // На билд-окружении запись может быть недоступна: это не повод валить сборку,
+    // адреса известных отчётов всё равно берутся из закоммиченного файла.
+    console.log("Реестр адресов разборов: записать не удалось —", e.message);
+  }
+}
+
 function periodSlug(r) {
   const std = /рсбу/i.test(r.standard || "") ? "rsbu" : /мсфо/i.test(r.standard || "") ? "msfo" : "";
   const year = String(r.published_at || "").slice(0, 4) || String(new Date().getFullYear());
@@ -2323,7 +2372,7 @@ ${Array.isArray(r.data_gaps) && r.data_gaps.length
 <a class="cta" href="/company/${escapeHtml(r.ticker)}/finance/">Полный разбор финансов ${escapeHtml(name)} →</a>
 <div><a class="chip" href="/company/${escapeHtml(r.ticker)}/">Карточка компании</a><a class="chip" href="/company/${escapeHtml(r.ticker)}/spravedlivaya-tsena/">Справедливая цена</a><a class="chip" href="/company/${escapeHtml(r.ticker)}/dividends/">Дивиденды</a><a class="chip" href="/razbor-otchetnosti-kompaniy/">Все разборы отчётности</a></div>`;
   return pageShell({
-    title, desc, canonicalPath: `/company/${r.ticker}/otchet-${periodSlug(r)}/`,
+    title, desc, canonicalPath: `/company/${r.ticker}/otchet-${stableReportSlug(r)}/`,
     breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Компании", href: "/company/" },
                   { label: name, href: `/company/${r.ticker}/` }, { label: `Отчёт за ${words}` }],
     bodyHtml: body, assets,
@@ -2346,13 +2395,13 @@ function reportsLiveBlock(rows, companies) {
   if (!list.length) return "";
   const seen = new Set();
   const rowsHtml = list.filter((r) => {
-    const k = `${r.ticker}/${periodSlug(r)}`;
+    const k = `${r.ticker}/${stableReportSlug(r)}`;
     if (seen.has(k)) return false;
     seen.add(k); return true;
   }).slice(0, 60).map((r) => {
     const c = byTicker.get(r.ticker);
     const d = (v) => (typeof v === "number" ? `${v > 0 ? "+" : ""}${v}%` : "—");
-    return `<tr><td><a href="/company/${escapeHtml(r.ticker)}/otchet-${escapeHtml(periodSlug(r))}/">${
+    return `<tr><td><a href="/company/${escapeHtml(r.ticker)}/otchet-${escapeHtml(stableReportSlug(r))}/">${
       escapeHtml((c && c.short) || r.company || r.ticker)}</a></td>`
       + `<td>${escapeHtml(periodWords(r))}</td><td>${escapeHtml(r.standard || "—")}</td>`
       + `<td class="num">${d(r.revenue_pct)}</td><td class="num">${d(r.profit_pct)}</td></tr>`;
@@ -2996,7 +3045,7 @@ function main() {
   let reportCount = 0;
   const seenReport = new Set();
   for (const r of reports) {
-    const slug = `otchet-${periodSlug(r)}`;
+    const slug = `otchet-${stableReportSlug(r)}`;
     const key = `${r.ticker}/${slug}`;
     if (seenReport.has(key)) continue;      // два отчёта за один период — берём первый
     seenReport.add(key);
@@ -3008,6 +3057,7 @@ function main() {
     reportCount++;
   }
   console.log(`Разборы отчётности за период: ${reportCount} страниц`);
+  saveReportSlugs();
 
   // Короткие URL /TICKER/ — редирект на канонический /company/TICKER/ (п.7 задачи).
   let shortUrlCount = 0;
