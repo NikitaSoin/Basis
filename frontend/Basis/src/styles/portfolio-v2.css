@@ -934,3 +934,26 @@
   font-weight: 400;
   border: 1px dashed var(--pf-line-2);
 }
+
+/* Плашка гостевого режима: портфель работает, но не сохраняется.
+   Тон — предупреждение, а не реклама: цвет служебный, без «празднующих» акцентов
+   (дизайн-конституция: цвет только в данных, хром монохромный). */
+.pf-guest-note {
+  margin: 0 0 16px;
+  padding: 11px 14px;
+  border: 1px solid var(--line, #E4DFD5);
+  border-left: 3px solid var(--accent-text, #C97A4A);
+  border-radius: 10px;
+  background: var(--surface-2, #F7F5F0);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-2, #5A5248);
+}
+.pf-guest-note b { color: var(--text-1, #1F1B16); }
+.pf-guest-cta {
+  background: none; border: none; padding: 0;
+  font: inherit; font-weight: 600;
+  color: var(--accent-text, #C97A4A);
+  text-decoration: underline; cursor: pointer;
+}
+.pf-guest-cta:focus-visible { outline: 2px solid var(--accent-text, #C97A4A); outline-offset: 2px; }

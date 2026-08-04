@@ -1,3 +1,4 @@
+import { apiHeaders } from "./guest";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -83,7 +84,7 @@ function DocAnalyzePanel({ inline = false, onResult, token, onSaved }) {
     fetch(`${API}/api/agents/analyze-document`, {
       method: "POST",
       headers: { "Content-Type": "application/json",
-                 ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                 ...apiHeaders(token) },
       body: JSON.stringify({ url: url.trim() }),
     })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
@@ -274,16 +275,16 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
   };
 
   const authHeaders = useCallback(
-    () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token}` }),
+    () => apiHeaders(token, { "Content-Type": "application/json" }),
     [token]
   );
 
   // ---- список диалогов ----
   const loadConversations = useCallback(async () => {
-    if (!token) return;
+    if (!token) return;   // история диалогов есть только у зарегистрированных
     try {
       const r = await fetch(`${API}/api/assistant/conversations?limit=30`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: apiHeaders(token),
       });
       if (r.status === 401) { onAuthRequired && onAuthRequired(); return; }
       if (!r.ok) return;
@@ -323,7 +324,7 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
     setAgentMode(false); setDocResult(null); setDocLoading(false);
     try {
       const r = await fetch(`${API}/api/assistant/conversations/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: apiHeaders(token),
       });
       if (r.status === 401) { onAuthRequired && onAuthRequired(); return; }
       if (r.ok) {
@@ -356,7 +357,7 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
     try {
       await fetch(`${API}/api/assistant/conversations/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: apiHeaders(token),
       });
     } catch { /* даже если не удалось на сервере — вернём при следующей загрузке */ }
   };
@@ -414,29 +415,12 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
     }
   };
 
-  // ---- не залогинен: приглашение ----
-  if (!token) {
-    return (
-      <div>
-        <div className="asst-invite">
-          <div className="asst-invite-icon"><BasisLogomark size={36} /></div>
-          <h2>Ассистент Basis</h2>
-          <p>
-            Задавайте вопросы о компаниях, мультипликаторах, макроэкономике и данных
-            платформы обычным языком. Войдите в аккаунт, чтобы начать диалог.
-          </p>
-          <div style={{ display: "flex", gap: 10 }}>
-            <button className="btn btn-primary" style={{ padding: "11px 24px" }} onClick={onAuthRequired}>Войти</button>
-            <button className="btn btn-ghost" style={{ padding: "11px 24px" }} onClick={onAuthRequired}>Зарегистрироваться</button>
-          </div>
-          <p style={{ fontSize: 11, color: "var(--text-3)", marginTop: 24, maxWidth: 420 }}>
-            Ассистент не даёт индивидуальных инвестиционных рекомендаций и не советует покупать
-            или продавать — только помогает ориентироваться в данных Basis.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // ---- Гость: один вопрос без регистрации ----
+  // Владелец 2026-08-04: «ассистента давай тоже откроем, базово один запрос лимит,
+  // если человек хочет больше — пусть пройдёт регистрацию». Экран приглашения убран:
+  // человек сразу спрашивает и видит качество ответа, а не читает обещание о нём.
+  // Лимит считает сервер (по вопросам с гостевым токеном) и отвечает 402 с текстом,
+  // который показывается в чате как обычное сообщение об ограничении.
 
   // !loadingConv — иначе на время загрузки другого диалога (messages уже очищен
   // оптимистично в openConversation, см. комментарий там) на миг мелькает

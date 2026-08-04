@@ -1,3 +1,4 @@
+import { claimGuestData } from "./guest";
 import React, { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import DesignSystem from "./design/DesignSystem";
 import { initAnalytics, trackPageView, logPageView } from "./analytics";
@@ -1229,6 +1230,18 @@ export default function App() {
     setUser(newUser);
     setToken(newToken);
     setShowAuthModal(false);
+    // 🔴 Перенос гостевого портфеля — ДО того, как экран начнёт грузить список.
+    // Владелец 2026-08-04: «нужно, чтобы портфель, который был бы составлен, сохранился
+    // после того как клиент пройдёт регистрацию, чтобы не слетело». Если не перенести
+    // сразу, человек увидит пустой список и решит, что работа пропала.
+    claimGuestData(process.env.REACT_APP_API_URL || "http://localhost:8000", newToken)
+      .then((claimed) => {
+        // Портфели уже принадлежат аккаунту, но смонтированный раздел мог успеть
+        // загрузиться до переноса — перечитываем его состав.
+        if (Array.isArray(claimed) && claimed.length) {
+          try { window.dispatchEvent(new Event("basis:portfolios-claimed")); } catch { /* нет CustomEvent — не критично */ }
+        }
+      });
   };
 
   const handleLogout = () => {

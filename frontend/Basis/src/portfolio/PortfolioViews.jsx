@@ -1,3 +1,4 @@
+import { apiHeaders } from "../guest";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createChart, AreaSeries, LineSeries, LineStyle, createSeriesMarkers } from "lightweight-charts";
 import {
@@ -53,7 +54,7 @@ const MOCK_CORRELATION = [
 
 const PortfolioImportModal = ({ onClose, onSuccess, token, existingNames = [] }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+  const authHeaders = apiHeaders(token);
   const [name, setName] = useState("Мой портфель");
   const [nameError, setNameError] = useState("");
   const [rows, setRows] = useState([
@@ -338,7 +339,7 @@ const TickerInput = ({ value, onChange, placeholder = "SBER" }) => {
 
 const EditPositionModal = ({ portfolioId, position, token, onClose, onSuccess }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
-  const authHeaders = token ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } : { "Content-Type": "application/json" };
+  const authHeaders = apiHeaders(token, { "Content-Type": "application/json" });
   const [mode, setMode] = useState("trade"); // "trade" | "fix" — как в прототипе
   const [quantity, setQuantity] = useState(String(position.shares ?? ""));
   const [avgPrice, setAvgPrice] = useState(String(position.avgPrice ?? ""));
@@ -666,7 +667,7 @@ const INSTRUMENT_TYPE_LABELS = {
 };
 const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSuccess }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
-  const authHeaders = token ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } : { "Content-Type": "application/json" };
+  const authHeaders = apiHeaders(token, { "Content-Type": "application/json" });
   const [instrumentType, setInstrumentType] = useState("equity");
   const [side, setSide] = useState("buy");
   const [ticker, setTicker] = useState("");
@@ -2044,7 +2045,7 @@ const PF_ZONES = [
 
 const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+  const authHeaders = apiHeaders(token);
 
   // forceSection — вход из верхней навигации «Стресс-тестирование» (App.js): та
   // вкладка ведёт прямиком в РЕАЛЬНО работающий стресс-тест портфеля, а не в
@@ -2113,7 +2114,7 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
   };
 
   useEffect(() => {
-    if (!token) { setPortfolioLoading(false); return; }
+    
 
     const loadData = async () => {
       try {
@@ -2204,7 +2205,7 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
   // (доля владения на отсечку — из реплея сделок, не из текущего кол-ва).
   const [pfDividends, setPfDividends] = useState(null);
   useEffect(() => {
-    if (!activePortfolioId || !token) { setPfDividends(null); return; }
+    if (!activePortfolioId) { setPfDividends(null); return; }
     fetch(`${apiUrl}/api/portfolios/${activePortfolioId}/dividends`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => setPfDividends(data))
@@ -2395,7 +2396,6 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
   };
 
   useEffect(() => {
-    if (!token) return;
     const inTradingHours = () => {
       const now = new Date();
       const msk = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
@@ -2795,8 +2795,8 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
               className="pf-pill pf-pill--soft"
               role="button"
               tabIndex={0}
-              onClick={() => (portfolio && token ? setShowAddModal(true) : onAuthRequired())}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); (portfolio && token ? setShowAddModal(true) : onAuthRequired()); } }}
+              onClick={() => (portfolio ? setShowAddModal(true) : onAuthRequired())}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); (portfolio ? setShowAddModal(true) : onAuthRequired()); } }}
             >
               + Добавить позицию
             </div>
@@ -4166,30 +4166,20 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
     stress: pfStress,
   };
 
-  // ---- Empty states (без сайдбара — как раньше) ----
-  if (!token) {
-    return (
-      <div>
-        <div className="view-header">
-          <h1 className="view-title">Аналитика портфеля</h1>
-          <p className="view-subtitle">Управляйте позициями и отслеживайте результаты</p>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 24px", textAlign: "center" }}>
-          <div style={{ width: 72, height: 72, borderRadius: 20, background: "var(--accent-fade)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20 }}>
-            <Briefcase size={32} style={{ color: "var(--accent-text)" }} />
-          </div>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: "var(--text-1)", margin: "0 0 8px" }}>Аналитика портфеля</h2>
-          <p style={{ fontSize: 14, color: "var(--text-2)", margin: "0 0 28px", maxWidth: 340, lineHeight: 1.6 }}>
-            Войдите в аккаунт, чтобы загружать портфели и отслеживать результаты
-          </p>
-          <div style={{ display: "flex", gap: 10 }}>
-            <button className="btn btn-primary" style={{ padding: "11px 24px" }} onClick={onAuthRequired}>Войти</button>
-            <button className="btn btn-ghost" style={{ padding: "11px 24px" }} onClick={onAuthRequired}>Зарегистрироваться</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // После регистрации гостевой портфель «усыновляется» на сервере (App.js →
+  // claimGuestData). Раздел уже смонтирован и держит старый список, поэтому слушаем
+  // событие и перечитываем — иначе пользователь увидит пустоту там, где всё на месте.
+  useEffect(() => {
+    const onClaimed = () => setReloadKey((k) => k + 1);
+    window.addEventListener("basis:portfolios-claimed", onClaimed);
+    return () => window.removeEventListener("basis:portfolios-claimed", onClaimed);
+  }, []);
+
+  // ---- Гостевой режим ----
+  // 🔴 Экрана «войдите, чтобы пользоваться» здесь БОЛЬШЕ НЕТ. Владелец 2026-08-04:
+  // «клиент может зайти и потыкаться». Гость собирает портфель и видит ТУ ЖЕ
+  // аналитику; отличие одно — портфель живёт в этом браузере и пропадёт при очистке
+  // данных. Об этом сказано прямо в плашке, а не спрятано мелким шрифтом.
 
   // Пока грузятся портфель и позиции — честный лоадер вместо рендера
   // экрана с пустыми/промежуточными числами (см. displayPositions выше).
@@ -4204,7 +4194,20 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
   if (!portfolioLoading && portfolioList.length === 0) {
     return (
       <div>
-        <div className="view-header">
+        {!token && (
+        /* Честная коммуникация вместо запрета: человек видит, что работает по-настоящему,
+           и понимает, чем платит за отсутствие регистрации. Владелец 2026-08-04:
+           «нужна коммуникация — если хотите сохранить портфель, то зарегистрируйтесь». */
+        <div className="pf-guest-note" role="status">
+          <b>Портфель не сохранится.</b> Он живёт только в этом браузере: закроете вкладку —
+          останется, очистите данные или откроете с телефона — пропадёт.{" "}
+          <button type="button" className="pf-guest-cta" onClick={onAuthRequired}>
+            Зарегистрируйтесь, чтобы сохранить
+          </button>{" "}
+          — всё, что уже собрано, перенесётся в аккаунт.
+        </div>
+      )}
+      <div className="view-header">
           <h1 className="view-title">Аналитика портфеля</h1>
           <p className="view-subtitle">Управляйте позициями и отслеживайте результаты</p>
         </div>
