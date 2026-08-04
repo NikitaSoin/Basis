@@ -234,6 +234,18 @@ def _gate(result: dict, tabs: list[dict], fair: dict | None, ticker: str) -> lis
     if ungrounded:
         notes.append(f"ungrounded_numbers:{ungrounded[:5]}")
 
+    # 🔴 Направление обязано совпадать со знаком апсайда. Иначе карточка противоречит
+    # сама себе: число говорит «дешевле рынка», а объяснение под ним — «дороже». На
+    # проверенных компаниях модель попадала верно, но «обычно попадает» — не гарантия,
+    # а этот разрыв читатель заметит первым.
+    if fair and isinstance(fair.get("upside_pct"), (int, float)) and story:
+        upside = float(fair["upside_pct"])
+        direction = str(story.get("direction") or "")
+        expected = ("выше рынка" if upside > 3 else
+                    "ниже рынка" if upside < -3 else "близко к рынку")
+        if direction and direction != expected:
+            notes.append(f"direction_vs_upside:{direction}!={expected}({upside}%)")
+
     # Справедливая цена в тексте не должна расходиться с посчитанной.
     if fair and fair.get("fair_price"):
         stated = re.findall(r"справедлив\w*\s+цен\w*[^\d]{0,24}(\d+(?:[.,]\d+)?)",

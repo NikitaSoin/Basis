@@ -2686,3 +2686,32 @@ def debug_build_overview_synthesis(ticker: str | None = None, batch: int = 3,
                               "gate_notes": [str(out)[:400]]})()
 
     return JSONResponse(status_code=202, content=_inst_bg("overview_synthesis", _run))
+
+
+@router.get("/debug/overview-synthesis-status")
+def debug_overview_synthesis_status(days_back: int = 7, limit: int = 25):
+    """Состояние сводов «Обзора»: сколько собрано, что отклонил гейт и почему."""
+    from sqlalchemy import text as _sql
+
+    from app.db.session import SessionLocal
+    db = SessionLocal()
+    try:
+        counters = dict(db.execute(_sql(
+            "SELECT status, count(*) FROM card_overview_synthesis "
+            "WHERE created_at >= now() - (:d || ' days')::interval GROUP BY status"
+        ), {"d": days_back}).all())
+        rows = db.execute(_sql(
+            "SELECT ticker, status, gate_notes, created_at, left(verdict, 120) "
+            "FROM card_overview_synthesis "
+            "WHERE created_at >= now() - (:d || ' days')::interval "
+            "ORDER BY created_at DESC LIMIT :l"), {"d": days_back, "l": limit}).all()
+        published = db.execute(_sql(
+            "SELECT count(DISTINCT ticker) FROM card_overview_synthesis "
+            "WHERE status='published'")).scalar()
+        return {"days_back": days_back, "counters": counters,
+                "companies_with_synthesis": published,
+                "recent": [{"ticker": r[0], "status": r[1], "gate_notes": r[2],
+                            "created_at": r[3].isoformat(), "verdict_head": r[4]}
+                           for r in rows]}
+    finally:
+        db.close()

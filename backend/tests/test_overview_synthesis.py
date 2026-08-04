@@ -160,3 +160,11 @@ def test_endpoint_returns_204_when_no_synthesis(client):
     """
     r = client.get("/api/companies/by-ticker/NOSUCHX/overview-synthesis")
     assert r.status_code == 204, r.text
+
+
+def test_direction_must_match_upside(tabs, fair):
+    """🔴 Число и объяснение под ним не имеют права противоречить друг другу."""
+    bad = _result()
+    bad["fair_value_story"]["direction"] = "ниже рынка"   # при апсайде +51%
+    notes = ov._gate(bad, tabs, fair, "SBER")
+    assert any(n.startswith("direction_vs_upside") for n in notes)
