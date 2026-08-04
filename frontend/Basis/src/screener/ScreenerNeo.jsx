@@ -676,7 +676,9 @@ export default function ScreenerNeo({ onOpenCompany, Logo, token, onAuthRequired
           <div className="sc-toolbar"><div className="sc-toolbar-top">
             {!railOpen && (() => { const n = Object.keys(ranges).length + (sector ? 1 : 0) + (universe !== "all" ? 1 : 0); return <button className="sc-filters-btn" onClick={() => setRailOpen(true)}>Фильтры{n > 0 && <span className="sc-filters-n">{n}</span>}</button>; })()}
             <div className="sc-tool-r">
-              <div className="sc-seg" role="group" aria-label="Плотность"><button className={density === "comfortable" ? "on" : ""} onClick={() => setDensity("comfortable")}>Просторно</button><button className={density === "compact" ? "on" : ""} onClick={() => setDensity("compact")}>Плотно</button></div>
+              {/* «Просторно/Плотно» читалось как фильтр данных (владелец 2026-08-05) —
+                  в названии должно быть видно, что это про высоту строк таблицы */}
+              <div className="sc-seg" role="group" aria-label="Высота строк таблицы"><button className={density === "comfortable" ? "on" : ""} title="Просторные строки таблицы" onClick={() => setDensity("comfortable")}>Крупные строки</button><button className={density === "compact" ? "on" : ""} title="Компактные строки — больше бумаг на экране" onClick={() => setDensity("compact")}>Плотные строки</button></div>
               <div className="sc-seg" role="group" aria-label="Вид">
                 <button className={view === "table" ? "on" : ""} onClick={() => setView("table")}><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M2 6.5h12M6 6.5V13" /></svg>Таблица</button>
                 <button className={view === "map" ? "on" : ""} onClick={() => setView("map")}><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 14V2M2 14h12" strokeLinecap="round" /><circle cx="6" cy="9" r="1.6" /><circle cx="10" cy="5.5" r="1.6" /></svg>Карта</button>
