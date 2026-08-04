@@ -149,3 +149,14 @@ class TestBuild:
         assert row.status == "published", row.gate_notes
         assert ov.current(db, "GOOD").verdict.startswith("Крупный розничный банк")
         assert json.loads(json.dumps(row.fair_value_story))["direction"] == "выше рынка"
+
+
+def test_endpoint_returns_204_when_no_synthesis(client):
+    """🔴 Пустой свод отдаётся как 204, а не как 500.
+
+    Боевой прогон: имя Response не было импортировано, и эндпоинт падал на каждой
+    компании, у которой свода ещё нет — то есть на всех. Тест на «нет данных» ловит
+    это раньше деплоя.
+    """
+    r = client.get("/api/companies/by-ticker/NOSUCHX/overview-synthesis")
+    assert r.status_code == 204, r.text
