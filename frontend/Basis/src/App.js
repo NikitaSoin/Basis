@@ -606,6 +606,18 @@ const SEO_SLUG_TO_TAB = {
   roa: "finance",
 };
 
+/** Разборы отчётности за период — /company/<T>/otchet-2-kvartal-2026/ и подобные.
+ *  Их десятки и они прибавляются каждый отчётный сезон, поэтому не перечисляем
+ *  поимённо, а разбираем по префиксу. 🔴 Цифры в адресе — причина, по которой
+ *  группа раздела в регулярке стала [a-z0-9-]+: без цифр «otchet-2025-god-msfo»
+ *  не совпадал вовсе и человек попадал на главную (тот же дефект, что чинили утром). */
+function seoSlugToTab(slug) {
+  if (!slug) return undefined;
+  if (SEO_SLUG_TO_TAB[slug]) return SEO_SLUG_TO_TAB[slug];
+  if (/^otchet-/.test(slug)) return "finance";
+  return undefined;
+}
+
 // Куда ПРОКРУТИТЬ внутри вкладки. Открыть верную вкладку мало: страница /dividends/
 // приводила в «Корпоративное управление», где сверху структура собственности и баллы,
 // а дивиденды — третьим блоком. Человек, пришедший по запросу про дивиденды, их не видел
@@ -1059,11 +1071,11 @@ export default function App() {
   useEffect(() => {
     const onPop = () => {
       try {
-        const m = window.location.pathname.match(/^\/company\/([A-Za-z0-9-]+)\/?([a-z-]+)?\/?$/);
+        const m = window.location.pathname.match(/^\/company\/([A-Za-z0-9-]+)\/?([a-z0-9-]+)?\/?$/);
         if (m) {
           setSelectedCompany(m[1].toUpperCase());
           const slug = (m[2] || "").toLowerCase();
-          const tab = SEO_SLUG_TO_TAB[slug];
+          const tab = seoSlugToTab(slug);
           if (tab) setInitialCardTab(tab);
           scrollToBlockWhenReady(SEO_SLUG_TO_ANCHOR[slug]);
           return;
@@ -1096,11 +1108,11 @@ export default function App() {
   //    (используется CTA-ссылками внутри самих SEO-страниц: /?company=T&tab=X).
   useEffect(() => {
     try {
-      const pathMatch = window.location.pathname.match(/^\/company\/([A-Za-z0-9]+)\/?([a-z-]+)?\/?$/);
+      const pathMatch = window.location.pathname.match(/^\/company\/([A-Za-z0-9]+)\/?([a-z0-9-]+)?\/?$/);
       if (pathMatch) {
         setSelectedCompany(pathMatch[1].toUpperCase());
         const slug = (pathMatch[2] || "").toLowerCase();
-        const mappedTab = SEO_SLUG_TO_TAB[slug];
+        const mappedTab = seoSlugToTab(slug);
         if (mappedTab) setInitialCardTab(mappedTab);
         scrollToBlockWhenReady(SEO_SLUG_TO_ANCHOR[slug]);
         return;

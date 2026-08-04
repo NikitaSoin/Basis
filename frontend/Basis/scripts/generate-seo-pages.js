@@ -2193,6 +2193,177 @@ function dividendLiveBlock(companies, calRows) {
   return `${soonHtml}${tableHtml}`;
 }
 
+/**
+ * Живая таблица для лендинга скринера. Была чистая проза о том, ЧТО умеет скринер, —
+ * страница обещала отбор и не показывала ни одной бумаги.
+ *
+ * Владелец 2026-08-04: ядро ценности — карточки компаний, скринер и разборы, а не
+ * фьючерсы с облигациями. Данные это подтверждают: по запросам про компании нас
+ * выбирают в 17% показов против 2,4% по фьючерсам.
+ *
+ * Показываем ДВА среза, оба ведут в карточки: наибольший потенциал к справедливой цене
+ * (наш отличительный расчёт) и самые низкие P/E (массовый запрос «дешёвые акции»).
+ */
+function screenerLiveBlock(companies, fairValues) {
+  const num = (v, d = 1) => (v == null || !isFinite(v) ? "—"
+    : Number(v).toLocaleString("ru-RU", { minimumFractionDigits: d, maximumFractionDigits: d }));
+  const tickers = new Set((companies || []).map((c) => c.ticker));
+  const seen = new Set();
+  const uniq = (arr) => arr.filter((r) => {
+    // Обычка и преф одного эмитента — одна история: в подборке нужна одна строка.
+    const base = baseTicker(r.c.ticker, tickers);
+    if (seen.has(base)) return false;
+    seen.add(base); return true;
+  });
+
+  const up = uniq((companies || []).map((c) => {
+    const f = fairValues[c.ticker];
+    return f && typeof f.upside_pct === "number" && f.upside_pct > 0
+      ? { c, u: f.upside_pct, price: f.price, fair: f.fair_value } : null;
+  }).filter(Boolean).sort((a, b) => b.u - a.u)).slice(0, 20);
+
+  seen.clear();
+  const cheap = uniq((companies || []).map((c) => {
+    const pe = (((c.fin || {}).multiples || {}).current || {}).pe;
+    return typeof pe === "number" && pe > 0 && pe < 60 ? { c, pe } : null;
+  }).filter(Boolean).sort((a, b) => a.pe - b.pe)).slice(0, 20);
+
+  const upHtml = up.length ? `<h2>Наибольший потенциал к справедливой цене</h2>
+<p class="sub">Разница между расчётной ценой Basis и рыночной. <b>Это оценка модели, а не
+прогноз и не совет купить:</b> большой потенциал часто означает, что рынок видит риск,
+которого не видит формула. Смотреть надо разбор, а не строчку в таблице.</p>
+<table><thead><tr><th>Компания</th><th class="num">Цена, ₽</th><th class="num">Справедливая, ₽</th>
+<th class="num">Потенциал</th></tr></thead><tbody>${up.map((r) =>
+    `<tr><td><a href="/company/${escapeHtml(r.c.ticker)}/spravedlivaya-tsena/">${escapeHtml(r.c.short || r.c.ticker)}</a></td>`
+    + `<td class="num">${num(r.price, 2)}</td><td class="num">${num(r.fair, 2)}</td>`
+    + `<td class="num">+${num(r.u, 0)}%</td></tr>`).join("")}</tbody></table>` : "";
+
+  const cheapHtml = cheap.length ? `<h2>Самые низкие P/E на рынке</h2>
+<p class="sub">Сколько годовых прибылей стоит компания. Низкий множитель — повод разобраться,
+а не вывод: у части этих компаний он низкий заслуженно (цикличность, долг, разовая прибыль).</p>
+<table><thead><tr><th>Компания</th><th class="num">P/E</th></tr></thead><tbody>${cheap.map((r) =>
+    `<tr><td><a href="/company/${escapeHtml(r.c.ticker)}/">${escapeHtml(r.c.short || r.c.ticker)}</a></td>`
+    + `<td class="num">${num(r.pe, 1)}</td></tr>`).join("")}</tbody></table>` : "";
+
+  return `${upHtml}${cheapHtml}`;
+}
+
+/* ── СТРАНИЦЫ РАЗБОРА ОТЧЁТНОСТИ ЗА ПЕРИОД ────────────────────────────────────────
+ * Владелец 2026-08-04: ядро ценности — карточки компаний и разборы, а не фьючерсы.
+ * Данные Вебмастера это подтвердили: по запросам вида «<компания> отчетность 2025 мсфо»
+ * мы стоим на 2–5 позициях (сбербанк отчетность 2025q1 — 3-я, сургутнефтегаз мсфо 2025
+ * выручка — 5-я) при CTR 17% против 2,4% у фьючерсов. То есть интент мы ВЫИГРЫВАЕМ,
+ * а страниц под него почти нет: в индексе 11 разборов из 262.
+ *
+ * Здесь — отдельная страница на КАЖДЫЙ разобранный отчёт: факты, что хорошо, что плохо,
+ * вывод. Контент уникален по построению (это анализ конкретного отчёта), и он же
+ * обновляется каждый отчётный сезон — то есть повод для переобхода приходит сам.
+ */
+function periodSlug(r) {
+  const std = /рсбу/i.test(r.standard || "") ? "rsbu" : /мсфо/i.test(r.standard || "") ? "msfo" : "";
+  const year = String(r.published_at || "").slice(0, 4) || String(new Date().getFullYear());
+  let per = String(r.period || "").trim();
+  const q = per.match(/^([1-4])\s*кварт/i);
+  if (q) per = `${q[1]}-kvartal-${year}`;
+  else if (/^1П(\d{4})$/i.test(per)) per = `1-polugodie-${per.match(/\d{4}/)[0]}`;
+  else if (/^\d{4}$/.test(per)) per = `${per}-god`;
+  else if (/^\d{4}-\d{2}-\d{2}$/.test(per)) per = `${per.slice(0, 4)}-god`;
+  // 🔴 Кириллицу в адрес НЕ пускаем: она превращается в %D0%BA%D0%B2… — такую ссылку
+  // не скопируешь в переписку и не прочитаешь в выдаче. Ловим оставшиеся формы
+  // («6М», «2кв2026», «9 мес») явно, а всё непонятое сводим к году.
+  else {
+    const m1 = per.match(/^(\d{1,2})\s*[МM]/i);                   // 6М, 9 М
+    const m2 = per.match(/^([1-4])\s*кв\.?\s*(\d{4})?/i);        // 2кв2026, 3 кв.
+    if (m1) per = `${m1[1]}-mesyacev-${year}`;
+    else if (m2) per = `${m2[1]}-kvartal-${m2[2] || year}`;
+    else {
+      const ascii = per.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      per = ascii.length >= 4 ? ascii.slice(0, 40) : `${year}-god`;
+    }
+  }
+  return [per, std].filter(Boolean).join("-");
+}
+
+function periodWords(r) {
+  const year = String(r.published_at || "").slice(0, 4);
+  const per = String(r.period || "").trim();
+  const q = per.match(/^([1-4])\s*кварт/i);
+  if (q) return `${q[1]} квартал ${year}`;
+  if (/^1П(\d{4})$/i.test(per)) return `первое полугодие ${per.match(/\d{4}/)[0]}`;
+  if (/^\d{4}$/.test(per)) return `${per} год`;
+  return per || year;
+}
+
+function reportPage(r, c, assets) {
+  const words = periodWords(r);
+  const std = (r.standard || "").toUpperCase().includes("РСБУ") ? "РСБУ"
+    : (r.standard || "").toUpperCase().includes("МСФО") ? "МСФО" : "";
+  const name = c ? c.short : (r.company || r.ticker);
+  const title = `${name} (${r.ticker}): отчётность за ${words}${std ? ` по ${std}` : ""} — разбор Basis`;
+  const desc = (r.one_liner || r.conclusion || "").slice(0, 175)
+    || `Разбор отчётности ${name} за ${words}: выручка, прибыль, риски и вывод.`;
+  const list = (arr, h) => (Array.isArray(arr) && arr.length)
+    ? `<h2>${h}</h2><ul>${arr.slice(0, 8).map((x) => `<li>${escapeHtml(strip(String(x)))}</li>`).join("")}</ul>` : "";
+  const delta = (v, label) => (typeof v === "number")
+    ? `<tr><td>${label}</td><td class="num">${v > 0 ? "+" : ""}${v}%</td></tr>` : "";
+  const deltas = [delta(r.revenue_pct, "Выручка, г/г"), delta(r.ebitda_pct, "EBITDA, г/г"),
+                  delta(r.profit_pct, "Чистая прибыль, г/г")].filter(Boolean).join("");
+  const body = `
+<p class="tag">${escapeHtml(r.sector || "")}${r.sector ? " · " : ""}MOEX: ${escapeHtml(r.ticker)} · факт — данные отчётности</p>
+<h1>${escapeHtml(name)}: отчётность за ${escapeHtml(words)}${std ? ` по ${std}` : ""}</h1>
+${r.one_liner ? `<p class="sub"><b>Коротко:</b> ${escapeHtml(strip(r.one_liner))}</p>` : ""}
+${deltas ? `<h2>Что изменилось</h2><table><tbody>${deltas}</tbody></table>` : ""}
+${list(r.facts, "Факты из отчёта")}
+${list(r.positives, "Что в отчёте хорошо")}
+${list(r.risks, "На что обратить внимание")}
+${r.conclusion ? `<h2>Вывод</h2><p>${escapeHtml(strip(r.conclusion))}</p>` : ""}
+${r.watch_next ? `<h2>Что смотреть дальше</h2><p>${escapeHtml(strip(String(r.watch_next)))}</p>` : ""}
+${Array.isArray(r.data_gaps) && r.data_gaps.length
+    ? `<p class="sub"><b>Чего в отчёте нет:</b> ${escapeHtml(r.data_gaps.slice(0, 3).map(String).join("; "))}</p>` : ""}
+<a class="cta" href="/company/${escapeHtml(r.ticker)}/finance/">Полный разбор финансов ${escapeHtml(name)} →</a>
+<div><a class="chip" href="/company/${escapeHtml(r.ticker)}/">Карточка компании</a><a class="chip" href="/company/${escapeHtml(r.ticker)}/spravedlivaya-tsena/">Справедливая цена</a><a class="chip" href="/company/${escapeHtml(r.ticker)}/dividends/">Дивиденды</a><a class="chip" href="/razbor-otchetnosti-kompaniy/">Все разборы отчётности</a></div>`;
+  return pageShell({
+    title, desc, canonicalPath: `/company/${r.ticker}/otchet-${periodSlug(r)}/`,
+    breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Компании", href: "/company/" },
+                  { label: name, href: `/company/${r.ticker}/` }, { label: `Отчёт за ${words}` }],
+    bodyHtml: body, assets,
+    // pageShell разворачивает jsonLd в общий @graph — сюда нужен МАССИВ, не объект.
+    jsonLd: [{ "@context": "https://schema.org", "@type": "AnalysisNewsArticle", headline: title,
+               datePublished: r.published_at || undefined, about: { "@type": "Corporation", name },
+               publisher: { "@type": "Organization", name: "Basis" } }],
+    note: "Числа — из отчётности эмитента (факт), выводы и акценты — разбор Basis (суждение). "
+      + "Не является индивидуальной инвестиционной рекомендацией.",
+  });
+}
+
+/** Хаб разборов: без него 63 новые страницы висят сиротами — робот доберётся до них
+ *  только через карту сайта, а человек не найдёт вовсе. */
+function reportsLiveBlock(rows, companies) {
+  const byTicker = new Map((companies || []).map((c) => [c.ticker, c]));
+  const list = (rows || [])
+    .filter((r) => r && r.ticker && (r.conclusion || (Array.isArray(r.facts) && r.facts.length)))
+    .sort((a, b) => String(b.published_at || "").localeCompare(String(a.published_at || "")));
+  if (!list.length) return "";
+  const seen = new Set();
+  const rowsHtml = list.filter((r) => {
+    const k = `${r.ticker}/${periodSlug(r)}`;
+    if (seen.has(k)) return false;
+    seen.add(k); return true;
+  }).slice(0, 60).map((r) => {
+    const c = byTicker.get(r.ticker);
+    const d = (v) => (typeof v === "number" ? `${v > 0 ? "+" : ""}${v}%` : "—");
+    return `<tr><td><a href="/company/${escapeHtml(r.ticker)}/otchet-${escapeHtml(periodSlug(r))}/">${
+      escapeHtml((c && c.short) || r.company || r.ticker)}</a></td>`
+      + `<td>${escapeHtml(periodWords(r))}</td><td>${escapeHtml(r.standard || "—")}</td>`
+      + `<td class="num">${d(r.revenue_pct)}</td><td class="num">${d(r.profit_pct)}</td></tr>`;
+  }).join("");
+  return `<h2>Разобранные отчёты</h2>
+<p class="sub">По каждому — факты из отчёта, что в нём хорошо, на что смотреть и вывод.
+Числа — из отчётности эмитента, акценты — разбор Basis.</p>
+<table><thead><tr><th>Компания</th><th>Период</th><th>Стандарт</th><th class="num">Выручка г/г</th>
+<th class="num">Прибыль г/г</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
+}
+
 function macroLiveBlock(macro) {
   // Коды и МЕТРИКИ берём как они есть в данных: у ставки это values.level, у инфляции
   // и ВВП — values.yoy (уровня там нет вовсе). Слепое обращение к level давало пустую
@@ -2803,6 +2974,8 @@ function main() {
     "makroobzor-rossiyskoy-ekonomiki": macroLiveBlock(loadRows("macro-snapshot.json")),
     "geopolitika-i-rossiyskiy-rynok": geoLiveBlock(loadRows("geo-barometer-snapshot.json")[0]),
     "dividendnyy-kalendar": dividendLiveBlock(companies, loadRows("dividend-calendar-snapshot.json")),
+    "skrining-aktsiy": screenerLiveBlock(companies, fairValues),
+    "razbor-otchetnosti-kompaniy": reportsLiveBlock(loadRows("earnings-snapshot.json"), companies),
   };
   for (const l of LANDINGS) {
     const dir = path.join(_BUILD_DIR, l.slug);
@@ -2812,6 +2985,29 @@ function main() {
     fs.writeFileSync(path.join(dir, "index.html"), landingPage(withLive, assets), "utf8");
     urls.push({ loc: `${_SITE}/${l.slug}/`, freq: "monthly", pri: "0.7", lastmod: landingLastmod });
   }
+
+  // ── Разборы отчётности за период ──────────────────────────────────────────────
+  // Пишем только те, где есть содержательный анализ: одна строка «отчёт вышел» —
+  // это не страница, а повод для дорвея. Пустые записи пропускаем молча.
+  const reports = loadRows("earnings-snapshot.json").filter(
+    (r) => r && r.ticker && (r.conclusion || (Array.isArray(r.facts) && r.facts.length))
+  );
+  const byTicker = new Map(companies.map((c) => [c.ticker, c]));
+  let reportCount = 0;
+  const seenReport = new Set();
+  for (const r of reports) {
+    const slug = `otchet-${periodSlug(r)}`;
+    const key = `${r.ticker}/${slug}`;
+    if (seenReport.has(key)) continue;      // два отчёта за один период — берём первый
+    seenReport.add(key);
+    const dir = path.join(_BUILD_DIR, "company", r.ticker, slug);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "index.html"), reportPage(r, byTicker.get(r.ticker), assets), "utf8");
+    urls.push({ loc: `${_SITE}/company/${r.ticker}/${slug}/`, freq: "monthly", pri: "0.8",
+                lastmod: (r.published_at || "").slice(0, 10) || landingLastmod });
+    reportCount++;
+  }
+  console.log(`Разборы отчётности за период: ${reportCount} страниц`);
 
   // Короткие URL /TICKER/ — редирект на канонический /company/TICKER/ (п.7 задачи).
   let shortUrlCount = 0;

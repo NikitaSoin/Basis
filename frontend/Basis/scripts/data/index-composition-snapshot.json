@@ -1,7 +1,7 @@
 {
  "meta": {
   "source": "https://iss.moex.com/iss/statistics/engines/stock/markets/index/analytics",
-  "fetched_at": "2026-08-03T10:49:47.765Z"
+  "fetched_at": "2026-08-04T13:04:58.320Z"
  },
  "indices": {
   "IMOEX": {
@@ -9,7 +9,7 @@
     {
      "ticker": "LKOH",
      "name": "ЛУКОЙЛ",
-     "weight": 16.32
+     "weight": 16.06
     },
     {
      "ticker": "SBER",
@@ -19,47 +19,47 @@
     {
      "ticker": "GAZP",
      "name": "ГАЗПРОМ ао",
-     "weight": 8.9
+     "weight": 8.94
     },
     {
      "ticker": "YDEX",
      "name": "ЯНДЕКС",
-     "weight": 7.01
-    },
-    {
-     "ticker": "TATN",
-     "name": "Татнфт 3ао",
-     "weight": 5.11
+     "weight": 6.97
     },
     {
      "ticker": "T",
      "name": "Т-Техно ао",
-     "weight": 5.06
+     "weight": 5.1
+    },
+    {
+     "ticker": "TATN",
+     "name": "Татнфт 3ао",
+     "weight": 5.07
     },
     {
      "ticker": "NVTK",
      "name": "Новатэк ао",
-     "weight": 4.44
+     "weight": 4.49
     },
     {
      "ticker": "GMKN",
      "name": "ГМКНорНик",
-     "weight": 4.22
-    },
-    {
-     "ticker": "ROSN",
-     "name": "Роснефть",
-     "weight": 2.82
+     "weight": 4.2
     },
     {
      "ticker": "OZON",
      "name": "Озон",
-     "weight": 2.81
+     "weight": 2.82
     },
     {
      "ticker": "X5",
      "name": "КЦ ИКС 5",
-     "weight": 2.79
+     "weight": 2.8
+    },
+    {
+     "ticker": "ROSN",
+     "name": "Роснефть",
+     "weight": 2.77
     },
     {
      "ticker": "PLZL",
@@ -69,42 +69,42 @@
     {
      "ticker": "VTBR",
      "name": "ВТБ ао",
-     "weight": 2.54
+     "weight": 2.52
     },
     {
      "ticker": "SBERP",
      "name": "Сбербанк-п",
-     "weight": 2.41
+     "weight": 2.42
     },
     {
      "ticker": "SNGSP",
      "name": "Сургнфгз-п",
-     "weight": 1.96
+     "weight": 2.01
     },
     {
      "ticker": "SNGS",
      "name": "Сургнфгз",
-     "weight": 1.63
+     "weight": 1.66
     },
     {
      "ticker": "HEAD",
      "name": "Хэдхантер",
-     "weight": 1.18
+     "weight": 1.19
     },
     {
      "ticker": "MOEX",
      "name": "МосБиржа",
-     "weight": 1.14
+     "weight": 1.15
     },
     {
      "ticker": "IRAO",
      "name": "ИнтерРАОао",
-     "weight": 1.05
+     "weight": 1.06
     },
     {
      "ticker": "MTSS",
      "name": "МТС-ао",
-     "weight": 1.04
+     "weight": 1.06
     },
     {
      "ticker": "TATNP",
@@ -114,7 +114,12 @@
     {
      "ticker": "CHMF",
      "name": "СевСт-ао",
-     "weight": 0.86
+     "weight": 0.87
+    },
+    {
+     "ticker": "CBOM",
+     "name": "МКБ ао",
+     "weight": 0.85
     },
     {
      "ticker": "RUAL",
@@ -122,14 +127,9 @@
      "weight": 0.84
     },
     {
-     "ticker": "CBOM",
-     "name": "МКБ ао",
-     "weight": 0.83
-    },
-    {
      "ticker": "NLMK",
      "name": "НЛМК ао",
-     "weight": 0.79
+     "weight": 0.8
     },
     {
      "ticker": "DOMRF",
@@ -139,32 +139,32 @@
     {
      "ticker": "PHOR",
      "name": "ФосАгро ао",
-     "weight": 0.68
+     "weight": 0.67
     },
     {
      "ticker": "SVCB",
      "name": "Совкомбанк",
-     "weight": 0.54
+     "weight": 0.53
     },
     {
      "ticker": "MAGN",
      "name": "ММК",
-     "weight": 0.49
+     "weight": 0.51
     },
     {
      "ticker": "RTKM",
      "name": "Ростел -ао",
-     "weight": 0.48
+     "weight": 0.49
     },
     {
      "ticker": "AFLT",
      "name": "Аэрофлот",
-     "weight": 0.46
+     "weight": 0.48
     },
     {
      "ticker": "ENPG",
      "name": "ЭН+ГРУП ао",
-     "weight": 0.45
+     "weight": 0.46
     },
     {
      "ticker": "MDMG",
@@ -179,7 +179,7 @@
     {
      "ticker": "ALRS",
      "name": "АЛРОСА ао",
-     "weight": 0.36
+     "weight": 0.37
     },
     {
      "ticker": "FLOT",
@@ -204,21 +204,21 @@
     {
      "ticker": "CNRU",
      "name": "iЦиан",
-     "weight": 0.33
+     "weight": 0.34
     },
     {
      "ticker": "AFKS",
      "name": "Система ао",
-     "weight": 0.3
-    },
-    {
-     "ticker": "UGLD",
-     "name": "ЮГК",
-     "weight": 0.29
+     "weight": 0.31
     },
     {
      "ticker": "POSI",
      "name": "iПозитив",
+     "weight": 0.29
+    },
+    {
+     "ticker": "UGLD",
+     "name": "ЮГК",
      "weight": 0.28
     },
     {
@@ -234,7 +234,7 @@
     {
      "ticker": "MSNG",
      "name": "+МосЭнерго",
-     "weight": 0.17
+     "weight": 0.16
     }
    ],
    "tradedate": null,
@@ -245,7 +245,7 @@
     {
      "ticker": "LKOH",
      "name": "ЛУКОЙЛ",
-     "weight": 16.32
+     "weight": 16.06
     },
     {
      "ticker": "SBER",
@@ -255,47 +255,47 @@
     {
      "ticker": "GAZP",
      "name": "ГАЗПРОМ ао",
-     "weight": 8.9
+     "weight": 8.94
     },
     {
      "ticker": "YDEX",
      "name": "ЯНДЕКС",
-     "weight": 7.01
-    },
-    {
-     "ticker": "TATN",
-     "name": "Татнфт 3ао",
-     "weight": 5.11
+     "weight": 6.97
     },
     {
      "ticker": "T",
      "name": "Т-Техно ао",
-     "weight": 5.06
+     "weight": 5.1
+    },
+    {
+     "ticker": "TATN",
+     "name": "Татнфт 3ао",
+     "weight": 5.07
     },
     {
      "ticker": "NVTK",
      "name": "Новатэк ао",
-     "weight": 4.44
+     "weight": 4.49
     },
     {
      "ticker": "GMKN",
      "name": "ГМКНорНик",
-     "weight": 4.22
-    },
-    {
-     "ticker": "ROSN",
-     "name": "Роснефть",
-     "weight": 2.82
+     "weight": 4.2
     },
     {
      "ticker": "OZON",
      "name": "Озон",
-     "weight": 2.81
+     "weight": 2.82
     },
     {
      "ticker": "X5",
      "name": "КЦ ИКС 5",
-     "weight": 2.79
+     "weight": 2.8
+    },
+    {
+     "ticker": "ROSN",
+     "name": "Роснефть",
+     "weight": 2.77
     },
     {
      "ticker": "PLZL",
@@ -305,42 +305,42 @@
     {
      "ticker": "VTBR",
      "name": "ВТБ ао",
-     "weight": 2.54
+     "weight": 2.52
     },
     {
      "ticker": "SBERP",
      "name": "Сбербанк-п",
-     "weight": 2.41
+     "weight": 2.42
     },
     {
      "ticker": "SNGSP",
      "name": "Сургнфгз-п",
-     "weight": 1.96
+     "weight": 2.01
     },
     {
      "ticker": "SNGS",
      "name": "Сургнфгз",
-     "weight": 1.63
+     "weight": 1.66
     },
     {
      "ticker": "HEAD",
      "name": "Хэдхантер",
-     "weight": 1.18
+     "weight": 1.19
     },
     {
      "ticker": "MOEX",
      "name": "МосБиржа",
-     "weight": 1.14
+     "weight": 1.15
     },
     {
      "ticker": "IRAO",
      "name": "ИнтерРАОао",
-     "weight": 1.05
+     "weight": 1.06
     },
     {
      "ticker": "MTSS",
      "name": "МТС-ао",
-     "weight": 1.04
+     "weight": 1.06
     },
     {
      "ticker": "TATNP",
@@ -350,7 +350,12 @@
     {
      "ticker": "CHMF",
      "name": "СевСт-ао",
-     "weight": 0.86
+     "weight": 0.87
+    },
+    {
+     "ticker": "CBOM",
+     "name": "МКБ ао",
+     "weight": 0.85
     },
     {
      "ticker": "RUAL",
@@ -358,14 +363,9 @@
      "weight": 0.84
     },
     {
-     "ticker": "CBOM",
-     "name": "МКБ ао",
-     "weight": 0.83
-    },
-    {
      "ticker": "NLMK",
      "name": "НЛМК ао",
-     "weight": 0.79
+     "weight": 0.8
     },
     {
      "ticker": "DOMRF",
@@ -375,32 +375,32 @@
     {
      "ticker": "PHOR",
      "name": "ФосАгро ао",
-     "weight": 0.68
+     "weight": 0.67
     },
     {
      "ticker": "SVCB",
      "name": "Совкомбанк",
-     "weight": 0.54
+     "weight": 0.53
     },
     {
      "ticker": "MAGN",
      "name": "ММК",
-     "weight": 0.49
+     "weight": 0.51
     },
     {
      "ticker": "RTKM",
      "name": "Ростел -ао",
-     "weight": 0.48
+     "weight": 0.49
     },
     {
      "ticker": "AFLT",
      "name": "Аэрофлот",
-     "weight": 0.46
+     "weight": 0.48
     },
     {
      "ticker": "ENPG",
      "name": "ЭН+ГРУП ао",
-     "weight": 0.45
+     "weight": 0.46
     },
     {
      "ticker": "MDMG",
@@ -415,7 +415,7 @@
     {
      "ticker": "ALRS",
      "name": "АЛРОСА ао",
-     "weight": 0.36
+     "weight": 0.37
     },
     {
      "ticker": "FLOT",
@@ -440,21 +440,21 @@
     {
      "ticker": "CNRU",
      "name": "iЦиан",
-     "weight": 0.33
+     "weight": 0.34
     },
     {
      "ticker": "AFKS",
      "name": "Система ао",
-     "weight": 0.3
-    },
-    {
-     "ticker": "UGLD",
-     "name": "ЮГК",
-     "weight": 0.29
+     "weight": 0.31
     },
     {
      "ticker": "POSI",
      "name": "iПозитив",
+     "weight": 0.29
+    },
+    {
+     "ticker": "UGLD",
+     "name": "ЮГК",
      "weight": 0.28
     },
     {
@@ -470,7 +470,7 @@
     {
      "ticker": "MSNG",
      "name": "+МосЭнерго",
-     "weight": 0.17
+     "weight": 0.16
     }
    ],
    "tradedate": null,
@@ -481,42 +481,42 @@
     {
      "ticker": "LKOH",
      "name": "ЛУКОЙЛ",
-     "weight": 21.36
+     "weight": 21.05
     },
     {
      "ticker": "GAZP",
      "name": "ГАЗПРОМ ао",
-     "weight": 17.99
+     "weight": 18.11
     },
     {
      "ticker": "TATN",
      "name": "Татнфт 3ао",
-     "weight": 16.8
+     "weight": 16.67
     },
     {
      "ticker": "NVTK",
      "name": "Новатэк ао",
-     "weight": 15.57
+     "weight": 15.77
     },
     {
      "ticker": "ROSN",
      "name": "Роснефть",
-     "weight": 9.88
+     "weight": 9.72
     },
     {
      "ticker": "SNGSP",
      "name": "Сургнфгз-п",
-     "weight": 6.89
+     "weight": 7.06
     },
     {
      "ticker": "SNGS",
      "name": "Сургнфгз",
-     "weight": 5.71
+     "weight": 5.84
     },
     {
      "ticker": "TATNP",
      "name": "Татнфт 3ап",
-     "weight": 3
+     "weight": 2.99
     },
     {
      "ticker": "TRNFP",
@@ -526,12 +526,12 @@
     {
      "ticker": "BANEP",
      "name": "Башнефт ап",
-     "weight": 0.92
+     "weight": 0.91
     },
     {
      "ticker": "RNFT",
      "name": "РуссНфт ао",
-     "weight": 0.39
+     "weight": 0.38
     }
    ],
    "tradedate": null,
@@ -542,52 +542,52 @@
     {
      "ticker": "LSNGP",
      "name": "РСетиЛЭ-п",
-     "weight": 15.74
+     "weight": 15.3
     },
     {
      "ticker": "IRAO",
      "name": "ИнтерРАОао",
-     "weight": 13.6
+     "weight": 13.63
     },
     {
      "ticker": "MRKP",
      "name": "РСетиЦП ао",
-     "weight": 9.64
+     "weight": 9.46
     },
     {
      "ticker": "MSNG",
      "name": "+МосЭнерго",
-     "weight": 8.08
+     "weight": 7.97
     },
     {
      "ticker": "MSRS",
      "name": "РСетиМР ао",
-     "weight": 8.08
-    },
-    {
-     "ticker": "FEES",
-     "name": "Россети",
-     "weight": 7.42
+     "weight": 7.94
     },
     {
      "ticker": "HYDR",
      "name": "РусГидро",
-     "weight": 7.21
+     "weight": 7.62
+    },
+    {
+     "ticker": "FEES",
+     "name": "Россети",
+     "weight": 7.56
     },
     {
      "ticker": "UPRO",
      "name": "Юнипро ао",
-     "weight": 7.2
+     "weight": 7.44
     },
     {
      "ticker": "MRKV",
      "name": "РсетВол ао",
-     "weight": 6.37
+     "weight": 6.27
     },
     {
      "ticker": "MRKU",
      "name": "Россети Ур",
-     "weight": 5.2
+     "weight": 5.14
     },
     {
      "ticker": "MRKC",
@@ -597,17 +597,17 @@
     {
      "ticker": "TGKA",
      "name": "ТГК-1",
-     "weight": 2.35
+     "weight": 2.4
     },
     {
      "ticker": "ELFV",
      "name": "ЭЛ5Энер ао",
-     "weight": 2.2
+     "weight": 2.32
     },
     {
      "ticker": "OGKB",
      "name": "ОГК-2 ао",
-     "weight": 2.12
+     "weight": 2.15
     }
    ],
    "tradedate": null,
@@ -644,17 +644,17 @@
     {
      "ticker": "AKRN",
      "name": "Акрон",
-     "weight": 42.76
+     "weight": 43.31
     },
     {
      "ticker": "PHOR",
      "name": "ФосАгро ао",
-     "weight": 39.54
+     "weight": 39.17
     },
     {
      "ticker": "NKNCP",
      "name": "НКНХ ап",
-     "weight": 17.7
+     "weight": 17.52
     }
    ],
    "tradedate": null,
@@ -665,77 +665,77 @@
     {
      "ticker": "GMKN",
      "name": "ГМКНорНик",
-     "weight": 17.09
+     "weight": 16.88
     },
     {
      "ticker": "CHMF",
      "name": "СевСт-ао",
-     "weight": 13.03
+     "weight": 13.11
     },
     {
      "ticker": "RUAL",
      "name": "РУСАЛ ао",
-     "weight": 12.66
+     "weight": 12.6
     },
     {
      "ticker": "NLMK",
      "name": "НЛМК ао",
-     "weight": 11.9
+     "weight": 11.98
     },
     {
      "ticker": "PLZL",
      "name": "Полюс",
-     "weight": 10.95
+     "weight": 10.86
     },
     {
      "ticker": "MAGN",
      "name": "ММК",
-     "weight": 7.42
+     "weight": 7.65
     },
     {
      "ticker": "ENPG",
      "name": "ЭН+ГРУП ао",
-     "weight": 6.88
+     "weight": 6.91
     },
     {
      "ticker": "ALRS",
      "name": "АЛРОСА ао",
-     "weight": 5.42
+     "weight": 5.48
     },
     {
      "ticker": "UGLD",
      "name": "ЮГК",
-     "weight": 4.32
+     "weight": 4.16
     },
     {
      "ticker": "VSMO",
      "name": "ВСМПО-АВСМ",
-     "weight": 4.15
+     "weight": 4.14
     },
     {
      "ticker": "SELG",
      "name": "Селигдар",
-     "weight": 2.28
+     "weight": 2.27
     },
     {
      "ticker": "MTLR",
      "name": "Мечел ао",
-     "weight": 1.14
+     "weight": 1.18
     },
     {
      "ticker": "RASP",
      "name": "Распадская",
-     "weight": 1.1
+     "weight": 1.09
     },
     {
      "ticker": "TRMK",
      "name": "ТМК ао",
-     "weight": 1
+     "weight": 1.02
     },
     {
      "ticker": "MTLRP",
      "name": "Мечел ап",
-     "weight": 0.64
+     "weight": 0.67
     }
    ],
    "tradedate": null,
@@ -746,37 +746,37 @@
     {
      "ticker": "MOEX",
      "name": "МосБиржа",
-     "weight": 15.05
+     "weight": 15.13
     },
     {
      "ticker": "T",
      "name": "Т-Техно ао",
-     "weight": 14.86
+     "weight": 14.92
     },
     {
      "ticker": "CBOM",
      "name": "МКБ ао",
-     "weight": 13.15
+     "weight": 13.4
     },
     {
      "ticker": "SBER",
      "name": "Сбербанк",
-     "weight": 12.15
+     "weight": 12.1
     },
     {
      "ticker": "VTBR",
      "name": "ВТБ ао",
-     "weight": 12.04
+     "weight": 11.93
     },
     {
      "ticker": "DOMRF",
      "name": "ДОМ.РФ",
-     "weight": 11.06
+     "weight": 10.93
     },
     {
      "ticker": "SVCB",
      "name": "Совкомбанк",
-     "weight": 8.48
+     "weight": 8.31
     },
     {
      "ticker": "BSPB",
@@ -786,7 +786,7 @@
     {
      "ticker": "RENI",
      "name": "Ренессанс",
-     "weight": 3.16
+     "weight": 3.17
     },
     {
      "ticker": "SBERP",
@@ -796,17 +796,17 @@
     {
      "ticker": "MBNK",
      "name": "МТС Банк",
-     "weight": 1.11
+     "weight": 1.12
     },
     {
      "ticker": "SPBE",
      "name": "СПБ Биржа",
-     "weight": 0.66
+     "weight": 0.68
     },
     {
      "ticker": "SFIN",
      "name": "ЭсЭфАй ао",
-     "weight": 0.52
+     "weight": 0.56
     }
    ],
    "tradedate": null,
@@ -822,27 +822,27 @@
     {
      "ticker": "X5",
      "name": "КЦ ИКС 5",
-     "weight": 13.69
+     "weight": 13.65
     },
     {
      "ticker": "LENT",
      "name": "Лента ао",
-     "weight": 12.11
+     "weight": 12.1
     },
     {
      "ticker": "MGNT",
      "name": "Магнит ао",
-     "weight": 11.82
+     "weight": 11.89
     },
     {
      "ticker": "RAGR",
      "name": "Русагро",
-     "weight": 11.65
+     "weight": 11.59
     },
     {
      "ticker": "OZPH",
      "name": "iОзонФарм",
-     "weight": 6.01
+     "weight": 5.99
     },
     {
      "ticker": "GEMC",
@@ -852,32 +852,32 @@
     {
      "ticker": "APTK",
      "name": "Аптеки36и6",
-     "weight": 4.44
+     "weight": 4.51
     },
     {
      "ticker": "PRMD",
      "name": "iПРОМОМЕД",
-     "weight": 4.11
+     "weight": 4.06
     },
     {
      "ticker": "FIXR",
      "name": "Фикс Прайс",
-     "weight": 3.86
+     "weight": 3.91
     },
     {
      "ticker": "AQUA",
      "name": "ИНАРКТИКА",
-     "weight": 3.28
+     "weight": 3.25
     },
     {
      "ticker": "VSEH",
      "name": "ВИ.ру",
-     "weight": 2.8
+     "weight": 2.76
     },
     {
      "ticker": "BELU",
      "name": "НоваБев ао",
-     "weight": 2.33
+     "weight": 2.35
     },
     {
      "ticker": "EUTR",
@@ -887,12 +887,12 @@
     {
      "ticker": "WUSH",
      "name": "iВУШХолднг",
-     "weight": 1.18
+     "weight": 1.21
     },
     {
      "ticker": "SVAV",
      "name": "СОЛЛЕРС",
-     "weight": 0.96
+     "weight": 0.97
     },
     {
      "ticker": "HNFG",
@@ -908,47 +908,47 @@
     {
      "ticker": "YDEX",
      "name": "ЯНДЕКС",
-     "weight": 16.9
+     "weight": 16.66
     },
     {
      "ticker": "HEAD",
      "name": "Хэдхантер",
-     "weight": 16.43
+     "weight": 16.38
     },
     {
      "ticker": "CNRU",
      "name": "iЦиан",
-     "weight": 15.21
+     "weight": 15.37
     },
     {
      "ticker": "POSI",
      "name": "iПозитив",
-     "weight": 13.07
+     "weight": 13.08
     },
     {
      "ticker": "OZON",
      "name": "Озон",
-     "weight": 12.4
+     "weight": 12.36
     },
     {
      "ticker": "VKCO",
      "name": "МКПАО \"ВК\"",
-     "weight": 10.68
+     "weight": 10.81
     },
     {
      "ticker": "ASTR",
      "name": "iАстра ао",
-     "weight": 5.09
+     "weight": 5.03
     },
     {
      "ticker": "SOFL",
      "name": "iСофтлайн",
-     "weight": 3.32
+     "weight": 3.37
     },
     {
      "ticker": "DATA",
      "name": "iАренадата",
-     "weight": 2.99
+     "weight": 3.01
     },
     {
      "ticker": "BAZA",
@@ -958,7 +958,7 @@
     {
      "ticker": "DIAS",
      "name": "iДиасофт",
-     "weight": 1.34
+     "weight": 1.37
     }
    ],
    "tradedate": null,
@@ -969,27 +969,27 @@
     {
      "ticker": "FLOT",
      "name": "Совкомфлот",
-     "weight": 33.08
+     "weight": 33.14
     },
     {
      "ticker": "AFLT",
      "name": "Аэрофлот",
-     "weight": 24.53
+     "weight": 25.23
     },
     {
      "ticker": "FESH",
      "name": "ДВМП ао",
-     "weight": 21.17
+     "weight": 20.42
     },
     {
      "ticker": "NMTP",
      "name": "НМТП ао",
-     "weight": 15.96
+     "weight": 15.79
     },
     {
      "ticker": "NKHP",
      "name": "НКХП ао",
-     "weight": 5.26
+     "weight": 5.42
     }
    ],
    "tradedate": null,
@@ -1000,27 +1000,27 @@
     {
      "ticker": "PIKK",
      "name": "ПИК ао",
-     "weight": 34.43
+     "weight": 33.68
     },
     {
      "ticker": "LSRG",
      "name": "ЛСР ао",
-     "weight": 26.26
+     "weight": 26.24
     },
     {
      "ticker": "SMLT",
      "name": "Самолет ао",
-     "weight": 22.63
+     "weight": 23.17
     },
     {
      "ticker": "ETLN",
      "name": "ЭталонГруп",
-     "weight": 11.7
+     "weight": 11.9
     },
     {
      "ticker": "GLRX",
      "name": "ГЛОРАКС",
-     "weight": 4.98
+     "weight": 5.01
     }
    ],
    "tradedate": null,
