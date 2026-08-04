@@ -54,6 +54,10 @@ const METRICS = {
 // Общий текст пояснения к справедливой цене — один на всю платформу (fairValueNote.js),
 // чтобы карточка, скринер и портфель объясняли одно и то же число одинаково.
 const FAIR_VALUE_HINT = FAIR_VALUE_NOTE + " Пометка «а» у числа означает, что методика по этой бумаге не рассчиталась и показана оценка аналитика — такие числа не сравнимы напрямую с остальными.";
+// Пояснения механики полосок/гистограмм (владелец 2026-08-05: «нужна коммуникация —
+// буковка i»): полоски в ячейках и столбики в конструкторе — неочевидны без слов.
+const BARS_NOTE = "Полоска под числом — позиция бумаги по этой метрике среди выбранного набора акций: чем полнее, тем лучше бумага смотрится на фоне остальных. Для метрик, где меньше = лучше (P/E, EV/EBITDA, долг, бета, волатильность), шкала перевёрнута. Засечка посередине — медиана набора: заполнение правее её означает «лучше типичной бумаги». Медным выделен топ-20%. Полоски нет, когда метрика не посчитана или искажена разовыми корп-эффектами; в режиме «Плотные строки» полоски скрыты.";
+const HIST_NOTE = "Столбики за каждым ползунком — распределение всех бумаг набора по этой метрике: высота столбика показывает, сколько бумаг попадает в такой диапазон значений. Подсвечены столбики внутри выбранных границ; число справа от критерия — сколько бумаг его проходит. Границы двигаются за круглые ползунки.";
 const GROUPS = ["Оценка", "Качество", "Устойчивость", "Размер"];
 // «Потенциал» — отдельная колонка сразу после справедливой цены: сортировка/чтение
 // по ПРОЦЕНТНОМУ апсайду, а не по абсолютной цене (владелец 2026-08-04: «плохо видно
@@ -198,6 +202,9 @@ function ResultsTable({ rows, sort, setSort, density, onPick, picked, secColor, 
     <div className="sc-fv-note">
       <span>«Справ. цена» — справедливая цена по методике Basis</span>
       <InfoDot text={FAIR_VALUE_NOTE} label="Как читать справедливую цену" />
+      <span aria-hidden="true" style={{ color: "var(--ink-3)" }}>·</span>
+      <span>полоски под числами — позиция среди набора</span>
+      <InfoDot text={BARS_NOTE} label="Как читать полоски" />
     </div>
     <div className={"sc-tablewrap sc-d-" + density}>
       <table className="sc-table">
@@ -388,11 +395,43 @@ function CriterionRow({ mkey, range, onChange, onRemove, matchCount, dist }) {
 }
 function AddCriterion({ activeKeys, onAdd }) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState(null);
+  const btnRef = useRef(null);
+  const menuRef = useRef(null);
   const avail = Object.keys(METRICS).filter((k) => !activeKeys.includes(k));
+  // Кнопка живёт в НИЗУ скролл-зоны рейла: absolute-меню вниз оказывалось за краем
+  // прокрутки, и список «не было видно, пока не пролистаешь» (владелец 2026-08-05).
+  // position:fixed от getBoundingClientRect (как InfoTip) + открытие ВВЕРХ, когда
+  // снизу окна меньше места, чем сверху.
+  const toggle = () => {
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      const below = window.innerHeight - r.bottom - 16;
+      const above = r.top - 16;
+      const up = below < 280 && above > below;
+      setPos(up
+        ? { left: r.left, width: r.width, bottom: window.innerHeight - r.top + 6, maxHeight: Math.min(340, above) }
+        : { left: r.left, width: r.width, top: r.bottom + 6, maxHeight: Math.min(340, below) });
+    }
+    setOpen((o) => !o);
+  };
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e) => {
+      if (btnRef.current && btnRef.current.contains(e.target)) return;
+      if (menuRef.current && menuRef.current.contains(e.target)) return;
+      setOpen(false);
+    };
+    // скролл СНАРУЖИ меню сдвигает fixed-координаты — закрываем; скролл внутри меню легитимен
+    const onScroll = (e) => { if (menuRef.current && menuRef.current.contains(e.target)) return; setOpen(false); };
+    document.addEventListener("mousedown", onDoc);
+    window.addEventListener("scroll", onScroll, { capture: true });
+    return () => { document.removeEventListener("mousedown", onDoc); window.removeEventListener("scroll", onScroll, { capture: true }); };
+  }, [open]);
   return (
     <div className="sc-add">
-      <button className="sc-add-btn" onClick={() => setOpen((o) => !o)} aria-expanded={open}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M8 3v10M3 8h10" /></svg>Добавить критерий</button>
-      {open && <div className="sc-add-menu" onMouseLeave={() => setOpen(false)}>
+      <button ref={btnRef} className="sc-add-btn" onClick={toggle} aria-expanded={open}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M8 3v10M3 8h10" /></svg>Добавить критерий</button>
+      {open && pos && <div ref={menuRef} className="sc-add-menu" style={{ position: "fixed", right: "auto", ...pos }} onMouseLeave={() => setOpen(false)}>
         {GROUPS.map((g) => { const ks = avail.filter((k) => METRICS[k].group === g); return ks.length ? (
           <div key={g} className="sc-add-grp"><div className="sc-add-grp-t">{g}</div>{ks.map((k) => <button key={k} className="sc-add-item" onClick={() => { onAdd(k); setOpen(false); }}>{METRICS[k].label}</button>)}</div>) : null; })}
       </div>}
@@ -463,7 +502,7 @@ function CriteriaRail({ ranges, sector, onRangeChange, onAdd, onRemove, onReset,
   return (
     <aside className="sc-rail">
       <div className="sc-rail-head">
-        <div><div className="sc-eyebrow">Критерии скрина</div><div className="sc-rail-title">Конструктор фильтра</div></div>
+        <div><div className="sc-eyebrow">Критерии скрина</div><div className="sc-rail-title">Конструктор фильтров<InfoTip text={HIST_NOTE} /></div></div>
         <div className="sc-rail-head-act"><button className="sc-reset" onClick={onReset}>Сбросить</button>
           <button className="sc-collapse" onClick={onCollapse} title="Свернуть фильтры" aria-label="Свернуть"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 3.5L5 8l4.5 4.5" /><path d="M13 3.5v9" /></svg></button>
         </div>
@@ -674,7 +713,9 @@ export default function ScreenerNeo({ onOpenCompany, Logo, token, onAuthRequired
             {filtered.length > 0 && topRow && <> · лидер <b>{topRow.n}</b> <span className="sc-num">({topRow.basis})</span></>}
           </div>
           <div className="sc-toolbar"><div className="sc-toolbar-top">
-            {!railOpen && (() => { const n = Object.keys(ranges).length + (sector ? 1 : 0) + (universe !== "all" ? 1 : 0); return <button className="sc-filters-btn" onClick={() => setRailOpen(true)}>Фильтры{n > 0 && <span className="sc-filters-n">{n}</span>}</button>; })()}
+            {/* «Фильтры» читалось как «уже применённый фильтр», а не вход в конструктор
+                (владелец 2026-08-05) */}
+            {!railOpen && (() => { const n = Object.keys(ranges).length + (sector ? 1 : 0) + (universe !== "all" ? 1 : 0); return <button className="sc-filters-btn" onClick={() => setRailOpen(true)}>Конструктор фильтров{n > 0 && <span className="sc-filters-n">{n}</span>}</button>; })()}
             <div className="sc-tool-r">
               {/* «Просторно/Плотно» читалось как фильтр данных (владелец 2026-08-05) —
                   в названии должно быть видно, что это про высоту строк таблицы */}

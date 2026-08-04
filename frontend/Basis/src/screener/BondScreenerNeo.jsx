@@ -4,6 +4,7 @@
 // таблица и карта. Заголовок бумаги — НЕ выдуманный балл, а вердикт «доходность vs
 // риск» (светофор + Risk Score 1–5) из той же методики, что в карточке облигации.
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { InfoDot } from "../design/InfoDot";
 import "../styles/screener.css";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
@@ -188,8 +189,17 @@ function SortHead({ label, k, sort, setSort, align = "right", title, hint }) {
   );
 }
 
+// Пояснение полосок — та же механика, что в скринере акций (владелец 2026-08-05:
+// «нужна коммуникация — буковка i»)
+const BARS_NOTE = "Полоска под числом — позиция бумаги по этой метрике среди отобранных облигаций: чем полнее, тем лучше бумага смотрится на фоне остальных (для дюрации и риска шкала перевёрнута — меньше значит лучше). Полоски нет, если метрика не посчитана.";
+
 function ResultsTable({ rows, sort, setSort, density, onPick, picked, secColor, pctOf }) {
   return (
+    <>
+    <div className="sc-fv-note">
+      <span>полоски под числами — позиция среди отобранных бумаг</span>
+      <InfoDot text={BARS_NOTE} label="Как читать полоски" />
+    </div>
     <div className={"sc-tablewrap sc-d-" + density}>
       <table className="sc-table">
         <thead><tr>
@@ -220,6 +230,7 @@ function ResultsTable({ rows, sort, setSort, density, onPick, picked, secColor, 
       {rows.length === 0 && <div className="sc-noresult">Ни одна бумага не проходит все условия. Ослабьте критерии слева.</div>}
       {rows.length > RENDER_CAP && <div className="sc-noresult" style={{ padding: "12px 16px", textAlign: "left" }}>Показаны первые {RENDER_CAP} из {rows.length} по текущей сортировке. Сузьте фильтр слева, чтобы увидеть остальные.</div>}
     </div>
+    </>
   );
 }
 const fmtDate = (iso) => iso ? `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}` : "—";
@@ -372,13 +383,43 @@ function CriterionRow({ mkey, range, onChange, onRemove, matchCount, dist }) {
     </div>
   );
 }
+// Fixed-меню с открытием вверх при нехватке места снизу — см. идентичный компонент
+// и обоснование в ScreenerNeo.jsx (кнопка в низу скролл-зоны рейла, absolute-меню
+// вниз было не видно без пролистывания).
 function AddCriterion({ activeKeys, onAdd }) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState(null);
+  const btnRef = useRef(null);
+  const menuRef = useRef(null);
   const avail = Object.keys(METRICS).filter((k) => !activeKeys.includes(k));
+  const toggle = () => {
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      const below = window.innerHeight - r.bottom - 16;
+      const above = r.top - 16;
+      const up = below < 280 && above > below;
+      setPos(up
+        ? { left: r.left, width: r.width, bottom: window.innerHeight - r.top + 6, maxHeight: Math.min(340, above) }
+        : { left: r.left, width: r.width, top: r.bottom + 6, maxHeight: Math.min(340, below) });
+    }
+    setOpen((o) => !o);
+  };
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e) => {
+      if (btnRef.current && btnRef.current.contains(e.target)) return;
+      if (menuRef.current && menuRef.current.contains(e.target)) return;
+      setOpen(false);
+    };
+    const onScroll = (e) => { if (menuRef.current && menuRef.current.contains(e.target)) return; setOpen(false); };
+    document.addEventListener("mousedown", onDoc);
+    window.addEventListener("scroll", onScroll, { capture: true });
+    return () => { document.removeEventListener("mousedown", onDoc); window.removeEventListener("scroll", onScroll, { capture: true }); };
+  }, [open]);
   return (
     <div className="sc-add">
-      <button className="sc-add-btn" onClick={() => setOpen((o) => !o)} aria-expanded={open}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M8 3v10M3 8h10" /></svg>Добавить критерий</button>
-      {open && <div className="sc-add-menu" onMouseLeave={() => setOpen(false)}>
+      <button ref={btnRef} className="sc-add-btn" onClick={toggle} aria-expanded={open}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M8 3v10M3 8h10" /></svg>Добавить критерий</button>
+      {open && pos && <div ref={menuRef} className="sc-add-menu" style={{ position: "fixed", right: "auto", ...pos }} onMouseLeave={() => setOpen(false)}>
         {GROUPS.map((g) => { const ks = avail.filter((k) => METRICS[k].group === g); return ks.length ? (
           <div key={g} className="sc-add-grp"><div className="sc-add-grp-t">{g}</div>{ks.map((k) => <button key={k} className="sc-add-item" onClick={() => { onAdd(k); setOpen(false); }}>{METRICS[k].label}</button>)}</div>) : null; })}
       </div>}
@@ -447,7 +488,7 @@ function CriteriaRail({ ranges, sector, typeId, lightFilter, onRangeChange, onAd
   return (
     <aside className="sc-rail">
       <div className="sc-rail-head">
-        <div><div className="sc-eyebrow">Критерии скрина</div><div className="sc-rail-title">Конструктор фильтра</div></div>
+        <div><div className="sc-eyebrow">Критерии скрина</div><div className="sc-rail-title">Конструктор фильтров<InfoTip text="Столбики за каждым ползунком — распределение всех бумаг по этой метрике: высота столбика показывает, сколько бумаг попадает в такой диапазон значений. Подсвечены столбики внутри выбранных границ; число справа от критерия — сколько бумаг его проходит. Границы двигаются за круглые ползунки." /></div></div>
         <div className="sc-rail-head-act"><button className="sc-reset" onClick={onReset}>Сбросить</button>
           <button className="sc-collapse" onClick={onCollapse} title="Свернуть фильтры" aria-label="Свернуть"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 3.5L5 8l4.5 4.5" /><path d="M13 3.5v9" /></svg></button>
         </div>
@@ -652,9 +693,9 @@ export default function BondScreenerNeo({ onOpenCompany, token, onAuthRequired }
             {filtered.length > 0 && <> · <b className="sc-num">{greenCount}</b> с вердиктом «риск оплачен»</>}
           </div>
           <div className="sc-toolbar"><div className="sc-toolbar-top">
-            {!railOpen && <button className="sc-filters-btn" onClick={() => setRailOpen(true)}>Фильтры{activeN > 0 && <span className="sc-filters-n">{activeN}</span>}</button>}
+            {!railOpen && <button className="sc-filters-btn" onClick={() => setRailOpen(true)}>Конструктор фильтров{activeN > 0 && <span className="sc-filters-n">{activeN}</span>}</button>}
             <div className="sc-tool-r">
-              <div className="sc-seg" role="group" aria-label="Плотность"><button className={density === "comfortable" ? "on" : ""} onClick={() => setDensity("comfortable")}>Просторно</button><button className={density === "compact" ? "on" : ""} onClick={() => setDensity("compact")}>Плотно</button></div>
+              <div className="sc-seg" role="group" aria-label="Высота строк таблицы"><button className={density === "comfortable" ? "on" : ""} title="Просторные строки таблицы" onClick={() => setDensity("comfortable")}>Крупные строки</button><button className={density === "compact" ? "on" : ""} title="Компактные строки — больше бумаг на экране" onClick={() => setDensity("compact")}>Плотные строки</button></div>
               <div className="sc-seg" role="group" aria-label="Вид">
                 <button className={view === "table" ? "on" : ""} onClick={() => setView("table")}><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M2 6.5h12M6 6.5V13" /></svg>Таблица</button>
                 <button className={view === "map" ? "on" : ""} onClick={() => setView("map")}><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 14V2M2 14h12" strokeLinecap="round" /><circle cx="6" cy="9" r="1.6" /><circle cx="10" cy="5.5" r="1.6" /></svg>Карта</button>
