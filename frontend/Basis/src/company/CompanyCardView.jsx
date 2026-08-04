@@ -3479,10 +3479,7 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
     const bfvFailed = bfv && bfv.status && bfv.status !== "ok";
     const bfvFailReason = bfvFailed && Array.isArray(bfv.warnings) && bfv.warnings.length > 0 ? bfv.warnings[0] : null;
     const basisFairPriceEmpty = !bfvOk && methodRows.length === 0 && bfvFailed && (
-      // data-tour="company" — цель шага тура «Карточка компании» (tour/tourSteps.js).
-      // Взаимоисключающая ветка с basisFairPriceCard ниже (ровно одна из двух в
-      // DOM в любой момент) — тот же атрибут стоит на обеих намеренно.
-      <div className="card" data-tour="company">
+      <div className="card">
         <h3>
           <Target size={18} />
           <span>Справедливая цена по методике Basis</span>
@@ -3599,8 +3596,7 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
     );
 
     const basisFairPriceCard = (bfvOk || methodRows.length > 0) && (
-      // data-tour="company" — см. комментарий у basisFairPriceEmpty выше.
-      <div className="card" data-tour="company">
+      <div className="card">
         <h3>
           <Target size={18} />
           <span>Справедливая цена по методике Basis</span>
@@ -7604,8 +7600,19 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
 
   return (
     <div className={NEO ? "cc-root tw-space-y-6" : "space-y-6"}>
+      {/* data-tour="company" на шапке ниже — цель шага тура «Карточка компании»
+          (tour/tourSteps.js). 🔴 Была на блоке «Справедливая цена по методике Basis»
+          ниже по странице — и шаг стабильно уходил в «не нашли блок»: тот блок
+          рендерится ТОЛЬКО когда BFV посчиталась или есть методы оценки, а при
+          отсутствии bfv не показывается ни в основной ветке, ни в «пустой»
+          (проверено на бою: у ROSN элемента нет и через 18 секунд). Шапка есть
+          всегда и несёт то же, что нужно показать в туре: цена, ключевые метрики,
+          потенциал к справедливой и эпистем-теги.
+          🔴 Комментарий стоит ЗДЕСЬ, в children внешнего div, а не внутри скобок
+          тернарника ниже: в позиции выражения `{/* */}` — синтаксическая ошибка,
+          сборка падает целиком (та же ловушка, что уже ловили 2026-08-04). */}
       {NEO ? (
-        <div className="tw-rounded-[14px] tw-px-7 tw-py-8 cc-header-panel" style={{ background: "var(--cc-panel)", border: "1px solid var(--cc-line)" }}>
+        <div className="tw-rounded-[14px] tw-px-7 tw-py-8 cc-header-panel" data-tour="company" style={{ background: "var(--cc-panel)", border: "1px solid var(--cc-line)" }}>
           <button type="button" onClick={onBack} className="cc-eyebrow tw-mb-5 tw-inline-flex tw-items-center tw-gap-1.5 tw-bg-transparent tw-border-0 tw-cursor-pointer cc-header-back" style={{ color: "var(--cc-ink-3)" }}>← Назад к рынку</button>
           <div className="tw-flex tw-items-start tw-justify-between tw-gap-6 tw-flex-wrap cc-header-row">
             <CompanyIdentityBlock logo={<CompanyLogo ticker={company.ticker} name={company.name} size={60} />} name={company.name} ticker={company.ticker} sector={company.sector} marketOpen />
