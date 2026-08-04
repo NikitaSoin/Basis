@@ -57,7 +57,7 @@ PAID_ONLY_FEATURES = frozenset({
     FEATURE_STRESS_CUSTOM,
 })
 
-ASSISTANT_DAILY_LIMIT_FREE = 2   # запросов к ассистенту в сутки на бесплатном
+ASSISTANT_DAILY_LIMIT_FREE = 3   # запросов в сутки зарегистрированному (владелец 2026-08-04)
 FREE_POSITION_LIMIT = 50         # позиций в портфеле (единственный лимит, работавший и раньше)
 
 

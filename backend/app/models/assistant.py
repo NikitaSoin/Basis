@@ -16,8 +16,11 @@ class Conversation(Base):
     __tablename__ = "assistant_conversations"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"),
-                                         nullable=False, index=True)
+    # nullable — диалог гостя (без регистрации). Пустой user_id + заполненный
+    # guest_token = «спросил, не заводя аккаунт»; по ним же считается его лимит.
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"),
+                                                nullable=True, index=True)
+    guest_token: Mapped[str | None] = mapped_column(String(64), index=True, default=None)
     title: Mapped[str | None] = mapped_column(String(200))  # авто из первого вопроса
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

@@ -323,7 +323,8 @@ def _history_text(messages: list[Message]) -> str:
     return "\n".join(lines)
 
 
-def ask(db: Session, user_id: int, user_message: str, conversation_id: int | None) -> Conversation:
+def ask(db: Session, user_id: int | None, user_message: str, conversation_id: int | None,
+        guest_token: str | None = None) -> Conversation:
     """Главная точка входа. Создаёт диалог при conversation_id=None, иначе
     дописывает в существующий (с проверкой владельца). Возвращает Conversation
     со свежими messages (включая только что добавленные user+assistant)."""
@@ -331,12 +332,16 @@ def ask(db: Session, user_id: int, user_message: str, conversation_id: int | Non
 
     if conversation_id is not None:
         conv = db.get(Conversation, conversation_id)
-        if not conv or conv.user_id != user_id:
+        # Гость продолжает СВОЙ диалог по токену; владелец — по user_id. Перепутать
+        # нельзя: у диалога заполнено ровно одно из двух полей.
+        own = (conv.user_id == user_id) if user_id is not None else (
+            conv.user_id is None and guest_token is not None and conv.guest_token == guest_token)
+        if not conv or not own:
             conv = None
     else:
         conv = None
     if conv is None:
-        conv = Conversation(user_id=user_id, title=user_message[:120])
+        conv = Conversation(user_id=user_id, guest_token=guest_token, title=user_message[:120])
         db.add(conv)
         db.flush()
 

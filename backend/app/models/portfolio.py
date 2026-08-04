@@ -10,6 +10,11 @@ class Portfolio(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int | None] = mapped_column(index=True)
+    # Гостевой портфель: собран без регистрации. Токен генерирует браузер и хранит у себя —
+    # сервер по нему только находит портфель и не знает, кому тот принадлежит. При
+    # регистрации портфель «усыновляется»: проставляется user_id, токен обнуляется.
+    guest_token: Mapped[str | None] = mapped_column(String(64), index=True, default=None)
+    guest_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
