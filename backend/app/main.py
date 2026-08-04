@@ -810,6 +810,30 @@ async def _geo_profile_job():
         logger.exception("Ошибка портрета очагов: %s", e)
 
 
+async def _overview_synthesis_job():
+    """Свод вкладки «Обзор»: общий вывод по всем разборам + объяснение цены.
+
+    🔴 Партиями по чуть-чуть, а не «собрать все 264 разом». Каждая компания — это
+    отдельный прогон модели по семи разборам; очередь сама двигается (сначала те, у
+    кого свода нет вовсе, потом самые старые), поэтому за неделю круг закрывается без
+    единого тяжёлого прогона. Идёт ПОСЛЕ ночных доводок вкладок, чтобы свод собирался
+    по уже освежённым разборам, а не по вчерашним.
+    """
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.overview_synthesis import run_batch
+        db = SessionLocal()
+        try:
+            return run_batch(db, batch=8)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Свод «Обзора»: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка свода «Обзора»: %s", e)
+
+
 async def _env_card_interp_job():
     """Доводка вкладок «Геополитика», «Институты» и «Макроэкономика» КАРТОЧЕК
     КОМПАНИЙ под текущее состояние Обозревателя (владелец 2026-08-04: «вкладка
@@ -1426,6 +1450,7 @@ async def lifespan(app: FastAPI):
         # смысловая доводка макро-вкладок после чисел (владелец 2026-08-01: «нужно
         # чтобы содержание прям менялось») — раз в день, очередь = свежие факт-патчи
         scheduler.add_job(_with_heartbeat("macro_interp", _macro_interp_job), "cron", hour=21, minute=5, id="macro_interp")
+        scheduler.add_job(_with_heartbeat("overview_synthesis", _overview_synthesis_job), "cron", hour=23, minute=20, id="overview_synthesis")  # свод «Обзора» партиями: общий вывод по всем разборам + объяснение цены
         scheduler.add_job(_with_heartbeat("agent_pilot", _agent_pilot_job), "cron", hour=7, minute=40, id="agent_pilot")  # автономный агент-пилот (macro addendum)
         scheduler.add_job(_with_heartbeat("chronicle_maintenance", _chronicle_maintenance_job), "cron", hour=5, minute=20, id="chronicle_maintenance")  # летопись: бэкфилл + ретеншен Ленты
         logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo/geo_digest)")
