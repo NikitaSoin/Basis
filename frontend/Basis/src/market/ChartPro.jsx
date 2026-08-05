@@ -334,8 +334,30 @@ export default function ChartPro({ assetClass, secid, height = 380, className = 
     ? (data.change_pct > 0 ? "cpro-delta--up" : data.change_pct < 0 ? "cpro-delta--down" : "")
     : "";
 
+  // ── Полноэкранный режим (владелец 2026-08-06: «график в обзоре карточки и вообще везде
+  // должен открываться в полный экран при желании»; уточнил — только графики котировок).
+  //
+  // 🔴 НЕ используем Fullscreen API браузера. Он показывает системную подсказку «нажмите
+  // Esc», уводит страницу из потока и на iOS в Safari для произвольных элементов просто
+  // не работает. Здесь достаточно раскрыть контейнер на весь экран через CSS: жест тот же,
+  // поведение одинаково во всех браузерах, и Esc мы обрабатываем сами.
+  const [full, setFull] = useState(false);
+  useEffect(() => {
+    if (!full) return undefined;
+    const onKey = (e) => { if (e.key === "Escape") setFull(false); };
+    // Прокрутку страницы под раскрытым графиком блокируем: иначе прикосновение к
+    // графику на телефоне листает страницу вместо перемещения по свечам.
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [full]);
+
   return (
-    <div className={`cpro ${className}`}>
+    <div className={`cpro${full ? " cpro--full" : ""} ${className}`}>
       <div className="cpro-bar">
         <div className="cpro-tfs" role="tablist" aria-label="Таймфрейм">
           {TFS.map(([tf, label]) => (
@@ -350,6 +372,15 @@ export default function ChartPro({ assetClass, secid, height = 380, className = 
         </div>
 
         <div className="cpro-bar-right">
+          <button
+            type="button"
+            className="cpro-tf cpro-full-btn"
+            onClick={() => setFull((v) => !v)}
+            title={full ? "Свернуть (Esc)" : "Развернуть на весь экран"}
+            aria-label={full ? "Свернуть график" : "Развернуть график на весь экран"}
+          >
+            {full ? "Свернуть ✕" : "На весь экран ⤢"}
+          </button>
           {data && data.last != null && (
             <span className="cpro-last">
               {data.last.toLocaleString("ru-RU")}

@@ -139,3 +139,39 @@
 @media (prefers-reduced-motion: reduce) {
   .cpro-tf, .cpro-kbtn, .cpro-ddbtn { transition: none; }
 }
+
+/* ── Полноэкранный режим графика котировок ────────────────────────────────────────
+   Владелец 2026-08-06: «график должен открываться в полный экран при желании»
+   (уточнение: только графики котировок, остальные не трогаем).
+
+   🔴 Раскрываем CSS-ом, а не Fullscreen API браузера: тот показывает системную
+   подсказку, уводит страницу из потока и на iOS в Safari для произвольных элементов
+   не работает вовсе. Здесь поведение одинаково везде, а Esc обрабатывается в компоненте. */
+.cpro--full {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;                 /* выше карточки и шапки, ниже модальных окон авторизации */
+  margin: 0;
+  border-radius: 0;
+  background: var(--bg, #F7F5F0);
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px 14px;
+  overflow: hidden;
+}
+/* Высоту холста задаёт проп height — в раскрытом виде он мешает, перебиваем.
+   Вычитаем панель инструментов, иначе низ графика уезжает за край экрана. */
+.cpro--full .cpro-canvas {
+  height: auto !important;
+  flex: 1 1 auto;
+  min-height: 0;                 /* без него flex-ребёнок не даёт себя сжать */
+}
+.cpro--full .cpro-bar { flex: 0 0 auto; }
+
+.cpro-full-btn { margin-left: 8px; white-space: nowrap; }
+
+@media (max-width: 640px) {
+  /* На телефоне панель инструментов занимает две строки — оставляем ей место. */
+  .cpro--full { padding: 8px 10px 10px; }
+  .cpro-full-btn { margin-left: 4px; }
+}
