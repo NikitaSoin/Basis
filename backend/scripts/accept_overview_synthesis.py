@@ -20,8 +20,24 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.db.session import SessionLocal                       # noqa: E402
 from app.services.overview_synthesis import (                 # noqa: E402
-    COMPANIES_DIR, SYNTHESIS_FILE, _fair_value, _gate, _tab_inputs,
+    _TABS, COMPANIES_DIR, SYNTHESIS_FILE, _fair_value, _gate, _read,
 )
+
+
+def _full_tabs(ticker: str) -> list[dict]:
+    """Разборы ЦЕЛИКОМ, без обрезки.
+
+    🔴 Боевой сервис даёт модели первые 2600 символов вкладки — больше в контекст не
+    влезает семь разборов сразу. Субагент-заготовщик читает файлы целиком, поэтому
+    законные числа из середины разбора выглядели бы для гейта «выдуманными».
+    Заземление обязано проверяться по тому, что автор ДЕЙСТВИТЕЛЬНО читал.
+    """
+    out = []
+    for tab, filename, title in _TABS:
+        text = _read(ticker, filename)
+        if text:
+            out.append({"tab": tab, "title": title, "text": text})
+    return out
 
 
 def main() -> int:
@@ -45,7 +61,7 @@ def main() -> int:
             except Exception as e:  # noqa: BLE001
                 bad.append((d.name, [f"нечитаемый JSON: {type(e).__name__}"]))
                 continue
-            notes = _gate(data, _tab_inputs(db, d.name), _fair_value(db, d.name), d.name)
+            notes = _gate(data, _full_tabs(d.name), _fair_value(db, d.name), d.name)
             if notes:
                 bad.append((d.name, notes))
                 if args.fix:

@@ -192,8 +192,18 @@ def _gate(result: dict, tabs: list[dict], fair: dict | None, ticker: str) -> lis
     if _BANNED.search(blob):
         notes.append("banned_wording")
     # Чужие тикеры: свод пишется по ОДНОЙ компании.
-    for foreign in set(re.findall(r"\b[A-Z]{4,5}\b", blob)):
-        if foreign != ticker.upper() and foreign not in ("BFV", "EBITDA", "OFZ"):
+    # 🔴 Сверяем с РЕАЛЬНЫМ списком компаний, а не с маской «4-5 заглавных латинских».
+    # Маска браковала законные тексты: OFAC (санкционный орган), OIBDA (метрика
+    # телекомов), IFRS, CAPEX — всё это не тикеры, а нормальные слова отраслевого
+    # языка. Держать вместо этого белый список аббревиатур бесполезно: он всегда
+    # неполон, а цена ошибки — выброшенный годный свод.
+    known = _known_tickers()
+    # 🔴 Парная бумага того же эмитента — не «чужой тикер». У префа (DZRDP) разбор
+    # законно ссылается на обычку (DZRD): это одна компания, два класса акций, и
+    # объяснить цену префа, не упомянув обычку, нельзя.
+    own = {ticker.upper(), ticker.upper() + "P", ticker.upper().rstrip("P")}
+    for foreign in set(re.findall(r"\b[A-Z]{3,6}\b", blob)):
+        if foreign not in own and foreign in known:
             notes.append(f"foreign_ticker:{foreign}")
             break
 
@@ -259,6 +269,21 @@ def _gate(result: dict, tabs: list[dict], fair: dict | None, ticker: str) -> lis
                 notes.append(f"fair_price_mismatch:{raw}")
                 break
     return notes
+
+
+def _known_tickers() -> set[str]:
+    """Тикеры платформы — по папкам карточек. Кэшируется на процесс."""
+    global _TICKERS_CACHE
+    if _TICKERS_CACHE is None:
+        try:
+            _TICKERS_CACHE = {d.name.upper() for d in COMPANIES_DIR.iterdir()
+                              if d.is_dir() and not d.name.startswith(".")}
+        except Exception:  # noqa: BLE001
+            _TICKERS_CACHE = set()
+    return _TICKERS_CACHE
+
+
+_TICKERS_CACHE: set[str] | None = None
 
 
 def _is_number(s: str) -> bool:

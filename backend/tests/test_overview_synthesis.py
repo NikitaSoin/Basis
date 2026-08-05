@@ -193,3 +193,27 @@ def test_fair_value_story_follows_the_price_paywall(client, db, monkeypatch):
     body = r.json()
     assert body["fair_value_story"] == {}, "объяснение цены не отдаём без тарифа"
     assert body["verdict"], "общий вывод о бизнесе остаётся всем — он не про цену"
+
+
+def test_industry_abbreviations_are_not_foreign_tickers(tabs, fair):
+    """🔴 OFAC и OIBDA — не тикеры, а обычные слова отраслевого языка.
+
+    Маска «4-5 заглавных латинских» браковала годные своды; теперь сверка идёт с
+    реальным списком компаний платформы.
+    """
+    ok = _result()
+    ok["verdict"] += (" Компания под ограничениями OFAC, отчётность раскрывает OIBDA "
+                      "по стандартам IFRS.")
+    assert not [n for n in ov._gate(ok, tabs, fair, "SBER") if n.startswith("foreign_ticker")]
+
+
+def test_paired_share_class_is_not_foreign(tabs, fair, tmp_path, monkeypatch):
+    """🔴 Преф законно ссылается на обычку того же эмитента — это одна компания."""
+    monkeypatch.setattr(ov, "COMPANIES_DIR", tmp_path)
+    ov._TICKERS_CACHE = None
+    for t in ("DZRD", "DZRDP", "SBER"):
+        (tmp_path / t).mkdir()
+    ok = _result()
+    ok["verdict"] += " Дивиденд по префу привязан к выплате на DZRD."
+    assert not [n for n in ov._gate(ok, tabs, fair, "DZRDP") if n.startswith("foreign_ticker")]
+    ov._TICKERS_CACHE = None
