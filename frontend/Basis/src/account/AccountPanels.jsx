@@ -32,6 +32,8 @@ const AuthModal = ({ onClose, onSuccess }) => {
   const [regStep, setRegStep] = useState("form");
   const [code, setCode] = useState("");
   const [resendIn, setResendIn] = useState(0);
+  // Ответ /register придерживаем до клика «Продолжить» на шаге «проверьте почту»
+  const [pendingAuth, setPendingAuth] = useState(null);
   const cardRef = useRef(null);
   const triggerRef = useRef(null);
 
@@ -105,11 +107,14 @@ const AuthModal = ({ onClose, onSuccess }) => {
       if (mode === "login") {
         finishAuth(await post("/api/auth/login", { email, password }));
       } else if (regStep === "form") {
-        const r = await requestCode();
-        if (r.status === "sent") { setRegStep("code"); setCode(""); setResendIn(60); }
-        else finishAuth(await doRegister(false)); // подтверждение на бэке выключено
+        // Подтверждение почты — ССЫЛКОЙ после регистрации (2026-08-06), а не
+        // кодом до неё: аккаунт создаётся сразу, письмо уходит следом, ссылка
+        // бессрочная. Показываем шаг «проверьте почту», токен уже сохранён.
+        const data = await doRegister(false);
+        setPendingAuth(data);
+        setRegStep("done");
       } else {
-        finishAuth(await doRegister(true));
+        finishAuth(await doRegister(true)); // легаси-ветка кода (не используется)
       }
     } catch (e) {
       setError(e.message);
@@ -162,7 +167,24 @@ const AuthModal = ({ onClose, onSuccess }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          {mode === "register" && regStep === "code" ? (
+          {mode === "register" && regStep === "done" ? (
+            <>
+              <div className="auth-field" style={{ textAlign: "center", padding: "8px 0 4px" }}>
+                <div style={{ fontSize: 34, marginBottom: 10 }} aria-hidden="true">✉️</div>
+                <div style={{ fontWeight: 600, marginBottom: 8 }}>Аккаунт создан — проверьте почту</div>
+                <span className="auth-hint">
+                  Мы отправили на {email} письмо со ссылкой для подтверждения адреса.
+                  Открыть её можно в любое удобное время — а пользоваться платформой
+                  можно уже сейчас. Если письма нет, загляните в «Спам» или отправьте
+                  его повторно из раздела «Профиль».
+                </span>
+              </div>
+              <Button type="button" variant="primary" className="acct-pill tw-w-full"
+                onClick={() => pendingAuth && finishAuth(pendingAuth)}>
+                Продолжить
+              </Button>
+            </>
+          ) : mode === "register" && regStep === "code" ? (
             <>
               <div className="auth-field">
                 <label className="auth-label" htmlFor="auth-code">Код из письма</label>

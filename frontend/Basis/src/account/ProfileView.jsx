@@ -47,6 +47,26 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("overview");
+  // Повторная отправка письма подтверждения почты (ссылка, бессрочная)
+  const [verifySending, setVerifySending] = useState(false);
+  const [verifyNote, setVerifyNote] = useState(null);
+  const resendVerification = async () => {
+    setVerifySending(true); setVerifyNote(null);
+    try {
+      const r = await fetch(`${apiUrl}/api/auth/send-verification`, {
+        method: "POST", headers: { Authorization: `Bearer ${token}` },
+      });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.status === "sent") setVerifyNote("Письмо отправлено — проверьте почту (и папку «Спам»).");
+      else if (d.status === "already") setVerifyNote("Почта уже подтверждена — обновите страницу.");
+      else if (d.status === "disabled") setVerifyNote("Отправка писем пока не настроена.");
+      else setVerifyNote(d.detail || "Не получилось отправить, попробуйте позже.");
+    } catch {
+      setVerifyNote("Не получилось отправить, попробуйте позже.");
+    } finally {
+      setVerifySending(false);
+    }
+  };
 
   if (!user) {
     return (
@@ -137,6 +157,24 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
       <div className="acct-row">
         <span className="acct-row-label">Email</span>
         <span className="acct-row-value">{user.email}</span>
+      </div>
+      <div className="acct-row">
+        <span className="acct-row-label">Подтверждение почты</span>
+        <span className="acct-row-value">
+          {user.email_verified ? (
+            <span style={{ color: "var(--bs-up, #2E7D32)", fontWeight: 600 }}>✓ Подтверждена</span>
+          ) : (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <span style={{ color: "var(--cc-ink-3, #888)" }}>Не подтверждена</span>
+              <button type="button" className="acct-pill" disabled={verifySending}
+                onClick={resendVerification}
+                style={{ font: "inherit", fontSize: 12.5, fontWeight: 600, cursor: "pointer", padding: "5px 12px", borderRadius: 999, border: "1px solid var(--cc-line-2, #ccc)", background: "transparent", color: "var(--cc-accent-2, #A85F35)" }}>
+                {verifySending ? "Отправляем…" : "Отправить письмо"}
+              </button>
+              {verifyNote && <span style={{ fontSize: 12.5, color: "var(--cc-ink-3, #888)" }}>{verifyNote}</span>}
+            </span>
+          )}
+        </span>
       </div>
       <div className="acct-row">
         <span className="acct-row-label">Дата регистрации</span>

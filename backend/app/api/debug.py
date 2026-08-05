@@ -2819,3 +2819,22 @@ def analytics_daily(days: int = Query(14, ge=1, le=90)):   # защита — н
             "отказались_на_приветствии": sum(t.get("otkazalis", 0) or 0 for t in tour),
         },
     }
+
+
+@router.post("/debug/test-email")
+def debug_test_email(data: dict):
+    """Проверка SMTP-креденшелов (ящик Timeweb): шлёт тестовое письмо на `to`.
+    Использовать после заполнения SMTP_* в env, до объявления фичи готовой.
+    Токен-гейт — на всём роутере (_debug_guard)."""
+    from app.services.email_codes import is_verification_enabled, send_mail
+    if not is_verification_enabled():
+        return {"status": "disabled", "detail": "SMTP_HOST/SMTP_USER/SMTP_PASSWORD не заданы в env"}
+    to = (data.get("to") or "").strip()
+    if "@" not in to:
+        return {"status": "error", "detail": "укажите to"}
+    try:
+        send_mail(to, "Basis — тест отправки почты",
+                  "Это тестовое письмо от inbasis.ru: SMTP настроен корректно.\n")
+        return {"status": "sent", "to": to}
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": str(e)[:300]}

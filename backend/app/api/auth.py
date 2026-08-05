@@ -12,37 +12,55 @@ router = APIRouter(prefix="/auth")
 
 @router.post("/register/request-code")
 def register_request_code(data: dict, db: Session = Depends(get_db)):
-    """Шаг 1 регистрации с подтверждением email: отправить 6-значный код.
-    Если SMTP не настроен (env SMTP_HOST/USER/PASSWORD) — вернёт
-    {"status": "disabled"}: фронт регистрирует по-старому, без кода."""
-    from app.services.email_codes import is_verification_enabled, request_code
-    email = (data.get("email") or "").strip().lower()
-    if not email or "@" not in email:
-        raise HTTPException(status_code=422, detail="Укажите корректный email")
-    if get_user_by_email(db, email):
-        raise HTTPException(status_code=409, detail="Email уже зарегистрирован")
-    if not is_verification_enabled():
-        return {"status": "disabled"}
-    try:
-        return request_code(db, email)
-    except ValueError as e:
-        raise HTTPException(status_code=429, detail=str(e))
+    """УСТАРЕЛО (2026-08-06): подтверждение переведено с кода на ССЫЛКУ после
+    регистрации (владелец: «чтобы клиент мог в любое удобное время подтвердить»).
+    Возвращаем "disabled" всегда — старый фронт при этом ответе регистрирует
+    без кода, то есть ведёт себя ровно как новый флоу."""
+    return {"status": "disabled"}
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 def register(data: UserCreate, db: Session = Depends(get_db)):
+    """Регистрация НЕ блокируется подтверждением: аккаунт создаётся сразу,
+    письмо со ссылкой подтверждения уходит следом (если SMTP настроен).
+    Сбой отправки не мешает регистрации — повторить можно из профиля."""
     if get_user_by_email(db, data.email):
         raise HTTPException(status_code=409, detail="Email уже зарегистрирован")
-    # Подтверждение email кодом — включено самим фактом наличия SMTP-конфига
-    from app.services.email_codes import is_verification_enabled, verify_code
-    if is_verification_enabled():
-        if not data.code:
-            raise HTTPException(status_code=400, detail="Нужен код подтверждения из письма")
-        if not verify_code(db, data.email, data.code):
-            raise HTTPException(status_code=400, detail="Неверный или просроченный код")
     user = create_user(db, data)
+    try:
+        from app.services.email_verify import send_verification_link
+        send_verification_link(db, user, enforce_limit=False)
+    except Exception:  # noqa: BLE001 — письмо не должно ронять регистрацию
+        import logging
+        logging.getLogger(__name__).warning(
+            "register: письмо подтверждения на %s не отправилось", user.email, exc_info=True)
     token = create_access_token(user.id)
     return TokenResponse(access_token=token, user=user)
+
+
+@router.post("/verify-email")
+def verify_email(data: dict, db: Session = Depends(get_db)):
+    """Подтверждение почты по токену из письма (ссылка ведёт на фронт,
+    фронт вызывает этот эндпоинт). Идемпотентно, авторизация не нужна —
+    токен подписан и сам удостоверяет владение адресом."""
+    from app.services.email_verify import apply_verify_token
+    token = (data.get("token") or "").strip()
+    if not token:
+        raise HTTPException(status_code=422, detail="Нет токена подтверждения")
+    try:
+        return apply_verify_token(db, token)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/send-verification")
+def send_verification(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Повторная отправка письма со ссылкой — из профиля. 429 на кулдауне."""
+    from app.services.email_verify import send_verification_link
+    try:
+        return send_verification_link(db, current_user)
+    except ValueError as e:
+        raise HTTPException(status_code=429, detail=str(e))
 
 
 @router.post("/login", response_model=TokenResponse)

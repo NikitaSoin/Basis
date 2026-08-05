@@ -1053,6 +1053,9 @@ export default function App() {
   // расползались по индексу. Индексируемые страницы у нас статические, у них свой
   // robots=index, поэтому им это не вредит.
   const [notFound, setNotFound] = useState(false);
+  // Экран результата подтверждения почты по ссылке из письма:
+  // null | "pending" | "ok" | "already" | "error:<текст>"
+  const [verifyEmail, setVerifyEmail] = useState(null);
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem("basis_theme");
     if (stored === "dark" || stored === "light") return stored;
@@ -1209,6 +1212,22 @@ export default function App() {
           document.title = "Страница не найдена — Basis";
         } catch {}
         setNotFound(true);
+        return;
+      }
+      // Ссылка подтверждения почты из письма: /?view=verify-email&token=…
+      // (ссылка ведёт на фронт, а не на API — адрес API периодически меняется).
+      if ((params.get("view") || "").toLowerCase() === "verify-email" && params.get("token")) {
+        const vtoken = params.get("token");
+        setVerifyEmail("pending");
+        fetch(`${apiUrl}/api/auth/verify-email`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: vtoken }),
+        }).then(async (r) => {
+          const d = await r.json().catch(() => ({}));
+          if (r.ok && (d.status === "ok" || d.status === "already")) setVerifyEmail(d.status);
+          else setVerifyEmail("error:" + (d.detail || "не получилось подтвердить адрес"));
+        }).catch(() => setVerifyEmail("error:нет связи с сервером, попробуйте позже"));
+        try { window.history.replaceState({}, "", "/"); } catch {}
         return;
       }
       const VIEW_TABS = ["companies", "overview", "portfolio", "stress", "screener", "ai", "pricing"];
@@ -1466,6 +1485,34 @@ export default function App() {
             <li><a href="/obzor-rynka/">Обзор рынка</a>, <a href="/novosti-fondovogo-rynka/">новости</a></li>
             <li><a href="/">Главная страница Basis</a></li>
           </ul>
+        </div>
+      </div>
+    );
+  }
+
+  if (verifyEmail) {
+    const isErr = String(verifyEmail).startsWith("error:");
+    const done = verifyEmail === "ok" || verifyEmail === "already";
+    return (
+      <div data-theme={theme} className="tw-bg-bg-base tw-text-text-primary">
+        <div style={{ maxWidth: 560, margin: "0 auto", padding: "90px 20px", textAlign: "center", fontFamily: "var(--bs-sans, Inter, sans-serif)" }}>
+          <div style={{ fontSize: 40, marginBottom: 14 }} aria-hidden="true">{done ? "✅" : isErr ? "⚠️" : "⏳"}</div>
+          <h1 style={{ fontFamily: "var(--bs-serif, Fraunces, serif)", fontSize: 28, margin: "0 0 12px" }}>
+            {verifyEmail === "ok" ? "Почта подтверждена"
+              : verifyEmail === "already" ? "Почта уже была подтверждена"
+                : isErr ? "Не получилось подтвердить" : "Подтверждаем адрес…"}
+          </h1>
+          <p style={{ color: "var(--bs-muted, #5A5248)", lineHeight: 1.6, margin: "0 0 26px" }}>
+            {done ? "Спасибо! Статус адреса обновлён — это видно в разделе «Профиль»."
+              : isErr ? String(verifyEmail).slice(6) + " Можно отправить письмо повторно из раздела «Профиль»."
+                : "Секунду — проверяем ссылку из письма."}
+          </p>
+          {verifyEmail !== "pending" && (
+            <button type="button" onClick={() => setVerifyEmail(null)}
+              style={{ font: "inherit", fontWeight: 600, padding: "10px 26px", borderRadius: 999, border: "1px solid var(--bs-copper, #C97A4A)", background: "var(--bs-copper, #C97A4A)", color: "#fff", cursor: "pointer" }}>
+              Перейти на платформу
+            </button>
+          )}
         </div>
       </div>
     );

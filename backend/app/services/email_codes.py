@@ -44,20 +44,17 @@ def _hash(code: str) -> str:
     return hashlib.sha256(code.encode()).hexdigest()
 
 
-def _send_email(to_addr: str, code: str) -> None:
+def send_mail(to_addr: str, subject: str, body: str) -> None:
+    """Общая транзакционная отправка через SMTP из env (ящик Timeweb владельца).
+    Используется и кодами, и письмами со ссылкой подтверждения."""
     host = os.environ["SMTP_HOST"]
     port = int(os.environ.get("SMTP_PORT", "465"))
     user = os.environ["SMTP_USER"]
     password = os.environ["SMTP_PASSWORD"]
     from_addr = os.environ.get("SMTP_FROM", user)
 
-    body = (
-        f"Ваш код подтверждения: {code}\n\n"
-        f"Код действует {CODE_TTL_MIN} минут. Введите его в форме регистрации Basis.\n"
-        "Если вы не регистрировались на inbasis.ru — просто игнорируйте это письмо.\n"
-    )
     msg = MIMEText(body, "plain", "utf-8")
-    msg["Subject"] = f"Basis — код подтверждения {code}"
+    msg["Subject"] = subject
     msg["From"] = formataddr(("Basis", from_addr))
     msg["To"] = to_addr
 
@@ -70,6 +67,15 @@ def _send_email(to_addr: str, code: str) -> None:
             s.starttls()
             s.login(user, password)
             s.sendmail(from_addr, [to_addr], msg.as_string())
+
+
+def _send_email(to_addr: str, code: str) -> None:
+    body = (
+        f"Ваш код подтверждения: {code}\n\n"
+        f"Код действует {CODE_TTL_MIN} минут. Введите его в форме регистрации Basis.\n"
+        "Если вы не регистрировались на inbasis.ru — просто игнорируйте это письмо.\n"
+    )
+    send_mail(to_addr, f"Basis — код подтверждения {code}", body)
 
 
 def request_code(db: Session, email: str) -> dict:

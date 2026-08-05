@@ -24,6 +24,9 @@ class UserResponse(BaseModel):
     subscription_type: SubscriptionType
     subscription_expires_at: datetime | None
     created_at: datetime
+    # читается из свойства модели (email_verified_at IS NOT NULL); default —
+    # чтобы не упасть, если колонка ещё не домигрировала на бою
+    email_verified: bool = False
 
     model_config = {"from_attributes": True}
 
