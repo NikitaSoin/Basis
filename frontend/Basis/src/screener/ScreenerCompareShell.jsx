@@ -67,7 +67,6 @@ export default function ScreenerCompareView({ token, onSelectCompany, onAuthRequ
           </div>
         ))}
 
-        <div className="scmp-foot">Basis не брокер и не&nbsp;даёт рекомендаций «купить/продать».</div>
       </nav>
 
       <main className="scmp-main">

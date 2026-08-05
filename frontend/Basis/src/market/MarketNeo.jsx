@@ -1152,7 +1152,6 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
             </button>
           ))}
         </div>
-        <div className="mkt-foot">Котировки — MOEX / Т-Инвестиции. Basis не брокер и не&nbsp;даёт торговых сигналов.</div>
       </nav>
 
       <main className="mkt-main">

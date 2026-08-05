@@ -4273,7 +4273,6 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
           </div>
         ))}
 
-        <div className="pf-foot">Basis не брокер и не&nbsp;даёт рекомендаций «купить/продать».</div>
       </nav>
 
       {/* ---- Light main area ---- */}

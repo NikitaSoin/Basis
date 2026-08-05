@@ -345,7 +345,6 @@ function ObserverV2({
             <Briefcase size={13} aria-hidden="true" />
             Только мой портфель
           </button>
-          Basis не брокер и не&nbsp;даёт рекомендаций «купить/продать».
         </div>
       </nav>
 
