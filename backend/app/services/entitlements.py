@@ -51,7 +51,11 @@ FEATURE_STRESS_CUSTOM = "stress_custom"               # свои сценари�
 
 PAID_ONLY_FEATURES = frozenset({
     FEATURE_CARD_FULL_ANALYTICS,
-    FEATURE_FAIR_PRICE,
+    # 🔴 FEATURE_FAIR_PRICE намеренно НЕ здесь (владелец, 2026-08-05: «справедливую
+    # цену и объяснение оставь в бесплатном тарифе, не надо убирать»). Справедливая
+    # цена — ядро ценности платформы и первое, ради чего человек открывает карточку;
+    # закрывать её подпиской значит прятать сам смысл продукта. Константа оставлена:
+    # на неё завязаны проверки и тарифная таблица, а решение о доступе живёт здесь.
     FEATURE_OBSERVER_DEEP,
     FEATURE_PORTFOLIO_FULL,
     FEATURE_STRESS_CUSTOM,
