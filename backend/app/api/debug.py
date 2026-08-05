@@ -2749,7 +2749,12 @@ SELECT vis.d AS den,
        count(DISTINCT vis.anon_id) FILTER (WHERE first_seen.first_day = vis.d) AS novyh,
        count(DISTINCT vis.anon_id) FILTER (WHERE first_seen.first_day < vis.d) AS vernulis,
        round(CAST(avg(vis.sec)/60.0 AS numeric), 1) AS minut_na_vizit,
-       round(CAST(avg(vis.events) AS numeric), 1) AS sobytiy_na_vizit
+       round(CAST(avg(vis.events) AS numeric), 1) AS sobytiy_na_vizit,
+       -- Ключевое разделение (владелец 2026-08-05): «зашли на платформу» против
+       -- «зашли и дальше что-то нажали». Визит из ОДНОГО события — это вход без
+       -- единого перехода: приложение загрузилось, человек посмотрел и ушёл.
+       count(*) FILTER (WHERE vis.events = 1) AS voshli_bez_deystviy,
+       count(*) FILTER (WHERE vis.events > 1) AS poshli_dalshe
 FROM vis JOIN first_seen ON first_seen.anon_id = vis.anon_id
 GROUP BY 1 ORDER BY 1 DESC
 """
@@ -2800,6 +2805,8 @@ def analytics_daily(days: int = Query(14, ge=1, le=90)):   # защита — н
         r["ekskurs_pokazan"] = t.get("pokazan", 0)
         r["ekskurs_nachali"] = t.get("nachali", 0)
         r["ekskurs_proshli"] = t.get("proshli", 0)
+        v_all = (r.get("voshli_bez_deystviy") or 0) + (r.get("poshli_dalshe") or 0)
+        r["dolya_poshli_dalshe_pct"] = round(100.0 * (r.get("poshli_dalshe") or 0) / v_all, 1) if v_all else None
     return {
         "пояснение": ("Метрика считает открытия страниц (её счётчик есть и на статических "
                       "SEO-страницах), наш лог — работу в приложении. Поэтому наши цифры ниже: "
