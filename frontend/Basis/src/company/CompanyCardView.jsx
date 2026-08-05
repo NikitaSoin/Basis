@@ -7609,8 +7609,11 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
           всегда и несёт то же, что нужно показать в туре: цена, ключевые метрики,
           потенциал к справедливой и эпистем-теги.
           🔴 Комментарий стоит ЗДЕСЬ, в children внешнего div, а не внутри скобок
-          тернарника ниже: в позиции выражения `{/* */}` — синтаксическая ошибка,
-          сборка падает целиком (та же ловушка, что уже ловили 2026-08-04). */}
+          тернарника ниже: там позиция выражения, комментарий-в-скобках в ней —
+          синтаксическая ошибка. И НЕ вставляй в текст комментария пример его же
+          закрывающей последовательности (звёздочка-слэш): она закрывает комментарий
+          ДОСРОЧНО, хвост уезжает видимым текстом на страницу — этот самый баг
+          владелец увидел в шапке карточки 2026-08-05. */}
       {NEO ? (
         <div className="tw-rounded-[14px] tw-px-7 tw-py-8 cc-header-panel" data-tour="company" style={{ background: "var(--cc-panel)", border: "1px solid var(--cc-line)" }}>
           <button type="button" onClick={onBack} className="cc-eyebrow tw-mb-5 tw-inline-flex tw-items-center tw-gap-1.5 tw-bg-transparent tw-border-0 tw-cursor-pointer cc-header-back" style={{ color: "var(--cc-ink-3)" }}>← Назад к рынку</button>
