@@ -1018,23 +1018,48 @@ def sector_peers_multiples(db: Session = Depends(get_db)):
 
 
 @router.get("/companies/by-ticker/{ticker}/overview-synthesis")
-def get_overview_synthesis(ticker: str, db: Session = Depends(get_db)):
+def get_overview_synthesis(ticker: str, db: Session = Depends(get_db),
+                           user=Depends(get_current_user_optional)):
     """Свод вкладки «Обзор»: общий вывод по всем разборам + объяснение цены.
 
     Отдаёт последний опубликованный свод. Если его ещё нет — 204, фронт просто не
     рисует блок: обещать «скоро появится» на целый экран мы уже пробовали, владелец
     это убрал.
     """
-    from app.services.overview_synthesis import current
-    row = current(db, _safe(ticker).upper())
+    from app.services.overview_synthesis import current, file_synthesis
+    tk = _safe(ticker).upper()
+    row = current(db, tk)
     if not row:
-        return Response(status_code=204)
+        # Заготовка в карточке: она едет с образом и работает, пока крон не дошёл.
+        prepared = file_synthesis(tk)
+        if not prepared:
+            return Response(status_code=204)
+        row = type("Prepared", (), {
+            "ticker": tk, "verdict": prepared.get("verdict"),
+            "pillars": prepared.get("pillars"),
+            "fair_value_story": prepared.get("fair_value_story"),
+            "what_would_change": prepared.get("what_would_change"),
+            "created_at": None,
+            "inputs_used": {"source": "заготовка карточки"},
+        })()
+    # 🔴 Объяснение справедливой цены закрыто ТЕМ ЖЕ тарифом, что и сама цена
+    # (найдено 2026-08-05). Иначе на бесплатном тарифе выходит нелепость: блока с
+    # ценой нет — он отдаётся по подписке, — а под ним подробный разбор, почему она
+    # такая. Это и утечка платного содержания, и разрыв в логике экрана.
+    # Общий вывод о бизнесе при этом остаётся всем: он не про цену.
+    story = row.fair_value_story or {}
+    try:
+        from app.services.entitlements import FEATURE_FAIR_PRICE, has_feature
+        if not has_feature(user, FEATURE_FAIR_PRICE):
+            story = {}
+    except Exception:  # noqa: BLE001
+        pass
     return {
         "ticker": row.ticker,
         "verdict": row.verdict,
         "pillars": row.pillars or [],
-        "fair_value_story": row.fair_value_story or {},
+        "fair_value_story": story,
         "what_would_change": row.what_would_change or [],
-        "built_at": row.created_at.isoformat(),
+        "built_at": row.created_at.isoformat() if row.created_at else None,
         "inputs_used": row.inputs_used or {},
     }

@@ -320,8 +320,31 @@ def build_for_ticker(db: Session, ticker: str) -> CardOverviewSynthesis | None:
     return row
 
 
+SYNTHESIS_FILE = "overview_synthesis.json"
+
+
+def file_synthesis(ticker: str) -> dict | None:
+    """Свод, заготовленный в карточке (файл в репозитории).
+
+    🔴 Зачем нужен второй источник. Ночной крон собирает по восемь компаний за раз —
+    полный круг по 264 занимает больше недели, и всё это время у большинства карточек
+    завершающего вывода нет. Заготовку можно собрать разом и положить в репозиторий:
+    она едет на бой вместе с образом и работает сразу. БД остаётся главнее — там
+    свежее, крон обновляет по мере устаревания.
+    """
+    raw = _read(ticker.upper(), SYNTHESIS_FILE)
+    if not raw:
+        return None
+    try:
+        data = json.loads(raw)
+    except Exception:  # noqa: BLE001
+        logger.warning("overview_synthesis: %s/%s не читается", ticker, SYNTHESIS_FILE)
+        return None
+    return data if isinstance(data, dict) and data.get("verdict") else None
+
+
 def current(db: Session, ticker: str) -> CardOverviewSynthesis | None:
-    """Последний опубликованный свод по компании."""
+    """Последний опубликованный свод по компании (из БД)."""
     return (db.query(CardOverviewSynthesis)
             .filter(CardOverviewSynthesis.ticker == ticker.upper(),
                     CardOverviewSynthesis.status == "published")
@@ -336,11 +359,15 @@ def _candidates(db: Session, batch: int, stale_days: int) -> list[str]:
                          if d.is_dir() and not d.name.startswith("."))
     from sqlalchemy import text as _sql
     seen = {r[0]: r[1] for r in db.execute(_sql(
-        "SELECT ticker, max(created_at) FROM card_overview_synthesis GROUP BY ticker"
+        "SELECT ticker, max(created_at) FROM card_overview_synthesis "
+        "WHERE status='published' GROUP BY ticker"
     )).all()}
+    # Компания с заготовкой в карточке уже не «пустая» — крон идёт к тем, у кого
+    # вывода нет вовсе, а не пересобирает готовое платной моделью.
+    with_file = {t for t in all_tickers if (COMPANIES_DIR / t / SYNTHESIS_FILE).exists()}
     cutoff = datetime.now(timezone.utc).timestamp() - stale_days * 86400
     fresh = {t for t, ts in seen.items() if ts and ts.timestamp() >= cutoff}
-    never = [t for t in all_tickers if t not in seen]
+    never = [t for t in all_tickers if t not in seen and t not in with_file]
     stale = [t for t in all_tickers if t in seen and t not in fresh]
     return (never + stale)[:batch]
 

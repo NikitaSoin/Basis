@@ -168,3 +168,28 @@ def test_direction_must_match_upside(tabs, fair):
     bad["fair_value_story"]["direction"] = "ниже рынка"   # при апсайде +51%
     notes = ov._gate(bad, tabs, fair, "SBER")
     assert any(n.startswith("direction_vs_upside") for n in notes)
+
+
+def test_fair_value_story_follows_the_price_paywall(client, db, monkeypatch):
+    """🔴 Объяснение цены закрыто тем же тарифом, что и сама цена.
+
+    Иначе на бесплатном тарифе выходит нелепость: блока с ценой нет — он по
+    подписке, — а под ним подробный разбор, почему она такая. Найдено на бою
+    2026-08-05, когда включили тарифные ограничения.
+    """
+    from app.models.geo import CardOverviewSynthesis
+    db.add(CardOverviewSynthesis(
+        ticker="PAYW", status="published", verdict="Вывод о бизнесе целиком.",
+        pillars=[{"tab": "finance", "stance": "сила", "point": "прибыль растёт"}],
+        fair_value_story={"direction": "выше рынка", "why": "потому что"},
+        what_would_change=["падение маржи"], model_used="test"))
+    db.commit()
+
+    from app.services import entitlements
+    monkeypatch.setattr(entitlements, "has_feature",
+                        lambda user, feature: feature != entitlements.FEATURE_FAIR_PRICE)
+    r = client.get("/api/companies/by-ticker/PAYW/overview-synthesis")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["fair_value_story"] == {}, "объяснение цены не отдаём без тарифа"
+    assert body["verdict"], "общий вывод о бизнесе остаётся всем — он не про цену"
