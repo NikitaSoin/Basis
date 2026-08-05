@@ -2564,6 +2564,130 @@ function financeInsightBlock(c) {
   return out.join("\n");
 }
 
+/* ── СТРАНИЦЫ «ГРАФИК» И «ПРОГНОЗ» ──────────────────────────────────────────────────
+ * Владелец 2026-08-06 по данным Вордстата: «акции роснефть график» — 3 126 запросов,
+ * «акции роснефть прогноз» — 2 518. Страниц под эти интенты у нас не было ВООБЩЕ, при
+ * том что данные для обеих есть.
+ *
+ * 🔴 Обе страницы должны нести содержание, а не быть подписью к кнопке. Тонкая страница
+ * под массовый запрос — прямой путь к вердикту «низкое качество» (так Яндекс уже снял
+ * 31 нашу страницу облигаций). Поэтому «график» — это не «вот график», а всё о цене:
+ * сколько стоит, сколько по нашей модели должна стоить, по каким множителям торгуется
+ * и что происходило с бизнесом за эти годы.
+ */
+function pricePages(c, fv, assets, tabsWritten) {
+  const num = (v, d = 2) => (v == null || !isFinite(v) ? null
+    : Number(v).toLocaleString("ru-RU", { minimumFractionDigits: d, maximumFractionDigits: d }));
+  const cur = ((c.fin.multiples || {}).current) || {};
+  const fc = c.fin.forecast || {};
+  const ccy = "₽";
+  const price = fv && typeof fv.price === "number" ? fv.price : null;
+  const fair = fv && typeof fv.fair_value === "number" ? fv.fair_value : null;
+  const up = fv && typeof fv.upside_pct === "number" ? fv.upside_pct : null;
+  const dd = companyDataDate(c);
+  const others = (tabsWritten || []).filter((t) => t.slug !== "grafik" && t.slug !== "prognoz");
+  const chips = others.length
+    ? `<h2>Другие разделы разбора</h2><div class="grid">${others.map((t) =>
+        `<a class="chip" href="/company/${c.ticker}/${t.slug}/">${escapeHtml(t.label)}</a>`).join("")}</div>`
+    : "";
+
+  const mult = [["pe", "P/E"], ["pb", "P/B"], ["ps", "P/S"], ["ev_ebitda", "EV/EBITDA"]]
+    .map(([k, l]) => (typeof cur[k] === "number" && cur[k] > 0
+      ? `<tr><td>${l}</td><td class="num">${num(cur[k], 2)}</td></tr>` : "")).join("");
+
+  const pages = [];
+
+  /* ---------- ГРАФИК: всё о цене ---------- */
+  if (price != null) {
+    const body = `
+<p class="tag">${escapeHtml(c.sectorFull || c.sector)} · MOEX: ${c.ticker} · факт — данные биржи</p>
+<h1>График акций ${escapeHtml(c.short)} (${c.ticker}): цена и что за ней стоит</h1>
+<p class="sub"><b>Цена ${num(price)} ${ccy}.</b>${fair != null
+      ? ` Расчётная справедливая цена по модели Basis — ${num(fair)} ${ccy}, разница ${up > 0 ? "+" : ""}${num(up, 0)}%.`
+      : ""} Интерактивный график с историей котировок открывается в карточке компании —
+кнопка ниже; здесь собрано то, что объясняет само движение.</p>
+<a class="cta" href="/company/${c.ticker}/">Открыть график ${escapeHtml(c.short)} →</a>
+${mult ? `<h2>По каким множителям торгуется</h2>
+<p class="sub">Цена сама по себе ничего не говорит: 300 ₽ за акцию может быть дорого, а
+3 000 ₽ — дёшево. Смысл появляется в отношении к прибыли, выручке и капиталу.</p>
+<table><tbody>${mult}</tbody></table>` : ""}
+${financeInsightBlock(c)}
+<p>Что стоит за движением цены — в <a href="/company/${c.ticker}/finance/">разборе финансов</a>,
+${fair != null ? `как считается справедливая цена — <a href="/company/${c.ticker}/spravedlivaya-tsena/">в методике оценки</a>, ` : ""}риски
+и внешний фон — в <a href="/company/${c.ticker}/macro/">макро</a> и
+<a href="/company/${c.ticker}/geo/">геополитике</a>.</p>
+${chips}`;
+    pages.push({
+      slug: "grafik",
+      html: pageShell({
+        title: `${titleName(c)} (${c.ticker}): график акций и цена сегодня — ${num(price, 2)} ₽ | Basis`,
+        desc: truncate(`График акций ${c.short} (${c.ticker}): цена ${num(price)} ₽`
+          + (fair != null ? `, справедливая цена по модели Basis ${num(fair)} ₽ (${up > 0 ? "+" : ""}${num(up, 0)}%)` : "")
+          + ". Мультипликаторы, динамика бизнеса и что стоит за движением котировки.", 200),
+        canonicalPath: `/company/${c.ticker}/grafik/`,
+        dataDate: dd,
+        breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Компании", href: "/company/" },
+                      { label: c.short, href: `/company/${c.ticker}/` }, { label: "График" }],
+        bodyHtml: body, assets, note: DEFAULT_NOTE,
+      }),
+    });
+  }
+
+  /* ---------- ПРОГНОЗ: честно про то, что это оценка ---------- */
+  if (fair != null || fc.dividend_per_share_2025_forecast != null) {
+    const provs = Array.isArray(fc.providers) ? fc.providers.filter((x) => typeof x === "string") : [];
+    const body = `
+<p class="tag">${escapeHtml(c.sectorFull || c.sector)} · MOEX: ${c.ticker} · оценка модели, не прогноз цены</p>
+<h1>Прогноз по акциям ${escapeHtml(c.short)} (${c.ticker}): что говорит расчёт</h1>
+<p class="sub">🔴 <b>Basis не прогнозирует котировки.</b> Мы считаем, сколько бумага стоит
+по фундаментальным данным, и показываем разрыв с рынком. Это разные вещи: расчёт отвечает
+«дорого или дёшево сейчас», а не «что будет с ценой завтра».</p>
+${fair != null ? `<h2>Расчёт Basis</h2>
+<table><tbody>
+<tr><td>Цена на рынке</td><td class="num">${num(price)} ${ccy}</td></tr>
+<tr><td>Справедливая цена по модели</td><td class="num">${num(fair)} ${ccy}</td></tr>
+<tr><td>Разрыв</td><td class="num">${up > 0 ? "+" : ""}${num(up, 0)}%</td></tr>
+</tbody></table>
+<p class="sub">${up > 20
+      ? "Модель видит бумагу дешевле рынка. Это повод разобраться, а не вывод: часто рынок закладывает риск, которого нет в формуле."
+      : up < -20
+        ? "Модель считает бумагу дороже расчётной стоимости. Рынок может закладывать рост, которого пока нет в отчётности."
+        : "Расчёт близок к рыночной цене — по фундаментальным данным бумага оценена справедливо."}
+Как именно считали — <a href="/company/${c.ticker}/spravedlivaya-tsena/">в разборе оценки</a>.</p>` : ""}
+${fc.dividend_per_share_2025_forecast != null ? `<h2>Ожидания по дивидендам</h2>
+<table><tbody>
+<tr><td>Ожидаемый дивиденд на акцию</td><td class="num">${num(fc.dividend_per_share_2025_forecast)} ${ccy}</td></tr>
+${fc.dividend_yield_2025_forecast_pct != null
+        ? `<tr><td>Ожидаемая доходность</td><td class="num">${num(fc.dividend_yield_2025_forecast_pct, 1)}%</td></tr>` : ""}
+${fc.payout_policy_pct != null ? `<tr><td>Доля прибыли по политике</td><td class="num">${num(fc.payout_policy_pct, 0)}%</td></tr>` : ""}
+</tbody></table>
+<p class="sub">${provs.length
+        ? `Источник ожиданий — консенсус аналитиков (${escapeHtml(provs.slice(0, 3).join(", "))}). Это чужая оценка, а не наша: приводим её как ориентир и помечаем как таковую.`
+        : "Ожидания приведены по дивидендной политике компании и последней отчётности."}
+История выплат — <a href="/company/${c.ticker}/dividends/">в дивидендном разборе</a>.</p>` : ""}
+${financeInsightBlock(c)}
+<a class="cta" href="/company/${c.ticker}/">Открыть разбор ${escapeHtml(c.short)} →</a>
+${chips}`;
+    pages.push({
+      slug: "prognoz",
+      html: pageShell({
+        title: `${titleName(c)} (${c.ticker}): прогноз по акциям — расчёт справедливой цены | Basis`,
+        desc: truncate(`Прогноз по акциям ${c.short} (${c.ticker}): расчётная справедливая цена`
+          + (fair != null ? ` ${num(fair)} ₽ против рыночной ${num(price)} ₽` : "")
+          + ", ожидания по дивидендам, разбор допущений. Оценка модели, не прогноз котировок.", 200),
+        canonicalPath: `/company/${c.ticker}/prognoz/`,
+        dataDate: dd,
+        breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Компании", href: "/company/" },
+                      { label: c.short, href: `/company/${c.ticker}/` }, { label: "Прогноз" }],
+        bodyHtml: body, assets,
+        note: "Справедливая цена — расчёт по открытой методике Basis, а не прогноз котировок. "
+          + "Не является индивидуальной инвестиционной рекомендацией.",
+      }),
+    });
+  }
+  return pages;
+}
+
 function macroLiveBlock(macro) {
   // Коды и МЕТРИКИ берём как они есть в данных: у ставки это values.level, у инфляции
   // и ВВП — values.yoy (уровня там нет вовсе). Слепое обращение к level давало пустую
@@ -3186,6 +3310,21 @@ function main() {
     fs.writeFileSync(path.join(dir, "index.html"), landingPage(withLive, assets), "utf8");
     urls.push({ loc: `${_SITE}/${l.slug}/`, freq: "monthly", pri: "0.7", lastmod: landingLastmod });
   }
+
+  // Страницы «график» и «прогноз» — спрос по Вордстату есть («акции роснефть график»
+  // 3126, «прогноз» 2518), страниц не было. Пишем только там, где есть цена/оценка.
+  let pricePagesCount = 0;
+  for (const c of companies) {
+    for (const pg of pricePages(c, fairValues[c.ticker], assets, [])) {
+      const dir = path.join(_BUILD_DIR, "company", c.ticker, pg.slug);
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, "index.html"), pg.html, "utf8");
+      urls.push({ loc: `${_SITE}/company/${c.ticker}/${pg.slug}/`, freq: "weekly", pri: "0.8",
+                  lastmod: companyDataDate(c) || landingLastmod });
+      pricePagesCount++;
+    }
+  }
+  console.log(`Страницы «график» и «прогноз»: ${pricePagesCount}`);
 
   // ── Разборы отчётности за период ──────────────────────────────────────────────
   // Пишем только те, где есть содержательный анализ: одна строка «отчёт вышел» —

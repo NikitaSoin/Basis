@@ -70,7 +70,7 @@ function ProPriceCard({ assetClass, secid, title = "График цены", note
         <span>{title}</span>
         {note && <span className="tw-text-[12px] tw-text-text-tertiary tw-font-normal">{note}</span>}
       </div>
-      <ChartPro assetClass={assetClass} secid={secid} height={340} />
+      <div id="blk-price-chart"><ChartPro assetClass={assetClass} secid={secid} height={340} /></div>
     </Card>
   );
 }
@@ -3804,7 +3804,7 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
     return (
     <AppearGroup gate={appearGate.current} groupId="overview" className="tw-flex tw-flex-col tw-gap-4">
       {/* HERO — fair value: largest, accent-ringed, count-up number + upside delta */}
-      <Card className="tw-shadow-md dark:tw-shadow-none tw-ring-1 tw-ring-accent-soft">
+      <Card id="blk-fair-value" className="tw-shadow-md dark:tw-shadow-none tw-ring-1 tw-ring-accent-soft">
         <div className="tw-flex tw-flex-col md:tw-flex-row md:tw-items-end md:tw-justify-between tw-gap-6">
           <div>
             <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-mb-3">
