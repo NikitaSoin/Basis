@@ -109,9 +109,63 @@ def get_bfv(db: Session, ticker: str, required_spread: float = DEFAULT_REQUIRED_
         price = fin.get("meta", {}).get("last_price")  # фолбэк на снапшот
     shares = fin.get("meta", {}).get("shares_outstanding")
 
-    return compute_bfv(
+    res = compute_bfv(
         fin, gov, inst, barometer, market=market,
         shares_outstanding=shares, live_price=price,
         ofz_curve=_ofz_curve(db), beta=_live_beta(db, ticker),
         required_spread=required_spread, overrides=overrides,
     )
+    return _rebase_preferred(db, ticker, res, required_spread)
+
+
+# Насколько цена префа должна разойтись с обычкой, чтобы общая база стала непригодной.
+# 20% — обычный разброс ликвидности и дивидендных прав, его переносим молча.
+_PREF_DIVERGENCE = 0.20
+
+
+def _rebase_preferred(db: Session, ticker: str, res: dict | None,
+                      required_spread: float) -> dict | None:
+    """Справедливая цена префа — от справедливой цены обычки по рыночному соотношению.
+
+    🔴 ЗАЧЕМ (владелец, 2026-08-06: «БСПБ надо подправить, что за бред 1000 процентов»).
+    Модель оценивает БИЗНЕС: балансовая стоимость и рентабельность считаются на весь
+    капитал и делятся на все акции. Цену же берём по конкретному тикеру. Пока классы
+    торгуются близко, это незаметно; когда расходятся — получается бессмыслица. У префа
+    Банка «Санкт-Петербург» балансовая стоимость 466 ₽ на акцию прикладывалась к бумаге
+    за 37 ₽, давая апсайд +1030% при +102% у обычки, а дивдоходность выходила 160%.
+    У префа Лензолота знак вообще переворачивался: +498% против −30% у обычки.
+
+    Что делаем: справедливую цену префа получаем как справедливую цену обычки,
+    умноженную на РЫНОЧНОЕ соотношение классов. Мы не беремся оценивать премию или
+    дисконт префа — это отдельные права, которых в модели нет, — но и не выдаём за
+    оценку то, что ею не является. Апсайд префа при этом равен апсайду обычки: оценён
+    бизнес, а как он делится между классами, говорит рынок.
+    """
+    if not isinstance(res, dict) or res.get("status") != "ok":
+        return res
+    if not ticker.endswith("P"):
+        return res
+    common = ticker[:-1]
+    if not (COMPANIES_DIR / common / "financials.json").exists():
+        return res
+    pref_price = res.get("current_price")
+    common_price = _live_price(db, common)
+    if not pref_price or not common_price:
+        return res
+    ratio = pref_price / common_price
+    if abs(ratio - 1.0) <= _PREF_DIVERGENCE:
+        return res            # классы торгуются вровень — общая база пригодна
+
+    base = get_bfv(db, common, required_spread=required_spread)
+    if not isinstance(base, dict) or base.get("status") != "ok" or not base.get("fair_price"):
+        return res
+    fair = round(float(base["fair_price"]) * ratio, 2)
+    upside = round((fair / pref_price - 1) * 100, 1)
+    warnings = list(res.get("warnings") or [])
+    warnings.append(
+        f"Оценка получена из справедливой цены обыкновенной акции по рыночному "
+        f"соотношению классов ({ratio:.2f}). Собственные права привилегированной акции "
+        f"(фиксированный дивиденд, очерёдность) моделью не оцениваются.")
+    return {**res, "fair_price": fair, "upside_pct": upside,
+            "pref_rebased_from": common, "pref_ratio": round(ratio, 4),
+            "warnings": warnings}
