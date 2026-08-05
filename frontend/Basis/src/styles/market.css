@@ -49,7 +49,16 @@
 
 /* toolbar / search */
 .mk-screen .mk-toolbar{display:flex;gap:12px;align-items:center;margin:20px 0 4px;flex-wrap:wrap;}
+.mk-screen .mk-search-wrap{position:relative;flex:1;min-width:240px;}
 .mk-screen .mk-search{flex:1;min-width:240px;display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;background:var(--panel);border:1px solid var(--line-2);border-radius:11px;color:var(--ink-3);}
+.mk-screen .mk-search-wrap .mk-search{min-width:0;width:100%;box-sizing:border-box;}
+/* Выпадающие варианты при вводе (2026-08-05) — как в остальных поисках платформы */
+.mk-suggest{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--panel);border:1px solid var(--line-2);border-radius:11px;box-shadow:0 14px 40px rgba(0,0,0,.18);z-index:60;max-height:330px;overflow-y:auto;padding:6px;}
+.mk-suggest-item{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;font:inherit;text-align:left;padding:8px 10px;border-radius:8px;cursor:pointer;}
+.mk-suggest-item:hover,.mk-suggest-item:focus-visible{background:var(--accent-soft);}
+.mk-suggest-text{display:flex;flex-direction:column;gap:1px;min-width:0;}
+.mk-suggest-text b{font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mk-suggest-sub{font-family:var(--cc-mono, "IBM Plex Mono", monospace);font-size:11.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .mk-screen .mk-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
 .mk-screen .mk-search input{border:0;background:transparent;outline:0;font:inherit;font-size:14.5px;color:var(--ink);flex:1;}
 .mk-screen .mk-search input::placeholder{color:var(--ink-3);}

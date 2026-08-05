@@ -5,7 +5,7 @@
    /quotes/realtime (дневная дельта + ширина), /market/indices, /market/drivers,
    /bonds, /futures, /funds, /spot, /market/instruments/sparklines (мини-графики).
    Эпистемика: котировки = факт; тон рынка и трактовка драйверов = оценка/суждение Basis. */
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { syncTabUrl } from "../navUrl";
 import { InfoDot } from "../design/InfoDot";
 import { FAIR_VALUE_NOTE } from "../fairValueNote";
@@ -935,6 +935,16 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   // должен быть сайдбар» (единообразие с остальными тремя экранами).
   const [drawerOpen, setDrawerOpen, drawerNarrow] = useMobileSidebarDrawer();
   const [query, setQuery] = useState("");
+  // Выпадающие варианты при вводе в поиск (владелец 2026-08-05: «ввёл "нор" —
+  // высветились все варианты», как в остальных поисковых строках платформы).
+  // Данные вкладок уже на клиенте — фильтруем локально, без запросов к API.
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const searchRef = useRef(null);
+  useEffect(() => {
+    const handler = (e) => { if (searchRef.current && !searchRef.current.contains(e.target)) setSuggestOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
   const [sector, setSector] = useState("Все");
   // Дефолт "list" (Карточки) — владелец, 2026-07-30: базовый режим экрана
   // «Рынок» должен быть карточками, не лентой. localStorage-ключ mk.sview3
@@ -1070,6 +1080,32 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
     return { adv, dec, flat: withChg.length - adv - dec, total: withChg.length };
   }, [stocks]);
 
+  // Топ-8 подсказок по активной вкладке; совпадение С НАЧАЛА тикера/названия/слова
+  // ранжируется выше совпадения в середине («нор» → Норникель раньше «Инарктики»).
+  const suggestions = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    const rank = (hay) => {
+      const h = (hay || "").toLowerCase();
+      if (!h.includes(q)) return null;
+      if (h.startsWith(q)) return 0;
+      return h.split(/[\s,.«»()-]+/).some(w => w.startsWith(q)) ? 1 : 2;
+    };
+    const best = (...hays) => hays.reduce((m, h) => { const r = rank(h); return r == null ? m : Math.min(m, r); }, 9);
+    const pick = (arr, haysOf, mapItem) => arr
+      .map(x => ({ x, r: best(...haysOf(x)) })).filter(p => p.r < 9)
+      .sort((a, b) => a.r - b.r).slice(0, 8).map(p => mapItem(p.x));
+    if (tab === "stocks") return pick(stocks, s => [s.t, s.n],
+      s => ({ key: s.t, name: s.n, sub: s.t + (s.sec ? " · " + s.sec : ""), ticker: s.t, open: () => onOpenCompany(s.t) }));
+    if (tab === "bonds") return pick(bonds, b => [b.short_name, b.secid, b.isin],
+      b => ({ key: b.secid, name: b.short_name || b.secid, sub: b.secid + (b.isin && b.isin !== b.secid ? " · " + b.isin : ""), open: () => onOpenBond(b.secid) }));
+    if (tab === "futures") return pick(futures, f => [f.sec_name || f.asset_name, f.secid],
+      f => ({ key: f.secid, name: f.sec_name || f.asset_name || f.secid, sub: f.secid, open: () => onOpenFuture(f.secid) }));
+    if (tab === "funds") return pick(funds, f => [f.sec_name, f.secid],
+      f => ({ key: f.secid, name: f.sec_name || f.secid, sub: f.secid, open: () => onOpenFund(f.secid) }));
+    return [];
+  }, [tab, query, stocks, bonds, futures, funds]); // eslint-disable-line
+
   const TABS = [
     { id: "stocks", label: "Акции", count: scored.length || null, icon: TrendingUp },
     { id: "bonds", label: "Облигации", count: bonds.length || null, icon: FileText },
@@ -1140,10 +1176,27 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
 
           {showSearch && (
             <div className="mk-toolbar">
-              <label className="mk-search">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>
-                <input value={query} onChange={e => setQuery(e.target.value)} placeholder={placeholder} />
-              </label>
+              <div className="mk-search-wrap" ref={searchRef}>
+                <label className="mk-search">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>
+                  <input value={query}
+                    onChange={e => { setQuery(e.target.value); setSuggestOpen(true); }}
+                    onFocus={() => setSuggestOpen(true)}
+                    onKeyDown={e => { if (e.key === "Escape") setSuggestOpen(false); if (e.key === "Enter" && suggestions.length > 0) { suggestions[0].open(); setSuggestOpen(false); } }}
+                    placeholder={placeholder} />
+                </label>
+                {suggestOpen && query.trim() && suggestions.length > 0 && (
+                  <div className="mk-suggest" role="listbox">
+                    {suggestions.map(it => (
+                      <button key={it.key} type="button" className="mk-suggest-item" role="option" aria-selected="false"
+                        onMouseDown={e => { e.preventDefault(); it.open(); setSuggestOpen(false); }}>
+                        {it.ticker && Logo ? <Logo ticker={it.ticker} name={it.name} size={26} /> : null}
+                        <span className="mk-suggest-text"><b>{it.name}</b><span className="mk-suggest-sub">{it.sub}</span></span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
