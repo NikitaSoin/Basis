@@ -548,7 +548,33 @@ const DEFAULT_NOTE = `Basis — аналитический слой, не бро
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.`;
 
-function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, assets, note }) {
+/* 🔴 ДАТА ДАННЫХ, А НЕ ДАТА СБОРКИ. Для финансовых страниц читателю важно, на какой момент
+ * приведены числа, и поисковику тоже: YMYL-тематика, ложная свежесть здесь вредит.
+ * НЕ берём mtime файла (fileLastmod): на билд-окружении Timeweb репозиторий свежеклонирован,
+ * и у ВСЕХ файлов время клонирования — вышло бы «обновлено сегодня» у 8900 страниц разом.
+ * Берём дату из САМИХ данных: цена, на которую посчитана оценка, дата снапшота, дата
+ * публикации отчёта. */
+function dataDateLine(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  const M = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+  return `<p class="sub" style="margin-top:18px">Данные на ${d.getDate()} ${M[d.getMonth()]} ${d.getFullYear()} года. `
+    + `Страница пересобирается автоматически при обновлении данных.</p>`;
+}
+
+/** Дата, на которую актуальны числа компании. Берём самую позднюю из тех, что ЕСТЬ
+ *  в данных: дата цены для оценки и дата расчёта мультипликаторов. Ничего не выдумываем —
+ *  если дат нет, строка «данные на …» просто не выводится. */
+function companyDataDate(c) {
+  const m = (c.fin && c.fin.meta) || {};
+  const cur = ((c.fin && c.fin.multiples) || {}).current || {};
+  const cands = [m.price_date, cur.as_of, m.updated_at, m.as_of]
+    .filter((x) => typeof x === "string" && /^\d{4}-\d{2}-\d{2}/.test(x));
+  return cands.sort().pop() || null;
+}
+
+function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, assets, note, dataDate }) {
   const url = _SITE + canonicalPath;
   const crumbsHtml = breadcrumbs
     .map((b, i) => (i < breadcrumbs.length - 1 && b.href ? `<a href="${b.href}">${escapeHtml(b.label)}</a>` : escapeHtml(b.label)))
@@ -602,6 +628,10 @@ function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, 
           ...(b.href ? { item: _SITE + b.href } : {}),
         })),
       },
+      // dateModified — из даты ДАННЫХ. Без него поиск не отличает свежую страницу от
+      // прошлогодней, а для финансовых показателей это половина ценности.
+      ...(dataDate ? [{ "@context": "https://schema.org", "@type": "WebPage",
+                        "@id": url, url, dateModified: String(dataDate).slice(0, 10) }] : []),
       ...(jsonLd || []),
     ],
   };
@@ -634,6 +664,7 @@ ${metrikaSnippet()}
 <div id="seo-static">
 <nav class="crumbs">${crumbsHtml}</nav>
 ${bodyHtml}
+${dataDateLine(dataDate)}
 <p class="note">${note || DEFAULT_NOTE}</p>
 </div>${appMountHtml(assets)}
 </body>
@@ -1190,6 +1221,7 @@ function hubPage(c, tabsWritten, sectorPeers, assets) {
   }
 
   return pageShell({
+    dataDate: companyDataDate(c),
     title, desc,
     canonicalPath: `/company/${c.ticker}/`,
     breadcrumbs: [
@@ -1216,6 +1248,7 @@ ${contentHtml}
 <a class="cta" href="/company/${c.ticker}/${spec.slug}/">Продолжить в приложении: ${escapeHtml(spec.label.toLowerCase())} ${escapeHtml(c.short)} →</a>
 ${othersHtml}`;
   return pageShell({
+    dataDate: companyDataDate(c),
     title: spec.title(c),
     desc: spec.desc(c),
     canonicalPath: `/company/${c.ticker}/${spec.slug}/`,
@@ -2373,6 +2406,7 @@ ${Array.isArray(r.data_gaps) && r.data_gaps.length
 <a class="cta" href="/company/${escapeHtml(r.ticker)}/finance/">Полный разбор финансов ${escapeHtml(name)} →</a>
 <div><a class="chip" href="/company/${escapeHtml(r.ticker)}/">Карточка компании</a><a class="chip" href="/company/${escapeHtml(r.ticker)}/spravedlivaya-tsena/">Справедливая цена</a><a class="chip" href="/company/${escapeHtml(r.ticker)}/dividends/">Дивиденды</a><a class="chip" href="/razbor-otchetnosti-kompaniy/">Все разборы отчётности</a></div>`;
   return pageShell({
+    dataDate: (r.published_at || "").slice(0, 10) || null,
     title, desc, canonicalPath: `/company/${r.ticker}/otchet-${stableReportSlug(r)}/`,
     breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Компании", href: "/company/" },
                   { label: name, href: `/company/${r.ticker}/` }, { label: `Отчёт за ${words}` }],
@@ -2783,7 +2817,7 @@ ${sectorHtml}
       { label: `${c.short} (${c.ticker})`, href: `/company/${c.ticker}/` },
       { label: "Справедливая цена" },
     ],
-    bodyHtml: body, assets, note: DEFAULT_NOTE,
+    bodyHtml: body, assets, note: DEFAULT_NOTE, dataDate: companyDataDate(c),
   });
 }
 
@@ -2877,6 +2911,7 @@ ${sectorContext(c, spec, last.value, sectorAll || [], fmt)}
 <a class="cta" href="/company/${c.ticker}/finance/">Открыть финансы ${escapeHtml(c.short)} в Basis →</a>`;
 
   return pageShell({
+    dataDate: companyDataDate(c),
     title, desc, canonicalPath: `/company/${c.ticker}/${spec.slug}/`,
     breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Компании", href: "/company/" },
       { label: `${c.short} (${c.ticker})`, href: `/company/${c.ticker}/` }, { label }],
