@@ -114,7 +114,7 @@ import AssistantView from "./AssistantView";
 import "./styles/compare.css";
 const ScreenerCompareView = React.lazy(() => import("./screener/ScreenerCompareShell"));
 import "./styles/mobile-nav.css";
-import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop } from "./design/MobileSidebarDrawer";
+import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop, useDesktopSidebarCollapse, DesktopSidebarCollapse, DesktopSidebarHandle } from "./design/MobileSidebarDrawer";
 import useTourEngine from "./tour/useTourEngine";
 import TourOverlay from "./tour/TourOverlay";
 
@@ -138,6 +138,7 @@ function ObserverV2({
   // (2026-07-21, третий заход): «не сделал возможность убрать сайдбар и
   // добавить — как в портфельной аналитике и скринере».
   const [drawerOpen, setDrawerOpen, drawerNarrow] = useMobileSidebarDrawer();
+  const [sbCollapsed, toggleSb] = useDesktopSidebarCollapse();
   const activeSectionLabel = OBS_ZONES.flatMap((z) => z.items).find((it) => it.id === activeSection)?.label;
   // Страницы индексов (владелец: «нужно, чтобы сайдбар оставался виден и на
   // самой странице индекса, а не только после возврата назад») рендерятся
@@ -285,8 +286,9 @@ function ObserverV2({
   };
 
   return (
-    <div className="obs-shell">
+    <div className={"obs-shell" + (sbCollapsed ? " dsc-collapsed" : "")}>
       {drawerOpen && <MobileDrawerBackdrop onClose={() => setDrawerOpen(false)} />}
+      {sbCollapsed && <DesktopSidebarHandle onToggle={toggleSb} />}
       {/* ---- Dark sidebar ---- */}
       <nav
         className={`obs-sidebar msd-drawer${drawerOpen ? " msd-drawer--open" : ""}`}
@@ -296,6 +298,7 @@ function ObserverV2({
         inert={drawerNarrow && !drawerOpen}
       >
         <div className="obs-depth-strip" aria-hidden="true" />
+        <DesktopSidebarCollapse onToggle={toggleSb} />
         <div className="obs-eyebrow">Обозреватель</div>
 
         {OBS_ZONES.map((zone) => (

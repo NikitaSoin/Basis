@@ -132,3 +132,33 @@
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* =========================================================================
+   DESKTOP SIDEBAR COLLAPSE (dsc-*) — скрыть/открыть докованный сайдбар на
+   >760px (2026-08-05). Сайдбары position:fixed, main-области с
+   margin-left:260px — collapse просто гасит сайдбар и обнуляет отступ.
+   ≤760px эти классы не действуют — там работает msd-drawer. */
+@media (min-width: 761px) {
+  .dsc-toggle {
+    position: absolute; top: 12px; right: 10px; z-index: 6;
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 8px; background: transparent; color: rgba(255,255,255,0.55);
+    cursor: pointer;
+  }
+  .dsc-toggle:hover { color: #fff; border-color: rgba(255,255,255,0.32); }
+  .dsc-collapsed .msd-drawer { display: none; }
+  .dsc-collapsed .mkt-main, .dsc-collapsed .pf-main,
+  .dsc-collapsed .scmp-main, .dsc-collapsed .obs-main { margin-left: 0; }
+  .dsc-handle {
+    position: fixed; left: 0; top: 68px; z-index: 45;
+    display: flex; align-items: center; justify-content: center;
+    width: 30px; height: 38px;
+    border: 1px solid var(--line-2, rgba(0,0,0,0.16)); border-left: 0;
+    border-radius: 0 10px 10px 0;
+    background: var(--panel, #fff); color: var(--ink-2, #555);
+    cursor: pointer; box-shadow: 2px 4px 14px rgba(0,0,0,0.12);
+  }
+  .dsc-handle:hover { color: var(--accent, #C97A4A); border-color: var(--accent, #C97A4A); }
+}
+@media (max-width: 760px) { .dsc-toggle, .dsc-handle { display: none; } }

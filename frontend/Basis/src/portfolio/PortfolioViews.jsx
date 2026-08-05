@@ -27,7 +27,7 @@ import { WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor
 import { KeyTakeaway, Disclosure } from "../design/textblocks";
 import { AppearGroup } from "../design/motion";
 import { CompanyLogo, InstrumentLogo } from "../design/CompanyLogo";
-import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop } from "../design/MobileSidebarDrawer";
+import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop, useDesktopSidebarCollapse, DesktopSidebarCollapse, DesktopSidebarHandle } from "../design/MobileSidebarDrawer";
 import "../styles/portfolio-v2.css";
 
 const _dmy = (s) => s ? `${s.slice(8, 10)}.${s.slice(5, 7)}.${s.slice(0, 4)}` : "—";
@@ -2055,6 +2055,7 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
   const [visitedSections, setVisitedSections] = useState(() => new Set([forceSection || "composition"]));
   // Мобильный (≤760px) выезжающий сайдбар — design/MobileSidebarDrawer.jsx.
   const [drawerOpen, setDrawerOpen, drawerNarrow] = useMobileSidebarDrawer();
+  const [sbCollapsed, toggleSb] = useDesktopSidebarCollapse();
   const [stressScenario, setStressScenario] = useState("black_swan");
   // Доверительный уровень / горизонт для таблицы «Риск» (VaR/CVaR) — владелец
   // 2026-07-23: 95%/99% × дневной/годовой, 4 комбинации без перегрузки экрана
@@ -4238,9 +4239,10 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
   const activeZoneLabel = PF_ZONES.flatMap((z) => z.items).find((it) => it.id === activeSection)?.label;
 
   return (
-    <div className="pf-shell" style={{ background: "var(--pf-tan)" }}>
+    <div className={"pf-shell" + (sbCollapsed ? " dsc-collapsed" : "")} style={{ background: "var(--pf-tan)" }}>
       {/* ---- Мобильный (≤760px) выезжающий сайдбар — backdrop + drawer-класс на .pf-sidebar ---- */}
       {drawerOpen && <MobileDrawerBackdrop onClose={() => setDrawerOpen(false)} />}
+      {sbCollapsed && <DesktopSidebarHandle onToggle={toggleSb} />}
       {/* ---- Dark sidebar ---- */}
       <nav
         className={`pf-sidebar msd-drawer${drawerOpen ? " msd-drawer--open" : ""}`}
@@ -4250,6 +4252,7 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
         inert={drawerNarrow && !drawerOpen}
       >
         <div className="pf-depth-strip" aria-hidden="true" />
+        <DesktopSidebarCollapse onToggle={toggleSb} />
         <div className="pf-eyebrow">Аналитика портфеля</div>
 
         {PF_ZONES.map((zone) => (

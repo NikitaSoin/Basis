@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Menu } from "lucide-react";
+import { Menu, PanelLeft } from "lucide-react";
 import "../styles/mobile-sidebar-drawer.css";
 
 // =========================
@@ -121,5 +121,48 @@ export function MobileDrawerBackdrop({ onClose }) {
       }}
       aria-hidden="true"
     />
+  );
+}
+
+// =========================
+// DESKTOP SIDEBAR COLLAPSE — возможность скрыть/открыть докованный левый
+// сайдбар и НА ДЕСКТОПЕ (владелец 2026-08-05: «в компьютерной версии как в
+// мобильной чтобы была возможность сайдбар скрыть и открыть»). UX как у
+// Ассистента (asst-sidebar-toggle, PanelLeft): кнопка в сайдбаре сворачивает,
+// плавающая ручка у левого края возвращает. Состояние — одно на все экраны
+// (localStorage msd.desktopCollapsed): скрыл в Рынке — скрыт и в Портфеле.
+// CSS — низ mobile-sidebar-drawer.css (классы dsc-*, только >760px).
+// =========================
+
+/** [collapsed, toggle] — десктопное сворачивание сайдбара, с памятью. */
+export function useDesktopSidebarCollapse() {
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return localStorage.getItem("msd.desktopCollapsed") === "1"; } catch { return false; }
+  });
+  const toggle = () => setCollapsed((v) => {
+    const n = !v;
+    try { localStorage.setItem("msd.desktopCollapsed", n ? "1" : "0"); } catch { /* noop */ }
+    return n;
+  });
+  return [collapsed, toggle];
+}
+
+/** Кнопка «Скрыть меню» — рендерить ВНУТРИ сайдбара (верхний правый угол). */
+export function DesktopSidebarCollapse({ onToggle }) {
+  return (
+    <button type="button" className="dsc-toggle" onClick={onToggle}
+      title="Скрыть меню" aria-label="Скрыть боковое меню" aria-expanded="true">
+      <PanelLeft size={15} aria-hidden="true" />
+    </button>
+  );
+}
+
+/** Плавающая ручка у левого края — рендерить в shell, когда collapsed. */
+export function DesktopSidebarHandle({ onToggle }) {
+  return (
+    <button type="button" className="dsc-handle" onClick={onToggle}
+      title="Показать меню" aria-label="Показать боковое меню" aria-expanded="false">
+      <PanelLeft size={16} aria-hidden="true" />
+    </button>
   );
 }

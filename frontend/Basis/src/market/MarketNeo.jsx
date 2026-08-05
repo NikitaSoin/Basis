@@ -13,7 +13,7 @@ import { TrendingUp, FileText, ArrowRightLeft, Layers, Coins, Sigma } from "luci
 import { InstrumentLogo } from "../design/CompanyLogo";
 import "../styles/market.css";
 import "../styles/market-sidebar.css";
-import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop } from "../design/MobileSidebarDrawer";
+import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop, useDesktopSidebarCollapse, DesktopSidebarCollapse, DesktopSidebarHandle } from "../design/MobileSidebarDrawer";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 const NB = " ";
@@ -934,6 +934,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   // 2026-07-21 (четвёртый заход): «верхнее акции/облигации — не должно быть,
   // должен быть сайдбар» (единообразие с остальными тремя экранами).
   const [drawerOpen, setDrawerOpen, drawerNarrow] = useMobileSidebarDrawer();
+  const [sbCollapsed, toggleSb] = useDesktopSidebarCollapse();
   const [query, setQuery] = useState("");
   // Выпадающие варианты при вводе в поиск (владелец 2026-08-05: «ввёл "нор" —
   // высветились все варианты», как в остальных поисковых строках платформы).
@@ -1119,8 +1120,9 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   const placeholder = tab === "bonds" ? "Поиск по выпуску / ISIN…" : tab === "futures" ? "Поиск по контракту / базовому активу…" : tab === "funds" ? "Поиск по фонду…" : "Поиск по тикеру или названию…";
 
   return (
-    <div className="mkt-shell">
+    <div className={"mkt-shell" + (sbCollapsed ? " dsc-collapsed" : "")}>
       {drawerOpen && <MobileDrawerBackdrop onClose={() => setDrawerOpen(false)} />}
+      {sbCollapsed && <DesktopSidebarHandle onToggle={toggleSb} />}
       {/* ---- Тёмный сайдбар классов активов (тот же паттерн, что Портфель/Обозреватель/Скринер+Сравнение) ---- */}
       <nav
         className={`mkt-sidebar msd-drawer${drawerOpen ? " msd-drawer--open" : ""}`}
@@ -1132,6 +1134,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
         inert={drawerNarrow && !drawerOpen}
       >
         <div className="mkt-depth-strip" aria-hidden="true" />
+        <DesktopSidebarCollapse onToggle={toggleSb} />
         <div className="mkt-eyebrow">Рынок</div>
         <div className="mkt-zone">
           <div className="mkt-zone-label">Классы активов</div>

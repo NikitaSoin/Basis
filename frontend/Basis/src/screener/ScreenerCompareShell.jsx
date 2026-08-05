@@ -3,7 +3,7 @@ import { Filter, Scale, Wand2 } from "lucide-react";
 import { ScreenerView } from "../company/CompanyCardView";
 import CompareView from "../compare/CompareView";
 import PortfolioPicksView from "./PortfolioPicksView";
-import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop } from "../design/MobileSidebarDrawer";
+import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop, useDesktopSidebarCollapse, DesktopSidebarCollapse, DesktopSidebarHandle } from "../design/MobileSidebarDrawer";
 import "../styles/screener-compare.css";
 
 // =========================
@@ -31,11 +31,13 @@ export default function ScreenerCompareView({ token, onSelectCompany, onAuthRequ
   const [activeSection, setActiveSection] = useState("screener");
   // Мобильный (≤760px) выезжающий сайдбар — design/MobileSidebarDrawer.jsx.
   const [drawerOpen, setDrawerOpen, drawerNarrow] = useMobileSidebarDrawer();
+  const [sbCollapsed, toggleSb] = useDesktopSidebarCollapse();
   const activeLabel = SCMP_ZONES.flatMap((z) => z.items).find((it) => it.id === activeSection)?.label;
 
   return (
-    <div className="scmp-shell">
+    <div className={"scmp-shell" + (sbCollapsed ? " dsc-collapsed" : "")}>
       {drawerOpen && <MobileDrawerBackdrop onClose={() => setDrawerOpen(false)} />}
+      {sbCollapsed && <DesktopSidebarHandle onToggle={toggleSb} />}
       <nav
         className={`scmp-sidebar msd-drawer${drawerOpen ? " msd-drawer--open" : ""}`}
         aria-label="Скринер и сравнение"
@@ -44,6 +46,7 @@ export default function ScreenerCompareView({ token, onSelectCompany, onAuthRequ
         inert={drawerNarrow && !drawerOpen}
       >
         <div className="scmp-depth-strip" aria-hidden="true" />
+        <DesktopSidebarCollapse onToggle={toggleSb} />
         <div className="scmp-eyebrow">Рынок</div>
 
         {SCMP_ZONES.map((zone) => (
