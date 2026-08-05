@@ -2715,3 +2715,100 @@ def debug_overview_synthesis_status(days_back: int = 7, limit: int = 25):
                            for r in rows]}
     finally:
         db.close()
+
+
+_DAILY_SQL = """
+WITH ev AS (
+  SELECT anon_id, created_at, date(created_at) AS d,
+         CASE WHEN created_at - lag(created_at) OVER (PARTITION BY anon_id ORDER BY created_at)
+                   > interval '30 minutes'
+               OR lag(created_at) OVER (PARTITION BY anon_id ORDER BY created_at) IS NULL
+              THEN 1 ELSE 0 END AS new_visit
+  FROM user_events
+  WHERE is_bot IS FALSE AND anon_id IS NOT NULL
+    AND created_at >= current_date - CAST(:days AS integer)
+),
+v AS (
+  SELECT anon_id, d, created_at,
+         sum(new_visit) OVER (PARTITION BY anon_id ORDER BY created_at) AS visit_no
+  FROM ev
+),
+vis AS (
+  SELECT d, anon_id, visit_no,
+         EXTRACT(EPOCH FROM (max(created_at) - min(created_at))) AS sec,
+         count(*) AS events
+  FROM v GROUP BY 1,2,3
+),
+first_seen AS (
+  SELECT anon_id, min(date(created_at)) AS first_day
+  FROM user_events WHERE is_bot IS FALSE AND anon_id IS NOT NULL GROUP BY 1
+)
+SELECT vis.d AS den,
+       count(DISTINCT vis.anon_id) AS lyudey,
+       count(*) AS vizitov,
+       count(DISTINCT vis.anon_id) FILTER (WHERE first_seen.first_day = vis.d) AS novyh,
+       count(DISTINCT vis.anon_id) FILTER (WHERE first_seen.first_day < vis.d) AS vernulis,
+       round(CAST(avg(vis.sec)/60.0 AS numeric), 1) AS minut_na_vizit,
+       round(CAST(avg(vis.events) AS numeric), 1) AS sobytiy_na_vizit
+FROM vis JOIN first_seen ON first_seen.anon_id = vis.anon_id
+GROUP BY 1 ORDER BY 1 DESC
+"""
+
+_TOUR_SQL = """
+SELECT date(created_at) AS den,
+       count(DISTINCT anon_id) FILTER (WHERE name = 'tour_shown')     AS pokazan,
+       count(DISTINCT anon_id) FILTER (WHERE name = 'tour_started')   AS nachali,
+       count(DISTINCT anon_id) FILTER (WHERE name = 'tour_completed') AS proshli,
+       count(DISTINCT anon_id) FILTER (WHERE name = 'tour_dismissed') AS otkazalis
+FROM user_events
+WHERE is_bot IS FALSE AND kind = 'action' AND name LIKE 'tour_%'
+  AND created_at >= current_date - CAST(:days AS integer)
+GROUP BY 1 ORDER BY 1 DESC
+"""
+
+
+@router.get("/debug/analytics-daily")
+def analytics_daily(days: int = Query(14, ge=1, le=90)):   # защита — на уровне роутера (_debug_guard)
+    """Сводка по дням в ОДНОМ месте: люди, визиты, новые и вернувшиеся, время на платформе,
+    воронка экскурса.
+
+    Владелец 2026-08-05: «можно сделать, чтобы было видно притоки/оттоки и время пребывания
+    (и чтобы всё можно было посмотреть вместе) + сколько людей воспользовались экскурсом».
+
+    🔴 ПОЧЕМУ НЕ СОВПАДАЕТ С МЕТРИКОЙ — и почему обе системы правы.
+    Метрика считает КАЖДОЕ открытие страницы: её счётчик стоит во всех трёх HTML-каркасах,
+    включая пре-рендеренные SEO-страницы, и срабатывает ДО загрузки приложения. Наш лог
+    пишет из приложения: человек, который открыл статическую страницу облигации, прочитал
+    и ушёл, в Метрику попадёт, а к нам — нет. Плюс личность считается по-разному: у Метрики
+    свой идентификатор, у нас anon_id, и он теряется при очистке хранилища браузера.
+    Поэтому наши цифры ВСЕГДА ниже и отвечают на другой вопрос: сколько людей реально
+    работали с платформой, а не сколько открыли страницу.
+
+    Визит — серия событий одного человека без перерыва больше 30 минут (та же граница,
+    что у Метрики, чтобы числа были хотя бы сопоставимы по смыслу).
+    """
+    from sqlalchemy import text as _sql
+    from app.db.session import SessionLocal
+    with SessionLocal() as db:
+        db.execute(_sql("SET TRANSACTION READ ONLY"))
+        rows = [dict(r._mapping) for r in db.execute(_sql(_DAILY_SQL), {"days": days})]
+        tour = [dict(r._mapping) for r in db.execute(_sql(_TOUR_SQL), {"days": days})]
+    by_day = {str(t["den"]): t for t in tour}
+    for r in rows:
+        r["den"] = str(r["den"])
+        t = by_day.get(r["den"], {})
+        r["ekskurs_pokazan"] = t.get("pokazan", 0)
+        r["ekskurs_nachali"] = t.get("nachali", 0)
+        r["ekskurs_proshli"] = t.get("proshli", 0)
+    return {
+        "пояснение": ("Метрика считает открытия страниц (её счётчик есть и на статических "
+                      "SEO-страницах), наш лог — работу в приложении. Поэтому наши цифры ниже: "
+                      "они отвечают на вопрос «сколько людей пользовались», а не «сколько открыли»."),
+        "по_дням": rows,
+        "экскурс_всего": {
+            "показан": sum(t.get("pokazan", 0) or 0 for t in tour),
+            "начали": sum(t.get("nachali", 0) or 0 for t in tour),
+            "прошли": sum(t.get("proshli", 0) or 0 for t in tour),
+            "отказались_на_приветствии": sum(t.get("otkazalis", 0) or 0 for t in tour),
+        },
+    }

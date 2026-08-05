@@ -1,3 +1,4 @@
+import { logAction } from "../analytics";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePrefersReducedMotion } from "../design/primitives";
 import TOUR_STEPS from "./tourSteps";
@@ -124,6 +125,9 @@ export default function useTourEngine({ activeTab, navigate, onOpenCompany, show
       welcomeDoneRef.current = true;
       welcomeTimerRef.current = setTimeout(() => {
         safeSet(WELCOME_KEY, String(Date.now())); // «в момент показа», не в момент перехода
+        // Верх воронки экскурса. Владелец 2026-08-05: «скольким показался и сколько прошло» —
+        // без этих событий вопрос неотвечаем: тур жил в localStorage и наружу не сообщал ничего.
+        logAction("tour_shown");
         setPhase((p) => (p === "idle" ? "welcome" : p)); // не перебиваем, если пользователь уже что-то сделал руками
       }, WELCOME_DELAY_MS);
     }
@@ -242,15 +246,23 @@ export default function useTourEngine({ activeTab, navigate, onOpenCompany, show
 
   const start = useCallback(() => {
     setStepIndex(0);
+    logAction("tour_started");
     setPhase("running");
   }, []);
 
   const dismissWelcome = useCallback(() => {
+    logAction("tour_dismissed");
     setPhase("idle");
   }, []);
 
   const next = useCallback(() => {
-    setStepIndex((i) => Math.min(TOUR_STEPS.length - 1, i + 1));
+    setStepIndex((i) => {
+      const n = Math.min(TOUR_STEPS.length - 1, i + 1);
+      // Номер шага в meta: по нему видно, НА КАКОМ шаге бросают. «Показали 100, прошли 12»
+      // без этого не объясняет, что чинить.
+      if (n !== i) logAction("tour_step", { step: n });
+      return n;
+    });
   }, []);
 
   const prev = useCallback(() => {
@@ -260,6 +272,7 @@ export default function useTourEngine({ activeTab, navigate, onOpenCompany, show
   const finish = useCallback(() => {
     safeRemove(STEP_KEY);
     safeSet(COMPLETED_KEY, String(Date.now()));
+    logAction("tour_completed");
     setPhase("completed");
   }, []);
 
