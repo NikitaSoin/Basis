@@ -255,3 +255,19 @@ def test_thousand_separators_are_grounded(fair):
                                      "последние периоды подряд.")
     assert not [n for n in ov._gate(ok, tabs, fair, "SBER")
                 if n.startswith("ungrounded_numbers")]
+
+
+def test_corporate_recommendation_is_not_investment_advice(tabs, fair):
+    """🔴 «Совет директоров рекомендовал дивиденд» — процедура, а не наш совет.
+
+    Прежнее правило ловило корень «рекоменд» и браковало своды, где описан
+    обычный корпоративный факт: рекомендацию совета отклонило собрание.
+    """
+    ok = _result()
+    ok["verdict"] += (" Рекомендованный советом директоров дивиденд собрание не "
+                      "утвердило.")
+    assert "banned_wording" not in ov._gate(ok, tabs, fair, "SBER")
+    # прямой совет инвестору по-прежнему запрещён
+    bad = _result()
+    bad["fair_value_story"]["why"] += " Мы рекомендуем увеличить долю в портфеле."
+    assert "banned_wording" in ov._gate(bad, tabs, fair, "SBER")
