@@ -36,17 +36,55 @@ MAX_CODES_PER_HOUR = 5
 
 
 def is_verification_enabled() -> bool:
-    return bool(os.environ.get("SMTP_HOST") and os.environ.get("SMTP_USER")
-                and os.environ.get("SMTP_PASSWORD"))
+    # Достаточно ЛЮБОГО настроенного канала: HTTP API (Unisender Go) или SMTP.
+    # Диагноз 2026-08-07 (debug/net-probe с инстанса): egress Timeweb режет ВСЕ
+    # SMTP-порты (465/587/25/2525 — timed out), а HTTPS открыт (go1.unisender.ru
+    # отвечает за 3 мс) — поэтому боевой канал HTTP, SMTP остаётся фолбэком.
+    return bool(os.environ.get("UNISENDER_GO_API_KEY")) or bool(
+        os.environ.get("SMTP_HOST") and os.environ.get("SMTP_USER")
+        and os.environ.get("SMTP_PASSWORD"))
 
 
 def _hash(code: str) -> str:
     return hashlib.sha256(code.encode()).hexdigest()
 
 
+def _send_via_unisender(to_addr: str, subject: str, body: str) -> None:
+    """Транзакционная отправка через HTTP API Unisender Go (go1.unisender.ru) —
+    единственный живой канал с инстанса Timeweb (SMTP-порты закрыты egress'ом).
+    Требует UNISENDER_GO_API_KEY в env; отправитель — SMTP_FROM/SMTP_USER
+    (адрес должен быть подтверждён в кабинете Unisender Go, домен — с DKIM)."""
+    import json as _json
+    import urllib.request
+    api_key = os.environ["UNISENDER_GO_API_KEY"]
+    from_addr = os.environ.get("SMTP_FROM") or os.environ.get("SMTP_USER") or "info@inbasis.ru"
+    payload = {
+        "message": {
+            "recipients": [{"email": to_addr}],
+            "subject": subject,
+            "body": {"plaintext": body},
+            "from_email": from_addr,
+            "from_name": "Basis",
+        }
+    }
+    req = urllib.request.Request(
+        "https://go1.unisender.ru/ru/transactional/api/v1/email/send.json",
+        data=_json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json", "X-API-KEY": api_key},
+        method="POST")
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        out = _json.loads(resp.read().decode("utf-8", "replace") or "{}")
+    if out.get("status") != "success":
+        raise RuntimeError(f"unisender: {str(out)[:200]}")
+
+
 def send_mail(to_addr: str, subject: str, body: str) -> None:
-    """Общая транзакционная отправка через SMTP из env (ящик Timeweb владельца).
-    Используется и кодами, и письмами со ссылкой подтверждения."""
+    """Общая транзакционная отправка: Unisender Go (HTTP), если задан ключ,
+    иначе SMTP из env (ящик Timeweb). Используется кодами, письмами со ссылкой
+    подтверждения и debug/test-email."""
+    if os.environ.get("UNISENDER_GO_API_KEY"):
+        _send_via_unisender(to_addr, subject, body)
+        return
     host = os.environ["SMTP_HOST"]
     port = int(os.environ.get("SMTP_PORT", "465"))
     user = os.environ["SMTP_USER"]

@@ -2872,7 +2872,9 @@ def debug_net_probe(data: dict | None = None):
         except Exception as e:  # noqa: BLE001
             out.append({"target": f"{h}:{p}", "tcp": type(e).__name__, "detail": str(e)[:80]})
     pw = os.environ.get("SMTP_PASSWORD", "")
-    return {"probes": out, "smtp_env": {
+    channel = "unisender" if os.environ.get("UNISENDER_GO_API_KEY") else (
+        "smtp" if os.environ.get("SMTP_HOST") else "none")
+    return {"probes": out, "mail_channel": channel, "smtp_env": {
         "host": os.environ.get("SMTP_HOST"), "port": os.environ.get("SMTP_PORT"),
         "user": os.environ.get("SMTP_USER"),
         "from": os.environ.get("SMTP_FROM"),
