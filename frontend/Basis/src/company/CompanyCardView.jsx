@@ -2643,73 +2643,76 @@ const FundCard = ({ secid, onBack }) => {
   const cost = data.ter_cost;
 
   const Tile = ({ caption, children, hint }) => (
-    <Card className="tw-flex tw-flex-col tw-gap-1">
-      <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.06em" }}>{caption}</div>
+    <section className="ic-card">
+      <div className="ic-kpi-cap">{caption}</div>
       {children}
       {hint && <div className="tw-text-[12px] tw-text-text-tertiary tw-leading-snug">{hint}</div>}
-    </Card>
+    </section>
   );
 
   return (
-    <div className="tw-flex tw-flex-col tw-gap-4">
-      <button onClick={onBack} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[14px] tw-text-text-secondary hover:tw-text-text-primary tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0 tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
+    <div className="icard">
+      <button onClick={onBack} className="ic-back">
         <ChevronRight size={16} className="tw-rotate-180" /> К списку фондов
       </button>
 
-      <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
-        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-serif tw-text-text-primary tw-m-0">{f.short_name}</h1>
-        <Badge tone="neutral">{t.label}</Badge>
-        {f.sec_name && <span className="tw-text-[14px] tw-text-text-secondary">{f.sec_name}</span>}
-        <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{f.secid}{f.isin ? ` · ${f.isin}` : ""}</span>
+      {/* единый герой карточки, как у фьючерса и облигации (styles/instrument-card.css) */}
+      <section className="ic-hero">
+      <div className="ic-idrow" style={{ marginTop: 0 }}>
+        <h1 className="ic-name">{f.short_name}</h1>
+        <span className="ic-pill">{t.label}</span>
+        {f.sec_name && <span className="ic-sub">{f.sec_name}</span>}
+        <span className="ic-code">{f.secid}{f.isin ? ` · ${f.isin}` : ""}</span>
       </div>
 
-      <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-3 tw-gap-3">
+      <div className="ic-kpi">
         <Tile caption="Что внутри" hint="Фонд — это корзина активов в одной бумаге.">
-          <span className="tw-text-[20px] tw-font-medium tw-text-text-primary tw-leading-tight">{t.label}</span>
+          <span className="ic-kpi-val ic-kpi-val--text">{t.label}</span>
         </Tile>
         <Tile caption="Комиссия фонда (TER)" hint={f.ter != null ? "Тихий враг доходности: берётся каждый год независимо от результата." : "Не на MOEX — уточните на сайте УК фонда."}>
-          <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{f.ter != null ? `${fmtNumber(f.ter, { decimals: 2 })}%` : "—"}</span>
+          <span className="ic-kpi-num">{f.ter != null ? `${fmtNumber(f.ter, { decimals: 2 })}%` : "—"}</span>
         </Tile>
         <Tile caption="Ликвидность (оборот/день)" hint={f.num_trades != null ? `${fmtNumber(f.num_trades, { decimals: 0 })} сделок за день` : "Чем больше оборот, тем легче вход/выход."}>
-          <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{f.val_today != null ? `${fmtMln(f.val_today)} ₽` : "—"}</span>
+          <span className="ic-kpi-num">{f.val_today != null ? `${fmtMln(f.val_today)} ₽` : "—"}</span>
         </Tile>
       </div>
+      </section>
 
       <ProPriceCard assetClass="fund" secid={secid} />
 
       {/* TER в деньгах — перевод «невидимого 1%» в осязаемые потери (ценность Basis) */}
       {cost && (
-        <Card header="Во что обходится комиссия (TER в деньгах)">
-          <div className="tw-text-[13px] tw-text-text-secondary tw-mb-3">
+        <section className="ic-card"><h3><span>Во что обходится комиссия (TER в деньгах)</span></h3>
+          <div className="ic-body">
             На каждые 100 000 ₽ вложений комиссия фонда {fmtNumber(f.ter, { decimals: 2 })}% в год накопит примерно (без учёта роста — чистая иллюстрация «тихого врага»):
           </div>
           <div className="tw-grid tw-grid-cols-3 tw-gap-2">
             {[["за 1 год", cost["1"]], ["за 5 лет", cost["5"]], ["за 10 лет", cost["10"]]].map(([k, v]) => (
               <div key={k} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5 tw-text-center">
-                <div className="tw-text-[12px] tw-text-text-tertiary">{k}</div>
+                <div className="ic-note">{k}</div>
                 <div className="tw-text-[16px] tw-font-mono tw-font-semibold tw-text-text-primary">{fmtNumber(v, { decimals: 0 })} ₽</div>
               </div>
             ))}
           </div>
-          <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">Оценка. У фондов на тот же актив TER бывает заметно ниже — сравнивайте комиссии аналогов того же типа: на длинном горизонте это прямая разница в доходности.</div>
-        </Card>
+          <div className="ic-note">Оценка. У фондов на тот же актив TER бывает заметно ниже — сравнивайте комиссии аналогов того же типа: на длинном горизонте это прямая разница в доходности.</div>
+        </section>
       )}
 
       {!cost && (
-        <Card header="Комиссия фонда (TER)">
+        <section className="ic-card"><h3><span>Комиссия фонда (TER)</span></h3>
           <div className="tw-text-[13px] tw-text-text-secondary">Комиссия этого фонда <b>не публикуется на MOEX</b> — уточните на сайте управляющей компании. В РФ TER биржевых фондов обычно <b>0,5–1% годовых</b>, и именно она — главный фактор отставания фонда от индекса на длинном горизонте. Basis добавляет TER по мере сбора данных по фондам; для сравнения комиссий уже доступны крупнейшие фонды каждого типа.</div>
-        </Card>
+        </section>
       )}
 
       {summary && (
-        <Card header="Разбор аналитика">
+        <section className="ic-card"><h3><span>Разбор аналитика</span></h3>
           <AnalystProse md={summary} />
-        </Card>
+        </section>
       )}
       {!summary && (
-        <Card header="Разбор аналитика">
+        <section className="ic-card"><h3><span>Разбор аналитика</span></h3>
           <div className="tw-text-[13px] tw-text-text-tertiary tw-leading-snug">Детальный разбор этого фонда — что именно внутри (топ-позиции), ошибка слежения за индексом и дублирование с вашим портфелем — в очереди. Сейчас доступен паспорт: тип, комиссия и ликвидность выше. Этого достаточно, чтобы сравнить фонд с аналогами того же типа по главному критерию — комиссии.</div>
-        </Card>
+        </section>
       )}
     </div>
   );
@@ -2732,32 +2735,32 @@ const SpotCard = ({ secid, onBack }) => {
   const a = data.asset;
   const ch = a.change_pct;
   return (
-    <div className="tw-flex tw-flex-col tw-gap-4">
-      <button onClick={onBack} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[14px] tw-text-text-secondary hover:tw-text-text-primary tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0 tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
+    <div className="icard">
+      <button onClick={onBack} className="ic-back">
         <ChevronRight size={16} className="tw-rotate-180" /> К списку
       </button>
-      <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
-        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-serif tw-text-text-primary tw-m-0">{a.name}</h1>
-        <Badge tone="neutral">{(SPOT_KIND[a.kind] || {}).label || a.kind}</Badge>
-        <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{a.secid}</span>
+      <div className="ic-idrow" style={{ marginTop: 0 }}>
+        <h1 className="ic-name">{a.name}</h1>
+        <span className="ic-pill">{(SPOT_KIND[a.kind] || {}).label || a.kind}</span>
+        <span className="ic-code">{a.secid}</span>
       </div>
       <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-3">
-        <Card className="tw-flex tw-flex-col tw-gap-1">
-          <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.06em" }}>Цена (₽)</div>
-          <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{a.last_price == null ? "—" : fmtNumber(a.last_price, { decimals: a.kind === "currency" ? 3 : 2 })}</span>
+        <section className="ic-card">
+          <div className="ic-kpi-cap">Цена (₽)</div>
+          <span className="ic-kpi-num">{a.last_price == null ? "—" : fmtNumber(a.last_price, { decimals: a.kind === "currency" ? 3 : 2 })}</span>
           {ch != null && <span className={`tw-text-[13px] ${ch >= 0 ? "tw-text-success" : "tw-text-danger"}`}>{ch >= 0 ? "▲ +" : "▼ "}{fmtNumber(ch, { decimals: 2 })}% за день</span>}
-        </Card>
-        <Card className="tw-flex tw-flex-col tw-gap-1">
-          <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.06em" }}>Что это</div>
+        </section>
+        <section className="ic-card">
+          <div className="ic-kpi-cap">Что это</div>
           <span className="tw-text-[14px] tw-text-text-secondary tw-leading-snug">{a.kind === "currency" ? "Биржевой курс к рублю. Это макро-индикатор (зависит от ставки ЦБ, нефти, платёжного баланса), а не «актив со справедливой ценой»." : "Цена металла за грамм в рублях = мировая цена × курс рубля. Защитный актив: слабо коррелирует с акциями, хедж от инфляции и девальвации."}</span>
-        </Card>
+        </section>
       </div>
       <ProPriceCard assetClass="spot" secid={secid} />
 
       {summary ? (
-        <Card header="Что дальше · роль в портфеле"><AnalystProse md={summary} /></Card>
+        <section className="ic-card"><h3><span>Что дальше · роль в портфеле</span></h3><AnalystProse md={summary} /></section>
       ) : (
-        <Card header="Что дальше · роль в портфеле"><div className="tw-text-[13px] tw-text-text-tertiary">Подробный разбор (факторы курса/цены, что закладывает рынок, роль в портфеле) готовится.</div></Card>
+        <section className="ic-card"><h3><span>Что дальше · роль в портфеле</span></h3><div className="tw-text-[13px] tw-text-text-tertiary">Подробный разбор (факторы курса/цены, что закладывает рынок, роль в портфеле) готовится.</div></section>
       )}
     </div>
   );
@@ -5972,7 +5975,12 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
         structural_growth: { text: "Структурный рост", cls: "struct", Icon: Flag },
       };
       const PMARKET = { domestic_parity: "внутр. рынок · экспортный паритет", regulated_tariff: "регулируемый тариф" };
-      const BENCH_NOTE = { planned: "разовый снимок · история скоро", none: "нет биржевого ряда" };
+      // «proxy» — ряд показывает НАПРАВЛЕНИЕ смежного рынка, а не цену продукции
+      // компании. Появился после разбора ALRS: там алмазное СЫРЬЁ измерялось
+      // индексом ОГРАНЁННЫХ бриллиантов — разные рынки, цены расходятся. Молча
+      // показывать такой график нельзя: пользователь принимает его за цену товара.
+      const BENCH_NOTE = { planned: "разовый снимок · история скоро", none: "нет биржевого ряда",
+                           proxy: "смежный рынок · только направление" };
       const fmtDate = (d) => { if (!d) return ""; const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString("ru-RU"); };
       const shareOf = (it) => {
         if (typeof it.revenue_share_pct === "number") return `≈${it.revenue_share_pct}%`;
