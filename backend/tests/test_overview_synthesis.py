@@ -236,3 +236,22 @@ def test_direction_survives_daily_price_moves(tabs, fair):
     wrong["fair_value_story"]["direction"] = "ниже рынка"
     assert any(n.startswith("direction_vs_upside")
                for n in ov._gate(wrong, tabs, fair, "SBER"))
+
+
+def test_thousand_separators_are_grounded(fair):
+    """🔴 «3 050 млн» в разборе и «3050» в своде — одно число, а не выдумка.
+
+    Разделитель разрядов стоит во всех разборах; без склейки гейт выбрасывал годные
+    своды пачками (17 за одну партию).
+    """
+    tabs = [{"tab": "finance", "title": "Финансы",
+             "text": "Выручка 3 050 млн ₽, чистая прибыль 1 370 млн ₽."},
+            {"tab": "business", "title": "Бизнес", "text": "Сеть магазинов."},
+            {"tab": "governance", "title": "Управление", "text": "Балл 4,2."}]
+    ok = _result()
+    ok["fair_value_story"]["supports"] = ["выручка 3050 млн ₽ при прибыли 1370 млн ₽"]
+    ok["fair_value_story"]["why"] = ("Оценка опирается на выручку 3050 млн ₽ и прибыль "
+                                     "1370 млн ₽, которые бизнес показывает устойчиво "
+                                     "последние периоды подряд.")
+    assert not [n for n in ov._gate(ok, tabs, fair, "SBER")
+                if n.startswith("ungrounded_numbers")]

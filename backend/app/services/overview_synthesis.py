@@ -211,6 +211,10 @@ def _gate(result: dict, tabs: list[dict], fair: dict | None, ticker: str) -> lis
     # плюс компоненты справедливой цены. Иначе модель «дорисовывает» правдоподобные
     # величины — на этом уже горел макро-выпуск.
     grounding = " ".join(t["text"] for t in tabs) + " " + json.dumps(fair or {}, ensure_ascii=False)
+    # 🔴 В разборах крупные числа записаны с разделителем разрядов: «3 050 млн»,
+    # «1 370». Автор свода пишет их слитно — «3050», — и гейт объявлял это выдумкой.
+    # На этом ушло 17 годных сводов за одну партию. Склеиваем разряды ДО разбора.
+    grounding = re.sub(r"(?<=\d)[  \u202f](?=\d{3}\b)", "", grounding)
     grounding_nums = set(re.findall(r"\d+(?:[.,]\d+)?", grounding))
     grounding_nums |= {n.replace(",", ".") for n in grounding_nums}
     grounding_nums |= {n.replace(".", ",") for n in grounding_nums}
