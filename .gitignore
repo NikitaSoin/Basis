@@ -29,3 +29,7 @@ backend/scripts/.osm_admin4_cache.json
 backend/scripts/.ne_land_cache.geojson
 # Кэш сырых таймлапсов ISW (~108 МБ) — качается geo_svo_fetch_real_history.py по нужде
 backend/scripts/.real_history_cache/
+
+# Ключи сервисных аккаунтов (Google Search Console и пр.) — НИКОГДА в репозиторий:
+# репозиторий публичный, а ключ даёт доступ к статистике сайта.
+backend/secrets/
