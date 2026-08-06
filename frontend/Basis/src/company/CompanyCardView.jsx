@@ -4,6 +4,9 @@ import remarkGfm from "remark-gfm";
 import {
   Activity,
   AlertTriangle,
+  Building2,
+  BookOpen,
+  FileText,
   ArrowRightLeft,
   ArrowUpDown,
   Briefcase,
@@ -31,6 +34,7 @@ import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as
 import { Prose, ANALYST_MD } from "../design/textblocks";
 import { AppearGroup, Appear } from "../design/motion";
 import { FAIR_VALUE_NOTE } from "../fairValueNote";
+import "../styles/instrument-card.css";
 import { InfoDot } from "../design/InfoDot";
 // Обёртка «Обзора» (renderOverview) в .fin-hybrid переиспользует классы отсюда
 // (.card/h3/.tag-*/.fair и т.д.) — тот же визуальный язык, что во вкладке «Финансы»
@@ -1775,6 +1779,13 @@ const DEBT_FLAG_BG = { green: "tw-bg-success-soft", amber: "tw-bg-warning-soft",
 const BOND_LIGHT = { green: { bg: "tw-bg-success-soft", dot: "🟢" }, amber: { bg: "tw-bg-warning-soft", dot: "🟡" }, orange: { bg: "tw-bg-warning-soft", dot: "🟠" }, red: { bg: "tw-bg-danger-soft", dot: "🔴" }, gray: { bg: "tw-bg-bg-base", dot: "⚪" } };
 
 
+// Класс пилюли по «тону» из справочников (RISK_TIER_BADGE/COUPON_BADGE/ratingTone).
+// Раньше это был <Badge tone={...}> из старой системы примитивов; карточки
+// инструментов переведены на канон Basis (styles/instrument-card.css), а тона
+// в данных остались прежними — маппинг живёт здесь, в одном месте.
+const PILL_TONE = { neutral: "", danger: " ic-pill--danger", warning: " ic-pill--warn", success: " ic-pill--ok", info: " ic-pill--info", accent: " ic-pill--accent" };
+const pillCls = (tone) => "ic-pill" + (PILL_TONE[tone] || "");
+
 const BondCard = ({ secid, onBack, onSelectCompany }) => {
   const [data, setData] = useState(null);
   const [summary, setSummary] = useState(null);
@@ -1817,8 +1828,8 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
   const isCurrencyBond = b.currency && !["SUR", "RUB", "₽", ""].includes(b.currency);
   // Пояснение для валютных бумаг: что значат «2 сценария рублёвой доходности».
   const currencyScenarioNote = isCurrencyBond ? (
-    <Card>
-      <div className="tw-text-[13px] tw-text-text-secondary tw-leading-relaxed">
+    <section className="ic-card">
+      <div className="ic-body">
         <b>Как читать доходность валютной бумаги.</b> Доход тут в валюте ({b.currency}),
         но платят рублями по курсу ЦБ — поэтому ваша рублёвая доходность зависит от курса.
         Мы показываем <b>два сценария</b> (это не вероятности, а «вилка», в которую вы попадёте):
@@ -1826,7 +1837,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
         <span className="tw-block">• <b>рубль слабеет</b> — добавится примерно разница инфляций РФ и страны валюты (рубль исторически дешевеет к твёрдым валютам).</span>
         <span className="tw-block tw-mt-1">Смысл такой бумаги — <b>ставка на ослабление рубля / валютная диверсификация</b>. Если рубль крепок, рублёвая ОФЗ под высокую ставку обычно доходнее. Сценарии независимы от кредитного риска эмитента (светофор — отдельно).</span>
       </div>
-    </Card>
+    </section>
   ) : null;
   const isStructured = b.coupon_type === "structured";
   // ВДО/проблемный кредит: главный риск — кредитный (вернут ли тело), не ставка.
@@ -1842,46 +1853,52 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
   // нисходящий сценарий ставки для подсказки дюрации (рост ставки = падение цены)
   const up1 = data.sensitivity?.scenarios?.find((s) => s.rate_change_pp === 1)?.price_change_pct;
 
+  // Плитка KPI канона Basis (styles/instrument-card.css): подпись капсом,
+  // число в IBM Plex Mono, пояснение — третьим уровнем текста.
   const Tile = ({ caption, children, hint }) => (
-    <Card className="tw-flex tw-flex-col tw-gap-1">
-      <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.06em" }}>{caption}</div>
-      {children}
-      {hint && <div className="tw-text-[12px] tw-text-text-tertiary tw-leading-snug">{hint}</div>}
-    </Card>
+    <div className="ic-kpi-cell">
+      <div className="ic-kpi-cap">{caption}</div>
+      <div className="ic-kpi-val">{children}</div>
+      {hint && <div className="ic-kpi-hint">{hint}</div>}
+    </div>
   );
 
   return (
-    <div className="tw-flex tw-flex-col tw-gap-4">
-      <button onClick={onBack} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[14px] tw-text-text-secondary hover:tw-text-text-primary tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0 tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
-        <ChevronRight size={16} className="tw-rotate-180" /> К списку облигаций
+    <div className="icard">
+      <button onClick={onBack} className="ic-back">
+        <ChevronRight size={13} className="tw-rotate-180" /> К списку облигаций
       </button>
 
-      <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
-        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-serif tw-text-text-primary tw-m-0">{b.short_name}</h1>
-        <Badge tone="neutral">{BOND_TYPE_LABEL[b.bond_type] || b.bond_type}</Badge>
-        <Badge tone={r.tone}>{r.label}</Badge>
-        {couponBadge && <Badge tone={couponBadge.tone}>{couponBadge.label}{(isFloater || b.coupon_type === "fixed") && b.coupon_formula ? ` · ${b.coupon_formula}` : ""}</Badge>}
-        {b.is_defaulted && <Badge tone="danger">Дефолт / режим Д</Badge>}
-        {b.issuer_name && <span className="tw-text-[14px] tw-text-text-secondary">{b.issuer_name}</span>}
-        <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{b.secid}{b.isin ? ` · ${b.isin}` : ""}</span>
+      {/* ---- 1. Идентичность + 2. Сигнал: что за бумага, оплачен ли риск, три числа ----
+           Единый герой-блок канона (styles/instrument-card.css), как у фьючерса:
+           раньше имя, вердикт и плитки лежали отдельными кусками без общей рамки. */}
+      <section className="ic-hero">
+      <div className="ic-idrow" style={{ marginTop: 0 }}>
+        <h1 className="ic-name">{b.short_name}</h1>
+        <span className="ic-pill">{BOND_TYPE_LABEL[b.bond_type] || b.bond_type}</span>
+        <span className={pillCls(r.tone)}>{r.label}</span>
+        {couponBadge && <span className={pillCls(couponBadge.tone)}>{couponBadge.label}{(isFloater || b.coupon_type === "fixed") && b.coupon_formula ? ` · ${b.coupon_formula}` : ""}</span>}
+        {b.is_defaulted && <span className="ic-pill ic-pill--danger">Дефолт / режим Д</span>}
+        {b.issuer_name && <span className="ic-sub">{b.issuer_name}</span>}
+        <span className="ic-code">{b.secid}{b.isin ? ` · ${b.isin}` : ""}</span>
       </div>
 
 
       {/* Системный вывод «оплачен ли риск» — для не-рисковых (у ВДО/дефолта свой
           красный баннер ниже, не дублируем) */}
       {b.risk_verdict && !creditRiskFirst && (
-        <div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug -tw-mt-1">{b.risk_verdict}</div>
+        <p className="ic-lead" style={{ marginTop: 14, marginBottom: 0 }}>{b.risk_verdict}</p>
       )}
 
       {isStructured && (
-        <div className="tw-p-3 tw-rounded-md tw-bg-warning-soft tw-text-[13px] tw-text-text-primary">
+        <div className="ic-verdict"><span className="ic-verdict-ic" aria-hidden="true"><AlertTriangle size={13} /></span><div className="ic-verdict-txt">
           <b>Структурная облигация.</b> Выплата и возврат тела привязаны к формуле / событию (курс, индекс, корзина активов), а не к простому купону. Тело может быть <b>не защищено</b> — это не обычная облигация «дал в долг → получил с процентом». YTM/спред для неё некорректны и могут вводить в заблуждение. Подходит только тем, кто понимает конкретные условия выпуска.
-        </div>
+        </div></div>
       )}
 
       {/* 3 плитки — пятисекундный ответ: надёжность → доходность → дюрация.
           Подсказки — ВЫВОД (рейтинг/вердикт из аналитики), не метод. */}
-      <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-3 tw-gap-3">
+      <div className="ic-kpi">
         <Tile caption="Надёжность" hint={
           b.bond_type === "ofz" ? "Госдолг РФ — риск дефолта минимальный"
           : ratingStr ? `Рейтинг ${ratingStr}.${rel?.verdict ? " " + rel.verdict : ""}`
@@ -1889,7 +1906,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
           : b.agency_rating ? `Агентский рейтинг ${b.agency_rating} + рыночная оценка по спреду${b.spread_bp != null ? ` (+${b.spread_bp} б.п.)` : ""}. См. блок «Двойной рейтинг».`
           : (b.spread_bp != null ? `Оценка по спреду к ОФЗ (+${b.spread_bp} б.п.); агентский рейтинг не загружен.` : "Оценка надёжности")
         }>
-          <Badge tone={r.tone} className="tw-self-start tw-text-[14px]">{r.label}</Badge>
+          <span className={pillCls(r.tone)}>{r.label}</span>
         </Tile>
         <Tile caption={`Доходность ${ytmKind}`} hint={
           b.risk_tier === "speculative" ? `Высокая доходность — это ПЛАТА ЗА РИСК (спред +${b.spread_bp} б.п. к ОФЗ), не «подарок».`
@@ -1897,7 +1914,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
           : "YTM с учётом реинвестирования купонов (оценка)."
         }>
           <div className="tw-flex tw-items-baseline tw-gap-2">
-            <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{b.ytm == null ? "—" : `${fmtNumber(b.ytm, { decimals: 1 })}%`}</span>
+            <span className="ic-kpi-num">{b.ytm == null ? "—" : `${fmtNumber(b.ytm, { decimals: 1 })}%`}</span>
             {(b.yield_anomaly || b.risk_tier === "speculative") && <span className="tw-text-danger" title="Плата за риск">⚠</span>}
           </div>
         </Tile>
@@ -1905,21 +1922,22 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
           isFloater ? "У флоатера купон следует за ставкой — процентный риск тела минимален."
           : up1 != null ? `Реагирует на ставку ${Math.abs(up1) >= 5 ? "сильно" : Math.abs(up1) >= 2 ? "умеренно" : "слабо"}: при росте ставки на 1 п.п. цена ≈ ${up1}%.` : "Чувствительность тела к ставке"
         }>
-          <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{b.duration_years == null ? "—" : `${fmtNumber(b.duration_years, { decimals: 1 })} г`}</span>
+          <span className="ic-kpi-num">{b.duration_years == null ? "—" : `${fmtNumber(b.duration_years, { decimals: 1 })} г`}</span>
         </Tile>
       </div>
+      </section>
 
       <ProPriceCard assetClass="bond" secid={secid} note="цена в % номинала" />
 
       {/* Главный вывод для рискованной бумаги: кредитный риск важнее ставки.
           Выносим НАД вердиктом, чтобы инвестор читал доходность уже с этой рамкой. */}
       {creditRiskFirst && (
-        <div className="tw-p-3 tw-rounded-md tw-bg-danger-soft tw-text-[13px] tw-text-text-primary tw-leading-snug">
+        <div className="ic-verdict"><span className="ic-verdict-ic" aria-hidden="true"><AlertTriangle size={13} /></span><div className="ic-verdict-txt">
           <b>Главный риск здесь — кредитный, а не ставка.</b> {b.is_defaulted ? "По бумаге зафиксирован дефолт / режим Д — возврат тела под вопросом. " : ""}
           {issuerDebt?.flag === "red" ? `Долговая нагрузка эмитента высокая (${issuerDebt.verdict ? issuerDebt.verdict.toLowerCase() : "см. блок «Эмитент»"}). ` : ""}
           {b.risk_tier === "speculative" ? `Высокая доходность (YTM ${b.ytm != null ? fmtNumber(b.ytm, { decimals: 0 }) + "%" : ""}, спред ${b.spread_bp != null ? "+" + b.spread_bp + " б.п." : ""}) — это плата за риск НЕвозврата тела, а не «выгода». ` : ""}
           Вопрос №1 — «вернут ли деньги» (вердикт и блок «Двойной рейтинг» ниже); переоценка от ставки здесь второстепенна.
-        </div>
+        </div></div>
       )}
 
       {/* ===== ВЕРДИКТ «ДОХОДНОСТЬ VS РИСК» — hero, без вкладки (методика bond_analys.md).
@@ -1928,23 +1946,23 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
           в hero, дальше линейно доказательства → параметры → эмитент, без вкладок. ===== */}
       {(() => {
         const y = data.yield_vs_risk;
-        if (!y) return <div className="tw-text-[13px] tw-text-text-tertiary">Нет данных для оценки.</div>;
+        if (!y) return <div className="ic-note-plain">Нет данных для оценки.</div>;
         // Госбумаги/категории: короткая логика — суть надёжности здесь же.
         if (y.is_ofz || data.issuer?.is_category_profile) return (
-          <div className="tw-flex tw-flex-col tw-gap-3">
-            <Card><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed">{y.verdict}</div></Card>
+          <div className="ic-stack">
+            <section className="ic-card"><div className="ic-lead">{y.verdict}</div></section>
             {data.issuer?.issuer_financials_md && (
-              <Card header="Надёжность инструмента"><AnalystProse md={data.issuer.issuer_financials_md} /></Card>
+              <section className="ic-card"><h3><span>Надёжность инструмента</span><span className="ic-tag ic-tag--judg">суждение</span></h3><AnalystProse md={data.issuer.issuer_financials_md} /></section>
             )}
           </div>
         );
         if (y.no_data) return (
-          <div className="tw-flex tw-flex-col tw-gap-3">
-            <Card><div className="tw-text-[14px] tw-text-text-tertiary">{y.verdict}</div></Card>
+          <div className="ic-stack">
+            <section className="ic-card"><div className="tw-text-[14px] tw-text-text-tertiary">{y.verdict}</div></section>
             {y.qualitative_md && currencyScenarioNote}
             {y.qualitative_md && (
                 <div>
-                  <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-2.5">Разбор по методике: доходность за риск</div>
+                  <div className="ic-eyebrow">Разбор по методике: доходность за риск</div>
                   <BondRiskAnalysis md={y.qualitative_md} />
                 </div>
               )}
@@ -1954,42 +1972,42 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
         if (y.simple_verdict) {
           const Ls = BOND_LIGHT[y.light] || BOND_LIGHT.gray;
           return (
-            <div className="tw-flex tw-flex-col tw-gap-3">
+            <div className="ic-stack">
               <div className={`tw-p-4 tw-rounded-md ${Ls.bg}`}>
-                <div className="tw-text-[18px] tw-font-medium tw-text-text-primary">{Ls.dot} {y.label}</div>
+                <div className="ic-light-label">{Ls.dot} {y.label}</div>
               </div>
-              {y.verdict && <Card><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed">{y.verdict}</div></Card>}
+              {y.verdict && <section className="ic-card"><div className="ic-lead">{y.verdict}</div></section>}
               {y.verdict_prose?.length > 0 && (
-                <Card header="Оценка"><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed tw-space-y-2.5">{y.verdict_prose.map((p, i) => <AnalystProse key={i} md={p} />)}</div></Card>
+                <section className="ic-card"><h3><span>Оценка</span><span className="ic-tag ic-tag--judg">суждение</span></h3><div className="ic-body">{y.verdict_prose.map((p, i) => <AnalystProse key={i} md={p} />)}</div></section>
               )}
               {y.qualitative_md && currencyScenarioNote}
               {y.qualitative_md && (
                 <div>
-                  <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-2.5">Разбор по методике: доходность за риск</div>
+                  <div className="ic-eyebrow">Разбор по методике: доходность за риск</div>
                   <BondRiskAnalysis md={y.qualitative_md} />
                 </div>
               )}
-              {summary && !y.qualitative_md && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
+              {summary && !y.qualitative_md && <section className="ic-card"><h3><span>Разбор аналитика</span><span className="ic-tag ic-tag--judg">суждение</span></h3><AnalystProse md={summary} /></section>}
             </div>
           );
         }
         if (y.is_defaulted_verdict) return (
-          <div className="tw-flex tw-flex-col tw-gap-3">
+          <div className="ic-stack">
             <div className="tw-p-4 tw-rounded-md tw-bg-danger-soft">
-              <div className="tw-text-[18px] tw-font-medium tw-text-text-primary">🔴 {y.label}</div>
+              <div className="ic-light-label">🔴 {y.label}</div>
             </div>
             {y.qualitative_md
-              ? <div><div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-2.5">Разбор по методике: доходность за риск</div><BondRiskAnalysis md={y.qualitative_md} /></div>
-              : y.verdict_prose?.map((p, i) => <Card key={i}><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed"><AnalystProse md={p} /></div></Card>)}
-            {summary && !y.qualitative_md && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
+              ? <div><div className="ic-eyebrow">Разбор по методике: доходность за риск</div><BondRiskAnalysis md={y.qualitative_md} /></div>
+              : y.verdict_prose?.map((p, i) => <section className="ic-card" key={i}><div className="ic-body"><AnalystProse md={p} /></div></section>)}
+            {summary && !y.qualitative_md && <section className="ic-card"><h3><span>Разбор аналитика</span><span className="ic-tag ic-tag--judg">суждение</span></h3><AnalystProse md={summary} /></section>}
           </div>
         );
         const L = BOND_LIGHT[y.light] || BOND_LIGHT.gray;
         return (
-          <div className="tw-flex tw-flex-col tw-gap-3">
+          <div className="ic-stack">
             {/* вердикт-плитка */}
             <div className={`tw-p-4 tw-rounded-md ${L.bg}`}>
-              <div className="tw-text-[18px] tw-font-medium tw-text-text-primary">{L.dot} {y.label}</div>
+              <div className="ic-light-label">{L.dot} {y.label}</div>
               <div className="tw-text-[14px] tw-text-text-secondary tw-mt-1">
                 Доходность платит <b>{y.spread_bp} б.п.</b> сверх ОФЗ; за такой риск нужно ~<b>{y.required_bp} б.п.</b> → премия <b className={y.premium_bp >= 0 ? "tw-text-success" : "tw-text-danger"}>{y.premium_bp >= 0 ? "+" : ""}{y.premium_bp} б.п.</b>
               </div>
@@ -1998,121 +2016,93 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
             {y.qualitative_md && currencyScenarioNote}
             {y.qualitative_md ? (
               <div>
-                <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-2.5">Разбор по методике: доходность за риск</div>
+                <div className="ic-eyebrow">Разбор по методике: доходность за риск</div>
                 <BondRiskAnalysis md={y.qualitative_md} />
               </div>
             ) : (
               /* авто-вердикт (числовая оценка), пока нет ручного разбора по методике */
               y.verdict_prose?.length > 0 && (
-                <Card header="Вердикт: доходность за риск">
-                  <div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed tw-space-y-2.5">
+                <section className="ic-card"><h3><span>Вердикт: доходность за риск</span><span className="ic-tag ic-tag--judg">суждение</span></h3>
+                  <div className="ic-body">
                     {y.verdict_prose.map((p, i) => <AnalystProse key={i} md={p} />)}
                   </div>
-                </Card>
+                </section>
               )
             )}
             {/* арифметика 3 строки */}
-            <Card header="Арифметика">
-              <div className="tw-text-[13px] tw-text-text-secondary tw-space-y-1.5">
+            <section className="ic-card"><h3><span>Арифметика</span><span className="ic-tag ic-tag--est">оценка</span></h3>
+              <div className="ic-body">
                 <div>1. <b>Фактический спред</b>: {y.spread_bp} б.п. к ОФЗ той же дюрации.</div>
                 <div>2. <b>Требуемый спред</b>: ~{y.required_bp} б.п. = медиана группы {y.rating_group} в нашей базе (~{y.group_median_bp} б.п.){y.adjustments?.length ? `, ${y.adjustments.join(", ")}` : ""}.</div>
                 <div>3. <b>Премия/дисконт</b>: {y.premium_bp >= 0 ? "+" : ""}{y.premium_bp} б.п. → {y.label.toLowerCase()}.</div>
               </div>
-            </Card>
+            </section>
             {/* три взгляда на надёжность */}
-            <Card header="Надёжность — три взгляда">
-              <div className="tw-grid tw-grid-cols-3 tw-gap-2 tw-text-center">
-                <div className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5">
-                  <div className="tw-text-[11px] tw-text-text-tertiary">Рынок (спред)</div>
-                  <div className="tw-text-[14px] tw-text-text-primary tw-mt-1">{r.label}</div>
+            <section className="ic-card"><h3><span>Надёжность — три взгляда</span><span className="ic-tag ic-tag--est">оценка</span></h3>
+              <div className="ic-trio">
+                <div className="ic-mini">
+                  <div className="ic-mini-k">Рынок (спред)</div>
+                  <div className="ic-mini-v">{r.label}</div>
                 </div>
-                <div className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5">
-                  <div className="tw-text-[11px] tw-text-text-tertiary">Агентство</div>
-                  <div className="tw-text-[14px] tw-text-text-primary tw-mt-1">{b.agency_rating || "—"}</div>
+                <div className="ic-mini">
+                  <div className="ic-mini-k">Агентство</div>
+                  <div className="ic-mini-v">{b.agency_rating || "—"}</div>
                 </div>
-                <div className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5">
-                  <div className="tw-text-[11px] tw-text-text-tertiary">Оценка Basis</div>
-                  <div className="tw-text-[14px] tw-text-text-primary tw-mt-1">{y.implied_group} <span className="tw-text-text-tertiary tw-text-[11px]">({y.risk_score})</span></div>
+                <div className="ic-mini">
+                  <div className="ic-mini-k">Оценка Basis</div>
+                  <div className="ic-mini-v">{y.implied_group} <span className="tw-text-text-tertiary tw-text-[11px]">({y.risk_score})</span></div>
                 </div>
               </div>
-              {y.divergence_note && <div className="tw-mt-2.5 tw-p-2.5 tw-rounded-md tw-bg-warning-soft tw-text-[13px] tw-text-text-primary">⚠ {y.divergence_note}</div>}
-              {y.debt_facts && <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">Долг эмитента: {y.debt_facts}.</div>}
-            </Card>
+              {y.divergence_note && <div className="ic-callout" style={{ marginTop: 10 }}>⚠ {y.divergence_note}</div>}
+              {y.debt_facts && <div className="ic-note">Долг эмитента: {y.debt_facts}.</div>}
+            </section>
             {/* прозрачная деривация Risk Score — как мы получили оценку (за прозрачность) */}
             {y.derivation?.length > 0 && (
-              <Card header="Как мы получили эту оценку">
+              <section className="ic-card"><h3><span>Как мы получили эту оценку</span><span className="ic-tag ic-tag--est">оценка</span></h3>
                 <ol className="tw-text-[13px] tw-text-text-secondary tw-leading-snug tw-space-y-1.5 tw-pl-4 tw-list-decimal">
                   {y.derivation.map((step, i) => <li key={i}>{step}</li>)}
                 </ol>
                 {y.score_method && <div className="tw-mt-2.5 tw-pt-2.5 tw-border-t tw-border-border-subtle tw-text-[12px] tw-text-text-tertiary">{y.score_method}</div>}
                 {y.has_deep_analysis === false && (
-                  <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">Это <b>систематическая оценка</b> — полные блоки бизнеса, собственников и макро по этому эмитенту ещё не разобраны вручную (в работе). Числовая часть (рейтинг, долг, спред, ожидаемые потери) посчитана.</div>
+                  <div className="ic-note">Это <b>систематическая оценка</b> — полные блоки бизнеса, собственников и макро по этому эмитенту ещё не разобраны вручную (в работе). Числовая часть (рейтинг, долг, спред, ожидаемые потери) посчитана.</div>
                 )}
-              </Card>
+              </section>
             )}
             {/* проверка ожидаемыми потерями */}
-            <Card header="Проверка здравым смыслом (ожидаемые потери)">
+            <section className="ic-card"><h3><span>Проверка здравым смыслом (ожидаемые потери)</span><span className="ic-tag ic-tag--est">оценка</span></h3>
               <div className="tw-text-[13px] tw-text-text-secondary">{y.expected_loss_note}</div>
-            </Card>
+            </section>
             {y.stops?.length > 0 && (
-              <div className="tw-p-2.5 tw-rounded-md tw-bg-danger-soft tw-text-[13px] tw-text-text-primary">⚠ Стоп-сигналы: {y.stops.join("; ")}.</div>
+              <div className="ic-callout" style={{ borderLeftColor: "var(--neg)" }}>⚠ Стоп-сигналы: {y.stops.join("; ")}.</div>
             )}
-            <div className="tw-text-[12px] tw-text-text-tertiary">Оценка по методике Basis (медианы нашей базы ~3100 бумаг + долговая нагрузка эмитента). Качественные риски (мошенничество, споры с властью) методика числами не ловит — см. «Разбор аналитика» ниже, если есть.</div>
-            {summary && !y.qualitative_md && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
+            <div className="ic-note">Оценка по методике Basis (медианы нашей базы ~3100 бумаг + долговая нагрузка эмитента). Качественные риски (мошенничество, споры с властью) методика числами не ловит — см. «Разбор аналитика» ниже, если есть.</div>
+            {summary && !y.qualitative_md && <section className="ic-card"><h3><span>Разбор аналитика</span><span className="ic-tag ic-tag--judg">суждение</span></h3><AnalystProse md={summary} /></section>}
           </div>
         );
       })()}
 
-      {/* ===== 3 плитки — теперь ПОСЛЕ вердикта: быстрый скан цифр, поддерживающих вывод выше ===== */}
-      <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-3 tw-gap-3">
-        <Tile caption="Надёжность" hint={
-          b.bond_type === "ofz" ? "Госдолг РФ — риск дефолта минимальный"
-          : ratingStr ? `Рейтинг ${ratingStr}.${rel?.verdict ? " " + rel.verdict : ""}`
-          : rel?.verdict ? rel.verdict
-          : b.agency_rating ? `Агентский рейтинг ${b.agency_rating} + рыночная оценка по спреду${b.spread_bp != null ? ` (+${b.spread_bp} б.п.)` : ""}. См. блок «Двойной рейтинг».`
-          : (b.spread_bp != null ? `Оценка по спреду к ОФЗ (+${b.spread_bp} б.п.); агентский рейтинг не загружен.` : "Оценка надёжности")
-        }>
-          <Badge tone={r.tone} className="tw-self-start tw-text-[14px]">{r.label}</Badge>
-        </Tile>
-        <Tile caption={`Доходность ${ytmKind}`} hint={
-          b.risk_tier === "speculative" ? `Высокая доходность — это ПЛАТА ЗА РИСК (спред +${b.spread_bp} б.п. к ОФЗ), не «подарок».`
-          : b.bond_type !== "ofz" && b.spread_bp != null ? `Спред к ОФЗ +${b.spread_bp} б.п. — премия за кредитный риск эмитента.`
-          : "YTM с учётом реинвестирования купонов (оценка)."
-        }>
-          <div className="tw-flex tw-items-baseline tw-gap-2">
-            <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{b.ytm == null ? "—" : `${fmtNumber(b.ytm, { decimals: 1 })}%`}</span>
-            {(b.yield_anomaly || b.risk_tier === "speculative") && <span className="tw-text-danger" title="Плата за риск">⚠</span>}
-          </div>
-        </Tile>
-        <Tile caption="Дюрация (риск к ставке)" hint={
-          isFloater ? "У флоатера купон следует за ставкой — процентный риск тела минимален."
-          : up1 != null ? `Реагирует на ставку ${Math.abs(up1) >= 5 ? "сильно" : Math.abs(up1) >= 2 ? "умеренно" : "слабо"}: при росте ставки на 1 п.п. цена ≈ ${up1}%.` : "Чувствительность тела к ставке"
-        }>
-          <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{b.duration_years == null ? "—" : `${fmtNumber(b.duration_years, { decimals: 1 })} г`}</span>
-        </Tile>
-      </div>
 
       {/* ===== Двойной рейтинг надёжности ===== */}
       {b.bond_type !== "ofz" && (
-        <Card header="Двойной рейтинг надёжности">
-          <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-3">
-            <div className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-3">
-              <div className="tw-text-[11px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.04em" }}>Рыночная оценка (по спреду)</div>
-              <div className="tw-mt-1 tw-flex tw-items-center tw-gap-2">
+        <section className="ic-card"><h3><span>Двойной рейтинг надёжности</span><span className="ic-tag ic-tag--est">оценка</span></h3>
+          <div className="ic-duo">
+            <div className="ic-mini">
+              <div className="ic-mini-k" style={{ letterSpacing: "0.04em" }}>Рыночная оценка (по спреду)</div>
+              <div className="ic-idrow">
                 {b.spread_bp != null
-                  ? <><Badge tone={r.tone}>{r.label}</Badge><span className="tw-font-mono tw-text-text-secondary tw-text-[13px]">+{b.spread_bp} б.п. к ОФЗ</span></>
-                  : <span className="tw-text-text-tertiary tw-text-[13px]">нет оценки (неликвид / нет YTM)</span>}
+                  ? <><span className={pillCls(r.tone)}>{r.label}</span><span className="ic-mono ic-note-plain">+{b.spread_bp} б.п. к ОФЗ</span></>
+                  : <span className="ic-note-plain">нет оценки (неликвид / нет YTM)</span>}
               </div>
-              <div className="tw-mt-1.5 tw-text-[12px] tw-text-text-tertiary">{b.spread_bp != null ? "Как рынок оценивает риск эмитента «здесь и сейчас» — через премию к госдолгу." : "Для этого выпуска биржа не рассчитала доходность (низкая ликвидность) — рыночной премии нет."}</div>
+              <div className="ic-mini-note">{b.spread_bp != null ? "Как рынок оценивает риск эмитента «здесь и сейчас» — через премию к госдолгу." : "Для этого выпуска биржа не рассчитала доходность (низкая ликвидность) — рыночной премии нет."}</div>
             </div>
-            <div className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-3">
-              <div className="tw-text-[11px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.04em" }}>Агентский рейтинг</div>
-              <div className="tw-mt-1 tw-flex tw-items-center tw-gap-2">
+            <div className="ic-mini">
+              <div className="ic-mini-k" style={{ letterSpacing: "0.04em" }}>Агентский рейтинг</div>
+              <div className="ic-idrow">
                 {b.agency_rating
-                  ? <Badge tone={ratingTone(b.agency_rating)}>{b.agency_rating}</Badge>
-                  : <span className="tw-text-text-tertiary tw-text-[13px]">не загружен</span>}
+                  ? <span className={pillCls(ratingTone(b.agency_rating))}>{b.agency_rating}</span>
+                  : <span className="ic-note-plain">не загружен</span>}
               </div>
-              <div className="tw-mt-1.5 tw-text-[12px] tw-text-text-secondary tw-leading-snug">
+              <div className="ic-mini-note">
                 {b.agency_rating
                   ? <><b className="tw-text-text-primary">Сможет ли расплатиться:</b> {b.agency_rating_meaning || "кредитный рейтинг по нац. шкале"}<span className="tw-text-text-tertiary">{b.agency_rating_source ? ` · ${b.agency_rating_source}` : ""}</span></>
                   : "Публичный рейтинг АКРА/Эксперт РА для этого выпуска не найден — ориентируйтесь на рыночную оценку по спреду слева."}
@@ -2120,24 +2110,24 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
             </div>
           </div>
           {b.rating_divergence === "market_stricter" && (
-            <div className="tw-mt-3 tw-p-2.5 tw-rounded-md tw-bg-warning-soft tw-text-[13px] tw-text-text-primary">
+            <div className="ic-callout" style={{ marginTop: 12 }}>
               ⚠ Рынок оценивает риск <b>строже</b> агентства: требует спред выше, чем подразумевает рейтинг {b.agency_rating}. Бывает при свежих проблемах эмитента, которые рейтинг ещё не отразил, — повод присмотреться.
             </div>
           )}
           {b.rating_divergence === "market_milder" && (
-            <div className="tw-mt-3 tw-p-2.5 tw-rounded-md tw-bg-accent-soft tw-text-[13px] tw-text-text-primary">
+            <div className="ic-callout" style={{ marginTop: 12 }}>
               Рынок оценивает риск <b>мягче</b> агентства: спред уже, чем подразумевает рейтинг {b.agency_rating}. Либо рынок видит улучшение, либо доходность не вполне компенсирует риск по рейтингу.
             </div>
           )}
           {b.rating_divergence === "aligned" && (
-            <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">Рыночная оценка и агентский рейтинг согласуются.</div>
+            <div className="ic-note">Рыночная оценка и агентский рейтинг согласуются.</div>
           )}
-        </Card>
+        </section>
       )}
 
       {/* ===== Параметры выпуска + цена в рублях (снимает путаницу % номинала) ===== */}
-      <Card header="Параметры выпуска">
-        <div className="tw-grid tw-grid-cols-2 sm:tw-grid-cols-3 tw-gap-x-6 tw-gap-y-3 tw-text-[13px]">
+      <section className="ic-card"><h3><span>Параметры выпуска</span><span className="ic-tag ic-tag--fact">факт</span></h3>
+        <div className="ic-params">
           {[
             ["Купон", b.coupon_percent != null ? `${fmtNumber(b.coupon_percent, { decimals: 2 })}% годовых` : "—"],
             ["Номинал", b.face_value != null ? `${fmtNumber(b.face_value, { decimals: 0 })} ${b.currency || "₽"}` : "—"],
@@ -2148,28 +2138,28 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
             ["Реальный горизонт", b.offer_date ? `${b.offer_date} (оферта)` : (b.maturity_date || "—")],
           ].map(([k, v]) => (
             <div key={k}>
-              <div className="tw-text-text-tertiary tw-text-[11px] tw-uppercase" style={{ letterSpacing: "0.04em" }}>{k}</div>
-              <div className="tw-text-text-primary tw-font-mono tw-mt-0.5">{v}</div>
+              <div className="ic-param-k">{k}</div>
+              <div className="ic-param-v">{v}</div>
             </div>
           ))}
         </div>
         {faceRub && b.accrued_int != null && (
-          <div className="tw-mt-3 tw-p-2.5 tw-rounded-md tw-bg-accent-soft tw-text-[13px] tw-text-text-primary">
+          <div className="ic-callout" style={{ marginTop: 12 }}>
             <b>К оплате за бумагу ≈ {fmtNumber(faceRub + Number(b.accrued_int), { decimals: 0 })} ₽</b>
             <span className="tw-text-text-secondary"> = цена {fmtNumber(b.last_price, { decimals: 1 })}% ({fmtNumber(faceRub, { decimals: 0 })} ₽) + НКД {fmtNumber(b.accrued_int, { decimals: 2 })} ₽.</span>
           </div>
         )}
-      </Card>
+      </section>
 
       {/* ===== Чувствительность к ставке (сценарии переоценки от дюрации) ===== */}
       {data.sensitivity && (
-        <Card header="Чувствительность к ставке">
+        <section className="ic-card"><h3><span>Чувствительность к ставке</span><span className="ic-tag ic-tag--est">оценка</span></h3>
           {creditRiskFirst && (
-            <div className="tw-mb-3 tw-p-2.5 tw-rounded-md tw-bg-warning-soft tw-text-[12px] tw-text-text-primary tw-leading-snug">
+            <div className="ic-callout" style={{ marginBottom: 14, borderLeftColor: "var(--amber)" }}>
               Для этой бумаги ставка — НЕ главное. Главный риск кредитный: при дефолте/реструктуризации тело падает на десятки процентов независимо от ключевой ставки. Сценарии ниже — лишь переоценка платёжеспособной бумаги.
             </div>
           )}
-          <div className="tw-text-[13px] tw-text-text-secondary tw-mb-3">
+          <div className="ic-body">
             {isFloater
               ? "Купон флоатера следует за ключевой ставкой, поэтому тело почти не переоценивается — это ЗАЩИТА от роста ставки, а не угроза. Сценарии ниже — лишь остаточная чувствительность."
               : isLinker
@@ -2179,88 +2169,88 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
             {!isFloater && !isLinker && up1 != null && Math.abs(up1) < 2 && " Бумага слабо реагирует на ставку — процентный риск низкий."}
             <span className="tw-text-text-tertiary"> (оценка от модиф. дюрации {fmtNumber(data.sensitivity.modified_duration, { decimals: 1 })}, линейное приближение)</span>
           </div>
-          <div className="tw-grid tw-grid-cols-4 tw-gap-2">
+          <div className="ic-scen ic-scen--neutral">
             {data.sensitivity.scenarios.map((s) => (
-              <div key={s.rate_change_pp} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5 tw-text-center">
-                <div className="tw-text-[12px] tw-text-text-tertiary">ставка {s.rate_change_pp > 0 ? "+" : ""}{s.rate_change_pp} п.п.</div>
-                <div className={`tw-text-[16px] tw-font-mono tw-font-semibold ${s.price_change_pct >= 0 ? "tw-text-success" : "tw-text-danger"}`}>
+              <div key={s.rate_change_pp} className="ic-scen-cell ic-scen-cell--flat">
+                <div className="ic-scen-cap">ставка {s.rate_change_pp > 0 ? "+" : ""}{s.rate_change_pp} п.п.</div>
+                <div className="ic-scen-val" style={{ color: s.price_change_pct >= 0 ? "var(--pos)" : "var(--neg)", fontSize: 20 }}>
                   <span aria-hidden="true">{s.price_change_pct >= 0 ? "▲ " : "▼ "}</span>{s.price_change_pct >= 0 ? "+" : ""}{fmtNumber(s.price_change_pct, { decimals: 1 })}%
                 </div>
               </div>
             ))}
           </div>
-          <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">
+          <div className="ic-note">
             Если додержите до погашения — тело вернут номиналом (100%). Эти сценарии — про переоценку при досрочной продаже.
           </div>
-        </Card>
+        </section>
       )}
 
       {/* ===== Денежный поток держателя (купоны / оферты) ===== */}
       {data.cashflow && (
-        <Card header="Денежный поток держателя">
+        <section className="ic-card"><h3><span>Денежный поток держателя</span><span className="ic-tag ic-tag--fact">факт</span></h3>
           {data.cashflow.coupons_upcoming?.length > 0 ? (
-            <div className="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
+            <div className="ic-strip">
               {data.cashflow.coupons_upcoming.slice(0, 6).map((c, i) => (
-                <div key={i} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-px-3 tw-py-1.5 tw-text-[12px]">
+                <div key={i} className="ic-chipcell">
                   <span className="tw-text-text-tertiary">{c.date}</span>
                   {c.value != null && <span className="tw-text-text-primary tw-font-mono tw-ml-2">{fmtNumber(c.value, { decimals: 2 })} ₽</span>}
                 </div>
               ))}
               {data.cashflow.coupons_total > 6 && (
-                <span className="tw-text-[12px] tw-text-text-tertiary">+ ещё {data.cashflow.coupons_total - 6} до погашения</span>
+                <span className="ic-note">+ ещё {data.cashflow.coupons_total - 6} до погашения</span>
               )}
             </div>
-          ) : <div className="tw-text-[13px] tw-text-text-tertiary">Нет предстоящих купонов в данных.</div>}
+          ) : <div className="ic-note-plain">Нет предстоящих купонов в данных.</div>}
           {data.cashflow.offers?.length > 0 && (
-            <div className="tw-mt-3 tw-text-[12px] tw-text-warning">Оферта: {data.cashflow.offers.map((o) => o.date).join(", ")} — реальный горизонт до оферты, доходность считается к ней.</div>
+            <div className="ic-note" style={{ color: "var(--amber)" }}>Оферта: {data.cashflow.offers.map((o) => o.date).join(", ")} — реальный горизонт до оферты, доходность считается к ней.</div>
           )}
-          <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">Ближайшие купоны (факт эмиссии). Всего купонов за весь срок: {data.cashflow.coupons_total}.</div>
-        </Card>
+          <div className="ic-note">Ближайшие купоны (факт эмиссии). Всего купонов за весь срок: {data.cashflow.coupons_total}.</div>
+        </section>
       )}
 
       {/* ===== Эмитент — бизнес + финансы, замыкают карточку (действие: перейти в его полную карточку) ===== */}
       {data.issuer && (<>
-        <Card>
-          <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
-            <span className="tw-text-[16px] tw-font-medium tw-text-text-primary">{data.issuer.name}</span>
-            {data.issuer.sector && <Badge tone="neutral">{data.issuer.sector}</Badge>}
-            {!data.issuer.is_public && !data.issuer.is_category_profile && data.issuer.type_guess && <Badge tone="neutral">{data.issuer.type_guess}</Badge>}
-            {data.issuer.is_category_profile && <Badge tone="neutral">типовой инструмент</Badge>}
-            {data.issuer.is_public && <button onClick={() => onSelectCompany && onSelectCompany(data.issuer.ticker)} className="tw-inline-flex tw-items-center tw-gap-1 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-underline">Полная карточка {data.issuer.ticker} <ChevronRight size={14} /></button>}
+        <section className="ic-card">
+          <div className="ic-idrow" style={{ marginTop: 0 }}>
+            <span className="ic-mini-v">{data.issuer.name}</span>
+            {data.issuer.sector && <span className="ic-pill">{data.issuer.sector}</span>}
+            {!data.issuer.is_public && !data.issuer.is_category_profile && data.issuer.type_guess && <span className="ic-pill">{data.issuer.type_guess}</span>}
+            {data.issuer.is_category_profile && <span className="ic-pill">типовой инструмент</span>}
+            {data.issuer.is_public && <button onClick={() => onSelectCompany && onSelectCompany(data.issuer.ticker)} className="ic-link">Полная карточка {data.issuer.ticker} <ChevronRight size={14} /></button>}
           </div>
-        </Card>
+        </section>
         {data.issuer.is_public ? (<>
-          {data.issuer.business_md ? <Card header="Бизнес-модель"><AnalystProse md={data.issuer.business_md} /></Card> : <Card><div className="tw-text-[13px] tw-text-text-tertiary">Бизнес-модель эмитента не загружена.</div></Card>}
-          {data.issuer.governance_md && <Card header="Собственники и управление"><AnalystProse md={data.issuer.governance_md} /></Card>}
+          {data.issuer.business_md ? <section className="ic-card"><h3><span>Бизнес-модель</span><span className="ic-tag ic-tag--judg">суждение</span></h3><AnalystProse md={data.issuer.business_md} /></section> : <section className="ic-card"><div className="ic-note-plain">Бизнес-модель эмитента не загружена.</div></section>}
+          {data.issuer.governance_md && <section className="ic-card"><h3><span>Собственники и управление</span><span className="ic-tag ic-tag--judg">суждение</span></h3><AnalystProse md={data.issuer.governance_md} /></section>}
         </>) : data.issuer.issuer_business_md ? (
-          <Card header={data.issuer.is_category_profile ? "Что это за инструмент" : "Бизнес эмитента"}><AnalystProse md={data.issuer.issuer_business_md} /></Card>
+          <section className="ic-card"><h3><span>{data.issuer.is_category_profile ? "Что это за инструмент" : "Бизнес эмитента"}</span></h3><AnalystProse md={data.issuer.issuer_business_md} /></section>
         ) : (
-          <Card><div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug">
+          <section className="ic-card"><div className="ic-body">
             <b>Непубличный эмитент</b> — отдельной карточки компании в базе нет (это типично для ВДО). Профиль по названию выпуска: <b>{data.issuer.type_guess}</b>.
             {data.issuer.has_deep ? <> Детальный разбор «кто это, кто владельцы, нет ли схем» — в блоке вердикта выше («Разбор аналитика»).</> : <> Разбор бизнеса и собственников этого эмитента в работе; пока главное — рыночная оценка кредитного риска в вердикте выше.</>}
-          </div></Card>
+          </div></section>
         )}
 
         {!data.issuer.is_category_profile && (data.issuer.debt ? (
-          <Card header="Долговая нагрузка — сможет ли расплатиться">
-            <div className="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 tw-gap-3 tw-mb-3">
+          <section className="ic-card"><h3><span>Долговая нагрузка — сможет ли расплатиться</span><span className="ic-tag ic-tag--fact">факт</span></h3>
+            <div className="ic-params" style={{ marginBottom: 14 }}>
               {[["Чистый долг / EBITDA", data.issuer.debt.net_debt_ebitda], ["Покрытие процентов", data.issuer.debt.interest_coverage], ["Долг / капитал", data.issuer.debt.debt_to_equity], ["Тек. ликвидность", data.issuer.debt.current_ratio]].map(([k, v]) => (
-                <div key={k} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5">
-                  <div className="tw-text-[11px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.04em" }}>{k}</div>
-                  <div className="tw-text-[18px] tw-font-mono tw-text-text-primary tw-mt-0.5">{v == null ? "—" : `${fmtNumber(v, { decimals: 2 })}×`}</div>
+                <div key={k} className="ic-mini">
+                  <div className="ic-mini-k" style={{ letterSpacing: "0.04em" }}>{k}</div>
+                  <div className="ic-mini-v ic-mono">{v == null ? "—" : `${fmtNumber(v, { decimals: 2 })}×`}</div>
                 </div>
               ))}
             </div>
             {data.issuer.debt.verdict && <div className={`tw-p-2.5 tw-rounded-md tw-text-[13px] tw-text-text-primary ${DEBT_FLAG_BG[data.issuer.debt.flag] || "tw-bg-bg-base"}`}>{data.issuer.debt.flag === "red" ? "⚠ " : ""}{data.issuer.debt.verdict}<span className="tw-text-text-tertiary"> (по отчётности{data.issuer.debt.as_of_year ? ` за ${data.issuer.debt.as_of_year}` : ""})</span></div>}
-          </Card>
+          </section>
         ) : data.issuer.issuer_financials_md ? (
-          <Card header="Финансы эмитента"><AnalystProse md={data.issuer.issuer_financials_md} /></Card>
+          <section className="ic-card"><h3><span>Финансы эмитента</span><span className="ic-tag ic-tag--fact">факт</span></h3><AnalystProse md={data.issuer.issuer_financials_md} /></section>
         ) : (
-          <Card><div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug">
+          <section className="ic-card"><div className="ic-body">
             <b>Непубличный эмитент</b> — выверенной отчётности в нашей базе нет (МСФО малые ВДО часто не публикуют). Оценка платёжеспособности здесь идёт <b>от рынка</b>: спред к ОФЗ + агентский рейтинг + методика Basis — см. вердикт выше{data.issuer.has_deep ? <>, а долговая нагрузка из отчётности эмитента — в «Разбор аналитика» там же</> : <></>}.
-          </div></Card>
+          </div></section>
         ))}
-        {data.issuer.is_public && <button onClick={() => onSelectCompany && onSelectCompany(data.issuer.ticker)} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-underline">Полные финансы — в карточке компании {data.issuer.ticker} <ChevronRight size={14} /></button>}
+        {data.issuer.is_public && <button onClick={() => onSelectCompany && onSelectCompany(data.issuer.ticker)} className="ic-link">Полные финансы — в карточке компании {data.issuer.ticker} <ChevronRight size={14} /></button>}
       </>)}
     </div>
   );
@@ -2370,57 +2360,83 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
   const lev = f.leverage;
   const expSoon = f.days_to_expiry != null && f.days_to_expiry <= 14;
 
-  const Tile = ({ caption, children, hint }) => (
-    <Card className="tw-flex tw-flex-col tw-gap-1">
-      <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.06em" }}>{caption}</div>
-      {children}
-      {hint && <div className="tw-text-[12px] tw-text-text-tertiary tw-leading-snug">{hint}</div>}
-    </Card>
+  // ⚑ Разметка переписана на канон Basis (2026-08-07, владелец: «у фьючерсов дизайн
+  // немного старый — плитки, шрифты, кнопки; плюс местами просто навален текст»).
+  // Словарь — styles/instrument-card.css (скоуп .icard), тот же приём, что у вкладки
+  // «Финансы»: локальные имена привязаны к cc-токенам, Fraunces в заголовках, числа
+  // в IBM Plex Mono, эпистемические теги на каждом аналитическом утверждении.
+  // Проза разложена на три уровня (ic-lead → ic-body → ic-note) вместо сплошного
+  // абзаца — это и есть «разгрузка текста»: главное крупно, оговорки мелко.
+  const kpi = (cap, val, hint, mod) => (
+    <div className="ic-kpi-cell">
+      <div className="ic-kpi-cap">{cap}</div>
+      <div className={`ic-kpi-val${mod ? " " + mod : ""}`}>{val}</div>
+      {hint && <div className="ic-kpi-hint">{hint}</div>}
+    </div>
   );
 
+  const levPill = lev == null ? null : lev >= 8 ? "ic-pill--danger" : lev >= 4 ? "ic-pill--warn" : "ic-pill--info";
+
   return (
-    <div className="tw-flex tw-flex-col tw-gap-4">
-      <button onClick={onBack} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[14px] tw-text-text-secondary hover:tw-text-text-primary tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0 tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
-        <ChevronRight size={16} className="tw-rotate-180" /> К списку фьючерсов
+    <div className="icard">
+      <button onClick={onBack} className="ic-back">
+        <ChevronRight size={13} className="tw-rotate-180" /> К списку фьючерсов
       </button>
 
-      <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
-        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-serif tw-text-text-primary tw-m-0">{f.short_name}</h1>
-        <Badge tone="neutral">{kind.label}</Badge>
-        {lev != null && <Badge tone={levTone(lev)}>Плечо ~{fmtNumber(lev, { decimals: 1 })}×</Badge>}
-        {f.asset_name && <span className="tw-text-[14px] tw-text-text-secondary">{f.asset_name}</span>}
-        <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{f.secid}</span>
-      </div>
-
-      {/* Честная этикетка о риске плеча — ВСЕГДА и заметно (позиционирование) */}
-      <div className="tw-p-3 tw-rounded-md tw-bg-warning-soft tw-text-[13px] tw-text-text-primary tw-leading-snug">
-        <b>Это дериватив, не «вложение».</b> Фьючерс — контракт со встроенным плечом{lev != null ? ` ~${fmtNumber(lev, { decimals: 1 })}×` : ""} и датой экспирации. Вы вносите только ГО{f.initial_margin != null ? ` (${fmtNumber(f.initial_margin, { decimals: 0 })} ₽)` : ""}, но движение базового актива считается с ПОЛНОЙ стоимости контракта{f.contract_value != null ? ` (${fmtNumber(f.contract_value, { decimals: 0 })} ₽)` : ""}. Движение против позиции усиливается плечом — возможен убыток больше внесённого и принудительное закрытие. Basis показывает риск инструмента, а не советует сделку.
-      </div>
-
-      {/* 3 плитки — пятисекундный ответ: на что ставка → плечо → срок жизни */}
-      <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-3 tw-gap-3">
-        <Tile caption="Базовый актив (на что ставка)" hint={f.asset_kind === "stock" && data.linked_company ? "Фьючерс на акцию — открыть карточку компании ниже." : "Цена контракта следует за этим активом."}>
-          <span className="tw-text-[20px] tw-font-medium tw-text-text-primary tw-leading-tight">{f.asset_name || f.asset_code}</span>
-        </Tile>
-        <Tile caption="Эффективное плечо (риск)" hint={lev != null ? `На каждый рубль ГО приходится ~${fmtNumber(lev, { decimals: 1 })} ₽ базового актива.` : "Номинал/ГО"}>
-          <div className="tw-flex tw-items-baseline tw-gap-2">
-            <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{lev == null ? "—" : `${fmtNumber(lev, { decimals: 1 })}×`}</span>
-            {lev != null && lev >= 8 && <span className="tw-text-danger" title="Высокое плечо">⚠</span>}
+      {/* ---- 1. Идентичность + 2. Сигнал: что это, чем рискует, сколько живёт ---- */}
+      <section className="ic-hero">
+        <div className="ic-hero-top">
+          <div>
+            <h1 className="ic-name">{f.short_name}</h1>
+            <div className="ic-idrow">
+              <span className="ic-pill">{kind.label}</span>
+              {lev != null && <span className={`ic-pill ${levPill}`}>Плечо ~{fmtNumber(lev, { decimals: 1 })}×</span>}
+              {expSoon && <span className="ic-pill ic-pill--warn">Скоро экспирация</span>}
+              {f.asset_name && <span className="ic-sub">{f.asset_name}</span>}
+              <span className="ic-code">{f.secid}</span>
+            </div>
           </div>
-        </Tile>
-        <Tile caption="До экспирации" hint={expSoon ? "Скоро экспирация — контракт прекратит существование." : "Позиция не вечна — у контракта есть дата окончания."}>
-          <span className={`tw-text-[26px] tw-font-medium tw-tabular-nums ${expSoon ? "tw-text-warning" : "tw-text-text-primary"}`}>{f.days_to_expiry == null ? "—" : `${f.days_to_expiry} дн`}</span>
-          {f.expiration_date && <span className="tw-text-[12px] tw-text-text-tertiary">до {f.expiration_date}</span>}
-        </Tile>
-      </div>
+        </div>
+
+        {/* Честная этикетка о риске плеча — главный сигнал карточки, крупно */}
+        <div className="ic-verdict">
+          <span className="ic-verdict-ic" aria-hidden="true"><AlertTriangle size={13} /></span>
+          <div className="ic-verdict-txt">
+            <b>Это дериватив, не «вложение».</b> Контракт со встроенным плечом
+            {lev != null ? ` ~${fmtNumber(lev, { decimals: 1 })}×` : ""} и датой окончания: вы вносите только
+            гарантийное обеспечение{f.initial_margin != null ? ` (${fmtNumber(f.initial_margin, { decimals: 0 })} ₽)` : ""},
+            а движение считается с полной стоимости контракта{f.contract_value != null ? ` (${fmtNumber(f.contract_value, { decimals: 0 })} ₽)` : ""}.
+            Убыток может превысить внесённое, позицию могут закрыть принудительно. Basis показывает риск инструмента, а не советует сделку.
+          </div>
+        </div>
+
+        <div className="ic-kpi">
+          {kpi(
+            "Базовый актив · на что ставка",
+            f.asset_name || f.asset_code,
+            f.asset_kind === "stock" && data.linked_company ? "Фьючерс на акцию — разбор компании во вкладке ниже." : "Цена контракта следует за этим активом.",
+            "ic-kpi-val--text"
+          )}
+          {kpi(
+            "Эффективное плечо · риск",
+            lev == null ? "—" : `${fmtNumber(lev, { decimals: 1 })}×`,
+            lev != null ? `На каждый рубль обеспечения приходится ~${fmtNumber(lev, { decimals: 1 })} ₽ базового актива.` : "Номинал / ГО",
+            lev != null && lev >= 8 ? "ic-kpi-val--neg" : lev != null && lev >= 4 ? "ic-kpi-val--warn" : ""
+          )}
+          {kpi(
+            "До экспирации",
+            f.days_to_expiry == null ? "—" : `${f.days_to_expiry} дн`,
+            f.expiration_date ? `Контракт прекращает существование ${f.expiration_date}${expSoon ? " — уже скоро." : "."}` : "У контракта есть дата окончания — позиция не вечна.",
+            expSoon ? "ic-kpi-val--warn" : ""
+          )}
+        </div>
+      </section>
 
       <ProPriceCard assetClass="future" secid={secid} note="цена контракта" />
 
-      {/* Вкладки: Обзор / Анализ базового актива */}
-      <div className="tw-flex tw-gap-1 tw-border-b tw-border-border-subtle" role="tablist">
-        {[{ id: "overview", label: "Обзор" }, { id: "base", label: "Анализ базового актива" }].map((t) => (
-          <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)}
-            className={`tw-px-3.5 tw-py-2 tw-text-[13px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw--mb-px tw-border-b-2 tw-rounded-t-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${tab === t.id ? "tw-text-accent tw-border-accent" : "tw-text-text-secondary tw-border-transparent hover:tw-text-text-primary"}`}>
+      <div className="ic-tabs" role="tablist">
+        {[{ id: "overview", label: "Обзор контракта" }, { id: "base", label: "Анализ базового актива" }].map((t) => (
+          <button key={t.id} role="tab" aria-selected={tab === t.id} className="ic-tab" onClick={() => setTab(t.id)}>
             {t.label}
           </button>
         ))}
@@ -2428,121 +2444,167 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
 
       {/* ===== Вкладка АНАЛИЗ БАЗОВОГО АКТИВА ===== */}
       {tab === "base" && (
-        <div className="tw-flex tw-flex-col tw-gap-3">
+        <div className="ic-stack">
           {data.linked_company ? (<>
-            <Card>
-              <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
-                <span className="tw-text-[15px] tw-font-medium tw-text-text-primary">Базовый актив — акция {data.linked_company.name}</span>
-                {data.linked_company.sector && <Badge tone="neutral">{data.linked_company.sector}</Badge>}
-                <button onClick={() => onSelectCompany && onSelectCompany(data.linked_company.ticker)} className="tw-inline-flex tw-items-center tw-gap-1 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-underline">Полная карточка {data.linked_company.ticker} <ChevronRight size={14} /></button>
-              </div>
-              <div className="tw-mt-2 tw-text-[13px] tw-text-text-secondary">Фьючерс следует за ценой акции. Справедлива ли цена самой акции, что с бизнесом — в её карточке (фундаментал, финансы, риски). Ниже — выжимка.</div>
-            </Card>
-            {data.linked_company.business_md && <Card header="Бизнес компании"><AnalystProse md={data.linked_company.business_md} /></Card>}
-            {data.linked_company.market_md && <Card header="Рынки компании"><AnalystProse md={data.linked_company.market_md} /></Card>}
+            <section className="ic-card">
+              <h3>
+                <Building2 size={17} />
+                <span>Базовый актив — акция {data.linked_company.name}</span>
+                {data.linked_company.sector && <span className="ic-pill">{data.linked_company.sector}</span>}
+              </h3>
+              <p className="ic-body">
+                Фьючерс следует за ценой акции. Справедлива ли цена самой акции и что происходит с бизнесом — в её карточке: финансы, риски, оценка. Ниже — выжимка.
+              </p>
+              <button className="ic-link" onClick={() => onSelectCompany && onSelectCompany(data.linked_company.ticker)}>
+                Открыть полную карточку {data.linked_company.ticker} <ChevronRight size={14} />
+              </button>
+            </section>
+            {data.linked_company.business_md && (
+              <section className="ic-card">
+                <h3><Briefcase size={17} /><span>Бизнес компании</span><span className="ic-tag ic-tag--judg">суждение</span></h3>
+                <AnalystProse md={data.linked_company.business_md} />
+              </section>
+            )}
+            {data.linked_company.market_md && (
+              <section className="ic-card">
+                <h3><Globe size={17} /><span>Рынки компании</span><span className="ic-tag ic-tag--judg">суждение</span></h3>
+                <AnalystProse md={data.linked_company.market_md} />
+              </section>
+            )}
           </>) : data.base_asset_md ? (
-            <Card header={`Базовый актив: ${f.asset_name || f.asset_code}`}><AnalystProse md={data.base_asset_md} /></Card>
+            <section className="ic-card">
+              <h3><Activity size={17} /><span>Базовый актив: {f.asset_name || f.asset_code}</span><span className="ic-tag ic-tag--judg">суждение</span></h3>
+              <AnalystProse md={data.base_asset_md} />
+            </section>
           ) : summary ? (
-            <Card header="Что движет базовым активом"><AnalystProse md={summary} /></Card>
+            <section className="ic-card">
+              <h3><Activity size={17} /><span>Что движет базовым активом</span><span className="ic-tag ic-tag--judg">суждение</span></h3>
+              <AnalystProse md={summary} />
+            </section>
           ) : (
-            <Card header={`Что движет базовым активом: ${f.asset_name || f.asset_code}`}>
-              <div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug tw-space-y-2">
-                {f.asset_kind === "currency" && <p>Базовый актив — <b>валюта</b>. Цена фьючерса следует за курсом к рублю; курс определяют ставка ЦБ (сейчас 14,5%), цены на нефть, платёжный баланс и санкционный фон — это макро-вопрос, а не «справедливая цена». Срочная структура (контанго) отражает разницу процентных ставок. Подробнее о валютах — в классе «Валюта и металлы».</p>}
-                {f.asset_kind === "commodity" && <p>Базовый актив — <b>сырьё/металл</b>. Цену двигают мировой баланс спроса и предложения (для нефти — ОПЕК+, спрос Китая, геополитика; для металлов — промышленный спрос, ставки, доллар). Для рублёвого контракта добавляется курс USD/RUB (двойная экспозиция). Срочная структура (контанго/бэквордация) — барометр текущего дефицита/избытка.</p>}
-                {f.asset_kind === "index" && <p>Базовый актив — <b>индекс акций</b>. Зависит от прибылей и дивидендов компаний корзины, ключевой ставки (дисконтирование), сырья и геополитики. RTS — долларовый индекс (двойная экспозиция: акции × курс рубля), MIX — рублёвый.</p>}
-                {f.asset_kind === "rate" && <p>Базовый актив — <b>процентная ставка</b>. Контракт отражает ожидания рынка по ставке (RUONIA/RUSFAR/ключевой) — инструмент управления процентным риском, не «вложение».</p>}
-                {!["currency", "commodity", "index", "rate"].includes(f.asset_kind) && <p>Цена контракта следует за базовым активом {f.asset_name || f.asset_code}. Детальный разбор готовится; пока — параметры, плечо и срочная структура во вкладке «Обзор».</p>}
-                {data.fair_value?.basis_explain && <p className="tw-text-text-tertiary">{data.fair_value.basis_explain}</p>}
-              </div>
-            </Card>
+            <section className="ic-card">
+              <h3><Activity size={17} /><span>Что движет базовым активом: {f.asset_name || f.asset_code}</span><span className="ic-tag ic-tag--judg">суждение</span></h3>
+              {f.asset_kind === "currency" && (<>
+                <p className="ic-lead">Базовый актив — <b>валюта</b>: цена контракта следует за курсом к рублю.</p>
+                <p className="ic-body">Курс определяют ключевая ставка, цены на нефть, платёжный баланс и санкционный фон — это макро-вопрос, а не «справедливая цена». Разница процентных ставок рубля и валюты как раз и задаёт наклон срочной кривой (контанго).</p>
+                <p className="ic-note">Подробнее о самих валютах — в разделе «Валюта и металлы».</p>
+              </>)}
+              {f.asset_kind === "commodity" && (<>
+                <p className="ic-lead">Базовый актив — <b>сырьё или металл</b>: цену задаёт мировой баланс спроса и предложения.</p>
+                <p className="ic-body">Для нефти это ОПЕК+, спрос Китая и геополитика; для металлов — промышленный спрос, ставки и доллар. У рублёвого контракта добавляется курс USD/RUB, то есть экспозиция двойная.</p>
+                <p className="ic-note">Наклон срочной кривой (контанго или бэквордация) — барометр текущего дефицита или избытка.</p>
+              </>)}
+              {f.asset_kind === "index" && (<>
+                <p className="ic-lead">Базовый актив — <b>индекс акций</b>: он зависит от прибылей и дивидендов компаний корзины.</p>
+                <p className="ic-body">Плюс ключевая ставка (через дисконтирование), сырьё и геополитика. RTS — долларовый индекс, то есть экспозиция двойная: акции × курс рубля; MIX — рублёвый.</p>
+              </>)}
+              {f.asset_kind === "rate" && (<>
+                <p className="ic-lead">Базовый актив — <b>процентная ставка</b>: контракт отражает ожидания рынка по ней.</p>
+                <p className="ic-body">RUONIA, RUSFAR или ключевая — это инструмент управления процентным риском, а не «вложение» с ожидаемой доходностью.</p>
+              </>)}
+              {!["currency", "commodity", "index", "rate"].includes(f.asset_kind) && (
+                <p className="ic-body">Цена контракта следует за базовым активом {f.asset_name || f.asset_code}. Детальный разбор готовится; пока — параметры, плечо и срочная структура во вкладке «Обзор контракта».</p>
+              )}
+              {data.fair_value?.basis_explain && <p className="ic-note">{data.fair_value.basis_explain}</p>}
+            </section>
           )}
         </div>
       )}
 
-      {tab === "overview" && (<>
+      {/* ===== Вкладка ОБЗОР КОНТРАКТА ===== */}
+      {tab === "overview" && (
+        <div className="ic-stack">
 
-      {/* Параметры контракта */}
-      <Card header="Параметры контракта">
-        <div className="tw-grid tw-grid-cols-2 sm:tw-grid-cols-3 tw-gap-x-6 tw-gap-y-3 tw-text-[13px]">
-          {[
-            ["Расчётная цена", f.settle_price != null ? fmtNumber(f.settle_price, { decimals: 2 }) : "—"],
-            ["Номинал контракта", f.contract_value != null ? `${fmtNumber(f.contract_value, { decimals: 0 })} ₽` : "—"],
-            ["Гарантийное обеспечение", f.initial_margin != null ? `${fmtNumber(f.initial_margin, { decimals: 0 })} ₽` : "—"],
-            ["Открытые позиции", f.open_position != null ? fmtNumber(f.open_position, { decimals: 0 }) : "—"],
-            ["Экспирация", f.expiration_date || "—"],
-            ["Базовый актив", f.asset_name || f.asset_code],
-          ].map(([k, v]) => (
-            <div key={k}>
-              <div className="tw-text-text-tertiary tw-text-[11px] tw-uppercase" style={{ letterSpacing: "0.04em" }}>{k}</div>
-              <div className="tw-text-text-primary tw-font-mono tw-mt-0.5">{v}</div>
+          <section className="ic-card">
+            <h3><FileText size={17} /><span>Параметры контракта</span><span className="ic-tag ic-tag--fact">факт</span></h3>
+            <div className="ic-params">
+              {[
+                ["Расчётная цена", f.settle_price != null ? fmtNumber(f.settle_price, { decimals: 2 }) : "—"],
+                ["Номинал контракта", f.contract_value != null ? `${fmtNumber(f.contract_value, { decimals: 0 })} ₽` : "—"],
+                ["Гарантийное обеспечение", f.initial_margin != null ? `${fmtNumber(f.initial_margin, { decimals: 0 })} ₽` : "—"],
+                ["Открытые позиции", f.open_position != null ? fmtNumber(f.open_position, { decimals: 0 }) : "—"],
+                ["Экспирация", f.expiration_date || "—"],
+                ["Базовый актив", f.asset_name || f.asset_code],
+              ].map(([k, v]) => (
+                <div key={k}>
+                  <div className="ic-param-k">{k}</div>
+                  <div className="ic-param-v">{v}</div>
+                </div>
+              ))}
             </div>
-          ))}
+            <p className="ic-note">
+              Обеспечение — сумма, которую биржа замораживает под позицию, и она может её менять. Номинал — полная стоимость базового актива в контракте: именно от неё считаются прибыль и убыток. В дату экспирации позиция закрывается автоматически по расчётной цене того дня, а она может отличаться от сегодняшней.
+            </p>
+          </section>
+
+          {ts && (
+            <section className="ic-card">
+              <h3><TrendingUp size={17} /><span>Срочная структура · стоимость удержания</span><span className="ic-tag ic-tag--fact">факт</span></h3>
+              <p className="ic-lead">
+                {ts.shape === "contango" && <>Дальние контракты <b>дороже</b> ближних — это <b>контанго</b>.</>}
+                {ts.shape === "backwardation" && <>Дальние контракты <b>дешевле</b> ближних — это <b>бэквордация</b>.</>}
+                {ts.shape === "flat" && <>Кривая почти плоская: заметной стоимости удержания между сериями нет.</>}
+              </p>
+              <p className="ic-body">
+                {ts.shape === "contango" && <>Держать длинную позицию с переносом на следующую серию стоит денег — примерно {ts.annualized_pct != null ? `${fmtNumber(ts.annualized_pct, { decimals: 1 })}% годовых` : `${fmtNumber(ts.diff_pct, { decimals: 2 })}% за период`}. Для валюты и металлов при высокой ставке это нормальное состояние.</>}
+                {ts.shape === "backwardation" && <>Обычно означает, что актив сейчас в дефиците или дорог «здесь и сейчас»; у акций так бывает перед дивидендом. Перенос длинной позиции при этом даёт выигрыш — около {ts.annualized_pct != null ? `${fmtNumber(ts.annualized_pct, { decimals: 1 })}% годовых` : `${fmtNumber(ts.diff_pct, { decimals: 2 })}% за период`}.</>}
+                {ts.shape === "flat" && <>Переносить позицию между сериями почти ничего не стоит.</>}
+              </p>
+              <div className="ic-strip">
+                {ts.series.map((s, i) => (
+                  <div key={i} className={`ic-strip-cell${s.secid === f.secid || s.short_name === f.short_name ? " ic-strip-cell--now" : ""}`}>
+                    <div className="ic-strip-name">{s.short_name}</div>
+                    <div className="ic-strip-val">{s.settle != null ? fmtNumber(s.settle, { decimals: 2 }) : "—"}</div>
+                    <div className="ic-strip-days">{s.days_to_expiry != null ? `${s.days_to_expiry} дн` : ""}</div>
+                  </div>
+                ))}
+              </div>
+              <p className="ic-note">Это контекст ожиданий рынка, а не сигнал к сделке.</p>
+            </section>
+          )}
+
+          {data.fair_value && (
+            <section className="ic-card">
+              <h3><Target size={17} /><span>Справедлив ли базис</span><span className="ic-tag ic-tag--est">оценка</span></h3>
+              {data.fair_value.verdict && <div className="ic-callout">{data.fair_value.verdict}</div>}
+              {data.fair_value.basis_explain && <p className="ic-body" style={{ marginTop: 12 }}>{data.fair_value.basis_explain}</p>}
+              <p className="ic-note">
+                «Арбитраж» здесь — академическое расхождение факта и теории. Реальная сделка потребовала бы одновременных позиций, комиссий, обеспечения и доступности шорта. Не сигнал к сделке.
+              </p>
+            </section>
+          )}
+
+          {data.sensitivity && (
+            <section className="ic-card">
+              <h3><Zap size={17} /><span>Риск плеча: если рынок пойдёт против вас</span><span className="ic-tag ic-tag--est">оценка</span></h3>
+              <p className="ic-lead">
+                При плече ~{fmtNumber(data.sensitivity.leverage, { decimals: 1 })}× даже небольшое движение базового актива бьёт по обеспечению усиленно:
+              </p>
+              <div className="ic-scen">
+                {data.sensitivity.scenarios.map((s) => (
+                  <div key={s.asset_move_pct} className="ic-scen-cell">
+                    <div className="ic-scen-cap">актив −{s.asset_move_pct}%</div>
+                    <div className="ic-scen-val">{fmtNumber(s.margin_change_pct, { decimals: 1 })}%</div>
+                    <div className="ic-scen-sub">от обеспечения</div>
+                  </div>
+                ))}
+              </div>
+              <p className="ic-note">
+                Линейная оценка от текущего плеча. В плюс работает симметрично — риск в том, что убыток умножается так же, а обеспечение может потребовать пополнения прямо в ходе движения.
+              </p>
+            </section>
+          )}
+
+          {data.pair_strategy && (
+            <section className="ic-card">
+              <h3><BookOpen size={17} /><span>Как инструмент используют</span><span className="ic-tag ic-tag--judg">ликбез</span></h3>
+              <p className="ic-body">{data.pair_strategy}</p>
+              <p className="ic-note">Типичное применение этого вида фьючерса — объяснение, а не рекомендация: Basis не советует «купить/продать».</p>
+            </section>
+          )}
+
         </div>
-        <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">ГО — сумма, которую биржа замораживает под позицию (биржа может менять его). Номинал — полная стоимость базового актива в контракте; именно от него считается прибыль и убыток. В дату экспирации позиция закрывается автоматически по расчётной цене на тот день — она может отличаться от сегодняшней.</div>
-      </Card>
-
-      {/* Срочная структура: контанго/бэквордация как КОНТЕКСТ ожиданий, не сигнал */}
-      {ts && (
-        <Card header="Срочная структура (стоимость удержания)">
-          <div className="tw-text-[13px] tw-text-text-secondary tw-mb-3">
-            {ts.shape === "contango" && <>Дальние контракты <b>дороже</b> ближних — <b>контанго</b>. Удержание длинной позиции с переносом обходится в деньги (≈ {ts.annualized_pct != null ? `${fmtNumber(ts.annualized_pct, { decimals: 1 })}% годовых` : `${fmtNumber(ts.diff_pct, { decimals: 2 })}% за период`}). Это нормально для валюты и металлов при высокой ставке.</>}
-            {ts.shape === "backwardation" && <>Дальние контракты <b>дешевле</b> ближних — <b>бэквордация</b>. Часто значит «сейчас актив в дефиците/дорог» или близкий дивиденд (для акций). Перенос длинной позиции даёт выигрыш (≈ {ts.annualized_pct != null ? `${fmtNumber(ts.annualized_pct, { decimals: 1 })}% годовых` : `${fmtNumber(ts.diff_pct, { decimals: 2 })}% за период`}).</>}
-            {ts.shape === "flat" && <>Кривая почти плоская — заметной стоимости удержания между сериями нет.</>}
-            <span className="tw-text-text-tertiary"> Это контекст ожиданий рынка, а не сигнал к сделке.</span>
-          </div>
-          <div className="tw-flex tw-flex-wrap tw-gap-2">
-            {ts.series.map((s, i) => (
-              <div key={i} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-px-3 tw-py-1.5 tw-text-[12px] tw-text-center">
-                <div className="tw-text-text-tertiary">{s.short_name}</div>
-                <div className="tw-text-text-primary tw-font-mono">{s.settle != null ? fmtNumber(s.settle, { decimals: 2 }) : "—"}</div>
-                <div className="tw-text-text-tertiary tw-text-[10px]">{s.days_to_expiry != null ? `${s.days_to_expiry} дн` : ""}</div>
-              </div>
-            ))}
-          </div>
-        </Card>
       )}
-
-      {/* Справедливость базиса и арбитраж: факт vs теория (cost-of-carry) */}
-      {data.fair_value && (
-        <Card header="Справедлив ли базис · арбитраж">
-          {data.fair_value.basis_explain && (
-            <div className="tw-text-[13px] tw-text-text-secondary tw-mb-2 tw-leading-snug">{data.fair_value.basis_explain}</div>
-          )}
-          {data.fair_value.verdict && (
-            <div className="tw-p-2.5 tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-text-[13px] tw-text-text-primary tw-leading-snug">{data.fair_value.verdict}</div>
-          )}
-          <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">Оценка. «Арбитраж» здесь — академическое расхождение факта и теории; реальная сделка требует одновременных позиций, учёта комиссий, ГО и доступности шорта. Не сигнал к сделке.</div>
-        </Card>
-      )}
-
-      {/* Парные стратегии: УЧЕБНОЕ объяснение применения (не сигнал) */}
-      {data.pair_strategy && (
-        <Card header="Как инструмент используют (учебно)">
-          <div className="tw-text-[12px] tw-text-text-tertiary tw-mb-2">Ликбез: типичное применение этого вида фьючерса. <b>Не рекомендация сделки и не сигнал</b> — Basis не советует «купить/продать».</div>
-          <div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug">{data.pair_strategy}</div>
-        </Card>
-      )}
-
-      {/* Чувствительность к плечу — в НЕГАТИВНОЙ рамке (риск убытка) */}
-      {data.sensitivity && (
-        <Card header="Риск плеча: что если рынок пойдёт против вас">
-          <div className="tw-text-[13px] tw-text-text-secondary tw-mb-3">
-            При плече ~{fmtNumber(data.sensitivity.leverage, { decimals: 1 })}× даже небольшое движение базового актива против позиции бьёт по ГО усиленно:
-          </div>
-          <div className="tw-grid tw-grid-cols-3 tw-gap-2">
-            {data.sensitivity.scenarios.map((s) => (
-              <div key={s.asset_move_pct} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5 tw-text-center">
-                <div className="tw-text-[12px] tw-text-text-tertiary">актив −{s.asset_move_pct}%</div>
-                <div className="tw-text-[16px] tw-font-mono tw-font-semibold tw-text-danger">{fmtNumber(s.margin_change_pct, { decimals: 1 })}%</div>
-                <div className="tw-text-[10px] tw-text-text-tertiary">от ГО</div>
-              </div>
-            ))}
-          </div>
-          <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">Оценка от текущего плеча (линейно). Симметрично работает и в плюс — но риск плеча в том, что убыток тоже умножается, а ГО может потребовать пополнения.</div>
-        </Card>
-      )}
-
-      </>)}{/* конец вкладки Обзор */}
     </div>
   );
 };
