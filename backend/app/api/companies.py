@@ -512,6 +512,27 @@ def get_run_rate_endpoint(ticker: str, db: Session = Depends(get_db)):
     return JSONResponse(content=get_run_rate(db, _safe(ticker).upper()))
 
 
+# Отчётность публикуется в пределах ~2 месяцев после конца периода. Порог нужен,
+# чтобы отличить свежий отчёт с неполным названием периода от старого, добранного
+# ботом задним числом.
+_REPORT_LAG_MAX_DAYS = 75
+
+
+def _period_end_for_year(s: str, year: int) -> date | None:
+    """Конец периода для ЗАДАННОГО года — общая часть разбора «1П», «9М», «N кв»."""
+    low = s.lower().replace(" ", "")
+    mh = re.search(r"([12])п", low)
+    if mh:
+        return date(year, 6, 30) if mh.group(1) == "1" else date(year, 12, 31)
+    if "9м" in low or "9мес" in low:
+        return date(year, 9, 30)
+    mq = re.search(r"([1-4])кв", low) or re.search(r"([1-4])квартал", low)
+    if mq:
+        return {"1": date(year, 3, 31), "2": date(year, 6, 30),
+                "3": date(year, 9, 30), "4": date(year, 12, 31)}[mq.group(1)]
+    return None
+
+
 def _period_end(period: str | None, published_at) -> date | None:
     """Конец периода, который ПОКРЫВАЕТ отчёт — по нему и определяется «самый свежий».
 
@@ -531,9 +552,34 @@ def _period_end(period: str | None, published_at) -> date | None:
     if not s:
         return None
     m = re.search(r"(19|20)\d{2}", s)
-    if not m:
-        return None
-    year = int(m.group(0))
+    if m:
+        year = int(m.group(0))
+    else:
+        # 🔴 Года в строке нет («2 квартал.», «1 КВ.») — раньше такие записи
+        # считались недоказуемо свежими и уходили ВНИЗ. Защита от одной ошибки
+        # породила другую: у ВТБ разбор за 2кв2026 (опубликован 28.07.2026) так
+        # проигрывал годовому за 2025, и в «Обзоре» висел отчёт годичной
+        # давности, пока свежий лежал в архиве.
+        # Год достаём из даты публикации, но принимаем ТОЛЬКО если период
+        # закончился незадолго до неё: отчётность выходит в пределах ~2 месяцев
+        # после конца периода. Так «2 квартал» + публикация 28.07.2026 → 30.06.2026
+        # (28 дней, принимаем), а «1 КВ.» + публикация 13.07.2026 → 31.03.2026
+        # (104 дня) остаётся недоказуемым и уходит вниз, как и было, — это тот
+        # самый случай ROSN, ради которого правило и вводилось.
+        pub = published_at if isinstance(published_at, date) else None
+        if not pub:
+            return None
+        year = pub.year
+        cand = _period_end_for_year(s, year)
+        if cand is None:
+            return None
+        if not (0 <= (pub - cand).days <= _REPORT_LAG_MAX_DAYS):
+            # пробуем предыдущий год — отчёт за IV квартал выходит уже в новом
+            prev = _period_end_for_year(s, year - 1)
+            if prev is None or not (0 <= (pub - prev).days <= _REPORT_LAG_MAX_DAYS):
+                return None
+            return prev
+        return cand
     # «2026-07-27» — в period попала дата публикации, она же и конец периода
     iso = re.match(r"^(\d{4})-(\d{2})-(\d{2})$", s)
     if iso:
