@@ -1677,6 +1677,50 @@ def debug_trigger_env_card_interp(tab: str = "both", ticker: str | None = None,
     return JSONResponse(status_code=202, content=_inst_bg("env_card_interp", _run))
 
 
+@router.get("/debug/egress-check")
+def debug_egress_check(url: str, timeout: int = 15, contains: str | None = None):
+    """Доступен ли ИСТОЧНИК С БОЕВОГО СЕРВЕРА (а не с машины разработчика).
+
+    🔴 Зачем: при сборке реестра источников выяснилось, что гос.сайты РФ (ФАС,
+    Росстат, ФТС, Минпромторг) с дев-машины не открываются — TLS виснет до
+    таймаута, похоже на гео-ограничение. С боевого сервера в РФ они, скорее
+    всего, доступны. Значит доступность нельзя мерить локально: иначе рабочий
+    источник попадёт в реестр как «недоступен» и мы не станем его подключать.
+
+    Отдельно проверяется НАЛИЧИЕ КОНТЕНТА, а не только код ответа: e-disclosure
+    сейчас отдаёт 200 и 372 КБ JS-заглушки без данных — по коду и размеру это
+    выглядит как успех, и молчаливая пустота уходит в парсер.
+    """
+    import httpx
+    ua = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+          "(KHTML, like Gecko) Chrome/125.0 Safari/537.36")
+    out: dict = {"url": url}
+    try:
+        with httpx.Client(follow_redirects=True, timeout=timeout,
+                          headers={"User-Agent": ua}) as c:
+            r = c.get(url)
+        body = r.text or ""
+        out.update({
+            "status": r.status_code,
+            "final_url": str(r.url),
+            "size": len(r.content or b""),
+            "content_type": r.headers.get("content-type", ""),
+        })
+        low = body.lower()
+        # Признаки того, что вместо данных пришёл антибот-щит
+        out["looks_like_challenge"] = any(k in low for k in (
+            "just a moment", "checking your browser", "cf-challenge",
+            "enable javascript", "<noscript><meta http-equiv=\"refresh\""))
+        if contains:
+            out["contains"] = contains in body
+        out["verdict"] = ("challenge" if out["looks_like_challenge"]
+                          else "ok" if r.status_code == 200 and out["size"] > 2000
+                          else "suspicious")
+    except Exception as e:  # noqa: BLE001
+        out.update({"status": None, "error": f"{type(e).__name__}: {e}", "verdict": "unreachable"})
+    return out
+
+
 @router.get("/debug/institutions-runs")
 def debug_institutions_runs():
     """Состояние фоновых прогонов институтов: идёт / чем закончился."""
