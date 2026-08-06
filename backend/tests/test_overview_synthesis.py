@@ -217,3 +217,22 @@ def test_paired_share_class_is_not_foreign(tabs, fair, tmp_path, monkeypatch):
     ok["verdict"] += " Дивиденд по префу привязан к выплате на DZRD."
     assert not [n for n in ov._gate(ok, tabs, fair, "DZRDP") if n.startswith("foreign_ticker")]
     ov._TICKERS_CACHE = None
+
+
+def test_direction_survives_daily_price_moves(tabs, fair):
+    """🔴 Апсайд живой — он ходит вокруг границы каждый день.
+
+    Требовать точного соответствия порогу значит браковать вчерашние своды за то,
+    что цена сдвинулась на процент: так за один прогон отвалилось 16 годных выводов.
+    Ловим противоречие, а не несовпадение точки.
+    """
+    near = {**fair, "upside_pct": 1.6}          # вчера было +4,5%
+    ok = _result()
+    ok["fair_value_story"]["direction"] = "выше рынка"
+    assert not [n for n in ov._gate(ok, tabs, near, "SBER")
+                if n.startswith("direction_vs_upside")]
+    # а вот прямое противоречие ловим по-прежнему
+    wrong = _result()
+    wrong["fair_value_story"]["direction"] = "ниже рынка"
+    assert any(n.startswith("direction_vs_upside")
+               for n in ov._gate(wrong, tabs, fair, "SBER"))

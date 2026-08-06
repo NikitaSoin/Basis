@@ -251,10 +251,18 @@ def _gate(result: dict, tabs: list[dict], fair: dict | None, ticker: str) -> lis
     if fair and isinstance(fair.get("upside_pct"), (int, float)) and story:
         upside = float(fair["upside_pct"])
         direction = str(story.get("direction") or "")
-        expected = ("выше рынка" if upside > 3 else
-                    "ниже рынка" if upside < -3 else "близко к рынку")
-        if direction and direction != expected:
-            notes.append(f"direction_vs_upside:{direction}!={expected}({upside}%)")
+        # 🔴 Сверяем ПРОТИВОРЕЧИЕ, а не точное совпадение порога (найдено 2026-08-06).
+        # Апсайд живой: он пересчитывается от котировки на каждый запрос и ходит вокруг
+        # границы ±3% каждый день. Требовать точного соответствия значит браковать
+        # вчерашние своды за то, что цена сдвинулась на процент, — за один прогон так
+        # отвалилось 16 годных выводов. Ловим то, ради чего проверка и заводилась:
+        # объяснение говорит «дешевле рынка», когда бумага дороже, и наоборот.
+        # Промежуточная зона до 10% — законная: «близко к рынку» там честнее точки.
+        conflict = ((direction == "выше рынка" and upside < -3)
+                    or (direction == "ниже рынка" and upside > 3)
+                    or (direction == "близко к рынку" and abs(upside) > 10))
+        if direction and conflict:
+            notes.append(f"direction_vs_upside:{direction}!=апсайд {upside}%")
 
     # Справедливая цена в тексте не должна расходиться с посчитанной.
     if fair and fair.get("fair_price"):
