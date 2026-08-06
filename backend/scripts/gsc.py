@@ -158,11 +158,56 @@ def cmd_sitemaps():
               f"адресов: {c.get('submitted','—')} | проиндексировано: {c.get('indexed','—')} | "
               f"ошибок: {s.get('errors','0')}, предупреждений: {s.get('warnings','0')}")
 
+def cmd_inspect():
+    """Что Google думает о КОНКРЕТНЫХ страницах: в индексе ли, когда обходил, какая карта.
+
+    🔴 Отправить страницы на переобход, как у Яндекса, у Google НЕЛЬЗЯ. Indexing API
+    официально работает только для вакансий и трансляций — для аналитики применять его
+    против правил. Остаётся: карта сайта (уже отправлена и читается), внутренние ссылки
+    и ручной «Запросить индексирование» в интерфейсе, поштучно.
+    Поэтому здесь — не отправка, а ЧТЕНИЕ статуса: понять, дошёл ли Google до страницы.
+
+    Квота проверки — 2000 адресов в сутки, этого более чем достаточно.
+    """
+    urls = sys.argv[2:] or [
+        f"{SITE}company/SBER/dividends/", f"{SITE}company/SBER/finance/",
+        f"{SITE}company/ROSN/grafik/", f"{SITE}company/ROSN/prognoz/",
+        f"{SITE}company/GAZP/spravedlivaya-tsena/", f"{SITE}razbor-otchetnosti-kompaniy/",
+        f"{SITE}dividendnyy-kalendar/", f"{SITE}indeks/imoex/",
+    ]
+    VERDICT = {"PASS": "в индексе", "NEUTRAL": "не в индексе", "FAIL": "ошибка",
+               "PARTIAL": "частично", "VERDICT_UNSPECIFIED": "нет вердикта"}
+    STATE = {"INDEXING_ALLOWED": "индексирование разрешено",
+             "BLOCKED_BY_META_TAG": "закрыто мета-тегом", "BLOCKED_BY_ROBOTS_TXT": "закрыто robots.txt"}
+    print("=== Что Google знает о наших страницах")
+    for u in urls:
+        r = call("", None) if False else None
+        import urllib.request as ur, urllib.error as ue
+        token = _access_token()
+        body = json.dumps({"inspectionUrl": u, "siteUrl": SITE}).encode()
+        req = ur.Request("https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+                         data=body, headers={"Authorization": f"Bearer {token}",
+                                             "Content-Type": "application/json"})
+        try:
+            with ur.urlopen(req, timeout=60) as resp:
+                d = json.loads(resp.read().decode()).get("inspectionResult", {})
+        except ue.HTTPError as e:
+            print(f"  {u.replace(SITE,'/')}: ошибка {e.code} {e.read().decode('utf-8','replace')[:120]}")
+            continue
+        idx = d.get("indexStatusResult", {})
+        print(f"  {u.replace(SITE, '/'):<44} {VERDICT.get(idx.get('verdict'), idx.get('verdict','—')):<14}"
+              f" {STATE.get(idx.get('robotsTxtState'), '')}"
+              f" | обход: {str(idx.get('lastCrawlTime'))[:10]}"
+              f" | карта: {'есть' if idx.get('sitemap') else 'нет'}")
+        if idx.get("coverageState"):
+            print(f"      {idx['coverageState']}")
+
+
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "summary"
     fn = {"queries": cmd_queries, "pages": cmd_pages,
-          "summary": cmd_summary, "sitemaps": cmd_sitemaps}.get(cmd)
+          "summary": cmd_summary, "sitemaps": cmd_sitemaps, "inspect": cmd_inspect}.get(cmd)
     if fn:
         fn()
     else:

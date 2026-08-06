@@ -3357,6 +3357,60 @@ function main() {
   console.log(`Разборы отчётности за период: ${reportCount} страниц`);
   saveReportSlugs();
 
+  /* ── ПОЛНАЯ ПЕРЕЛИНКОВКА КАРТОЧЕК ────────────────────────────────────────────────
+   * 🔴 Проверка в Google Search Console 2026-08-07: страницы метрик, «график», «прогноз»
+   * и разборы за период он НЕ ВИДИТ ВОВСЕ («URL is unknown to Google»), хотя карта сайта
+   * прочитана. Причина в том, что вели на них ТОЛЬКО из карты: с карточки компании стояло
+   * 7 ссылок при 18 существующих разделах. Поисковики ходят по ссылкам, а карта сайта —
+   * лишь подсказка, и приоритет обхода она не поднимает.
+   *
+   * Делаем ПОСЛЕ всей генерации: только к этому моменту точно известно, какие страницы у
+   * компании реально созданы (у части нет данных — блок для них не пишем и битых ссылок
+   * не плодим). Дописываем в уже готовый HTML — так не нужно тасовать порядок генерации. */
+  const LINK_LABELS = {
+    business: "Бизнес-модель", finance: "Финансы и оценка", otchet: "Разбор отчётности",
+    dividends: "Дивиденды", macro: "Макроэкономика", geo: "Геополитика",
+    "spravedlivaya-tsena": "Справедливая цена", grafik: "График акций", prognoz: "Прогноз",
+    vyruchka: "Выручка", "chistaya-pribyl": "Чистая прибыль",
+    "operatsionnaya-pribyl": "Операционная прибыль", ebitda: "EBITDA", roe: "ROE", roa: "ROA",
+    aktivy: "Активы", "sobstvennyy-kapital": "Собственный капитал",
+    "chistyy-dolg": "Чистый долг", "dolgovaya-nagruzka": "Долговая нагрузка",
+    "operatsionnyy-denezhnyy-potok": "Операционный денежный поток",
+    "svobodnyy-denezhnyy-potok": "Свободный денежный поток",
+  };
+  let relinked = 0;
+  for (const c of companies) {
+    const dir = path.join(_BUILD_DIR, "company", c.ticker);
+    let subs = [];
+    try {
+      subs = fs.readdirSync(dir).filter((d) => {
+        try { return fs.statSync(path.join(dir, d)).isDirectory(); } catch { return false; }
+      });
+    } catch { continue; }
+    if (subs.length < 2) continue;
+    const items = subs.sort().map((sec) => {
+      const label = LINK_LABELS[sec]
+        || (/^otchet-/.test(sec) ? `Отчёт: ${sec.replace(/^otchet-/, "").replace(/-/g, " ")}` : null);
+      return label ? `<a class="chip" href="/company/${c.ticker}/${sec}/">${escapeHtml(label)}</a>` : "";
+    }).filter(Boolean).join("");
+    if (!items) continue;
+    const html = `<h2>Все разделы разбора ${escapeHtml(c.short)}</h2>
+<p class="sub">Каждый раздел — отдельный разбор с собственными данными: отчётность, оценка,
+дивиденды, риски и динамика показателей по годам.</p>
+<div class="grid">${items}</div>`;
+    const file = path.join(dir, "index.html");
+    try {
+      const src = fs.readFileSync(file, "utf8");
+      // Вставляем перед сноской — это конец содержательной части страницы.
+      const at = src.lastIndexOf('<p class="note">');
+      if (at > 0 && !src.includes("Все разделы разбора")) {
+        fs.writeFileSync(file, src.slice(0, at) + html + "\n" + src.slice(at), "utf8");
+        relinked++;
+      }
+    } catch { /* карточки нет — пропускаем молча */ }
+  }
+  console.log(`Перелинковка карточек: ${relinked} страниц получили полный список разделов`);
+
   // Короткие URL /TICKER/ — редирект на канонический /company/TICKER/ (п.7 задачи).
   let shortUrlCount = 0;
   const shortUrlSkipped = [];
