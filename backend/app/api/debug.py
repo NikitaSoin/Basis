@@ -2424,6 +2424,9 @@ font-size:13px;cursor:pointer}
 <a onclick="set('SELECT u.id, u.created_at, count(p.id) AS портфелей FROM users u LEFT JOIN portfolios p ON p.user_id = u.id GROUP BY 1,2 ORDER BY 2 DESC')">активность по людям</a>
 <a onclick="set('SELECT coalesce(c.ticker, p.secid) AS бумага, p.instrument_type AS тип, count(*) AS в_портфелях, sum(p.quantity) AS штук FROM portfolio_positions p LEFT JOIN companies c ON c.id = p.company_id GROUP BY 1,2 ORDER BY 3 DESC')">популярные бумаги</a>
 <a onclick="set(&quot;SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY 1&quot;)">список таблиц</a>
+<a onclick="set(this.dataset.q)" data-q="WITH ev AS (SELECT anon_id, created_at, date(created_at) AS d, CASE WHEN created_at - lag(created_at) OVER (PARTITION BY anon_id ORDER BY created_at) > interval '30 minutes' OR lag(created_at) OVER (PARTITION BY anon_id ORDER BY created_at) IS NULL THEN 1 ELSE 0 END AS nv FROM user_events WHERE is_bot IS FALSE AND anon_id IS NOT NULL AND created_at >= current_date - 14), v AS (SELECT anon_id, d, created_at, sum(nv) OVER (PARTITION BY anon_id ORDER BY created_at) AS vn FROM ev), vis AS (SELECT d, anon_id, vn, EXTRACT(EPOCH FROM (max(created_at) - min(created_at))) AS sec, count(*) AS ev FROM v GROUP BY 1,2,3), fs AS (SELECT anon_id, min(date(created_at)) AS first_day FROM user_events WHERE is_bot IS FALSE AND anon_id IS NOT NULL GROUP BY 1) SELECT vis.d AS день, count(DISTINCT vis.anon_id) AS людей, count(*) AS визитов, count(DISTINCT vis.anon_id) FILTER (WHERE fs.first_day = vis.d) AS новых, count(DISTINCT vis.anon_id) FILTER (WHERE fs.first_day &lt; vis.d) AS вернулись, round(CAST(avg(vis.sec)/60.0 AS numeric),1) AS минут_на_визит, count(*) FILTER (WHERE vis.ev = 1) AS вошли_и_ушли, count(*) FILTER (WHERE vis.ev &gt; 1) AS пошли_дальше FROM vis JOIN fs ON fs.anon_id = vis.anon_id GROUP BY 1 ORDER BY 1 DESC">сводка по дням: люди, приток, время, воронка</a>
+<a onclick="set(this.dataset.q)" data-q="SELECT date(created_at) AS день, count(DISTINCT anon_id) FILTER (WHERE name = 'tour_shown') AS показан, count(DISTINCT anon_id) FILTER (WHERE name = 'tour_started') AS начали, count(DISTINCT anon_id) FILTER (WHERE name = 'tour_completed') AS прошли, count(DISTINCT anon_id) FILTER (WHERE name = 'tour_dismissed') AS закрыли FROM user_events WHERE is_bot IS FALSE AND kind = 'action' AND name LIKE 'tour_%' GROUP BY 1 ORDER BY 1 DESC">экскурс: показан / начали / прошли</a>
+<a onclick="set(this.dataset.q)" data-q="SELECT coalesce(meta-&gt;&gt;'_bot','—') AS причина, count(DISTINCT anon_id) AS устройств, count(*) AS событий FROM user_events WHERE is_bot IS TRUE AND created_at >= current_date - 7 GROUP BY 1 ORDER BY 2 DESC">кого мы считаем роботами и почему</a>
 <a onclick="set(this.dataset.q)" data-q="SELECT u.email, date(u.created_at) AS регистрация, u.subscription_type AS тариф, count(DISTINCT p.id) AS портфелей, count(pos.id) AS позиций, string_agg(DISTINCT coalesce(c.ticker, pos.secid), ', ') AS бумаги FROM users u LEFT JOIN portfolios p ON p.user_id = u.id LEFT JOIN portfolio_positions pos ON pos.portfolio_id = p.id AND pos.instrument_type <> 'cash' LEFT JOIN companies c ON c.id = pos.company_id WHERE NOT (u.email LIKE '%@example.com' OR u.email LIKE '%@inbasis.ru') GROUP BY 1,2,3 ORDER BY 5 DESC">клиенты и их портфели</a>
 <a onclick="set(this.dataset.q)" data-q="SELECT u.email, p.name AS портфель, coalesce(c.ticker, pos.secid) AS бумага, pos.instrument_type AS тип, pos.quantity AS количество, pos.avg_buy_price AS средняя_цена FROM portfolio_positions pos JOIN portfolios p ON p.id = pos.portfolio_id JOIN users u ON u.id = p.user_id LEFT JOIN companies c ON c.id = pos.company_id ORDER BY u.email, p.name">все позиции с почтами</a>
 <a onclick="set(this.dataset.q)" data-q="SELECT u.email, count(*) AS событий, count(DISTINCT e.session_id) AS сессий, count(DISTINCT date(e.created_at)) AS дней_заходил, max(e.created_at) AS последний_раз FROM user_events e JOIN users u ON u.id = e.user_id GROUP BY 1 ORDER BY 2 DESC">активность клиентов</a>
@@ -2838,3 +2841,37 @@ def debug_test_email(data: dict):
         return {"status": "sent", "to": to}
     except Exception as e:  # noqa: BLE001
         return {"status": "error", "detail": str(e)[:300]}
+
+
+@router.post("/debug/net-probe")
+def debug_net_probe(data: dict | None = None):
+    """Сетевой зонд: TCP-доступность наружу с инстанса (диагноз «timed out» у
+    SMTP 2026-08-06 — egress-политика приложения, а не наши креды). Проверяет
+    стандартные SMTP-порты ящика из env + HTTP-альтернативы, плюс показывает
+    SMTP-конфиг с замаскированным паролем — сверить, ЧТО реально в env."""
+    import socket
+    import time
+    host = os.environ.get("SMTP_HOST", "smtp.timeweb.ru")
+    targets = [(host, 465), (host, 587), (host, 25), (host, 2525),
+               ("go1.unisender.ru", 443), ("api.deepseek.com", 443), ("1.1.1.1", 443)]
+    extra = (data or {}).get("targets") or []
+    for t in extra[:5]:
+        try:
+            h, p = str(t).rsplit(":", 1)
+            targets.append((h, int(p)))
+        except Exception:  # noqa: BLE001
+            pass
+    out = []
+    for h, p in targets:
+        t0 = time.time()
+        try:
+            with socket.create_connection((h, p), timeout=6):
+                out.append({"target": f"{h}:{p}", "tcp": "ok", "ms": int((time.time() - t0) * 1000)})
+        except Exception as e:  # noqa: BLE001
+            out.append({"target": f"{h}:{p}", "tcp": type(e).__name__, "detail": str(e)[:80]})
+    pw = os.environ.get("SMTP_PASSWORD", "")
+    return {"probes": out, "smtp_env": {
+        "host": os.environ.get("SMTP_HOST"), "port": os.environ.get("SMTP_PORT"),
+        "user": os.environ.get("SMTP_USER"),
+        "from": os.environ.get("SMTP_FROM"),
+        "password_set": bool(pw), "password_len": len(pw)}}
