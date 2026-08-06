@@ -547,7 +547,10 @@ def upsert_bond(db: Session, rec: dict, curve: list,
     # к КС (купон = КС + маржа). coupon_percent — текущая ставка купона.
     floater_spread_bp = None
     if coupon_type == "floater":
-        from app.services.bond_risk import KEY_RATE_PCT
+        # Ставку берём функцией, а не константой модуля: константа фиксируется
+        # при импорте, а загрузка бумаг идёт ежедневно и должна видеть свежую.
+        from app.services.bond_risk import current_key_rate as _ckr
+        KEY_RATE_PCT = _ckr()
         cp = _f(s.get("COUPONPERCENT"))
         if cp is not None and KEY_RATE_PCT is not None:
             floater_spread_bp = round((cp - KEY_RATE_PCT) * 100)

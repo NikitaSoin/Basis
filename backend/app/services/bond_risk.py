@@ -14,9 +14,42 @@ from pathlib import Path
 
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 
-# Ключевая ставка ЦБ — база для спреда флоатеров (купон = КС + маржа).
-# На 11.06.2026 КС = 14,5% (с 24.04.2026). Обновлять при смене ставки.
-KEY_RATE_PCT = 14.5
+# 🔴 Ключевая ставка ЦБ — база для спреда флоатеров (купон = КС + маржа).
+# РАНЬШЕ здесь стояла константа 14.5 с комментарием «обновлять при смене ставки».
+# Её не обновили: ЦБ снизил до 14,0% 24.07.2026, а код продолжал считать от 14,5 —
+# спред КАЖДОГО флоатера был занижен на 50 б.п., и это тихо: ошибка не в тексте,
+# а в расчётном поле floater_spread_bp, по которому бумаги сравниваются.
+# Ручное «обновлять при смене» в живом коде не работает по определению — ставка
+# меняется чаще, чем кто-то вспоминает про эту строку. Берём из БД, где ряд
+# key_rate обновляется ежедневным синком ЦБ; константа осталась только фолбэком
+# на случай пустой базы.
+_KEY_RATE_FALLBACK = 14.0
+
+
+def current_key_rate(db=None) -> float:
+    """Ключевая ставка из макро-ряда. Без БД (или при пустом ряде) — фолбэк."""
+    try:
+        if db is None:
+            from app.db.session import SessionLocal
+            db = SessionLocal()
+            close = True
+        else:
+            close = False
+        try:
+            from sqlalchemy import text as _text
+            row = db.execute(_text(
+                "SELECT value FROM macro_data_points WHERE indicator_code='key_rate' "
+                "AND metric='level' ORDER BY as_of DESC LIMIT 1")).fetchone()
+            return float(row[0]) if row and row[0] is not None else _KEY_RATE_FALLBACK
+        finally:
+            if close:
+                db.close()
+    except Exception:  # noqa: BLE001 — расчёт не должен падать из-за макро-ряда
+        return _KEY_RATE_FALLBACK
+
+
+# Обратная совместимость: модули импортируют KEY_RATE_PCT как значение.
+KEY_RATE_PCT = current_key_rate()
 
 
 def _days_to(d) -> int | None:
@@ -429,7 +462,7 @@ def _ofz_at(curve: list[tuple[float, float]], years: float):
     return None
 
 
-def recalc_market_fields(db) -> int:
+def recalc_market_fields(db) -> int:  # noqa: C901
     """Идемпотентный пересчёт spread_bp / risk_tier / floater_spread_bp по тем же
     правилам, что и загрузчик, но БЕЗ MOEX (кривая ОФЗ берётся из нашей базы).
     Чинит исторические строки, загруженные старой логикой (фикс очереди №1):
@@ -438,6 +471,10 @@ def recalc_market_fields(db) -> int:
       • near-offer/near-maturity артефакт → spread_bp=NULL (YTM раздут коротким хвостом);
       • фикс → G-спред к ОФЗ той же дюрации.
     Возвращает число изменённых строк. Безопасно вызывать на каждом старте."""
+    # Ставку читаем ЗДЕСЬ, а не берём из константы модуля: константа
+    # вычисляется при импорте и на живом сервере не обновится до рестарта,
+    # а этот пересчёт гоняется ежедневно и обязан видеть свежую ставку.
+    _kr = current_key_rate(db)
     from sqlalchemy import text
     curve = _ofz_curve_from_db(db)
     rows = db.execute(text(
@@ -461,8 +498,8 @@ def recalc_market_fields(db) -> int:
                 new_spread = round((ytm - base) * 100)
         new_tier = classify_risk_local(b["bond_type"], new_spread)
         new_fl = None
-        if ct == "floater" and b["coupon_percent"] is not None and KEY_RATE_PCT is not None:
-            new_fl = round((float(b["coupon_percent"]) - KEY_RATE_PCT) * 100)
+        if ct == "floater" and b["coupon_percent"] is not None and _kr is not None:
+            new_fl = round((float(b["coupon_percent"]) - _kr) * 100)
         if (new_spread != b["spread_bp"] or new_tier != b["risk_tier"]
                 or new_fl != b["floater_spread_bp"]):
             db.execute(text("UPDATE bonds SET spread_bp=:s, risk_tier=:t, floater_spread_bp=:f WHERE secid=:id"),
