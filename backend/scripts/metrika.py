@@ -133,11 +133,29 @@ def cmd_devices():
     _print(_rows(r), ["устройство", "визиты", "отказы"], [22, 10, 9],
            [lambda v: f"{v:.0f}", lambda v: f"{v:.1f}%"])
 
+def cmd_landings():
+    """Страницы, НА КОТОРЫЕ приходят из поиска, — «по каким страницам нас находят».
+
+    🔴 Позиции ПО СТРАНИЦАМ ни Метрика, ни API Вебмастера не отдают: Вебмастер даёт среднюю
+    позицию по ЗАПРОСУ (см. webmaster.py queries), Метрика — страницу входа. Сопоставить
+    их можно только вручную и приблизительно; выдумывать точную позицию страницы нельзя.
+    """
+    r = call(metrics="ym:s:visits,ym:s:users,ym:s:bounceRate,ym:s:pageDepth",
+             dimensions="ym:s:startURL", filters="ym:s:lastTrafficSource=='organic'",
+             sort="-ym:s:visits", limit=40)
+    rows = _rows(r)
+    if not rows:
+        print("Переходов из поиска пока нет.")
+        return
+    print("=== Страницы входа ИЗ ПОИСКА")
+    _print(rows, ["страница", "визиты", "люди", "отказы", "глубина"], [50, 9, 7, 9, 9],
+           [lambda v: f"{v:.0f}", lambda v: f"{v:.0f}", lambda v: f"{v:.1f}%", lambda v: f"{v:.1f}"])
+
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "summary"
     fn = {"summary": cmd_summary, "pages": cmd_pages, "sources": cmd_sources,
-          "queries": cmd_queries, "devices": cmd_devices}.get(cmd)
+          "queries": cmd_queries, "devices": cmd_devices, "landings": cmd_landings}.get(cmd)
     if fn:
         fn()
     else:
