@@ -268,6 +268,31 @@ def _sector_articles(db: Session, label: str, drivers: str, limit: int = 6) -> l
     return hits
 
 
+# Отраслевые ряды из sector_data_sync — какой код какой отрасли принадлежит.
+# Явная таблица, а не префикс: связь «показатель → отрасль» должна быть видимой,
+# иначе новый ряд молча не попадёт ни в один барометр.
+_SECTOR_INDICATORS = {
+    "power": ["sec_power_consumption", "sec_power_capacity"],
+    "realty": ["sec_realty_construction", "sec_realty_top1_share"],
+    "oil_gas": ["sec_urals_tax"],
+}
+
+
+def _sector_indicators(db: Session, sector_key: str) -> list[str]:
+    codes = _SECTOR_INDICATORS.get(sector_key) or []
+    if not codes:
+        return []
+    rows = db.execute(text("""
+        SELECT i.title, p.value, p.as_of, i.unit
+        FROM macro_indicators i
+        JOIN LATERAL (SELECT value, as_of FROM macro_data_points
+                      WHERE indicator_code = i.code AND metric = 'level'
+                      ORDER BY as_of DESC LIMIT 1) p ON TRUE
+        WHERE i.code = ANY(:c)
+    """), {"c": codes}).fetchall()
+    return [f"  {r[0]}: {r[1]:g} {r[3] or ''} (на {r[2]})" for r in rows]
+
+
 def previous(db: Session) -> dict:
     row = (db.query(BarometerVersion)
            .filter(BarometerVersion.kind == _KIND, BarometerVersion.status == "published")
@@ -312,6 +337,13 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
              f"Компании ({len(tickers)}): {', '.join(tickers[:40])}"]
         if prices:
             b.append("Цены на продукцию отрасли:\n" + "\n".join(prices))
+        # Отраслевые показатели, собранные парсерами из источников реестра
+        # (потребление электроэнергии, объём стройки и т.п.). Для девяти
+        # секторов из тринадцати это ЕДИНСТВЕННЫЕ данные об их рынке — цен
+        # на продукцию у них нет вовсе.
+        ind = _sector_indicators(db, sec["key"])
+        if ind:
+            b.append("Показатели отрасли:\n" + "\n".join(ind))
         if earn:
             b.append("Свежая отчётность компаний отрасли:\n" + "\n".join(earn))
         else:
