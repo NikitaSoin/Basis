@@ -32,7 +32,10 @@ COMPANIES = ROOT / "backend" / "companies"
 CANON = {
     "loans_gross": ["loans_gross", "gross_loans", "loans_to_customers_gross"],
     "loans_net": ["loans_net", "net_loans"],
-    "loan_provisions": ["loan_provisions", "loans_impairment_reserve"],
+    # loan_loss_allowance — имя из отчётности МТС-Банка; без него резервы месяцами
+    # не переносились, хотя лежали добытыми
+    "loan_provisions": ["loan_provisions", "loans_impairment_reserve", "loan_loss_allowance",
+                        "allowance_for_loan_losses", "provision_for_loan_losses"],
     "securities": ["securities", "securities_total"],
     "customer_deposits": ["customer_deposits", "deposits"],
     "due_to_banks": ["due_to_banks", "due_to_cbanks_and_credit_orgs"],

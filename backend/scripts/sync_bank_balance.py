@@ -31,7 +31,7 @@ COMPANIES = ROOT / "backend" / "companies"
 FRONT = {
     "gross_loans": ["gross_loans", "loans_gross", "loans_to_customers_gross"],
     "net_loans": ["net_loans", "loans_net"],
-    "loan_provisions": ["loan_provisions", "loans_impairment_reserve"],
+    "loan_provisions": ["loan_provisions", "loans_impairment_reserve", "loan_loss_allowance", "allowance_for_loan_losses"],
     "securities": ["securities", "investment_securities"],
     "customer_deposits": ["customer_deposits", "deposits"],
     "deposits_retail": ["deposits_retail"],
