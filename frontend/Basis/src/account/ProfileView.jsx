@@ -17,7 +17,7 @@
 // Реальный вызов: POST /api/auth/me/subscription (даунгрейд в один клик,
 // без confirm() — owner: отмена должна быть не сложнее подписки).
 // =============================================================
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { User, LogOut, Check } from "lucide-react";
 import { Button, Badge, Card } from "../design/primitives";
 import { getTier } from "./tierCatalog";
@@ -47,6 +47,16 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("overview");
+  // Свежий /me при каждом открытии профиля: статусы (подтверждение почты,
+  // тариф) могли смениться вне этой вкладки — например, по ссылке из письма
+  // (владелец 2026-08-07: подтвердил почту, а профиль показывал старое до F5).
+  useEffect(() => {
+    if (!token || !onUserUpdate) return;
+    fetch(`${apiUrl}/api/auth/me?fresh=profile`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((u) => { if (u) onUserUpdate(u); })
+      .catch(() => {});
+  }, [token]); // eslint-disable-line
   // Повторная отправка письма подтверждения почты (ссылка, бессрочная)
   const [verifySending, setVerifySending] = useState(false);
   const [verifyNote, setVerifyNote] = useState(null);

@@ -1234,7 +1234,16 @@ export default function App() {
           body: JSON.stringify({ token: vtoken }),
         }).then(async (r) => {
           const d = await r.json().catch(() => ({}));
-          if (r.ok && (d.status === "ok" || d.status === "already")) setVerifyEmail(d.status);
+          if (r.ok && (d.status === "ok" || d.status === "already")) {
+            setVerifyEmail(d.status);
+            // Пользователь мог быть залогинен в этой же вкладке — обновляем его
+            // копию сразу, чтобы профиль показал галочку без перезагрузки.
+            const tk = localStorage.getItem("basis_token");
+            if (tk) fetch(`${apiUrl}/api/auth/me`, { headers: { Authorization: `Bearer ${tk}` } })
+              .then((rr) => (rr.ok ? rr.json() : null))
+              .then((u) => { if (u) { setUser(u); localStorage.setItem("basis_user", JSON.stringify(u)); } })
+              .catch(() => {});
+          }
           else setVerifyEmail("error:" + (d.detail || "не получилось подтвердить адрес"));
         }).catch(() => setVerifyEmail("error:нет связи с сервером, попробуйте позже"));
         try { window.history.replaceState({}, "", "/"); } catch {}
