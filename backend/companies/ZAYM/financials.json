@@ -518,7 +518,13 @@
       126.366,
       144.517
     ],
-    "book_value_per_share_note": "total_equity / 100 млн акций в обращении (не менялось за период)."
+    "book_value_per_share_note": "total_equity / 100 млн акций в обращении (не менялось за период).",
+    "retained_earnings": [
+      11417,
+      11909,
+      12627.85,
+      14449.245
+    ]
   },
   "cash_flow": {
     "cfo": [

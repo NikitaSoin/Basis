@@ -935,25 +935,25 @@
       4780
     ],
     "cash_and_equivalents": [
-      null,
-      null,
-      null,
+      1861.2,
+      1337.9,
+      1213.8,
       2647,
       3113,
       3558
     ],
     "due_from_banks": [
-      null,
-      null,
-      null,
+      562.2,
+      513.8,
+      434.1,
       10182,
       7094,
       12686
     ],
     "securities": [
-      null,
-      null,
-      null,
+      4635.7,
+      6160.9,
+      5852.6,
       5896,
       9647,
       9675
@@ -975,23 +975,23 @@
       1116
     ],
     "net_loans": [
-      null,
-      null,
-      null,
+      15582.8,
+      15941.5,
+      27596.6,
       18120,
       21804,
       22938
     ],
     "ppe_intangibles": [
-      null,
-      null,
-      null,
+      897.5,
+      307.6,
+      557.7,
       478,
       382,
       925
     ],
     "other_assets": [
-      null,
+      300.1,
       null,
       null,
       600,
@@ -1007,28 +1007,60 @@
       106
     ],
     "customer_deposits": [
-      null,
-      null,
-      null,
+      16483.5,
+      19755.5,
+      31096.9,
       30937,
       33198,
       44721
     ],
     "debt_securities_issued": [
-      null,
-      null,
-      null,
+      3430.7,
+      1483.6,
+      1374.6,
       1293,
       600,
       978
     ],
     "other_liabilities": [
-      null,
+      899.3,
       null,
       null,
       1094,
       742,
       735
+    ],
+    "total_assets": [
+      23500,
+      25000,
+      27000,
+      37922,
+      43031,
+      51320
+    ],
+    "total_liabilities": [
+      19750,
+      21300,
+      23300,
+      34531,
+      39281,
+      46540
+    ],
+    "share_capital_and_premium": [
+      2670,
+      2700,
+      2720,
+      2939,
+      3239,
+      3686
+    ],
+    "retained_earnings": [
+      631.9,
+      767.1,
+      837.9,
+      681,
+      1077,
+      1086
     ]
   },
   "segments": [

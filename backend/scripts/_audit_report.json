@@ -1,0 +1,3107 @@
+{
+ "AGRO": [
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 12.4%; лизинг/депозиты?)"
+  },
+  {
+   "sev": "WARN",
+   "code": "cf_bridge",
+   "msg": "cfo+cfi+cff(+fx) ≠ изменение денег (Δ 10.6%)"
+  }
+ ],
+ "AKRN": [
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 33.2%)"
+  }
+ ],
+ "ALRS": [
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 31.4%)"
+  }
+ ],
+ "ARSA": [
+  {
+   "sev": "GAP",
+   "code": "op_bridge",
+   "msg": "нет НИ себестоимости/валовой, НИ заполненных expense_lines — не видно, как из выручки получается операционная прибыль"
+  }
+ ],
+ "BANE": [
+  {
+   "sev": "WARN",
+   "code": "tax_bridge",
+   "msg": "до налога 56622 − налог 9979 ≠ чистая 49227 (Δ 5.2%; NCI/прочее не объясняет)"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "cash: последний год пуст"
+  }
+ ],
+ "BANEP": [
+  {
+   "sev": "WARN",
+   "code": "tax_bridge",
+   "msg": "до налога 56622 − налог 9979 ≠ чистая 49227 (Δ 5.2%; NCI/прочее не объясняет)"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "cash: последний год пуст"
+  }
+ ],
+ "BAZA": [
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 5.2%)"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 100.0%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 9.2%; лизинг/депозиты?)"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "BISVP": [
+  {
+   "sev": "WARN",
+   "code": "op_bridge",
+   "msg": "постатейный мост выручка→опер.прибыль не сходится (статей 3, из них пустых в последнем году 0)"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 78.9%)"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "BRZL": [
+  {
+   "sev": "CRIT",
+   "code": "pnl",
+   "msg": "revenue: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "operating_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  },
+  {
+   "sev": "INFO",
+   "code": "fcf_formula",
+   "msg": "fcf ≠ cfo − capex (Δ 154.2%) — формула компании? проверить note"
+  },
+  {
+   "sev": "GAP",
+   "code": "fresh",
+   "msg": "revenue: последний год оборван (None), история есть"
+  }
+ ],
+ "BSPB": [
+  {
+   "sev": "GAP",
+   "code": "bank_balance",
+   "msg": "bank_balance пуст — баланс банка не собран"
+  }
+ ],
+ "BSPBP": [
+  {
+   "sev": "GAP",
+   "code": "bank_balance",
+   "msg": "bank_balance пуст — баланс банка не собран"
+  }
+ ],
+ "BTBR": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "operating_profit: последний год пуст"
+  }
+ ],
+ "CHGZ": [
+  {
+   "sev": "CRIT",
+   "code": "pnl",
+   "msg": "revenue: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "operating_profit: последний год пуст"
+  },
+  {
+   "sev": "CRIT",
+   "code": "pnl",
+   "msg": "net_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "total_assets: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "equity: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "total_liabilities: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "cash: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfo: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "capex: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "fresh",
+   "msg": "revenue: последний год оборван (None), история есть"
+  },
+  {
+   "sev": "GAP",
+   "code": "fresh",
+   "msg": "net_profit: последний год оборван (None), история есть"
+  }
+ ],
+ "CHMK": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "CNTL": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "CNTLP": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "DVEC": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "ELFV": [
+  {
+   "sev": "INFO",
+   "code": "fcf_formula",
+   "msg": "fcf ≠ cfo − capex (Δ 51.5%) — формула компании? проверить note"
+  }
+ ],
+ "ELMT": [
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 67.8%)"
+  }
+ ],
+ "ENPG": [
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.inventory: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.receivables: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.cash: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.short_term_investments: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.other_current: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.total_current: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.ppe: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.intangibles: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.goodwill: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.long_term_investments: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.deferred_tax_assets: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.other_non_current: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.total_non_current: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.short_term_debt: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.payables: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.other_current_liab: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.total_current_liab: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.long_term_debt: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.deferred_tax: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.other_non_current_liab: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.total_non_current_liab: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.share_capital: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.share_premium: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.additional_paid_in: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.revaluation_reserve: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.other_reserves: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.fx_translation_reserve: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.retained_earnings: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.total_equity_parent: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.non_controlling_interests: длина 5 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.total_equity: длина 5 ≠ лет 6"
+  }
+ ],
+ "EUTR": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "FESH": [
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 7.7%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "cf_bridge",
+   "msg": "cfo+cfi+cff(+fx) ≠ изменение денег (Δ 58.9%)"
+  }
+ ],
+ "FLOT": [
+  {
+   "sev": "WARN",
+   "code": "op_bridge",
+   "msg": "постатейный мост выручка→опер.прибыль не сходится (статей 7, из них пустых в последнем году 0)"
+  },
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 69.4%; лизинг/депозиты?)"
+  }
+ ],
+ "GAZA": [
+  {
+   "sev": "CRIT",
+   "code": "pnl",
+   "msg": "revenue: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "operating_profit: последний год пуст"
+  },
+  {
+   "sev": "CRIT",
+   "code": "pnl",
+   "msg": "net_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "total_assets: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "equity: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "total_liabilities: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "cash: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfo: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "capex: последний год пуст"
+  }
+ ],
+ "GAZAP": [
+  {
+   "sev": "CRIT",
+   "code": "pnl",
+   "msg": "revenue: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "operating_profit: последний год пуст"
+  },
+  {
+   "sev": "CRIT",
+   "code": "pnl",
+   "msg": "net_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "total_assets: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "equity: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "total_liabilities: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "cash: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfo: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "capex: последний год пуст"
+  }
+ ],
+ "GAZC": [
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "capex: последний год пуст"
+  }
+ ],
+ "GCHE": [
+  {
+   "sev": "WARN",
+   "code": "gross_bridge",
+   "msg": "выручка − себестоимость ≠ валовая (Δ 10.3%)"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 26.9%)"
+  }
+ ],
+ "GECO": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "operating_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfo: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "capex: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "fresh",
+   "msg": "cfo: последний год оборван (None), история есть"
+  }
+ ],
+ "GEMA": [
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 132.7%; лизинг/депозиты?)"
+  }
+ ],
+ "GEMC": [
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 83.1%; лизинг/депозиты?)"
+  }
+ ],
+ "GTRK": [
+  {
+   "sev": "INFO",
+   "code": "fcf_formula",
+   "msg": "fcf ≠ cfo − capex (Δ 38.3%) — формула компании? проверить note"
+  }
+ ],
+ "HIMCP": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "HYDR": [
+  {
+   "sev": "GAP",
+   "code": "op_bridge",
+   "msg": "нет НИ себестоимости/валовой, НИ заполненных expense_lines — не видно, как из выручки получается операционная прибыль"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 14.8%)"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.inventory: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.receivables: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.cash: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.short_term_investments: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.other_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.total_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.ppe: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.intangibles: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.goodwill: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.long_term_investments: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.other_non_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.total_non_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.short_term_debt: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.payables: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.other_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.total_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.long_term_debt: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.deferred_tax: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.other_non_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.total_non_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.share_capital: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.retained_earnings: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.additional_paid_in: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.other_equity: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.total_equity: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_assets",
+   "msg": "оборотные + внеоборотные ≠ активы (Δ 22.2%)"
+  },
+  {
+   "sev": "CRIT",
+   "code": "bs_eq",
+   "msg": "обязательства + капитал ≠ активы (Δ 6.7%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 25.8%)"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "IRKT": [
+  {
+   "sev": "CRIT",
+   "code": "pnl",
+   "msg": "revenue: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "operating_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "cash: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfo: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "capex: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "fresh",
+   "msg": "revenue: последний год оборван (None), история есть"
+  },
+  {
+   "sev": "GAP",
+   "code": "fresh",
+   "msg": "cfo: последний год оборван (None), история есть"
+  }
+ ],
+ "JNOS": [
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "cash: последний год пуст"
+  }
+ ],
+ "JNOSP": [
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "cash: последний год пуст"
+  }
+ ],
+ "KBSB": [
+  {
+   "sev": "WARN",
+   "code": "op_bridge",
+   "msg": "постатейный мост выручка→опер.прибыль не сходится (статей 1, из них пустых в последнем году 0)"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_assets",
+   "msg": "оборотные + внеоборотные ≠ активы (Δ 4.0%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 4.0%)"
+  }
+ ],
+ "KGKC": [
+  {
+   "sev": "WARN",
+   "code": "op_bridge",
+   "msg": "постатейный мост выручка→опер.прибыль не сходится (статей 22, из них пустых в последнем году 0)"
+  }
+ ],
+ "KGKCP": [
+  {
+   "sev": "WARN",
+   "code": "op_bridge",
+   "msg": "постатейный мост выручка→опер.прибыль не сходится (статей 22, из них пустых в последнем году 0)"
+  }
+ ],
+ "KLVZ": [
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 148.2%)"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "total_assets: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "total_liabilities: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "cash: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "KMAZ": [
+  {
+   "sev": "WARN",
+   "code": "gross_bridge",
+   "msg": "выручка − себестоимость ≠ валовая (Δ 4.4%)"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.inventory: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.receivables: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.cash: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.short_term_investments: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.other_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.total_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.ppe: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.intangibles: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.goodwill: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.long_term_investments: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.other_non_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.total_non_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.short_term_debt: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.payables: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.other_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.total_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.long_term_debt: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.deferred_tax: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.other_non_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.total_non_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.share_capital: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.retained_earnings: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.additional_paid_in: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.other_equity: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.total_equity: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_assets",
+   "msg": "оборотные + внеоборотные ≠ активы (Δ 5.9%)"
+  },
+  {
+   "sev": "CRIT",
+   "code": "bs_eq",
+   "msg": "обязательства + капитал ≠ активы (Δ 7.8%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 2.6%)"
+  }
+ ],
+ "KMEZ": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "KOGK": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "cash: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 100.0%)"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "KZOS": [
+  {
+   "sev": "GAP",
+   "code": "op_bridge",
+   "msg": "нет НИ себестоимости/валовой, НИ заполненных expense_lines — не видно, как из выручки получается операционная прибыль"
+  },
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 10.4%)"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.inventory: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.receivables: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.cash: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.short_term_investments: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.other_current: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.total_current: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.ppe: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.intangibles: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.goodwill: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.long_term_investments: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.other_non_current: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.total_non_current: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.short_term_debt: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.payables: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.other_current_liab: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.total_current_liab: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.long_term_debt: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.deferred_tax: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.other_non_current_liab: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.total_non_current_liab: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.share_capital: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.retained_earnings: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.additional_paid_in: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.other_equity: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.total_equity: длина 8 ≠ лет 9"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_assets",
+   "msg": "оборотные + внеоборотные ≠ активы (Δ 15.2%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 41.7%)"
+  }
+ ],
+ "KZOSP": [
+  {
+   "sev": "INFO",
+   "code": "fcf_formula",
+   "msg": "fcf ≠ cfo − capex (Δ 98.8%) — формула компании? проверить note"
+  }
+ ],
+ "LEAS": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "operating_profit: последний год пуст"
+  }
+ ],
+ "LENT": [
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  }
+ ],
+ "LIFE": [
+  {
+   "sev": "WARN",
+   "code": "op_bridge",
+   "msg": "постатейный мост выручка→опер.прибыль не сходится (статей 2, из них пустых в последнем году 0)"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  }
+ ],
+ "LKOH": [
+  {
+   "sev": "WARN",
+   "code": "tax_bridge",
+   "msg": "до налога 219300 − налог 122648 ≠ чистая -1064269 (Δ 109.1%; NCI/прочее не объясняет)"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 82.8%)"
+  }
+ ],
+ "LMBZ": [
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 32.5%; лизинг/депозиты?)"
+  }
+ ],
+ "LPSB": [
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 31.3%; лизинг/депозиты?)"
+  }
+ ],
+ "LVHK": [
+  {
+   "sev": "WARN",
+   "code": "tax_bridge",
+   "msg": "до налога 39 − налог 16 ≠ чистая 37 (Δ 32.8%; NCI/прочее не объясняет)"
+  },
+  {
+   "sev": "WARN",
+   "code": "cf_bridge",
+   "msg": "cfo+cfi+cff(+fx) ≠ изменение денег (Δ 10.0%)"
+  }
+ ],
+ "MAGN": [
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 82.0%)"
+  }
+ ],
+ "MDMG": [
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 176.3%; лизинг/депозиты?)"
+  }
+ ],
+ "MFGS": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "cash: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "MFGSP": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "cash: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfo: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "capex: последний год пуст"
+  }
+ ],
+ "MGKL": [
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  }
+ ],
+ "MGNT": [
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 54.5%; лизинг/депозиты?)"
+  }
+ ],
+ "MGTS": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 96.1%)"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "MGTSP": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 96.1%)"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "MRKC": [
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 9.5%)"
+  }
+ ],
+ "MRKK": [
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 39.7%)"
+  }
+ ],
+ "MRKP": [
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 9.1%)"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "WARN",
+   "code": "cf_bridge",
+   "msg": "cfo+cfi+cff(+fx) ≠ изменение денег (Δ 90.7%)"
+  }
+ ],
+ "MRKS": [
+  {
+   "sev": "GAP",
+   "code": "op_bridge",
+   "msg": "нет НИ себестоимости/валовой, НИ заполненных expense_lines — не видно, как из выручки получается операционная прибыль"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "MRKU": [
+  {
+   "sev": "WARN",
+   "code": "tax_bridge",
+   "msg": "до налога 14216 − налог 3995 ≠ чистая 12651 (Δ 19.2%; NCI/прочее не объясняет)"
+  },
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 5.1%)"
+  }
+ ],
+ "MRKY": [
+  {
+   "sev": "GAP",
+   "code": "op_bridge",
+   "msg": "постатейный мост выручка→опер.прибыль не сходится (статей 3, из них пустых в последнем году 2)"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 43.1%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 6.5%; лизинг/депозиты?)"
+  }
+ ],
+ "MRKZ": [
+  {
+   "sev": "WARN",
+   "code": "tax_bridge",
+   "msg": "до налога 1069 − налог 601 ≠ чистая 1787 (Δ 6.6%; NCI/прочее не объясняет)"
+  }
+ ],
+ "MRSB": [
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 39.8%; лизинг/депозиты?)"
+  }
+ ],
+ "MVID": [
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.inventory: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.receivables: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.cash: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.short_term_investments: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.other_current: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.total_current: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.ppe: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.intangibles: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.goodwill: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.long_term_investments: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.other_non_current: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.total_non_current: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.short_term_debt: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.payables: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.other_current_liab: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.total_current_liab: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.long_term_debt: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.deferred_tax: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.other_non_current_liab: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.total_non_current_liab: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.share_capital: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.retained_earnings: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.additional_paid_in: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.other_equity: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.total_equity: длина 3 ≠ лет 6"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_assets",
+   "msg": "оборотные + внеоборотные ≠ активы (Δ 21.4%)"
+  },
+  {
+   "sev": "CRIT",
+   "code": "bs_eq",
+   "msg": "обязательства + капитал ≠ активы (Δ 8.0%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 13.8%)"
+  }
+ ],
+ "NFAZ": [
+  {
+   "sev": "WARN",
+   "code": "gross_bridge",
+   "msg": "выручка − себестоимость ≠ валовая (Δ 21.1%)"
+  }
+ ],
+ "NKNC": [
+  {
+   "sev": "GAP",
+   "code": "op_bridge",
+   "msg": "постатейный мост выручка→опер.прибыль не сходится (статей 2, из них пустых в последнем году 1)"
+  },
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 5.8%)"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.inventory: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.receivables: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.cash: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.short_term_investments: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.other_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.total_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.ppe: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.intangibles: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.goodwill: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.long_term_investments: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.other_non_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.total_non_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.short_term_debt: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.payables: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.other_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.total_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.long_term_debt: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.deferred_tax: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.other_non_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.total_non_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.share_capital: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.retained_earnings: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.additional_paid_in: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.other_equity: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.total_equity: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "CRIT",
+   "code": "bs_eq",
+   "msg": "обязательства + капитал ≠ активы (Δ 6.3%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 46.5%)"
+  }
+ ],
+ "NMTP": [
+  {
+   "sev": "GAP",
+   "code": "op_bridge",
+   "msg": "нет НИ себестоимости/валовой, НИ заполненных expense_lines — не видно, как из выручки получается операционная прибыль"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.inventory: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.receivables: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.cash: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.short_term_investments: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.other_current: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.total_current: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.ppe: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.intangibles: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.goodwill: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.long_term_investments: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.other_non_current: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.total_non_current: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.short_term_debt: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.payables: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.other_current_liab: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.total_current_liab: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.long_term_debt: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.deferred_tax: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.other_non_current_liab: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.total_non_current_liab: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.share_capital: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.retained_earnings: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.additional_paid_in: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.other_equity: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.total_equity: длина 9 ≠ лет 10"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_assets",
+   "msg": "оборотные + внеоборотные ≠ активы (Δ 13.1%)"
+  },
+  {
+   "sev": "CRIT",
+   "code": "bs_eq",
+   "msg": "обязательства + капитал ≠ активы (Δ 9.2%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 17.1%)"
+  }
+ ],
+ "NNSB": [
+  {
+   "sev": "INFO",
+   "code": "fcf_formula",
+   "msg": "fcf ≠ cfo − capex (Δ 56.2%) — формула компании? проверить note"
+  }
+ ],
+ "NNSBP": [
+  {
+   "sev": "INFO",
+   "code": "fcf_formula",
+   "msg": "fcf ≠ cfo − capex (Δ 56.2%) — формула компании? проверить note"
+  }
+ ],
+ "OMZZP": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  },
+  {
+   "sev": "INFO",
+   "code": "fcf_formula",
+   "msg": "fcf ≠ cfo − capex (Δ 39.2%) — формула компании? проверить note"
+  }
+ ],
+ "OZON": [
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 14.6%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 151.6%; лизинг/депозиты?)"
+  }
+ ],
+ "PLZL": [
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 14.6%; лизинг/депозиты?)"
+  }
+ ],
+ "RAGR": [
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 20.2%; лизинг/депозиты?)"
+  },
+  {
+   "sev": "WARN",
+   "code": "cf_bridge",
+   "msg": "cfo+cfi+cff(+fx) ≠ изменение денег (Δ 10.6%)"
+  }
+ ],
+ "RENI": [
+  {
+   "sev": "WARN",
+   "code": "bs_assets",
+   "msg": "оборотные + внеоборотные ≠ активы (Δ 13.0%)"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "RGSS": [
+  {
+   "sev": "WARN",
+   "code": "op_bridge",
+   "msg": "постатейный мост выручка→опер.прибыль не сходится (статей 16, из них пустых в последнем году 0)"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_assets",
+   "msg": "оборотные + внеоборотные ≠ активы (Δ 80.2%)"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  }
+ ],
+ "RHYD": [
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 65.7%)"
+  }
+ ],
+ "ROLO": [
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 147.9%)"
+  }
+ ],
+ "ROSN": [
+  {
+   "sev": "WARN",
+   "code": "tax_bridge",
+   "msg": "до налога 819000 − налог 275000 ≠ чистая 293000 (Δ 46.1%; NCI/прочее не объясняет)"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "ROST": [
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 11.0%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 50.4%; лизинг/депозиты?)"
+  }
+ ],
+ "RTKM": [
+  {
+   "sev": "WARN",
+   "code": "tax_bridge",
+   "msg": "до налога 26352 − налог 7637 ≠ чистая 11346 (Δ 39.4%; NCI/прочее не объясняет)"
+  },
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 20.8%; лизинг/депозиты?)"
+  }
+ ],
+ "RTKMP": [
+  {
+   "sev": "WARN",
+   "code": "tax_bridge",
+   "msg": "до налога 26352 − налог 7637 ≠ чистая 11346 (Δ 39.4%; NCI/прочее не объясняет)"
+  },
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 20.8%; лизинг/депозиты?)"
+  }
+ ],
+ "RUSI": [
+  {
+   "sev": "WARN",
+   "code": "op_bridge",
+   "msg": "постатейный мост выручка→опер.прибыль не сходится (статей 4, из них пустых в последнем году 0)"
+  }
+ ],
+ "SELG": [
+  {
+   "sev": "WARN",
+   "code": "gross_bridge",
+   "msg": "выручка − себестоимость ≠ валовая (Δ 2.3%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "tax_bridge",
+   "msg": "до налога -5847 − налог 4294 ≠ чистая -7937 (Δ 21.7%; NCI/прочее не объясняет)"
+  },
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 32.6%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "cf_bridge",
+   "msg": "cfo+cfi+cff(+fx) ≠ изменение денег (Δ 106.1%)"
+  }
+ ],
+ "SNGS": [
+  {
+   "sev": "GAP",
+   "code": "op_bridge",
+   "msg": "нет НИ себестоимости/валовой, НИ заполненных expense_lines — не видно, как из выручки получается операционная прибыль"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "SNGSP": [
+  {
+   "sev": "GAP",
+   "code": "op_bridge",
+   "msg": "нет НИ себестоимости/валовой, НИ заполненных expense_lines — не видно, как из выручки получается операционная прибыль"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "SOFL": [
+  {
+   "sev": "WARN",
+   "code": "tax_bridge",
+   "msg": "до налога 1772 − налог 76 ≠ чистая 288 (Δ 83.0%; NCI/прочее не объясняет)"
+  }
+ ],
+ "SPBE": [
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  }
+ ],
+ "T": [
+  {
+   "sev": "WARN",
+   "code": "bank_tax_bridge",
+   "msg": "pre_tax 232533 − налог 58133 ≠ прибыль 192000 (Δ 9.2%)"
+  }
+ ],
+ "TORS": [
+  {
+   "sev": "INFO",
+   "code": "fcf_formula",
+   "msg": "fcf ≠ cfo − capex (Δ 23.5%) — формула компании? проверить note"
+  }
+ ],
+ "TORSP": [
+  {
+   "sev": "INFO",
+   "code": "fcf_formula",
+   "msg": "fcf ≠ cfo − capex (Δ 23.5%) — формула компании? проверить note"
+  }
+ ],
+ "TRMK": [
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 25.9%)"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.inventory: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.receivables: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.cash: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.short_term_investments: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.other_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_assets.total_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.ppe: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.intangibles: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.goodwill: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.long_term_investments: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.other_non_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_assets.total_non_current: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.short_term_debt: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.payables: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.other_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.current_liabilities.total_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.long_term_debt: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.deferred_tax: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.other_non_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.non_current_liabilities.total_non_current_liab: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.share_capital: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.retained_earnings: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.additional_paid_in: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.other_equity: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "CRIT",
+   "code": "len",
+   "msg": "balance_sheet.equity.total_equity: длина 4 ≠ лет 5"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_assets",
+   "msg": "оборотные + внеоборотные ≠ активы (Δ 13.9%)"
+  },
+  {
+   "sev": "CRIT",
+   "code": "bs_eq",
+   "msg": "обязательства + капитал ≠ активы (Δ 4.0%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 11.3%)"
+  }
+ ],
+ "TRNFP": [
+  {
+   "sev": "WARN",
+   "code": "tax_bridge",
+   "msg": "до налога 389996 − налог 148869 ≠ чистая 226073 (Δ 6.2%; NCI/прочее не объясняет)"
+  },
+  {
+   "sev": "WARN",
+   "code": "ebitda_bridge",
+   "msg": "опер.прибыль + D&A ≠ EBITDA (Δ 16.7%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 94.2%; лизинг/депозиты?)"
+  }
+ ],
+ "UPRO": [
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfo: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "capex: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "fresh",
+   "msg": "cfo: последний год оборван (None), история есть"
+  }
+ ],
+ "URKZ": [
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  }
+ ],
+ "UTAR": [
+  {
+   "sev": "WARN",
+   "code": "op_bridge",
+   "msg": "постатейный мост выручка→опер.прибыль не сходится (статей 9, из них пустых в последнем году 0)"
+  }
+ ],
+ "VEON-RX": [
+  {
+   "sev": "WARN",
+   "code": "net_debt",
+   "msg": "долг − деньги ≠ чистый долг (Δ 11.9%; лизинг/депозиты?)"
+  }
+ ],
+ "VJGZ": [
+  {
+   "sev": "WARN",
+   "code": "op_bridge",
+   "msg": "постатейный мост выручка→опер.прибыль не сходится (статей 5, из них пустых в последнем году 0)"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "VJGZP": [
+  {
+   "sev": "WARN",
+   "code": "op_bridge",
+   "msg": "постатейный мост выручка→опер.прибыль не сходится (статей 3, из них пустых в последнем году 0)"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "VSMO": [
+  {
+   "sev": "WARN",
+   "code": "cf_bridge",
+   "msg": "cfo+cfi+cff(+fx) ≠ изменение денег (Δ 31.5%)"
+  }
+ ],
+ "VSYD": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "VSYDP": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ],
+ "WTCM": [
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 100.0%)"
+  }
+ ],
+ "WTCMP": [
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 100.0%)"
+  }
+ ],
+ "X5": [
+  {
+   "sev": "WARN",
+   "code": "bs_assets",
+   "msg": "оборотные + внеоборотные ≠ активы (Δ 4.3%)"
+  },
+  {
+   "sev": "WARN",
+   "code": "bs_liab",
+   "msg": "кратко + долгосрочные ≠ обязательства (Δ 14.0%)"
+  }
+ ],
+ "ZILL": [
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "pre_tax_profit: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "pnl",
+   "msg": "income_tax: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки активов на оборотные/внеоборотные"
+  },
+  {
+   "sev": "GAP",
+   "code": "bs",
+   "msg": "нет разбивки обязательств кратко/долгосрочные"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cfi: последний год пуст"
+  },
+  {
+   "sev": "GAP",
+   "code": "cf",
+   "msg": "cff: последний год пуст"
+  }
+ ]
+}
