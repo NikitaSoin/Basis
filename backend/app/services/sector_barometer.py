@@ -229,19 +229,27 @@ def _sector_prices(db: Session, tickers: list[str]) -> list[str]:
         return []
     out = []
     for k in sorted(keys):
+        # Окно по ДАТЕ, а не по числу точек. Было `LIMIT 90` в расчёте на дневной ряд,
+        # но товарные ряды Всемирного банка — МЕСЯЧНЫЕ (121 точка за 10 лет), и 90
+        # точек означало базу семилетней давности. Барометр на бою выдал «цены на
+        # золото выросли на 208.6% относительно прошлого периода» — рост за семь лет,
+        # поданный как недавний скачок. База теперь всегда подписана датой, чтобы
+        # модель не могла принять её за «недавно».
         rows = db.execute(text("""
             SELECT value, as_of FROM macro_data_points
             WHERE indicator_code = :k AND metric = 'level'
-            ORDER BY as_of DESC LIMIT 90
+              AND as_of >= (CURRENT_DATE - INTERVAL '400 days')
+            ORDER BY as_of DESC
         """), {"k": k}).fetchall()
         if not rows:
             continue
         cur, cur_d = float(rows[0][0]), rows[0][1]
-        old = float(rows[-1][0]) if len(rows) > 1 else cur
+        old, old_d = (float(rows[-1][0]), rows[-1][1]) if len(rows) > 1 else (cur, cur_d)
         delta = ((cur - old) / old * 100) if old else 0.0
         title = db.execute(text("SELECT title FROM macro_indicators WHERE code = :k"),
                            {"k": k}).scalar() or k
-        out.append(f"  {title}: {cur:g} (на {cur_d}), изменение за период {delta:+.1f}%")
+        out.append(f"  {title}: {cur:g} (на {cur_d}); изменение {delta:+.1f}% "
+                   f"относительно {old_d} — это база сравнения, НЕ «недавно»")
     return out
 
 
