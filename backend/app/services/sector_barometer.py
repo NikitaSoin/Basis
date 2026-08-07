@@ -275,6 +275,13 @@ _SECTOR_INDICATORS = {
     "power": ["sec_power_consumption", "sec_power_capacity"],
     "realty": ["sec_realty_construction", "sec_realty_top1_share"],
     "oil_gas": ["sec_urals_tax"],
+    # Ставка по вкладам — стоимость фондирования банков, вторая половина
+    # процентной маржи. Ключевая ставка у нас была, а по чём банки реально
+    # привлекают деньги — нет; в реестре финансов это отмечено как «маржа не
+    # питается ничем».
+    "banks": ["sec_banks_deposit_rate"],
+    "transport": ["sec_ports_turnover"],
+    "it_telecom": ["sec_it_software_registry"],
 }
 
 

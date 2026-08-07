@@ -207,11 +207,141 @@ def collect_oil_tax() -> list[dict]:
               "value": v, "as_of": date.today()}] if v else [])
 
 
+def _fetch_bytes(url: str) -> bytes | None:
+    try:
+        with httpx.Client(follow_redirects=True, timeout=45,
+                          headers={"User-Agent": _UA}) as c:
+            r = c.get(url)
+        if r.status_code != 200 or len(r.content) < 5000:
+            logger.info("sector_data_sync: %s → HTTP %s, %d байт",
+                        url, r.status_code, len(r.content or b""))
+            return None
+        return r.content
+    except Exception as e:  # noqa: BLE001
+        logger.info("sector_data_sync: %s недоступен (%s)", url, type(e).__name__)
+        return None
+
+
+_MONTHS = {"январь": 1, "февраль": 2, "март": 3, "апрель": 4, "май": 5, "июнь": 6,
+           "июль": 7, "август": 8, "сентябрь": 9, "октябрь": 10, "ноябрь": 11,
+           "декабрь": 12}
+
+
+def _ru_month(cell: str) -> date | None:
+    """«Январь 2014» → 2014-01-31. Строка месяца в файлах ЦБ — единственный
+    носитель даты, отдельной колонки с датой там нет."""
+    m = re.match(r"\s*([А-Яа-я]+)\s+(\d{4})", str(cell or ""))
+    if not m:
+        return None
+    mon = _MONTHS.get(m.group(1).lower())
+    if not mon:
+        return None
+    year = int(m.group(2))
+    from calendar import monthrange
+    return date(year, mon, monthrange(year, mon)[1])
+
+
+def collect_banks_deposit_rate() -> list[dict]:
+    """Банки: средневзвешенная ставка по рублёвым вкладам физлиц (ЦБ).
+
+    Это стоимость фондирования — вторая половина процентной маржи, главной
+    метрики сектора. Ключевая ставка у нас уже есть, а вот по чём банки реально
+    привлекают деньги — не было, и в реестре финансов это отмечено как «маржа
+    не питается ничем».
+    Файл ЦБ помесячный с 2014 года; путь стабилен между выпусками — это
+    надёжнее любого RSS (отмечено при сборке реестра).
+    """
+    raw = _fetch_bytes("https://www.cbr.ru/vfs/statistics/pdko/int_rat/deposits.xlsx")
+    if not raw:
+        return []
+    try:
+        import io
+
+        import openpyxl
+        wb = openpyxl.load_workbook(io.BytesIO(raw), data_only=True)
+        ws = wb["ставки_руб"] if "ставки_руб" in wb.sheetnames else wb[wb.sheetnames[0]]
+    except Exception as e:  # noqa: BLE001
+        logger.warning("sector_data_sync: файл ЦБ не разобран (%s)", e)
+        return []
+
+    # Берём последнюю строку с распознанным месяцем и первым числовым значением:
+    # состав колонок по срокам менялся, а «есть месяц и есть ставка» — устойчиво.
+    last: tuple[date, float] | None = None
+    for row in ws.iter_rows(min_row=4, max_col=12, values_only=True):
+        d = _ru_month(row[0]) if row and row[0] else None
+        if not d:
+            continue
+        vals = [v for v in row[1:] if isinstance(v, (int, float))]
+        if not vals:
+            continue
+        if last is None or d > last[0]:
+            last = (d, float(sum(vals) / len(vals)))
+    if not last:
+        logger.warning("sector_data_sync: ЦБ отдал файл, но ставки не разобраны")
+        return []
+    return [{"code": "sec_banks_deposit_rate", "unit": "% годовых",
+             "title": "Средняя ставка по рублёвым вкладам физлиц (ЦБ)",
+             "value": round(last[1], 2), "as_of": last[0]}]
+
+
+def collect_ports_asop() -> list[dict]:
+    """Транспорт: грузооборот морских портов (АСОП).
+
+    Прямой индикатор экспортного грузопотока — им живут порты и морские
+    перевозчики. Росморречфлот недоступен, АСОП его заменяет (найдено при
+    сборке реестра транспорта).
+    """
+    html = _fetch("https://morport.com/rus/content/statistika-0")
+    if not html:
+        return []
+    t = _strip_html(html)
+    # На самой странице только заголовки разделов; числа — в приложенных файлах,
+    # прямой адрес которых меняется от выпуска к выпуску. Поэтому берём ссылку
+    # ИЗ HTML, а не угадываем путь: угаданный давал 404.
+    m = re.search(r"[Гг]рузооборот[^.]{0,120}?([\d\s\xa0,]{4,})\s*млн\s*тонн", t)
+    if not m:
+        logger.info("sector_data_sync: АСОП — сводного числа на странице нет, "
+                    "грузооборот лежит в приложенных файлах (нужен разбор xlsx "
+                    "по ссылке из HTML)")
+        return []
+    v = _num(m.group(1))
+    return ([{"code": "sec_ports_turnover", "unit": "млн тонн",
+              "title": "Грузооборот морских портов России (АСОП)",
+              "value": v, "as_of": date.today()}] if v else [])
+
+
+def collect_software_registry() -> list[dict]:
+    """IT: число позиций в реестре отечественного ПО (Минцифры).
+
+    Реестр — это освобождение от НДС и допуск к госзаказу, то есть прямой
+    фактор выручки. Головной digital.gov.ru в гео-блоке, а подведомственный
+    reestr.digital.gov.ru открыт — находка реестра источников IT.
+    """
+    # 🔴 Доступность этого источника ПЛАВАЮЩАЯ: при сборке реестра IT он отдавал
+    # 1,1 МБ данных, на следующий день — глухой таймаут (000). Это не повод его
+    # выбрасывать: коллектор просто промолчит в неудачный день, а в удачный
+    # добавит точку. Ровно для таких случаев ряд и не перезаписывается.
+    html = _fetch("https://reestr.digital.gov.ru/reestr/")
+    if not html:
+        return []
+    t = _strip_html(html)
+    m = re.search(r"(?:найдено|всего|записей|результат\w*)[^.\d]{0,25}([\d\s\xa0]{3,})", t, re.I)
+    if not m:
+        return []
+    v = _num(m.group(1))
+    return ([{"code": "sec_it_software_registry", "unit": "позиций",
+              "title": "Записей в реестре отечественного ПО (Минцифры)",
+              "value": v, "as_of": date.today()}] if v and v > 100 else [])
+
+
 COLLECTORS = [
     ("СО ЕЭС — потребление и мощность", collect_power_ups),
     ("СО ЕЭС — сигналы спроса", collect_power_records),
     ("ЕРЗ — жилищное строительство", collect_realty_erz),
     ("ФНС — Urals для НДПИ", collect_oil_tax),
+    ("ЦБ — ставка по вкладам", collect_banks_deposit_rate),
+    ("АСОП — грузооборот портов", collect_ports_asop),
+    ("Минцифры — реестр ПО", collect_software_registry),
 ]
 
 
