@@ -30,7 +30,10 @@ ROWS = ["gross_loans", "loan_provisions", "net_loans", "securities", "customer_d
 
 # строки, которых у эмитента нет по природе бизнеса или из-за режима раскрытия
 NOT_APPLICABLE = {
-    "CARM": {"securities": "все", "customer_deposits": "все"},      # МФО: нет вкладов и портфеля ЦБ
+    # МФО: нет вкладов и портфеля ЦБ; 2020 — холдинг ещё не существовал, отчётности нет
+    "CARM": {"securities": "все", "customer_deposits": "все", "gross_loans": [2020],
+             "loan_provisions": [2020], "net_loans": [2020], "total_assets": [2020],
+             "total_liabilities": [2020], "total_equity": [2020]},
     "ZAYM": {"securities": [2022, 2023], "customer_deposits": [2022, 2023]},
     "KUZB": {"gross_loans": "все", "loan_provisions": "все"},       # публикуемая форма без примечаний
     "CBOM": {"gross_loans": [2020, 2021, 2022], "loan_provisions": [2020, 2021, 2022]},
