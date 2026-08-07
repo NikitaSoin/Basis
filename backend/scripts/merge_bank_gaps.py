@@ -65,20 +65,39 @@ def sign_like(existing, value):
     return -abs(value) if known[0] < 0 else abs(value)
 
 
-def merge_one(ticker, apply):
+def merge_one(ticker, apply, only_balance=False):
     cdir = COMPANIES / ticker
-    gaps_path = cdir / "sources" / "extracted_financials_gaps.json"
     card_path = cdir / "financials.json"
-    if not gaps_path.exists():
-        print(f"{ticker}: нет sources/extracted_financials_gaps.json — пропуск")
+    # 🔴 Читаем ОБА файла добытчиков: свежий *_gaps.json и старый extracted_financials.json.
+    # Второй копился месяцами и до карточек не доезжал — у пяти банков (Кармани, Авангард,
+    # Приморье, РосДорБанк, МТС-Банк) там лежало по 18-31 строке баланса, пока карточка
+    # показывала прочерки. Свежий файл имеет приоритет: он идёт вторым и перекрывает.
+    sources = [cdir / "sources" / "extracted_financials.json",
+               cdir / "sources" / "extracted_financials_gaps.json"]
+    gaps = {}
+    for sp in sources:
+        if not sp.exists():
+            continue
+        part = json.loads(sp.read_text())
+        for key in ("bank_balance", "bank_pnl", "ecosystem"):
+            if isinstance(part.get(key), dict):
+                gaps.setdefault(key, {}).update(part[key])
+        for key in ("fiscal_years", "unit", "standard"):
+            if part.get(key) is not None:
+                gaps[key] = part[key]
+        meta_years = (part.get("meta") or {}).get("fiscal_years")
+        if meta_years and not gaps.get("fiscal_years"):
+            gaps["fiscal_years"] = meta_years
+    if not gaps:
+        print(f"{ticker}: нет добытых файлов в sources/ — пропуск")
         return 0, 0
-    gaps = json.loads(gaps_path.read_text())
     card = json.loads(card_path.read_text())
 
     g_years = gaps.get("fiscal_years") or []
     written = conflicts = 0
 
-    for section in ("bank_balance", "bank_pnl", "ecosystem"):
+    sections = ("bank_balance",) if only_balance else ("bank_balance", "bank_pnl", "ecosystem")
+    for section in sections:
         g_sec = gaps.get(section) or {}
         if not g_sec:
             continue
@@ -128,7 +147,7 @@ def main():
     apply = "--apply" in sys.argv
     total_w = total_c = 0
     for t in args:
-        w, c = merge_one(t, apply)
+        w, c = merge_one(t, apply, only_balance="--balance-only" in sys.argv)
         total_w += w
         total_c += c
     print(f"\nитого: заполнено {total_w}, конфликтов {total_c}" + ("" if apply else "  (сухой прогон, ничего не записано)"))
