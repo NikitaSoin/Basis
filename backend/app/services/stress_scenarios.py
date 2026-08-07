@@ -57,6 +57,11 @@ from app.services.factor_exposures import get_company_exposures, FACTOR_KEYS
 # commodity-каналу не будет (честная деградация, не «подтверждённый ноль»).
 _OIL_SECTOR_TOKENS = ("нефт", "газ", "oil", "gas")
 
+# Порог капитализации для витрины сценария (не для расчёта). 20 млрд ₽ — та же
+# отсечка, что в сценарной связке макро-выпуска: ниже неё разбор беднее, а
+# сопоставлять такую компанию со Сбербанком в одном списке всё равно нельзя.
+_MIN_MARKET_CAP_RUB = 20_000_000_000
+
 SCENARIOS = [
     {
         "key": "war_prolonged", "label": "Война ещё 4 года",
@@ -143,13 +148,20 @@ def compute_impact(db: Session, intensities: dict, sector_scope: dict | None = N
     у остальных этот фактор перед расчётом обнуляется для ЭТОЙ компании (не
     глобально) — нужно, когда фактор в движке обобщённый (см. commodity)."""
     sector_scope = sector_scope or {}
+    # 🔴 Порог ликвидности (владелец, 2026-08-08: «по компаниям ниже какая-то фигня,
+    # какие-то компании третьего эшелона на рандом расставлены»). Реакция считается по
+    # баллам экспозиций, и у неликвидного микрокапа балл ничем не хуже балла Сбербанка
+    # — в топ они попадали вперемешку, отчего список выглядел случайным. Дело не в том,
+    # что мелкие компании «не важны»: просто их разбор беднее, чувствительность грубее,
+    # а сравнивать их со Сбером в одном списке всё равно нельзя. Крупные первыми —
+    # тот же принцип, что в числовом контуре (голубые фишки во главе).
     rows = db.execute(text("""
-        SELECT c.ticker, c.name, c.sector FROM companies c
+        SELECT c.ticker, c.name, c.sector, c.market_cap FROM companies c
         JOIN company_metrics m ON m.ticker = c.ticker
     """)).fetchall()
     out = []
     for r in rows:
-        ticker, name, sector = r[0], r[1], r[2]
+        ticker, name, sector, market_cap = r[0], r[1], r[2], r[3]
         exp = dict(get_company_exposures(ticker))
         sector_l = (sector or "").lower()
         eff_intensities = dict(intensities)
@@ -181,11 +193,18 @@ def compute_impact(db: Session, intensities: dict, sector_scope: dict | None = N
             covered = covered + ["tax"]
         out.append({
             "ticker": ticker, "name": name, "sector": sector,
+            "market_cap": float(market_cap) if market_cap else None,
             "reaction_pct": round(reaction * 100, 1),
             "factors_covered": covered, "coverage_n": len(covered), "coverage_total": len(intensities),
         })
     out.sort(key=lambda x: -x["reaction_pct"])
     covered_only = [x for x in out if x["coverage_n"] > 0]
+    # Витрина «кто выиграл / кто пострадал» — только по компаниям, которые читатель
+    # узнаёт и может сравнить между собой. Остальные из расчёта не исчезают: они в
+    # секторных средних и в total_companies, просто не занимают верх списка.
+    liquid = [x for x in covered_only
+              if (x.get("market_cap") or 0) >= _MIN_MARKET_CAP_RUB]
+    ranked = liquid or covered_only
 
     sector_agg: dict[str, list[float]] = {}
     for x in covered_only:
@@ -197,8 +216,9 @@ def compute_impact(db: Session, intensities: dict, sector_scope: dict | None = N
     )
 
     return {
-        "winners": covered_only[:15],
-        "losers": list(reversed(covered_only[-15:])) if len(covered_only) > 15 else [],
+        "winners": ranked[:15],
+        "losers": list(reversed(ranked[-15:])) if len(ranked) > 15 else [],
+        "ranked_from": len(ranked),
         "sectors": sectors,
         "total_companies": len(out),
         "companies_with_signal": len(covered_only),
