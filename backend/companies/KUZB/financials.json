@@ -238,11 +238,11 @@
   "bank_balance": {
     "cash_and_equivalents": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null
+      442.474,
+      394.036,
+      505.268,
+      665.659,
+      527.508
     ],
     "due_from_banks": [
       null,
@@ -254,11 +254,11 @@
     ],
     "securities": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null
+      898.248,
+      1026.224,
+      999.01,
+      430.197,
+      931.317
     ],
     "loans_gross": [
       null,
@@ -278,8 +278,8 @@
     ],
     "loans_net": [
       null,
-      null,
-      null,
+      4831.144,
+      5557.296,
       6580.0,
       6260.0,
       6500.0
@@ -318,8 +318,8 @@
     ],
     "customer_deposits": [
       null,
-      null,
-      null,
+      5843.2,
+      6493.098,
       8690.0,
       8100.0,
       8400.0
@@ -334,11 +334,11 @@
     ],
     "due_to_banks": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null
+      0.0,
+      77.832,
+      122.287,
+      318.314,
+      6.275
     ],
     "debt_securities_issued": [
       null,
@@ -374,8 +374,8 @@
     ],
     "total_liabilities": [
       null,
-      null,
-      null,
+      6088.698,
+      6588.453,
       9247.0,
       8726.0,
       9204.7
@@ -957,8 +957,8 @@
     ],
     "customer_deposits": [
       null,
-      null,
-      null,
+      5843.2,
+      6493.098,
       8690.0,
       8100.0,
       8400.0
@@ -1021,8 +1021,8 @@
     ],
     "total_liabilities": [
       null,
-      null,
-      null,
+      6088.698,
+      6588.453,
       9247.0,
       8726.0,
       9204.7
@@ -1061,8 +1061,8 @@
     ],
     "due_to_banks": [
       null,
-      null,
-      null,
+      0.0,
+      77.832,
       122.287,
       318.314,
       6.275
