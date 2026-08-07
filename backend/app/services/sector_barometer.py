@@ -278,7 +278,11 @@ def _sector_articles(db: Session, key: str, label: str, drivers: str, limit: int
         if r.id in seen:
             continue
         blob = f"{r.title} {r.summary or ''}".lower()
-        if any(w[:6] in blob for w in words):
+        # Два РАЗНЫХ совпадения, не одно. При пороге в одно слово в материалы по
+        # транспорту попадали «Северная Корея заработала за время войны» и «Трамп о
+        # криптовалютах» — одного «санкцион» хватало. Отрасль про такую статью не
+        # узнаёт ничего, а место в контексте она занимает.
+        if sum(1 for w in set(words) if w[:6] in blob) >= 2:
             hits.append(f"  {r.published_at} {r.title}: {(r.summary or '')[:200]}")
         if len(hits) >= limit:
             break
