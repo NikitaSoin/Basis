@@ -234,6 +234,10 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
 
     saved, skipped = 0, 0
     by_sector: dict[str, int] = {}
+    # Что именно отбраковано. Фильтр релевантности режет большую долю (в первых
+    # прогонах — до 87%), и без списка отброшенного невозможно отличить «фильтр
+    # работает как задумано» от «фильтр слишком строг и выбрасывает нужное».
+    dropped: list[str] = []
     for i in range(0, len(fresh), _BATCH):
         chunk = fresh[i:i + _BATCH]
         for it in _digest_batch(chunk):
@@ -243,6 +247,8 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
             art = chunk[idx]
             if not it.get("relevant"):
                 skipped += 1
+                if len(dropped) < 12:
+                    dropped.append(f"[{art['src']}] {art['title'][:90]}")
                 continue
             sector = it.get("sector")
             if sector not in art["_sectors"]:
@@ -280,7 +286,7 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
     logger.info("Отраслевая лента: найдено %d, сохранено %d, отсеяно %d, по отраслям %s",
                 len(fresh), saved, skipped, by_sector)
     return {"discovered": len(fresh), "saved": saved, "skipped": skipped,
-            "by_sector": by_sector, "blind": blind}
+            "by_sector": by_sector, "blind": blind, "dropped": dropped}
 
 
 def articles_for(db: Session, sector_key: str, days: int = 45, limit: int = 8) -> list[GeoDigestArticle]:
