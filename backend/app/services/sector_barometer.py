@@ -263,7 +263,13 @@ def _sector_articles(db: Session, key: str, label: str, drivers: str, limit: int
     for r in exact:
         seen.add(r.id)
         hits.append(f"  {r.published_at} [{r.source_key}] {r.title}: {(r.summary or '')[:250]}")
-    if len(hits) >= limit:
+    # Добор включается ТОЛЬКО когда отраслевых материалов нет вовсе. Он ищет по
+    # совпадению слов и потому шумит: с двумя совпадениями в материалы по транспорту
+    # и металлургии всё равно попадали «Северная Корея заработала за время войны» и
+    # «X5 объявила дату отчётности». Пока у отрасли есть свои источники — чужое не
+    # подмешиваем; когда источников нет (девелопмент), лучше шумный контекст с
+    # пометкой, чем пустой.
+    if hits:
         return hits
 
     words = [w.lower() for w in (label + " " + drivers).replace(",", " ").split()
@@ -283,7 +289,11 @@ def _sector_articles(db: Session, key: str, label: str, drivers: str, limit: int
         # криптовалютах» — одного «санкцион» хватало. Отрасль про такую статью не
         # узнаёт ничего, а место в контексте она занимает.
         if sum(1 for w in set(words) if w[:6] in blob) >= 2:
-            hits.append(f"  {r.published_at} {r.title}: {(r.summary or '')[:200]}")
+            # Помечаем явно: это подобрано по словам из общей ленты, а не пришло от
+            # отраслевого источника. Без пометки модель принимает такую строку за
+            # отраслевой факт и строит на ней вывод о состоянии рынка.
+            hits.append(f"  {r.published_at} (из общей ленты, отраслевая принадлежность "
+                        f"НЕ подтверждена) {r.title}: {(r.summary or '')[:200]}")
         if len(hits) >= limit:
             break
     return hits
