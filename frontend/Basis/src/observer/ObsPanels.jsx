@@ -3120,7 +3120,10 @@ const GEOMAP_TYPE_META = {
 // в ObsGeoWorldMap) БЕЗУСЛОВНО для всей карты, не только рядом с СВО. Заодно
 // это просто более последовательно для русскоязычной платформы в принципе.
 
-const GEOMAP_TILE_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
+// Тайлы — через НАШ бэкенд-прокси (/api/geo/tiles, см. backend/app/api/geo_tiles.py):
+// tiles.openfreemap.org за Cloudflare и из сетей РФ не открывается (карта была
+// чёрной у владельца 2026-08-08); бэкенд на Timeweb до origin достаёт и кэширует.
+const GEOMAP_TILE_STYLE_URL = `${process.env.REACT_APP_API_URL || "http://localhost:8000"}/api/geo/tiles/styles/positron`;
 
 function readBasisMapColors() {
   const fallback = {

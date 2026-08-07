@@ -24,6 +24,12 @@ from app.api.observer import router as observer_router
 from app.api.assistant import router as assistant_router
 from app.api.stress import router as stress_router
 from app.api.agents import router as agents_router
+# Мягкий импорт (timeweb-uneven-file-rollout): модуль новый, при неравномерной
+# раскатке файлов его может ещё не быть — бэк не должен падать целиком.
+try:
+    from app.api.geo_tiles import router as geo_tiles_router
+except Exception:  # noqa: BLE001
+    geo_tiles_router = None
 
 logger = logging.getLogger(__name__)
 
@@ -1624,6 +1630,8 @@ app.add_middleware(
 )
 
 app.include_router(health_router, prefix="/api")
+if geo_tiles_router is not None:
+    app.include_router(geo_tiles_router, prefix="/api")
 app.include_router(events_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
