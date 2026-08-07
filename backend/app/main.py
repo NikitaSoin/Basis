@@ -890,6 +890,28 @@ async def _institutions_profile_job():
         logger.exception("Ошибка портрета институтов: %s", e)
 
 
+async def _sector_barometer_job():
+    """Отраслевой барометр — состояние каждого сектора рынка РФ (владелец
+    2026-08-07: «в бизнесе сделать оценку текущей ситуации: в каком состоянии
+    банковский сектор, нефтегаз, металлургия чёрная и цветная и все остальные»).
+    Недельный: отраслевой цикл не разворачивается за сутки. Идёт ПОСЛЕ замеров
+    институтов и до портретов — он их потребитель по макро-рамке."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.sector_barometer import rebuild
+        db = SessionLocal()
+        try:
+            row = rebuild(db)
+            return f"версия {row.id}" if row else "не собрано"
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Отраслевой барометр: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка отраслевого барометра: %s", e)
+
+
 async def _institutions_domains_job():
     """Замеры качества институтов ПО НАПРАВЛЕНИЯМ (собственность, суды, госдоля,
     монополизация, конкуренция, регулирование, рыночные институты, конфликты
@@ -1429,6 +1451,7 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("barometer_reviser", _barometer_reviser_job), "cron", hour=21, minute=40, id="barometer_reviser")  # ревизор ИНСТИТУТОВ (гео ушёл на barometer_daily) — после оверлея (его вердикт = триггер); cooldown 5 дней внутри
         scheduler.add_job(_with_heartbeat("barometer_daily", _barometer_daily_job), "cron", hour=21, minute=50, id="barometer_daily")  # ЕЖЕДНЕВНАЯ полная пересборка гео-барометра DeepSeek (владелец 2026-08-01) — последней в цепочке гео: digest(:10 ежечасно) → geopolitics(21:00) → overlay(21:20) → reviser inst(21:40) → сюда
         scheduler.add_job(_with_heartbeat("geo_profile", _geo_profile_job), "cron", day_of_week="sun", hour=22, minute=10, id="geo_profile")  # портрет очагов — НЕДЕЛЬНЫЙ слой (медленные данные: стороны/цели/баланс/связки), воскресенье после суточной цепочки
+        scheduler.add_job(_with_heartbeat("sector_barometer", _sector_barometer_job), "cron", day_of_week="sun", hour=21, minute=30, id="sector_barometer")  # отраслевой барометр — первым в недельной цепочке: его выход читают портреты и карточки
         scheduler.add_job(_with_heartbeat("institutions_domains", _institutions_domains_job), "cron", day_of_week="sun", hour=21, minute=55, id="institutions_domains")  # замеры направлений — ДО портрета институтов: портрет использует их как вход
         scheduler.add_job(_with_heartbeat("institutions_profile", _institutions_profile_job), "cron", day_of_week="sun", hour=22, minute=20, id="institutions_profile")  # портрет институтов — недельный, после portrait очагов (22:10) и до ОТК (22:30)
         scheduler.add_job(_with_heartbeat("geo_verification", _geo_verification_job), "cron", hour=22, minute=30, id="geo_verification")

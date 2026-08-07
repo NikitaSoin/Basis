@@ -6978,3 +6978,119 @@ details[open] > summary .obs-inst-chev,
     gap: 12px;
   }
 }
+
+/* ============================================================
+   ОТРАСЛЕВОЙ БАРОМЕТР — «Оценка ситуации» во вкладке Бизнес.
+   Владелец 2026-08-07: «в каком состоянии сейчас банковский сектор,
+   нефтегаз, металлургия и все остальные — как у макро/гео/институтов».
+   Грамматика взята у замеров институтов: балл слева, вердикт строкой,
+   подробности по клику.
+   ============================================================ */
+.obs-sector-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.obs-sector {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+.obs-sector-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 11px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+.obs-sector-head::-webkit-details-marker { display: none; }
+.obs-sector[open] .obs-sector-head {
+  border-bottom: 1px solid var(--border-subtle);
+}
+.obs-sector-score {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  min-width: 28px;
+}
+.obs-sector-label {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.obs-sector-dir {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+}
+.obs-sector-dir--worse { color: var(--down); }
+.obs-sector-dir--better { color: var(--up); }
+.obs-sector-conf {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+.obs-sector-headline {
+  flex: 1 1 260px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.obs-sector-body {
+  padding: 12px 14px 14px;
+}
+.obs-sector-what {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+.obs-sector-inv {
+  margin: 10px 0 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  border-left: 3px solid var(--accent);
+  padding-left: 10px;
+}
+.obs-sector-wl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+.obs-sector-wl-tag {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: 999px;
+  padding: 1px 8px;
+  margin-right: 8px;
+}
+.obs-sector-wl-tag--win { color: var(--up); border: 1px solid var(--up); }
+.obs-sector-wl-tag--lose { color: var(--down); border: 1px solid var(--down); }
+.obs-sector-watch {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 760px) {
+  .obs-sector-headline { flex-basis: 100%; }
+}

@@ -899,6 +899,19 @@ def market_institutions_profile(db: Session = Depends(get_db)):
             "as_of": payload.get("as_of")}
 
 
+@router.get("/market/sectors/barometer")
+def market_sector_barometer(db: Session = Depends(get_db)):
+    """Отраслевой барометр: в каком состоянии каждый сектор рынка РФ — балл,
+    направление, что происходит, что это значит инвестору, кто внутри отрасли
+    выигрывает и проигрывает, за чем следить. `changes` — что сдвинулось с
+    прошлого замера. Обновляется недельным кроном sector_barometer.
+    Витрина — Обозреватель → Бизнес → «Оценка ситуации»."""
+    from app.services.sector_barometer import get_latest
+    p = get_latest(db) or {}
+    return {"sectors": p.get("sectors") or [], "changes": p.get("changes") or [],
+            "as_of": p.get("as_of"), "available": bool(p.get("sectors"))}
+
+
 @router.get("/market/institutions/domains")
 def market_institutions_domains(db: Session = Depends(get_db)):
     """Замеры качества институтов по направлениям: собственность, суды,

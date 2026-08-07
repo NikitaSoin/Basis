@@ -1632,6 +1632,14 @@ def _inst_bg(name: str, fn) -> dict:
     return {"running": True, "note": "запущено в фоне, смотри GET-эндпоинт раздела"}
 
 
+@router.post("/debug/trigger-sector-barometer")
+def debug_trigger_sector_barometer():
+    """Ручной запуск ОТРАСЛЕВОГО БАРОМЕТРА (крон sector_barometer, вс 21:30):
+    состояние 12 отраслей рынка РФ. Четыре reasoning-прохода — в ФОНЕ."""
+    from app.services.sector_barometer import rebuild
+    return JSONResponse(status_code=202, content=_inst_bg("sector_barometer", rebuild))
+
+
 @router.post("/debug/trigger-institutions-domains")
 def debug_trigger_institutions_domains():
     """Замеры институтов ПО НАПРАВЛЕНИЯМ (крон institutions_domains, вс 21:55):

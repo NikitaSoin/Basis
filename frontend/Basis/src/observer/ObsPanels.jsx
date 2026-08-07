@@ -2092,13 +2092,58 @@ function obsGeoDirColor(direction) {
 // Источник — /market/business/digest (target=business), карточки те же
 // (ObsDigestCard), что у макро/институтов — единый визуальный язык лент.
 // =========================
+// Карточка отрасли в «Оценке ситуации». Владелец (2026-08-07): «в бизнесе
+// сделать оценку текущей ситуации, где будет говориться, в каком состоянии
+// сейчас банковский сектор, нефтегаз, металлургия (чёрная и цветная) и все
+// остальные — как у макроэкономики, геополитики, институтов».
+function ObsSectorCard({ s }) {
+  const worse = /ухудш/i.test(s.direction || "");
+  const better = /улучш/i.test(s.direction || "");
+  const lowConf = /низк/i.test(s.confidence || "");
+  return (
+    <details className="obs-sector">
+      <summary className="obs-sector-head">
+        <span className="obs-sector-score">{s.score}</span>
+        <span className="obs-sector-label">{s.label}</span>
+        <span className={`obs-sector-dir${worse ? " obs-sector-dir--worse" : better ? " obs-sector-dir--better" : ""}`}>
+          {s.direction}
+        </span>
+        {/* «мало данных» показываем только когда уверенность низкая — это
+            предупреждение, а не украшение: по части отраслей у нас нет ни
+            свежей отчётности, ни цен, и честнее это назвать. */}
+        {lowConf && <span className="obs-sector-conf">мало данных</span>}
+        <span className="obs-sector-headline">{s.headline}</span>
+      </summary>
+      <div className="obs-sector-body">
+        {s.what_happens && <p className="obs-sector-what">{s.what_happens}</p>}
+        {s.for_investor && (
+          <p className="obs-sector-inv"><b>Что это значит для инвестора.</b> {s.for_investor}</p>
+        )}
+        {(s.winners || s.losers) && (
+          <div className="obs-sector-wl">
+            {s.winners && <div><span className="obs-sector-wl-tag obs-sector-wl-tag--win">выигрывают</span>{s.winners}</div>}
+            {s.losers && <div><span className="obs-sector-wl-tag obs-sector-wl-tag--lose">проигрывают</span>{s.losers}</div>}
+          </div>
+        )}
+        {s.watch && <div className="obs-sector-watch"><b>За чем следить:</b> {s.watch}</div>}
+      </div>
+    </details>
+  );
+}
+
 function ObsBusinessArticles() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [srcFilter, setSrcFilter] = useState("all");
+  const [mode, setMode] = useState("assessment");   // assessment | feed
+  const [baro, setBaro] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
   useEffect(() => {
+    fetch(`${apiUrl}/api/market/sectors/barometer`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setBaro(d && d.available ? d : null))
+      .catch(() => setBaro(null));
     fetch(`${apiUrl}/api/market/business/digest?limit=60`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => setArticles(d.articles || []))
@@ -2118,11 +2163,58 @@ function ObsBusinessArticles() {
   return (
     <div>
       <p className="obs-art-desc">
-        Что происходит с конкретными компаниями и отраслями: сделки, результаты, контракты,
-        дивиденды, смена собственников. Экономика страны целиком — в «Макроэкономике».
+        «Оценка ситуации» — в каком состоянии сейчас каждая отрасль рынка РФ и что это
+        значит для её акций. «Лента» — что происходит с конкретными компаниями: сделки,
+        результаты, контракты, дивиденды. Экономика страны целиком — в «Макроэкономике».
       </p>
 
-      {sources.length > 1 && (
+      {/* Тот же переключатель, что в Макроэкономике, Геополитике и Институтах —
+          одна грамматика на все разделы «Разбора». Оценка стоит ПЕРВОЙ и открыта
+          по умолчанию: лента отвечает «что случилось», а пользователь приходит с
+          вопросом «в каком состоянии отрасль». */}
+      <div className="obs-seg" style={{ marginBottom: 14 }}>
+        <button className={`obs-seg-opt${mode === "assessment" ? " obs-seg-opt--on" : ""}`}
+                onClick={() => setMode("assessment")}>Оценка ситуации</button>
+        <button className={`obs-seg-opt${mode === "feed" ? " obs-seg-opt--on" : ""}`}
+                onClick={() => setMode("feed")}>Лента</button>
+      </div>
+
+      {mode === "assessment" && (
+        <div>
+          {!baro && (
+            <div className="obs-art-empty">
+              Отраслевая оценка пока не собрана — обновляется раз в неделю.
+            </div>
+          )}
+          {baro && (
+            <>
+              {baro.changes?.length > 0 && (
+                <div className="obs-inst-changes">
+                  <div className="obs-inst-factor-title">Сдвинулось с прошлой недели</div>
+                  {baro.changes.map((c, i) => (
+                    <div key={i} className="obs-inst-change">
+                      <span className="obs-inst-change-label">{c.label}</span>
+                      <span className={`obs-inst-change-delta${c.delta < 0 ? " obs-inst-change-delta--down" : " obs-inst-change-delta--up"}`}>
+                        {c.delta < 0 ? "▼" : "▲"} {c.from} → {c.to}
+                      </span>
+                      {c.why && <span className="obs-inst-change-why">{c.why}</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="obs-sector-list">
+                {(baro.sectors || []).map((s) => <ObsSectorCard key={s.key} s={s} />)}
+              </div>
+              <div className="obs-profile-foot">
+                Оценка Basis по отчётности компаний, ценам и макроданным · срез на {baro.as_of} ·
+                не факт и не индивидуальная инвестиционная рекомендация
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {mode === "feed" && sources.length > 1 && (
         <div className="obs-filterbar">
           <button
             className={`obs-chip${srcFilter === "all" ? " obs-chip--active" : ""}`}
@@ -2142,17 +2234,19 @@ function ObsBusinessArticles() {
         </div>
       )}
 
-      {loading && <div className="obs-news-loading">Загружаем бизнес-ленту…</div>}
+      {mode === "feed" && loading && <div className="obs-news-loading">Загружаем бизнес-ленту…</div>}
 
-      {!loading && shown.length === 0 && (
+      {mode === "feed" && !loading && shown.length === 0 && (
         <div className="obs-art-empty">
           Свежих материалов по компаниям и отраслям пока нет.
         </div>
       )}
 
-      <div className="obs-art-list">
-        {shown.map((a) => <ObsDigestCard key={`b-${a.id}`} a={a} />)}
-      </div>
+      {mode === "feed" && (
+        <div className="obs-art-list">
+          {shown.map((a) => <ObsDigestCard key={`b-${a.id}`} a={a} />)}
+        </div>
+      )}
     </div>
   );
 }
