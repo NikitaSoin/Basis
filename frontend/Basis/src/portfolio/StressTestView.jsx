@@ -62,6 +62,11 @@ function bucketOf(pct) {
 // ---- JS-двойник числового движка backend'а (stress_numeric.py) — см. пояснение
 // в шапке файла (v4.1). Держать в точности синхронно с
 // _company_numeric_impact()/numeric_impact() — источник истины там, это порт.
+// Сколько процентных пунктов ВВП забирает 1 п.п. ключевой ставки. Оценка порядка
+// величины по трансмиссии ДКП, а не измерение. Синхронно с _RATE_TO_GDP_PP
+// в backend/app/services/stress_numeric.py.
+const RATE_TO_GDP_PP = -0.35;
+
 const OIL_SECTOR_TOKENS = ["нефт", "газ", "oil", "gas"];
 const IMPACT_METRICS = ["revenue", "ebitda", "net_profit"];
 
@@ -95,6 +100,20 @@ function companyImpact(coefs, spot, fin, sector, keyRatePct, fxUsdrub, oilBrentU
     const rel = oilBrentUsd / brentSpot - 1;
     const d = spot.commodity_usd * rel;
     if (Math.abs(d) > 1e-9) factorDeltas.commodity = d;
+  }
+
+  // 🔴 КОСВЕННЫЙ КАНАЛ СТАВКИ (владелец, 2026-08-08: «при ставке в 30 процентов
+  // экономике будет пипец как хреново, а определять изменение ЧП чисто по дельте
+  // процентных доходов и расходов — неправильно»). Прямой канал описывает только
+  // обслуживание долга: компания без займов получала ровно ноль, хотя при такой
+  // ставке у неё обваливается спрос. Поэтому шок ставки порождает шок спроса и идёт
+  // по каналу demand, где у компании есть свой коэффициент чувствительности выручки.
+  // Держать синхронно с _RATE_TO_GDP_PP в stress_numeric.py — формула портирована 1:1.
+  if (factorDeltas.rate != null && coefs.demand) {
+    const gdpShock = factorDeltas.rate * RATE_TO_GDP_PP;
+    if (Math.abs(gdpShock) > 1e-9) {
+      factorDeltas.demand = (factorDeltas.demand || 0) + gdpShock;
+    }
   }
 
   // Компания с ХОТЯ БЫ одним коэффициентом остаётся во вселенной ВСЕГДА (не
