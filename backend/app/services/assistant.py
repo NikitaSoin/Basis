@@ -85,11 +85,17 @@ _EXTRACT_SYSTEM_PREFIX = (
     "- report_depth: если wants_report — глубина: \"express\" (короткая сводка, "
     "по умолчанию), \"detailed\" (подробный, неделя), \"deep\" (глубокий, месяц). "
     "Иначе null.\n"
+    "- sector_group: если вопрос про ГРУППУ компаний БЕЗ явных имён («сравни банки», "
+    "«что с металлургами», «нефтянка сейчас») — код группы: \"banks\" (банки), "
+    "\"oil_gas\", \"metals\", \"it\", \"realty\" (девелоперы), \"retail\", "
+    "\"telecom\", \"utilities\" (электроэнергетика), \"transport\", \"chem\", "
+    "\"machinery\", \"health\", \"finance_other\". Иначе null. Тикеры при этом "
+    "всё равно постарайся выбрать из списка.\n"
     "- scope: область вопроса — \"platform\" (про конкретные компании/цифры/данные "
     "платформы), \"general\" (общие знания: что такое индикатор/термин, как работает "
     "инструмент, внешняя политика, мировые рынки, история — БЕЗ запроса конкретных "
     "текущих цифр наших компаний), \"mixed\" (и то и то).\n"
-    "Верни строго JSON: {\"tickers\": [...], \"wants_screener\": bool, "
+    "Верни строго JSON: {\"tickers\": [...], \"sector_group\": str|null, \"wants_screener\": bool, "
     "\"wants_macro\": bool, \"wants_news\": bool, \"wants_report\": bool, "
     "\"report_topic\": str|null, \"report_depth\": str|null, \"scope\": str}\n\n"
     "СПИСОК КОМПАНИЙ ПЛАТФОРМЫ (тикер: имя):\n"
@@ -127,10 +133,77 @@ def _extract_entities(db: Session, user_message: str, history_text: str) -> dict
         "report_topic": topic if topic in ("biz", "macro", "geo", "institutions", "mixed") else "mixed",
         "report_depth": depth if depth in ("express", "detailed", "deep") else "express",
         "scope": result.get("scope") if result.get("scope") in ("platform", "general", "mixed") else "platform",
+        "sector_group": result.get("sector_group") if result.get("sector_group") in (
+            "banks", "oil_gas", "metals", "it", "realty", "retail", "telecom",
+            "utilities", "transport", "chem", "machinery", "health", "finance_other") else None,
     }
 
 
 # ----------------------------- Шаг 2: сбор контекста -----------------------------
+_SECTOR_GROUP_TO_DB = {
+    "oil_gas": "Нефть и газ", "metals": "Металлургия", "it": "IT-сектор",
+    "realty": "Девелопмент", "retail": "Потребительский сектор", "telecom": "Телеком",
+    "utilities": "Электроэнергетика", "transport": "Транспорт и логистика",
+    "chem": "Химия", "machinery": "Машиностроение", "health": "Здравоохранение",
+    "finance_other": "Финансы",
+}
+_BANKS_CACHE: dict = {"ts": 0.0, "tickers": None}
+
+
+def _bank_tickers() -> set[str]:
+    """Тикеры с meta.profile == bank в financials.json (кэш 1ч): «банки» — это
+    профиль отчётности, а не сектор БД (в «Финансах» также биржа/страховые)."""
+    now = time.time()
+    if _BANKS_CACHE["tickers"] is not None and now - _BANKS_CACHE["ts"] < 3600:
+        return _BANKS_CACHE["tickers"]
+    out = set()
+    if COMPANIES_DIR.is_dir():
+        for d in COMPANIES_DIR.iterdir():
+            f = d / "financials.json"
+            if not f.is_file():
+                continue
+            try:
+                meta = (json.loads(f.read_text(encoding="utf-8")).get("meta") or {})
+                if meta.get("profile") == "bank":
+                    out.add(d.name.upper())
+            except Exception:  # noqa: BLE001
+                continue
+    _BANKS_CACHE["tickers"] = out
+    _BANKS_CACHE["ts"] = now
+    return out
+
+
+def _resolve_sector_group(db: Session, group: str, limit: int = 6) -> list[str]:
+    """Группа («банки», «металлурги»…) → конкретные тикеры, топ по капитализации.
+    Детерминированный страховочный ход: «сравни банки» без имён давал ПУСТОЙ
+    контекст, и ассистент честно отвечал «нет ни одного банка» (владелец
+    2026-08-08, второй заход). Префы того же эмитента (SBERP при SBER)
+    отсеиваются — в сравнении групп они дублируют компанию."""
+    if group == "banks":
+        pool = _bank_tickers()
+        if not pool:
+            return []
+        rows = db.execute(text(
+            "SELECT ticker FROM companies WHERE ticker = ANY(:p) "
+            "ORDER BY market_cap DESC NULLS LAST"), {"p": list(pool)}).all()
+    else:
+        sector = _SECTOR_GROUP_TO_DB.get(group)
+        if not sector:
+            return []
+        rows = db.execute(text(
+            "SELECT ticker FROM companies WHERE sector = :s "
+            "ORDER BY market_cap DESC NULLS LAST"), {"s": sector}).all()
+    out: list[str] = []
+    for r in rows:
+        t = r.ticker.upper()
+        if t.endswith("P") and t[:-1] in out:
+            continue
+        out.append(t)
+        if len(out) >= limit:
+            break
+    return out
+
+
 def _key_financials(ticker: str) -> dict | None:
     """Компактный ЧИСЛОВОЙ срез financials.json (последние 3 года) для контекста.
 
@@ -385,6 +458,14 @@ def _build_context(db: Session, entities: dict) -> tuple[dict, list[dict]]:
     ctx: dict = {}
     refs: list[dict] = []
     companies = []
+    tickers = list(entities["tickers"])
+    group = entities.get("sector_group")
+    if group and len(tickers) < 3:
+        for t in _resolve_sector_group(db, group):
+            if t not in tickers:
+                tickers.append(t)
+        tickers = tickers[:_MAX_TICKERS_PER_TURN]
+        entities["tickers"] = tickers
     for t in entities["tickers"]:
         c = _company_context(db, t)
         if c:
