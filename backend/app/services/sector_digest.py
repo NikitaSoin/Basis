@@ -68,10 +68,38 @@ def target_for(sector_key: str) -> str:
 
 def load_config() -> dict:
     try:
-        return json.loads(_CONFIG.read_text(encoding="utf-8"))
+        cfg = json.loads(_CONFIG.read_text(encoding="utf-8"))
     except Exception as e:  # noqa: BLE001
         logger.warning("Отраслевая лента: конфиг источников недоступен: %s", type(e).__name__)
         return {"sources": []}
+    _validate(cfg.get("sources") or [])
+    return cfg
+
+
+def _validate(sources: list[dict]) -> None:
+    """Проверка конфига на дефекты, которые иначе проявляются молча.
+
+    Дубль ключа — статьи второго источника пишутся под именем первого и путается
+    потолок max_per_run; дубль URL — лишний сетевой запрос за тем же контентом;
+    отрасль с опечаткой — источник отбрасывается фильтром и просто «ничего не даёт».
+    Ни один из трёх случаев не роняет прогон, поэтому без явной проверки они живут
+    в конфиге месяцами. Только лог: падать из-за одной кривой строки нельзя.
+    """
+    keys, urls = {}, {}
+    for s in sources:
+        k, u = s.get("key"), s.get("url")
+        if k in keys:
+            logger.warning("Отраслевая лента: дубль ключа источника %r", k)
+        keys[k] = True
+        if u in urls:
+            logger.warning("Отраслевая лента: дубль адреса %r (ключи %r и %r)", u, urls[u], k)
+        urls[u] = k
+        bad = [x for x in (s.get("sectors") or []) if x not in _KEYS]
+        if bad:
+            logger.warning("Отраслевая лента: источник %r ссылается на несуществующие "
+                           "отрасли %s — материалы будут отброшены", k, bad)
+        if not (s.get("sectors") or []):
+            logger.warning("Отраслевая лента: у источника %r не задана ни одна отрасль", k)
 
 
 _SYS = """Ты — аналитик отраслевых рынков российской инвестиционной платформы. На вход —
