@@ -1632,6 +1632,36 @@ def _inst_bg(name: str, fn) -> dict:
     return {"running": True, "note": "запущено в фоне, смотри GET-эндпоинт раздела"}
 
 
+@router.get("/debug/probe-feed")
+def debug_probe_feed(url: str, method: str = "rss"):
+    """Проверка ленты С БОЕВОГО IP нашим же парсером — сколько записей, какая свежая.
+
+    Зачем эндпоинт, а не curl с ноутбука. Часть источников недоступна с локальной
+    машины, но открывается с сервера, и наоборот: международные (МЭА, ОПЕК) режут
+    антиботом, а несколько российских (peretok.ru, np-sr.ru, portnews.ru, rosugol.ru)
+    дают с ноутбука код 000 — похоже на обратный геоблок, и с Timeweb шанс есть.
+    Проверять надо ИМЕННО нашим парсером: типовая ловушка — HTML-страница 404 под
+    кодом 200, при которой лента выглядит рабочей и молча отдаёт пустоту.
+    """
+    from datetime import date as _date
+    from app.services.geo_digest import _fetch_rss, _fetch_wp_json, _parse_date
+    try:
+        src = {"key": "probe", "url": url}
+        arts = _fetch_wp_json(src) if method == "wp_json" else _fetch_rss(src)
+    except Exception as e:  # noqa: BLE001
+        return {"url": url, "ok": False, "error": f"{type(e).__name__}: {e}"}
+    dates = sorted([d for d in (_parse_date(a.get("date_raw")) for a in arts) if d], reverse=True)
+    newest = dates[0] if dates else None
+    return {
+        "url": url, "ok": bool(arts), "articles": len(arts),
+        "newest": newest.isoformat() if newest else None,
+        "age_days": (_date.today() - newest).days if newest else None,
+        "no_date": sum(1 for a in arts if not _parse_date(a.get("date_raw"))),
+        "sample": [{"title": a["title"][:110], "date": a.get("date_raw", "")[:30],
+                    "text_len": len(a.get("text") or "")} for a in arts[:3]],
+    }
+
+
 @router.post("/debug/trigger-sector-digest")
 def debug_trigger_sector_digest(max_new: int = 30):
     """Ручной запуск ОТРАСЛЕВОЙ ЛЕНТЫ (крон sector_digest, 8:15 и 20:15): обзоры,
