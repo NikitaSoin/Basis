@@ -1323,6 +1323,9 @@ function ObsDigestCard({ a }) {
       <div className="obs-art-head">
         {a.source_label && <ObsSrcMark label={a.source_label} tier="analysis" />}
         {a.source_label && <b>{a.source_label}</b>}
+        {/* Отрасль — только у материалов отраслевой ленты (обзоры рынков): читателю
+            надо видеть, к какому рынку относится обзор, до чтения текста. */}
+        {a.sector_label && <span className="obs-art-sector">{a.sector_label}</span>}
         <span className="obs-art-date">{dateStr}</span>
       </div>
       <div className="obs-art-title">{a.title}</div>
@@ -2135,6 +2138,7 @@ function ObsBusinessArticles() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [srcFilter, setSrcFilter] = useState("all");
+  const [secFilter, setSecFilter] = useState("all");
   const [mode, setMode] = useState("assessment");   // assessment | feed
   const [baro, setBaro] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
@@ -2158,7 +2162,17 @@ function ObsBusinessArticles() {
     new Map(articles.filter((a) => a.source_label).map((a) => [a.source_label, true])).keys()
   ).sort((a, b) => a.localeCompare(b, "ru"));
 
-  const shown = srcFilter === "all" ? articles : articles.filter((a) => a.source_label === srcFilter);
+  // Второе измерение фильтра — отрасль. Появилось вместе с отраслевой лентой
+  // (обзоры МЭА/ОПЕК/ассоциаций): читатель приходит в раздел за КОНКРЕТНЫМ рынком
+  // («что с нефтью»), а не за источником. Ряд рисуем только если отраслевые
+  // материалы реально пришли — иначе пустой фильтр-обманка.
+  const sectorNames = Array.from(
+    new Map(articles.filter((a) => a.sector_label).map((a) => [a.sector_label, true])).keys()
+  ).sort((a, b) => a.localeCompare(b, "ru"));
+
+  const shown = articles
+    .filter((a) => srcFilter === "all" || a.source_label === srcFilter)
+    .filter((a) => secFilter === "all" || a.sector_label === secFilter);
 
   return (
     <div>
@@ -2211,6 +2225,26 @@ function ObsBusinessArticles() {
               </div>
             </>
           )}
+        </div>
+      )}
+
+      {mode === "feed" && sectorNames.length > 0 && (
+        <div className="obs-filterbar">
+          <button
+            className={`obs-chip${secFilter === "all" ? " obs-chip--active" : ""}`}
+            onClick={() => setSecFilter("all")}
+          >
+            Все отрасли
+          </button>
+          {sectorNames.map((s) => (
+            <button
+              key={s}
+              className={`obs-chip${secFilter === s ? " obs-chip--active" : ""}`}
+              onClick={() => setSecFilter(s)}
+            >
+              {s}
+            </button>
+          ))}
         </div>
       )}
 

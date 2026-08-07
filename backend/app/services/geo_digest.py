@@ -143,11 +143,30 @@ def _fetch_rss(src: dict) -> list[dict]:
             txt = body.decode("utf-8", "ignore")
             i, j = txt.find("<rss"), txt.find("<channel")
             if 0 <= i < j:
-                root = ET.fromstring(txt[:txt.find(">", i) + 1] + txt[j:])
-            else:
-                return out
+                txt = txt[:txt.find(">", i) + 1] + txt[j:]
+            # Вторая типовая причина битого XML — сам контент: голый «&» вместо
+            # &amp; и управляющие символы внутри описаний (проверено на neftegaz.ru,
+            # 1.5 МБ и ошибка в середине файла). Чиним ровно эти два случая: любая
+            # более умная «починка» рискует молча исказить текст статей.
+            txt = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", txt)
+            txt = re.sub(r"&(?!(?:[a-zA-Z][a-zA-Z0-9]{1,7}|#\d{1,6}|#x[0-9a-fA-F]{1,6});)", "&amp;", txt)
+            root = ET.fromstring(txt)
         except (ET.ParseError, ValueError):
-            return out
+            # Последний рубеж: разбор поштучно. Крупная лента (Neftegaz — до 1.5 МБ)
+            # приходит обрезанной по таймауту, и целиком документ не парсится НИКОГДА,
+            # хотя первые сотни записей в нём целые. Разбираем каждый <item> отдельно
+            # и пропускаем битые — лучше 100 статей из 103, чем ноль и «ослеп источник».
+            root = ET.Element("rss")
+            for m in re.finditer(r"<item[\s>].*?</item>", txt, re.S):
+                try:
+                    root.append(ET.fromstring(m.group(0)))
+                except ET.ParseError:
+                    continue
+            if len(root) == 0:
+                logger.warning("RSS %s: XML не разобран даже после санации", src.get("key"))
+                return out
+            logger.info("RSS %s: документ битый, поштучно собрано %d записей",
+                        src.get("key"), len(root))
     # Разбор без привязки к namespace. RSS 2.0 кладёт элементы в пустое пространство
     # имён, RSS 1.0/RDF (все фиды BIS) — в purl.org/rss/1.0, Atom — в w3.org/2005/Atom.
     # Поиск по голому "item" видит только первый вариант, и лента на RDF молча
@@ -169,7 +188,13 @@ def _fetch_rss(src: dict) -> list[dict]:
                         return _strip(href)
             return ""
 
-        title, link = f("title"), f("link", "guid")
+        # guid берём только запасным вариантом и только если это реально ссылка:
+        # по стандарту guid — идентификатор, у части лент там строка вида "post-12345".
+        # Такой «url» сломал бы и дедуп, и переход по ссылке на карточке.
+        title, link = f("title"), f("link")
+        if not link.startswith("http"):
+            guid = f("guid")
+            link = guid if guid.startswith("http") else ""
         if not title or not link:
             continue
         # Дата: pubDate по стандарту RSS 2.0, но ленты на Dublin Core кладут её в

@@ -31,6 +31,7 @@ _CONFIG = Path(__file__).resolve().parents[2] / "config" / "sector_sources.json"
 TARGET_PREFIX = "sec:"
 _MAX_PER_RUN = 30   # потолок новых статей за прогон (контроль стоимости LLM)
 _MAX_AGE_DAYS = 30  # отраслевой обзор живёт дольше новости, но архив не тащим
+_MAX_PER_SOURCE = 3  # потолок статей с одного источника за прогон
 _BATCH = 3
 
 _KEYS = {s["key"] for s in SECTORS}
@@ -150,7 +151,16 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
         if not sectors:
             continue  # источник без валидных отраслей — молча не тащим (видно в конфиге)
         pub = date.today() if a.get("_no_pubdate") else _parse_date(a.get("date_raw"))
-        if pub is None or pub < cutoff:
+        # Окно свежести — своё у источника: ежедневная отраслевая лента живёт днями,
+        # а квартальный обзор (BIS Quarterly Review, Gold Demand Trends) при окне в
+        # месяц отсеялся бы целиком — именно ради таких обзоров всё и строилось.
+        age = int(src.get("max_age_days") or _MAX_AGE_DAYS)
+        # Дата из будущего — это опечатка источника (в ленте BIS реально лежит статья
+        # с датой 2035 года). Без отсечки такая запись навсегда занимает верх сортировки
+        # «сначала свежее» и каждый прогон вытесняет настоящие свежие материалы.
+        if pub is None or pub > date.today() + timedelta(days=1):
+            continue
+        if pub < date.today() - timedelta(days=age):
             continue
         a["_pub"] = pub
         a["_sectors"] = sectors
@@ -160,7 +170,31 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
     if not fresh:
         return {"discovered": 0, "saved": 0, "skipped": 0, "blind": blind}
     fresh.sort(key=lambda a: a["_pub"], reverse=True)
-    fresh = fresh[:max_new]
+
+    # Раздача слотов ПО КРУГУ между источниками, а не «сначала самое свежее». При
+    # сортировке по дате бюджет прогона целиком забирают ежедневные ёмкие ленты
+    # (CNews — 200 записей в день, Neftegaz — 103), и половина отраслей — транспорт,
+    # фарма, металлы — не получает ни одного материала. Круг гарантирует каждой
+    # отрасли представительство; внутри источника порядок остаётся «свежее вперёд».
+    queues: dict[str, list] = {}
+    for a in fresh:
+        queues.setdefault(a["src"], []).append(a)
+    order = sorted(queues, key=lambda k: queues[k][0]["_pub"], reverse=True)
+    picked, round_no = [], 0
+    while len(picked) < max_new:
+        took = 0
+        for key in order:
+            cap = int(by_key.get(key, {}).get("max_per_run") or _MAX_PER_SOURCE)
+            if round_no >= cap or round_no >= len(queues[key]):
+                continue
+            picked.append(queues[key][round_no])
+            took += 1
+            if len(picked) >= max_new:
+                break
+        if took == 0:
+            break
+        round_no += 1
+    fresh = picked
 
     # Дотягиваем текст только там, где ленты дали тизер, — и только у отобранных
     # свежих статей, чтобы не ходить по сети за тем, что всё равно отбросим.

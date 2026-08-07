@@ -1687,6 +1687,18 @@
   font-size: 12px;
 }
 
+/* Отрасль материала отраслевой ленты. Хром монохромный — цвет в ленте
+   зарезервирован за данными, поэтому чип держим на нейтральной подложке. */
+.obs-art-sector {
+  font-size: 11px;
+  letter-spacing: .02em;
+  padding: 2px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
 /* Article title — Fraunces (было обычный bold-Inter, читалось как служебный
    UI-текст, не как заголовок разбора). */
 .obs-art-title {
