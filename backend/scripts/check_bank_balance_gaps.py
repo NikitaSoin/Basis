@@ -35,6 +35,10 @@ NOT_APPLICABLE = {
     "KUZB": {"gross_loans": "все", "loan_provisions": "все"},       # публикуемая форма без примечаний
     "CBOM": {"gross_loans": [2020, 2021, 2022], "loan_provisions": [2020, 2021, 2022]},
     "MBNK": {"gross_loans": [2020, 2021, 2022, 2023], "loan_provisions": [2020, 2021, 2022, 2023]},
+    # отчёт БСПБ за 2021 публиковался, но был снят с сайта в 2022 (мораторий ЦБ на
+    # раскрытие) и не сохранился в архивах — детальные строки за этот год недостижимы
+    "BSPB": {"securities": [2021], "due_to_banks": [2021], "cash_and_equivalents": [2021]},
+    "BSPBP": {"securities": [2021], "due_to_banks": [2021], "cash_and_equivalents": [2021]},
 }
 
 

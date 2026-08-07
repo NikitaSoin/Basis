@@ -131,21 +131,56 @@ def _fetch_rss(src: dict) -> list[dict]:
     r = httpx.get(_relay_url(src, src["url"]), timeout=30, headers=_HTTP, follow_redirects=True, verify=False)
     r.raise_for_status()
     out = []
+    body = r.content
     try:
-        root = ET.fromstring(r.content)
+        root = ET.fromstring(body)
     except ET.ParseError:
-        return out
-    for it in root.iter("item"):
-        def t(tag):
-            el = it.find(tag)
-            return _strip(el.text) if el is not None and el.text else ""
-        title, link = t("title"), t("link")
+        # Часть лент вставляет посторонний HTML между <rss> и <channel> (проверено на
+        # so-ups.ru: перед каналом идёт <header class="ce-header">). Строгий XML-парсер
+        # на этом спотыкается и лента молча становится «ослепшей». Вырезаем всё, что
+        # стоит до первого <channel, и пробуем ещё раз — ровно один раз, без эвристик.
+        try:
+            txt = body.decode("utf-8", "ignore")
+            i, j = txt.find("<rss"), txt.find("<channel")
+            if 0 <= i < j:
+                root = ET.fromstring(txt[:txt.find(">", i) + 1] + txt[j:])
+            else:
+                return out
+        except (ET.ParseError, ValueError):
+            return out
+    # Разбор без привязки к namespace. RSS 2.0 кладёт элементы в пустое пространство
+    # имён, RSS 1.0/RDF (все фиды BIS) — в purl.org/rss/1.0, Atom — в w3.org/2005/Atom.
+    # Поиск по голому "item" видит только первый вариант, и лента на RDF молча
+    # выглядит пустой при коде 200 — то самое «ослеп источник» без единой ошибки.
+    def _local(el) -> str:
+        return el.tag.rpartition("}")[2] if isinstance(el.tag, str) else ""
+
+    for it in root.iter():
+        if _local(it) not in ("item", "entry"):
+            continue
+
+        def f(*names) -> str:
+            for ch in it:
+                if _local(ch) in names:
+                    if ch.text and ch.text.strip():
+                        return _strip(ch.text)
+                    href = ch.get("href")  # Atom: ссылка живёт в атрибуте, не в тексте
+                    if href:
+                        return _strip(href)
+            return ""
+
+        title, link = f("title"), f("link", "guid")
         if not title or not link:
             continue
+        # Дата: pubDate по стандарту RSS 2.0, но ленты на Dublin Core кладут её в
+        # <dc:date>, Atom — в <published>/<updated>. Без fallback такая лента отдаёт
+        # статьи без даты — и все они отсеиваются фильтром свежести.
+        date_raw = f("pubDate", "date", "published", "updated")
         # У некоторых RSS (re:russia) <description> содержит ПОЛНЫЙ текст статьи, не
         # тизер — берём столько же, сколько у wp_json, чтобы пересказ был по существу.
-        out.append({"title": title, "text": _strip(t("description"))[:_TEXT_CHARS],
-                    "url": link, "date_raw": t("pubDate"), "src": src["key"]})
+        text = f("description", "summary", "encoded", "content")
+        out.append({"title": title, "text": text[:_TEXT_CHARS],
+                    "url": link, "date_raw": date_raw, "src": src["key"]})
     return out
 
 

@@ -245,21 +245,38 @@ def _sector_prices(db: Session, tickers: list[str]) -> list[str]:
     return out
 
 
-def _sector_articles(db: Session, label: str, drivers: str, limit: int = 6) -> list[str]:
-    """Материалы ленты. Отбор грубый — по совпадению слов из названия и драйверов:
-    точной привязки статьи к отрасли у нас нет, а гонять LLM-классификатор ради
-    подбора контекста дороже, чем отдать модели чуть более широкий набор."""
+def _sector_articles(db: Session, key: str, label: str, drivers: str, limit: int = 6) -> list[str]:
+    """Материалы ленты для отрасли — два слоя, в порядке точности.
+
+    1. Отраслевая лента (sector_digest): статья изначально пришла из отраслевого
+       источника и отнесена к КОНКРЕТНОЙ отрасли — привязка точная.
+    2. Добор из общей ленты по совпадению слов названия и драйверов — грубо, но
+       ловит то, что попало в бизнес/макро-ленту и отраслевых источников не имеет.
+    Второй слой оставлен именно как добор: он даёт ложные срабатывания, поэтому
+    идёт ПОСЛЕ точного и только на остаток лимита."""
+    cutoff = date.today() - timedelta(days=_WINDOW_DAYS)
+    hits, seen = [], set()
+    exact = (db.query(GeoDigestArticle)
+             .filter(GeoDigestArticle.target == f"sec:{key}",
+                     GeoDigestArticle.published_at >= cutoff)
+             .order_by(GeoDigestArticle.published_at.desc()).limit(limit).all())
+    for r in exact:
+        seen.add(r.id)
+        hits.append(f"  {r.published_at} [{r.source_key}] {r.title}: {(r.summary or '')[:250]}")
+    if len(hits) >= limit:
+        return hits
+
     words = [w.lower() for w in (label + " " + drivers).replace(",", " ").split()
              if len(w) > 5][:12]
     if not words:
-        return []
-    cutoff = date.today() - timedelta(days=_WINDOW_DAYS)
+        return hits
     rows = (db.query(GeoDigestArticle)
             .filter(GeoDigestArticle.target.in_(("business", "macro")),
                     GeoDigestArticle.published_at >= cutoff)
             .order_by(GeoDigestArticle.published_at.desc()).limit(60).all())
-    hits = []
     for r in rows:
+        if r.id in seen:
+            continue
         blob = f"{r.title} {r.summary or ''}".lower()
         if any(w[:6] in blob for w in words):
             hits.append(f"  {r.published_at} {r.title}: {(r.summary or '')[:200]}")
@@ -338,7 +355,7 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
         allowed.update(tickers)
         earn = _sector_earnings(db, tickers)
         prices = _sector_prices(db, tickers)
-        arts = _sector_articles(db, sec["label"], sec["drivers"])
+        arts = _sector_articles(db, sec["key"], sec["label"], sec["drivers"])
         b = [f"### ОТРАСЛЬ «{sec['label']}» (ключ {sec['key']})",
              f"Что определяет её экономику: {sec['drivers']}",
              f"Компании ({len(tickers)}): {', '.join(tickers[:40])}"]

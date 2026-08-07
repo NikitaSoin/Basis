@@ -1632,6 +1632,23 @@ def _inst_bg(name: str, fn) -> dict:
     return {"running": True, "note": "запущено в фоне, смотри GET-эндпоинт раздела"}
 
 
+@router.post("/debug/trigger-sector-digest")
+def debug_trigger_sector_digest(max_new: int = 30):
+    """Ручной запуск ОТРАСЛЕВОЙ ЛЕНТЫ (крон sector_digest, 8:15 и 20:15): обзоры,
+    прогнозы и аналитика рынков от отраслевых источников (МЭА/ОПЕК/EIA/ассоциации).
+    Синхронно — видно, сколько статей отсеяно и по каким отраслям разложено."""
+    from app.db.session import SessionLocal
+    from app.services.sector_digest import refresh
+    db = SessionLocal()
+    try:
+        return refresh(db, max_new=max_new)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-sector-digest: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-sector-barometer")
 def debug_trigger_sector_barometer():
     """Ручной запуск ОТРАСЛЕВОГО БАРОМЕТРА (крон sector_barometer, вс 21:30):

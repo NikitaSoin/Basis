@@ -1,0 +1,27 @@
+{
+  "_note": "Источники ОТРАСЛЕВОЙ аналитики: обзоры рынков, прогнозы, статистика с комментарием. Читает app/services/sector_digest.py. Поле sectors — какие отрасли покрывает источник (ключи из sector_barometer.SECTORS); модель выбирает конкретную из этого списка, поэтому чем уже список, тем точнее привязка. Адреса лент ПРОВЕРЕНЫ curl'ом — не добавляй сюда угаданный URL: он молча отдаёт пустоту и выглядит рабочим источником.",
+  "sources": [
+    {
+      "key": "eia_today",
+      "label": "EIA (Управление энергетической информации США)",
+      "method": "rss",
+      "url": "https://www.eia.gov/rss/todayinenergy.xml",
+      "sectors": ["oil_gas", "power"],
+      "role": "analysis",
+      "lang": "en",
+      "enabled": true,
+      "_checked": "2026-08-08: 200, 10.4 КБ, 14 записей"
+    },
+    {
+      "key": "eia_press",
+      "label": "EIA — прогнозы и релизы",
+      "method": "rss",
+      "url": "https://www.eia.gov/rss/press_rss.xml",
+      "sectors": ["oil_gas", "power"],
+      "role": "forecast",
+      "lang": "en",
+      "enabled": true,
+      "_checked": "2026-08-08: 200, 6.4 КБ, 9 записей"
+    }
+  ]
+}

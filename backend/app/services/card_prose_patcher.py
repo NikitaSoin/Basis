@@ -1319,7 +1319,12 @@ def _markets_env_grounding(db: Session, sec: dict, tickers: list[str]) -> str:
         parts.append("ЦЕНЫ НА ПРОДУКЦИЮ ОТРАСЛИ (текущие, из наших рядов):")
         parts.extend(prices)
 
-    arts = _recent_source_articles(db, ("business", "macro"), limit=5)
+    # Сначала обзоры отраслевых источников по ЭТОЙ отрасли (МЭА, ОПЕК, ассоциации —
+    # привязка точная), затем добор из общей бизнес/макро-ленты. Иначе правка вкладки
+    # «Рынки» шла бы от общих новостей, а рынок компании — предмет отраслевой аналитики.
+    arts = _recent_source_articles(db, (f"sec:{sec.get('key')}",), limit=6, days=45)
+    if len(arts) < 5:
+        arts += _recent_source_articles(db, ("business", "macro"), limit=5 - len(arts))
     if arts:
         parts.append("СВЕЖИЕ МАТЕРИАЛЫ (что конкретно произошло):")
         parts.extend(arts)

@@ -1205,10 +1205,21 @@ def _clean_mentions(v):
     return out.strip()
 
 
+def _sector_label_of(target: str | None) -> str | None:
+    """Метка отрасли для статьи отраслевой ленты (target='sec:<ключ>') — чип на
+    карточке, чтобы читатель видел, к какому рынку относится обзор."""
+    if not target or not target.startswith("sec:"):
+        return None
+    from app.services.sector_barometer import SECTORS
+    key = target[4:]
+    return next((s["label"] for s in SECTORS if s["key"] == key), None)
+
+
 def _digest_dict(a) -> dict:
     from app.services.geo_digest import SOURCE_LABELS
     hide = a.source_key in _UNNAMED_SOURCES
     return {"id": a.id,
+            "sector_label": _sector_label_of(a.target),
             "title": _clean_mentions(a.title) if hide else a.title,
             "summary": _clean_mentions(a.summary) if hide else a.summary,
             "key_takeaways": (_clean_mentions(a.key_takeaways) if hide else a.key_takeaways) or [],
@@ -1290,7 +1301,12 @@ def market_business_digest(limit: int = Query(30, ge=1, le=100), db: Session = D
     с записками по дате публикации, created_at ломал бы порядок)."""
     from app.models.geo_digest import GeoDigestArticle
     from app.services.company_signals import INTERNAL_SOURCE_KEYS
-    pool = (db.query(GeoDigestArticle).filter_by(target="business")
+    # Плюс отраслевая лента (target='sec:<отрасль>'): обзоры и прогнозы рынков от
+    # отраслевых источников — тот же раздел «Бизнес», просто уровень выше конкретной
+    # компании. Внутри карточки они уходят в свою отрасль, здесь показываются вместе.
+    pool = (db.query(GeoDigestArticle)
+           .filter(or_(GeoDigestArticle.target == "business",
+                       GeoDigestArticle.target.like("sec:%")))
            .filter(GeoDigestArticle.source_key.notin_(INTERNAL_SOURCE_KEYS))
            .order_by(GeoDigestArticle.published_at.desc().nullslast(),
                      GeoDigestArticle.created_at.desc())
