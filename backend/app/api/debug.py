@@ -1679,6 +1679,9 @@ def debug_trigger_env_card_interp(tab: str = "both", ticker: str | None = None,
             out["institutions"] = run_inst_env_interp(db, batch=batch, only_ticker=ticker)
         if tab in ("macro", "all"):
             out["macro"] = run_macro_env_interp(db, batch=batch, only_ticker=ticker)
+        if tab in ("markets", "all"):
+            from app.services.card_prose_patcher import run_markets_env_interp
+            out["markets"] = run_markets_env_interp(db, batch=batch, only_ticker=ticker)
         # возвращаем объект-заглушку с полями, которые ждёт _inst_bg
         return type("R", (), {"id": "-", "status": "done", "gate_notes": [str(out)[:400]]})()
 

@@ -854,11 +854,17 @@ async def _env_card_interp_job():
         from app.db.session import SessionLocal
         from app.services.card_prose_patcher import (
             run_geo_env_interp, run_inst_env_interp, run_macro_env_interp,
+            run_markets_env_interp,
         )
         db = SessionLocal()
         try:
             return {"geo": run_geo_env_interp(db), "inst": run_inst_env_interp(db),
-                    "macro": run_macro_env_interp(db)}
+                    "macro": run_macro_env_interp(db),
+                    # «Рынки» — четвёртая вкладка контура. Очередь у неё строится
+                    # не «кого задевает среда», а «чья отрасль сдвинулась»:
+                    # у сталеваров и золотодобытчиков среда РАЗНАЯ (в барометре
+                    # 1.5/5 против 4.5/5), общей рамки для них не существует.
+                    "markets": run_markets_env_interp(db)}
         finally:
             db.close()
     try:

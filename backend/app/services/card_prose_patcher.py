@@ -1008,7 +1008,7 @@ _ENV_INTERP_SYS = """Ты — аналитик-редактор платформ
 
 
 def _run_env_interp(db: Session, *, tab: str, grounding: str, queue: list[str],
-                    kind: str) -> dict:
+                    kind: str, sys_prompt: str | None = None) -> dict:
     stats = {"queued": len(queue), "published": 0, "rejected": 0}
     for tk in queue:
         def _tb(p: str, _tk=tk) -> str:
@@ -1017,7 +1017,7 @@ def _run_env_interp(db: Session, *, tab: str, grounding: str, queue: list[str],
                     f"ТЕКСТ ВКЛАДКИ (правь точечно ТОЛЬКО смысловые устаревания):\n"
                     f"<<<\n{p[:8000]}\n>>>")
 
-        row = _run_patch(db, tk, tab, sys=_ENV_INTERP_SYS + _JSON_ONLY,
+        row = _run_patch(db, tk, tab, sys=(sys_prompt or _ENV_INTERP_SYS) + _JSON_ONLY,
                          task_builder=_tb, grounding_text=grounding,
                          kind=kind, evidence_extra={"env_interp": tab})
         if row is not None:
@@ -1234,4 +1234,155 @@ def run_macro_env_interp(db: Session, batch: int = _ENV_BATCH,
         if row is not None:
             stats[row.status] = stats.get(row.status, 0) + 1
     logger.info("card_prose_patcher.run_macro_env_interp: %s", stats)
+    return stats
+
+
+# =============================================================================
+# ВКЛАДКА «РЫНКИ»: доводка под состояние ОТРАСЛИ
+#
+# Владелец (2026-08-07): «нужно чтобы карточки самообновлялись» — по рынкам и
+# governance, после того как то же сделано для гео, институтов и макро.
+#
+# 🔴 ПОЧЕМУ ОЧЕРЕДЬ СТРОИТСЯ ИНАЧЕ, ЧЕМ У ГЕО И ИНСТИТУТОВ.
+# Там среда ОДНА на всех: сместился балл очага — задело всех, кого этот очаг
+# касается. Здесь среда РАЗНАЯ у каждой отрасли: сталевары и золотодобытчики
+# живут в противоположных фазах цикла (в первом же прогоне барометра чёрная
+# металлургия 1.5/5, цветная 4.5/5). Поэтому очередь — не «кого задевает», а
+# «чья отрасль сдвинулась»: берём отрасли с движением балла или с низким
+# баллом и правим карточки их компаний.
+#
+# 🔴 ЧЕГО ЗДЕСЬ НЕЛЬЗЯ ДЕЛАТЬ — ВЫДУМЫВАТЬ ДОЛИ РЫНКА.
+# Проза «Рынков» полна утверждений вида «Северсталь 33%, ММК 30%, НЛМК 23%».
+# Источника долей у нас нет ни одного (в реестрах источников это отмечено как
+# дыра почти во всех секторах). Модель, которой велено «обновить рынки», такие
+# числа охотно перепишет — и получится выдуманная конкретика вместо устаревшей.
+# Отсюда отдельное правило в промпте и проверка в гейте патчера: число в замене
+# обязано присутствовать во входном тексте.
+# =============================================================================
+_MARKETS_INTERP_SYS = """Ты — аналитик-редактор платформы Basis (не брокер, без
+«купить/продать» и целевых цен). Даны СОСТОЯНИЕ ОТРАСЛИ (оценка Обозревателя),
+цены на её продукцию и ТЕКСТ вкладки «Рынки» карточки компании.
+
+Найди в тексте утверждения, устаревшие относительно этого состояния: описана
+фаза цикла, которая сменилась; спрос назван растущим, хотя отрасль сжимается
+(или наоборот); цена товара в тексте разошлась с переданной; риск описан как
+возможный, хотя реализовался. Верни точечные правки find/replace ТОЛЬКО для них.
+
+🔴 ЗАПРЕЩЕНО МЕНЯТЬ ЧИСЛА, КОТОРЫХ НЕТ ВО ВХОДНЫХ ДАННЫХ. Особенно доли рынка
+компаний и конкурентов, объёмы производства и потребления, ёмкость рынка: если
+переданные данные их не содержат — НЕ ТРОГАЙ такие предложения вообще. Лучше
+оставить старое число с прежней датой, чем поставить выдуманное свежее.
+
+ПРАВЬ МИНИМАЛЬНО. Не трогай специфику компании (её активы, проекты, стратегию),
+не переписывай структуру, не добавляй прогнозов сверх переданного состояния.
+Если смысловых устареваний нет — confirmed=false.
+"""
+
+
+def _sector_key_for(db: Session, ticker: str, sector_map: dict) -> str | None:
+    """Ключ отрасли барометра для тикера. Барометр делит металлургию на чёрную и
+    цветную, а в БД это один сектор — поэтому сначала ищем по явным спискам
+    тикеров, и только потом по значению companies.sector."""
+    from app.services.sector_barometer import SECTORS
+    for s in SECTORS:
+        only = s.get("only_tickers")
+        if only and ticker in only:
+            return s["key"]
+    db_sector = sector_map.get(ticker)
+    if not db_sector:
+        return None
+    for s in SECTORS:
+        if not s.get("only_tickers") and db_sector in s["db_sectors"]:
+            return s["key"]
+    return None
+
+
+def _markets_env_grounding(db: Session, sec: dict, tickers: list[str]) -> str:
+    """Контекст для отрасли: оценка барометра + цены её товаров + свежая лента."""
+    from app.services.sector_barometer import _sector_prices
+
+    parts = [f"ОТРАСЛЬ: {sec.get('label')}",
+             f"Оценка состояния: {sec.get('score')} из 5 "
+             f"(1 — кризис, 3 — обычное состояние, 5 — подъём), "
+             f"направление: {sec.get('direction')}."]
+    if sec.get("headline"):
+        parts.append(f"Что происходит: {sec['headline']}")
+    if sec.get("what_happens"):
+        parts.append(f"  {sec['what_happens'][:500]}")
+    if sec.get("winners"):
+        parts.append(f"В лучшем положении: {sec['winners'][:220]}")
+    if sec.get("losers"):
+        parts.append(f"В худшем: {sec['losers'][:220]}")
+
+    prices = _sector_prices(db, tickers)
+    if prices:
+        parts.append("ЦЕНЫ НА ПРОДУКЦИЮ ОТРАСЛИ (текущие, из наших рядов):")
+        parts.extend(prices)
+
+    arts = _recent_source_articles(db, ("business", "macro"), limit=5)
+    if arts:
+        parts.append("СВЕЖИЕ МАТЕРИАЛЫ (что конкретно произошло):")
+        parts.extend(arts)
+
+    parts.append(f"Сегодня: {datetime.now(timezone.utc).date().isoformat()}")
+    return "\n".join(parts)
+
+
+def run_markets_env_interp(db: Session, batch: int = _ENV_BATCH,
+                           only_ticker: str | None = None) -> dict:
+    """Доводка вкладок «Рынки» под текущее состояние отраслей.
+
+    Очередь: отрасли, которые сдвинулись с прошлого замера ИЛИ стоят низко
+    (≤2.5 — там устаревший оптимистичный текст вреднее всего), затем их
+    компании с учётом cooldown.
+    """
+    from app.services.sector_barometer import get_latest as sector_latest
+
+    baro = sector_latest(db)
+    sectors = baro.get("sectors") or []
+    if not sectors:
+        return {"error": "отраслевой барометр пуст"}
+
+    moved = {c.get("key") for c in (baro.get("changes") or [])}
+    # Приоритет: сначала сдвинувшиеся, потом кризисные, потом остальные —
+    # так батч тратится на отрасли, где проза точно разошлась с реальностью.
+    ranked = sorted(sectors, key=lambda s: (
+        0 if s.get("key") in moved else 1,
+        float(s.get("score") or 3),
+    ))
+
+    sector_map = {r[0]: r[1] for r in db.execute(text(
+        "SELECT ticker, sector FROM companies WHERE sector IS NOT NULL")).fetchall()}
+
+    stats = {"queued": 0, "published": 0, "rejected": 0, "sectors": []}
+    left = batch
+    for sec in ranked:
+        if left <= 0 and not only_ticker:
+            break
+        from app.services.sector_barometer import _sector_tickers, SECTORS
+        meta = next((s for s in SECTORS if s["key"] == sec.get("key")), None)
+        if not meta:
+            continue
+        tickers = _sector_tickers(db, meta)
+        if only_ticker:
+            if only_ticker.upper() not in tickers:
+                continue
+            queue = [only_ticker.upper()]
+        else:
+            queue = _env_queue(db, "markets", tickers, min(left, 3))
+        if not queue:
+            continue
+
+        grounding = _markets_env_grounding(db, sec, tickers)
+        res = _run_env_interp(db, tab="markets", grounding=grounding, queue=queue,
+                              kind="interpretation", sys_prompt=_MARKETS_INTERP_SYS)
+        stats["queued"] += res.get("queued", 0)
+        stats["published"] += res.get("published", 0)
+        stats["rejected"] += res.get("rejected", 0)
+        stats["sectors"].append(sec.get("key"))
+        left -= len(queue)
+        if only_ticker:
+            break
+
+    logger.info("card_prose_patcher.run_markets_env_interp: %s", stats)
     return stats
