@@ -131,6 +131,94 @@ def _extract_entities(db: Session, user_message: str, history_text: str) -> dict
 
 
 # ----------------------------- Шаг 2: сбор контекста -----------------------------
+def _key_financials(ticker: str) -> dict | None:
+    """Компактный ЧИСЛОВОЙ срез financials.json (последние 3 года) для контекста.
+
+    До 2026-08-08 ассистент получал только ТЕКСТЫ (summary.md) + live P/E — сами
+    числа отчётности не передавались вовсе. На «сравни банки по банковским
+    метрикам» это давало пустой контекст (владелец: «в присланных json ноль
+    информации»): у банков вообще нет income_statement, их числа живут в
+    bank_metrics/bank_pnl/bank_balance. Теперь:
+    - профиль bank → NIM, стоимость риска, CIR, ROE/ROA, достаточность капитала,
+      ЧПД/ЧКД/прибыль, кредиты/депозиты;
+    - остальные → выручка/прибыль/EBITDA, маржа, ROE/ROA, чистый долг/EBITDA, FCF.
+    ROE/ROA стандартных компаний — через units.last_to_percent: в файлах единицы
+    СМЕШАНЫ (у части доли, у части проценты — memory: mixed-units-in-returns),
+    сырое значение вводило бы модель в заблуждение."""
+    p = COMPANIES_DIR / ticker.upper() / "financials.json"
+    if not p.exists():
+        return None
+    try:
+        j = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return None
+    meta = j.get("meta") or {}
+
+    def tail(seq, n=3):
+        if not isinstance(seq, list) or not seq:
+            return None
+        vals = seq[-n:]
+        return vals if any(v is not None for v in vals) else None
+
+    years = j.get("fiscal_years") or meta.get("fiscal_years") or []
+    amount_unit = meta.get("unit") or "млн"  # у части файлов суммы в млрд (OZON) — берём из meta
+    out = {
+        "fiscal_years_tail": tail(years) or [],
+        "units_note": f"суммы — {amount_unit} руб; рентабельности/доли — %",
+        "profile": meta.get("profile") or "standard",
+    }
+    if out["profile"] == "bank" or j.get("bank_metrics"):
+        bm = j.get("bank_metrics") or {}
+        bp = j.get("bank_pnl") or {}
+        bb = j.get("bank_balance") or {}
+        # имена метрик в файлах разнятся (SBER: nim/cir; T: nim_pct/cir_pct/roe_adj_pct)
+        _ALIASES = {"nim": ("nim", "nim_pct"), "cost_of_risk": ("cost_of_risk", "cor_pct"),
+                    "cir": ("cir", "cir_pct"), "roe": ("roe", "roe_adj_pct", "roe_rep_pct"),
+                    "roa": ("roa", "roa_adj_pct"),
+                    "capital_adequacy": ("capital_adequacy", "capital_adequacy_h1_0_pct"),
+                    "ltd": ("ltd",)}
+        metrics = {}
+        for canon, names in _ALIASES.items():
+            for nm in names:
+                v = tail(bm.get(nm))
+                if v:
+                    metrics[canon] = v
+                    break
+        pnl = {k: tail(bp.get(k)) for k in ("net_interest_income", "net_fee_income", "net_profit")}
+        bal = {k: tail(bb.get(k)) for k in ("loans_net", "loans_gross", "deposits")}
+        out["bank_metrics_pct"] = {k: v for k, v in metrics.items() if v}
+        out["bank_pnl_mln"] = {k: v for k, v in pnl.items() if v}
+        out["bank_balance_mln"] = {k: v for k, v in bal.items() if v}
+    else:
+        inc = j.get("income_statement") or {}
+        marg = inc.get("margins") or {}
+        rat = ((j.get("balance_sheet") or {}).get("ratios") or {})
+        cf = j.get("cash_flow") or {}
+        ret = j.get("returns") or {}
+        pnl = {k: tail(inc.get(k)) for k in ("revenue", "ebitda", "net_profit")}
+        out["pnl_mln"] = {k: v for k, v in pnl.items() if v}
+        m = tail(marg.get("ebitda_margin"))
+        if m:
+            out["ebitda_margin_pct"] = m
+        try:
+            from app.services.units import last_to_percent
+            roe = last_to_percent(j, "roe", ret.get("roe"))
+            roa = last_to_percent(j, "roa", ret.get("roa"))
+            if roe is not None:
+                out["roe_pct_last"] = round(roe, 2)
+            if roa is not None:
+                out["roa_pct_last"] = round(roa, 2)
+        except Exception:  # noqa: BLE001
+            pass
+        nd = tail(rat.get("net_debt_ebitda"), 1)
+        if nd:
+            out["net_debt_ebitda_last"] = nd[-1]
+        fcf = tail(cf.get("fcf"))
+        if fcf:
+            out["fcf_mln"] = fcf
+    return out
+
+
 def _read_md(ticker: str, filename: str, max_chars: int) -> str | None:
     p = COMPANIES_DIR / ticker.upper() / filename
     if not p.exists():
@@ -185,6 +273,7 @@ def _company_context(db: Session, ticker: str) -> dict | None:
         "price": price,
         "price_date": price_date,
         "live_multiples": live_multiples,
+        "key_financials": _key_financials(ticker),
         "business_model": _read_md(ticker, "business_model.md", 2500),
         "financials_summary": _read_md(ticker, "financials_summary.md", 2500),
         "macro_summary": _read_md(ticker, "macro_summary.md", 1800),
@@ -277,6 +366,10 @@ _ANSWER_FRAMEWORK = (
     "СТРОГО ЗАПРЕЩЕНО: рекомендации «покупать/продавать», целевые цены как совет, "
     "прогнозы будущей цены. Справедливую цену/апсайд из контекста подавай как "
     "оценку/модель Basis, а не факт и не сигнал.\n\n"
+    "key_financials у компании — числовой срез отчётности за последние годы "
+    "(fiscal_years_tail показывает, каким годам соответствуют списки значений; "
+    "units_note — единицы). У банков это банковские метрики (nim, cost_of_risk, "
+    "cir, roe, достаточность капитала, ЧПД/ЧКД) — именно по ним сравнивай банки.\n\n"
     "Если у компании в контексте есть поле live_multiples (P/E, дивдоходность) — "
     "именно эти числа приоритетны для ответа про текущий P/E/дивдоходность, а НЕ "
     "числа, упомянутые в текстах business_model/financials_summary/market_summary: "
