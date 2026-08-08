@@ -334,9 +334,15 @@ def _fetch_week(db: Session, week_end: date, kind: str) -> dict:
         saved["yoy"] = upsert_point(db, "inflation", week_end, "yoy", got["yoy"],
                                     unit="%", source=got["source"], source_url=got.get("url"),
                                     ingested_via="news")
-    if not saved:
-        return {"status": "partial", "week_end": str(week_end),
-                "note": "релиз найден, но нужных чисел в нём не оказалось"}
+    # 🔴 «Записал» ≠ «сохранилось». upsert_point умеет вернуть skip (значение не прошло
+    # проверку правдоподобия) или kept (официальную точку лентой не перебиваем) — и
+    # ровно так сторож 2026-08-08 рапортовал status=fetched, wow=−0.02, а в ряду
+    # ничего не появилось. Успех считаем по РЕАЛЬНО записанным точкам.
+    written = {k: v for k, v in saved.items() if v in ("insert", "revise")}
+    if not written:
+        return {"status": "not_saved", "week_end": str(week_end), "upsert": saved,
+                "note": "число найдено, но точка не записана (проверка правдоподобия "
+                        "или приоритет источника) — смотри логи upsert_point"}
     logger.info("weekly-watch: неделя по %s — записано %s (%s)", week_end,
                 {k: got[k] for k in saved}, got.get("source"))
     return {"status": "fetched", "week_end": str(week_end),

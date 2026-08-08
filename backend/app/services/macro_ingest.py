@@ -99,6 +99,16 @@ _PLAUSIBILITY_CHECKED_VIA = {"news"}
 # порядке величины, а не спорит с экономикой.
 _PLAUSIBLE_FACTOR = 4.0
 _PLAUSIBLE_MIN_HISTORY = 6
+# 🔴 ПОЛ МАСШТАБА (2026-08-08). Кратный тест писался под опечатку в порядке величины
+# («5,94 прочитано как 0,594») и на рядах уровня работает. Но на рядах, которые ЖИВУТ
+# около нуля, он отбрасывает ПРАВДУ: недельный ИПЦ имеет медиану ~0,17, и дефляция
+# −0,02% (реальный релиз Росстата за неделю по 3 августа) оказалась «в 4 раза меньше
+# медианы» — точка молча не сохранялась, ряд стоял две недели, а сторож честно
+# рапортовал, что число нашёл. Ниже этого абсолютного масштаба кратный тест не
+# применяется вовсе: там «в разы меньше» — это тихая неделя, а не ошибка распознавания.
+# Родня по классу — [[destructive-rules-need-a-floor]]: у разрушающего правила обязан
+# быть предел применимости.
+_PLAUSIBLE_ABS_FLOOR = 1.0
 
 
 def _implausible(db: Session, code: str, metric: str, value: float) -> str | None:
@@ -114,7 +124,13 @@ def _implausible(db: Session, code: str, metric: str, value: float) -> str | Non
     if med <= 0:
         return None
     v = abs(float(value))
-    if v > med * _PLAUSIBLE_FACTOR or (v > 0 and v * _PLAUSIBLE_FACTOR < med):
+    # Обе ветки — только там, где масштаб ряда достаточен, чтобы кратность вообще
+    # что-то значила (см. _PLAUSIBLE_ABS_FLOOR). Значение внутри «околонулевого»
+    # масштаба законно по построению: недельная инфляция 0,02% или −0,02% — это
+    # событие, ради которого показатель и ведётся.
+    too_big = v > med * _PLAUSIBLE_FACTOR and v > _PLAUSIBLE_ABS_FLOOR
+    too_small = (v > 0 and v * _PLAUSIBLE_FACTOR < med and med > _PLAUSIBLE_ABS_FLOOR)
+    if too_big or too_small:
         return f"{value} против медианы ряда {med:g} (порог ×{_PLAUSIBLE_FACTOR:g})"
     return None
 
