@@ -884,7 +884,7 @@ async def _env_card_interp_job():
         from app.db.session import SessionLocal
         from app.services.card_prose_patcher import (
             run_geo_env_interp, run_inst_env_interp, run_macro_env_interp,
-            run_markets_env_interp,
+            run_markets_env_interp, run_gov_env_interp,
         )
         db = SessionLocal()
         try:
@@ -894,7 +894,11 @@ async def _env_card_interp_job():
                     # не «кого задевает среда», а «чья отрасль сдвинулась»:
                     # у сталеваров и золотодобытчиков среда РАЗНАЯ (в барометре
                     # 1.5/5 против 4.5/5), общей рамки для них не существует.
-                    "markets": run_markets_env_interp(db)}
+                    "markets": run_markets_env_interp(db),
+                    # «Корпуправление» — пятая вкладка контура (владелец 2026-08-08).
+                    # Среда правит здесь ТОЛЬКО оценку риска: структура собственности,
+                    # дивполитика и совет — факты компании, замеры их не меняют.
+                    "governance": run_gov_env_interp(db)}
         finally:
             db.close()
     try:
