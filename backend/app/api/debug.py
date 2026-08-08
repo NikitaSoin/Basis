@@ -1654,6 +1654,67 @@ def debug_trigger_nonequity_facts(kind: str = "bond", batch: int = 4, secid: str
         db.close()
 
 
+@router.get("/debug/export-overlays")
+def debug_export_overlays(tab: str | None = None, limit: int = 60, offset: int = 0):
+    """Выгрузка ОПУБЛИКОВАННЫХ оверлеев прозы — для консолидации обратно в репозиторий.
+
+    🔴 Зачем. Патчи и перезаписи живут в БД (файлы на Timeweb эфемерны), и с каждой
+    публикацией репозиторий отстаёт: на 2026-08-08 разошлись уже 250 блоков (226 —
+    макро). Следующая сессия открывает файл, не зная про оверлей, правит устаревший
+    текст и молча откатывает всю накопленную свежесть. Лечится периодическим
+    переносом оверлеев в файлы; этот эндпоинт — источник данных для переноса.
+
+    Отдаёт ПОСЛЕДНЮЮ опубликованную версию на (тикер, вкладку)."""
+    from app.db.session import SessionLocal
+    from app.models.geo import CardProseOverlay
+    from sqlalchemy import func
+    db = SessionLocal()
+    try:
+        latest = (db.query(CardProseOverlay.ticker, CardProseOverlay.tab,
+                           func.max(CardProseOverlay.id).label("mid"))
+                  .filter(CardProseOverlay.status == "published"))
+        if tab:
+            latest = latest.filter(CardProseOverlay.tab == tab)
+        latest = latest.group_by(CardProseOverlay.ticker, CardProseOverlay.tab).subquery()
+        rows = (db.query(CardProseOverlay)
+                .join(latest, CardProseOverlay.id == latest.c.mid)
+                .order_by(CardProseOverlay.ticker, CardProseOverlay.tab)
+                .limit(limit).offset(offset).all())
+        return {"count": len(rows), "offset": offset,
+                "items": [{"id": r.id, "ticker": r.ticker, "tab": r.tab,
+                           "kind": r.kind, "md": r.patched_md,
+                           "created_at": r.created_at.isoformat() if r.created_at else None}
+                          for r in rows]}
+    finally:
+        db.close()
+
+
+@router.post("/debug/mark-overlays-consolidated")
+def debug_mark_overlays_consolidated(ids: str):
+    """Пометить перенесённые оверлеи как consolidated — после того, как файлы уже
+    ЗАДЕПЛОЕНЫ. Порядок важен: пометить раньше деплоя значит на время показать старый
+    файл. `current_overlay` берёт только published, поэтому consolidated перестают
+    подменять файл, но остаются в истории для отката."""
+    from app.db.session import SessionLocal
+    from app.models.geo import CardProseOverlay
+    try:
+        id_list = [int(x) for x in ids.split(",") if x.strip().isdigit()][:500]
+    except ValueError:
+        return {"error": "bad ids"}
+    if not id_list:
+        return {"error": "пустой список"}
+    db = SessionLocal()
+    try:
+        n = (db.query(CardProseOverlay)
+             .filter(CardProseOverlay.id.in_(id_list),
+                     CardProseOverlay.status == "published")
+             .update({CardProseOverlay.status: "consolidated"}, synchronize_session=False))
+        db.commit()
+        return {"marked": n}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-card-rewrite")
 def debug_trigger_card_rewrite(ticker: str | None = None, batch: int = 2):
     """ПЕРЕЗАПИСЬ ВЫВОДА вкладки «Макроэкономика» (третья ступень лестницы).
