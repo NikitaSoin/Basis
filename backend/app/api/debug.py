@@ -1664,6 +1664,56 @@ def debug_trigger_futures_asset_facts(batch: int = 4, code: str | None = None):
         db.close()
 
 
+from pydantic import BaseModel
+
+
+class _ProbeUrlsIn(BaseModel):
+    urls: list[str]
+    marker: str | None = None   # слово, которое ОБЯЗАНО быть в теле (проверка содержимого)
+
+
+@router.post("/debug/probe-urls")
+def debug_probe_urls(body: _ProbeUrlsIn):
+    """Пакетная проверка адресов С БОЕВОГО СЕРВЕРА: прямо → через релей.
+
+    Зачем. Реестр источников (config/source_registry_*.md) проверялся с ноутбука,
+    и его вердикты неполны в обе стороны: worldsteel с ноутбука давал 000, а с боя
+    работает; eia_press наоборот. Плюс у нас есть обход — Cloudflare-воркер
+    (WEB_FETCH_PROXY_URL), которым реестр не пользовался вовсе.
+
+    Возвращает по каждому адресу: код и размер при ПРЯМОМ запросе, то же через
+    релей, и есть ли в теле marker (защита от «200 с заглушкой»: SPA-каркас и
+    страница‑ошибка тоже отдают 200 и приличный размер).
+    """
+    import httpx
+    from app.services.agent_web import via_proxy
+    ua = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                        "(KHTML, like Gecko) Chrome/125.0 Safari/537.36"}
+    out = []
+    for u in body.urls[:60]:   # потолок на вызов: 60 адресов ≈ пара минут
+        rec = {"url": u}
+        for mode in ("direct", "relay"):
+            target = u if mode == "direct" else via_proxy(u)
+            if mode == "relay" and target == u:
+                rec["relay"] = "нет релея (WEB_FETCH_PROXY_URL не задан)"
+                continue
+            try:
+                with httpx.Client(timeout=20, follow_redirects=True, verify=False) as c:
+                    r = c.get(target, headers=ua)
+                body_txt = r.text[:200000]
+                rec[mode] = {"code": r.status_code, "size": len(r.content),
+                             "marker": (body.marker.lower() in body_txt.lower())
+                             if body.marker else None}
+            except Exception as e:  # noqa: BLE001
+                rec[mode] = {"error": type(e).__name__}
+            if mode == "direct" and isinstance(rec.get("direct"), dict) \
+                    and rec["direct"].get("code") == 200 and rec["direct"].get("size", 0) > 2000:
+                rec["relay"] = "не понадобился"
+                break
+        out.append(rec)
+    return {"checked": len(out), "results": out}
+
+
 @router.get("/debug/probe-feed")
 def debug_probe_feed(url: str, method: str = "rss"):
     """Проверка ленты С БОЕВОГО IP нашим же парсером — сколько записей, какая свежая.
