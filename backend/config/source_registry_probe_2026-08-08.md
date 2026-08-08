@@ -160,3 +160,113 @@
 - `https://europlan.ru/investor/stock` — 53 КБ
 - `https://fbx.freightos.com/` — 117 КБ
 - `https://fishpool.eu/` — 74 КБ
+
+---
+
+## Перепроверка С БОЕВОГО СЕРВЕРА — 2026-08-08
+
+Прогон 139 адресов, которые с дев-машины молчали или отдавали 403/401/503.
+Инструмент: `POST /api/debug/probe-urls` (прямой запрос → Cloudflare-релей).
+
+**Итог: 84 ожили напрямую, 6 спасены релеем, 49 мертвы отовсюду.**
+
+Локальный вердикт «молчит» у российских сайтов означал ГЕО-БЛОК нашего IP, а не
+мёртвый адрес: с Timeweb (РФ) отвечают СПбМТСБ, ФАС, РЖД, АТС, Росавиация, Минсельхоз,
+Минстрой, ЦБ, Россети, ОСК, Энергия, Интер РАО, Черкизово. Реестр их напрасно списал.
+
+🔴 **Релей вытащил то, что не открывается ниоткуда напрямую** — включая **FRED**,
+который числился заблокированным (память `deepseek-fred-egress-blocked`), и
+`minfin.gov.ru/ru/statistics/fedbud/`. То есть у части источников проблема не в
+доступности, а в маршруте, и обход у нас уже был.
+
+### Ожили напрямую с боевого IP
+
+| Хост | Адресов |
+|---|---|
+| `spimex.com` | 6 |
+| `fas.gov.ru` | 5 |
+| `company.rzd.ru` | 5 |
+| `www.atsenergo.ru` | 5 |
+| `cherkizovo-group.com` | 3 |
+| `favt.gov.ru` | 3 |
+| `mcx.gov.ru` | 3 |
+| `www.cbr.ru` | 3 |
+| `minstroyrf.gov.ru` | 2 |
+| `rosseti-lenenergo.ru` | 2 |
+| `www.aoosk.ru` | 2 |
+| `www.energia.ru` | 2 |
+| `www.interrao.ru` | 2 |
+| `www.tbank.ru` | 2 |
+| `astsbyt.ru` | 1 |
+| `asv.org.ru` | 1 |
+| `cargo.rzd.ru` | 1 |
+| `customs.gov.ru` | 1 |
+| `ffoms.gov.ru` | 1 |
+| `fsrar.gov.ru` | 1 |
+| `ir.gazprom-neft.ru` | 1 |
+| `mgts.ru` | 1 |
+| `mmk-coal.ru` | 1 |
+| `mosenergo.gazprom.ru` | 1 |
+| `nostroy.ru` | 1 |
+| `peretok.ru` | 1 |
+| `permenergosbyt.ru` | 1 |
+| `rosreestr.gov.ru` | 1 |
+| `rosseti-ural.ru` | 1 |
+| `rosseti-yug.ru` | 1 |
+| `rossetimr.ru` | 1 |
+| `ruslom.com` | 1 |
+| `sistema.ru` | 1 |
+| `tatcenter.ru` | 1 |
+| `www.acra-ratings.ru` | 1 |
+| `www.aviaport.ru` | 1 |
+| `www.dvec.ru` | 1 |
+| `www.energosale34.ru` | 1 |
+| `www.fsk-ees.ru` | 1 |
+| `www.gazprom.ru` | 1 |
+| `www.insur-info.ru` | 1 |
+| `www.metalinfo.ru` | 1 |
+| `www.mrsk-cp.ru` | 1 |
+| `www.np-sr.ru` | 1 |
+| `www.rospotrebnadzor.ru` | 1 |
+| `www.rosseti-sib.ru` | 1 |
+| `www.sibur.ru` | 1 |
+| `www.ske.ru` | 1 |
+| `www.tch.ru` | 1 |
+| `www.tgc-2.ru` | 1 |
+| `www.vtb.ru` | 1 |
+| `www.yakutskenergo.ru` | 1 |
+| `zakupki.gov.ru` | 1 |
+
+### Работают ТОЛЬКО через релей (WEB_FETCH_PROXY_URL)
+
+- `http://www.morvesti.ru/`
+- `https://fred.stlouisfed.org/`
+- `https://fred.stlouisfed.org/series/WPU06`
+- `https://fred.stlouisfed.org/series/WPU102505`
+- `https://minfin.gov.ru/ru/statistics/fedbud/`
+- `https://rapaport.com/`
+
+### Мертвы и с боя, и через релей — списывать окончательно
+
+| Хост | Адресов |
+|---|---|
+| `ir.ozon.com` | 3 |
+| `minpromtorg.gov.ru` | 3 |
+| `lenta.com` | 2 |
+| `www.fedstat.ru` | 2 |
+| `www.vsmpo.ru` | 1 |
+| `<city>.tns-e.ru` | 1 |
+| `basis.ru` | 1 |
+| `chzpsn.ru` | 1 |
+| `corp.tns-e.ru` | 1 |
+| `digital.gov.ru` | 1 |
+| `fsrar.gov.ru` | 1 |
+| `gisp.gov.ru` | 1 |
+| `ir.aeroflot.ru` | 1 |
+| `mechel.ru` | 1 |
+| `momr.opec.org` | 1 |
+| `news.whoosh-bike.ru` | 1 |
+| `publication.pravo.gov.ru` | 1 |
+| `rnc-pharma.ru` | 1 |
+| `rps.ru` | 1 |
+| `rusprodsouz.ru` | 1 |
