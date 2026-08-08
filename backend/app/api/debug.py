@@ -1672,6 +1672,7 @@ class _ProbeUrlsIn(BaseModel):
     urls: list[str]
     marker: str | None = None   # слово, которое ОБЯЗАНО быть в теле (проверка содержимого)
     snippet: int = 0            # сколько знаков ТЕКСТА вернуть (0 — не возвращать)
+    links: str | None = None    # регэксп: вернуть подходящие href (напр. "\\.xlsx?$")
 
 
 @router.post("/debug/probe-urls")
@@ -1706,6 +1707,23 @@ def debug_probe_urls(body: _ProbeUrlsIn):
                 rec[mode] = {"code": r.status_code, "size": len(r.content),
                              "marker": (body.marker.lower() in body_txt.lower())
                              if body.marker else None}
+                if body.links:
+                    # Ссылки на файлы данных. Без них страницу госсайта, недоступного
+                    # с дев-машины, разобрать нечем: текст показывает навигацию, а
+                    # числа лежат в приложенных xls/csv, и их адреса не угадываются.
+                    try:
+                        hrefs = re.findall(r'href=["\']([^"\']+)["\']', body_txt, re.I)
+                        pat = re.compile(body.links, re.I)
+                        seen, hits = set(), []
+                        for h in hrefs:
+                            if pat.search(h) and h not in seen:
+                                seen.add(h)
+                                hits.append(h)
+                            if len(hits) >= 25:
+                                break
+                        rec[mode]["links"] = hits
+                    except re.error:
+                        rec[mode]["links"] = ["bad_regex"]
                 if body.snippet:
                     # Текст без разметки: понять, что на странице, размер не даёт —
                     # SPA-каркас и таблица со статистикой весят одинаково.
