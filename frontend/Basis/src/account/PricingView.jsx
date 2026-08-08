@@ -66,6 +66,22 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
           Работать с платформой можно бесплатно. Вся аналитика и все разборы — в тарифе Max.
         </p>
 
+        {/* 🔴 Владелец, 2026-08-08: «пока всё открыто и бесплатно, платформа новая и
+            тестируется» — и это должно быть видно СРАЗУ, а не мелкой строкой перед
+            таблицей отличий. Плашка снимается вместе с включением границ
+            (FREE_LIMITS_ENFORCED в tierCatalog.js + LIMITS_ROLLOUT на бэкенде). */}
+        {!FREE_LIMITS_ENFORCED && (
+          <div className="bs-callout tar-open-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" /></svg>
+            <p>
+              <b>Сейчас открыто всё и бесплатно.</b> Платформа новая, мы её обкатываем: тарифы
+              ниже описывают, как доступ будет устроен позже, а пока ни одна возможность не
+              закрыта — ни аналитика карточек, ни разборы отчётов, ни свои сценарии
+              стресс-теста. Оплата картой тоже ещё не подключена.
+            </p>
+          </div>
+        )}
+
         {user && (
           <div className="tar-status">
             Сейчас у вас тариф <b>{TIERS.find((t) => t.id === currentTierId)?.name || "Бесплатный"}</b>

@@ -143,7 +143,12 @@ def add_position_endpoint(
                         f"Зарегистрируйтесь, чтобы сохранить портфель и добавлять дальше."),
             )
     elif current_user.subscription_type == SubscriptionType.free:
-        if len(portfolio.positions) >= FREE_POSITION_LIMIT:
+        # 🔴 Тарифная граница, а не техническое ограничение — значит подчиняется общему
+        # рубильнику (владелец 2026-08-08: «пока всё открыто, тарифы ничего не должны
+        # банить»). Гостевой лимит выше остаётся: он про регистрацию и хранение
+        # портфеля, а не про тариф.
+        from app.services.entitlements import limits_enforced
+        if limits_enforced() and len(portfolio.positions) >= FREE_POSITION_LIMIT:
             raise HTTPException(
                 status_code=403,
                 detail=f"Бесплатный тариф: максимум {FREE_POSITION_LIMIT} позиций. Перейдите на Max.",

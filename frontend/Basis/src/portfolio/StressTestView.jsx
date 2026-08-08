@@ -844,8 +844,12 @@ function NextQuestionStrip({ levels, baseLevels, onEscalate, context = "idle" })
   );
 }
 
-export default function StressTestView({ onOpenCompany }) {
+export default function StressTestView({ token, onOpenCompany }) {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  // 🔴 Экран ходит в эндпоинты, которые МОГУТ быть закрыты тарифом. Без этого
+  // заголовка сервер видит гостя даже у подписчика Max — ровно так владелец и
+  // получил «доступно на тарифе Max», оплатив Max (2026-08-08).
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   // Слайдеры — null, пока не подтянули реальные текущие уровни (не рисуем
   // произвольные числа как «сейчас», пока не знаем, что это правда).
@@ -891,7 +895,7 @@ export default function StressTestView({ onOpenCompany }) {
   // индекс должны появиться сразу при открытии экрана, как в демо, а не
   // только после того как пользователь тронет ползунок.
   useEffect(() => {
-    fetch(`${apiUrl}/api/stress-test/current-levels`)
+    fetch(`${apiUrl}/api/stress-test/current-levels`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : {}))
       .then((d) => {
         const merged = {
@@ -905,12 +909,12 @@ export default function StressTestView({ onOpenCompany }) {
       })
       .catch(() => { setLevels(FALLBACK_LEVELS); setBaseLevels(FALLBACK_LEVELS); setLevelsIsFallback(true); });
 
-    fetch(`${apiUrl}/api/stress-test/scenarios`)
+    fetch(`${apiUrl}/api/stress-test/scenarios`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : { scenarios: [] }))
       .then((d) => setPresets(d.scenarios || []))
       .catch(() => {});
 
-    fetch(`${apiUrl}/api/stress-test/coefficients`)
+    fetch(`${apiUrl}/api/stress-test/coefficients`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : { companies: [] }))
       .then((d) => setCoefficients(d.companies || []))
       .catch(() => setCoefficients([]));
@@ -960,7 +964,7 @@ export default function StressTestView({ onOpenCompany }) {
     if (!question.trim() || askLoading || !levels) return;
     setAskLoading(true); setAskResult(null); setPresetResult(null);
     fetch(`${apiUrl}/api/stress-test/ask`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
+      method: "POST", headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({ question }),
     })
       // 🔴 402 — это НЕ сбой сети, а «нужен платный тариф» (см. account/entitlements.js).
@@ -995,7 +999,7 @@ export default function StressTestView({ onOpenCompany }) {
 
   const runPreset = (key) => {
     setPresetKey(key); setPresetResult(null); setAskResult(null);
-    fetch(`${apiUrl}/api/stress-test/impact?scenario=${key}`)
+    fetch(`${apiUrl}/api/stress-test/impact?scenario=${key}`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => { setPresetResult(d); setPresetKey(null); })
       .catch(() => setPresetKey(null));
