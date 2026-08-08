@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, useId } from "react";
+import { ScrollRail } from "../design/ScrollRail";
 import { FAIR_VALUE_NOTE } from "../fairValueNote";
 import { PAYMENT_REQUIRED, upgradeMessage } from "../account/entitlements";
 import { createRoot } from "react-dom/client";
@@ -2208,6 +2209,7 @@ function ObsBusinessArticles() {
       <div className="obs-seg" style={{ marginBottom: 14 }}>
         <button className={`obs-seg-opt${mode === "assessment" ? " obs-seg-opt--on" : ""}`}
                 onClick={() => setMode("assessment")}>Оценка ситуации</button>
+              {mode === "assessment" && <ScrollRail selector='[data-rail], .obs-deep-eyebrow, .obs-sec-title' minCount={3} deps={[mode]} />}
         <button className={`obs-seg-opt${mode === "feed" ? " obs-seg-opt--on" : ""}`}
                 onClick={() => setMode("feed")}>Лента</button>
       </div>

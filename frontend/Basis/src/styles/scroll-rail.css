@@ -1,0 +1,85 @@
+/* SCROLL RAIL — линия-навигация справа (design/ScrollRail.jsx).
+   Хром монохромный, медь — только активная точка (дизайн-конституция). */
+.srail {
+  position: fixed;
+  right: 10px;
+  top: 84px;
+  bottom: 28px;
+  width: 18px;
+  z-index: 55;
+}
+.srail-track {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  transform: translateX(-50%);
+  background: color-mix(in srgb, var(--cc-ink-3, #8a8578) 28%, transparent);
+  border-radius: 2px;
+}
+.srail-cursor {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 22px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--cc-ink-2, #55504a) 35%, transparent);
+  transition: top 90ms linear;
+  pointer-events: none;
+}
+.srail-dot {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.srail-dot::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cc-panel, #fff);
+  border: 1.5px solid var(--cc-ink-3, #8a8578);
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+.srail-dot:hover::before { transform: scale(1.35); border-color: var(--cc-ink, #24211d); }
+.srail-dot.on::before {
+  background: var(--bs-copper, #C97A4A);
+  border-color: var(--bs-copper, #C97A4A);
+  transform: scale(1.3);
+}
+.srail-dot:focus-visible { outline: 2px solid var(--bs-copper, #C97A4A); outline-offset: 2px; border-radius: 50%; }
+.srail-label {
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font: 500 11.5px/1.3 var(--bs-sans, Inter, sans-serif);
+  color: var(--cc-ink-2, #55504a);
+  background: var(--cc-panel, #fff);
+  border: 1px solid var(--cc-line-2, #e2ddd2);
+  border-radius: 7px;
+  padding: 4px 9px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+.srail-dot:hover .srail-label,
+.srail-dot:focus-visible .srail-label { opacity: 1; }
+.srail-dot.on .srail-label { opacity: 1; color: var(--cc-ink, #24211d); font-weight: 600; }
+@media (max-width: 1100px) { .srail { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .srail-cursor, .srail-dot::before, .srail-label { transition: none; }
+}

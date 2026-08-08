@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useLayoutEffect, useId } from "react";
+import { ScrollRail } from "../design/ScrollRail";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -7681,6 +7682,10 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
 
   return (
     <div className={NEO ? "cc-root tw-space-y-6" : "space-y-6"}>
+      {/* Линия-навигация по длинной вкладке (design/ScrollRail): точки — из
+          заголовков прозы (markdown h2/h3) и [data-rail]; коротким вкладкам
+          рейл не рисуется (minCount) */}
+      <ScrollRail deps={[tab, company && company.ticker]} />
       {/* data-tour="company" на шапке ниже — цель шага тура «Карточка компании»
           (tour/tourSteps.js). 🔴 Была на блоке «Справедливая цена по методике Basis»
           ниже по странице — и шаг стабильно уходил в «не нашли блок»: тот блок
