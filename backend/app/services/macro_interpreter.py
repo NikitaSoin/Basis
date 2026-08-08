@@ -202,7 +202,11 @@ _OUTPUT_SPEC = (
     "объединений и разборы причин). Скажи ЧИТАТЕЛЮ прямо, что перед ним: разовая "
     "волатильность в силу таких-то факторов или смена тренда — и на чём основан вывод. "
     "Драматизировать одну точку запрещено так же, как её замалчивать.\n"
-    "7ж. external_expectations — ЧУЖИЕ ожидания из внешних источников, НЕ наши данные и "
+    "7ж. 🔴 Если показатель есть в external_expectations, а ты пишешь о нём в тезисах или "
+    "прогнозах — ОБЯЗАН сказать, ожидалось ли это движение и кем: «квартал глубже, чем "
+    "ждали Минэк и РСПП (оба −1,5% за год)» вместо голого «обвал». Промолчать о прогнозе, "
+    "который лежит у тебя во входных данных, и назвать движение обвалом — дефект выпуска.\n"
+    "7з. external_expectations — ЧУЖИЕ ожидания из внешних источников, НЕ наши данные и "
     "не проверенные нами числа. Бери оттуда СМЫСЛ (ожидалось ли движение, чем его "
     "объясняют), а если приводишь число — обязательно с автором («Минэк ожидает…», "
     "«по оценке РСПП…») и тегом «оценка». Ставить их в один ряд с нашими key_facts "
@@ -371,14 +375,17 @@ def gather_snapshot(db: Session) -> dict:
                              "с точечным прогнозом напрямую не сравнивать"}
                     if "ставка" in (f.indicator or "").lower() else {})}
                 for f in db.query(MacroForecast).order_by(MacroForecast.as_of.desc()).limit(40).all()]
+    expectations = _external_expectations(indicators)
     return {"key_facts": _key_facts(indicators),
+            # 🔴 СРАЗУ после key_facts, а не в хвосте снапшота: в первой версии блок
+            # лежал десятым, и выпуск его проигнорировал — написал «обвал инвестиций»,
+            # имея под рукой прогнозы Минэка и РСПП о −1,5% за год. Порядок полей —
+            # часть контракта данных, а не косметика.
+            "external_expectations": expectations,
             "indicators": indicators, "rate": rate, "analytics": docs,
             "cb_forecast": forecast, "sectors": _sectors_list(),
             "previous_issues": _previous_issues(db),
             "data_gaps": _data_gaps(db),
-            # чужие ожидания по показателям, которые резко выбились из ряда — контекст
-            # против драмы по одному кварталу (см. _external_expectations)
-            "external_expectations": _external_expectations(indicators),
             "event_research": _event_research(db),
             "regulated_tariffs": _regulated_tariffs(),
             "context": {**_context(db), "platform_tickers": _platform_tickers(db),
@@ -1205,6 +1212,11 @@ def generate(db: Session) -> MacroInterpretation:
                          # «фикс не сработал» от «фикс ещё не доехал на бой» —
                          # ровно на это ушло 4 лишних прогона 2026-08-01.
                          "has_key_facts": bool(snapshot.get("key_facts")),
+                         # сколько показателей получили внешний контекст ожиданий —
+                         # иначе «блок не сработал» и «модель его проигнорировала»
+                         # снаружи неотличимы
+                         "external_expectations": [
+                             e.get("indicator") for e in (snapshot.get("external_expectations") or [])],
                          "gate": verdict, "gate_notes": gate_notes[:12] or None,
                          "logic": logic,
                          "review": review,
