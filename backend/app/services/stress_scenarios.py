@@ -215,6 +215,16 @@ def compute_impact(db: Session, intensities: dict, sector_scope: dict | None = N
         key=lambda x: -x["avg_reaction_pct"],
     )
 
+    # Покрытие ПО КАЖДОМУ фактору сценария: какая доля вселенной вообще может на него
+    # отреагировать. Без этой цифры «нет реакции» читается как «подтверждённый ноль»,
+    # хотя у большинства факторов это просто «фактор не тегирован в карточке» (см.
+    # оговорку о неравномерном покрытии в шапке файла). Нужна и качественному разбору
+    # сценария — иначе честный пункт «чего расчёт не видит» ему нечем заземлить.
+    coverage_by_factor = {
+        f: round(100.0 * sum(1 for x in out if f in x["factors_covered"]) / max(1, len(out)), 1)
+        for f in intensities
+    }
+
     return {
         "winners": ranked[:15],
         "losers": list(reversed(ranked[-15:])) if len(ranked) > 15 else [],
@@ -222,6 +232,7 @@ def compute_impact(db: Session, intensities: dict, sector_scope: dict | None = N
         "sectors": sectors,
         "total_companies": len(out),
         "companies_with_signal": len(covered_only),
+        "coverage_by_factor": coverage_by_factor,
     }
 
 

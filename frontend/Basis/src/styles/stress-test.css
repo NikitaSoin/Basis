@@ -468,6 +468,32 @@
 .st-shield-card-co { display: flex; gap: 8px; align-items: baseline; }
 .st-shield-ticker { font-family: var(--bs-mono); font-size: 11.5px; font-weight: 700; color: var(--st-ink); flex-shrink: 0; }
 .st-shield-empty { font-size: 12.5px; color: var(--st-ink-3); }
+/* Тикер-кнопка (разбор пресета): те же метрики, что у метки-span — переход в карточку
+   не должен менять вид колонки. */
+.st-shield-ticker-btn { background: none; border: none; padding: 0; cursor: pointer; }
+.st-shield-ticker-btn:hover { color: var(--bs-copper-deep); }
+.st-shield-ticker-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--bs-copper-glow); border-radius: 4px; }
+
+/* Разбор сценария: вердикт → механика → стороны → оговорки → за чем следить. */
+.st-reading-headline {
+  font-family: var(--bs-serif); font-size: 20px; font-weight: 600; line-height: 1.4;
+  color: var(--st-ink); margin: 0 0 14px; max-width: 62ch;
+}
+.st-reading-chan { color: var(--st-ink); font-weight: 700; }
+.st-reading-who { color: var(--st-ink-3); }
+.st-reading-sector { margin-top: 18px; margin-bottom: 0; }
+.st-reading-list { margin: 6px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.st-reading-list li { font-size: 13px; line-height: 1.55; color: var(--st-ink-2); }
+/* 🔴 Внутри плашки цвет берём из ДИЗАЙН-СИСТЕМЫ, а не из тёмной палитры экрана:
+   фон .bs-callout остаётся кремовым в обеих темах, а --st-ink-2 в тёмной светлеет —
+   получалось светло-серое по светлому. Поймано на скриншоте тёмной темы. */
+.bs-callout .st-reading-list li { color: var(--bs-ink-2); }
+.st-reading-watch { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--st-line); }
+.st-reading-eyebrow {
+  font-family: var(--bs-mono); font-size: 10.5px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--bs-copper-deep); background: var(--bs-copper-soft);
+  padding: 4px 10px; border-radius: 6px; display: inline-block;
+}
 
 .st-intensity { display: inline-flex; gap: 3px; }
 .st-int-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--st-line-2); display: inline-block; }

@@ -840,6 +840,30 @@ async def _overview_synthesis_job():
         logger.exception("Ошибка свода «Обзора»: %s", e)
 
 
+async def _stress_interpretation_job():
+    """Качественный разбор сценариев стресс-теста (что значит для экономики, какие
+    каналы включаются, кому тяжелее и чего расчёт не видит).
+
+    Раз в неделю и партиями: набор пресетов фиксирован, экспозиции компаний меняются
+    медленно, а вход разбора — своды карточек и барометры, которые тоже обновляются
+    не ежедневно. Гонять модель на каждый заход пользователя на экран незачем: текст
+    лежит в БД версиями, витрина читает последнюю опубликованную.
+    """
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.stress_interpreter import run_batch
+        db = SessionLocal()
+        try:
+            return run_batch(db, batch=3)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Разбор сценариев стресс-теста: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка разбора сценариев стресс-теста: %s", e)
+
+
 async def _env_card_interp_job():
     """Доводка вкладок «Геополитика», «Институты» и «Макроэкономика» КАРТОЧЕК
     КОМПАНИЙ под текущее состояние Обозревателя (владелец 2026-08-04: «вкладка
@@ -1529,6 +1553,9 @@ async def lifespan(app: FastAPI):
         # чтобы содержание прям менялось») — раз в день, очередь = свежие факт-патчи
         scheduler.add_job(_with_heartbeat("macro_interp", _macro_interp_job), "cron", hour=21, minute=5, id="macro_interp")
         scheduler.add_job(_with_heartbeat("overview_synthesis", _overview_synthesis_job), "cron", hour=23, minute=20, id="overview_synthesis")  # свод «Обзора» партиями: общий вывод по всем разборам + объяснение цены
+        # разбор сценариев стресс-теста — по субботам, ПОСЛЕ недельного круга сводов
+        # «Обзора» (они его вход) и до воскресных барометров, партиями по 3 из 6
+        scheduler.add_job(_with_heartbeat("stress_interpretation", _stress_interpretation_job), "cron", day_of_week="sat", hour=4, minute=30, id="stress_interpretation")
         # 🔴 Крон макро-пилота ОТКЛЮЧЁН (владелец, 2026-08-04). Пилот дописывал на
         # боевую карточку плашки «🤖 Автономное обновление ИИ (демо)» вида
         # «дивидендная отсечка делает все мультипликаторы и апсайд неактуальными,

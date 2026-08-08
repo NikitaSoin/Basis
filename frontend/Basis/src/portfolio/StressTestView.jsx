@@ -467,7 +467,10 @@ function DossierHead({ eyebrow, title, lede, tag }) {
   );
 }
 
-function ShieldSide({ title, tone, sectors, companies }) {
+// onOpenCompany необязателен: экспертное досье (свободный текст) называет компании,
+// которых может не быть в нашей вселенной, и там тикер остаётся простой меткой.
+// В разборе пресета имена берутся ИЗ расчёта — туда можно и нужно проваливаться.
+function ShieldSide({ title, tone, sectors, companies, onOpenCompany }) {
   const [showAll, setShowAll] = useState(false);
   const total = sectors.length + companies.length;
   const capped = !showAll && total > 5;
@@ -487,7 +490,12 @@ function ShieldSide({ title, tone, sectors, companies }) {
       ))}
       {cList.map((c, i) => (
         <div key={`c${i}`} className="st-shield-card st-shield-card-co">
-          <span className="st-shield-ticker">{c.ticker}</span>
+          {onOpenCompany ? (
+            <button type="button" className="st-shield-ticker st-shield-ticker-btn"
+              onClick={() => onOpenCompany(c.ticker)}>{c.ticker}</button>
+          ) : (
+            <span className="st-shield-ticker">{c.ticker}</span>
+          )}
           <p>{c.why}</p>
         </div>
       ))}
@@ -527,6 +535,75 @@ function ExpertDossier({ e }) {
         </div>
       )}
       {e.kb_note && <p className="st-dossier-note">{e.kb_note}</p>}
+    </div>
+  );
+}
+
+// Качественный разбор ГОТОВОГО сценария (владелец, 2026-08-08: «выбираешь сценарий —
+// нет никакого ответа от ЛЛМ»). Текст приходит вместе с расчётом (собран заранее на
+// бэке по сводам карточек и барометрам, /api/stress-test/interpretation), поэтому
+// никакого спиннера здесь нет: либо разбор есть, либо блока нет вовсе — выдумывать
+// «пока думаем» нечего. Визуальный язык тот же, что у экспертного досье выше:
+// вердикт → механика → две стороны → оговорки.
+function ScenarioReading({ interp, onOpenCompany }) {
+  if (!interp || !interp.headline) return null;
+  const channels = interp.channels || [];
+  const when = interp.generated_at ? new Date(interp.generated_at) : null;
+  return (
+    <div className="bs-card st-dossier-card">
+      <div className="st-dossier-card-head">
+        <h3>Что это значит</h3>
+        <span className="bs-tag-judgment">суждение</span>
+      </div>
+      <p className="st-reading-headline">{interp.headline}</p>
+      {interp.economy && <p className="st-dossier-summary">{interp.economy}</p>}
+      {channels.length > 0 && (
+        <ol className="st-channels">
+          {channels.map((ch, i) => (
+            <li key={i}>
+              <span className="st-channel-n">{i + 1}</span>
+              <span>
+                {ch.channel && <b className="st-reading-chan">{ch.channel}. </b>}
+                {ch.how}
+                {ch.who && <span className="st-reading-who"> Сильнее всего — {ch.who}.</span>}
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+      <div className="st-shield-grid">
+        <ShieldSide title="Кто держится" tone="up" sectors={[]}
+          companies={interp.resilient || []} onOpenCompany={onOpenCompany} />
+        <ShieldSide title="Кому тяжелее" tone="down" sectors={[]}
+          companies={interp.hit_hard || []} onOpenCompany={onOpenCompany} />
+      </div>
+      {interp.sector_note && (
+        <p className="st-dossier-summary st-reading-sector">{interp.sector_note}</p>
+      )}
+      {interp.blind_spots?.length > 0 && (
+        <div className="bs-callout" style={{ marginTop: 18 }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" /></svg>
+          <div>
+            <p><b>Чего расчёт не видит.</b></p>
+            <ul className="st-reading-list">
+              {interp.blind_spots.map((b, i) => <li key={i}>{b}</li>)}
+            </ul>
+          </div>
+        </div>
+      )}
+      {interp.watch?.length > 0 && (
+        <div className="st-reading-watch">
+          <span className="st-reading-eyebrow">За чем следить</span>
+          <ul className="st-reading-list">
+            {interp.watch.map((w, i) => <li key={i}>{w}</li>)}
+          </ul>
+        </div>
+      )}
+      <p className="st-dossier-note">
+        Разбор собран по сводам карточек компаний и барометрам среды (геополитика,
+        институты){when ? `, обновлён ${when.toLocaleDateString("ru-RU")}` : ""}. Реакцию
+        компаний он объясняет, а не пересчитывает — числа ниже считает факторная модель.
+      </p>
     </div>
   );
 }
@@ -1193,6 +1270,9 @@ export default function StressTestView({ onOpenCompany }) {
           <>
             <DossierHead eyebrow="Пресет" title={presetResult.scenario?.label}
               lede={presetResult.scenario?.description} tag={<span className="bs-tag-fact">пресет</span>} />
+            {/* Сначала «что это значит», потом список компаний: голый компас без
+                разбора читается как случайный набор тикеров (вердикт поверх данных). */}
+            <ScenarioReading interp={presetResult.interpretation} onOpenCompany={onOpenCompany} />
             <DirectionCompass qual={presetResult} onOpenCompany={onOpenCompany} />
             <NextQuestionStrip levels={levels} baseLevels={baseLevels} onEscalate={handleEscalate} context="preset" />
           </>

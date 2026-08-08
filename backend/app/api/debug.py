@@ -2796,6 +2796,50 @@ def debug_build_overview_synthesis(ticker: str | None = None, batch: int = 3,
     return JSONResponse(status_code=202, content=_inst_bg("overview_synthesis", _run))
 
 
+@router.post("/debug/build-stress-interpretation")
+def debug_build_stress_interpretation(scenario: str | None = None, batch: int = 3,
+                                      stale_days: int = 14):
+    """Собрать качественный разбор сценария стресс-теста. scenario — один пресет,
+    иначе партия устаревших/несобранных.
+
+    В ФОНЕ: каждый сценарий — отдельный LLM-прогон по сводам карточек и барометрам.
+    """
+    from app.services.stress_interpreter import run_batch
+
+    def _run(db):
+        out = run_batch(db, only_key=scenario, batch=max(1, min(batch, 10)),
+                        stale_days=stale_days)
+        return type("R", (), {"id": "-", "status": "done",
+                              "gate_notes": [str(out)[:400]]})()
+
+    return JSONResponse(status_code=202, content=_inst_bg("stress_interpretation", _run))
+
+
+@router.get("/debug/stress-interpretation-status")
+def debug_stress_interpretation_status(days_back: int = 30, limit: int = 20):
+    """Состояние разборов сценариев: что опубликовано, что отклонил гейт и почему."""
+    from sqlalchemy import text as _sql
+
+    from app.db.session import SessionLocal
+    db = SessionLocal()
+    try:
+        rows = db.execute(_sql(
+            "SELECT scenario_key, status, gate_notes, created_at, left(headline, 160) "
+            "FROM stress_interpretations "
+            "WHERE created_at >= now() - (:d || ' days')::interval "
+            "ORDER BY created_at DESC LIMIT :l"), {"d": days_back, "l": limit}).all()
+        published = db.execute(_sql(
+            "SELECT scenario_key, max(created_at) FROM stress_interpretations "
+            "WHERE status='published' GROUP BY scenario_key")).all()
+        return {"days_back": days_back,
+                "published": {r[0]: r[1].isoformat() for r in published},
+                "recent": [{"scenario": r[0], "status": r[1], "gate_notes": r[2],
+                            "created_at": r[3].isoformat(), "headline": r[4]}
+                           for r in rows]}
+    finally:
+        db.close()
+
+
 @router.get("/debug/overview-synthesis-status")
 def debug_overview_synthesis_status(days_back: int = 7, limit: int = 25):
     """Состояние сводов «Обзора»: сколько собрано, что отклонил гейт и почему."""

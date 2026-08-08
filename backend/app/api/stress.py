@@ -47,7 +47,29 @@ def stress_test_impact(
     if oil_usd is not None or rub_usd is not None:
         require_feature(user, FEATURE_STRESS_CUSTOM, _CUSTOM_SCENARIO_LABEL)
     from app.services.stress_scenarios import build_scenario_result
-    return build_scenario_result(db, scenario, oil_usd, rub_usd)
+    result = build_scenario_result(db, scenario, oil_usd, rub_usd)
+    # Качественный разбор пресета (владелец, 2026-08-08: «выбираешь сценарий — нет
+    # никакого ответа от ЛЛМ»). Едет вместе с расчётом одним ответом: это готовый
+    # текст из БД, а не прогон модели на запрос. Мягко — интерпретация не имеет права
+    # уронить сам расчёт (и её может не быть на свежей БД до первого крона).
+    if scenario and isinstance(result, dict) and not result.get("error"):
+        try:
+            from app.services.stress_interpreter import payload as _interpretation
+            result["interpretation"] = _interpretation(db, scenario)
+        except Exception:  # noqa: BLE001 — см. «Timeweb выкатывает файлы неравномерно»
+            result["interpretation"] = None
+    return result
+
+
+@router.get("/stress-test/interpretation")
+def stress_test_interpretation(scenario: str = Query(..., description="Ключ пресета"),
+                               db: Session = Depends(get_db)):
+    """Качественный разбор готового сценария (что значит для экономики, какие каналы
+    включаются, кому тяжелее и чего расчёт не видит). Собирается кроном в БД —
+    здесь только чтение последней опубликованной версии. Пусто → блока нет, фронт
+    молчит, а не выдумывает."""
+    from app.services.stress_interpreter import payload
+    return {"scenario": scenario, "interpretation": payload(db, scenario)}
 
 
 @router.get("/stress-test/coefficients")

@@ -50,7 +50,10 @@ def proxy_tile(path: str, request: Request):
     cached = _CACHE.get(path)
     is_json_rewrite = None  # решаем по факту content-type
     if cached is None:
-        req = urllib.request.Request(f"{_ORIGIN}/{path}",
+        # путь пришёл ДЕкодированным (пробелы в именах шрифтов «Noto Sans Regular»)
+        # — в origin-URL его надо заквотить обратно, иначе 502 на глифах
+        from urllib.parse import quote
+        req = urllib.request.Request(f"{_ORIGIN}/{quote(path, safe='/')}",
                                      headers={"User-Agent": "inbasis.ru tile proxy"})
         try:
             with urllib.request.urlopen(req, timeout=25) as resp:
