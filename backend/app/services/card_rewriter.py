@@ -280,7 +280,7 @@ def _ask(system: str, task: str, max_tokens: int = 9000) -> dict | None:
 
 
 def rewrite_one(db: Session, ticker: str, tab: str, *, facts: str, reason: str,
-                force: bool = False) -> CardProseOverlay | None:
+                force: bool = False, dossier: dict | None = None) -> CardProseOverlay | None:
     """Одна перезапись вывода: challenger → три проверки → публикация или отказ."""
     ticker = ticker.upper()
     if not force and _recent_touch(db, ticker, tab):
@@ -355,6 +355,13 @@ def rewrite_one(db: Session, ticker: str, tab: str, *, facts: str, reason: str,
                   "trigger_value": (out or {}).get("trigger_value"),
                   "critic": (critique or {}).get("verdict"),
                   "regressions": (critique or {}).get("regressions") or [],
+                  # что принёс добытчик — без этого нельзя понять, отклонили правку
+                  # из-за плохого писателя или из-за пустого досье (та же причина, по
+                  # которой сохраняем образец отклонённого текста)
+                  **({} if not dossier else {
+                      "dossier_facts": len(dossier.get("facts") or []),
+                      "dossier_not_found": (dossier.get("not_found") or [])[:3],
+                      "dossier_note": dossier.get("note")}),
                   # у ОТКЛОНЁННОЙ версии сам текст не публикуется, но без образца
                   # отказ невозможно разобрать: на первом же боевом прогоне гейт
                   # поймал «85», а посмотреть, в какой фразе оно стояло, было нечем
@@ -542,6 +549,7 @@ def run_markets_rewrites(db: Session, batch: int = 3, only_ticker: str | None = 
         reason, facts = markets_escalation(db, tk)
         if not reason:
             continue
+        dossier = None
         # Если устарели УТВЕРЖДЕНИЯ (а не цена), писателю нечем их заменить из
         # внутренних данных — здесь и нужна фаза-добытчик. Веба у писателя нет и не
         # будет: он получает готовое досье. Пустое досье не блокирует прогон —
@@ -553,11 +561,12 @@ def run_markets_rewrites(db: Session, batch: int = 3, only_ticker: str | None = 
                 block = dossier_block(d)
                 if block:
                     facts += "\n\n" + block
+                dossier = d
                 logger.info("card_rewriter %s: досье — фактов %d, не найдено %d",
                             tk, len(d.get("facts") or []), len(d.get("not_found") or []))
         row = rewrite_one(db, tk, "markets", facts=facts,
                           reason=f"цена рынка ушла за рамки разбора: {reason}",
-                          force=bool(only_ticker))
+                          force=bool(only_ticker), dossier=dossier)
         if row is None:
             stats["skipped"] += 1
         else:
