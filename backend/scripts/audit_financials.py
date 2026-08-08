@@ -152,7 +152,27 @@ def audit(card, ticker):
         if not close(fcf[i], calc, 0.03, 10):
             out.append(("?", "fcf", f"{y}: FCF {fcf[i]:,.0f}, а поток {cfo[i]:,.0f} − капзатраты {abs(capex[i]):,.0f} = {calc:,.0f}"))
 
-    # 7. дыры в ключевых строках
+    # 7. ПОДОЗРИТЕЛЬНО КРУГЛЫЕ среди неокруглённых.
+    # Добавлено после Глобалтрака и О'Кея: там весь набор был не из отчётности, но
+    # сходился сам с собой, поэтому тест на баланс молчал. Выдаёт подмену именно
+    # фактура: рядом с 117 014,3 стоит ровное 83 600 — так отчётность не выглядит.
+    for name, vals in named.items():
+        nums = [v for v in vals if isinstance(v, (int, float)) and abs(v) >= 1000]
+        if len(nums) < 4:
+            continue
+        flags_round = [isinstance(v, (int, float)) and abs(v) >= 1000 and v % 100 == 0 for v in vals]
+        exact = [v for v in nums if v % 100 != 0]
+        # ищем непрерывную цепочку ровных значений длиной ≥3 при наличии точных рядом:
+        # именно так выглядит «кусок ряда из другого источника»
+        best = run = 0
+        for fl in flags_round:
+            run = run + 1 if fl else 0
+            best = max(best, run)
+        if best >= 3 and len(exact) >= 2:
+            years_round = [years[i] for i, fl in enumerate(flags_round) if fl]
+            out.append(("?", "круглые", f"{name}: {', '.join(map(str, years_round))} — подряд идущие ровные сотни при точных значениях в других годах (похоже на кусок ряда из другого источника)"))
+
+    # 8. дыры в ключевых строках
     holes = sum(1 for vals in (ta, tl, te) for v in vals if v is None)
     if holes:
         out.append(("·", "дыры", f"{holes} пустых из {3*n} в строках активы/обязательства/капитал"))
