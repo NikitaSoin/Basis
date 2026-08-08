@@ -376,7 +376,7 @@ def gather_snapshot(db: Session) -> dict:
                     if "ставка" in (f.indicator or "").lower() else {})}
                 for f in db.query(MacroForecast).order_by(MacroForecast.as_of.desc()).limit(40).all()]
     expectations = _external_expectations(indicators)
-    return {"key_facts": _key_facts(indicators),
+    return {"key_facts": _key_facts(indicators, expectations),
             # 🔴 СРАЗУ после key_facts, а не в хвосте снапшота: в первой версии блок
             # лежал десятым, и выпуск его проигнорировал — написал «обвал инвестиций»,
             # имея под рукой прогнозы Минэка и РСПП о −1,5% за год. Порядок полей —
@@ -642,7 +642,7 @@ def _period_label(ind: dict) -> str:
     return f"на {as_of}"
 
 
-def _key_facts(indicators: list[dict]) -> dict:
+def _key_facts(indicators: list[dict], expectations: list[dict] | None = None) -> dict:
     """Готовые формулировки по самым важным показателям — первыми в снапшоте.
 
     🔴 Три прогона подряд (2026-08-01) модель писала «инфляционные ожидания 14,7%»,
@@ -679,6 +679,23 @@ def _key_facts(indicators: list[dict]) -> dict:
         if ind.get("direction_vs_previous_point"):
             parts.append(ind["direction_vs_previous_point"])
         out[label] = ", ".join(parts)
+
+    # 🔴 Внешние ожидания подмешиваем ПРЯМО СЮДА (2026-08-08, вторая итерация).
+    # Отдельным блоком снапшота — даже поднятым на второе место — модель их не
+    # использовала: писала «рекордный обвал инвестиций», имея под рукой прогнозы
+    # Минэка и РСПП о −1,5% за год. key_facts — тот блок, из которого промпт велит
+    # брать формулировки о текущем состоянии, и туда модель смотрит всегда.
+    for block in (expectations or []):
+        claims = [str(x.get("claim_from_source") or "")[:200]
+                  for x in (block.get("external_sources_not_our_data") or [])[:2]]
+        if not claims:
+            continue
+        out[f"{block.get('indicator')} — как это соотносится с ожиданиями"] = (
+            f"наше значение {block.get('our_value')} против обычных "
+            f"{block.get('median_previous')} по ряду; внешние прогнозы и разборы: "
+            + " || ".join(claims)
+            + " — упоминаешь показатель, обязательно скажи, ожидалось ли движение "
+              "и кем (это ЧУЖИЕ оценки, приводи с автором)")
     return out
 
 
