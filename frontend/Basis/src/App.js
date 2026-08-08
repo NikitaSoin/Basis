@@ -1,4 +1,5 @@
 import { claimGuestData } from "./guest";
+import { ScrollRail } from "./design/ScrollRail";
 import React, { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import DesignSystem from "./design/DesignSystem";
 import { initAnalytics, trackPageView, logPageView } from "./analytics";
@@ -350,6 +351,9 @@ function ObserverV2({
 
       {/* ---- Light main area ---- */}
       <main className="obs-main" key={inIndexMode ? `index:${indexTicker || "hub"}` : activeSection}>
+        {/* Линия-навигация по длинному разделу (design/ScrollRail): секции — из
+            заголовков панелей и глубоких карточек; коротким разделам не рисуется */}
+        <ScrollRail selector='[data-rail], .obs-deep-eyebrow, .obs-sec-title' deps={[activeSection, inIndexMode]} />
         <MobileSectionBar
           title={inIndexMode ? "Индексы" : activeSectionLabel}
           open={drawerOpen}

@@ -1,4 +1,5 @@
 import { apiHeaders } from "../guest";
+import { ScrollRail } from "../design/ScrollRail";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createChart, AreaSeries, LineSeries, LineStyle, createSeriesMarkers } from "lightweight-charts";
 import {
@@ -4277,6 +4278,7 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
 
       {/* ---- Light main area ---- */}
       <main className="pf-main" style={{ background: "var(--pf-tan)" }}>
+        <ScrollRail selector='[data-rail], .pf-sec-title' deps={[activeSection]} />
         <MobileSectionBar title={activeZoneLabel} open={drawerOpen} onOpenMenu={() => setDrawerOpen(true)} />
         <div className="pf-topbar">
           <div className="pf-topbar__hint">Полная картина по портфелю — состав, риск, сравнение и разбор</div>
