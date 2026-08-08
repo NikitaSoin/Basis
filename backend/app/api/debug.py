@@ -1632,6 +1632,22 @@ def _inst_bg(name: str, fn) -> dict:
     return {"running": True, "note": "запущено в фоне, смотри GET-эндпоинт раздела"}
 
 
+@router.post("/debug/trigger-futures-asset-facts")
+def debug_trigger_futures_asset_facts(batch: int = 4, code: str | None = None):
+    """Свежесть разборов БАЗОВЫХ АКТИВОВ фьючерсов (крон futures_asset_facts, 6:20).
+    Приводит цены и даты в разборе к живым котировкам контрактов и спот-рядам."""
+    from app.db.session import SessionLocal
+    from app.services.card_prose_patcher import run_futures_asset_facts
+    db = SessionLocal()
+    try:
+        return run_futures_asset_facts(db, batch=batch, only_code=code)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-futures-asset-facts: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.get("/debug/probe-feed")
 def debug_probe_feed(url: str, method: str = "rss"):
     """Проверка ленты С БОЕВОГО IP нашим же парсером — сколько записей, какая свежая.

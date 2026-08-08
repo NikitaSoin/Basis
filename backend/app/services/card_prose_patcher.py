@@ -44,6 +44,7 @@ from app.services.situation_overlay import _BLOCKLIST
 logger = logging.getLogger(__name__)
 
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
+FUTURES_ASSETS_DIR = Path(__file__).parent.parent.parent / "futures_assets"
 
 # вкладка → файл прозы (summary.md — основной аналитический текст вкладки)
 _TAB_FILE = {
@@ -138,8 +139,20 @@ _JSON_ONLY = (
 
 # ----------------------------- ЧТЕНИЕ ПРОЗЫ (оверлей-first) -----------------------------
 def _tab_path(ticker: str, tab: str) -> Path | None:
+    # Разборы базовых активов фьючерсов лежат не в companies/, а в futures_assets/
+    # <код>/analysis.md, и «тикер» здесь — код актива (BR, GOLD, Si). Один разбор
+    # обслуживает ВСЕ контракты на этот актив, поэтому патчить надо его, а не
+    # контракт: контракты истекают ежеквартально, и правка контракта умерла бы
+    # вместе с ним (у нас так и вышло — четыре разбора на июньские контракты,
+    # которых уже нет в списке торгуемых).
+    if tab == "futures_asset":
+        return FUTURES_ASSETS_DIR / _safe_code(ticker) / "analysis.md"
     fn = _TAB_FILE.get(tab)
     return (COMPANIES_DIR / ticker.upper() / fn) if fn else None
+
+
+def _safe_code(code: str) -> str:
+    return re.sub(r"[^A-Za-z0-9_-]", "", code or "")[:20]
 
 
 def current_overlay(db: Session, ticker: str, tab: str) -> CardProseOverlay | None:
@@ -1390,4 +1403,118 @@ def run_markets_env_interp(db: Session, batch: int = _ENV_BATCH,
             break
 
     logger.info("card_prose_patcher.run_markets_env_interp: %s", stats)
+    return stats
+
+
+# ============================================================================
+# СВЕЖЕСТЬ РАЗБОРОВ БАЗОВЫХ АКТИВОВ ФЬЮЧЕРСОВ
+# Владелец 2026-08-07: «чтобы в карточках по облигациям/фьючерсам/фондам информация
+# тоже обновлялась, а не была статичным json». Проверено на бою 2026-08-08: разборы
+# датированы началом июня и содержат цены того дня как ТЕКУЩИЕ — «Brent торгуется
+# около $94/баррель», «золото около $4 330 за унцию». Это не устаревший нюанс, а
+# прямо неверное число на живой карточке.
+#
+# Патчим разбор АКТИВА (futures_assets/<код>/analysis.md), а не контракта: один
+# разбор обслуживает все контракты на актив, а контракты истекают ежеквартально —
+# правка контракта умерла бы вместе с ним.
+# ============================================================================
+_FUT_ASSET_SYS = """Ты — аналитик-редактор платформы Basis (не брокер, без
+«купить/продать» и целевых цен). Дан разбор БАЗОВОГО АКТИВА фьючерса и АКТУАЛЬНЫЕ
+РЫНОЧНЫЕ ДАННЫЕ по нему.
+
+Твоя задача — ТОЧЕЧНО поправить в тексте то, что разошлось с реальностью:
+• цены и уровни, названные текущими, если фактическая цена другая;
+• даты и периоды («на начало июня», «в мае») — если данные уже за другой период;
+• утверждения о направлении движения, которые фактические числа опровергают
+  («откатился с уровней выше X», если цена с тех пор выросла).
+
+🔴 ЖЁСТКИЕ ПРАВИЛА:
+• бери числа ТОЛЬКО из блока актуальных данных, ничего не додумывай и не округляй
+  «примерно»; если нужного числа в данных нет — этот фрагмент НЕ ТРОГАЙ;
+• не переписывай разбор целиком: механика контракта, гарантийное обеспечение,
+  структура рынка, факторы спроса — всё это не устаревает от смены цены;
+• сохраняй эпистемические пометки в исходном виде (факт / оценка / суждение);
+• указывай дату актуального значения там, где в тексте была дата старого;
+• никаких прогнозов и целевых цен от себя."""
+
+
+def _fut_asset_grounding(db: Session, code: str) -> str:
+    """Живые данные по активу: ближний контракт, кривая по срокам, товарный ряд."""
+    parts = [f"АКТИВ: {code}", f"Сегодня: {datetime.now(timezone.utc).date().isoformat()}"]
+    rows = db.execute(text("""
+        SELECT secid, settle_price, expiration_date
+        FROM futures
+        WHERE asset_code = :a AND settle_price IS NOT NULL
+          AND expiration_date >= CURRENT_DATE
+        ORDER BY expiration_date LIMIT 4
+    """), {"a": code}).fetchall()
+    if rows:
+        parts.append("ФЬЮЧЕРСЫ НА ЭТОТ АКТИВ (расчётная цена, ближние контракты):")
+        for r in rows:
+            parts.append(f"  {r[0]} — {float(r[1]):g}, экспирация {r[2]}")
+        if len(rows) > 1:
+            near, far = float(rows[0][1]), float(rows[-1][1])
+            shape = "контанго (дальние дороже)" if far > near else (
+                "бэквордация (дальние дешевле)" if far < near else "плоская кривая")
+            parts.append(f"  Форма кривой сейчас: {shape}")
+    # Товарный ряд Всемирного банка/наших фидов, если для актива он заведён.
+    series = _FUT_ASSET_SERIES.get(code)
+    if series:
+        row = db.execute(text("""
+            SELECT value, as_of FROM macro_data_points
+            WHERE indicator_code = :k AND metric = 'level'
+            ORDER BY as_of DESC LIMIT 1
+        """), {"k": series}).fetchone()
+        if row:
+            title = db.execute(text("SELECT title FROM macro_indicators WHERE code = :k"),
+                               {"k": series}).scalar() or series
+            parts.append(f"СПОТ-РЯД: {title} — {float(row[0]):g} (на {row[1]})")
+        else:
+            # Код ряда в таблице есть, а данных нет — почти всегда опечатка в коде.
+            # Молча это выглядит как «у актива просто нет спота» (я так и ошибся,
+            # написав brent_price вместо oil_brent), поэтому пишем в лог.
+            logger.warning("futures_asset %s: ряд %s пуст — проверь код в _FUT_ASSET_SERIES",
+                           code, series)
+    return "\n".join(parts)
+
+
+# Актив → код спот-ряда. Явная таблица, а не угадывание по имени: молча не совпавший
+# код дал бы разбор без спот-цены и никакой ошибки.
+_FUT_ASSET_SERIES = {
+    "BR": "oil_brent",       # спот-ряд, обновляется ежедневно (wb_oil_brent — месячный)
+    "GOLD": "wb_gold",
+    "SILV": "wb_silver",
+    "NG": "wb_gas_us",       # Henry Hub — базис фьючерса NG на МосБирже
+    "WHEAT": "wb_wheat",
+}
+
+
+def run_futures_asset_facts(db: Session, batch: int = 4,
+                            only_code: str | None = None) -> dict:
+    """Доводка разборов базовых активов фьючерсов под живые цены."""
+    codes = ([only_code.upper()] if only_code else
+             sorted(p.name for p in FUTURES_ASSETS_DIR.iterdir()
+                    if p.is_dir() and (p / "analysis.md").exists()))
+    if not only_code:
+        codes = _env_queue(db, "futures_asset", codes, batch)
+    stats = {"queued": len(codes), "published": 0, "rejected": 0, "codes": codes}
+    for code in codes:
+        grounding = _fut_asset_grounding(db, code)
+        if "ФЬЮЧЕРСЫ НА ЭТОТ АКТИВ" not in grounding:
+            # нет ни одного живого контракта — править нечем, гадать нельзя
+            stats["rejected"] += 1
+            continue
+
+        def _tb(p: str, _g=grounding) -> str:
+            return (f"АКТУАЛЬНЫЕ РЫНОЧНЫЕ ДАННЫЕ:\n{_g}\n\n"
+                    f"РАЗБОР АКТИВА (правь точечно только разошедшееся с данными):\n"
+                    f"<<<\n{p[:8000]}\n>>>")
+
+        row = _run_patch(db, code, "futures_asset", sys=_FUT_ASSET_SYS + _JSON_ONLY,
+                         task_builder=_tb, grounding_text=grounding,
+                         kind="fact", strict_numbers=True,
+                         evidence_extra={"futures_asset": code})
+        if row is not None:
+            stats[row.status] = stats.get(row.status, 0) + 1
+    logger.info("card_prose_patcher.run_futures_asset_facts: %s", stats)
     return stats

@@ -239,13 +239,21 @@ def get_future(secid: str, db: Session = Depends(get_db)):
 
     # Детальный разбор базового актива (общий для всех контрактов на этот актив):
     # futures_assets/<asset_code>/analysis.md — нефть/золото/валюта/индекс/ставка.
+    # Читаем ОВЕРЛЕЙ-FIRST, как у карточек компаний: авто-свежесть патчит цены и
+    # даты в этом разборе, а файлы на Timeweb эфемерны (контейнер пересобирается
+    # при деплое). Без этого патч уходил бы в БД и не доезжал до пользователя.
     base_asset_md = None
     if fut.get("asset_code"):
-        bp = Path(__file__).parent.parent.parent / "futures_assets" / _safe(fut["asset_code"]) / "analysis.md"
+        code = _safe(fut["asset_code"])
         try:
-            base_asset_md = bp.read_text(encoding="utf-8") if bp.exists() else None
-        except Exception:
-            base_asset_md = None
+            from app.services.card_prose_patcher import read_prose
+            base_asset_md, _src = read_prose(db, code, "futures_asset")
+        except Exception:  # noqa: BLE001 — модуль-потребитель может доехать раньше
+            bp = Path(__file__).parent.parent.parent / "futures_assets" / code / "analysis.md"
+            try:
+                base_asset_md = bp.read_text(encoding="utf-8") if bp.exists() else None
+            except Exception:
+                base_asset_md = None
 
     return {"future": fut, "term_structure": term_structure, "sensitivity": sensitivity,
             "linked_company": linked, "fair_value": fair_value, "pair_strategy": pair_strategy,
