@@ -173,9 +173,16 @@ def get_future(secid: str, db: Session = Depends(get_db)):
     # Срочная структура: все серии того же базового актива по экспирации.
     # дальняя дороже ближней → контанго; дешевле → бэквордация. Чистый факт MOEX
     # (без внешнего спота). Это КОНТЕКСТ ожиданий, не сигнал.
+    # 🔴 ЭКСПИРИРОВАВШИЕ серии ИСКЛЮЧЕНЫ (2026-08-08): мёртвый контракт с
+    # замороженной ценой в роли «ближнего» давал фантомный базис — Si-6.26
+    # (экспирация 18.06, застывшие 72 748) против живого Si-9.26 (83 348) дал
+    # «+14,6% за 91 день ≈ 58,5% годовых» в вердикте о справедливости, при
+    # реальном базисе живых серий ~7% годовых (владелец поймал на карточке).
+    # Тот же фильтр, что в list_futures/heatmap.
     series_rows = db.execute(text(
         "SELECT secid, short_name, expiration_date, settle_price, open_position "
         "FROM futures WHERE asset_code = :a AND settle_price IS NOT NULL "
+        "AND (expiration_date IS NULL OR expiration_date >= CURRENT_DATE) "
         "ORDER BY expiration_date NULLS LAST"
     ), {"a": fut["asset_code"]}).all()
     series = [_row_to_dict(r) for r in series_rows]
