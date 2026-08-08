@@ -78,6 +78,12 @@ def _post(path: str) -> dict:
         return json.loads(r.read())
 
 
+def _sections(md: str) -> int:
+    """Разделы верхнего уровня — признак структурной полноты текста."""
+    import re
+    return len(re.findall(r"^##\s", md or "", re.M))
+
+
 def target_path(ticker: str, tab: str) -> Path | None:
     if tab == "futures_asset":
         return FUTURES_ASSETS / ticker / "analysis.md"
@@ -134,6 +140,14 @@ def main() -> int:
         if len(md) < len(old) * 0.67:
             skipped.append(f"{it['ticker']}/{it['tab']}: короче существующего "
                            f"({len(md)}/{len(old)}) — не пишу")
+            continue
+        # 🔴 Длины мало: у NAUK оверлей держит 94% знаков файла, но разделов в нём
+        # ДВА против ПЯТИ — многословность уцелевших кусков маскирует пропажу целых
+        # блоков. Перенести такой оверлей значит ЗАПИСАТЬ ПОТЕРЮ В РЕПОЗИТОРИЙ, то
+        # есть сделать её необратимой. Структуру проверяем отдельно.
+        if _sections(md) < _sections(old):
+            skipped.append(f"{it['ticker']}/{it['tab']}: разделов меньше "
+                           f"({_sections(md)}/{_sections(old)}) — оверлей обеднён, не пишу")
             continue
         if md == old.strip():
             ids.append(str(it["id"]))   # уже совпадает — можно сразу помечать

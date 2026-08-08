@@ -177,6 +177,12 @@ def current_overlay(db: Session, ticker: str, tab: str) -> CardProseOverlay | No
             .order_by(CardProseOverlay.created_at.desc()).first())
 
 
+def _sections(md: str | None) -> int:
+    """Сколько разделов верхнего уровня в тексте. Дешёвый признак структурной
+    полноты: точечная правка их число не меняет, а подмена базы — меняет."""
+    return len(re.findall(r"^##\s", md or "", re.M))
+
+
 def read_prose(db: Session, ticker: str, tab: str) -> tuple[str | None, str]:
     """(текст, источник 'overlay'|'file'|'none'). Оверлей-first — то, что отдаём.
 
@@ -202,11 +208,22 @@ def read_prose(db: Session, ticker: str, tab: str) -> tuple[str | None, str]:
                 file_text = p_file.read_text(encoding="utf-8")
             except Exception:  # noqa: BLE001
                 file_text = ""
-            if len(file_text) > len(ov.original_md) * 1.25:
+            # Признак 1 — длина. Точечная правка её почти не меняет, рост на четверть
+            # означает, что базу переписали мимо оверлея.
+            longer = len(file_text) > len(ov.original_md) * 1.25
+            # Признак 2 — СТРУКТУРА, и он важнее. У NAUK оверлей держит 94% знаков
+            # файла и потому проходит проверку длины, но разделов в нём ДВА против
+            # ПЯТИ: пропали «Что макро стоит компании сейчас», «Конкурентный разрез»,
+            # «Куда идёт ставка». Многословность уцелевших кусков маскирует потерю.
+            # Таких карточек на 2026-08-08 нашлось 14, и все они отдавали обеднённый
+            # текст живым пользователям.
+            richer = _sections(file_text) > _sections(ov.patched_md)
+            if longer or richer:
                 logger.warning(
-                    "read_prose %s/%s: файл (%d) заметно длиннее базы оверлея (%d) — "
-                    "оверлей устарел, отдаю файл", ticker, tab,
-                    len(file_text), len(ov.original_md))
+                    "read_prose %s/%s: файл богаче оверлея (знаков %d/%d, разделов "
+                    "%d/%d) — оверлей устарел, отдаю файл", ticker, tab,
+                    len(file_text), len(ov.original_md),
+                    _sections(file_text), _sections(ov.patched_md))
                 return file_text, "file_newer"
         return ov.patched_md, "overlay"
     p = _tab_path(ticker, tab)
