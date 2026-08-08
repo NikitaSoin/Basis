@@ -409,3 +409,124 @@ def run_macro_rewrites(db: Session, batch: int = 3, only_ticker: str | None = No
             stats["tickers"].append(f"{tk}:{row.status}")
     logger.info("card_rewriter.run_macro_rewrites: %s", stats)
     return stats
+
+
+def markets_escalation(db: Session, ticker: str) -> tuple[str | None, str]:
+    """Нужна ли перезапись вывода «Рынков» и какие данные ей дать.
+
+    🔴 Якорь у «Рынков» СВОЙ, и он уже лежит в карточке: в `market.json` поле
+    `commodity_exposure.revenue_commodities[].current_price.value` хранит цену,
+    которую видел аналитик («около $47–57/барр (июль 2026)»), а `benchmark_key`
+    связывает её с живым рядом. Коэффициенты чувствительности здесь не нужны —
+    сравниваем записанное с текущим.
+
+    Порог другой, чем у макро: там эффект считался в процентах прибыли через
+    коэффициенты, здесь их нет — берём относительное отклонение цены. 30% по сырью
+    это уже другая фаза цикла, а не колебание.
+
+    🔴 ЧЕСТНОЕ ОГРАНИЧЕНИЕ. Цена «что видел аналитик» лежит в карточке ПРОЗОЙ, и
+    регуляркой она берётся плохо: у ЧМК записано «~37 тыс. руб./т» (разряды словом),
+    у ММК — «$1 156 за короткую тонну», хотя наш ряд в руб/т, то есть ДРУГИЕ ЕДИНИЦЫ.
+    Поэтому здесь стоит предохранитель: расхождение больше чем в 5 раз считается
+    ошибкой разбора строки, а не движением рынка, и молча пропускается с логом.
+    Настоящее решение — типизированный реестр утверждений (задача #41): извлечь из
+    прозы {значение, единица, к чему привязано} один раз, и дальше сверять кодом.
+    До тех пор эскалация по «Рынкам» срабатывает редко и только там, где строка
+    разобралась однозначно.
+    """
+    import json as _json
+    from pathlib import Path as _Path
+    from sqlalchemy import text as _t
+
+    p = _Path(__file__).parent.parent.parent / "companies" / ticker.upper() / "market.json"
+    if not p.exists():
+        return None, ""
+    try:
+        card = _json.loads(p.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return None, ""
+    reasons, facts = [], []
+    for item in ((card.get("commodity_exposure") or {}).get("revenue_commodities") or []):
+        key = (item.get("benchmark_key") or "")
+        if not key.startswith("macro:"):
+            continue
+        code = key[6:]
+        row = db.execute(_t("""
+            SELECT value, as_of FROM macro_data_points
+            WHERE indicator_code = :k AND metric = 'level'
+            ORDER BY as_of DESC LIMIT 1
+        """), {"k": code}).fetchone()
+        if not row:
+            continue
+        now = float(row[0])
+        title = db.execute(_t("SELECT title FROM macro_indicators WHERE code = :k"),
+                           {"k": code}).scalar() or code
+        facts.append(f"  {title}: {now:g} (на {row[1]})")
+        # «что видел аналитик» — из прозы карточки: там диапазон словами, поэтому
+        # берём все числа и сравниваем со средним. Точность здесь не нужна: решение
+        # бинарное — та же фаза цикла или уже другая.
+        was_raw = str((item.get("current_price") or {}).get("value") or "")
+        # 🔴 Берём ТОЛЬКО числа при знаке валюты. Наивное «все числа подряд» ломается
+        # об даты и дни: у BANE строка «около $47–57/барр (июль 2026)… $40–47, после
+        # 14 июля выше $50 (к 20 июля ~$57)» давала среднее 229, у ROSN — 536, и
+        # детектор объявлял «падение на 77%» там, где цена выросла.
+        # разряды пишут пробелом («$4 073»), и без этого «4 073» распадалось на «4»:
+        # у PLZL золото «в разборе ~4» против 4073 сейчас — мнимый рост в 1000 раз
+        _NUM = r"\d{1,3}(?:[\s\u00a0]\d{3})+(?:[.,]\d+)?|\d{1,6}(?:[.,]\d+)?"
+        raw_hits = re.findall(rf"[$₽]\s*({_NUM})", was_raw)          # «$4 073»
+        raw_hits += re.findall(rf"({_NUM})\s*(?:руб|₽|долл|\$)", was_raw)  # «61 772 руб/т»
+        nums = [float(x.replace("\u00a0", "").replace(" ", "").replace(",", "."))
+                for x in raw_hits]
+        nums = [x for x in nums if 0 < x < 100000]
+        if not nums:
+            continue
+        was = sum(nums) / len(nums)
+        # 🔴 Предохранитель на разбор. Отклонение в разы почти всегда означает, что
+        # мы неверно вытащили «что видел аналитик» (единицы, разряды, чужое число),
+        # а не что рынок изменился в разы. Такое молча эскалировать нельзя — цена
+        # ошибки тут переписанный вывод на витрине.
+        if was and now and (max(now, was) / min(now, was)) > 5:
+            logger.warning("markets_escalation %s: подозрительное расхождение "
+                           "%s (в разборе %.4g, сейчас %.4g) — пропускаю, похоже на "
+                           "ошибку разбора строки «%s»", ticker, title, was, now,
+                           was_raw[:80])
+            continue
+        if was and abs(now - was) / was >= 0.30:
+            reasons.append(f"{title}: в разборе ~{was:.0f}, сейчас {now:g} "
+                           f"({(now - was) / was * 100:+.0f}%)")
+    if not reasons:
+        return None, ""
+    facts.insert(0, "ТЕКУЩИЕ ЦЕНЫ РЫНКОВ КОМПАНИИ (названия точные, не путай сорта):")
+    facts.append("Расхождение с тем, что заложено в разборе: " + "; ".join(reasons))
+    facts.append("Это ОЦЕНКА СИЛЫ расхождения, а не прогноз выручки или прибыли — "
+                 "не переноси проценты отклонения в текст как темп роста.")
+    return "; ".join(reasons), "\n".join(facts)
+
+
+def run_markets_rewrites(db: Session, batch: int = 3, only_ticker: str | None = None) -> dict:
+    """Перезапись выводов «Рынков» там, где цена товара ушла в другую фазу цикла."""
+    from sqlalchemy import text as _t
+
+    if only_ticker:
+        candidates = [only_ticker.upper()]
+    else:
+        candidates = [r[0] for r in db.execute(_t(
+            "SELECT ticker FROM companies ORDER BY market_cap DESC NULLS LAST")).fetchall()]
+    stats = {"checked": 0, "published": 0, "rejected": 0, "skipped": 0, "tickers": []}
+    for tk in candidates:
+        if stats["published"] + stats["rejected"] >= batch and not only_ticker:
+            break
+        stats["checked"] += 1
+        reason, facts = markets_escalation(db, tk)
+        if not reason:
+            continue
+        row = rewrite_one(db, tk, "markets", facts=facts,
+                          reason=f"цена рынка ушла за рамки разбора: {reason}",
+                          force=bool(only_ticker))
+        if row is None:
+            stats["skipped"] += 1
+        else:
+            stats[row.status] = stats.get(row.status, 0) + 1
+            stats["tickers"].append(f"{tk}:{row.status}")
+    logger.info("card_rewriter.run_markets_rewrites: %s", stats)
+    return stats

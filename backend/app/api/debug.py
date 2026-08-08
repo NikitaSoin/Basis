@@ -1715,6 +1715,22 @@ def debug_mark_overlays_consolidated(ids: str):
         db.close()
 
 
+@router.post("/debug/trigger-markets-rewrite")
+def debug_trigger_markets_rewrite(ticker: str | None = None, batch: int = 2):
+    """Перезапись выводов «Рынков» там, где цена товара ушла в другую фазу цикла.
+    Якорь — цена, записанная в самой карточке (market.json), против живого ряда."""
+    from app.db.session import SessionLocal
+    from app.services.card_rewriter import run_markets_rewrites
+    db = SessionLocal()
+    try:
+        return run_markets_rewrites(db, batch=batch, only_ticker=ticker)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-markets-rewrite: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-card-rewrite")
 def debug_trigger_card_rewrite(ticker: str | None = None, batch: int = 2):
     """ПЕРЕЗАПИСЬ ВЫВОДА вкладки «Макроэкономика» (третья ступень лестницы).
