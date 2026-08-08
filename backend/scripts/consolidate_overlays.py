@@ -113,6 +113,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--write", action="store_true", help="реально записать файлы")
     ap.add_argument("--mark", help="через запятую id оверлеев → пометить consolidated")
+    ap.add_argument("--retire-poor", action="store_true",
+                    help="пометить ОБЕДНЁННЫЕ оверлеи как superseded_by_file")
     args = ap.parse_args()
 
     if args.mark:
@@ -122,7 +124,7 @@ def main() -> int:
 
     items = fetch_all()
     print(f"оверлеев к переносу: {len(items)}")
-    written, skipped, missing, ids = 0, [], 0, []
+    written, skipped, missing, ids, poor = 0, [], 0, [], []
     for it in items:
         md = (it.get("md") or "").strip()
         p = target_path(it["ticker"], it["tab"])
@@ -148,6 +150,7 @@ def main() -> int:
         if _sections(md) < _sections(old):
             skipped.append(f"{it['ticker']}/{it['tab']}: разделов меньше "
                            f"({_sections(md)}/{_sections(old)}) — оверлей обеднён, не пишу")
+            poor.append(str(it["id"]))
             continue
         if md == old.strip():
             ids.append(str(it["id"]))   # уже совпадает — можно сразу помечать
@@ -165,6 +168,17 @@ def main() -> int:
         print(f"   … ещё {len(skipped) - 12}")
     Path("/tmp/claude-501/overlay_ids.txt").write_text(",".join(ids), encoding="utf-8")
     print(f"id для пометки после деплоя: {len(ids)} шт → /tmp/claude-501/overlay_ids.txt")
+
+    # Обеднённые оверлеи: переносить их НЕЛЬЗЯ (запишем потерю в репозиторий), но и
+    # оставлять в published не стоит — они висят активными и путают учёт. Витрина их
+    # уже игнорирует по структурному признаку, так что честный статус — «файл победил».
+    if poor:
+        print(f"обеднённых оверлеев: {len(poor)}")
+        if args.retire_poor:
+            print(_post("/api/debug/mark-overlays-consolidated"
+                        f"?status=superseded_by_file&ids={urllib.parse.quote(','.join(poor))}"))
+        else:
+            print("   (пометить их: --retire-poor)")
     return 0
 
 

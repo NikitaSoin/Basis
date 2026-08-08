@@ -1689,8 +1689,33 @@ def debug_export_overlays(tab: str | None = None, limit: int = 60, offset: int =
         db.close()
 
 
+@router.get("/debug/overlay-divergence")
+def debug_overlay_divergence():
+    """Сколько блоков прозы разошлось между БД и репозиторием — здоровье цикла.
+
+    🔴 Зачем метрика. Консолидация (перенос оверлеев в файлы) — ручной трёхшаговый
+    прогон, и расхождение копится снова с каждым патчем. 2026-08-08 оно доросло до
+    250 блоков незамеченным, и заодно 14 карточек месяц отдавали урезанный разбор.
+    Чтобы это не повторилось молча, число видно одним запросом: выросло за сотню —
+    пора гонять `scripts/consolidate_overlays.py`.
+    """
+    from app.db.session import SessionLocal
+    from app.models.geo import CardProseOverlay
+    from sqlalchemy import func
+    db = SessionLocal()
+    try:
+        rows = (db.query(CardProseOverlay.tab, func.count(func.distinct(CardProseOverlay.ticker)))
+                .filter(CardProseOverlay.status == "published")
+                .group_by(CardProseOverlay.tab).all())
+        by_tab = {t: n for t, n in rows}
+        return {"diverged_blocks": sum(by_tab.values()), "by_tab": by_tab,
+                "hint": "больше ~100 — пора запускать scripts/consolidate_overlays.py"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/mark-overlays-consolidated")
-def debug_mark_overlays_consolidated(ids: str):
+def debug_mark_overlays_consolidated(ids: str, status: str = "consolidated"):
     """Пометить перенесённые оверлеи как consolidated — после того, как файлы уже
     ЗАДЕПЛОЕНЫ. Порядок важен: пометить раньше деплоя значит на время показать старый
     файл. `current_overlay` берёт только published, поэтому consolidated перестают
@@ -1708,7 +1733,9 @@ def debug_mark_overlays_consolidated(ids: str):
         n = (db.query(CardProseOverlay)
              .filter(CardProseOverlay.id.in_(id_list),
                      CardProseOverlay.status == "published")
-             .update({CardProseOverlay.status: "consolidated"}, synchronize_session=False))
+             .update({CardProseOverlay.status: status if status in
+                      ("consolidated", "superseded_by_file") else "consolidated"},
+                     synchronize_session=False))
         db.commit()
         return {"marked": n}
     finally:
