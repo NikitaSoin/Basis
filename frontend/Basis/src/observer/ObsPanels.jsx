@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, useId } from "react";
 import { FAIR_VALUE_NOTE } from "../fairValueNote";
+import { PAYMENT_REQUIRED, upgradeMessage } from "../account/entitlements";
 import { createRoot } from "react-dom/client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -404,17 +405,27 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  // 🔴 402 ≠ сбой. Разборы отчётов закрыты тарифом (backend require_feature,
+  // FEATURE_OBSERVER_DEEP), а раздел показывал гостю красное «Не удалось
+  // загрузить отчёты» — платная граница выглядела поломкой платформы.
+  const [paywall, setPaywall] = useState(null);
   const [openCards, setOpenCards] = useState({});
   const [sectorFilter, setSectorFilter] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
-    setLoading(true); setError(false);
+    setLoading(true); setError(false); setPaywall(null);
     fetch(`${apiUrl}/api/market/earnings?portfolio_only=${portfolioOnly}`, { headers: authHeaders })
-      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((r) => (r.ok ? r.json()
+        : r.status === PAYMENT_REQUIRED
+          ? r.json().catch(() => ({})).then((d) => Promise.reject({ paywall: upgradeMessage(d?.detail) }))
+          : Promise.reject()))
       .then((d) => { setData(d); setLoading(false); })
-      .catch(() => { setError(true); setLoading(false); });
+      .catch((e) => {
+        if (e && e.paywall) setPaywall(e.paywall); else setError(true);
+        setLoading(false);
+      });
   }, [portfolioOnly, token]);
 
   const reports = data?.reports || [];
@@ -453,7 +464,15 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
 
       {loading && <div className="obs-news-loading">Загрузка отчётов…</div>}
       {error && <div className="obs-news-loading" style={{ color: "var(--danger)" }}>Не удалось загрузить отчёты.</div>}
-      {!loading && !error && filtered.length === 0 && (
+      {paywall && (
+        <div className="bs-callout" style={{ marginTop: 12 }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" /></svg>
+          <p><b>{paywall}</b> Календарь отчётностей, лента и макрообзор остаются открытыми —
+            здесь закрыт именно разбор вышедшего отчёта: что в нём хорошо, что плохо и что это
+            меняет в оценке компании.</p>
+        </div>
+      )}
+      {!loading && !error && !paywall && filtered.length === 0 && (
         <div className="obs-news-empty">
           {portfolioOnly ? "По бумагам портфеля новых отчётов нет." : "Отчётов не найдено."}
         </div>
