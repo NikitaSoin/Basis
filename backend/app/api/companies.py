@@ -67,17 +67,24 @@ def _prose_or_overlay(path) -> str:
     """Проза вкладки: авто-патч из БД-ОВЕРЛЕЯ (если есть published) → иначе файл.
     Оверлей переживает эфемерность файлов на Timeweb (авто-свежесть прозы, см.
     app/services/card_prose_patcher.py). При любой ошибке — грациозно читаем файл.
-    На выходе снимаются внутренние обозначения (см. _PROSE_INTERNALS)."""
+    На выходе снимаются внутренние обозначения (см. _PROSE_INTERNALS).
+
+    🔴 Логика выбора «оверлей или файл» ОДНА и живёт в card_prose_patcher.read_prose.
+    Раньше здесь была её копия, и копия отстала: в read_prose добавили защиту от
+    устаревшего оверлея (файл переписали мимо патча), а витрина продолжала отдавать
+    оверлей — то есть исправление не доходило до пользователя. Дублировать это
+    правило нельзя, оно обязано быть в одном месте.
+    """
     try:
-        from app.services.card_prose_patcher import _TAB_FILE, current_overlay
+        from app.services.card_prose_patcher import _TAB_FILE, read_prose
         from app.db.session import SessionLocal
         tab = next((t for t, fn in _TAB_FILE.items() if fn == path.name), None)
         if tab:
             db = SessionLocal()
             try:
-                ov = current_overlay(db, path.parent.name, tab)
-                if ov and ov.patched_md:
-                    return _strip_internals(ov.patched_md)
+                md, _src = read_prose(db, path.parent.name, tab)
+                if md:
+                    return _strip_internals(md)
             finally:
                 db.close()
     except Exception:  # noqa: BLE001 — оверлей не должен ронять отдачу прозы

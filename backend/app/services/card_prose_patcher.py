@@ -178,9 +178,36 @@ def current_overlay(db: Session, ticker: str, tab: str) -> CardProseOverlay | No
 
 
 def read_prose(db: Session, ticker: str, tab: str) -> tuple[str | None, str]:
-    """(текст, источник 'overlay'|'file'|'none'). Оверлей-first — то, что отдаём."""
+    """(текст, источник 'overlay'|'file'|'none'). Оверлей-first — то, что отдаём.
+
+    🔴 НО ОВЕРЛЕЙ МОЖЕТ УСТАРЕТЬ ОТНОСИТЕЛЬНО ФАЙЛА. Патч накладывается на прозу,
+    которая была на момент правки, и хранится целиком. Если потом файл в репозитории
+    ПЕРЕПИСАЛИ (аналитик доработал блок и закоммитил), старый оверлей продолжает
+    подменять собой новый текст — и на витрине живёт устаревшая, часто более КОРОТКАЯ
+    версия. Найдено 2026-08-08 при консолидации: у CHKZ и UNKL на бою отдавалась
+    половина содержимого (3,3 тыс. знаков вместо 6,2 тыс.), потому что файлы дополнили
+    02.08, а оверлеи созданы 31.07 и с тех пор их закрывали.
+
+    Признак устаревания — файл заметно ДЛИННЕЕ той прозы, на которую накладывали
+    патч (`original_md`). Точечная правка длину почти не меняет, так что рост на
+    четверть и больше означает: базу переписали мимо оверлея. В этом случае отдаём
+    ФАЙЛ — свежий и полный текст важнее накопленных точечных правок, а сами правки
+    останутся в истории и переедут при следующем прогоне.
+    """
     ov = current_overlay(db, ticker, tab)
     if ov and ov.patched_md:
+        p_file = _tab_path(ticker, tab)
+        if p_file and p_file.exists() and ov.original_md:
+            try:
+                file_text = p_file.read_text(encoding="utf-8")
+            except Exception:  # noqa: BLE001
+                file_text = ""
+            if len(file_text) > len(ov.original_md) * 1.25:
+                logger.warning(
+                    "read_prose %s/%s: файл (%d) заметно длиннее базы оверлея (%d) — "
+                    "оверлей устарел, отдаю файл", ticker, tab,
+                    len(file_text), len(ov.original_md))
+                return file_text, "file_newer"
         return ov.patched_md, "overlay"
     p = _tab_path(ticker, tab)
     if p and p.exists():
