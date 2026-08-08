@@ -189,6 +189,24 @@ _OUTPUT_SPEC = (
     "позапрошлую неделю за текущую картину и не строй на ней разворотных выводов о ДКП. "
     "И наоборот: свежая недельная точка со знаком минус (дефляция) — событие, которое "
     "обязано попасть в выпуск, а не потеряться в среднем за месяц.\n"
+    "7д. 🔴 ВНУТРЕННИХ КОДОВ В ТЕКСТЕ НЕТ. Читатель не знает и не обязан знать, что такое "
+    "S3, S4, G7, M4, E12 — это язык наших барометров. Сценарий называй словами и с "
+    "содержанием: не «при сохранении S3», а «если конфликт остаётся затяжным, без "
+    "перемирия и без резкой эскалации». Первое упоминание сценария в выпуске обязано "
+    "объяснять, что в нём происходит; дальше можно коротко («затяжной конфликт»).\n"
+    "7е. 🔴 РЕЗКАЯ ЦИФРА ЗА ОДИН ПЕРИОД — ЕЩЁ НЕ ПЕРЕЛОМ. Квартальные и месячные ряды "
+    "(инвестиции, ВВП, промпроизводство, строительство) прыгают: эффект базы прошлого "
+    "года, разовые проекты, сдвиг госзаказа, пересчёт Росстата. Прежде чем писать «обвал», "
+    "проверь по данным: что было год назад (база), как выглядит траектория 4-6 периодов, "
+    "и что об этом говорит блок external_expectations (прогнозы Минэка, ЦБ, деловых "
+    "объединений и разборы причин). Скажи ЧИТАТЕЛЮ прямо, что перед ним: разовая "
+    "волатильность в силу таких-то факторов или смена тренда — и на чём основан вывод. "
+    "Драматизировать одну точку запрещено так же, как её замалчивать.\n"
+    "7ж. external_expectations — ЧУЖИЕ ожидания из внешних источников, НЕ наши данные и "
+    "не проверенные нами числа. Бери оттуда СМЫСЛ (ожидалось ли движение, чем его "
+    "объясняют), а если приводишь число — обязательно с автором («Минэк ожидает…», "
+    "«по оценке РСПП…») и тегом «оценка». Ставить их в один ряд с нашими key_facts "
+    "нельзя.\n"
     "8. Не делай разворотных выводов по одному месяцу (Часть 1): топливо, плодоовощи, "
     "тарифы волатильны. Смотри тренд 3+ месяца и устойчивые компоненты.\n"
     "9. Язык — простой, с видимой логикой. Профессиональный аппарат (Тейлор, кривая "
@@ -358,6 +376,9 @@ def gather_snapshot(db: Session) -> dict:
             "cb_forecast": forecast, "sectors": _sectors_list(),
             "previous_issues": _previous_issues(db),
             "data_gaps": _data_gaps(db),
+            # чужие ожидания по показателям, которые резко выбились из ряда — контекст
+            # против драмы по одному кварталу (см. _external_expectations)
+            "external_expectations": _external_expectations(indicators),
             "event_research": _event_research(db),
             "regulated_tariffs": _regulated_tariffs(),
             "context": {**_context(db), "platform_tickers": _platform_tickers(db),
@@ -398,6 +419,111 @@ def _event_research(db: Session) -> dict | None:
     except Exception:  # noqa: BLE001
         logger.warning("Интерпретатор: разбор события не отработал", exc_info=True)
         return None
+
+
+_OUTLIER_MAX = 2          # сколько показателей объясняем за прогон
+_OUTLIER_MIN_HISTORY = 5
+
+
+def _outliers(indicators: list[dict]) -> list[dict]:
+    """Показатели, у которых ПОСЛЕДНЯЯ точка резко выбивается из собственного ряда.
+
+    Не «плохие» значения, а неожиданные: именно из-за них выпуск срывается в драму по
+    одному кварталу («инвестиции −14,3%» — и всё пропало), хотя часть таких движений
+    объясняется базой прошлого года, разовым фактором или ровно тем, что и заложено в
+    прогнозах Минэка/ЦБ. Считаем по МЕДИАНЕ и разбросу самого ряда, порогов из головы
+    не выдумываем.
+    """
+    out = []
+    for ind in indicators:
+        # Только ТЕМПЫ (год к году, месяц к месяцу): уровни (зарплата в рублях, индекс
+        # цен в пунктах) растут монотонно, разброс у них крошечный, и любое ускорение
+        # выглядит «выбросом» — первая версия детектора именно так и притащила
+        # номинальную зарплату вместо инвестиций.
+        if ind.get("country") != "ru" or ind.get("metric") not in ("yoy", "mom", "qoq", "wow"):
+            continue
+        # История лежит в двух формах: плотный хвост (series) у мастер-переменных и
+        # опорные отсечки (anchors) у остальных — см. _series_digest.
+        hist = [p.get("v") for p in (ind.get("series") or [])
+                if isinstance(p, dict) and isinstance(p.get("v"), (int, float))]
+        if not hist:
+            hist = [v for v in (ind.get("anchors") or {}).values()
+                    if isinstance(v, (int, float))]
+        cur = ind.get("current_value")
+        if not isinstance(cur, (int, float)):
+            continue
+        prev = [v for v in reversed(hist) if v != cur][:8]
+        if len(prev) < _OUTLIER_MIN_HISTORY - 2:
+            continue
+        import statistics as _st
+        med = _st.median(prev)
+        spread = _st.median([abs(v - med) for v in prev]) or abs(med) * 0.15 or 0.5
+        surprise = abs(cur - med) / spread
+        # Кроме «во сколько разбросов ушло» нужен и АБСОЛЮТНЫЙ размер сдвига: у гладкого
+        # ряда (кредит экономике) разброс крошечный, и рядовые 2 п.п. дают «неожиданность
+        # 11», хотя объяснять там нечего. Порог в один процентный пункт отсекает такие.
+        if surprise > 3 and abs(cur - med) >= 1.0:
+            out.append({"code": ind.get("code"), "title": ind.get("title"),
+                        "metric": ind.get("metric"), "value": cur,
+                        "period": ind.get("as_of"), "median_prev": round(med, 2),
+                        "_surprise": round(surprise, 1),
+                        "_score": round(surprise * abs(cur - med), 1)})
+    # Ранжируем по «неожиданность × размер сдвига»: одна только неожиданность
+    # поднимает наверх гладкие ряды с микроразбросом, один только размер — ряды,
+    # которые и так скачут. Инвестиции −14,3% при медиане −2,7 обходят и тех, и других.
+    out.sort(key=lambda x: -x["_score"])
+    return out[:_OUTLIER_MAX]
+
+
+def _external_expectations(indicators: list[dict]) -> list[dict]:
+    """Что о резко выбившемся показателе говорят ПРОГНОЗЫ (Минэк, ЦБ, деловые союзы).
+
+    🔴 Владелец, 2026-08-08: «у нас упали инвестиции на 14% — и после этого не писать
+    громко, что всё пропало, а подчеркнуть, что это скорее разовая волатильность в силу
+    таких-то факторов; есть прогнозы Минэка, РСПП и других — их надо использовать при
+    среднесрочном анализе». Наших рядов для этого мало: ряд знает, ЧТО случилось, и не
+    знает, ОЖИДАЛОСЬ ли это. Поэтому под каждый выброс — узкий веб-поиск, и результат
+    кладётся в снапшот ОТДЕЛЬНЫМ блоком с явной пометкой, что это ЧУЖИЕ ожидания, а не
+    наши данные (иначе модель начнёт выдавать чужой прогноз за факт платформы).
+    """
+    outliers = _outliers(indicators)
+    if not outliers:
+        return []
+    try:
+        from app.services.agent_web import web_search
+    except Exception:  # noqa: BLE001
+        return []
+    year = datetime.now(timezone.utc).year
+    blocks = []
+    for o in outliers:
+        title = o.get("title") or o.get("code")
+        snippets = []
+        for q in (f"прогноз {title} {year} Минэк ЦБ РСПП",
+                  f"{title} {o.get('period') or ''} причины динамики эффект базы"):
+            try:
+                res = web_search(q.strip(), 4)
+            except Exception:  # noqa: BLE001
+                continue
+            if not isinstance(res, dict) or res.get("error"):
+                continue
+            for r in (res.get("results") or [])[:4]:
+                if not isinstance(r, dict) or not r.get("snippet"):
+                    continue
+                snippets.append({"claim_from_source": str(r["snippet"])[:320],
+                                 "source_title": str(r.get("title") or "")[:120],
+                                 "url": r.get("url")})
+            if len(snippets) >= 6:
+                break
+        if snippets:
+            blocks.append({
+                "indicator": title, "our_value": o["value"],
+                "our_period": o.get("period"),
+                "median_previous": o["median_prev"],
+                "why_here": "последняя точка резко выбилась из ряда — нужен контекст "
+                            "ожиданий, а не вывод по одному наблюдению",
+                "external_sources_not_our_data": snippets[:6],
+            })
+    return blocks
 
 
 def _data_gaps(db: Session) -> list[str]:
@@ -690,6 +816,45 @@ def _context(db: Session, limit: int | None = None) -> dict:
     return out
 
 
+# 🔴 Внутренние коды сценариев наружу НЕ ВЫХОДЯТ (владелец, 2026-08-08: «я, пользователь,
+# знать не знаю про S3, S4 — ты должен сценарии объяснять словами»). Коды — язык
+# геополитического барометра, удобный внутри системы и бессмысленный на витрине.
+# Лечим с двух сторон: (1) в промпт кладём уже человеческие названия, чтобы модели
+# нечего было цитировать; (2) на выходе подменяем то, что всё-таки просочилось.
+_SCENARIO_LABELS = {
+    "S1_breakthrough": "прорыв к миру (быстрое урегулирование)",
+    "S2_ceasefire": "перемирие с заморозкой конфликта",
+    "S3_attrition": "затяжной конфликт без разрешения (базовый сценарий)",
+    "S4_escalation": "эскалация конфликта",
+}
+# В прозе подставляем название В КАВЫЧКАХ: падеж мехзаменой не согласуешь («при
+# сохранении затяжной конфликт»), а кавычки превращают подстановку в имя сценария и
+# читаются нормально в любом падеже. Это страховка на случай утечки — основное
+# лечение в промпте (правило 7д) и в том, что коды в промпт вообще не попадают.
+_SCENARIO_SHORT = {
+    "S1": "сценария «прорыв к миру»", "S2": "сценария «перемирие»",
+    "S3": "сценария «затяжной конфликт»", "S4": "сценария «эскалация»",
+}
+_SCENARIO_CODE_RE = re.compile(
+    r"\b(S[1-4])(?:_[a-z]+)?\b(?:\s*\((?:базов\w+|текущ\w+)\))?", re.I)
+
+
+def humanize_scenarios(value):
+    """Рекурсивно: коды сценариев → человеческие названия (и в ключах словарей)."""
+    if isinstance(value, str):
+        full = _SCENARIO_LABELS.get(value)
+        if full:
+            return full
+        return _SCENARIO_CODE_RE.sub(
+            lambda m: _SCENARIO_SHORT.get(m.group(1).upper(), m.group(0)), value)
+    if isinstance(value, list):
+        return [humanize_scenarios(v) for v in value]
+    if isinstance(value, dict):
+        return {(_SCENARIO_LABELS.get(k) or humanize_scenarios(k) if isinstance(k, str) else k):
+                humanize_scenarios(v) for k, v in value.items()}
+    return value
+
+
 def _compact_barometer(payload: dict) -> dict:
     """Из барометра берём рамку: что изменилось, чем сейчас живёт повестка, какие
     переходы возможны и на что смотреть в ближайший месяц.
@@ -738,7 +903,7 @@ def _compact_barometer(payload: dict) -> dict:
     alerts = [str(a)[:200] for a in alerts if a]
     if alerts:
         out["alerts"] = alerts
-    return {k: v for k, v in out.items() if v}
+    return humanize_scenarios({k: v for k, v in out.items() if v})
 
 
 def _previous_issues(db: Session, limit: int = 4) -> list[dict]:
@@ -981,6 +1146,12 @@ def generate(db: Session) -> MacroInterpretation:
             sections, logic = _logic_loop(db, sections, _ask, t0)
         except Exception:  # noqa: BLE001
             logger.warning("Интерпретатор: критик логики не отработал", exc_info=True)
+
+    # Подчистка внутреннего жаргона ПОСЛЕ всех доработок: критик и ревизор видят текст
+    # как есть, а на витрину идёт уже человеческий язык. Коды сценариев в промпт не
+    # попадают (см. humanize_scenarios в _compact_barometer), но модель знает их из
+    # записок и иногда пишет сама — «При сохранении S3» читателю не говорит ничего.
+    sections = humanize_scenarios(sections)
 
     verdict, gate_notes = "ok", []
     try:
