@@ -82,7 +82,37 @@ def _parse_date(raw: str | None) -> date | None:
     try:
         return datetime.strptime(raw[:10], "%Y-%m-%d").date()
     except ValueError:
+        pass
+    # Пятый способ ленты «ослепнуть»: дата в человекочитаемом виде вместо стандарта
+    # RSS. Проверено на ict-online.ru — 109 свежих записей с
+    # «Friday, August 7, 2026 at 4:49:00 PM»; без разбора ВСЕ они молча отсеиваются
+    # фильтром свежести, а источник числится рабочим и даёт ноль. Разбираем месяц по
+    # имени (англ. и рус.) — этого хватает на оба встреченных варианта.
+    m = re.search(r"(\d{1,2})\s+([A-Za-zА-Яа-я]{3,10})\.?\s+(\d{4})", raw)
+    if not m:
+        m2 = re.search(r"([A-Za-zА-Яа-я]{3,10})\s+(\d{1,2}),?\s+(\d{4})", raw)
+        if m2:
+            m = None
+            day, mon_name, year = m2.group(2), m2.group(1), m2.group(3)
+        else:
+            return None
+    else:
+        day, mon_name, year = m.group(1), m.group(2), m.group(3)
+    key = mon_name[:3].lower()
+    idx = _MONTHS.get(key)
+    if not idx:
         return None
+    try:
+        return date(int(year), idx, int(day))
+    except ValueError:
+        return None
+
+
+_MONTHS = {m: i for i, m in enumerate(
+    ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
+_MONTHS.update({m: i for i, m in enumerate(
+    ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"], 1)})
+_MONTHS["май"] = 5  # именительный падеж рядом с родительным «мая»
 
 
 # Egress-релей через Cloudflare Worker для источников, которые Timeweb режет на уровне

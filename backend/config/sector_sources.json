@@ -79,6 +79,69 @@
       "_checked": "2026-08-08: 20 записей. Рабочий адрес ТОЛЬКО /news/rss/ — /rss/, /rss.xml, /feed/ отдают HTML"
     },
     {
+      "key": "rccnews", "label": "RCC (химический комплекс)",
+      "method": "rss", "url": "https://rccnews.ru/ru/rss/",
+      "sectors": ["chem"], "role": "analysis", "lang": "ru",
+      "max_per_run": 3, "enabled": true,
+      "_checked": "2026-08-08: 25 записей, свежие. В самой ленте текста НЕТ вовсе — спасает дозагрузка статьи (проверено: 3930 знаков по «Бразильский рынок удобрений сократится на 12%»). Почти всё по делу: мировой рынок серы, отчётности Mosaic/CF/Nutrien"
+    },
+    {
+      "key": "fertilizerdaily", "label": "Fertilizer Daily",
+      "method": "rss", "url": "https://www.fertilizerdaily.com/feed/",
+      "sectors": ["chem"], "role": "analysis", "lang": "en",
+      "max_per_run": 2, "enabled": true,
+      "_checked": "2026-08-08: 12 записей, свежие. Открытый аналог Argus/Profercy: тендеры на карбамид, розничные цены, торговые потоки"
+    },
+    {
+      "key": "plastinfo", "label": "Plastinfo (полимеры)",
+      "method": "rss", "url": "https://plastinfo.ru/news.xml",
+      "sectors": ["chem"], "role": "analysis", "lang": "ru",
+      "max_per_run": 2, "enabled": true,
+      "_checked": "2026-08-08: 10 записей, свежие (кодировка cp1251 — парсер справляется)"
+    },
+    {
+      "key": "cbr_events", "label": "Банк России",
+      "method": "rss", "url": "https://cbr.ru/rss/eventrss",
+      "sectors": ["banks"], "role": "analysis", "lang": "ru",
+      "max_per_run": 3, "enabled": true,
+      "_checked": "2026-08-08: 100 записей, свежие. Текста в ленте нет — работает дозагрузка (проверено на «Мониторинг отраслевых финансовых потоков»). Первоисточник по банковскому регулированию, резюме по ставке, денежной массе"
+    },
+    {
+      "key": "frankmedia", "label": "Frank Media",
+      "method": "rss", "url": "https://frankmedia.ru/feed",
+      "sectors": ["banks"], "role": "analysis", "lang": "ru",
+      "max_per_run": 2, "enabled": true,
+      "_checked": "2026-08-08: 60 записей, свежие. По содержанию это ХРОНИКА, не аналитика — про рынок примерно половина заголовков; поэтому потолок 2, а не 3"
+    },
+    {
+      "key": "tmt_consulting", "label": "ТМТ Консалтинг",
+      "method": "rss", "url": "https://tmt-consulting.ru/feed/",
+      "sectors": ["it_telecom"], "role": "analysis", "lang": "ru",
+      "max_per_run": 2, "max_age_days": 60, "enabled": true,
+      "_checked": "2026-08-08: 10 записей, свежайшая 28.07.2026. Единственный настоящий разбор телеком-рынка: доли рынка, динамика тарифов, ТМТ-рейтинги. Выходит редко — окно 60 дней"
+    },
+    {
+      "key": "sovecon", "label": "СовЭкон (агрорынок)",
+      "method": "rss", "url": "https://sovecon.ru/feed/",
+      "sectors": ["consumer"], "role": "forecast", "lang": "ru",
+      "max_per_run": 2, "enabled": true,
+      "_checked": "2026-08-08: 10 записей, свежие. Самая чистая лента по содержанию: прогнозы урожая и экспорта, ценовые мониторы. Оговорка — тексты это тизеры платного бюллетеня в 1-2 строки, вытягивает дозагрузка"
+    },
+    {
+      "key": "agroinvestor", "label": "Агроинвестор",
+      "method": "rss", "url": "https://www.agroinvestor.ru/feed/public-agronews.xml",
+      "sectors": ["consumer", "chem"], "role": "analysis", "lang": "ru",
+      "max_per_run": 2, "enabled": true,
+      "_checked": "2026-08-08: 398 записей, свежие. Двойного назначения: агрорынок для потребсектора и спрос на удобрения для химии"
+    },
+    {
+      "key": "retail_articles", "label": "Retail.ru — статьи",
+      "method": "rss", "url": "https://www.retail.ru/rss/articles/",
+      "sectors": ["consumer"], "role": "analysis", "lang": "ru",
+      "max_per_run": 2, "enabled": true,
+      "_checked": "2026-08-08: 30 записей, свежие. ОТДЕЛЬНАЯ лента разборов — не путать с уже подключённой /rss/news/ (хроника)"
+    },
+    {
       "key": "bigpowernews", "label": "BigpowerNews",
       "method": "rss", "url": "https://www.bigpowernews.ru/rssfeeds/rss21539.php",
       "sectors": ["power"], "role": "analysis", "lang": "ru",
