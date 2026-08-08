@@ -114,7 +114,7 @@ def main() -> int:
     ap.add_argument("--write", action="store_true", help="реально записать файлы")
     ap.add_argument("--mark", help="через запятую id оверлеев → пометить consolidated")
     ap.add_argument("--retire-poor", action="store_true",
-                    help="пометить ОБЕДНЁННЫЕ оверлеи как superseded_by_file")
+                    help="пометить ОБЕДНЁННЫЕ оверлеи как file_wins")
     args = ap.parse_args()
 
     if args.mark:
@@ -176,7 +176,7 @@ def main() -> int:
         print(f"обеднённых оверлеев: {len(poor)}")
         if args.retire_poor:
             print(_post("/api/debug/mark-overlays-consolidated"
-                        f"?status=superseded_by_file&ids={urllib.parse.quote(','.join(poor))}"))
+                        f"?status=file_wins&ids={urllib.parse.quote(','.join(poor))}"))
         else:
             print("   (пометить их: --retire-poor)")
     return 0

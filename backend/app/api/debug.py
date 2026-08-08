@@ -1747,8 +1747,11 @@ def debug_mark_overlays_consolidated(ids: str, status: str = "consolidated"):
         n = (db.query(CardProseOverlay)
              .filter(CardProseOverlay.id.in_(id_list),
                      CardProseOverlay.status == "published")
+             # 🔴 Значение обязано влезать в колонку: status — String(16), и
+             # «superseded_by_file» (18 знаков) валил запрос 500-й ошибкой. Короткое
+             # «file_wins» несёт тот же смысл: файл победил, оверлей больше не активен.
              .update({CardProseOverlay.status: status if status in
-                      ("consolidated", "superseded_by_file") else "consolidated"},
+                      ("consolidated", "file_wins") else "consolidated"},
                      synchronize_session=False))
         db.commit()
         return {"marked": n}
