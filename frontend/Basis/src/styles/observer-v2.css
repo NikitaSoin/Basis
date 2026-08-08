@@ -7106,3 +7106,19 @@ details[open] > summary .obs-inst-chev,
 @media (max-width: 760px) {
   .obs-sector-headline { flex-basis: 100%; }
 }
+
+/* Фильтр по источникам под катом (лента Бизнеса): источников под три десятка,
+   открытым списком они занимали три ряда чипов перед первой статьёй. */
+.obs-srcfilter { margin: 0 0 14px; }
+.obs-srcfilter-sum {
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  padding: 4px 0;
+  list-style: none;
+}
+.obs-srcfilter-sum::-webkit-details-marker { display: none; }
+.obs-srcfilter-sum::before { content: "▸ "; }
+.obs-srcfilter[open] .obs-srcfilter-sum::before { content: "▾ "; }
+.obs-srcfilter-sum:hover { color: var(--accent); }
+.obs-srcfilter-sum:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

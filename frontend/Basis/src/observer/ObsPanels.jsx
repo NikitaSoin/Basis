@@ -2248,24 +2248,34 @@ function ObsBusinessArticles() {
         </div>
       )}
 
+      {/* Фильтр по источникам — ПОД КАТОМ. Источников стало под три десятка, и
+          открытым списком он занимал три ряда чипов: до первой статьи читатель
+          пролистывал пять рядов фильтров. Отрасль — то, чем читатель мыслит
+          («что с нефтью»), она остаётся сверху; источник — уточнение для тех,
+          кому он важен. */}
       {mode === "feed" && sources.length > 1 && (
-        <div className="obs-filterbar">
-          <button
-            className={`obs-chip${srcFilter === "all" ? " obs-chip--active" : ""}`}
-            onClick={() => setSrcFilter("all")}
-          >
-            Все
-          </button>
-          {sources.map((s) => (
+        <details className="obs-srcfilter">
+          <summary className="obs-srcfilter-sum">
+            Источники{srcFilter !== "all" ? `: ${srcFilter}` : ` (${sources.length})`}
+          </summary>
+          <div className="obs-filterbar">
             <button
-              key={s}
-              className={`obs-chip${srcFilter === s ? " obs-chip--active" : ""}`}
-              onClick={() => setSrcFilter(s)}
+              className={`obs-chip${srcFilter === "all" ? " obs-chip--active" : ""}`}
+              onClick={() => setSrcFilter("all")}
             >
-              {s}
+              Все
             </button>
-          ))}
-        </div>
+            {sources.map((s) => (
+              <button
+                key={s}
+                className={`obs-chip${srcFilter === s ? " obs-chip--active" : ""}`}
+                onClick={() => setSrcFilter(s)}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </details>
       )}
 
       {mode === "feed" && loading && <div className="obs-news-loading">Загружаем бизнес-ленту…</div>}

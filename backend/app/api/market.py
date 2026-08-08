@@ -1,5 +1,6 @@
 import re as _re
 import os
+from functools import lru_cache
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import JSONResponse
 from sqlalchemy import or_, func
@@ -1215,6 +1216,23 @@ def _sector_label_of(target: str | None) -> str | None:
     return next((s["label"] for s in SECTORS if s["key"] == key), None)
 
 
+@lru_cache(maxsize=1)
+def _sector_source_labels() -> dict:
+    """Ключ источника → человеческое название из конфига отраслевой ленты.
+
+    Без этого чип показывал технический слаг: на бою в ленте Бизнеса стояли
+    «finam_analysis», «rzd_partner», «rccnews», «eia_today» — читателю это ничего
+    не говорит. Названия уже есть в sector_sources.json (поле label), дублировать
+    их вторым словарём в коде нельзя: разъедутся.
+    """
+    try:
+        from app.services.sector_digest import load_config
+        return {s["key"]: s["label"] for s in load_config().get("sources", [])
+                if s.get("key") and s.get("label")}
+    except Exception:  # noqa: BLE001
+        return {}
+
+
 def _digest_dict(a) -> dict:
     from app.services.geo_digest import SOURCE_LABELS
     hide = a.source_key in _UNNAMED_SOURCES
@@ -1225,7 +1243,10 @@ def _digest_dict(a) -> dict:
             "key_takeaways": (_clean_mentions(a.key_takeaways) if hide else a.key_takeaways) or [],
             "investor_relevance": _clean_mentions(a.investor_relevance) if hide else a.investor_relevance,
             # None, а не строка-заглушка: фронт просто не рисует чип источника
-            "source_label": None if hide else SOURCE_LABELS.get(a.source_key, a.source_key),
+            "source_label": None if hide else (
+                SOURCE_LABELS.get(a.source_key)
+                or _sector_source_labels().get(a.source_key)
+                or a.source_key),
             "published_at": a.published_at.isoformat() if a.published_at else None}
 
 
