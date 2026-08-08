@@ -260,7 +260,14 @@ def rewrite_one(db: Session, ticker: str, tab: str, *, facts: str, reason: str,
     if not notes:
         tv = str((out or {}).get("trigger_value") or "")
         tv_nums = _numbers(tv.replace(",", "."))
-        if tv_nums and not any(n in challenger for n in tv_nums):
+        # 🔴 Сравнивать надо в ОДНОЙ нотации. Числа нормализуются к точке («82.27»),
+        # а русская проза пишет запятую («82,27») — прямой поиск подстроки не
+        # находил НИКОГДА, и проверка резала любую правку (три прогона подряд
+        # trigger_not_closed при верном тексте). Нормализуем и текст тоже.
+        hay = challenger.replace(",", ".")
+        # плюс целая часть: проза законно округляет «82,27» до «около 82»
+        want = set(tv_nums) | {n.split(".")[0] for n in tv_nums}
+        if tv_nums and not any(n in hay for n in want):
             notes.append("trigger_not_closed")
 
     # (3) критик — асимметрично: ищем РЕГРЕССИИ новой версии, не «что лучше»
