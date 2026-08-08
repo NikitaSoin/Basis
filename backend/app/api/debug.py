@@ -1689,6 +1689,20 @@ def debug_export_overlays(tab: str | None = None, limit: int = 60, offset: int =
         db.close()
 
 
+@router.get("/debug/card-claims")
+def debug_card_claims(ticker: str | None = None, limit: int = 30):
+    """Проверяемые утверждения карточки и их устаревание — БЕЗ LLM, кодом.
+
+    Без тикера — очередь: чьи утверждения отстали от календаря сильнее всего.
+    Меряет не «верное ли число» (этого без внешнего источника не узнать), а ГОД, на
+    который утверждение ссылается: разбор говорит «в 2024 году добыто столько-то», а
+    данные за 2025 уже вышли."""
+    from app.services.card_claims import card_claims, stale_queue
+    if ticker:
+        return card_claims(ticker)
+    return {"queue": stale_queue(limit=limit)}
+
+
 @router.get("/debug/overlay-divergence")
 def debug_overlay_divergence():
     """Сколько блоков прозы разошлось между БД и репозиторием — здоровье цикла.

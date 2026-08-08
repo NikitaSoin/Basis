@@ -494,6 +494,23 @@ def markets_escalation(db: Session, ticker: str) -> tuple[str | None, str]:
         if was and abs(now - was) / was >= 0.30:
             reasons.append(f"{title}: в разборе ~{was:.0f}, сейчас {now:g} "
                            f"({(now - was) / was * 100:+.0f}%)")
+    # Второй, более надёжный сигнал — УСТАРЕВШИЕ УТВЕРЖДЕНИЯ. Цена в прозе разбирается
+    # плохо (единицы, разряды словом), а год записан однозначно: если разбор говорит
+    # «в 2024 году добыто столько-то», данные за 2025 уже вышли, и утверждение устарело
+    # независимо от того, верным ли оно было. Это не оценка содержания, а измерение
+    # отставания от календаря — то, что код умеет честно.
+    from app.services.card_claims import card_claims
+    cl = card_claims(ticker)
+    stale = [c for c in cl.get("claims") or [] if c.get("stale")]
+    if stale:
+        reasons.append(f"утверждений с устаревшей датой: {len(stale)} "
+                       f"(максимальное отставание {cl.get('max_lag_years')} лет)")
+        facts.append("УСТАРЕВШИЕ УТВЕРЖДЕНИЯ РАЗБОРА (ссылаются на прошедшие периоды; "
+                     "свежих чисел взамен у тебя НЕТ — не выдумывай их, а честно "
+                     "пометь, что данные требуют обновления):")
+        for c in stale[:4]:
+            facts.append(f"  [{c['type']}, {c.get('year')}] {c['claim'][:150]}")
+
     if not reasons:
         return None, ""
     facts.insert(0, "ТЕКУЩИЕ ЦЕНЫ РЫНКОВ КОМПАНИИ (названия точные, не путай сорта):")
