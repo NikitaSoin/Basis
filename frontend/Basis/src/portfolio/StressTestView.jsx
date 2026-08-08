@@ -545,6 +545,18 @@ function ExpertDossier({ e }) {
 // никакого спиннера здесь нет: либо разбор есть, либо блока нет вовсе — выдумывать
 // «пока думаем» нечего. Визуальный язык тот же, что у экспертного досье выше:
 // вердикт → механика → две стороны → оговорки.
+// Кого канал задевает сильнее всего. Модель пишет это поле то именной группой
+// («банки, экспортёры»), то целой фразой («Сильнее всего задевает банки…»,
+// «Давит на компании с высоким долгом.») — в лоб получалось «Сильнее всего —
+// Сильнее всего задевает…» и точка в конце дважды. Срезаем свой же зачин и
+// финальную точку, а не полагаемся на дисциплину модели.
+function whoText(raw) {
+  const s = String(raw || "").trim()
+    .replace(/^сильнее\s+всего\s*(—|-|:)?\s*/i, "")
+    .replace(/\s*\.\s*$/, "");
+  return s || null;
+}
+
 function ScenarioReading({ interp, onOpenCompany }) {
   if (!interp || !interp.headline) return null;
   const channels = interp.channels || [];
@@ -559,16 +571,19 @@ function ScenarioReading({ interp, onOpenCompany }) {
       {interp.economy && <p className="st-dossier-summary">{interp.economy}</p>}
       {channels.length > 0 && (
         <ol className="st-channels">
-          {channels.map((ch, i) => (
-            <li key={i}>
-              <span className="st-channel-n">{i + 1}</span>
-              <span>
-                {ch.channel && <b className="st-reading-chan">{ch.channel}. </b>}
-                {ch.how}
-                {ch.who && <span className="st-reading-who"> Сильнее всего — {ch.who}.</span>}
-              </span>
-            </li>
-          ))}
+          {channels.map((ch, i) => {
+            const who = whoText(ch.who);
+            return (
+              <li key={i}>
+                <span className="st-channel-n">{i + 1}</span>
+                <span>
+                  {ch.channel && <b className="st-reading-chan">{ch.channel}. </b>}
+                  {ch.how}
+                  {who && <span className="st-reading-who"> Сильнее всего — {who}.</span>}
+                </span>
+              </li>
+            );
+          })}
         </ol>
       )}
       <div className="st-shield-grid">
