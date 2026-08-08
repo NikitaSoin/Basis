@@ -1069,7 +1069,8 @@ def _logic_score(review: dict) -> tuple[int, int]:
     return (review.get("hard_count") or 0, len(review.get("issues") or []))
 
 
-def _logic_loop(db: Session, sections: dict, ask, t0: float) -> tuple[dict, dict]:
+def _logic_loop(db: Session, sections: dict, ask, t0: float,
+                expectations: list[dict] | None = None) -> tuple[dict, dict]:
     """Цикл «выпуск → критик → доработка → критик», пока грубые не исчерпаны.
 
     Критик НЕ блокирует публикацию (владелец): даже с оставшимися замечаниями выпуск
@@ -1077,7 +1078,7 @@ def _logic_loop(db: Session, sections: dict, ask, t0: float) -> tuple[dict, dict
     """
     from app.services.macro_logic_critic import review_logic
 
-    review = review_logic(db, sections)
+    review = review_logic(db, sections, expectations)
     best_sections, best_review = sections, review
     passes = []
     for attempt in range(1, _MAX_LOGIC_PASSES + 1):
@@ -1104,7 +1105,7 @@ def _logic_loop(db: Session, sections: dict, ask, t0: float) -> tuple[dict, dict
         if not fixed:
             logger.warning("Интерпретатор: доработка %s не вернула sections", attempt)
             break
-        after = review_logic(db, fixed)
+        after = review_logic(db, fixed, expectations)
         passes.append({"pass": attempt, "before": _logic_score(best_review)[0],
                        "after": _logic_score(after)[0]})
         # 🔴 Берём ЛУЧШУЮ версию, а не последнюю: «переписал» ≠ «стало лучше».
@@ -1167,7 +1168,8 @@ def generate(db: Session) -> MacroInterpretation:
     logic = None
     if sections and os.environ.get("MACRO_LOGIC_CRITIC", "1") == "1":
         try:
-            sections, logic = _logic_loop(db, sections, _ask, t0)
+            sections, logic = _logic_loop(db, sections, _ask, t0,
+                                          snapshot.get("external_expectations"))
         except Exception:  # noqa: BLE001
             logger.warning("Интерпретатор: критик логики не отработал", exc_info=True)
 
