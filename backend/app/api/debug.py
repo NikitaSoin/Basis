@@ -1649,6 +1649,25 @@ def debug_trigger_nonequity_facts(kind: str = "bond", batch: int = 4, secid: str
         db.close()
 
 
+@router.post("/debug/trigger-card-rewrite")
+def debug_trigger_card_rewrite(ticker: str | None = None, batch: int = 2):
+    """ПЕРЕЗАПИСЬ ВЫВОДА вкладки «Макроэкономика» (третья ступень лестницы).
+
+    Запускается на голове очереди дрейфа — там, где расхождение переворачивает
+    рассуждение, а не меняет цифру. Champion/challenger: новая версия публикуется,
+    только если все числа заземлены, триггер закрыт и критик не нашёл регрессий."""
+    from app.db.session import SessionLocal
+    from app.services.card_rewriter import run_macro_rewrites
+    db = SessionLocal()
+    try:
+        return run_macro_rewrites(db, batch=batch, only_ticker=ticker)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-card-rewrite: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-futures-asset-facts")
 def debug_trigger_futures_asset_facts(batch: int = 4, code: str | None = None):
     """Свежесть разборов БАЗОВЫХ АКТИВОВ фьючерсов (крон futures_asset_facts, 6:20).
