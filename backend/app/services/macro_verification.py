@@ -471,6 +471,25 @@ def run_verification(db: Session) -> dict:
         except Exception as e:  # noqa: BLE001
             logger.exception("ОТК данных: проверка упала: %s", e)
             db.rollback()
+
+    # 🔴 Проверка, которая только КРАСНЕЕТ, ничего не чинит. Прецедент 2026-08-08:
+    # «Недельная инфляция выходит по графику» стояла в fail с 6 августа, ряд молча
+    # отставал на две недели, и заметил это владелец, а не платформа. Там, где мы
+    # умеем добыть данные сами, ОТК обязан ЗАПУСКАТЬ добычу, а не ждать человека:
+    # сторож идемпотентен, точка на месте → пара SELECT. Перепроверяем ту же
+    # проверку — в отчёт идёт состояние ПОСЛЕ попытки лечения, чтобы витрина не
+    # показывала fail по ряду, который только что дозагрузился.
+    weekly = next((r for r in results if r["check_key"] == "calendar_weekly_inflation"), None)
+    if weekly and weekly["status"] in ("warn", "fail"):
+        try:
+            from app.services.macro_weekly_watch import watch_weekly_inflation
+            healed = watch_weekly_inflation(db)
+            logger.info("ОТК данных: недельная инфляция отстала → сторож: %s", healed.get("status"))
+            if healed.get("status") in ("fetched", "partial"):
+                results[results.index(weekly)] = _check_weekly_inflation_fresh(db)
+        except Exception:  # noqa: BLE001 — отчёт важнее самолечения
+            logger.warning("ОТК данных: сторож недельной инфляции упал", exc_info=True)
+            db.rollback()
     for r in results:
         db.add(MacroVerification(run_at=run_at, **r))
     db.commit()
