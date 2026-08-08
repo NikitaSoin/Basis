@@ -188,7 +188,7 @@ def identities_hold(card, years):
     return True
 
 
-def fill(ticker, apply, verbose):
+def fill(ticker, apply, verbose, allow_refine=False):
     path = COMPANIES / ticker / "financials.json"
     if not path.exists():
         return None
@@ -213,7 +213,13 @@ def fill(ticker, apply, verbose):
             print(f"  · {ticker}: в ГИР БО отчётности нет")
         return None
     ok, exact_hits = scope_matches(card, data, years, verbose, ticker)
-    if not ok:
+    # 🔴 РЕЖИМ ТОЛЬКО-УТОЧНЕНИЯ для карточек, не прошедших проверку периметра.
+    # Логика: если грубое значение карточки САМО совпадает с числом ФНС в пределах 2%, то
+    # оно из этой же отчётности и взято — просто округлено по дороге. Заменить его точным
+    # значит поменять ТОЛЬКО точность, а не периметр: число остаётся тем же. Дыры при этом
+    # не заполняются и точные значения не трогаются — там периметр мог бы разъехаться.
+    refine_only = not ok
+    if refine_only and not allow_refine:
         return None
 
     # 🔴 Когда источник становится ГЛАВНЫМ, а не дополняющим. Если стержень карточки уже
@@ -222,7 +228,7 @@ def fill(ticker, apply, verbose):
     # незачем: у ФНС весь баланс согласован по построению. Тогда перезаписываем всё, что
     # источник покрывает. Условие намеренно узкое: без доказанного совпадения стержня
     # (просто «похоже») мы бы затирали МСФО группы отчётностью юрлица.
-    authoritative = exact_hits >= 4 and not identities_hold(card, years)
+    authoritative = (not refine_only) and exact_hits >= 4 and not identities_hold(card, years)
     if authoritative:
         print(f"  ! {ticker}: карточка не сходится сама с собой, а {exact_hits} строк совпали с ФНС до рубля "
               f"— беру баланс и P&L из ФНС целиком")
@@ -243,6 +249,8 @@ def fill(ticker, apply, verbose):
         nonlocal filled, refined, kept
         old = vals[i]
         if old is None:
+            if refine_only:
+                return
             vals[i] = round(new, 3)
             filled += 1
         elif not isinstance(old, (int, float)):
@@ -331,7 +339,7 @@ if __name__ == "__main__":
     verbose = "-v" in sys.argv or "--verbose" in sys.argv
     total = 0
     for t in args:
-        r = fill(t, apply, verbose)
+        r = fill(t, apply, verbose, "--refine" in sys.argv)
         total += r or 0
         time.sleep(1.2)                    # госресурс: последовательно, с паузой
     print(f"\nитого изменено значений: {total}" + ("" if apply else "  (сухой прогон)"))

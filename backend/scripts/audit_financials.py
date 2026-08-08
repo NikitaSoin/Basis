@@ -65,6 +65,25 @@ def audit(card, ticker):
     bs = card.get("balance_sheet") or {}
     is_bank = bool(card.get("bank_pnl") or card.get("bank_balance"))
 
+    # 0. ГОДЫ ИДУТ ЗАДОМ НАПЕРЁД.
+    # Это не косметика: вкладка «Финансы» считает соседний столбец ПРЕДЫДУЩИМ годом и берёт
+    # «последний год» как years[-1]. На обратном порядке стрелки динамики показывают рост
+    # падением, а самым свежим годом считается самый старый. Найдено у Эн+ и Черкизово.
+    if list(years) != sorted(years):
+        out.append(("!", "порядок-лет", f"годы идут не по возрастанию: {years} — на вкладке дельты и «последний год» будут неверными"))
+    if len(set(years)) != len(years):
+        out.append(("!", "порядок-лет", f"год встречается дважды: {years}"))
+
+    # 0б. ОТРИЦАТЕЛЬНОЕ ТАМ, ГДЕ ЕГО НЕ БЫВАЕТ. Выручка, активы, запасы, деньги — величины,
+    # которые не могут быть меньше нуля ни при каком результате бизнеса.
+    NEVER_NEGATIVE = ("revenue", "total_assets", "inventory", "cash", "gross_loans")
+    for name in NEVER_NEGATIVE:
+        for node in (card.get("income_statement") or {}, bs):
+            vals = pad(series(node, name), n)
+            for i, y in enumerate(years):
+                if isinstance(vals[i], (int, float)) and vals[i] < 0:
+                    out.append(("!", "знак", f"{name} за {y} = {vals[i]:,.0f} — эта величина не бывает отрицательной"))
+
     ta = pad(series(bs, "total_assets"), n)
     tl = pad(series(bs, "total_liabilities"), n)
     te = pad(series(bs, "total_equity"), n) or pad(series(bs, "equity", "total_equity"), n)
