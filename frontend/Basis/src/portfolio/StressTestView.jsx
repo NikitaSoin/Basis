@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FlaskConical, Send, RotateCcw, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { CompanyLogo } from "../design/CompanyLogo";
+import { PAYMENT_REQUIRED, upgradeMessage } from "../account/entitlements";
 import "../styles/stress-test.css";
 
 // StressTestView v4 — «Стресс-тестирование» как инструмент, не анкета (владелец,
@@ -962,7 +963,14 @@ export default function StressTestView({ onOpenCompany }) {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question }),
     })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      // 🔴 402 — это НЕ сбой сети, а «нужен платный тариф» (см. account/entitlements.js).
+      // На бою рубильник TIER_LIMITS_ENFORCED уже включён, а фронт разбирал ответ по
+      // r.ok и показывал «Не удалось получить ответ — попробуйте ещё раз»: самый
+      // заметный элемент экрана выглядел сломанным у каждого гостя. Разводим случаи.
+      .then((r) => (r.ok ? r.json()
+        : r.status === PAYMENT_REQUIRED
+          ? r.json().catch(() => ({})).then((d) => Promise.reject({ paywall: upgradeMessage(d?.detail) }))
+          : Promise.reject()))
       .then((d) => {
         setAskResult(d); setAskLoading(false);
         if (d.numeric) setNumResult(d.numeric);
@@ -979,7 +987,10 @@ export default function StressTestView({ onOpenCompany }) {
           setTimeout(() => setPulsingFields(new Set()), 900);
         }
       })
-      .catch(() => { setAskResult({ error: "network" }); setAskLoading(false); });
+      .catch((e) => {
+        setAskResult(e && e.paywall ? { paywall: e.paywall } : { error: "network" });
+        setAskLoading(false);
+      });
   };
 
   const runPreset = (key) => {
@@ -1276,6 +1287,22 @@ export default function StressTestView({ onOpenCompany }) {
         {askResult?.error === "network" && (
           <div className="bs-card st-dossier-card">
             <p className="st-dossier-summary" style={{ color: "var(--bs-down)" }}>Не удалось получить ответ — попробуйте ещё раз.</p>
+          </div>
+        )}
+        {/* Тариф, а не ошибка: гость должен понимать, что именно закрыто и что
+            открыто. Готовые сценарии ниже бесплатны и с полным разбором — уводим
+            туда, а не оставляем человека перед тупиком. */}
+        {askResult?.paywall && (
+          <div className="bs-card st-dossier-card">
+            <div className="st-dossier-card-head">
+              <h3>Свой сценарий — на тарифе Max</h3>
+              <span className="bs-tag-fact">тариф</span>
+            </div>
+            <p className="st-dossier-summary">
+              {askResult.paywall} Готовые сценарии слева открыты всем: у каждого есть разбор —
+              что он означает для экономики, какие каналы включаются, кому тяжелее и чего расчёт
+              не видит. Ползунки ставки, курса и нефти тоже работают без подписки.
+            </p>
           </div>
         )}
 

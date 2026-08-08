@@ -85,7 +85,10 @@ def require_feature(user: User | None, feature: str, what: str) -> None:
     if has_feature(user, feature):
         return
     from fastapi import HTTPException
-    raise HTTPException(status_code=402, detail=f"{what} доступно на тарифе Max.")
+    # Формулировка без глагола намеренно: подписи фич бывают и множественного
+    # числа («Свои сценарии стресс-теста»), и единственного («Справедливая цена»),
+    # а шаблон со словом «доступно» давал на бою «Свои сценарии … доступно».
+    raise HTTPException(status_code=402, detail=f"{what} — на тарифе Max.")
 
 
 def assistant_daily_limit(user: User | None) -> int | None:
