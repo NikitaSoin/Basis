@@ -520,8 +520,13 @@ def markets_escalation(db: Session, ticker: str) -> tuple[str | None, str]:
     return "; ".join(reasons), "\n".join(facts)
 
 
-def run_markets_rewrites(db: Session, batch: int = 3, only_ticker: str | None = None) -> dict:
-    """Перезапись выводов «Рынков» там, где цена товара ушла в другую фазу цикла."""
+def run_markets_rewrites(db: Session, batch: int = 3, only_ticker: str | None = None,
+                         use_web: bool = True) -> dict:
+    """Перезапись выводов «Рынков»: цена ушла из фазы цикла ИЛИ утверждения устарели.
+
+    use_web=True включает фазу-добытчика для устаревших утверждений — только там, где
+    внутренних данных заведомо нет (объём рынка за прошлый год из внешней статистики).
+    """
     from sqlalchemy import text as _t
 
     if only_ticker:
@@ -537,6 +542,19 @@ def run_markets_rewrites(db: Session, batch: int = 3, only_ticker: str | None = 
         reason, facts = markets_escalation(db, tk)
         if not reason:
             continue
+        # Если устарели УТВЕРЖДЕНИЯ (а не цена), писателю нечем их заменить из
+        # внутренних данных — здесь и нужна фаза-добытчик. Веба у писателя нет и не
+        # будет: он получает готовое досье. Пустое досье не блокирует прогон —
+        # писатель тогда обязан честно пометить, что данные требуют обновления.
+        if use_web and "устаревшей датой" in reason:
+            need = "\n".join(l for l in facts.split("\n") if l.startswith("  ["))
+            if need:
+                d = scout_dossier(db, tk, need)
+                block = dossier_block(d)
+                if block:
+                    facts += "\n\n" + block
+                logger.info("card_rewriter %s: досье — фактов %d, не найдено %d",
+                            tk, len(d.get("facts") or []), len(d.get("not_found") or []))
         row = rewrite_one(db, tk, "markets", facts=facts,
                           reason=f"цена рынка ушла за рамки разбора: {reason}",
                           force=bool(only_ticker))
@@ -547,3 +565,75 @@ def run_markets_rewrites(db: Session, batch: int = 3, only_ticker: str | None = 
             stats["tickers"].append(f"{tk}:{row.status}")
     logger.info("card_rewriter.run_markets_rewrites: %s", stats)
     return stats
+
+
+# ============================================================================
+# ФАЗА-ДОБЫТЧИК: досье из веба ОТДЕЛЬНО от писателя
+#
+# 🔴 Почему двумя фазами, а не «дать писателю веб». В card_review_agent веб отключён
+# сознательно: при живом тесте один агент, который И ИЩЕТ, И СВОДИТ, уходил в перебор
+# запросов и не сходился к выводу. Разделение снимает причину — добытчик отвечает
+# только за факты со ссылками и не обязан ничего решать, писатель получает готовое
+# досье и не имеет доступа к поиску вообще.
+#
+# 🔴 Пустое досье — это НОРМАЛЬНЫЙ исход, а не сбой. Если фактов не нашлось, перезапись
+# откладывается: лучше устаревший текст, чем свежий и выдуманный. Тот же принцип, что
+# у гейта заземления.
+# ============================================================================
+_SCOUT_SYS = """Ты — добытчик фактов для аналитической платформы. Тебе дан ЗАПРОС: какие
+именно данные нужны, чтобы обновить устаревшее утверждение в разборе компании.
+
+Твоя задача — НАЙТИ ФАКТЫ И ВЕРНУТЬ ИХ СО ССЫЛКАМИ. Ты НИЧЕГО не решаешь и не
+формулируешь выводов: их сделает другой аналитик по твоему досье.
+
+🔴 Правила:
+• ищи экономно: несколько запросов, не долби один источник;
+• каждый факт — с числом, единицей, периодом и ССЫЛКОЙ на источник;
+• чего не нашёл — так и скажи, НЕ ДОДУМЫВАЙ. Пустое досье лучше выдуманного;
+• единицы переноси как в источнике, не пересчитывай;
+• никаких прогнозов и оценок от себя.
+
+Финальный ответ — строго JSON, без вызова инструментов:
+{"facts": [{"what": "<что за показатель>", "value": "<число с единицей>",
+            "period": "<год/квартал/дата>", "source": "<название>", "url": "<ссылка>"}],
+ "not_found": ["<чего найти не удалось>"],
+ "note": "<одно предложение о полноте досье>"}"""
+
+
+def scout_dossier(db: Session, ticker: str, need: str, *, web_calls: int = 3) -> dict:
+    """Собрать досье под конкретную нехватку данных. Возвращает {facts, not_found}."""
+    from app.services.agent_runner import run_agent
+    from app.services.agent_tools import WEB_TOOLS_SCHEMA
+    task = (f"Компания: {ticker}. Нужны свежие данные, чтобы обновить разбор.\n"
+            f"ЧЕГО НЕ ХВАТАЕТ:\n{need}\n\n"
+            f"Сегодня: {datetime.now(timezone.utc).date().isoformat()}. "
+            f"Нужны САМЫЕ СВЕЖИЕ доступные значения с указанием периода.")
+    try:
+        res = run_agent(db, system_prompt=_SCOUT_SYS, task=task,
+                        tools_schema=WEB_TOOLS_SCHEMA, allowed_ticker=ticker,
+                        max_steps=6, web_call_cap=web_calls, step_max_tokens=2200)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("scout_dossier %s: %s", ticker, type(e).__name__)
+        return {"facts": [], "not_found": ["добытчик не отработал"], "error": str(e)[:120]}
+    out = res.get("result") or {}
+    facts = [f for f in (out.get("facts") or [])
+             if isinstance(f, dict) and f.get("value") and f.get("url")]
+    return {"facts": facts, "not_found": out.get("not_found") or [],
+            "note": out.get("note"), "tokens": res.get("tokens_used"),
+            "stopped": res.get("stopped_reason")}
+
+
+def dossier_block(dossier: dict) -> str:
+    """Досье в виде блока фактов для писателя. Пустое — пустая строка (значит,
+    перезапись пойдёт без внешних данных или не пойдёт вовсе)."""
+    facts = dossier.get("facts") or []
+    if not facts:
+        return ""
+    lines = ["ДОСЬЕ ИЗ ВНЕШНИХ ИСТОЧНИКОВ (проверено добытчиком, бери числа отсюда):"]
+    for f in facts[:8]:
+        lines.append(f"  {f.get('what')}: {f.get('value')} ({f.get('period')}) "
+                     f"— {f.get('source')}")
+    if dossier.get("not_found"):
+        lines.append("НЕ НАЙДЕНО (так и напиши, что данных нет, ничего не выдумывай): "
+                     + "; ".join(str(x)[:80] for x in dossier["not_found"][:3]))
+    return "\n".join(lines)
