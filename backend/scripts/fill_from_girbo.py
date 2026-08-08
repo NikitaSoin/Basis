@@ -291,6 +291,11 @@ def fill(ticker, apply, verbose):
         if lt is not None and st is not None:
             write(tl, years.index(y), lt + st, f"{y} total_liabilities")
 
+    # 🔴 Капитал в файле лежит ДВАЖДЫ — плоско и внутри equity. Фронт читает плоское, но
+    # рассинхрон оставляет в карточке две версии правды (уже ловилось на Кармани и Совкомбанке).
+    if isinstance(bs.get("equity"), dict) and isinstance(bs.get("total_equity"), list):
+        bs["equity"]["total_equity"] = list(bs["total_equity"])
+
     problems = []
     for i, y in enumerate(years):
         A, L, E = (bs.get(f, [None] * n)[i] for f in ("total_assets", "total_liabilities", "total_equity"))

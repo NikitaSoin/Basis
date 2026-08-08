@@ -284,8 +284,8 @@
       ],
       "other_non_current_note": "Включает права пользования активами (IFRS16) и прочие долгосрочные активы.",
       "total_non_current": [
-        null,
-        null,
+        167539,
+        183964,
         159749,
         147511,
         150201,
@@ -334,8 +334,8 @@
         null
       ],
       "total_current": [
-        null,
-        null,
+        222582,
+        252950,
         174242,
         212298,
         217250,
@@ -343,8 +343,8 @@
       ]
     },
     "total_assets": [
-      null,
-      null,
+      390121,
+      436914,
       333991,
       359809,
       367451,
@@ -352,24 +352,36 @@
     ],
     "equity": {
       "share_capital": [
+        null,
+        null,
         1798,
         1798,
-        1798
+        1798,
+        null
       ],
       "retained_earnings": [
+        null,
+        null,
         532,
         -6081,
-        -26202
+        -26202,
+        null
       ],
       "additional_paid_in": [
+        null,
+        null,
         4576,
         4576,
-        4576
+        4576,
+        null
       ],
       "other_equity": [
+        null,
+        null,
         -526,
         -526,
-        -526
+        -526,
+        null
       ],
       "total_equity": [
         33639,
@@ -407,8 +419,8 @@
       ],
       "other_non_current_liab_note": "Преимущественно обязательства по аренде IFRS16 (долгосрочные).",
       "total_non_current_liab": [
-        null,
-        null,
+        103064,
+        98263,
         72158,
         59336,
         52418,
@@ -442,8 +454,8 @@
       ],
       "other_current_liab_note": "Включает краткосрочные обязательства по аренде IFRS16 и прочие.",
       "total_current_liab": [
-        null,
-        null,
+        253418,
+        321822,
         255453,
         300706,
         335387,
@@ -451,8 +463,8 @@
       ]
     },
     "total_liabilities": [
-      null,
-      null,
+      356482,
+      420085,
       327611,
       360042,
       387805,

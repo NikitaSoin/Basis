@@ -124,9 +124,16 @@ def audit(card, ticker):
     for name, vals in named.items():
         if any(h in name for h in RATIO_HINTS) or any(h in name for h in STATIC_HINTS):
             continue
+        # Значение, стоящее в ТРЁХ и более годах, — это постоянная статья (у Глобалтрака так
+        # выглядит «прочий капитал», неизменный пять лет подряд), а не перенесённая история.
+        # Настоящие копии, найденные на практике, встречались ровно дважды.
+        counts = {}
+        for v in vals:
+            if v is not None and abs(v) >= 1000:
+                counts[v] = counts.get(v, 0) + 1
         seen = {}
         for i, v in enumerate(vals):
-            if v is None or abs(v) < 1000:
+            if v is None or abs(v) < 1000 or counts[v] > 2:
                 continue
             if v in seen and i - seen[v] > 1:
                 out.append(("!", "копия", f"{name}: {years[seen[v]]} и {years[i]} = {v:,.2f} — одно и то же значение в разные годы"))
@@ -143,6 +150,33 @@ def audit(card, ticker):
             r = abs(b / a)
             if 500 <= r <= 2000 or 1 / 2000 <= r <= 1 / 500:
                 out.append(("!", "единицы", f"{name}: {years[i-1]} → {years[i]} изменение в {r:,.0f}× ({a:,.0f} → {b:,.0f})"))
+
+    # 4б. ДЕТАЛЬ БОЛЬШЕ СОДЕРЖАЩЕГО ЕЁ ЦЕЛОГО.
+    # Проверка «изменение в 1000 раз» поднимает много законного шума (мелкая статья
+    # честно скачет с 1 до 700), поэтому нужен признак, который НЕ МОЖЕТ быть нормой:
+    # строка раздела больше итога раздела, или больше всех активов. Именно так выглядит
+    # значение, вписанное в чужой единице — оно физически не помещается в своё целое.
+    if not is_bank:
+        for section, total_name in (("current_assets", "total_current"),
+                                    ("non_current_assets", "total_non_current"),
+                                    ("current_liabilities", "total_current_liab"),
+                                    ("non_current_liabilities", "total_non_current_liab")):
+            block = bs.get(section)
+            if not isinstance(block, dict):
+                continue
+            totals = pad(series(bs, section, total_name), n)
+            for line, vals in block.items():
+                if not isinstance(vals, list) or line == total_name or line.endswith("note"):
+                    continue
+                vals = pad(vals, n)
+                for i, y in enumerate(years):
+                    v = vals[i]
+                    if not isinstance(v, (int, float)) or abs(v) < 1:
+                        continue
+                    whole = totals[i] if totals[i] is not None else ta[i]
+                    if whole and abs(v) > abs(whole) * 1.02:
+                        out.append(("!", "деталь>целого",
+                                    f"{section}.{line} за {y}: {v:,.0f} больше своего итога {whole:,.0f}"))
 
     # 5. чистое больше валового
     g = pad(series(bs, "gross_loans"), n)
