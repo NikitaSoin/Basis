@@ -81,6 +81,11 @@ _BACKFILL_WEEKS = 3
 _RETRY_COOLDOWN_H = {"current": 3, "backfill": 12}
 _LAST_TRY: dict[date, datetime] = {}
 
+# Почему не нашли — видно только по логам Timeweb, а туда за каждым прогоном не
+# полезешь. Дешёвый след последнего прогона: сколько результатов дал поиск и на чём
+# сорвалось извлечение. Возвращается в ответе ручного триггера.
+_DIAG: dict = {}
+
 
 def _now_msk() -> datetime:
     return datetime.now(timezone.utc) + timedelta(hours=3)
@@ -198,15 +203,19 @@ def _from_web_search(week_end: date) -> dict | None:
             out = web_search(q, 6)
         except Exception as e:  # noqa: BLE001
             logger.warning("weekly-watch: веб-поиск упал (%s)", type(e).__name__)
+            _DIAG["search_error"] = type(e).__name__
             continue
         if isinstance(out, dict) and out.get("error"):
             logger.info("weekly-watch: веб-поиск недоступен: %s", out["error"])
+            _DIAG["search_error"] = str(out["error"])[:120]
             continue
         for r in (out or {}).get("results") or []:
             if isinstance(r, dict) and r.get("url"):
                 results.append(r)
         if len(results) >= 8:
             break
+    _DIAG["search_results"] = len(results)
+    _DIAG["search_titles"] = [str(r.get("title") or "")[:90] for r in results[:3]]
     if not results:
         return None
 
@@ -230,6 +239,7 @@ def _from_web_search(week_end: date) -> dict | None:
         if text:
             docs.append({"idx": i, "title": r.get("title"), "text": text[:6000],
                          "url": r["url"]})
+    _DIAG["docs_fetched"] = len(docs)
     if not docs:
         return None
     got = _extract(docs, week_end)
@@ -250,9 +260,11 @@ def _extract(payload: list[dict], week_end: date) -> dict | None:
             str(payload), json_mode=True, max_tokens=400)
     except llm.LLMError as e:
         logger.warning("weekly-watch: LLM не отработал: %s", e)
+        _DIAG["extract"] = f"llm_error: {type(e).__name__}"
         return None
     got = _validate(out, week_end)
     if not got:
+        _DIAG["extract"] = "не прошло валидацию: " + str(out)[:200]
         return None
     try:
         got["_idx"] = int(out.get("source_idx") or 0)
@@ -331,7 +343,8 @@ def _fetch_week(db: Session, week_end: date, kind: str) -> dict:
             **{k: got[k] for k in saved}, "source": got.get("source"), "upsert": saved}
 
 
-def watch_weekly_inflation(db: Session, backfill_weeks: int = _BACKFILL_WEEKS) -> dict:
+def watch_weekly_inflation(db: Session, backfill_weeks: int = _BACKFILL_WEEKS,
+                           force: bool = False) -> dict:
     """Один прогон сторожа. Идемпотентен: все точки на месте → no-op (пара SELECT).
 
     Смотрит НЕ ТОЛЬКО текущую ожидаемую неделю, но и предыдущие (по умолчанию три):
@@ -341,6 +354,9 @@ def watch_weekly_inflation(db: Session, backfill_weeks: int = _BACKFILL_WEEKS) -
     as_of-понедельник). Существующие точки не трогаются.
     """
     current = _expected_week_end()
+    if force:
+        _LAST_TRY.clear()      # ручной прогон обязан идти сразу, а не ждать паузу
+    _DIAG.clear()
     weeks = [current - timedelta(days=7 * i) for i in range(max(1, backfill_weeks))]
     results = []
     for i, wk in enumerate(weeks):
@@ -353,4 +369,4 @@ def watch_weekly_inflation(db: Session, backfill_weeks: int = _BACKFILL_WEEKS) -
     head = results[0]
     filled = [r for r in results if r["status"] == "fetched"]
     return {**head, "weeks_checked": [str(w) for w in weeks],
-            "filled": filled or None}
+            "filled": filled or None, "diag": dict(_DIAG) or None}

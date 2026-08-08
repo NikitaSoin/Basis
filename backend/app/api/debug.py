@@ -740,14 +740,19 @@ def debug_seed_inflation_yoy_jul27_2026():
 
 
 @router.post("/debug/trigger-weekly-inflation-watch")
-def debug_trigger_weekly_inflation_watch():
+def debug_trigger_weekly_inflation_watch(force: bool = False, backfill_weeks: int = 3):
     """Ручной прогон целевого ловца недельной инфляции (macro_weekly_watch.py) —
-    тот же код, что гоняет крон ср/чт/пт. Идемпотентен."""
+    тот же код, что гоняет крон ср/чт/пт. Идемпотентен.
+
+    force=1 снимает паузу между попытками по одной неделе (пауза бережёт LLM при
+    почасовом кроне, но мешает отлаживать руками). В ответе поле diag: сколько
+    результатов дал веб-поиск и на чём сорвалось извлечение."""
     from app.db.session import SessionLocal
     from app.services.macro_weekly_watch import watch_weekly_inflation
     db = SessionLocal()
     try:
-        return watch_weekly_inflation(db)
+        return watch_weekly_inflation(db, backfill_weeks=max(1, min(backfill_weeks, 6)),
+                                      force=force)
     except Exception as e:  # noqa: BLE001
         logger.exception("debug trigger-weekly-inflation-watch: %s", e)
         return {"error": f"{type(e).__name__}: {e}"}
