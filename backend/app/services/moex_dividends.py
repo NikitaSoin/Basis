@@ -178,11 +178,17 @@ def sync_dividends_from_listing(db: Session) -> dict:
 
     🔴 Зачем. Основной источник истории — ISS /securities/{T}/dividends.json — ПЕРЕСТАЛ
     отдавать свежие выплаты: на бою 2026-08-08 в таблице ноль записей за последние
-    200 дней, последняя от 14.10.2025, а у LKOH ISS обрывается на 03.06.2025. При этом
-    поля листинга REGISTRYCLOSEDATE + DIVIDENDVALUE (rates.csv) дату отсечки и сумму
-    дают — на них уже живёт дивидендный КАЛЕНДАРЬ. То есть данные у нас были, просто
-    в историю не переносились: календарь смотрит вперёд, а таблица выплат — назад,
-    и между ними не было моста.
+    200 дней, последняя от 14.10.2025 (у LKOH ISS обрывается на 03.06.2025, у SBER и
+    AKRN — на июне-июле 2025, за 2026 год НИ ОДНОЙ записи).
+
+    Свежий поток при этом у нас БЫЛ — в дивидендном КАЛЕНДАРЕ: события
+    calendar_events с source='smartlab' идут до 21.09.2026. Календарь смотрит вперёд,
+    таблица выплат — назад, и моста между ними не было: прошедшая отсечка из календаря
+    в историю не переезжала. Отсюда и разрыв в 10 месяцев при живом источнике.
+
+    (Первая версия этой функции брала поля листинга rates.csv — они дают дату отсечки
+    и сумму, но на бою свежих там не оказалось: 107 записей, все прошлогодние и уже
+    в таблице. Листинг оставлен вторым источником-подстраховкой.)
 
     Переносим только ПРОШЕДШИЕ отсечки: будущая — это анонс, а не выплата, ей место
     в календаре. Существующие записи не трогаем (ISS остаётся первоисточником там,
@@ -192,6 +198,34 @@ def sync_dividends_from_listing(db: Session) -> dict:
     today = date.today()
     have = {(t, d) for t, d in db.execute(text("SELECT ticker, record_date FROM dividends"))}
     added, skipped_future = 0, 0
+
+    # Источник 1 — КАЛЕНДАРЬ (smart-lab). Он и есть тот свежий поток, которого не
+    # хватало: на бою у него выплаты до 21.09.2026, тогда как ISS обрывается на
+    # октябре 2025, а поля листинга свежих отсечек не содержат вовсе. Пара
+    # (ticker, record_date) уникальна, сумма лежит в payload.
+    rows = db.execute(text("""
+        SELECT ticker, event_date, payload FROM calendar_events
+        WHERE event_type = 'dividend' AND event_date <= :today
+    """), {"today": today}).fetchall()
+    for ticker, rec, payload in rows:
+        if not ticker or not rec or (ticker, rec) in have:
+            continue
+        try:
+            amount = float((payload or {}).get("amount"))
+        except (TypeError, ValueError):
+            continue
+        if amount <= 0:
+            continue
+        db.execute(text("INSERT INTO dividends (ticker, record_date, amount, currency) "
+                        "VALUES (:t, :d, :a, :c)"),
+                   {"t": ticker, "d": rec, "a": amount,
+                    "c": (payload or {}).get("currency") or "RUB"})
+        have.add((ticker, rec))
+        added += 1
+
+    # Источник 2 — поля листинга. Оставлен как подстраховка: свежего в нём сейчас
+    # нет, но он не зависит от чужого сайта, и если календарь ослепнет — история
+    # хотя бы не остановится.
     for r in _rates_csv_dividends():
         try:
             rec = date.fromisoformat(r["record_date"])
@@ -205,8 +239,9 @@ def sync_dividends_from_listing(db: Session) -> dict:
         db.execute(text("INSERT INTO dividends (ticker, record_date, amount, currency) "
                         "VALUES (:t, :d, :a, 'RUB')"),
                    {"t": r["ticker"], "d": rec, "a": r["amount"]})
+        have.add((r["ticker"], rec))
         added += 1
     if added:
         db.commit()
-    logger.info("Дивиденды из листинга: добавлено %d, впереди (анонсы) %d", added, skipped_future)
+    logger.info("Дивиденды в историю: добавлено %d, впереди (анонсы) %d", added, skipped_future)
     return {"added": added, "announced_ahead": skipped_future}
