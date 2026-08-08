@@ -214,6 +214,32 @@ def _around_numbers(text: str, notes: list[str], width: int = 90) -> list[str]:
     return out or [text[:200]]
 
 
+def _rewrite_drift_note(item: dict) -> str:
+    """Персональный дрейф для ПИСАТЕЛЯ — без служебного процента.
+
+    🔴 Почему не переиспользуем `_drift_note` патчера. Тот пишет «по коэффициентам
+    чувствительности это ≈136% годовой прибыли» — служебная метрика приоритета
+    очереди. Писатель на бою дважды принял её за ПРОГНОЗ и выдал «прирост прибыли
+    на 134%»; критик оба раза отклонил. Запрет в промпте такое не лечит — модель
+    берёт первое похожее число из контекста (в памяти проекта: «контракт данных
+    сильнее правил в промпте»). Поэтому число сюда просто НЕ ПОПАДАЕТ, а сила
+    расхождения передаётся словом.
+    """
+    lines = [f"ЧТО ИЗМЕНИЛОСЬ С МОМЕНТА РАЗБОРА (разбор от {item.get('as_of')}, "
+             f"{item.get('days_old')} дн. назад):"]
+    for spec in (item.get("drift") or {}).values():
+        lines.append(f"- {spec['title']}: было {spec['was']} {spec['unit']}, "
+                     f"стало {spec['now']} {spec['unit']}")
+    impact = abs(float(item.get("impact_pct") or 0))
+    strength = ("очень крупное" if impact >= 100 else
+                "крупное" if impact >= 50 else "заметное")
+    lines.append(f"Для бизнеса этой компании расхождение {strength} — разбор писался "
+                 f"в заметно другой обстановке, и вывод в нём мог устареть. "
+                 f"НЕ ПЕРЕНОСИ эту оценку силы в текст как число: это внутренняя "
+                 f"метрика приоритета, а НЕ прогноз прибыли и не темп её роста.")
+    return "\n".join(lines)
+
+
 def _ask(system: str, task: str, max_tokens: int = 9000) -> dict | None:
     from app.services.llm import complete, LLMError
     try:
@@ -343,7 +369,7 @@ def run_macro_rewrites(db: Session, batch: int = 3, only_ticker: str | None = No
         # Контекст = общая макросреда (та же, что у патчера) + персональный дрейф
         # ЭТОЙ карточки. Персональная часть обязательна: без неё писатель не знает,
         # какое именно расхождение он должен закрыть, и правит «вообще».
-        facts = "\n\n".join(x for x in (_macro_env_grounding(db), _drift_note(item)) if x)
+        facts = "\n\n".join(x for x in (_macro_env_grounding(db), _rewrite_drift_note(item)) if x)
         row = rewrite_one(db, tk, "macro", facts=facts,
                           reason=reason or "ручной прогон", force=bool(only_ticker))
         if row is None:
