@@ -515,12 +515,24 @@ def get_bond(secid: str, db: Session = Depends(get_db)):
 
 
 @router.get("/bonds/{secid}/summary", response_class=PlainTextResponse)
-def get_bond_summary(secid: str):
-    """Текстовая аналитика облигации (bond-analyst, markdown)."""
-    path = BONDS_DIR / _safe(secid) / "analysis_summary.md"
-    if not path.exists():
-        raise HTTPException(status_code=404, detail="Summary not found")
-    return PlainTextResponse(path.read_text(encoding="utf-8"), media_type="text/markdown; charset=utf-8")
+def get_bond_summary(secid: str, db: Session = Depends(get_db)):
+    """Текстовая аналитика облигации (bond-analyst, markdown).
+
+    Читаем ОВЕРЛЕЙ-FIRST: авто-свежесть подтягивает YTM/цену/спред к живым
+    котировкам, а файлы на Timeweb эфемерны (контейнер пересобирается при
+    деплое), поэтому патч живёт в БД."""
+    code = _safe(secid)
+    try:
+        from app.services.card_prose_patcher import read_prose
+        md, _src = read_prose(db, code, "bond")
+    except Exception:  # noqa: BLE001 — модуль-потребитель может доехать раньше
+        md = None
+    if not md:
+        path = BONDS_DIR / code / "analysis_summary.md"
+        if not path.exists():
+            raise HTTPException(status_code=404, detail="Summary not found")
+        md = path.read_text(encoding="utf-8")
+    return PlainTextResponse(md, media_type="text/markdown; charset=utf-8")
 
 
 @router.get("/bonds/{secid}/analysis")

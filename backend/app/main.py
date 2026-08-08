@@ -946,6 +946,28 @@ async def _sector_data_job():
         logger.exception("Ошибка сбора отраслевых данных: %s", e)
 
 
+async def _nonequity_facts_job():
+    """Свежесть разборов ОБЛИГАЦИЙ и ФОНДОВ — та же болезнь, что у фьючерсов:
+    разборы датированы началом июня и называют июньские числа текущими (ЦР БО-03:
+    в тексте «YTM ~53%, цена ~78%», в базе 55.9% и 77.25). Для облигации доходность
+    и есть предмет разбора, поэтому расхождение критично. Правим ЧИСЛА, не вердикт:
+    вердикт «доходность за риск» считается по методике, а не из свежей цены."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.card_prose_patcher import run_nonequity_facts
+        db = SessionLocal()
+        try:
+            return {"bonds": run_nonequity_facts(db, "bond", batch=4),
+                    "funds": run_nonequity_facts(db, "fund", batch=2)}
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Свежесть облигаций и фондов: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка свежести облигаций и фондов: %s", e)
+
+
 async def _futures_asset_facts_job():
     """Свежесть разборов базовых активов фьючерсов (владелец 2026-08-07: «чтобы в
     карточках по облигациям/фьючерсам/фондам информация обновлялась, а не была
@@ -1551,7 +1573,8 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("geo_profile", _geo_profile_job), "cron", day_of_week="sun", hour=22, minute=10, id="geo_profile")  # портрет очагов — НЕДЕЛЬНЫЙ слой (медленные данные: стороны/цели/баланс/связки), воскресенье после суточной цепочки
         scheduler.add_job(_with_heartbeat("sector_data", _sector_data_job), "cron", hour=7, minute=5, id="sector_data")  # отраслевые ряды — ежедневно утром, до всех недельных слоёв
         scheduler.add_job(_with_heartbeat("sector_digest", _sector_digest_job), "cron", hour="8,20", minute=15, id="sector_digest")
-        scheduler.add_job(_with_heartbeat("futures_asset_facts", _futures_asset_facts_job), "cron", hour=6, minute=20, id="futures_asset_facts")  # свежесть разборов базовых активов фьючерсов — ежедневно, ПОСЛЕ ночной загрузки котировок  # отраслевая лента (обзоры/прогнозы рынков) — дважды в сутки, наполняет ленту к воскресной сборке барометра
+        scheduler.add_job(_with_heartbeat("futures_asset_facts", _futures_asset_facts_job), "cron", hour=6, minute=20, id="futures_asset_facts")
+        scheduler.add_job(_with_heartbeat("nonequity_facts", _nonequity_facts_job), "cron", hour=6, minute=35, id="nonequity_facts")  # свежесть разборов облигаций и фондов — следом за фьючерсами, по тем же ночным котировкам  # свежесть разборов базовых активов фьючерсов — ежедневно, ПОСЛЕ ночной загрузки котировок  # отраслевая лента (обзоры/прогнозы рынков) — дважды в сутки, наполняет ленту к воскресной сборке барометра
         scheduler.add_job(_with_heartbeat("sector_barometer", _sector_barometer_job), "cron", day_of_week="sun", hour=21, minute=30, id="sector_barometer")  # отраслевой барометр — первым в недельной цепочке: его выход читают портреты и карточки
         scheduler.add_job(_with_heartbeat("institutions_domains", _institutions_domains_job), "cron", day_of_week="sun", hour=21, minute=55, id="institutions_domains")  # замеры направлений — ДО портрета институтов: портрет использует их как вход
         scheduler.add_job(_with_heartbeat("institutions_profile", _institutions_profile_job), "cron", day_of_week="sun", hour=22, minute=20, id="institutions_profile")  # портрет институтов — недельный, после portrait очагов (22:10) и до ОТК (22:30)

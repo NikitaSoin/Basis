@@ -89,12 +89,21 @@ def get_fund(secid: str, db: Session = Depends(get_db)):
 
 
 @router.get("/funds/{secid}/summary", response_class=PlainTextResponse)
-def get_fund_summary(secid: str):
-    """Текстовая аналитика фонда (fund-analyst, markdown)."""
-    path = FUNDS_DIR / _safe(secid) / "analysis_summary.md"
-    if not path.exists():
-        raise HTTPException(status_code=404, detail="Summary not found")
-    return PlainTextResponse(path.read_text(encoding="utf-8"), media_type="text/markdown; charset=utf-8")
+def get_fund_summary(secid: str, db: Session = Depends(get_db)):
+    """Текстовая аналитика фонда (fund-analyst, markdown). Оверлей-first —
+    см. пояснение в bonds.get_bond_summary."""
+    code = _safe(secid)
+    try:
+        from app.services.card_prose_patcher import read_prose
+        md, _src = read_prose(db, code, "fund")
+    except Exception:  # noqa: BLE001
+        md = None
+    if not md:
+        path = FUNDS_DIR / code / "analysis_summary.md"
+        if not path.exists():
+            raise HTTPException(status_code=404, detail="Summary not found")
+        md = path.read_text(encoding="utf-8")
+    return PlainTextResponse(md, media_type="text/markdown; charset=utf-8")
 
 
 @router.get("/funds/{secid}/analysis")

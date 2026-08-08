@@ -1632,6 +1632,22 @@ def _inst_bg(name: str, fn) -> dict:
     return {"running": True, "note": "запущено в фоне, смотри GET-эндпоинт раздела"}
 
 
+@router.post("/debug/trigger-nonequity-facts")
+def debug_trigger_nonequity_facts(kind: str = "bond", batch: int = 4, secid: str | None = None):
+    """Свежесть разборов ОБЛИГАЦИЙ (kind=bond) или ФОНДОВ (kind=fund).
+    Крон nonequity_facts, 6:35. Правит числа (YTM/цена/спред), НЕ вердикт."""
+    from app.db.session import SessionLocal
+    from app.services.card_prose_patcher import run_nonequity_facts
+    db = SessionLocal()
+    try:
+        return run_nonequity_facts(db, kind, batch=batch, only_secid=secid)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-nonequity-facts: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-futures-asset-facts")
 def debug_trigger_futures_asset_facts(batch: int = 4, code: str | None = None):
     """Свежесть разборов БАЗОВЫХ АКТИВОВ фьючерсов (крон futures_asset_facts, 6:20).

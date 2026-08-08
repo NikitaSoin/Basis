@@ -45,6 +45,10 @@ logger = logging.getLogger(__name__)
 
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 FUTURES_ASSETS_DIR = Path(__file__).parent.parent.parent / "futures_assets"
+_NONEQUITY_DIR = {
+    "bond": Path(__file__).parent.parent.parent / "bonds",
+    "fund": Path(__file__).parent.parent.parent / "funds",
+}
 
 # вкладка → файл прозы (summary.md — основной аналитический текст вкладки)
 _TAB_FILE = {
@@ -147,6 +151,9 @@ def _tab_path(ticker: str, tab: str) -> Path | None:
     # которых уже нет в списке торгуемых).
     if tab == "futures_asset":
         return FUTURES_ASSETS_DIR / _safe_code(ticker) / "analysis.md"
+    # Облигации и фонды: «тикер» — это SECID/ISIN, проза лежит своим деревом.
+    if tab in _NONEQUITY_DIR:
+        return _NONEQUITY_DIR[tab] / _safe_code(ticker) / "analysis_summary.md"
     fn = _TAB_FILE.get(tab)
     return (COMPANIES_DIR / ticker.upper() / fn) if fn else None
 
@@ -1517,4 +1524,137 @@ def run_futures_asset_facts(db: Session, batch: int = 4,
         if row is not None:
             stats[row.status] = stats.get(row.status, 0) + 1
     logger.info("card_prose_patcher.run_futures_asset_facts: %s", stats)
+    return stats
+
+
+# ============================================================================
+# СВЕЖЕСТЬ РАЗБОРОВ ОБЛИГАЦИЙ И ФОНДОВ
+# Та же болезнь, что у фьючерсов: разборы датированы началом июня и называют
+# июньские числа текущими. Проверено на бою 2026-08-08 по ЦР БО-03: в тексте
+# «YTM ~53%, цена ~78%», в базе — 57.07% и 77.13. Для облигации это не косметика:
+# доходность и есть предмет разбора.
+#
+# 🔴 Осознанное ограничение: правим ЧИСЛА, не ВЕРДИКТ. Вердикт «доходность за риск»
+# считается по методичке (docs/bond_analys.md) через светофор и риск-скор, и
+# пересчитывать его подстановкой свежего YTM нельзя — это работа bond-risk-analyst.
+# Поэтому патчер обязан оставить вердикт и рейтинг в покое.
+# ============================================================================
+_BOND_SYS = """Ты — аналитик-редактор платформы Basis (не брокер, без «купить/продать»
+и целевых цен). Дан разбор ОБЛИГАЦИИ и АКТУАЛЬНЫЕ РЫНОЧНЫЕ ДАННЫЕ по ней.
+
+Поправь ТОЧЕЧНО только то, что разошлось с данными: доходность к погашению (YTM),
+цену, спред к ОФЗ, дюрацию, дату актуальности данных.
+
+🔴 ЧЕГО НЕ ТРОГАТЬ НИ ПРИ КАКИХ УСЛОВИЯХ:
+• вердикт «адекватна ли доходность риску» и любые оценки риска — они считаются по
+  отдельной методике, а не выводятся из свежей цены;
+• кредитный рейтинг, его дату и историю понижений;
+• факты об эмитенте: бизнес, собственники, дефолты, суды, параметры выпуска;
+• структуру и заголовки текста.
+
+🔴 ПРАВИЛА ЧИСЕЛ: бери только из блока актуальных данных; если нужного числа там
+нет — фрагмент НЕ ТРОГАЙ; сохраняй эпистемические пометки (факт / оценка / суждение)
+и обновляй дату актуальности рядом с обновлённым числом. Если YTM изменился так, что
+прежняя словесная оценка («мусорный уровень», «на грани») стала явно неверной —
+не переписывай оценку сам, просто оставь как есть: это не твоя зона."""
+
+_FUND_SYS = """Ты — аналитик-редактор платформы Basis (не брокер, без «купить/продать»
+и целевых цен). Дан разбор БИРЖЕВОГО ФОНДА и АКТУАЛЬНЫЕ ДАННЫЕ по нему.
+
+Поправь ТОЧЕЧНО только разошедшееся с данными: цену пая, оборот и ликвидность,
+дату актуальности. Комиссию (TER) правь ТОЛЬКО если её свежее значение прямо есть
+в актуальных данных — иначе не трогай.
+
+🔴 НЕ ТРОГАТЬ: состав и стратегию фонда, сравнение с конкурентами по TER, суждения
+о роли фонда в портфеле, структуру текста. Числа брать только из блока актуальных
+данных, ничего не досчитывать."""
+
+
+def _bond_grounding(db: Session, secid: str) -> str:
+    row = db.execute(text("""
+        SELECT ytm, last_price, duration_days, coupon_percent, maturity_date,
+               short_name, spread_bp, agency_rating, updated_at
+        FROM bonds WHERE secid = :s
+    """), {"s": secid}).first()
+    if not row:
+        return ""
+    parts = [f"ОБЛИГАЦИЯ: {secid} {row[5] or ''}".strip(),
+             f"Сегодня: {datetime.now(timezone.utc).date().isoformat()}"]
+    labels = [("Доходность к погашению (YTM), %", row[0]),
+              ("Цена, % от номинала", row[1]),
+              ("Купон, % годовых", row[3]),
+              ("Спред к ОФЗ, б.п.", row[6])]
+    for name, val in labels:
+        if val is not None:
+            parts.append(f"  {name}: {float(val):g}")
+    if row[2] is not None:
+        # в базе дюрация в ДНЯХ, в прозе её принято называть в годах — переводим
+        # здесь, чтобы модель не делила сама и не ошиблась в арифметике
+        parts.append(f"  Дюрация: {float(row[2]) / 365:.2f} года ({float(row[2]):g} дней)")
+    if row[4]:
+        parts.append(f"  Погашение: {row[4]}")
+    if row[7]:
+        parts.append(f"  Кредитный рейтинг в базе: {row[7]} (СПРАВОЧНО — рейтинг НЕ ПРАВИТЬ)")
+    if row[8]:
+        parts.append(f"  Котировки обновлены: {row[8]}")
+    return "\n".join(parts)
+
+
+def _fund_grounding(db: Session, secid: str) -> str:
+    row = db.execute(text("""
+        SELECT last_price, val_today, short_name, updated_at, ter, num_trades
+        FROM funds WHERE secid = :s
+    """), {"s": secid}).first()
+    if not row:
+        return ""
+    parts = [f"ФОНД: {secid} {row[2] or ''}".strip(),
+             f"Сегодня: {datetime.now(timezone.utc).date().isoformat()}"]
+    if row[0] is not None:
+        parts.append(f"  Цена пая, руб.: {float(row[0]):g}")
+    if row[1] is not None:
+        parts.append(f"  Оборот за день, руб.: {float(row[1]):g}")
+    if row[5] is not None:
+        parts.append(f"  Сделок за день: {int(row[5])}")
+    if row[4] is not None:
+        parts.append(f"  Комиссия TER, % годовых: {float(row[4]):g}")
+    if row[3]:
+        parts.append(f"  Котировки обновлены: {row[3]}")
+    return "\n".join(parts)
+
+
+def run_nonequity_facts(db: Session, kind: str, batch: int = 4,
+                        only_secid: str | None = None) -> dict:
+    """Свежесть разборов облигаций (kind='bond') или фондов (kind='fund')."""
+    if kind not in _NONEQUITY_DIR:
+        return {"error": f"неизвестный тип {kind}"}
+    root = _NONEQUITY_DIR[kind]
+    if only_secid:
+        codes = [only_secid.upper()]
+    else:
+        codes = sorted(p.name for p in root.iterdir()
+                       if p.is_dir() and (p / "analysis_summary.md").exists())
+        codes = _env_queue(db, kind, codes, batch)
+    ground = _bond_grounding if kind == "bond" else _fund_grounding
+    sys_prompt = _BOND_SYS if kind == "bond" else _FUND_SYS
+    stats = {"kind": kind, "queued": len(codes), "published": 0, "rejected": 0,
+             "no_data": 0, "codes": codes}
+    for code in codes:
+        grounding = ground(db, code)
+        if not grounding:
+            # бумаги нет в наших таблицах (погашена, делистинг) — гадать нельзя
+            stats["no_data"] += 1
+            continue
+
+        def _tb(p: str, _g=grounding) -> str:
+            return (f"АКТУАЛЬНЫЕ ДАННЫЕ:\n{_g}\n\n"
+                    f"РАЗБОР (правь точечно только разошедшееся с данными):\n"
+                    f"<<<\n{p[:8000]}\n>>>")
+
+        row = _run_patch(db, code, kind, sys=sys_prompt + _JSON_ONLY,
+                         task_builder=_tb, grounding_text=grounding,
+                         kind="fact", strict_numbers=True,
+                         evidence_extra={"nonequity": kind})
+        if row is not None:
+            stats[row.status] = stats.get(row.status, 0) + 1
+    logger.info("card_prose_patcher.run_nonequity_facts[%s]: %s", kind, stats)
     return stats
