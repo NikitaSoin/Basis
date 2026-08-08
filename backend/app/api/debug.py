@@ -1714,6 +1714,22 @@ def debug_probe_urls(body: _ProbeUrlsIn):
     return {"checked": len(out), "results": out}
 
 
+@router.post("/debug/trigger-dividends-from-listing")
+def debug_trigger_dividends_from_listing():
+    """Перенос ПРОШЕДШИХ объявленных отсечек из листинга (rates.csv) в историю выплат.
+    Нужен потому, что ISS /dividends.json перестал отдавать свежие выплаты."""
+    from app.db.session import SessionLocal
+    from app.services.moex_dividends import sync_dividends_from_listing
+    db = SessionLocal()
+    try:
+        return sync_dividends_from_listing(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug dividends-from-listing: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.get("/debug/probe-feed")
 def debug_probe_feed(url: str, method: str = "rss"):
     """Проверка ленты С БОЕВОГО IP нашим же парсером — сколько записей, какая свежая.

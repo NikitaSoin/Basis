@@ -171,3 +171,42 @@ def get_market_param(db: Session, key: str) -> tuple[float, date | None] | None:
         text("SELECT value, as_of FROM market_params WHERE key = :k"), {"k": key}
     ).first()
     return (float(row.value), row.as_of) if row else None
+
+
+def sync_dividends_from_listing(db: Session) -> dict:
+    """Пополнить историю выплат ОБЪЯВЛЕННЫМИ дивидендами из листинга (rates.csv).
+
+    🔴 Зачем. Основной источник истории — ISS /securities/{T}/dividends.json — ПЕРЕСТАЛ
+    отдавать свежие выплаты: на бою 2026-08-08 в таблице ноль записей за последние
+    200 дней, последняя от 14.10.2025, а у LKOH ISS обрывается на 03.06.2025. При этом
+    поля листинга REGISTRYCLOSEDATE + DIVIDENDVALUE (rates.csv) дату отсечки и сумму
+    дают — на них уже живёт дивидендный КАЛЕНДАРЬ. То есть данные у нас были, просто
+    в историю не переносились: календарь смотрит вперёд, а таблица выплат — назад,
+    и между ними не было моста.
+
+    Переносим только ПРОШЕДШИЕ отсечки: будущая — это анонс, а не выплата, ей место
+    в календаре. Существующие записи не трогаем (ISS остаётся первоисточником там,
+    где он ещё отдаёт данные).
+    """
+    from app.services.calendar_events import _rates_csv_dividends
+    today = date.today()
+    have = {(t, d) for t, d in db.execute(text("SELECT ticker, record_date FROM dividends"))}
+    added, skipped_future = 0, 0
+    for r in _rates_csv_dividends():
+        try:
+            rec = date.fromisoformat(r["record_date"])
+        except (ValueError, TypeError):
+            continue
+        if rec > today:
+            skipped_future += 1
+            continue
+        if (r["ticker"], rec) in have:
+            continue
+        db.execute(text("INSERT INTO dividends (ticker, record_date, amount, currency) "
+                        "VALUES (:t, :d, :a, 'RUB')"),
+                   {"t": r["ticker"], "d": rec, "a": r["amount"]})
+        added += 1
+    if added:
+        db.commit()
+    logger.info("Дивиденды из листинга: добавлено %d, впереди (анонсы) %d", added, skipped_future)
+    return {"added": added, "announced_ahead": skipped_future}

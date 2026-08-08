@@ -49,7 +49,8 @@ async def _coefficients_job():
     остаёмся на последних сохранённых значениях."""
     def _run():
         from app.services.moex_coefficients import sync_official_betas
-        from app.services.moex_dividends import sync_dividends_for, update_risk_free_rate
+        from app.services.moex_dividends import (
+            sync_dividends_for, sync_dividends_from_listing, update_risk_free_rate)
         from app.db.session import SessionLocal
         from app.models.company import Company
         import time as _time
@@ -65,6 +66,16 @@ async def _coefficients_job():
                 except Exception:
                     db.rollback()
                 _time.sleep(0.2)
+            # Мост «календарь → история»: ISS перестал отдавать свежие выплаты
+            # (на бою ноль записей за 200 дней), а поля листинга дату отсечки и
+            # сумму дают — на них живёт дивидендный календарь. Переносим прошедшие
+            # отсечки в историю, иначе дивдоходность и total return считаются по
+            # данным годичной давности.
+            try:
+                sync_dividends_from_listing(db)
+            except Exception:  # noqa: BLE001
+                db.rollback()
+                logger.exception("Дивиденды из листинга: сбой")
         finally:
             db.close()
 
