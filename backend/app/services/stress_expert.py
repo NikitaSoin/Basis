@@ -163,14 +163,20 @@ def expert_answer(db: Session, question: str, understood: str | None = None) -> 
         items = raw.get(side) or []
         raw[side] = [x for x in items if isinstance(x, dict) and x.get("ticker") in valid]
 
+    # 🔴 Служебные имена факторов текут в русскую прозу («чувствительность к
+    # fiscal-фактору», «fiscal-экспозиция −1.0») — модель цитирует имена полей из
+    # переданных карт экспозиций. Промптом это не лечится надёжно, поэтому подмена
+    # кодом на выходе — та же, что у разбора пресетов (stress_interpreter._ru_factors).
+    from app.services.stress_interpreter import _ru_factors
+
     out = {
-        "summary": raw.get("summary"),
-        "channels": raw.get("channels") or [],
-        "sector_winners": raw.get("sector_winners") or [],
-        "sector_losers": raw.get("sector_losers") or [],
-        "company_winners": raw.get("company_winners") or [],
-        "company_losers": raw.get("company_losers") or [],
-        "caveats": raw.get("caveats") or [],
+        "summary": _ru_factors(raw.get("summary")),
+        "channels": _ru_factors(raw.get("channels") or []),
+        "sector_winners": _ru_factors(raw.get("sector_winners") or []),
+        "sector_losers": _ru_factors(raw.get("sector_losers") or []),
+        "company_winners": _ru_factors(raw.get("company_winners") or []),
+        "company_losers": _ru_factors(raw.get("company_losers") or []),
+        "caveats": _ru_factors(raw.get("caveats") or []),
         "kb_note": "Ответ построен ИИ на материалах платформы (геобарометр, факторные карты, вселенная компаний) — суждение, не расчёт.",
     }
     with _cache_lock:

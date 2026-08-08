@@ -495,11 +495,18 @@ _FACTOR_RU = {
     "refi": "рефинансирование", "tax": "налоги",
 }
 _FACTOR_RE = re.compile(r"\b(" + "|".join(_FACTOR_RU) + r")\b", re.I)
+# Сращённые формы вида «fiscal-фактору», «fiscal-экспозицию»: лобовая подстановка дала
+# бы «налоги-фактору». Разворачиваем в «фактору «налоги»» — падеж русского слова
+# сохраняется, служебное имя уходит в кавычки как значение.
+_FACTOR_COMPOUND_RE = re.compile(
+    r"\b(" + "|".join(_FACTOR_RU) + r")-([а-яё]+)", re.I)
 
 
 def _ru_factors(value):
     """Рекурсивно по строкам структуры: служебный ключ → русское имя."""
     if isinstance(value, str):
+        value = _FACTOR_COMPOUND_RE.sub(
+            lambda m: f"{m.group(2)} «{_FACTOR_RU[m.group(1).lower()]}»", value)
         return _FACTOR_RE.sub(lambda m: _FACTOR_RU[m.group(1).lower()], value)
     if isinstance(value, list):
         return [_ru_factors(v) for v in value]
