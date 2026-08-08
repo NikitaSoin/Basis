@@ -240,6 +240,35 @@ def _rewrite_drift_note(item: dict) -> str:
     return "\n".join(lines)
 
 
+def _commodity_facts(db: Session) -> str:
+    """Сырьевые цены С ЯВНЫМ НАЗВАНИЕМ СОРТА и готовым дисконтом.
+
+    🔴 Зачем отдельным блоком. В общем макро-контексте цена приходит под родовым
+    словом «нефть» (это Brent), а карточка нефтяника рассуждает про URALS и про
+    ДИСКОНТ к Brent. Писатель на бою трижды подряд — SIBN, BANE, TATN — перепутал
+    сорта и выдумал величину дисконта; критик каждый раз отклонял. Числа при этом
+    у нас ЕСТЬ (Urals 75,26, Brent 82,27, скидка 5,46) — просто не передавались.
+    Даём их явно и готовыми, чтобы не осталось повода считать самому.
+    """
+    from sqlalchemy import text as _t
+    rows = db.execute(_t("""
+        SELECT i.code, i.title, m.value, m.as_of
+        FROM macro_indicators i
+        JOIN LATERAL (SELECT value, as_of FROM macro_data_points p
+                      WHERE p.indicator_code = i.code AND p.metric = 'level'
+                      ORDER BY as_of DESC LIMIT 1) m ON true
+        WHERE i.code IN ('oil_brent', 'urals', 'urals_brent_spread', 'wb_gold', 'wb_silver')
+    """)).fetchall()
+    if not rows:
+        return ""
+    out = ["СЫРЬЕВЫЕ ЦЕНЫ (названия сортов точные, не путай их между собой):"]
+    for code, title, value, as_of in rows:
+        out.append(f"  {title}: {float(value):g} (на {as_of})")
+    out.append("  Дисконт Urals к Brent БЕРИ ГОТОВЫМ из строки «Скидка на российскую "
+               "нефть» — НЕ вычисляй его сам и не округляй.")
+    return "\n".join(out)
+
+
 def _ask(system: str, task: str, max_tokens: int = 9000) -> dict | None:
     from app.services.llm import complete, LLMError
     try:
@@ -369,7 +398,8 @@ def run_macro_rewrites(db: Session, batch: int = 3, only_ticker: str | None = No
         # Контекст = общая макросреда (та же, что у патчера) + персональный дрейф
         # ЭТОЙ карточки. Персональная часть обязательна: без неё писатель не знает,
         # какое именно расхождение он должен закрыть, и правит «вообще».
-        facts = "\n\n".join(x for x in (_macro_env_grounding(db), _rewrite_drift_note(item)) if x)
+        facts = "\n\n".join(x for x in (_macro_env_grounding(db), _commodity_facts(db),
+                                        _rewrite_drift_note(item)) if x)
         row = rewrite_one(db, tk, "macro", facts=facts,
                           reason=reason or "ручной прогон", force=bool(only_ticker))
         if row is None:
