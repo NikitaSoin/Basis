@@ -15,6 +15,7 @@
 `-H "X-Debug-Token: $DEBUG_API_TOKEN"`."""
 import json
 import logging
+import re
 import os
 import ssl
 import urllib.request
@@ -1670,6 +1671,7 @@ from pydantic import BaseModel
 class _ProbeUrlsIn(BaseModel):
     urls: list[str]
     marker: str | None = None   # слово, которое ОБЯЗАНО быть в теле (проверка содержимого)
+    snippet: int = 0            # сколько знаков ТЕКСТА вернуть (0 — не возвращать)
 
 
 @router.post("/debug/probe-urls")
@@ -1704,6 +1706,12 @@ def debug_probe_urls(body: _ProbeUrlsIn):
                 rec[mode] = {"code": r.status_code, "size": len(r.content),
                              "marker": (body.marker.lower() in body_txt.lower())
                              if body.marker else None}
+                if body.snippet:
+                    # Текст без разметки: понять, что на странице, размер не даёт —
+                    # SPA-каркас и таблица со статистикой весят одинаково.
+                    txt = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", body_txt)
+                    txt = re.sub(r"(?s)<[^>]+>", " ", txt)
+                    rec[mode]["text"] = re.sub(r"\s+", " ", txt).strip()[:body.snippet]
             except Exception as e:  # noqa: BLE001
                 rec[mode] = {"error": type(e).__name__}
             if mode == "direct" and isinstance(rec.get("direct"), dict) \
