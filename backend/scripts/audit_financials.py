@@ -44,6 +44,15 @@ def close(a, b, tol=0.01, floor=1.0):
     return abs(a - b) <= max(abs(b) * tol, floor)
 
 
+def sig_digits(v):
+    """Сколько значащих цифр несёт число: 10 400 -> 3, 25 048,573 -> 8.
+    Это мера ТОЧНОСТИ, устойчивая к масштабу: у компании, отчитывающейся в миллиардах,
+    точное число в наших миллионах законно кратно сотне, и «делимость на 100» его
+    оболгала бы (первая версия проверки так и записала всю Роснефть в прикидки)."""
+    s = f"{abs(v):.10g}".replace(".", "").rstrip("0")
+    return len(s.lstrip("0")) or 1
+
+
 def audit(card, ticker):
     """Возвращает список находок: (тяжесть, тип, текст)."""
     out = []
@@ -108,8 +117,10 @@ def audit(card, ticker):
     # часть или много значащих цифр.
     RATIO_HINTS = ("ratio", "margin", "per_share", "_pct", "yield", "turnover", "coverage")
     # Уставный капитал, эмиссионный доход и подобные статьи законно НЕ меняются годами —
-    # повтор значения там норма, а не копия истории.
-    STATIC_HINTS = ("share_capital", "additional_paid_in", "share_premium", "treasury")
+    # повтор значения там норма, а не копия истории. Гудвил — туда же: между переоценками
+    # он стоит на месте по построению (проверено на НМТП и ВСМПО — обе «копии» оказались
+    # обычным неизменным гудвилом).
+    STATIC_HINTS = ("share_capital", "additional_paid_in", "share_premium", "treasury", "goodwill")
     for name, vals in named.items():
         if any(h in name for h in RATIO_HINTS) or any(h in name for h in STATIC_HINTS):
             continue
@@ -170,25 +181,28 @@ def audit(card, ticker):
         if flips >= 2:
             out.append(("?", "перестановка", f"соотношение капитала к обязательствам скачет через единицу {flips} раз — возможна перестановка строк местами"))
 
-    # 8. ПОДОЗРИТЕЛЬНО КРУГЛЫЕ среди неокруглённых.
+    # 8. ПОДОЗРИТЕЛЬНО ГРУБЫЕ среди точных.
     # Добавлено после Глобалтрака и О'Кея: там весь набор был не из отчётности, но
     # сходился сам с собой, поэтому тест на баланс молчал. Выдаёт подмену именно
     # фактура: рядом с 117 014,3 стоит ровное 83 600 — так отчётность не выглядит.
+    # 🔴 Мерить надо ЗНАЧАЩИМИ ЦИФРАМИ, а не делимостью на сотню: первая версия теста
+    # объявила «прикидкой» всю Роснефть — она отчитывается в миллиардах, и в наших
+    # миллионах её точные числа законно кратны сотне (20 000 000 = 8 значащих цифр).
     for name, vals in named.items():
-        nums = [v for v in vals if isinstance(v, (int, float)) and abs(v) >= 1000]
+        nums = [v for v in vals if isinstance(v, (int, float)) and abs(v) >= 100]
         if len(nums) < 4:
             continue
-        flags_round = [isinstance(v, (int, float)) and abs(v) >= 1000 and v % 100 == 0 for v in vals]
-        exact = [v for v in nums if v % 100 != 0]
-        # ищем непрерывную цепочку ровных значений длиной ≥3 при наличии точных рядом:
-        # именно так выглядит «кусок ряда из другого источника»
+        rough = [i for i, v in enumerate(vals)
+                 if isinstance(v, (int, float)) and abs(v) >= 100 and sig_digits(v) <= 3]
+        exact = [v for v in nums if sig_digits(v) >= 5]
         best = run = 0
-        for fl in flags_round:
-            run = run + 1 if fl else 0
+        for i in range(n):
+            run = run + 1 if i in rough else 0
             best = max(best, run)
         if best >= 3 and len(exact) >= 2:
-            years_round = [years[i] for i, fl in enumerate(flags_round) if fl]
-            out.append(("?", "круглые", f"{name}: {', '.join(map(str, years_round))} — подряд идущие ровные сотни при точных значениях в других годах (похоже на кусок ряда из другого источника)"))
+            out.append(("?", "грубые", f"{name}: {', '.join(str(years[i]) for i in rough)} — подряд идущие "
+                                       f"значения в три значащие цифры при точных в других годах "
+                                       f"(похоже на кусок ряда из другого источника)"))
 
     # 8. дыры в ключевых строках
     holes = sum(1 for vals in (ta, tl, te) for v in vals if v is None)

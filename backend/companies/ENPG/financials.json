@@ -393,6 +393,7 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
+        null,
         10725,
         10472,
         11607,
@@ -400,6 +401,7 @@
         9577
       ],
       "intangibles": [
+        null,
         1921,
         2086,
         2417,
@@ -411,9 +413,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "long_term_investments": [
+        null,
         4906,
         4542,
         5194,
@@ -421,6 +425,7 @@
         3832
       ],
       "deferred_tax_assets": [
+        null,
         379,
         264,
         98,
@@ -428,6 +433,7 @@
         244
       ],
       "other_non_current": [
+        null,
         481,
         643,
         null,
@@ -435,6 +441,7 @@
         228
       ],
       "total_non_current": [
+        null,
         18412,
         18020,
         null,
@@ -444,6 +451,7 @@
     },
     "current_assets": {
       "inventory": [
+        null,
         4458,
         3575,
         null,
@@ -451,6 +459,7 @@
         2339
       ],
       "receivables": [
+        null,
         1723,
         1723,
         null,
@@ -458,6 +467,7 @@
         1431
       ],
       "cash": [
+        null,
         1883,
         2347,
         null,
@@ -465,6 +475,7 @@
         2562
       ],
       "short_term_investments": [
+        null,
         133,
         97,
         null,
@@ -472,6 +483,7 @@
         237
       ],
       "other_current": [
+        null,
         864,
         626,
         null,
@@ -479,6 +491,7 @@
         30
       ],
       "total_current": [
+        null,
         9061,
         8368,
         null,
@@ -569,6 +582,7 @@
     },
     "non_current_liabilities": {
       "long_term_debt": [
+        null,
         4983,
         8477,
         null,
@@ -576,6 +590,7 @@
         10215
       ],
       "deferred_tax": [
+        null,
         1179,
         991,
         null,
@@ -583,6 +598,7 @@
         1139
       ],
       "other_non_current_liab": [
+        null,
         462,
         547,
         null,
@@ -590,6 +606,7 @@
         667
       ],
       "total_non_current_liab": [
+        null,
         6624,
         10015,
         null,
@@ -599,6 +616,7 @@
     },
     "current_liabilities": {
       "short_term_debt": [
+        null,
         5781,
         2587,
         null,
@@ -606,6 +624,7 @@
         2173
       ],
       "payables": [
+        null,
         1761,
         1369,
         null,
@@ -613,6 +632,7 @@
         2156
       ],
       "other_current_liab": [
+        null,
         1026,
         836,
         null,
@@ -620,6 +640,7 @@
         246
       ],
       "total_current_liab": [
+        null,
         8568,
         4792,
         null,
@@ -682,7 +703,8 @@
       null,
       10311,
       6065
-    ]
+    ],
+    "sections_realigned_note": "Разделы баланса были сдвинуты на 1 год относительно итогов: сумма «оборотные + внеоборотные» под меткой одного года в точности, до последнего разряда, совпадала с итогом активов другого. Метки лет исправлены 2026-08-08; после исправления разделы сходятся со своими итогами."
   },
   "cash_flow": {
     "cfo": [
