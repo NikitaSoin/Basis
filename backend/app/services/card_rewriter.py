@@ -143,6 +143,9 @@ _WRITER_SYS = """Ты — аналитик платформы Basis (не бро
 🔴 ЧИСЛА — ТОЛЬКО ИЗ БЛОКА АКТУАЛЬНЫХ ДАННЫХ ИЛИ ИЗ САМОГО ТЕКСТА. Ни одного числа,
 которого нет ни там, ни там. Если для нового уровня данных не хватает — не выдумывай
 его, а напиши честно, что уровень требует пересчёта.
+🔴 НЕ ОКРУГЛЯЙ ДО «КРАСИВОГО». Дано 82,27 — пиши «82,27» или «около 82», но НЕ «85»
+и не «80-90»: округлённый вверх уровень выглядит правдоподобно и потому опаснее явной
+ошибки. Первый же боевой прогон отклонён именно за это.
 🔴 Сохраняй эпистемические пометки: (факт) / (оценка) / (суждение). Новое суждение
 помечай суждением, а не фактом.
 🔴 Никаких фамилий должностных лиц; про государство — только наблюдаемые изменения
@@ -191,6 +194,19 @@ def _grounding_ok(new_md: str, old_md: str, facts: str) -> list[str]:
     # годы и проценты вероятностей — частый ложный флаг; их отсеиваем отдельно
     bad = [n for n in bad if not re.fullmatch(r"(19|20)\d\d", n)]
     return sorted(bad)[:8]
+
+
+def _around_numbers(text: str, notes: list[str], width: int = 90) -> list[str]:
+    """Фрагменты вокруг чисел, из-за которых отказ, — чтобы разбирать причину."""
+    nums: list[str] = []
+    for n in notes:
+        nums += re.findall(r"'([\d.,]+)'", n)
+    out = []
+    for num in nums[:4]:
+        i = text.find(num)
+        if i >= 0:
+            out.append(text[max(0, i - width):i + width].replace("\n", " "))
+    return out or [text[:200]]
 
 
 def _ask(system: str, task: str, max_tokens: int = 9000) -> dict | None:
@@ -271,7 +287,11 @@ def rewrite_one(db: Session, ticker: str, tab: str, *, facts: str, reason: str,
         evidence={"prose_source": src, "reason": reason,
                   "trigger_value": (out or {}).get("trigger_value"),
                   "critic": (critique or {}).get("verdict"),
-                  "regressions": (critique or {}).get("regressions") or []},
+                  "regressions": (critique or {}).get("regressions") or [],
+                  # у ОТКЛОНЁННОЙ версии сам текст не публикуется, но без образца
+                  # отказ невозможно разобрать: на первом же боевом прогоне гейт
+                  # поймал «85», а посмотреть, в какой фразе оно стояло, было нечем
+                  **({} if ok else {"rejected_sample": _around_numbers(challenger, notes)})},
         gate_notes=notes or None,
         parent_id=parent.id if (ok and parent) else None,
         model_used="deepseek",
