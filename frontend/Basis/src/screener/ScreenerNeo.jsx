@@ -45,9 +45,11 @@ const METRICS = {
     hint: "Насколько сильно исторически колеблется цена акции. Выше волатильность — шире диапазон возможных движений цены как вверх, так и вниз." },
   mcap:          { label: "Капитализация", unit: "", dir: "high", dom: [0, 9e12], dec: 0, money: true, group: "Размер",
     hint: "Рыночная стоимость всех акций компании — цена акции умноженная на число акций в обращении." },
+  growth:        { label: "Рост выручки (3 года)", unit: "%", dir: "high", dom: [-30, 60], dec: 1, group: "Качество",
+    hint: "Среднегодовой темп роста выручки за последние три отчётных года (у банков — чистой прибыли). Показывает, растёт бизнес или стагнирует — статические мультипликаторы этого не видят." },
   // Балл корпоративного управления — качественная оценка Basis (governance.json →
-  // scoring.overall_score, 8 факторов, раскатан на все компании). В BASIS-балл НЕ
-  // входит (v0 — финансовые метрики), но фильтровать по нему можно.
+  // scoring.overall_score, 8 факторов, раскатан на все компании). С v1 входит в
+  // ось «Среда» BASIS-балла и остаётся отдельным фильтром.
   governance:    { label: "Корп. управление", unit: "", dir: "high", dom: [1, 5], dec: 1, group: "Качество",
     hint: "Балл качества корпоративного управления по методике Basis (1–5): структура собственности, дивидендная политика и история выплат, отношение к миноритариям, прозрачность, риски управления — 8 факторов. Выше 4 — сильное, ниже 3 — слабое." },
 };
@@ -84,7 +86,7 @@ const UNIVERSES = [
   { id: "echelon3", label: "3-й эшелон", short: "3-й эшелон" },
 ];
 const CAT = ["--cat-1", "--cat-2", "--cat-3", "--cat-4", "--cat-5", "--cat-6", "--cat-7", "--cat-8"];
-const METHOD_TIP = "Композитная оценка Basis v0 — Качество 40% · Цена 35% · Устойчивость 25%, по позиции среди выбранного набора акций. Финансовые метрики; качественные направления (бизнес-модель, управление, рынок, макро, геополитика) — в разработке. Предварительная методика, уточняется.";
+const METHOD_TIP = "Комплексная оценка Basis v1 — Качество 30% · Оценка 25% · Среда 30% · Устойчивость 15%, по позиции среди выбранного набора акций. «Среда» — качественные направления платформы: корпоративное управление, институциональный профиль (IRI), геополитическая экспозиция (GRE), масштаб и качество бизнес-модели (покрытие растёт). Качество включает рост и банковские метрики (NIM, стоимость риска, CIR — банки сравниваются между собой). Предварительная методика, уточняется.";
 
 const scoreColor = (s) => { if (s == null) return "var(--ink-3)"; const t = Math.max(0, Math.min(1, (s - 45) / (82 - 45))); const hue = t < 0.5 ? (t / 0.5) * 33 : 33 + ((t - 0.5) / 0.5) * 105; return `hsl(${hue.toFixed(0)} 64% 42%)`; };
 const fmtMetric = (k, v) => {
@@ -269,6 +271,7 @@ function MapView({ rows, onPick, picked, secColor, sectors }) {
     { key: "value", label: "Оценка (дёшево)", unit: "", dom: [0, 100], sub: true, get: (r) => r.subindices.value },
     { key: "quality", label: "Качество", unit: "", dom: [0, 100], sub: true, get: (r) => r.subindices.quality },
     { key: "stability", label: "Устойчивость", unit: "", dom: [0, 100], sub: true, get: (r) => r.subindices.stability },
+    { key: "context", label: "Среда (качественная)", unit: "", dom: [0, 100], sub: true, get: (r) => r.subindices.context },
     { key: "basis", label: "BASIS-балл", unit: "", dom: [0, 100], sub: true, get: (r) => r.basis },
     ...Object.keys(METRICS).map((k) => ({ key: k, label: METRICS[k].label, unit: METRICS[k].unit, dom: METRICS[k].dom, group: METRICS[k].group, money: METRICS[k].money, dir: METRICS[k].dir, get: (r) => k === "mcap" ? r.mcap : r.raw[k] })),
   ];
@@ -312,7 +315,7 @@ function MapView({ rows, onPick, picked, secColor, sectors }) {
 
 function DetailDrawer({ row, onClose, onOpenCompany, secColor, Logo }) {
   if (!row) return null;
-  const subs = [["value", "Оценка"], ["quality", "Качество"], ["stability", "Устойчивость"]];
+  const subs = [["value", "Оценка"], ["quality", "Качество"], ["stability", "Устойчивость"], ["context", "Среда"]];
   const stats = ["upside", "pe", "ev_ebitda", "roe", "ebitda_margin", "nd_ebitda", "div_yield", "fcf_yield", "beta", "volatility", "governance"];
   return (
     <>
@@ -671,7 +674,7 @@ export default function ScreenerNeo({ onOpenCompany, Logo, token, onAuthRequired
     <div className="sc-screen">
       <div className="sc-page-head">
         <div>
-          <p className="sc-page-sub">Фильтр и сортировка по метрикам Basis. <span className="sc-modeltag" title={METHOD_TIP}>модель · BASIS v0</span> — инструмент поиска, выводы за вами.</p>
+          <p className="sc-page-sub">Фильтр и сортировка по метрикам Basis. <span className="sc-modeltag" title={METHOD_TIP}>модель · BASIS v1</span> — инструмент поиска, выводы за вами.</p>
         </div>
         <span className="sc-scale"><span className="sc-scale-bar" style={{ background: `linear-gradient(90deg, ${[0, .25, .5, .75, 1].map((f) => scoreColor(45 + f * 37)).join(",")})` }} /><span className="sc-scale-lbl"><b>BASIS</b> — слабее → сильнее</span></span>
       </div>
@@ -732,7 +735,7 @@ export default function ScreenerNeo({ onOpenCompany, Logo, token, onAuthRequired
         </div>
       </div>
 
-      <p className="sc-foot-note">BASIS-балл — композитная оценка Basis v0 (Качество 40% · Цена 35% · Устойчивость 25%) по позиции среди выбранного набора акций. Финансовые метрики; качественные направления в разработке. Тикеры с искажающими корп-эффектами (размытие, «кубышка», разовые списания) помечены пониженной уверенностью и не считаются «лучшими». Предварительная методика — не инвестиционная рекомендация.</p>
+      <p className="sc-foot-note">BASIS-балл — комплексная оценка Basis v1 (Качество 30% · Оценка 25% · Среда 30% · Устойчивость 15%) по позиции среди выбранного набора акций. «Среда» объединяет качественные направления платформы: корпуправление, институты, геополитику, масштаб и качество бизнес-модели. Тикеры с искажающими корп-эффектами (размытие, «кубышка», разовые списания) помечены пониженной уверенностью и не считаются «лучшими». Предварительная методика — не инвестиционная рекомендация.</p>
 
       <DetailDrawer row={picked} onClose={() => setPicked(null)} onOpenCompany={onOpenCompany} secColor={secColor} Logo={Logo} />
     </div>

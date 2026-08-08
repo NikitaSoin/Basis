@@ -33,17 +33,24 @@ logger = logging.getLogger(__name__)
 COMPANIES_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "companies")
 
 # ─────────── КОНФИГ (продуктовые ручки владельца — менять здесь, не по месту) ───────────
+# v1 (владелец 2026-08-08): BASIS — КОМПЛЕКСНАЯ метрика, а не чисто финансовая.
+# Новая ось «Среда» (context): корпуправление + институты (IRI) + геобезопасность
+# (инвертированный GRE) — «плохо, что какой-то Займер имеет высокий балл, а
+# Яндекс низкий»: дешёвые мелкие бумаги больше не выигрывают на одних коэффициентах.
+# Плюс рост (CAGR выручки/прибыли 3 года) и банковские метрики качества
+# (NIM/CoR/CIR — пулы только из банков, т.е. пир-сравнение), размер — в устойчивость.
 CONFIG = {
-    "weights": {"quality": 0.40, "value": 0.35, "stability": 0.25},  # BASIS = Σ wᵢ·субиндекс
+    "weights": {"quality": 0.30, "value": 0.25, "stability": 0.15, "context": 0.30},
     "div_yield_cap": 18.0,        # кэп дивдоходности (выше — не «лучше», а риск/разовое)
     "min_subindices": 2,          # < этого валидных субиндексов → low-confidence
     "subindices": {
         "value":     ["upside", "pe", "ev_ebitda", "div_yield"],
-        "quality":   ["roe", "ebitda_margin", "fcf_yield"],
+        "quality":   ["roe", "ebitda_margin", "fcf_yield", "growth", "nim", "cost_of_risk", "cir"],
         "stability": ["nd_ebitda", "beta", "volatility"],
+        "context":   ["governance", "iri", "gre", "size", "biz_quality"],
     },
     # метрики, где МЕНЬШЕ = выгоднее → перцентиль инвертируется
-    "invert": {"pe", "ev_ebitda", "nd_ebitda", "beta", "volatility"},
+    "invert": {"pe", "ev_ebitda", "nd_ebitda", "beta", "volatility", "cost_of_risk", "cir", "gre"},
     # метрики, искажаемые корп-эффектами → выкидываются у anomaly/low-dq тикеров
     "distortion_prone": {"pe", "ev_ebitda", "nd_ebitda"},
     # метрики вне BASIS-балла (v0 — финансовый), но с распределением/фильтром на фронте:
@@ -104,6 +111,62 @@ def _load_financials() -> dict:
     return out
 
 
+_QUAL_CACHE: dict = {"ts": 0.0, "data": None}
+
+
+def _load_qual_scores() -> dict:
+    """{TICKER: {"governance": 1-5, "iri": 1-5, "gre": среднее 0-5}} из карточек
+    (кэш 1ч). Направления: governance/IRI выше=лучше; GRE выше=БОЛЬШЕ гео-риска
+    (инвертируется конфигом). Покрытие всех трёх — 264/264 (проверено 2026-08-08)."""
+    now = time.time()
+    if _QUAL_CACHE["data"] is not None and (now - _QUAL_CACHE["ts"]) < _CACHE_TTL:
+        return _QUAL_CACHE["data"]
+    out: dict = {}
+    base = os.path.abspath(COMPANIES_DIR)
+    if os.path.isdir(base):
+        for t in os.listdir(base):
+            d = os.path.join(base, t)
+            if not os.path.isdir(d):
+                continue
+            row: dict = {}
+            try:
+                g = json.load(open(os.path.join(d, "governance.json"), encoding="utf-8"))
+                v = _num(((g.get("scoring") or {}).get("overall_score")))
+                if v is not None and 1.0 <= v <= 5.0:
+                    row["governance"] = v
+            except Exception:  # noqa: BLE001
+                pass
+            try:
+                i = json.load(open(os.path.join(d, "institutions.json"), encoding="utf-8"))
+                v = _num((i.get("iri_scoring") or {}).get("overall"))
+                if v is not None and 1.0 <= v <= 5.0:
+                    row["iri"] = v
+            except Exception:  # noqa: BLE001
+                pass
+            try:
+                geo = json.load(open(os.path.join(d, "geo.json"), encoding="utf-8"))
+                scores = [_num(e.get("score")) for e in (geo.get("gre_profile") or [])
+                          if isinstance(e, dict)]
+                scores = [v for v in scores if v is not None]
+                if scores:
+                    row["gre"] = round(sum(scores) / len(scores), 2)
+            except Exception:  # noqa: BLE001
+                pass
+            try:
+                q = json.load(open(os.path.join(d, "quality_scores.json"), encoding="utf-8"))
+                parts = [_num((q.get(k) or {}).get("score")) for k in ("bm", "mp", "ca")]
+                parts = [v for v in parts if v is not None]
+                if parts:
+                    row["biz_quality"] = round(sum(parts) / len(parts), 1)  # 0–100
+            except Exception:  # noqa: BLE001
+                pass
+            if row:
+                out[t.upper()] = row
+    _QUAL_CACHE["data"] = out
+    _QUAL_CACHE["ts"] = now
+    return out
+
+
 def _load_gov_scores() -> dict:
     """{TICKER: overall_score 1–5} из companies/<T>/governance.json (кэш по TTL).
     Читаем только scoring.overall_score — файл большой, остальное скринеру не нужно."""
@@ -130,8 +193,33 @@ def _load_gov_scores() -> dict:
     return out
 
 
+def _cagr_pct(seq, points: int = 3):
+    """CAGR по последним `points` годовым значениям, %. Только по положительным
+    крайним точкам (отрицательная выручка/прибыль в крайней точке — не CAGR)."""
+    if not isinstance(seq, list):
+        return None
+    vals = [v for v in seq[-points:] if isinstance(v, (int, float))]
+    if len(vals) < 2 or vals[0] is None or vals[-1] is None:
+        return None
+    if vals[0] <= 0 or vals[-1] <= 0:
+        return None
+    n = len(vals) - 1
+    try:
+        return round(((vals[-1] / vals[0]) ** (1.0 / n) - 1.0) * 100.0, 2)
+    except (ValueError, ZeroDivisionError, OverflowError):
+        return None
+
+
+# алиасы банковских метрик — имена в файлах разнятся (SBER: nim; T: nim_pct)
+_BANK_METRIC_ALIASES = {
+    "nim": ("nim", "nim_pct"),
+    "cost_of_risk": ("cost_of_risk", "cor_pct"),
+    "cir": ("cir", "cir_pct"),
+}
+
+
 def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding, fv_entry=None,
-                 db=None, prices=None, gov_scores=None):
+                 db=None, prices=None, gov_scores=None, qual_scores=None):
     """Сырые метрики тикера + флаги достоверности. cm — строка company_metrics (dict)."""
     j = fin.get(ticker.upper()) or {}
     meta = j.get("meta") or {}
@@ -215,6 +303,33 @@ def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding, fv_entr
         "volatility": _num(cm.get("volatility")),
         "governance": (gov_scores or {}).get(ticker.upper()),
     }
+    # v1: рост — CAGR выручки за 3 года (банки: чистая прибыль из bank_pnl —
+    # стандартной выручки у них нет)
+    inc = j.get("income_statement") or {}
+    bp = j.get("bank_pnl") or {}
+    raw["growth"] = _cagr_pct(inc.get("revenue")) if profile != "bank" else _cagr_pct(bp.get("net_profit"))
+    # v1: банковское качество — пулы формируются только из банков (пир-сравнение);
+    # у небанков None → метрика просто выпадает из их субиндекса
+    bm_ = j.get("bank_metrics") or {}
+    for canon, names in _BANK_METRIC_ALIASES.items():
+        v = None
+        if profile == "bank" or bm_:
+            for nm in names:
+                v = _num(_last(bm_.get(nm)))
+                if v is not None:
+                    break
+        raw[canon] = v
+    # v1: размер (капитализация) — в устойчивость: перцентиль по рангу, сами
+    # рубли в балл не попадают
+    raw["size"] = _num(market_cap)
+    # v1: качественная ось «Среда» — корпуправление уже в raw, добавляем
+    # институты (IRI, выше=лучше) и гео-экспозицию (GRE, выше=риск, инверсия конфигом)
+    qrow = (qual_scores or {}).get(ticker.upper()) or {}
+    raw["iri"] = qrow.get("iri")
+    raw["gre"] = qrow.get("gre")
+    # качество бизнеса (BM/MP/CA, 0–100) — покрытие пока частичное (раскатка
+    # quality-scorer идёт), у остальных метрика честно выпадает из оси
+    raw["biz_quality"] = qrow.get("biz_quality")
     if raw["div_yield"] is not None:
         raw["div_yield"] = min(raw["div_yield"], CONFIG["div_yield_cap"])
     # market_cap возвращаем ПОПРАВЛЕННЫЙ: по нему строятся эшелоны и он же
@@ -287,6 +402,7 @@ def _compute_universe(db: Session, universe: str = "all", sector: str | None = N
     now = time.time()
     fin = _load_financials()
     gov_scores = _load_gov_scores()
+    qual_scores = _load_qual_scores()
 
     # компании + свежая цена + капитализация + число акций (для live-пересчёта мультипликаторов)
     rows = db.execute(text("""
@@ -326,7 +442,7 @@ def _compute_universe(db: Session, universe: str = "all", sector: str | None = N
             continue
         raw, profile, dq, anomaly, suspect, fair, fair_src, mcap = _extract_raw(
             t, fin, cm, price, mcap, shares, fair_map.get(t), db=db, prices=price_map,
-            gov_scores=gov_scores)
+            gov_scores=gov_scores, qual_scores=qual_scores)
         base.append({"ticker": t, "name": d.get("name"), "sector": d.get("sector"),
                      "profile": profile, "data_quality": dq, "anomaly": anomaly,
                      "suspect": suspect, "price": price, "market_cap": mcap,
@@ -410,7 +526,7 @@ def _compute_universe(db: Session, universe: str = "all", sector: str | None = N
     result = {
         "universe": {"key": universe, "sector": sector, "count": len(out_rows), "total": len(base)},
         "config": {"weights": W, "div_yield_cap": CONFIG["div_yield_cap"],
-                   "subindices": CONFIG["subindices"], "version": "v0"},
+                   "subindices": CONFIG["subindices"], "version": "v1"},
         "rows": out_rows,
         "distributions": distributions,
     }
