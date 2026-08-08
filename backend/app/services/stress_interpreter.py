@@ -484,6 +484,30 @@ def current(db: Session, scenario_key: str) -> StressInterpretation | None:
             .order_by(StressInterpretation.created_at.desc()).first())
 
 
+# Служебные ключи факторов в русской прозе. Промпт просит называть их по-русски,
+# и после этого утечек стало меньше — но «покрытие фактора fiscal всего 26.1%»
+# всё равно проскакивает: модель цитирует имя поля из входных данных. Просьбой это
+# не лечится надёжно, поэтому подменяем на витрине — заодно чинятся уже сохранённые
+# выпуски, не гоняя платный прогон заново.
+_FACTOR_RU = {
+    "rate": "ставка", "demand": "спрос", "fx": "курс", "commodity": "сырьё",
+    "sanctions": "санкции", "conflict": "конфликт", "fiscal": "налоги",
+    "refi": "рефинансирование", "tax": "налоги",
+}
+_FACTOR_RE = re.compile(r"\b(" + "|".join(_FACTOR_RU) + r")\b", re.I)
+
+
+def _ru_factors(value):
+    """Рекурсивно по строкам структуры: служебный ключ → русское имя."""
+    if isinstance(value, str):
+        return _FACTOR_RE.sub(lambda m: _FACTOR_RU[m.group(1).lower()], value)
+    if isinstance(value, list):
+        return [_ru_factors(v) for v in value]
+    if isinstance(value, dict):
+        return {k: _ru_factors(v) for k, v in value.items()}
+    return value
+
+
 def payload(db: Session, scenario_key: str) -> dict | None:
     """Разбор для витрины. None — разбора нет (фронт честно молчит, а не выдумывает).
     Никогда не роняет ответ сценария: расчёт важнее интерпретации."""
@@ -495,11 +519,11 @@ def payload(db: Session, scenario_key: str) -> dict | None:
         return None
     if row is None:
         return None
-    out = {"headline": row.headline,
+    out = {"headline": _ru_factors(row.headline),
            "generated_at": row.created_at.isoformat() if row.created_at else None,
            "model_used": row.model_used,
            "inputs_used": row.inputs_used}
-    out.update(row.sections or {})
+    out.update(_ru_factors(row.sections or {}))
     return out
 
 
