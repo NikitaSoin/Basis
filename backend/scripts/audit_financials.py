@@ -76,9 +76,14 @@ def audit(card, ticker):
 
     # 0б. ОТРИЦАТЕЛЬНОЕ ТАМ, ГДЕ ЕГО НЕ БЫВАЕТ. Выручка, активы, запасы, деньги — величины,
     # которые не могут быть меньше нуля ни при каком результате бизнеса.
+    # Пометка `<строка>_note` на карточке означает, что случай уже разобран и объяснён
+    # (у инвесткомпании «выручка» — это результат операций с бумагами, и в 2022 он законно
+    # ушёл в минус). Аудит не должен поднимать один и тот же вопрос по кругу.
     NEVER_NEGATIVE = ("revenue", "total_assets", "inventory", "cash", "gross_loans")
     for name in NEVER_NEGATIVE:
         for node in (card.get("income_statement") or {}, bs):
+            if not isinstance(node, dict) or node.get(f"{name}_note"):
+                continue
             vals = pad(series(node, name), n)
             for i, y in enumerate(years):
                 if isinstance(vals[i], (int, float)) and vals[i] < 0:

@@ -302,20 +302,20 @@
     ],
     "non_current_liabilities": {
       "long_term_debt": [
-        5099,
-        10670
+        null,
+        null
       ],
       "long_term_lease": [
-        6547,
-        4422
+        null,
+        null
       ],
       "deferred_tax": [
         null,
         null
       ],
       "other_non_current_liab": [
-        0,
-        10
+        null,
+        null
       ],
       "total_non_current_liab": [
         12013,
@@ -324,25 +324,26 @@
     },
     "current_liabilities": {
       "short_term_debt": [
-        8406,
-        5183
+        null,
+        null
       ],
       "short_term_lease": [
-        255,
-        664
+        null,
+        null
       ],
       "payables": [
-        2956,
-        4489
+        null,
+        null
       ],
       "other_current_liab": [
-        595,
-        357
+        null,
+        null
       ],
       "total_current_liab": [
         6572,
         15470
-      ]
+      ],
+      "breakdown_note": "Расшифровка обязательств убрана: её статьи не складывались в собственные итоги (2024 — 12 212 против 6 572, 2025 — 10 693 против 15 470), тогда как сами итоги подтверждены двумя проверками сразу («разделы = активы» и «обязательства + капитал = активы»). Числа, не сходящиеся со своим итогом, вводят в заблуждение сильнее, чем их отсутствие."
     },
     "total_liabilities": [
       18585,
