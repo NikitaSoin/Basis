@@ -2844,42 +2844,42 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                               <span style={{ fontSize: 11, fontWeight: 700, color: neg ? "var(--danger)" : pos ? "var(--success)" : "var(--text-tertiary)", textTransform: "uppercase" }}>· {eff}</span>
                             </div>
                             {s.channel && <div className="obs-inst-row-why">{s.channel}</div>}
-                            {/* Дисперсия внутри сектора: почему одни выигрывают, другие нет */}
-                            {s.dispersion && <div className="obs-sector-dispersion">{s.dispersion}</div>}
-                            {s.why_names && <div className="obs-sector-why-names">{s.why_names}</div>}
-                            {s.what_to_watch && (
-                              <div className="obs-sector-watch">
-                                <b>Следить:</b> {s.what_to_watch}
-                              </div>
+                            {/* Владелец, 2026-08-09: «много маленького серого текста,
+                                неудобно — часть оставил бы скрытой». На виду остаётся
+                                сектор, вердикт и канал; разбор — по клику. */}
+                            {(s.dispersion || s.why_names || s.what_to_watch) && (
+                              <details className="obs-inst-details obs-sector-details">
+                                <summary>Разбор<ChevronDown size={14} className="obs-inst-chev" /></summary>
+                                <div className="obs-inst-details-body">
+                                  {s.dispersion && <div className="obs-sector-dispersion">{s.dispersion}</div>}
+                                  {s.why_names && <div className="obs-sector-why-names">{s.why_names}</div>}
+                                  {s.what_to_watch && (
+                                    <div className="obs-sector-watch"><b>Следить:</b> {s.what_to_watch}</div>
+                                  )}
+                                </div>
+                              </details>
                             )}
                             {(s.winners?.length > 0 || s.losers?.length > 0) && (
+                              // Владелец, 2026-08-09: «вместо тикеров используй названия
+                              // компаний и маленькие логотипы». Голый тикер читает только
+                              // тот, кто уже знает рынок; название с лого узнаётся сразу.
                               <div className="obs-sector-names">
-                                {s.winners?.length > 0 && (
-                                  <span className="obs-sector-side">
-                                    <b>выигрывают:</b>{" "}
-                                    {s.winners.map((t) => (
-                                      <button key={t} className="obs-ticker-link" onClick={() => onSelectCompany?.(t)}>
-                                        {t}
-                                        {interp?.company_names?.[t] && (
-                                          <span className="obs-ticker-name">{interp.company_names[t]}</span>
-                                        )}
-                                      </button>
-                                    ))}
-                                  </span>
-                                )}
-                                {s.losers?.length > 0 && (
-                                  <span className="obs-sector-side">
-                                    <b>под давлением:</b>{" "}
-                                    {s.losers.map((t) => (
-                                      <button key={t} className="obs-ticker-link" onClick={() => onSelectCompany?.(t)}>
-                                        {t}
-                                        {interp?.company_names?.[t] && (
-                                          <span className="obs-ticker-name">{interp.company_names[t]}</span>
-                                        )}
-                                      </button>
-                                    ))}
-                                  </span>
-                                )}
+                                {[["выигрывают", s.winners, "up"], ["под давлением", s.losers, "dn"]]
+                                  .filter(([, arr]) => arr?.length > 0)
+                                  .map(([label, arr, tone]) => (
+                                    <div key={label} className="obs-sector-side">
+                                      <span className={`obs-sector-side-lbl obs-sector-side-${tone}`}>{label}</span>
+                                      <span className="obs-sector-chips">
+                                        {arr.map((t) => (
+                                          <button key={t} className="obs-co-chip" onClick={() => onSelectCompany?.(t)}
+                                            title={t}>
+                                            <CompanyLogo ticker={t} name={interp?.company_names?.[t] || t} size={16} />
+                                            {interp?.company_names?.[t] || t}
+                                          </button>
+                                        ))}
+                                      </span>
+                                    </div>
+                                  ))}
                               </div>
                             )}
                           </div>
@@ -3012,8 +3012,11 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                 </div>
               )}
 
-              {/* ДЕЙСТВИЕ: сценарии base/bull/bear */}
-              {scenarios && (
+              {/* 🔴 Сценарии в этом виде СКРЫТЫ (владелец, 2026-08-09: «сценарии как они
+                  сейчас выводятся убрать, сделал бы как в геополитике — лестницей, и брал
+                  бы базово сценарии Банка России»). Данные продолжают собираться; вернём
+                  блок вместе с лестницей и согласованным способом оценки вероятностей. */}
+              {false && scenarios && (
                 <div>
                   <div className="obs-synth-head" style={{ marginBottom: 14 }}>Сценарии</div>
                   <div className="obs-scenario-row">
@@ -3074,7 +3077,13 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
               {/* ДЕЙСТВИЕ: кого двигает сценарий — расчёт платформы, не суждение модели.
                   Замыкает цепочку «сценарий → макро-сдвиги → конкретные бумаги»:
                   до этого блока сценарии оставались словами про секторы. */}
-              {scImpact?.scenarios && Object.keys(scImpact.scenarios).length > 0 && (
+              {/* 🔴 Блок «кого двигает сценарий» СКРЫТ (владелец, 2026-08-09: «убери пока
+                  в самом низу эти мини стресс-тесты — у Яндекса, который у меня в
+                  портфеле, написано „выпуск про это не сказал“»). Расчёт остаётся в
+                  API (/market/macro/scenario-impact) и в промпте выпуска как опора для
+                  сценариев — но на витрину до переработки не идёт: покрытие по бумагам
+                  неполное, а пустая строка против своей бумаги хуже отсутствия блока. */}
+              {false && scImpact?.scenarios && Object.keys(scImpact.scenarios).length > 0 && (
                 <div className="obs-scimpact">
                   <div className="obs-synth-head" style={{ marginBottom: 6 }}>
                     Кого двигает сценарий
