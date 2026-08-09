@@ -78,6 +78,30 @@ def _to_date(s):
         return None
 
 
+
+def _backfill_rate_points(db: Session) -> int:
+    """Каждое решение по ставке обязано иметь точку в ряду key_rate.
+
+    🔴 Найдено 2026-08-10: синхронизация пишет точку только для ТЕКУЩЕГО решения, и в
+    ряду не оказалось апрельского (14,5%) и июньского (14,25%) заседаний — ряд прыгал с
+    15,0 сразу на 14,0. Последнее значение при этом было верным, поэтому дыра ничем себя
+    не проявляла: сломалось только то, что считает СРЕДНЕЕ по ряду (средняя ставка до
+    конца года разошлась с прогнозом ЦБ на 0,4 п.п., владелец заметил по памяти).
+    Идемпотентно: точка есть — upsert вернёт «same».
+    """
+    from app.models.macro import RateMeeting
+    n = 0
+    for m in db.query(RateMeeting).filter(RateMeeting.rate_value.isnot(None)).all():
+        res = upsert_point(db, "key_rate", m.decision_date, "level", float(m.rate_value),
+                           unit="%", source="ЦБ РФ", source_url=_RATE_PAGE,
+                           ingested_via="cbr", commit=False)
+        if res in ("insert", "revise"):
+            n += 1
+    if n:
+        logger.info("ЦБ: восстановлено точек ставки по журналу решений: %d", n)
+    return n
+
+
 def sync_rate_meeting(db: Session) -> dict:
     """Последнее решение ЦБ по ставке → RateMeeting (накопительно) + точка key_rate."""
     text = _fetch_text(_RATE_PAGE)
@@ -112,6 +136,7 @@ def sync_rate_meeting(db: Session) -> dict:
     if rate_val is not None:
         upsert_point(db, "key_rate", dd, "level", rate_val, unit="%", source="ЦБ РФ",
                      source_url=_RATE_PAGE, ingested_via="cbr", commit=False)
+    _backfill_rate_points(db)
     db.commit()
 
     # Форекаст-таблица (диапазоны ставки/инфляции/ВВП на 2-3 года вперёд) иногда

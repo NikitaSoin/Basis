@@ -84,83 +84,130 @@ def _latest(db: Session, code: str, metric: str) -> float | None:
 
 
 
-def _avg_rest_of_year(db: Session, year: int, annual_avg: float | None) -> float | None:
-    """Средняя ключевая ставка НА ОСТАВШУЮСЯ часть года.
-
-    🔴 Владелец, 2026-08-10: «пиши не средняя за год, а средняя с текущего момента —
-    так становится понятно, чего ждать». И это правильно по существу: годовая средняя
-    смешивает уже случившееся с будущим, и на фоне сегодняшних 14% она читается как
-    ошибка. Выводим из тождества: годовая средняя = (среднее по прошедшим месяцам ×
-    прошедшие месяцы + среднее по оставшимся × оставшиеся) / 12.
-    """
-    if annual_avg is None:
+def _range(raw: str | None) -> tuple[float, float] | None:
+    """Границы коридора «14,5–14,6» (одно число → границы совпадают)."""
+    if not raw:
         return None
+    nums = [float(x.replace(",", ".")) for x in re.findall(r"-?\d+[.,]?\d*", raw)]
+    if not nums:
+        return None
+    return min(nums), max(nums)
+
+
+def _elapsed_avg_rate(db: Session, year: int) -> tuple[float, float] | None:
+    """Средняя ключевая ставка с 1 января по сегодня и доля года, которую она заняла.
+
+    🔴 Ставка ступенчатая, поэтому среднее — по ДНЯМ, а не по точкам ряда. И считать
+    надо С 1 ЯНВАРЯ: первая версия стартовала с первой точки ВНУТРИ года (28 января) и
+    теряла январь целиком — прошедшая доля выходила 0,53 вместо 0,61, средняя занижалась,
+    а выведенная из неё «средняя до конца года» завышалась на 0,7 п.п. Владелец поймал
+    это по памяти: «у ЦБ до конца года 13,5-14, о чём ты говоришь?». Значение на 1 января
+    берём переносом последней точки ПРОШЛОГО года.
+    """
     from sqlalchemy import text as _sql
+    start = date(year, 1, 1)
+    prev = db.execute(_sql(
+        "SELECT value FROM macro_data_points WHERE indicator_code='key_rate' "
+        "AND metric='level' AND as_of < :s ORDER BY as_of DESC LIMIT 1"), {"s": start}).first()
     rows = db.execute(_sql(
-        "SELECT as_of, value FROM macro_data_points WHERE indicator_code = 'key_rate' "
-        "AND metric = 'level' AND as_of >= :start ORDER BY as_of"),
-        {"start": date(year, 1, 1)}).all()
-    if not rows:
+        "SELECT as_of, value FROM macro_data_points WHERE indicator_code='key_rate' "
+        "AND metric='level' AND as_of >= :s ORDER BY as_of"), {"s": start}).all()
+    # 🔴 ЖУРНАЛ РЕШЕНИЙ — источник истины по траектории (найдено 2026-08-10): в ряду
+    # macro_data_points пропущены апрельское (14,5%) и июньское (14,25%) заседания, ряд
+    # прыгает с 15,0 сразу на 14,0. Среднее по дырявому ряду завышало прошедшую среднюю
+    # и занижало выведенную «среднюю до конца года» на ~0,4 п.п. — владелец заметил
+    # расхождение с прогнозом ЦБ по памяти. Объединяем оба источника, решение важнее.
+    meetings = db.execute(_sql(
+        "SELECT decision_date, rate_value FROM rate_meetings WHERE decision_date >= :s "
+        "AND rate_value IS NOT NULL ORDER BY decision_date"), {"s": start}).all()
+    if prev is None and not rows and not meetings:
         return None
     today = date.today()
-    # среднее по дням с начала года: ставка ступенчатая, взвешиваем по длительности
-    total_days, acc = 0, 0.0
-    prev_d, prev_v = None, None
+    by_date: dict[date, float] = {}
     for d, v in rows:
-        if prev_d is not None:
-            days = (d - prev_d).days
-            acc += float(prev_v) * days
-            total_days += days
-        prev_d, prev_v = d, float(v)
-    if prev_d is not None:
-        days = max(0, (today - prev_d).days)
-        acc += float(prev_v) * days
-        total_days += days
-    if total_days <= 0:
+        if d <= today:
+            by_date[d] = float(v)
+    for d, v in meetings:                      # решение перекрывает точку ряда
+        if d <= today:
+            by_date[d] = float(v)
+    points: list[tuple[date, float]] = []
+    if prev is not None:
+        points.append((start, float(prev[0])))       # ставка на 1 января — перенос
+    points.extend(sorted(by_date.items()))
+    if not points:
         return None
-    elapsed_avg = acc / total_days
-    elapsed_share = total_days / 365.0
-    if elapsed_share >= 0.98:
+    acc, days_total = 0.0, 0
+    for i, (d, v) in enumerate(points):
+        end = points[i + 1][0] if i + 1 < len(points) else today
+        days = max(0, (end - d).days)
+        acc += v * days
+        days_total += days
+    if days_total <= 0:
         return None
-    rest = (annual_avg - elapsed_avg * elapsed_share) / (1 - elapsed_share)
-    return round(rest, 1)
+    return acc / days_total, days_total / 365.0
+
+
+def _avg_rest_of_year(db: Session, year: int, annual: tuple[float, float] | None
+                      ) -> tuple[float, float] | None:
+    """Средняя ключевая ставка НА ОСТАВШУЮСЯ часть года — коридором.
+
+    🔴 Владелец, 2026-08-10: «пиши не средняя за год, а средняя с текущего момента —
+    так становится понятно, чего ждать». Годовая средняя смешивает уже случившееся с
+    будущим и рядом с сегодняшними 14% читается как ошибка. Выводим из тождества:
+    годовая = прошедшая × доля + оставшаяся × (1 − доля). Оба конца коридора ЦБ
+    пересчитываем отдельно, чтобы не выдавать точку там, где у ЦБ диапазон.
+    """
+    if not annual:
+        return None
+    got = _elapsed_avg_rate(db, year)
+    if not got:
+        return None
+    elapsed_avg, share = got
+    if share >= 0.98:
+        return None
+    lo, hi = annual
+    rest_lo = (lo - elapsed_avg * share) / (1 - share)
+    rest_hi = (hi - elapsed_avg * share) / (1 - share)
+    return round(min(rest_lo, rest_hi), 1), round(max(rest_lo, rest_hi), 1)
 
 
 
 def _anchor(db: Session, year: int, cb: dict, survey: dict) -> dict:
-    """Чего ждут ЦБ и аналитики — в понятной читателю форме.
-
-    Годовые средние ставки пересчитываются в среднюю НА ОСТАВШУЮСЯ часть года: именно
-    она отвечает на вопрос «чего ждать дальше», а годовая на фоне текущих 14% выглядит
-    опечаткой.
-    """
-    cb_avg, mkt_avg = _num(cb.get("Ключевая ставка")), _num(survey.get("Ключевая ставка"))
-    cb_rest = _avg_rest_of_year(db, year, cb_avg)
-    mkt_rest = _avg_rest_of_year(db, year, mkt_avg)
-    now = _latest(db, "key_rate", "level")
+    """Чего ждут ЦБ и аналитики — в форме, из которой понятно, чего ждать дальше."""
     def _p(v: float, dec: int = 1) -> str:
         return f"{v:.{dec}f}".replace(".", ",")
 
+    def _rng(r: tuple[float, float] | None) -> str | None:
+        if not r:
+            return None
+        return _p(r[0]) if abs(r[1] - r[0]) < 0.05 else f"{_p(r[0])}–{_p(r[1])}"
+
+    cb_rest = _avg_rest_of_year(db, year, _range(cb.get("Ключевая ставка")))
+    mkt_rest = _avg_rest_of_year(db, year, _range(survey.get("Ключевая ставка")))
+    now = _latest(db, "key_rate", "level")
     parts = []
     if now is not None:
         parts.append(f"Ставка сейчас {_p(now, 0)}%.")
-    if cb_rest is not None:
+    if cb_rest:
         rate = (f"До конца года Банк России в базовом сценарии закладывает в среднем "
-                f"{_p(cb_rest)}%")
-        if mkt_rest is not None:
-            diff = mkt_rest - cb_rest
+                f"{_rng(cb_rest)}%")
+        if mkt_rest:
+            diff = sum(mkt_rest) / 2 - sum(cb_rest) / 2
             how = ("жёстче" if diff > 0.2 else "мягче" if diff < -0.2 else "примерно так же")
-            rate += f", аналитики — {_p(mkt_rest)}%, то есть {how}"
+            rate += f", аналитики — {_rng(mkt_rest)}%, то есть {how}"
         parts.append(rate + ".")
-    cb_i, mkt_i = _num(cb.get("Инфляция")), _num(survey.get("ИПЦ"))
-    if cb_i is not None and mkt_i is not None:
-        parts.append(f"Инфляцию на конец года ЦБ видит на {_p(cb_i)}%, аналитики — {_p(mkt_i)}%.")
+    cb_i, mkt_i = _range(cb.get("Инфляция")), _range(survey.get("ИПЦ"))
+    if cb_i and mkt_i:
+        parts.append(f"Инфляцию на конец года ЦБ видит на {_rng(cb_i)}%, "
+                     f"аналитики — {_rng(mkt_i)}%.")
     return {"human": " ".join(parts),
             "key_rate_now_pct": now,
-            "cb_avg_rest_of_year_pct": cb_rest,
-            "consensus_avg_rest_of_year_pct": mkt_rest,
-            "cb_annual_avg_rate_pct": cb_avg, "consensus_annual_avg_rate_pct": mkt_avg,
-            "cb_inflation_pct": cb_i, "consensus_inflation_pct": mkt_i}
+            "cb_avg_rest_of_year_pct": list(cb_rest) if cb_rest else None,
+            "consensus_avg_rest_of_year_pct": list(mkt_rest) if mkt_rest else None,
+            "cb_annual_avg_rate": cb.get("Ключевая ставка"),
+            "consensus_annual_avg_rate": survey.get("Ключевая ставка"),
+            "_note": "средняя до конца года выведена из годовой средней ЦБ и фактической "
+                     "траектории ставки с 1 января (ставка ступенчатая, среднее по дням)"}
 
 
 def compute(db: Session, year: int | None = None) -> dict:
