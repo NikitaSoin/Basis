@@ -62,6 +62,11 @@ def _portfolio_sectors(db: Session, user) -> set[str]:
     return {r[0] for r in rows if r[0]}
 
 
+def _units_parts(unit: str | None) -> tuple[str, str]:
+    from app.services.macro_units import parts
+    return parts(unit)
+
+
 @router.get("/market/macro")
 def macro_summary(country: str | None = None, portfolio_only: bool = False,
                   db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
@@ -86,6 +91,10 @@ def macro_summary(country: str | None = None, portfolio_only: bool = False,
         in_portfolio = bool(ind.sectors) and bool(pf_sectors & set(ind.sectors or []))
         out.append({
             "code": ind.code, "title": ind.title, "unit": ind.unit,
+            # 🔴 Человеческая единица (владелец, 2026-08-09: «4,36 usd/bbl непонятно»).
+            # unit оставляем как есть — по нему считает фронт (сравнение с "%") и
+            # сходятся сверки; для показа даём префикс/суффикс: «$4,36 / барр.».
+            "unit_prefix": _units_parts(ind.unit)[0], "unit_suffix": _units_parts(ind.unit)[1],
             "country": ind.country, "frequency": ind.frequency,
             "display_group": ind.display_group, "metric_types": ind.metric_types,
             "influence_short": ind.influence_short, "influence_full": ind.influence_full,
@@ -329,7 +338,9 @@ def macro_series(code: str, metric: str = "level",
             pass
     pts = q.order_by(MacroDataPoint.as_of).all()
     return {
-        "code": code, "title": ind.title, "unit": ind.unit, "metric": metric,
+        "code": code, "title": ind.title, "unit": ind.unit,
+        "unit_prefix": _units_parts(ind.unit)[0], "unit_suffix": _units_parts(ind.unit)[1],
+        "metric": metric,
         "points": [{"as_of": p.as_of.isoformat(), "value": float(p.value),
                     "is_preliminary": p.is_preliminary} for p in pts],
     }

@@ -1266,6 +1266,22 @@
       "base_url": "http://www.forecast.ru",
       "ext": ".pdf",
       "max": 4
+    },
+    {
+      "source": "cbr",
+      "doc_type": "Обзор рисков финансовых рынков",
+      "page_url": "https://www.cbr.ru/analytics/finstab/orfr/",
+      "base_url": "https://www.cbr.ru",
+      "ext": ".pdf",
+      "max": 2
+    },
+    {
+      "source": "cbr",
+      "doc_type": "О развитии банковского сектора",
+      "page_url": "https://www.cbr.ru/analytics/bank_sector/develop/",
+      "base_url": "https://www.cbr.ru",
+      "ext": ".pdf",
+      "max": 2
     }
   ],
   "news_extract": {

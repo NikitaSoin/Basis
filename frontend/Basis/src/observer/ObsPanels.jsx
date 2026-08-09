@@ -2472,7 +2472,12 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
       return {
         code: ind.code,
         title: ind.title,
-        valStr: v ? `${_fmtNum(v.value)}${ind.unit === "%" ? "%" : ` ${ind.unit || ""}`}` : "—",
+        // Единица человеческим языком приходит с бэка разделённой на префикс и
+        // суффикс: символ валюты стоит ПЕРЕД числом («$4,36 / барр.»), как принято в
+        // русской записи. Старое поведение остаётся фолбэком, если бэк ещё не доехал.
+        valStr: v ? (ind.unit_prefix != null || ind.unit_suffix != null
+          ? `${ind.unit_prefix || ""}${_fmtNum(v.value)}${ind.unit_suffix || ""}`
+          : `${_fmtNum(v.value)}${ind.unit === "%" ? "%" : ` ${ind.unit || ""}`}`) : "—",
         asOf: v?.as_of,
         change: v?.change,
       };
@@ -7586,7 +7591,7 @@ function ObsPulseCard({ item, onClick }) {
   return (
     <Tag className="obs-tile" style={onClick ? undefined : { cursor: "default" }} onClick={onClick} type={onClick ? "button" : undefined}>
       <div className="obs-tile-lbl">{item.name}</div>
-      <div className="obs-tile-val">{lvl != null ? lvl.toLocaleString("ru-RU", { maximumFractionDigits: dec }) : "—"}{item.unit ? (item.unit === "%" ? "%" : " " + item.unit) : ""}</div>
+      <div className="obs-tile-val">{item.unit_prefix || ""}{lvl != null ? lvl.toLocaleString("ru-RU", { maximumFractionDigits: dec }) : "—"}{item.unit_suffix != null ? item.unit_suffix : (item.unit ? (item.unit === "%" ? "%" : " " + item.unit) : "")}</div>
       {chg != null && <div className={"obs-tile-delta " + dCls}>{chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {Math.abs(chg).toFixed(2)}%</div>}
       {item.spark && item.spark.length > 1 && <div style={{ marginTop: 8 }}><ObsSparkline points={item.spark} color={color} /></div>}
       {item.note && <div className="obs-tile-date">{item.note}</div>}
