@@ -5391,13 +5391,6 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
         </button>
       </div>
 
-      {mode === "assessment" && (
-        <div className="obs-baro-note">
-          <Info size={14} />
-          <span>Ниже — всё <b>только по выбранному очагу</b>: его балл остроты, сценарии, направление и секторные последствия. Сквозные показатели рынка (G1–G13) — в свёрнутом блоке «Фон рынка в целом» внизу.</span>
-        </div>
-      )}
-
       {loading && (
         <div className="obs-news-loading">Загрузка геополитики…</div>
       )}
@@ -5499,8 +5492,6 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
 
                 return (
                   <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                    <ObsBaroCaveat flags={baro.data_flags} />
-
                     {/* Общий барометр рынка остаётся ТОЛЬКО компактной строкой-фоном:
                         режим «Весь рынок» убран (владелец 2026-08-01), а 13 показателей
                         G1-G13 — сквозные оси рынка РФ, не свойство очага, поэтому в
@@ -5786,6 +5777,12 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                     )}
                       </div>
                     </details>
+
+                    {/* 🔴 Методологические оговорки — В САМОМ НИЗУ (владелец 2026-08-10:
+                        «методологические оговорки я бы опустил в самый низ»). Раньше они
+                        ОТКРЫВАЛИ блок: пользователь встречал дисклеймер раньше содержания.
+                        Оговорка нужна, но она сопровождает вывод, а не предваряет его. */}
+                    <ObsBaroCaveat flags={baro.data_flags} />
                   </div>
                 );
               })()}
