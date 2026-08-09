@@ -70,7 +70,8 @@ import ChartPro from "../market/ChartPro";
 function ProPriceCard({ assetClass, secid, title = "График цены", note = null }) {
   return (
     <Card>
-      <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-mb-4">
+      <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-mb-4"
+        data-rail={title} data-rail-desc="Свечи, таймфреймы, EMA/Боллинджер и RSI">
         <Activity size={18} />
         <span>{title}</span>
         {note && <span className="tw-text-[12px] tw-text-text-tertiary tw-font-normal">{note}</span>}

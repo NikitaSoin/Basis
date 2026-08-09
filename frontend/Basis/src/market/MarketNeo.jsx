@@ -6,6 +6,7 @@
    /bonds, /futures, /funds, /spot, /market/instruments/sparklines (мини-графики).
    Эпистемика: котировки = факт; тон рынка и трактовка драйверов = оценка/суждение Basis. */
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { ScrollRail } from "../design/ScrollRail";
 import { syncTabUrl } from "../navUrl";
 import { InfoDot } from "../design/InfoDot";
 import { FAIR_VALUE_NOTE } from "../fairValueNote";
@@ -1107,6 +1108,26 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
     return [];
   }, [tab, query, stocks, bonds, futures, funds]); // eslint-disable-line
 
+  // Содержание «Рынка» = сектора (владелец 2026-08-10: «должно быть понятно,
+  // какие сектора идут, в описаниях можно называть конкретные акции»).
+  // Клик выбирает сектор — это и есть переход к части рынка.
+  const sectorItems = useMemo(() => {
+    if (tab !== "stocks" || !stocks.length) return null;
+    const by = {};
+    stocks.forEach((x) => { (by[x.sec] = by[x.sec] || []).push(x); });
+    const list = Object.keys(by).sort((a, b) => by[b].length - by[a].length).map((sec) => {
+      const top = [...by[sec]].sort((a, b) => (b.mcap || 0) - (a.mcap || 0)).slice(0, 3).map((x) => x.t);
+      return {
+        label: sec,
+        desc: `${by[sec].length} бумаг · ${top.join(", ")}`,
+        active: sector === sec,
+        onClick: () => setSector(sector === sec ? "" : sec),
+      };
+    });
+    return [{ label: "Все секторы", desc: `${stocks.length} бумаг рынка целиком`,
+              active: !sector || sector === "Все", onClick: () => setSector("") }, ...list];
+  }, [tab, stocks, sector]);
+
   const TABS = [
     { id: "stocks", label: "Акции", count: scored.length || null, icon: TrendingUp },
     { id: "bonds", label: "Облигации", count: bonds.length || null, icon: FileText },
@@ -1155,6 +1176,9 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
       </nav>
 
       <main className="mkt-main">
+        {sectorItems && sectorItems.length >= 4 && (
+          <ScrollRail customItems={sectorItems} title="Секторы рынка" />
+        )}
         <div className="mkt-panel mk-screen">
           <MobileSectionBar
             title={activeTabMeta.label}

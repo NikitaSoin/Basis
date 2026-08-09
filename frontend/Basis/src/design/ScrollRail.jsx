@@ -67,7 +67,10 @@ function _scrollHost(el) {
   return null; // окно
 }
 
-export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, deps = [], containerRef = null }) {
+// customItems — готовый список пунктов [{label, desc, onClick, active}] для
+// экранов без секций-заголовков в потоке (Рынок: содержание = сектора рынка,
+// в описании крупные тикеры; клик выбирает сектор). Владелец 2026-08-10.
+export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, deps = [], containerRef = null, customItems = null, title = "Содержание" }) {
   const [items, setItems] = useState([]);
   const [active, setActive] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -85,6 +88,7 @@ export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, dep
   }, []);
 
   useEffect(() => {
+    if (customItems) { setItems(customItems.map((it) => ({ ...it, el: null }))); return undefined; }
     let cancelled = false;
     const rebuild = () => {
       if (cancelled) return;
@@ -116,7 +120,8 @@ export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, dep
   const visible = items.length > 0 && !narrow;
   useEffect(() => {
     const host = items.length
-      ? (items[0].el.closest(".cc-root, .obs-main, .pf-main, .mkt-main, .mk-screen, .sc-screen, .app-main-top") || null)
+      ? ((items[0].el && items[0].el.closest(".cc-root, .obs-main, .pf-main, .mkt-main, .mk-screen, .sc-screen, .app-main-top"))
+         || document.querySelector(".mkt-main, .obs-main, .pf-main, .cc-root, .sc-screen"))
       : null;
     if (!visible || !host) return undefined;
     const prev = host.style.paddingRight;
@@ -125,7 +130,7 @@ export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, dep
   }, [visible, hidden, items]);
 
   useEffect(() => {
-    if (!items.length) return undefined;
+    if (!items.length || !items[0].el) return undefined;
     const host = _scrollHost(items[0].el);
     hostRef.current = host;
     const onScroll = () => {
@@ -175,7 +180,7 @@ export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, dep
   return (
     <nav className="srail" aria-label="Содержание страницы">
       <div className="srail-head">
-        <span className="srail-eyebrow">Содержание</span>
+        <span className="srail-eyebrow">{title}</span>
         <button type="button" className="srail-hide" onClick={toggle}
           title="Скрыть — читать на всю ширину" aria-label="Скрыть содержание">
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M6 3.5L10.5 8 6 12.5" /></svg>
@@ -185,8 +190,11 @@ export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, dep
         <span className="srail-thread" style={{ height: `${progress * 100}%` }} aria-hidden="true" />
         <ol className="srail-list">
           {items.map((it, i) => (
-            <li key={it.label} className={"srail-li" + (i === active ? " on" : i < active ? " done" : "")}>
+            <li key={it.label} className={"srail-li" + (customItems
+              ? (it.active ? " on" : "")
+              : (i === active ? " on" : i < active ? " done" : ""))}>
               <button type="button" onClick={() => {
+                if (it.onClick) { it.onClick(); return; }
                 const host = hostRef.current;
                 const behavior = reduced ? "auto" : "smooth";
                 if (host) host.scrollTo({ top: host.scrollTop + it.el.getBoundingClientRect().top - host.getBoundingClientRect().top - 20, behavior });
@@ -200,8 +208,10 @@ export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, dep
         </ol>
       </div>
       <div className="srail-foot">
-        <span className="srail-num">{active + 1}</span>/<span className="srail-num">{items.length}</span>
-        {" · "}<span className="srail-num">{Math.round(progress * 100)}%</span>
+        {customItems
+          ? <><span className="srail-num">{items.length}</span> разделов</>
+          : <><span className="srail-num">{active + 1}</span>/<span className="srail-num">{items.length}</span>
+              {" · "}<span className="srail-num">{Math.round(progress * 100)}%</span></>}
       </div>
     </nav>
   );
