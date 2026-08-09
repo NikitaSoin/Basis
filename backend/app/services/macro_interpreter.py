@@ -211,6 +211,12 @@ _OUTPUT_SPEC = (
     "объясняют), а если приводишь число — обязательно с автором («Минэк ожидает…», "
     "«по оценке РСПП…») и тегом «оценка». Ставить их в один ряд с нашими key_facts "
     "нельзя.\n"
+    "7и. 🔴 ТОН — ЭТО ТОЖЕ ФАКТ. «Рухнул», «обвал», «крах», «коллапс», «взлетел», "
+    "«катастрофа» разрешены ТОЛЬКО по показателям из tone_guard.громкие_слова_разрешены_"
+    "только_здесь. Замедление внутри того же режима громким словом называть нельзя: рост "
+    "1,5% → 0,5% это ЗАМЕДЛЕНИЕ, а не обвал; рост 1,5% → падение 7% — вот это обвал. Для "
+    "всего остального — «замедлился», «снизился», «углубилось падение», «ускорился». "
+    "Нажим тоном дезинформирует ровно так же, как неверное число, только незаметнее.\n"
     "8. Не делай разворотных выводов по одному месяцу (Часть 1): топливо, плодоовощи, "
     "тарифы волатильны. Смотри тренд 3+ месяца и устойчивые компоненты.\n"
     "9. Язык — простой, с видимой логикой. Профессиональный аппарат (Тейлор, кривая "
@@ -377,6 +383,7 @@ def gather_snapshot(db: Session) -> dict:
                 for f in db.query(MacroForecast).order_by(MacroForecast.as_of.desc()).limit(40).all()]
     expectations = _external_expectations(indicators)
     return {"key_facts": _key_facts(indicators, expectations),
+            "tone_guard": _tone_guard(indicators),
             # 🔴 СРАЗУ после key_facts, а не в хвосте снапшота: в первой версии блок
             # лежал десятым, и выпуск его проигнорировал — написал «обвал инвестиций»,
             # имея под рукой прогнозы Минэка и РСПП о −1,5% за год. Порядок полей —
@@ -449,17 +456,10 @@ def _outliers(indicators: list[dict]) -> list[dict]:
         # номинальную зарплату вместо инвестиций.
         if ind.get("country") != "ru" or ind.get("metric") not in ("yoy", "mom", "qoq", "wow"):
             continue
-        # История лежит в двух формах: плотный хвост (series) у мастер-переменных и
-        # опорные отсечки (anchors) у остальных — см. _series_digest.
-        hist = [p.get("v") for p in (ind.get("series") or [])
-                if isinstance(p, dict) and isinstance(p.get("v"), (int, float))]
-        if not hist:
-            hist = [v for v in (ind.get("anchors") or {}).values()
-                    if isinstance(v, (int, float))]
         cur = ind.get("current_value")
         if not isinstance(cur, (int, float)):
             continue
-        prev = [v for v in reversed(hist) if v != cur][:8]
+        prev = [v for v in _history_recent_first(ind) if v != cur][:8]
         if len(prev) < _OUTLIER_MIN_HISTORY - 2:
             continue
         import statistics as _st
@@ -480,6 +480,68 @@ def _outliers(indicators: list[dict]) -> list[dict]:
     # которые и так скачут. Инвестиции −14,3% при медиане −2,7 обходят и тех, и других.
     out.sort(key=lambda x: -x["_score"])
     return out[:_OUTLIER_MAX]
+
+
+def _history_recent_first(ind: dict) -> list[float]:
+    """История ряда, от САМОЙ СВЕЖЕЙ точки к старым.
+
+    🔴 Две формы хранения и разный порядок: series (плотный хвост) идёт по возрастанию
+    даты, anchors — уже от ближайшей отсечки к дальней (1m_ago, 3m_ago, …). Первая
+    версия разворачивала обе одинаково и брала «предыдущим» значение ГОДОВОЙ давности:
+    инвестиции сравнивались не с −5,3% прошлого квартала, а с +6,5% год назад, и
+    «обвал» получался разрешён там, где его быть не должно.
+    """
+    series = [p.get("v") for p in (ind.get("series") or [])
+              if isinstance(p, dict) and isinstance(p.get("v"), (int, float))]
+    if series:
+        return list(reversed(series))
+    return [v for v in (ind.get("anchors") or {}).values() if isinstance(v, (int, float))]
+
+
+# Слова, которыми выпуск имеет право пользоваться только по факту, а не для нажима.
+DRAMATIC_WORDS = ("рухнул", "рухнули", "обвал", "обвалил", "крах", "коллапс",
+                  "катастроф", "взлетел", "взлетели", "взрывной", "провал", "кризис")
+
+
+def _tone_guard(indicators: list[dict]) -> dict:
+    """Где громкое слово ЗАСЛУЖЕНО, а где это нажим тоном.
+
+    🔴 Владелец, 2026-08-08: «красочно-пафосную лексику лучше не использовать, если там
+    реально не рухнуло: ВВП с 1,5% до 0,5% — это бред; а вот когда был рост 1,5%, а стало
+    падение на 7% — это рухнуло». То есть критерий не «цифра изменилась сильно», а СМЕНА
+    РЕЖИМА: рост превратился в падение либо сдвиг настолько велик, что описывать его
+    спокойным глаголом было бы враньём. Замедление внутри того же режима — «замедлился»,
+    а не «рухнул».
+
+    Считает КОД и кладёт готовый вердикт в снапшот: тон — вопрос факта, а не вкуса, и
+    оставлять его на усмотрение модели значит получать «обвал» на каждом минусе.
+    """
+    allowed, blocked = [], []
+    for ind in indicators:
+        if ind.get("metric") not in ("yoy", "mom", "qoq", "wow"):
+            continue
+        cur = ind.get("current_value")
+        if not isinstance(cur, (int, float)):
+            continue
+        hist = _history_recent_first(ind)
+        prev = next((v for v in hist if v != cur), None)
+        if prev is None:
+            continue
+        sign_flip = (prev > 0 > cur or prev < 0 < cur) and abs(cur) >= 3
+        huge = abs(cur - prev) >= 10
+        title = ind.get("title") or ind.get("code")
+        if sign_flip or huge:
+            allowed.append({"indicator": title, "было": prev, "стало": cur,
+                            "почему можно": "смена знака" if sign_flip else "сдвиг больше 10 п.п."})
+        else:
+            blocked.append({"indicator": title, "было": prev, "стало": cur,
+                            "как называть": "изменение внутри того же режима — «замедлился», "
+                                            "«снизился», «углубилось падение», но НЕ «рухнул/обвал»"})
+    return {"громкие_слова_разрешены_только_здесь": allowed,
+            "тут_громкие_слова_запрещены": blocked,
+            "правило": "«рухнул», «обвал», «крах», «коллапс», «взлетел», «катастрофа» — "
+                       "только по показателям из первого списка. Рост 1,5% → 0,5% это "
+                       "замедление, а не обвал; рост 1,5% → падение 7% — обвал."}
 
 
 def _external_expectations(indicators: list[dict]) -> list[dict]:
@@ -1070,7 +1132,8 @@ def _logic_score(review: dict) -> tuple[int, int]:
 
 
 def _logic_loop(db: Session, sections: dict, ask, t0: float,
-                expectations: list[dict] | None = None) -> tuple[dict, dict]:
+                expectations: list[dict] | None = None,
+                tone_guard: dict | None = None) -> tuple[dict, dict]:
     """Цикл «выпуск → критик → доработка → критик», пока грубые не исчерпаны.
 
     Критик НЕ блокирует публикацию (владелец): даже с оставшимися замечаниями выпуск
@@ -1078,7 +1141,7 @@ def _logic_loop(db: Session, sections: dict, ask, t0: float,
     """
     from app.services.macro_logic_critic import review_logic
 
-    review = review_logic(db, sections, expectations)
+    review = review_logic(db, sections, expectations, tone_guard)
     best_sections, best_review = sections, review
     passes = []
     for attempt in range(1, _MAX_LOGIC_PASSES + 1):
@@ -1105,7 +1168,7 @@ def _logic_loop(db: Session, sections: dict, ask, t0: float,
         if not fixed:
             logger.warning("Интерпретатор: доработка %s не вернула sections", attempt)
             break
-        after = review_logic(db, fixed, expectations)
+        after = review_logic(db, fixed, expectations, tone_guard)
         passes.append({"pass": attempt, "before": _logic_score(best_review)[0],
                        "after": _logic_score(after)[0]})
         # 🔴 Берём ЛУЧШУЮ версию, а не последнюю: «переписал» ≠ «стало лучше».
@@ -1169,7 +1232,8 @@ def generate(db: Session) -> MacroInterpretation:
     if sections and os.environ.get("MACRO_LOGIC_CRITIC", "1") == "1":
         try:
             sections, logic = _logic_loop(db, sections, _ask, t0,
-                                          snapshot.get("external_expectations"))
+                                          snapshot.get("external_expectations"),
+                                          snapshot.get("tone_guard"))
         except Exception:  # noqa: BLE001
             logger.warning("Интерпретатор: критик логики не отработал", exc_info=True)
 
