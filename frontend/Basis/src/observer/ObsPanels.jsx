@@ -2390,7 +2390,7 @@ function ObsBusinessArticles() {
 // Две вкладки: Обзор (article-cards из /macro/analytics) +
 //              Оценка ситуации (deep-card из /macro/interpretation).
 // =========================
-function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
+function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio, onOpenEconomy }) {
   const [mode, setMode] = useState("overview"); // overview | assessment
   const [docs, setDocs] = useState([]);
   const [interp, setInterp] = useState(null);
@@ -2690,6 +2690,38 @@ fetch(`${apiUrl}/api/market/macro/scenario-impact?top=6`)
                     )}
                   </div>
                 </section>
+              )}
+
+              {/* Сценарии — лестницей, как в геополитике (владелец, 2026-08-09), на
+                  рамке среднесрочного прогноза Банка России. Вероятности считает КОД по
+                  наблюдаемым сигналам (методичка выпуска, 14.6), а не модель на глаз —
+                  поэтому рядом видно, из чего сложился вес. */}
+              {scOdds?.scenarios?.length > 0 && (
+                <div className="obs-inst-card">
+                  <div className="obs-inst-card-title"><GitBranch size={16} />Сценарии · {scOdds.horizon}</div>
+                  <p className="obs-inst-card-sub">
+                    Пути — из среднесрочного прогноза Банка России. Вероятности ЦБ не публикует:
+                    это оценка Basis по наблюдаемым сигналам (консенсус аналитиков, инфляция,
+                    кредит, нефть). Сумма — 100%.
+                  </p>
+                  <ObsBaroLadder
+                    items={scOdds.scenarios.map((sc) => ({ key: sc.key, label: sc.name, pct: sc.probability_pct }))}
+                    currentKey="base"
+                  />
+                  {scOdds.market_anchor && (
+                    <div className="obs-inst-checkpoint">
+                      <div className="obs-inst-checkpoint-label"><Info size={12} />Чего ждут ЦБ и аналитики</div>
+                      <div className="obs-inst-checkpoint-text">
+                        {scOdds.market_anchor.human || ""}
+                      </div>
+                    </div>
+                  )}
+                  {onOpenEconomy && (
+                    <button type="button" className="obs-scen-link" onClick={onOpenEconomy}>
+                      Среднесрочный прогноз Банка России целиком →
+                    </button>
+                  )}
+                </div>
               )}
 
               {/* ДОКАЗАТЕЛЬСТВО, шаг 1: плитка твёрдых чисел — ФАКТ */}
@@ -3069,43 +3101,6 @@ fetch(`${apiUrl}/api/market/macro/scenario-impact?top=6`)
                 </div>
               )}
 
-              {/* Сценарии — лестницей, как в геополитике (владелец, 2026-08-09), на
-                  рамке среднесрочного прогноза Банка России. Вероятности считает КОД по
-                  наблюдаемым сигналам (методичка выпуска, 14.6), а не модель на глаз —
-                  поэтому рядом видно, из чего сложился вес. */}
-              {scOdds?.scenarios?.length > 0 && (
-                <div className="obs-inst-card">
-                  <div className="obs-inst-card-title"><GitBranch size={16} />Сценарии · {scOdds.horizon}</div>
-                  <p className="obs-inst-card-sub">
-                    Пути — из среднесрочного прогноза Банка России. Вероятности ЦБ не публикует:
-                    это оценка Basis по наблюдаемым сигналам (консенсус аналитиков, инфляция,
-                    кредит, нефть). Сумма — 100%.
-                  </p>
-                  <ObsBaroLadder
-                    items={scOdds.scenarios.map((sc) => ({ key: sc.key, label: sc.name, pct: sc.probability_pct }))}
-                    currentKey="base"
-                  />
-                  <div className="obs-scen-why">
-                    {scOdds.scenarios.filter((sc) => (sc.why || []).length > 0).map((sc) => (
-                      <div key={sc.key} className="obs-scen-why-row">
-                        <span className="obs-scen-why-name">{sc.name.split(":")[0]}</span>
-                        <span className="obs-scen-why-text">{sc.why.join("; ")}</span>
-                      </div>
-                    ))}
-                  </div>
-                  {scOdds.market_anchor && (
-                    <div className="obs-inst-checkpoint">
-                      <div className="obs-inst-checkpoint-label"><Info size={12} />Что закладывает рынок</div>
-                      <div className="obs-inst-checkpoint-text">
-                        Консенсус аналитиков: ставка {scOdds.market_anchor.consensus_avg_rate_pct}% и
-                        инфляция {scOdds.market_anchor.consensus_inflation_pct}% — против {scOdds.market_anchor.cb_base_avg_rate_pct}%
-                        и {scOdds.market_anchor.cb_base_inflation_pct}% в базовом прогнозе ЦБ.
-                        Ставка здесь — средняя за год, а не текущий уровень.
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
               {/* 🔴 Сценарии в этом виде СКРЫТЫ (владелец, 2026-08-09: «сценарии как они
                   сейчас выводятся убрать, сделал бы как в геополитике — лестницей, и брал
                   бы базово сценарии Банка России»). Данные продолжают собираться; вернём

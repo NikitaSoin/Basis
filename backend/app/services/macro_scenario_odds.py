@@ -39,8 +39,9 @@ logger = logging.getLogger(__name__)
 # практике последних лет пересмотры чаще шли в эту сторону.
 _PRIOR = {"base": 50, "proinflation": 20, "disinflation": 18, "recession": 12}
 
+# Слово «путь» из названий убрано (владелец, 2026-08-10): читатель ждёт «сценарий».
 _NAMES = {
-    "base": "Базовый (путь Банка России)",
+    "base": "Базовый сценарий Банка России",
     "proinflation": "Проинфляционный: спрос и издержки выше, ставка высокая дольше",
     "disinflation": "Дезинфляционный: спрос охлаждается быстрее, ставка вниз раньше",
     "recession": "Рисковый: рецессия и дешёвое сырьё",
@@ -82,6 +83,86 @@ def _latest(db: Session, code: str, metric: str) -> float | None:
     return float(row[0]) if row and row[0] is not None else None
 
 
+
+def _avg_rest_of_year(db: Session, year: int, annual_avg: float | None) -> float | None:
+    """Средняя ключевая ставка НА ОСТАВШУЮСЯ часть года.
+
+    🔴 Владелец, 2026-08-10: «пиши не средняя за год, а средняя с текущего момента —
+    так становится понятно, чего ждать». И это правильно по существу: годовая средняя
+    смешивает уже случившееся с будущим, и на фоне сегодняшних 14% она читается как
+    ошибка. Выводим из тождества: годовая средняя = (среднее по прошедшим месяцам ×
+    прошедшие месяцы + среднее по оставшимся × оставшиеся) / 12.
+    """
+    if annual_avg is None:
+        return None
+    from sqlalchemy import text as _sql
+    rows = db.execute(_sql(
+        "SELECT as_of, value FROM macro_data_points WHERE indicator_code = 'key_rate' "
+        "AND metric = 'level' AND as_of >= :start ORDER BY as_of"),
+        {"start": date(year, 1, 1)}).all()
+    if not rows:
+        return None
+    today = date.today()
+    # среднее по дням с начала года: ставка ступенчатая, взвешиваем по длительности
+    total_days, acc = 0, 0.0
+    prev_d, prev_v = None, None
+    for d, v in rows:
+        if prev_d is not None:
+            days = (d - prev_d).days
+            acc += float(prev_v) * days
+            total_days += days
+        prev_d, prev_v = d, float(v)
+    if prev_d is not None:
+        days = max(0, (today - prev_d).days)
+        acc += float(prev_v) * days
+        total_days += days
+    if total_days <= 0:
+        return None
+    elapsed_avg = acc / total_days
+    elapsed_share = total_days / 365.0
+    if elapsed_share >= 0.98:
+        return None
+    rest = (annual_avg - elapsed_avg * elapsed_share) / (1 - elapsed_share)
+    return round(rest, 1)
+
+
+
+def _anchor(db: Session, year: int, cb: dict, survey: dict) -> dict:
+    """Чего ждут ЦБ и аналитики — в понятной читателю форме.
+
+    Годовые средние ставки пересчитываются в среднюю НА ОСТАВШУЮСЯ часть года: именно
+    она отвечает на вопрос «чего ждать дальше», а годовая на фоне текущих 14% выглядит
+    опечаткой.
+    """
+    cb_avg, mkt_avg = _num(cb.get("Ключевая ставка")), _num(survey.get("Ключевая ставка"))
+    cb_rest = _avg_rest_of_year(db, year, cb_avg)
+    mkt_rest = _avg_rest_of_year(db, year, mkt_avg)
+    now = _latest(db, "key_rate", "level")
+    def _p(v: float, dec: int = 1) -> str:
+        return f"{v:.{dec}f}".replace(".", ",")
+
+    parts = []
+    if now is not None:
+        parts.append(f"Ставка сейчас {_p(now, 0)}%.")
+    if cb_rest is not None:
+        rate = (f"До конца года Банк России в базовом сценарии закладывает в среднем "
+                f"{_p(cb_rest)}%")
+        if mkt_rest is not None:
+            diff = mkt_rest - cb_rest
+            how = ("жёстче" if diff > 0.2 else "мягче" if diff < -0.2 else "примерно так же")
+            rate += f", аналитики — {_p(mkt_rest)}%, то есть {how}"
+        parts.append(rate + ".")
+    cb_i, mkt_i = _num(cb.get("Инфляция")), _num(survey.get("ИПЦ"))
+    if cb_i is not None and mkt_i is not None:
+        parts.append(f"Инфляцию на конец года ЦБ видит на {_p(cb_i)}%, аналитики — {_p(mkt_i)}%.")
+    return {"human": " ".join(parts),
+            "key_rate_now_pct": now,
+            "cb_avg_rest_of_year_pct": cb_rest,
+            "consensus_avg_rest_of_year_pct": mkt_rest,
+            "cb_annual_avg_rate_pct": cb_avg, "consensus_annual_avg_rate_pct": mkt_avg,
+            "cb_inflation_pct": cb_i, "consensus_inflation_pct": mkt_i}
+
+
 def compute(db: Session, year: int | None = None) -> dict:
     """Веса сценариев на горизонт года прогноза ЦБ (по умолчанию — текущий год)."""
     year = year or date.today().year
@@ -120,10 +201,10 @@ def compute(db: Session, year: int | None = None) -> dict:
         steps = int(abs(gap) / 0.5)
         if gap > 0.3:
             _shift("proinflation", steps,
-                   f"консенсус по средней за год ставке на {gap:.1f} п.п. выше базового пути ЦБ")
+                   f"консенсус по средней ставке на {gap:.1f} п.п. выше базового сценария ЦБ")
         elif gap < -0.3:
             _shift("disinflation", steps,
-                   f"консенсус по средней за год ставке на {abs(gap):.1f} п.п. ниже базового пути ЦБ")
+                   f"консенсус по средней ставке на {abs(gap):.1f} п.п. ниже базового сценария ЦБ")
 
     # 2. Инфляционный импульс: где идёт годовая инфляция относительно коридора ЦБ
     cb_infl = _num(cb.get("Инфляция"))
@@ -169,7 +250,7 @@ def compute(db: Session, year: int | None = None) -> dict:
     for key in ("base", "proinflation", "disinflation", "recession"):
         pct = round(weights[key] / total * 100 / 5) * 5      # шаг 5 п.п., не мельче
         scen.append({"key": key, "name": _NAMES[key], "probability_pct": pct,
-                     "why": why[key] or (["базовый путь Банка России — точка отсчёта"]
+                     "why": why[key] or (["базовый сценарий Банка России — точка отсчёта"]
                                          if key == "base" else
                                          ["сигналов в пользу этого пути сейчас нет"])})
     drift = 100 - sum(s["probability_pct"] for s in scen)
@@ -180,12 +261,7 @@ def compute(db: Session, year: int | None = None) -> dict:
         "horizon": f"до конца {year}",
         "scenarios": scen,
         "signals": signals,
-        "market_anchor": {"_note": "ставка здесь — СРЕДНЯЯ ЗА ГОД (так публикуют и ЦБ, и "
-                                   "макроопрос), сравнивать с текущим уровнем ставки нельзя",
-                          "consensus_avg_rate_pct": _num(survey.get("Ключевая ставка")),
-                          "cb_base_avg_rate_pct": _num(cb.get("Ключевая ставка")),
-                          "consensus_inflation_pct": _num(survey.get("ИПЦ")),
-                          "cb_base_inflation_pct": _num(cb.get("Инфляция"))},
+        "market_anchor": _anchor(db, year, cb, survey),
         "method": "Рамка — среднесрочный прогноз Банка России (базовый и альтернативные "
                   "пути). Вероятностей ЦБ не публикует, поэтому веса — ОЦЕНКА платформы: "
                   "стартовые доли сдвигаются наблюдаемыми сигналами (консенсус аналитиков "

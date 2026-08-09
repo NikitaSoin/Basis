@@ -235,7 +235,8 @@ function ObserverV2({
               <h2 className="obs-sec-title">Макроэкономика</h2>
               <ObsHorizonChip>горизонт актуальности: дни-недели</ObsHorizonChip>
             </div>
-            <ObsMacroArticles token={token} onSelectCompany={onSelectCompany} onOpenPortfolio={onOpenPortfolio} />
+            <ObsMacroArticles token={token} onSelectCompany={onSelectCompany} onOpenPortfolio={onOpenPortfolio}
+              onOpenEconomy={() => { setActiveSection("economy"); syncUrl({ view: "overview", obs: "economy" }); }} />
           </div>
         );
       case "business":
