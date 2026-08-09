@@ -24,6 +24,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -132,26 +133,64 @@ def cmd_queries():
               f"{ind.get('TOTAL_CLICKS',0):>6} {ind.get('AVG_SHOW_POSITION',0):>8.1f}")
 
 
+def already_queued() -> set:
+    """Адреса, уже стоящие в очереди переобхода. Нужны, чтобы не жечь квоту на дубли:
+    очередь живёт несколько дней и хранит отправленное прошлыми сессиями тоже."""
+    uid, hid = host_id()
+    out = set()
+    for off in range(0, 1000, 100):
+        try:
+            r = call(f"/user/{uid}/hosts/{hid}/recrawl/queue/?offset={off}&limit=100")
+        except SystemExit:
+            break
+        tasks = r.get("tasks", [])
+        if not tasks:
+            break
+        out |= {t.get("url", "").rstrip("/") + "/" for t in tasks}
+    return out
+
+
 def cmd_recrawl(path: str):
     """Отправить адреса на переобход. Суточная квота у Вебмастера своя — она же видна
-    в ответе, поэтому останавливаемся, когда она кончилась, а не долбим впустую."""
+    в ответе, поэтому останавливаемся, когда она кончилась, а не долбим впустую.
+
+    🔴 Обрыв связи НЕ должен ронять отправку (2026-08-09: urllib.error.URLError «Tunnel
+    connection failed» вылетел из цикла необработанным, скрипт умер с трейсбеком на
+    середине списка — и мы не знали, сколько адресов ушло, а квота уже была потрачена).
+    Поэтому: сетевая ошибка — три попытки с паузой, и только потом сдаёмся по этому
+    адресу и идём дальше. Отказ самого API (SystemExit из call) — по-прежнему стоп.
+    Дубли отсеиваем заранее по очереди: повторная отправка тратит квоту впустую."""
     uid, hid = host_id()
     q = call(f"/user/{uid}/hosts/{hid}/recrawl/quota/")
     left = q.get("quota_remainder", 0)
     print(f"Квота переобхода на сегодня: осталось {left} из {q.get('daily_quota', '?')}")
     urls = [l.strip() for l in open(path, encoding="utf-8") if l.strip().startswith("http")]
-    sent = 0
+    queued = already_queued()
+    skipped = [u for u in urls if u.rstrip("/") + "/" in queued]
+    urls = [u for u in urls if u.rstrip("/") + "/" not in queued]
+    if skipped:
+        print(f"Уже в очереди, пропускаю: {len(skipped)}")
+    sent = failed = 0
     for u in urls:
         if sent >= left:
             print(f"Квота исчерпана, отправлено {sent}. Остальные — завтра.")
             break
-        try:
-            call(f"/user/{uid}/hosts/{hid}/recrawl/queue/", method="POST", body={"url": u})
-            sent += 1
-        except SystemExit:
-            print(f"  остановлено на {u}")
-            break
-    print(f"Отправлено на переобход: {sent}")
+        for attempt in range(3):
+            try:
+                call(f"/user/{uid}/hosts/{hid}/recrawl/queue/", method="POST", body={"url": u})
+                sent += 1
+                break
+            except urllib.error.URLError:
+                time.sleep(2)
+            except SystemExit:
+                print(f"  API отказал на {u} — останавливаюсь")
+                print(f"Отправлено на переобход: {sent}")
+                return
+        else:
+            print(f"  не удалось (связь): {u}")
+            failed += 1
+        time.sleep(0.3)
+    print(f"Отправлено на переобход: {sent}" + (f", не удалось: {failed}" if failed else ""))
 
 
 if __name__ == "__main__":
