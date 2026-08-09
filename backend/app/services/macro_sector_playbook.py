@@ -4,16 +4,17 @@
 сектора. Нужно, чтобы агент строил секторальное влияние в оценке макроэкономики по ней,
 и чтобы агент, который меняет карточки компаний, тоже на неё опирался».
 
-Методичка (`docs/macro_to_business_sectors.md`, ~1650 строк) целиком в промпт не лезет
+Методичка (`docs/macro_to_business_sectors.md`, ~2100 строк) целиком в промпт не лезет
 и не нужна целиком: у выпуска Обозревателя задача одна — держать общий каркас и
 секторные чувствительности, у патчера карточки другая — знать ОДИН сектор глубоко.
 Поэтому здесь разбор документа на части и две выдачи:
 
   core()             — каркас: цепочка трансмиссии, типы индикаторов, сквозные
-                       драйверы с якорями, сводная таблица чувствительностей,
-                       чек-лист ошибок. Идёт в макро-выпуск.
-  for_sector(имя)    — блоки ЧАСТИ 3 по конкретному сектору платформы. Идут в патчер
-                       карточки и в любой per-company контур.
+                       драйверы с якорями, МЕЖСЕКТОРНЫЕ ЦЕПОЧКИ, сводная таблица
+                       чувствительностей, чек-лист ошибок. Идёт в макро-выпуск.
+  for_sector(имя)    — блоки ЧАСТИ 3 по конкретному сектору платформы плюс «кто чей
+                       клиент» и «от шока к списку пострадавших» из межсекторных
+                       цепочек. Идут в патчер карточки и в любой per-company контур.
 
 Отдельный модуль, а не текст в промпте, по двум причинам: (1) методичку правит владелец
 в docs/, и она обязана доезжать до бота без правки кода; (2) один разбор на процесс —
@@ -50,10 +51,21 @@ SECTOR_MAP: dict[str, tuple[str, ...]] = {
     "Прочее": (),
 }
 
-# Части, из которых собирается каркас. ЧАСТЬ 5 (источники данных) и ЧАСТЬ 6 (фискальный
-# блок) намеренно НЕ здесь: первая — инструкция человеку, откуда тянуть ряды, вторая
-# нужна точечно и раздувает промпт выпуска.
-_CORE_PARTS = ("0", "1", "2", "4", "7")
+# 🔴 Части каркаса выбираются ПО НАЗВАНИЮ, а не по номеру. Первая версия брала номера
+# ("0","1","2","4","7") — и первое же обновление методички владельцем (2026-08-09:
+# добавлена ЧАСТЬ 4 «Межсекторные цепочки») сдвинуло нумерацию: сводная таблица уехала
+# с 4 на 5, чек-лист с 7 на 8. Номерной список продолжил бы работать «успешно», молча
+# подкладывая агенту фискальный блок вместо чек-листа. Ровно тот тихий дрейф схемы,
+# который в проекте уже ловили. Ключевые слова живучее номеров.
+_CORE_TITLES = ("КАК ПОЛЬЗОВАТЬСЯ", "УНИВЕРСАЛЬНЫЙ КАРКАС", "СКВОЗНЫЕ МАКРОДРАЙВЕРЫ",
+                "МЕЖСЕКТОРНЫЕ ЦЕПОЧКИ", "СВОДНАЯ ТАБЛИЦА", "ЧЕК-ЛИСТ")
+# Не в каркасе намеренно: «ИСТОЧНИКИ ДАННЫХ» (инструкция человеку, откуда тянуть ряды)
+# и «ФИСКАЛЬНЫЙ БЛОК» (нужен точечно, а промпт выпуска раздувает заметно).
+
+# Подразделы межсекторных цепочек, которые идут В КАРТОЧКУ вместе с блоком сектора:
+# сектор не живёт один, и правка про ставку у металлурга обязана знать, что удар
+# приходит через девелоперов.
+_CHAIN_SUBS_FOR_CARD = ("КТО ЧЕЙ КЛИЕНТ", "ОБРАТНАЯ ЗАДАЧА")
 
 _cache: dict | None = None
 
@@ -71,31 +83,48 @@ def _parse() -> dict:
         _cache = {"ok": False, "parts": {}, "sectors": {}}
         return _cache
 
-    parts: dict[str, str] = {}
-    # Заголовки вида «# ЧАСТЬ 3. СЕКТОРЫ» — режем по ним, номер части в ключ.
-    chunks = re.split(r"^#\s+ЧАСТЬ\s+(\d+)\.", text, flags=re.M)
-    # chunks: [преамбула, "0", текст0, "1", текст1, ...]
-    for i in range(1, len(chunks) - 1, 2):
-        parts[chunks[i]] = chunks[i + 1].strip()
+    parts: dict[str, dict] = {}
+    # Заголовки вида «# ЧАСТЬ 3. СЕКТОРЫ» — режем по ним; храним и номер, и НАЗВАНИЕ
+    # (по названию потом собирается каркас, см. _CORE_TITLES).
+    chunks = re.split(r"^#\s+ЧАСТЬ\s+(\d+)\.\s*(.*)$", text, flags=re.M)
+    # chunks: [преамбула, "0", "КАК ПОЛЬЗОВАТЬСЯ", текст0, "1", ...]
+    for i in range(1, len(chunks) - 2, 3):
+        parts[chunks[i]] = {"title": chunks[i + 1].strip(), "text": chunks[i + 2].strip()}
 
     sectors: dict[str, dict] = {}
-    part3 = parts.get("3", "")
+    part3 = (parts.get("3") or {}).get("text", "")
     blocks = re.split(r"^##\s+(3\.\d+)\.\s*(.+)$", part3, flags=re.M)
     for i in range(1, len(blocks) - 2, 3):
         num, title, body = blocks[i], blocks[i + 1].strip(), blocks[i + 2].strip()
         sectors[num] = {"title": title, "text": body}
 
+    # Подразделы межсекторных цепочек — тем же разбором, «## 4.2. Карта ...»
+    chains: dict[str, str] = {}
+    chain_part = next((v["text"] for v in parts.values()
+                       if "МЕЖСЕКТОРНЫЕ" in v["title"].upper()), "")
+    if chain_part:
+        cb = re.split(r"^##\s+\d+\.\d+\.\s*(.+)$", chain_part, flags=re.M)
+        for i in range(1, len(cb) - 1, 2):
+            chains[cb[i].strip()] = cb[i + 1].strip()
+
     _cache = {"ok": bool(parts and sectors), "parts": parts, "sectors": sectors,
-              "path": PATH}
-    logger.info("sector-playbook: разобрано частей %d, секторов %d", len(parts), len(sectors))
+              "chains": chains, "path": PATH}
+    logger.info("sector-playbook: частей %d, секторов %d, цепочек %d",
+                len(parts), len(sectors), len(chains))
     return _cache
 
 
 def available() -> dict:
     """Диагностика: доехала ли методичка до рантайма и что в ней нашлось."""
     data = _parse()
+    # Названия частей отдаём НАРУЖУ намеренно: методичку правит владелец, и следующая
+    # перенумерация должна быть видна с боя одним запросом, а не проявляться качеством
+    # текста через неделю.
     return {"ok": data["ok"], "path": data.get("path"),
-            "parts": sorted(data["parts"].keys()),
+            "parts": {k: v["title"] for k, v in sorted(data["parts"].items())},
+            "core_parts_matched": [v["title"] for v in data["parts"].values()
+                                   if any(t in v["title"].upper() for t in _CORE_TITLES)],
+            "chains": sorted(data.get("chains", {}).keys()),
             "sectors": {k: v["title"] for k, v in sorted(data["sectors"].items())}}
 
 
@@ -105,11 +134,12 @@ def core(max_chars: int = 45000) -> str:
     if not data["ok"]:
         return ""
     out = ["=== МЕТОДИЧКА «МАКРО → СЕКТОР» (каркас; полная версия у владельца в docs) ==="]
-    for num in _CORE_PARTS:
-        body = data["parts"].get(num)
-        if body:
-            out.append(f"\n--- ЧАСТЬ {num} ---\n{body}")
+    for num, part in sorted(data["parts"].items(), key=lambda kv: int(kv[0])):
+        if any(t in part["title"].upper() for t in _CORE_TITLES):
+            out.append(f"\n--- ЧАСТЬ {num}. {part['title']} ---\n{part['text']}")
     text = "\n".join(out)
+    if len(text) > max_chars:
+        logger.warning("sector-playbook: каркас обрезан (%d → %d символов)", len(text), max_chars)
     return text[:max_chars]
 
 
@@ -134,4 +164,9 @@ def for_sector(sector: str | None, max_chars: int = 20000) -> str:
         blk = data["sectors"].get(num)
         if blk:
             out.append(f"\n--- {num}. {blk['title']} ---\n{blk['text']}")
+    # Сектор не живёт один: правка про ставку у металлурга обязана знать, что удар
+    # приходит через девелоперов (владелец добавил межсекторные цепочки 2026-08-09).
+    for name, body in (data.get("chains") or {}).items():
+        if any(k in name.upper() for k in _CHAIN_SUBS_FOR_CARD):
+            out.append(f"\n--- МЕЖСЕКТОРНЫЕ ЦЕПОЧКИ: {name} ---\n{body}")
     return "\n".join(out)[:max_chars]
