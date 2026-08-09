@@ -5,7 +5,7 @@
    «влияние на оценку». Всё из governance.json; балл и премия к ставке — из scoring +
    governance_discount.premium_to_wacc_pp_computed (считает бэк по конфигу). Служебные
    поля (data_flags, ключи факторов, source_ref) в UI не выводятся. */
-import React from "react";
+import React, { useState } from "react";
 import { ExpandableText } from "../design/textblocks";
 import "../styles/governance.css";
 
@@ -104,6 +104,7 @@ function DivChart({ history }) {
 }
 
 export default function GovernanceTab({ gov, finJson }) {
+  const [calcOpen, setCalcOpen] = useState(false);
   if (!gov) return null;
   const meta = gov.meta || {};
   const own = gov.ownership || {};

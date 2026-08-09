@@ -20,12 +20,12 @@
   font-variant-numeric:tabular-nums lining-nums;
 }
 /* двухколоночный макет: основной поток + рейл «Заметка аналитика» (как в прототипе) */
-.fin-hybrid .layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start;}
-@media(max-width:1020px){.fin-hybrid .layout{grid-template-columns:1fr;}}
+.fin-hybrid .layout{display:grid;grid-template-columns:1fr;gap:24px;align-items:start;}
 .fin-hybrid .dash{display:flex;flex-direction:column;gap:16px;min-width:0;}
 /* тизер (открывает рейл-панель) и крестик закрытия — элементы мобильного режима,
    на десктопе рейл открыт всегда (sticky) — базовые правила ДО media query. */
-.fin-hybrid .fv-rail-teaser{display:none;}
+/* тизер-триггер «Заметка аналитика» — на ВСЕХ ширинах (2026-08-10): заметка
+   стала выезжающей панелью по образцу скринера, правое поле отдано «Содержанию» */
 .fin-hybrid .fv-rail-x{display:none;}
 .fin-hybrid .fv-rail-scrim{display:none;}
 .fin-hybrid .mono{font-family:var(--mono);}
@@ -228,7 +228,7 @@
 .fin-hybrid .fv-rail{position:sticky;top:16px;align-self:start;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 18px 20px;}
 /* ≤1020px: рейл больше не стекает в конец вкладки — выезжает справа поверх контента
    (паттерн Скринера, sc-drawer), открывается тизером вверху dash (fv-rail-teaser). */
-@media(max-width:1020px){
+
   .fin-hybrid .fv-rail-teaser{
     display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:inherit;
     background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);
@@ -253,7 +253,7 @@
     border:1px solid var(--line-2);border-radius:8px;color:var(--ink-2);cursor:pointer;padding:7px;
   }
   .fin-hybrid .fv-rail-x:hover{color:var(--ink);}
-}
+
 .fin-hybrid .eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-2);margin-bottom:4px;}
 .fin-hybrid .an-fv{display:flex;align-items:baseline;gap:8px;margin:6px 0 2px;}
 .fin-hybrid .an-fv .b{font-family:var(--mono);font-size:30px;font-weight:500;line-height:1;}
