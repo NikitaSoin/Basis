@@ -266,11 +266,11 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        12.296,
-        11.886
+        1.784,
+        1.732,
+        1.68,
+        1.713,
+        1.661
       ],
       "intangibles": [
         null,
@@ -287,18 +287,18 @@
         0.0
       ],
       "long_term_investments": [
-        null,
-        null,
-        null,
-        9547.013,
-        742.431
+        1423.738,
+        1423.738,
+        1423.738,
+        1423.738,
+        1423.738
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        749.948,
-        1366.972
+        1.7,
+        1.7,
+        1.7,
+        1.7,
+        1.7
       ],
       "total_non_current": [
         1904.798,
@@ -310,18 +310,18 @@
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        1444.874,
-        1445.853
+        5028.205,
+        5126.149,
+        5223.094,
+        5319.773,
+        5416.285
       ],
       "cash": [
         0.12,
@@ -331,11 +331,11 @@
         0.055
       ],
       "short_term_investments": [
-        null,
-        null,
-        null,
-        0.05,
-        0.65
+        1093.21,
+        1085.51,
+        1076.732,
+        1068.842,
+        1053.242
       ],
       "other_current": [
         null,
