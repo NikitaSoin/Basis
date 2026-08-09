@@ -346,6 +346,16 @@ def macro_series(code: str, metric: str = "level",
     }
 
 
+@router.get("/market/macro/scenario-odds")
+def scenario_odds(db: Session = Depends(get_db)):
+    """Веса макро-сценариев (рамка среднесрочного прогноза ЦБ) с причинами сдвигов.
+
+    🔴 Считает КОД, а не модель: ЦБ публикует пути, но не вероятности, а процент «на
+    глаз» непроверяем. Метод и ограничения — методичка выпуска, раздел 14.6."""
+    from app.services.macro_scenario_odds import compute
+    return compute(db)
+
+
 @router.get("/market/macro/scenario-impact")
 def scenario_impact(scenario: str | None = None, top: int = 10,
                     db: Session = Depends(get_db)):
