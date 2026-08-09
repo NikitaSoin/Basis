@@ -53,20 +53,7 @@
     "policy_conditions": "Чёткого порога payout по обыкновенным акциям не зафиксировано; решение принимается с учётом интересов материнской группы и приоритета префов.",
     "history": [
       {
-        "year": 2025,
-        "dps": 6.21,
-        "currency": "RUB",
-        "payout_pct": 10,
-        "yield_pct": 4.0,
-        "paid": null,
-        "special": false,
-        "source_of_payout": "profit",
-        "skip_reason": null,
-        "note": "Показан дивиденд по привилегированной акции. Рекомендация СД (1,98415 ₽ на ао); ~10% РСБУ-EPS (16,91 ₽). На преф рекомендовано 6,21 ₽ — выше.",
-        "source_ref": "src_4"
-      },
-      {
-        "year": 2024,
+        "year": 2021,
         "dps": null,
         "currency": "RUB",
         "payout_pct": null,
@@ -74,21 +61,8 @@
         "paid": null,
         "special": false,
         "source_of_payout": null,
-        "skip_reason": "controller_choice",
-        "note": "Выплата на ао за 2024 в открытых источниках надёжно не подтверждена; нерегулярность выплат. Материнская ПАО ГК «ТНС энерго» дивиденды за 2024 не платила — решение в интересах периметра группы при наличии учётной прибыли.",
-        "source_ref": "src_4"
-      },
-      {
-        "year": 2023,
-        "dps": null,
-        "currency": "RUB",
-        "payout_pct": null,
-        "yield_pct": null,
-        "paid": null,
-        "special": false,
-        "source_of_payout": null,
-        "skip_reason": "controller_choice",
-        "note": "При РСБУ-прибыли 2,25 млрд ₽ распределение на ао не подтверждено; МСФО-прибыль 2023 близка к нулю (0,064 млрд ₽). Учётная база РСБУ денежно не подтверждена.",
+        "skip_reason": "unclear",
+        "note": "Данных по выплате на ао нет → null.",
         "source_ref": "src_4"
       },
       {
@@ -105,7 +79,7 @@
         "source_ref": "src_4"
       },
       {
-        "year": 2021,
+        "year": 2023,
         "dps": null,
         "currency": "RUB",
         "payout_pct": null,
@@ -113,8 +87,34 @@
         "paid": null,
         "special": false,
         "source_of_payout": null,
-        "skip_reason": "unclear",
-        "note": "Данных по выплате на ао нет → null.",
+        "skip_reason": "controller_choice",
+        "note": "При РСБУ-прибыли 2,25 млрд ₽ распределение на ао не подтверждено; МСФО-прибыль 2023 близка к нулю (0,064 млрд ₽). Учётная база РСБУ денежно не подтверждена.",
+        "source_ref": "src_4"
+      },
+      {
+        "year": 2024,
+        "dps": 4.8679,
+        "currency": "RUB",
+        "payout_pct": null,
+        "yield_pct": null,
+        "paid": true,
+        "special": false,
+        "source_of_payout": null,
+        "skip_reason": "controller_choice",
+        "note": "Показан дивиденд по привилегированной акции. За 2024 год на преф выплачено столько же, сколько на обычку: промежуточный за 1П2024 1,5849 ₽ (отсечка 01.10.2024) + итоговый 3,2830 ₽ (отсечка 04.07.2025). Совпадение сумм подтверждено источниками по каждому классу отдельно — это не перенос числа с обыкновенной акции.",
+        "source_ref": "src_4"
+      },
+      {
+        "year": 2025,
+        "dps": 6.21,
+        "currency": "RUB",
+        "payout_pct": 10,
+        "yield_pct": 4.0,
+        "paid": true,
+        "special": false,
+        "source_of_payout": "profit",
+        "skip_reason": null,
+        "note": "Показан дивиденд по привилегированной акции. Рекомендация СД (1,98415 ₽ на ао); ~10% РСБУ-EPS (16,91 ₽). На преф рекомендовано 6,21 ₽ — выше. Рекомендация утверждена и выплачена: на преф 6,20550 ₽ против 1,98415 ₽ на обыкновенную, отсечка 18.06.2026.",
         "source_ref": "src_4"
       }
     ],

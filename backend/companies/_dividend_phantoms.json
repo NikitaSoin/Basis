@@ -1,0 +1,101 @@
+{
+  "flagged": [
+    {
+      "ticker": "HYDR",
+      "record_date": "2025-07-11",
+      "amount": 0.0756,
+      "price": 0.443,
+      "expected_gap_pct": 17.07,
+      "actual_worst_drop_pct": 1.96
+    },
+    {
+      "ticker": "OGKB",
+      "record_date": "2025-07-10",
+      "amount": 0.0598,
+      "price": 0.3382,
+      "expected_gap_pct": 17.68,
+      "actual_worst_drop_pct": 2.67
+    },
+    {
+      "ticker": "MSNG",
+      "record_date": "2025-07-08",
+      "amount": 0.2261,
+      "price": 2.082,
+      "expected_gap_pct": 10.86,
+      "actual_worst_drop_pct": 1.91
+    },
+    {
+      "ticker": "TGKA",
+      "record_date": "2025-07-08",
+      "amount": 0.0008,
+      "price": 0.0063,
+      "expected_gap_pct": 12.7,
+      "actual_worst_drop_pct": 2.63
+    },
+    {
+      "ticker": "FLOT",
+      "record_date": "2024-07-20",
+      "amount": 11.27,
+      "price": 111.9,
+      "expected_gap_pct": 10.07,
+      "actual_worst_drop_pct": 2.91
+    },
+    {
+      "ticker": "LPSB",
+      "record_date": "2024-05-08",
+      "amount": 16.0,
+      "price": 29.3,
+      "expected_gap_pct": 54.61,
+      "actual_worst_drop_pct": -0.28
+    },
+    {
+      "ticker": "MGNZ",
+      "record_date": "2023-07-14",
+      "amount": 4406.56,
+      "price": 7440.0,
+      "expected_gap_pct": 59.23,
+      "actual_worst_drop_pct": 1.28
+    },
+    {
+      "ticker": "GAZP",
+      "record_date": "2022-07-20",
+      "amount": 52.53,
+      "price": 189.51,
+      "expected_gap_pct": 27.72,
+      "actual_worst_drop_pct": 1.92
+    },
+    {
+      "ticker": "TGKA",
+      "record_date": "2022-07-18",
+      "amount": 0.0011,
+      "price": 0.0079,
+      "expected_gap_pct": 13.92,
+      "actual_worst_drop_pct": 1.4
+    },
+    {
+      "ticker": "CHMF",
+      "record_date": "2022-05-31",
+      "amount": 109.81,
+      "price": 1004.8,
+      "expected_gap_pct": 10.93,
+      "actual_worst_drop_pct": 2.99
+    },
+    {
+      "ticker": "DZRDP",
+      "record_date": "2019-06-25",
+      "amount": 294.81,
+      "price": 1940.0,
+      "expected_gap_pct": 15.2,
+      "actual_worst_drop_pct": 1.02
+    },
+    {
+      "ticker": "MISB",
+      "record_date": "2019-06-10",
+      "amount": 0.7547,
+      "price": 8.8,
+      "expected_gap_pct": 8.58,
+      "actual_worst_drop_pct": 2.27
+    }
+  ],
+  "judged": 228
+}
