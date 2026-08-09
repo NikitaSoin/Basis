@@ -103,11 +103,22 @@
 .gov-hybrid .fv-link-box .lv b{color:var(--ink);font-family:var(--mono);}
 .gov-hybrid .fnote{font-size:11px;color:var(--ink-3);line-height:1.5;margin-top:12px;}
 /* двухколоночный макет: основной поток + рейл расчёта балла */
-.gov-hybrid .gov-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start;}
+.gov-hybrid .gov-layout{display:grid;grid-template-columns:1fr;gap:24px;align-items:start;}
+/* Расчёт балла — выезжающая панель (2026-08-10), правое поле отдано «Содержанию» */
+.gov-hybrid .calc-teaser{display:flex;align-items:center;gap:11px;width:100%;border:1px solid var(--line-2);background:var(--panel-2);border-radius:11px;padding:12px 15px;cursor:pointer;font:inherit;text-align:left;}
+.gov-hybrid .calc-teaser:hover{border-color:var(--accent);}
+.gov-hybrid .calc-teaser-ic{font-family:var(--mono);font-size:16px;color:var(--accent-2);}
+.gov-hybrid .calc-teaser-t{font-size:12.5px;color:var(--ink-2);}
+.gov-hybrid .calc-teaser-chev{margin-left:auto;color:var(--ink-3);font-size:18px;}
+.gov-hybrid .calc-scrim{position:fixed;inset:0;background:rgba(8,8,12,.42);z-index:80;}
+.gov-hybrid .calc-x{display:flex;position:absolute;top:18px;right:18px;background:var(--panel-2);border:1px solid var(--line-2);border-radius:8px;color:var(--ink-2);cursor:pointer;padding:7px;}
+.gov-hybrid .calc-x:hover{color:var(--ink);}
 @media(max-width:1040px){.gov-hybrid .gov-layout{grid-template-columns:1fr;}}
 .gov-hybrid .dash{display:flex;flex-direction:column;gap:16px;min-width:0;}
 /* рейл скроллится вместе со страницей (без sticky-«заморозки» — по замечанию владельца) */
-.gov-hybrid .calc-rail{display:flex;flex-direction:column;gap:14px;}
+.gov-hybrid .calc-rail{position:fixed;top:0;right:0;bottom:0;width:400px;max-width:92vw;z-index:81;display:flex;flex-direction:column;gap:14px;background:var(--cc-bg);border-left:1px solid var(--line-2);padding:56px 24px 28px;overflow-y:auto;box-shadow:-20px 0 50px rgba(0,0,0,.2);transform:translateX(100%);transition:transform .28s ease;}
+.gov-hybrid .calc-rail--open{transform:translateX(0);}
+@media(prefers-reduced-motion:reduce){.gov-hybrid .calc-rail{transition:none;}}
 .gov-hybrid .calc-rail .calc-card{margin-top:0;}
 .gov-hybrid .scale-strip{display:flex;height:7px;border-radius:5px;overflow:hidden;margin:13px 0 6px;}
 .gov-hybrid .scale-strip i{flex:1;}

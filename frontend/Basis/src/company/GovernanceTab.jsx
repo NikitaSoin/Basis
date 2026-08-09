@@ -136,6 +136,13 @@ export default function GovernanceTab({ gov, finJson }) {
   return (
     <div className="gov-hybrid" style={hasScore ? { "--gv": flag.c, "--gv-soft": `color-mix(in srgb, ${flag.c} 13%, transparent)` } : undefined}>
       <div className="gov-layout">
+        {hasScore && (
+          <button type="button" className="calc-teaser" onClick={() => setCalcOpen(true)}>
+            <span className="calc-teaser-ic">&#8721;</span>
+            <span className="calc-teaser-t">Как считается балл — факторы, веса и вклад в итог</span>
+            <span className="calc-teaser-chev">&#8250;</span>
+          </button>
+        )}
         <div className="dash">
           {/* 1. ВЕРДИКТ-ГЕРОЙ */}
           {hasScore && (
@@ -304,9 +311,14 @@ export default function GovernanceTab({ gov, finJson }) {
           )}
         </div>
 
-        {/* ПРАВЫЙ РЕЙЛ — как считается балл + влияние на оценку */}
+        {/* РАСЧЁТ БАЛЛА — выезжающая панель (владелец 2026-08-10: расчёты и заметки
+            открываются по интересу, как в скринере; правое поле отдано «Содержанию») */}
+        {hasScore && calcOpen && <div className="calc-scrim" onClick={() => setCalcOpen(false)} />}
         {hasScore && (
-          <aside className="calc-rail">
+          <aside className={"calc-rail" + (calcOpen ? " calc-rail--open" : "")}>
+            <button type="button" className="calc-x" onClick={() => setCalcOpen(false)} aria-label="Закрыть">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+            </button>
             <div className="calc-card">
               <div className="ct">Как считается балл</div>
               <div className="cs">Взвешенная сумма {scFactors.length} аспектов (оценка × вес)</div>
