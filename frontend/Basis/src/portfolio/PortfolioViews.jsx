@@ -4278,7 +4278,8 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
 
       {/* ---- Light main area ---- */}
       <main className="pf-main" style={{ background: "var(--pf-tan)" }}>
-        <ScrollRail selector='[data-rail], .pf-sec-title' deps={[activeSection]} minWidth={1500} />
+        <ScrollRail minCount={3} minWidth={1500} deps={[activeSection]}
+          selector='[data-rail], .pf-sec-title, .pf-card-t, .pf-panel h2, .pf-panel h3, .pf-main h2, .pf-main h3' />
         <MobileSectionBar title={activeZoneLabel} open={drawerOpen} onOpenMenu={() => setDrawerOpen(true)} />
         <div className="pf-topbar">
           <div className="pf-topbar__hint">Полная картина по портфелю — состав, риск, сравнение и разбор</div>
