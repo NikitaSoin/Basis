@@ -242,6 +242,10 @@ def audit(card, ticker):
         # относительно соседних лет — признак перестановки
         swaps.append((y, E / L if L else None))
     ratios = [r for _, r in swaps if r]
+    # если резкий разворот уже разобран и объяснён на карточке (у Хэдхантера это выплата
+    # крупного спецдивиденда, сходящаяся арифметикой), не поднимаем вопрос заново
+    if bs.get("total_equity_note"):
+        ratios = []
     if len(ratios) >= 4:
         flips = sum(1 for a, b in zip(ratios, ratios[1:]) if a and b and ((a > 1) != (b > 1)) and max(a / b, b / a) > 2)
         if flips >= 2:
