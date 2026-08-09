@@ -21,7 +21,8 @@
     "anomaly_flag": true,
     "anomaly_note": "1) EBITDA из smart-lab несовместима с EBIT+DA (2024: source=100 vs EBIT+DA=557; 2025: source=-311 vs EBIT+DA=645). EBITDA 2025=-311 подтверждена business_model (включает крупные операционные расходы ниже EBIT-линии). 2024 EBITDA=100 аномальна, помечена как ненадёжная. 2) Налог 2023=277 млн при нулевой доналоговой прибыли — разовый отложенный налог. 3) ETR 2024=42,9% и 2025=111,7% — нормализованы на 25%. 4) ОДДС неполная: только CFO, capex неизвестен.",
     "adjustments_aggressive": false,
-    "last_price": 2.7464
+    "last_price": 2.7464,
+    "disclosure_note": "Капитал за 2025 год приведён к отчётности (2 186,5 вместо 1 860): прежнее значение не сходилось с активами и обязательствами того же года."
   },
   "income_statement": {
     "cost_format": "by_function",
@@ -279,7 +280,7 @@
     "total_assets": [
       4206.209,
       5355.864,
-      null
+      7029.296
     ],
     "equity": {
       "share_capital": [
@@ -305,13 +306,13 @@
       "total_equity": [
         1189.741,
         2233.34,
-        1860
+        2186.518
       ]
     },
     "total_equity": [
       1189.741,
       2233.34,
-      1860
+      2186.518
     ],
     "non_current_liabilities": {
       "long_term_debt": [
@@ -360,7 +361,7 @@
     "total_liabilities": [
       3016.468,
       3122.524,
-      null
+      4842.778
     ],
     "net_debt": [
       null,

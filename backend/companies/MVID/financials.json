@@ -29,8 +29,8 @@
   "income_statement": {
     "cost_format": "by_function",
     "revenue": [
-      null,
-      null,
+      422089,
+      476364,
       402462,
       434390,
       451642,
@@ -154,8 +154,8 @@
       19369.0
     ],
     "net_profit": [
-      null,
-      null,
+      6541,
+      -4003,
       -10299,
       -6613,
       -20121,

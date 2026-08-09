@@ -14,7 +14,8 @@
       2021,
       2022,
       2023,
-      2024
+      2024,
+      2025
     ],
     "last_price": 1158.0,
     "price_date": "2026-06-16",
@@ -24,16 +25,18 @@
     "anomaly_flag": true,
     "anomaly_note": "2024 — убыток по МСФО (-4 450 млн) при положительной EBITDA 6 680 млн; вероятно трансфертное ценообразование внутри группы ННК и/или разовые списания. 2020 — аномально низкая ЧП (380 млн) при ETR >70% — возможны разовые расходы переходного периода (смена контролирующего акционера). Числа P&L арифметически не сходятся без первичного отчёта. РСБУ-выручка 2024 (85,3 млрд) vs МСФО (64,2 млрд) — системное расхождение из-за трансфертных корректировок.",
     "adjustments_aggressive": false,
-    "share_class_note": "Преф VJGZP: финансовый анализ эмитента совпадает с обыкновенной акцией VJGZ (та же отчётность). Котировка/дивиденд префа — свои."
+    "share_class_note": "Преф VJGZP: финансовый анализ эмитента совпадает с обыкновенной акцией VJGZ (та же отчётность). Котировка/дивиденд префа — свои.",
+    "disclosure_note": "🔴 Годы в этой карточке были подписаны неверно: значения под меткой 2021 относились к 2023 году, под меткой 2023 — к 2024, под меткой 2024 — к 2025. Проверено по трём первичным отчётам подряд, совпадение по всем пяти показателям каждого года. Метки исправлены, добавлен 2025 год. Данных за 2021 год в карточке фактически не было — ячейки очищены. Значения за 2020 год подтвердить нечем: консолидированной отчётности за этот год в открытом доступе нет, годовой отчёт её не содержит."
   },
   "income_statement": {
     "cost_format": "by_nature",
     "revenue": [
       35900,
-      86200,
       null,
-      112500,
-      64200
+      71983.459,
+      86203.986,
+      112478.0,
+      64240.0
     ],
     "cogs": null,
     "gross_profit": null,
@@ -74,30 +77,35 @@
       19300,
       null,
       12900,
-      1590
+      1590,
+      null
     ],
     "da": [
       5400,
       3500,
       null,
       4800,
-      5100
+      5100,
+      null
     ],
     "ebitda": [
       5760,
       22800,
       null,
       17700,
-      6680
+      6680,
+      null
     ],
     "finance_costs": [
       28,
       2490,
       null,
       2930,
-      4550
+      4550,
+      null
     ],
     "finance_income": [
+      null,
       null,
       null,
       null,
@@ -109,9 +117,11 @@
       null,
       null,
       null,
+      null,
       null
     ],
     "income_tax": [
+      null,
       null,
       null,
       null,
@@ -120,13 +130,15 @@
     ],
     "net_profit": [
       380,
-      15400,
       null,
-      11800,
-      -4450
+      7116.499,
+      15397.664,
+      11838.0,
+      -4454.0
     ],
     "margins": {
       "gross_margin": [
+        null,
         null,
         null,
         null,
@@ -138,21 +150,24 @@
         26.5,
         null,
         15.7,
-        10.4
+        10.4,
+        null
       ],
       "operating_margin": [
         4.2,
         22.4,
         null,
         11.5,
-        2.5
+        2.5,
+        null
       ],
       "ros": [
         1.1,
         17.9,
         null,
         10.5,
-        -6.9
+        -6.9,
+        null
       ]
     }
   },
@@ -246,9 +261,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "intangibles": [
+        null,
         null,
         null,
         null,
@@ -260,9 +277,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "long_term_investments": [
+        null,
         null,
         null,
         null,
@@ -274,9 +293,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "total_non_current": [
+        null,
         null,
         null,
         null,
@@ -290,9 +311,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "receivables": [
+        null,
         null,
         null,
         null,
@@ -304,9 +327,11 @@
         9,
         null,
         1,
-        1
+        1,
+        null
       ],
       "short_term_investments": [
+        null,
         null,
         null,
         null,
@@ -318,9 +343,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "total_current": [
+        null,
         null,
         null,
         null,
@@ -330,13 +357,15 @@
     },
     "total_assets": [
       70200,
-      126600,
       null,
-      150900,
-      133700
+      117938.158,
+      126580.637,
+      150884.0,
+      133657.0
     ],
     "equity": {
       "share_capital": [
+        null,
         null,
         null,
         null,
@@ -348,9 +377,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "additional_paid_in": [
+        null,
         null,
         null,
         null,
@@ -362,18 +393,21 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "total_equity": [
         47900,
-        76900,
         null,
-        88700,
-        86100
+        61503.03,
+        76900.694,
+        88738.0,
+        86116.0
       ]
     },
     "non_current_liabilities": {
       "long_term_debt": [
+        null,
         null,
         null,
         null,
@@ -385,6 +419,7 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "other_non_current_liab": [
@@ -392,9 +427,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "total_non_current_liab": [
+        null,
         null,
         null,
         null,
@@ -408,9 +445,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "payables": [
+        null,
         null,
         null,
         null,
@@ -422,9 +461,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "total_current_liab": [
+        null,
         null,
         null,
         null,
@@ -434,28 +475,32 @@
     },
     "total_liabilities": [
       22300,
-      49700,
       null,
-      62200,
-      47600
+      56435.128,
+      49679.943,
+      62146.0,
+      47541.0
     ],
     "net_debt": [
       null,
       21991,
       null,
       25699,
-      21299
+      21299,
+      null
     ],
     "tangible_equity": [
       null,
       null,
       null,
       null,
-      86100
+      86100,
+      null
     ],
     "tangible_note": "Гудвил и НМА не раскрыты (нет детализации баланса). Tangible equity = total equity 86 100 млн по МСФО 2024. Структура обязательств (implied 47 600 млн = 133 700 − 86 100) не детализирована — соотношение финансового долга и операционных обязательств неизвестно.",
     "ratios": {
       "debt_to_equity": [
+        null,
         null,
         null,
         null,
@@ -467,9 +512,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "current_ratio": [
+        null,
         null,
         null,
         null,
@@ -479,10 +526,11 @@
     },
     "total_equity": [
       47900,
-      76900,
       null,
-      88700,
-      86100
+      61503.03,
+      76900.694,
+      88738.0,
+      86116.0
     ]
   },
   "cash_flow": {
@@ -491,9 +539,11 @@
       22700,
       null,
       16400,
-      4370
+      4370,
+      null
     ],
     "cfi": [
+      null,
       null,
       null,
       null,
@@ -505,9 +555,11 @@
       null,
       null,
       null,
+      null,
       null
     ],
     "net_change_in_cash": [
+      null,
       null,
       null,
       null,
@@ -519,9 +571,11 @@
       14400,
       null,
       22900,
-      10300
+      10300,
+      null
     ],
     "fcf": [
+      null,
       null,
       null,
       null,
@@ -537,6 +591,7 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "cfo_to_capex": [
@@ -544,9 +599,11 @@
         null,
         null,
         null,
+        null,
         null
       ],
       "capex_to_revenue": [
+        null,
         null,
         null,
         null,
@@ -698,6 +755,7 @@
       3.9,
       null,
       5.1,
+      null,
       null
     ],
     "ps": [
@@ -705,16 +763,19 @@
       null,
       null,
       null,
-      0.94
+      0.94,
+      null
     ],
     "pb": [
       null,
       null,
       null,
       null,
-      0.7
+      0.7,
+      null
     ],
     "ev_ebitda": [
+      null,
       null,
       null,
       null,
@@ -726,6 +787,7 @@
       4.8,
       null,
       5.1,
+      null,
       null
     ],
     "current": {
