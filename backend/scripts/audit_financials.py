@@ -113,6 +113,19 @@ def audit(card, ticker):
             if not close(cur[i] + noncur[i], ta[i], 0.02):
                 out.append(("?", "части", f"{y}: оборотные {cur[i]:,.0f} + внеоборотные {noncur[i]:,.0f} ≠ активы {ta[i]:,.0f}"))
 
+    # 2б. ЧАСТИ НЕ ДАЮТ ЦЕЛОГО — СО СТОРОНЫ ОБЯЗАТЕЛЬСТВ.
+    # Проверка выше смотрела только активы, а разъехаться может любая сторона баланса: у
+    # ЭЛ5-Энерго долгосрочные плюс краткосрочные не давали итога обязательств на 3,6 млрд.
+    if not is_bank:
+        cl = pad(series(bs, "current_liabilities", "total_current_liab"), n)
+        ncl = pad(series(bs, "non_current_liabilities", "total_non_current_liab"), n)
+        for i, y in enumerate(years):
+            if None in (cl[i], ncl[i], tl[i]) or not tl[i]:
+                continue
+            if not close(cl[i] + ncl[i], tl[i], 0.02):
+                out.append(("?", "части-обяз", f"{y}: краткосрочные {cl[i]:,.0f} + долгосрочные {ncl[i]:,.0f} "
+                                               f"≠ итого обязательства {tl[i]:,.0f}"))
+
     # ряды, по которым ищем копии и скачки единиц — ВСЕ числовые ряды карточки,
     # включая вложенные (у небанков детализация лежит в current_assets/equity и т.д.).
     # Ограничиваться пятью верхнеуровневыми было мало: копии прятались в деталях.

@@ -426,11 +426,11 @@
         0.0
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        619.502,
-        null
+        0.205,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ]
     },
     "current_liabilities": {
@@ -456,9 +456,9 @@
         null
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
+        1.261,
+        1.361,
+        0.584,
         0.56,
         0.354
       ]
