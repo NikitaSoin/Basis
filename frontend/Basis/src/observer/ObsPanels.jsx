@@ -1803,6 +1803,60 @@ function ObsProfileBalance({ balance }) {
 // Двусторонняя связка. Обе стороны рисуются ВСЕГДА, когда есть данные: обратное
 // направление («экономика ограничивает конфликт») — то, ради чего блок и
 // переделан, и оно же первым выпадает, если рисовать его «если найдётся место».
+// 🔴 ЦЕПОЧКИ ВЛИЯНИЯ — внизу разбора очага (владелец 2026-08-10).
+// «Конфликт повышает риски» читателю ничего не даёт. Нужна цепочка по шагам:
+// что произошло → прямой эффект → как дошло до макропоказателей → кто под ударом
+// следующим. И отдельно — что война делает с институтами, потому что это второй
+// канал, через который она достаёт до денег (транзакционные издержки, изъятия,
+// монополизация, сломанная трансмиссия ставки).
+function ObsGeoChains({ macroChain, instChain }) {
+  const hasMacro = Array.isArray(macroChain) && macroChain.length > 0;
+  const hasInst = Array.isArray(instChain) && instChain.length > 0;
+  if (!hasMacro && !hasInst) return null;
+  return (
+    <div className="obs-geo-chains">
+      {hasMacro && (
+        <div className="obs-inst-card">
+          <div className="obs-inst-card-title"><Activity size={16} />Как война доходит до экономики</div>
+          <div className="obs-inst-card-sub">
+            Цепочка по шагам: событие → прямой эффект → макропоказатель → кто под ударом следующим.
+          </div>
+          <div className="obs-geo-chain-list">
+            {macroChain.map((c, i) => (
+              <div key={i} className="obs-geo-chain">
+                <div className="obs-geo-chain-step obs-geo-chain-step--event">{c.event}</div>
+                {c.direct && <div className="obs-geo-chain-step">{c.direct}</div>}
+                {c.macro && <div className="obs-geo-chain-step obs-geo-chain-step--macro">{c.macro}</div>}
+                {c.sectors_at_risk && (
+                  <div className="obs-geo-chain-risk"><b>Под ударом дальше:</b> {c.sectors_at_risk}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {hasInst && (
+        <div className="obs-inst-card">
+          <div className="obs-inst-card-title"><ShieldAlert size={16} />Что война делает с правилами игры</div>
+          <div className="obs-inst-card-sub">
+            Второй канал до денег: издержки соблюдения, защита собственности, конкуренция
+            и работоспособность ставки.
+          </div>
+          <div className="obs-geo-inst-list">
+            {instChain.map((c, i) => (
+              <div key={i} className="obs-geo-inst">
+                <span className="obs-geo-inst-axis">{c.axis}</span>
+                <span className="obs-geo-inst-what">{c.what}</span>
+                {c.for_business && <span className="obs-geo-inst-biz">{c.for_business}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ObsProfileLinks({ title, forward, back, forwardLabel, backLabel }) {
   const f = Array.isArray(forward) ? forward : [];
   const b = Array.isArray(back) ? back : [];
@@ -1916,18 +1970,12 @@ function ObsGeoProfile({ profile, generatedAt, scopeLabel }) {
         <ObsProfileParties parties={profile.parties} />)}
       {sec("balance", "Баланс сил — по осям, важным инвестору",
         <ObsProfileBalance balance={profile.balance} />)}
-      {sec("macro", "Связка с экономикой — в обе стороны",
-        <ObsProfileLinks
-          forward={(profile.macro_link || {}).to_macro}
-          back={(profile.macro_link || {}).from_macro}
-          forwardLabel="Очаг → экономика РФ"
-          backLabel="Экономика → ход конфликта" />)}
-      {sec("inst", "Связка с институтами — в обе стороны",
-        <ObsProfileLinks
-          forward={(profile.institutional_link || {}).to_inst}
-          back={(profile.institutional_link || {}).from_inst}
-          forwardLabel="Очаг → правила игры"
-          backLabel="Правила игры → ход конфликта" />)}
+      {/* 🔴 «Связка с экономикой/институтами — в обе стороны» убраны отсюда
+          (владелец 2026-08-10). Двусторонняя рамка «очаг ↔ экономика» — методический
+          приём, а не то, что читатель ищет в середине разбора. Содержательные цепочки
+          (что произошло → как дошло до макропоказателей → кто под ударом; и что война
+          делает с институтами) теперь идут ОТДЕЛЬНЫМИ блоками ВНИЗУ — см.
+          ObsGeoChains. */}
 
       <div className="obs-profile-foot">
         Портрет очага — аналитическая реконструкция Basis по открытым источникам,
@@ -5786,6 +5834,12 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                     )}
                       </div>
                     </details>
+
+                    {/* Цепочки влияния — внизу, перед оговорками: сначала «что
+                        произошло и куда дошло», и только потом методическая рамка. */}
+                    <ObsGeoChains
+                      macroChain={scopeRegionData?.macro_chain}
+                      instChain={scopeRegionData?.institutional_chain} />
 
                     {/* 🔴 Методологические оговорки — В САМОМ НИЗУ (владелец 2026-08-10:
                         «методологические оговорки я бы опустил в самый низ»). Раньше они
