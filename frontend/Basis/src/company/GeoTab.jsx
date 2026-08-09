@@ -15,7 +15,7 @@
    Полярность баллов ОБРАТНАЯ институтам: здесь БОЛЬШЕ = БОЛЬШЕ экспозиции/риска
    (E12 «Госспрос» 5.0 у Газпрома = максимальный риск донора), поэтому scoreColor
    красит высокий балл красным, низкий — зелёным (см. комментарий у scoreColor). */
-import React from "react";
+import React, { useState } from "react";
 import {
   Globe, Cpu, Landmark, Swords, Percent, Eye, ShieldAlert, TrendingUp,
   TrendingDown, Activity, MapPin, Ship, Banknote, Users, Package, Info,
@@ -412,9 +412,12 @@ function WarPeacePair({ peace, esc, compact }) {
    пара ±% война/мир, НЕ ₽-коридор (решение гендира). См. geo-design-spec §1. ── */
 function GeoRail({ verdict, gloss, peace, esc, expInfo, expLevel, leanLabel, leaderIdx,
                    leanProb, directGeo, range, conf, macroDate, sourcesCount, topTrigger,
-                   fairBase, onNavigateTab }) {
+                   fairBase, onNavigateTab, open, onClose }) {
   return (
-    <aside className="geo-rail">
+    <aside className={"geo-rail" + (open ? " geo-rail--open" : "")}>
+      <button type="button" className="geo-rail-x" onClick={onClose} aria-label="Закрыть">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+      </button>
       <div className="geo-rail-card">
         <div className="grl-eyebrow">Гео-оверлей</div>
         {verdict && (
@@ -476,6 +479,7 @@ function GeoRail({ verdict, gloss, peace, esc, expInfo, expLevel, leanLabel, lea
 }
 
 export default function GeoTab({ geoJson, geoMd, onNavigateTab, fairBase, upside }) {
+  const [railOpen, setRailOpen] = useState(false);
   if (!geoJson) return null;
 
   const macro = geoJson.macro_handoff_cited || {};
@@ -553,6 +557,11 @@ export default function GeoTab({ geoJson, geoMd, onNavigateTab, fairBase, upside
 
   return (
     <div className="geo-layout">
+      {railOpen && <div className="geo-scrim" onClick={() => setRailOpen(false)} />}
+      <button type="button" className="geo-teaser" onClick={() => setRailOpen(true)}>
+        <span className="geo-teaser-t">Гео-оверлей — как геополитика влияет на оценку</span>
+        <span className="geo-teaser-chev">&#8250;</span>
+      </button>
       <div className="geo-body geo-hybrid">
         {/* Слой 1 — HERO-вердикт: сигнал поверх данных (4 слоя чтения) */}
         <div className="ghero">
@@ -845,6 +854,8 @@ export default function GeoTab({ geoJson, geoMd, onNavigateTab, fairBase, upside
       </div>
 
       <GeoRail
+        open={railOpen}
+        onClose={() => setRailOpen(false)}
         verdict={verdict}
         peace={peaceDelta}
         esc={escDelta}

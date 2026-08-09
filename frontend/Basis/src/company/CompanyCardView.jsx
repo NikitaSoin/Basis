@@ -7692,7 +7692,8 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
       {/* Линия-навигация по длинной вкладке (design/ScrollRail): точки — из
           заголовков прозы (markdown h2/h3) и [data-rail]; коротким вкладкам
           рейл не рисуется (minCount) */}
-      <ScrollRail deps={[tab, company && company.ticker]} />
+      <ScrollRail minCount={3} minWidth={1500} deps={[tab, company && company.ticker]}
+        selector='[data-rail], .cc-root h2, .cc-root h3, .cc-root .sec-t, .cc-root .dt, .cc-root .geo-sec-t, .cc-root .inst-sec-t, .cc-root .mk-sec-t' />
       {/* data-tour="company" на шапке ниже — цель шага тура «Карточка компании»
           (tour/tourSteps.js). 🔴 Была на блоке «Справедливая цена по методике Basis»
           ниже по странице — и шаг стабильно уходил в «не нашли блок»: тот блок

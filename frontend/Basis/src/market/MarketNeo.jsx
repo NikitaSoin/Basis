@@ -1209,6 +1209,10 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
           <ScrollRail selector="[data-rail]" minCount={3} minWidth={1500}
             title="Секторы рынка" deps={[tab, stockView, sector, stocks.length]} />
         )}
+        {/* «Карточки»/«Карта» — сетка без якорей: содержание = сектора-фильтры */}
+        {tab === "stocks" && stockView !== "rows" && sectorItems && sectorItems.length >= 4 && (
+          <ScrollRail customItems={sectorItems} title="Секторы рынка" minWidth={1500} />
+        )}
         <div className="mkt-panel mk-screen">
           <MobileSectionBar
             title={activeTabMeta.label}
