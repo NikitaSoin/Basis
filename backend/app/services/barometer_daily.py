@@ -225,12 +225,31 @@ def _index_subindices(payload: dict) -> dict:
 # чистим — витрина не место для нашей нумерации (владелец, 2026-08-10).
 # Предлог перед кодом забираем вместе с ним: иначе «риск по G7 вырос» превращается
 # в «риск по вырос» — вычистили код, а фразу сломали.
+# 🔴 Суффиксы обязательны: на бою осталось «S3→S4a: официальное объявление
+# мобилизации» — шаблон \b[SG]\d{1,2}\b не срабатывал, потому что после цифры шла
+# буква и границы слова не было. Ловим S4a/S4b/G7a и цепочки переходов целиком,
+# вместе с двоеточием после них.
+_CODE = r"(?:[SG]\d{1,2}[a-zа-я]?|ME\d[a-zа-я]?|ATR\d[a-zа-я]?)"
 _CODES_RE = __import__("re").compile(
     r"(?:\s+(?:по|в|к|с|до|из|на|при)\s+)?"
-    r"\b([SG]\d{1,2}|ME\d|ATR\d)\b(?:\s*[→\-–]\s*([SG]\d{1,2}))?")
+    rf"\b{_CODE}(?:\s*[→>\-–]\s*{_CODE})*\b\s*:?\s*")
 # Поля, которые читает человек. Ключи схемы (key) НЕ трогаем — это идентификаторы.
 _HUMAN_FIELDS = ("label", "summary", "rationale", "delta_rationale", "note",
                  "delta_explanation", "reasoning", "why", "expected_effect", "signal")
+
+
+# Ключи, под которыми лежат СПИСКИ СТРОК для человека. Их пропускала первая версия:
+# рекурсия заходила в список, видела строки (не dict и не list) и молча выходила —
+# поэтому «S3→S4a: официальное объявление мобилизации» в triggers доживало до витрины.
+_HUMAN_LISTS = ("triggers", "wild_cards", "basis", "watchlist_30d", "affected")
+
+
+def _clean_text(s: str) -> str:
+    import re as _re
+    out = _CODES_RE.sub("", s)
+    out = _re.sub(r"\s{2,}", " ", out)
+    out = _re.sub(r"\s+([,.;:)])", r"\1", out)
+    return out.strip(" ,;:-–—")
 
 
 def _strip_codes(obj, notes: list[str], path: str = "") -> None:
@@ -238,11 +257,15 @@ def _strip_codes(obj, notes: list[str], path: str = "") -> None:
     if isinstance(obj, dict):
         for k, v in obj.items():
             if isinstance(v, str) and k in _HUMAN_FIELDS and _CODES_RE.search(v):
-                cleaned = _CODES_RE.sub("", v)
-                cleaned = __import__("re").sub(r"\s{2,}", " ", cleaned)
-                cleaned = __import__("re").sub(r"\s+([,.;:)])", r"\1", cleaned).strip(" ,;:-–—")
-                obj[k] = cleaned
+                obj[k] = _clean_text(v)
                 notes.append(f"{path}{k}: убраны служебные коды")
+            elif isinstance(v, list) and k in _HUMAN_LISTS:
+                for i, item in enumerate(v):
+                    if isinstance(item, str) and _CODES_RE.search(item):
+                        v[i] = _clean_text(item)
+                        notes.append(f"{path}{k}[{i}]: убраны служебные коды")
+                    else:
+                        _strip_codes(item, notes, f"{path}{k}.{i}.")
             else:
                 _strip_codes(v, notes, f"{path}{k}.")
     elif isinstance(obj, list):

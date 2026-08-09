@@ -4573,13 +4573,25 @@ details[open] > summary .obs-inst-chev,
   gap: 8px;
 }
 
+/* 🔴 Названия сценариев перестали влезать (владелец 2026-08-10). Раньше в колонке
+   стояло «S3» — 148px хватало с запасом. Теперь там человеческая фраза («базовый
+   сценарий затяжного конфликта»), и жёсткая колонка с многоточием отрезала половину
+   смысла. Колонка шире и тянется по содержимому, имя переносится в две строки. */
 .obs-inst-ladder-row {
   display: grid;
-  grid-template-columns: 148px 1fr 44px;
+  grid-template-columns: minmax(148px, 1.4fr) minmax(90px, 1fr) 44px;
   align-items: center;
   gap: 10px;
-  padding: 5px 8px;
+  padding: 6px 8px;
   border-radius: var(--radius-sm);
+}
+@media (max-width: 640px) {
+  /* На узком экране полоса и процент уезжают под название — иначе на имя остаётся
+     треть ширины и перенос не спасает. */
+  .obs-inst-ladder-row {
+    grid-template-columns: 1fr 44px;
+  }
+  .obs-inst-ladder-name { grid-column: 1 / -1; }
 }
 .obs-inst-ladder-row--current {
   background: var(--accent-soft);
@@ -4589,9 +4601,9 @@ details[open] > summary .obs-inst-chev,
   font-size: 12.5px;
   font-weight: 600;
   color: var(--text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.35;
+  /* перенос вместо многоточия: лучше две строки, чем половина фразы */
+  overflow-wrap: anywhere;
 }
 .obs-inst-ladder-row--current .obs-inst-ladder-name {
   color: var(--accent);
@@ -7243,3 +7255,15 @@ details[open] > summary .obs-inst-chev,
 }
 .obs-geo-inst-what { font-size: 12.5px; line-height: 1.5; color: var(--text-primary); }
 .obs-geo-inst-biz { font-size: 12px; line-height: 1.5; color: var(--text-secondary); }
+
+/* Канал воздействия у секторного флага: через что именно очаг доходит до бумаги. */
+.obs-geo-sector-metric {
+  font-size: 10px;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 1px 7px;
+  white-space: nowrap;
+}

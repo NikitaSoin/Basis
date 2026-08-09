@@ -5750,6 +5750,11 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                                     {neg ? <TrendingDown size={14} style={{ color: "var(--danger)" }} /> : pos ? <TrendingUp size={14} style={{ color: "var(--success)" }} /> : null}
                                     {s.sector}
                                     <span style={{ fontSize: 11, fontWeight: 700, color: neg ? "var(--danger)" : pos ? "var(--success)" : "var(--text-tertiary)", textTransform: "uppercase" }}>· {s.direction}</span>
+                                    {/* 🔴 МЕТРИКА — как в макроэкономике (владелец 2026-08-10).
+                                        «Негатив для нефтегаза» не говорит, ГДЕ это увидит
+                                        держатель бумаги. Метрика называет канал: выручка,
+                                        маржа, издержки, логистика, спрос, capex, дивиденды. */}
+                                    {s.metric && <span className="obs-geo-sector-metric">{s.metric}</span>}
                                   </div>
                                   {s.reasoning && <div className="obs-inst-row-why">{s.reasoning}</div>}
                                 </div>
@@ -5768,72 +5773,12 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                         watchlist. Это НЕ свойство выбранного очага, поэтому убрано
                         из потока чтения в свёрнутый раздел: не смешивается, но и не
                         теряется — методическая база остаётся доступной в один клик. */}
-                    <details className="obs-inst-details obs-baro-market-wide">
-                      <summary>
-                        Фон рынка в целом — не про этот очаг
-                        <ChevronDown size={15} className="obs-inst-chev" />
-                      </summary>
-                      <div className="obs-inst-details-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                    {baro.implied_market && (
-                      <div className="obs-inst-card">
-                        <div className="obs-inst-card-title"><BarChart2 size={16} />Расхождение с рынком</div>
-                        {baro.implied_market.market_pricing_lean && (
-                          <p style={{ fontSize: 12.5, color: "var(--text-tertiary)", fontStyle: "italic", marginBottom: 10 }}>{baro.implied_market.market_pricing_lean}</p>
-                        )}
-                        <p style={{ margin: 0, fontSize: 13.5, color: "var(--text-secondary)", lineHeight: 1.7 }}>{baro.implied_market.divergence}</p>
-                      </div>
-                    )}
-
-                    {/* «Внешние оси» — прямой ответ на «а Ближний Восток и АТР?»: явно
-                        именованные G9 (Китай/Индия), G10 (США), G11 (ЕС/UK), G13 (глобальный
-                        фон/Ормуз) с вкладом в общий балл. Следующий уровень детализации
-                        внутри ЕДИНОГО барометра — не отдельные региональные барометры. */}
-                    {(() => {
-                      const axisItems = GEO_AXES.map((a) => subMap[a.key]).filter(Boolean);
-                      if (axisItems.length === 0) return null;
-                      return (
-                        <div className="obs-inst-card">
-                          <div className="obs-inst-card-title"><Globe size={16} />Внешние оси: Китай/Индия, США, ЕС, глобальный фон</div>
-                          <div className="obs-inst-card-sub">Барометр — единый показатель для всего рынка; эти 4 оси из G1–G13 отвечают за вклад конкретных внешних игроков и регионов (АТР, Запад, Ормуз) в общий балл.</div>
-                          <div>
-                            {axisItems.map((s) => <ObsBaroSubRow key={s.key} s={s} polarity="higherWorse" />)}
-                          </div>
-                        </div>
-                      );
-                    })()}
-
-                    {/* Резюме оставлено: в отличие от короткого hero-вердикта, здесь конкретные
-                        даты/цифры/кросс-ссылки на макро — не пересказ, а более полная синтез-картина. */}
-                    {baro.summary && (
-                      <div className="obs-inst-card">
-                        <div className="obs-inst-card-title"><FileText size={16} />Резюме · развёрнутая оценка Basis</div>
-                        <p style={{ whiteSpace: "pre-line", margin: 0, fontSize: 13.5, color: "var(--text-secondary)", lineHeight: 1.7 }}>{baro.summary}</p>
-                      </div>
-                    )}
-
-                    {Array.isArray(baro.subindices) && baro.subindices.length > 0 && (
-                      <div className="obs-inst-card">
-                        <div className="obs-inst-card-title"><Globe size={16} />Показатели (G1–G13)</div>
-                        <div className="obs-inst-card-sub">Сгруппированы по смыслу — балл 5/5 всегда означает наибольший риск для рынка, 1/5 — наименьший.</div>
-                        <ObsBaroClusters clusters={GEO_CLUSTERS} subindexMap={subMap} polarity="higherWorse" />
-                      </div>
-                    )}
-
-                    {Array.isArray(baro.watchlist_30d) && baro.watchlist_30d.length > 0 && (
-                      <div className="obs-inst-card">
-                        <div className="obs-inst-card-title"><Clock size={16} />За чем следить (30 дней)</div>
-                        <div className="obs-inst-watch-group">
-                          {baro.watchlist_30d.map((w, i) => (
-                            <div key={i} className="obs-inst-watch-row">
-                              <span className="obs-inst-watch-n">{i + 1}</span>
-                              <span><b>{w.signal}</b>{w.window ? ` — ${w.window}` : ""}{w.expected_effect ? `. ${w.expected_effect}` : ""}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                      </div>
-                    </details>
+                    {/* 🔴 «Фон рынка в целом» УБРАН (владелец 2026-08-10). Свёрнутый
+                        раздел со сквозными показателями рынка, расхождением с рынком и
+                        внешними осями стоял в конце разбора очага и мешал: читатель
+                        приходит за конкретным очагом, а получал ещё один слой методики.
+                        Показатели остаются в данных барометра и доступны через API —
+                        на витрине очага им не место. */}
 
                     {/* Цепочки влияния — внизу, перед оговорками: сначала «что
                         произошло и куда дошло», и только потом методическая рамка. */}
