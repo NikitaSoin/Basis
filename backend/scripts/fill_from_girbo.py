@@ -157,6 +157,37 @@ def scope_matches(card, data, years, verbose, ticker):
                 if g is not None and abs(g) > 1:
                     checks.append(abs(vals[i] - g) <= abs(g) * 0.01)
     if len(checks) < 2:
+        # 🔴 Карточка, где НЕТ НИ ОДНОГО точного числа, сверять нечем — но это само по себе
+        # диагноз: первоисточника у неё нет вовсе, всё снято с округлением. Тогда периметр
+        # проверяем иначе — по близости грубых значений к отчётности: если они расходятся в
+        # пределах ошибки округления до трёх значащих цифр (это ≤0,5%, берём 2% с запасом),
+        # значит карточка построена на ЭТОЙ ЖЕ отчётности, просто огрублённой.
+        # Порог намеренно жёсткий: у Россетей Сибири и РЭСК расхождение 4-6%, и это уже НЕ
+        # округление, а другой периметр — такие карточки сюда не попадают.
+        rough = []
+        for code, (sec, name) in BALANCE.items():
+            vals = (bs.get(name) if not sec else (bs.get(sec) or {}).get(name)) or []
+            for i, y in enumerate(years):
+                if i < len(vals) and isinstance(vals[i], (int, float)) and abs(vals[i]) > 100:
+                    g = (data.get(y) or {}).get("balance", {}).get(code)
+                    if g and abs(g) > 100:
+                        rough.append(abs(vals[i] - g) / abs(g))
+        for code, name in PNL.items():
+            vals = ins.get(name) or []
+            for i, y in enumerate(years):
+                if i < len(vals) and isinstance(vals[i], (int, float)) and abs(vals[i]) > 100:
+                    g = (data.get(y) or {}).get("pnl", {}).get(code)
+                    if g and abs(g) > 100:
+                        rough.append(abs(vals[i] - g) / abs(g))
+        if len(rough) >= 4:
+            med = sorted(rough)[len(rough) // 2]
+            if med <= 0.02:
+                print(f"  · {ticker}: точных значений в карточке нет вовсе, но грубые сходятся с отчётностью "
+                      f"(медиана {med*100:.1f}%) — карточка построена на ней же, беру точные цифры")
+                return True, 99
+            if verbose:
+                print(f"  · {ticker}: точных значений нет, грубые расходятся на {med*100:.0f}% — другой периметр, пропускаю")
+                return False, 0
         if verbose:
             print(f"  · {ticker}: не с чем сверить периметр ({len(checks)} точных совпадений) — пропускаю")
         return False, 0
@@ -228,10 +259,16 @@ def fill(ticker, apply, verbose, allow_refine=False):
     # незачем: у ФНС весь баланс согласован по построению. Тогда перезаписываем всё, что
     # источник покрывает. Условие намеренно узкое: без доказанного совпадения стержня
     # (просто «похоже») мы бы затирали МСФО группы отчётностью юрлица.
-    authoritative = (not refine_only) and exact_hits >= 4 and not identities_hold(card, years)
+    # exact_hits == 99 — особый случай: точных значений в карточке нет вовсе, а грубые
+    # сходятся с отчётностью. Сохранять там нечего, поэтому источник берётся целиком: иначе
+    # выйдет смесь точных и округлённых значений, у которой перестаёт сходиться баланс.
+    authoritative = (not refine_only) and (exact_hits == 99
+                                           or (exact_hits >= 4 and not identities_hold(card, years)))
     if authoritative:
-        print(f"  ! {ticker}: карточка не сходится сама с собой, а {exact_hits} строк совпали с ФНС до рубля "
-              f"— беру баланс и P&L из ФНС целиком")
+        why = ("сохранять нечего — точных значений в карточке нет"
+               if exact_hits == 99
+               else f"карточка не сходится сама с собой, а {exact_hits} строк совпали с ФНС до рубля")
+        print(f"  ! {ticker}: {why} — беру баланс и P&L из ФНС целиком")
 
     n = len(years)
     bs = card.setdefault("balance_sheet", {})
