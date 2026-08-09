@@ -161,9 +161,14 @@ def audit(card, ticker):
         for v in vals:
             if v is not None and abs(v) >= 1000:
                 counts[v] = counts.get(v, 0) + 1
+        # 🔴 Ещё условие: повторяющееся значение должно нести ХОТЯ БЫ ЧЕТЫРЕ значащие цифры.
+        # Два округлённых числа совпадают сплошь и рядом просто так — «1 200» в 2022 и 2024
+        # у одной компании это совпадение, а не перенос. Настоящие копии, найденные на
+        # практике, были точными: 27 995 у РуссНефти, 1 905,0 у Кармани. Порог отсекает шум,
+        # не трогая находки.
         seen = {}
         for i, v in enumerate(vals):
-            if v is None or abs(v) < 1000 or counts[v] > 2:
+            if v is None or abs(v) < 1000 or counts[v] > 2 or sig_digits(v) <= 3:
                 continue
             if v in seen and i - seen[v] > 1:
                 out.append(("!", "копия", f"{name}: {years[seen[v]]} и {years[i]} = {v:,.2f} — одно и то же значение в разные годы"))
