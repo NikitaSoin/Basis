@@ -1759,6 +1759,22 @@ def debug_mark_overlays_consolidated(ids: str, status: str = "consolidated"):
         db.close()
 
 
+@router.post("/debug/trigger-sector-scout")
+def debug_trigger_sector_scout(code: str | None = None, dry: bool = False):
+    """Добор отраслевых показателей, недоступных парсерам, — через агента-добытчика.
+    dry=true — только показать, что нашлось, без записи в ряд."""
+    from app.db.session import SessionLocal
+    from app.services.sector_scout import run_scout
+    db = SessionLocal()
+    try:
+        return run_scout(db, only_code=code, dry=dry)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-sector-scout: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-tab-rewrite")
 def debug_trigger_tab_rewrite(tab: str, ticker: str | None = None, batch: int = 1):
     """Перезапись вывода для вкладок finance|geo|institutions|governance|business.

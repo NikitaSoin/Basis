@@ -983,6 +983,27 @@ async def _nonequity_facts_job():
         logger.exception("Ошибка свежести облигаций и фондов: %s", e)
 
 
+async def _sector_scout_job():
+    """Показатели, которых нет у парсеров, — через агента-добытчика.
+
+    Раз в неделю и по чуть-чуть: у этих рядов данные месячные, чаще смысла нет. Числа
+    помечаются `ingested_via='scout'` — они найдены в вебе, а не сняты с официальной
+    страницы, и это видно в ряду."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.sector_scout import run_scout
+        db = SessionLocal()
+        try:
+            return run_scout(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Добор отраслевых показателей: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка добора отраслевых показателей: %s", e)
+
+
 async def _card_rewrite_job():
     """ТРЕТЬЯ СТУПЕНЬ: перезапись ВЫВОДА там, где цифра перевернула рассуждение.
 
@@ -1633,7 +1654,8 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("institutions_profile", _institutions_profile_job), "cron", day_of_week="sun", hour=22, minute=20, id="institutions_profile")  # портрет институтов — недельный, после portrait очагов (22:10) и до ОТК (22:30)
         scheduler.add_job(_with_heartbeat("geo_verification", _geo_verification_job), "cron", hour=22, minute=30, id="geo_verification")
         scheduler.add_job(_with_heartbeat("env_card_interp", _env_card_interp_job), "cron", day_of_week="mon", hour=6, minute=40, id="env_card_interp")
-        scheduler.add_job(_with_heartbeat("card_rewrite", _card_rewrite_job), "cron", day_of_week="mon", hour=7, minute=30, id="card_rewrite")  # третья ступень — перезапись ВЫВОДА, крошечный батч; идёт ПОСЛЕ патчера: его отказы служат сигналом эскалации  # доводка вкладок гео/институты карточек — утро понедельника, по свежим воскресным слоям  # «ОТК данных» гео без LLM — последним, меряет то, что реально уехало на витрину
+        scheduler.add_job(_with_heartbeat("card_rewrite", _card_rewrite_job), "cron", day_of_week="mon", hour=7, minute=30, id="card_rewrite")
+        scheduler.add_job(_with_heartbeat("sector_scout", _sector_scout_job), "cron", day_of_week="wed", hour=7, minute=10, id="sector_scout")  # добор показателей, недоступных парсерам; значения помечаются как найденные в вебе  # третья ступень — перезапись ВЫВОДА, крошечный батч; идёт ПОСЛЕ патчера: его отказы служат сигналом эскалации  # доводка вкладок гео/институты карточек — утро понедельника, по свежим воскресным слоям  # «ОТК данных» гео без LLM — последним, меряет то, что реально уехало на витрину
         scheduler.add_job(_with_heartbeat("geo_digest", _geo_digest_job), "cron", minute=10, id="geo_digest")  # каждый час
         scheduler.add_job(_with_heartbeat("company_signals", _company_signals_job), "cron", minute=35, id="company_signals")  # шина: после news(5)+geo_digest(10), их выход = вход
         scheduler.add_job(_with_heartbeat("rating_agencies", _rating_agencies_job), "cron", hour=20, minute=55, id="rating_agencies")  # рейтинговые действия АКРА/НКР → сигналы + освежение agency_rating бумаг
