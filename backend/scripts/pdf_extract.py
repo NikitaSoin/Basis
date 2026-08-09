@@ -18,6 +18,8 @@
   python3 backend/scripts/pdf_extract.py отчёт.pdf --pages 8-10 --ocr
   # найти страницу с балансом даже в скане: распознаём по одной, пока не совпадёт
   python3 backend/scripts/pdf_extract.py отчёт.pdf --find "Итого внеоборотные" --ocr --max-pages 20
+  # таблица, где подписи слева, а числа у правого края — собирать строки по координатам
+  python3 backend/scripts/pdf_extract.py отчёт.pdf --pages 6 --ocr --table
 
 🔴 Числа, снятые распознаванием, ОБЯЗАТЕЛЬНО проверяй арифметикой (разделы = итог,
 активы = обязательства + капитал). Распознавание путает 0/О, 3/8 и теряет пробелы в
@@ -41,11 +43,28 @@ def parse_pages(spec, total):
     return [p for p in out if 0 <= p < total]
 
 
-def ocr_page(page, lang="rus", dpi=200):
+def ocr_page(page, lang="rus", dpi=200, table=False):
+    """table=True — собирать строку из слов по их координатам.
+
+    🔴 Зачем отдельный режим. В отчётности подпись строки стоит у левого края, а числа —
+    у правого, и обычное распознавание выдаёт их РАЗНЫМИ строками: получается столбик
+    подписей, а следом столбик чисел, и сопоставить их уже нельзя. На балансе ЧМК это
+    выглядело как «Итого капитал» без единой цифры рядом. Сборка по вертикальной
+    координате возвращает строку целиком: «Итого капитал 61 744 363 55 939 180».
+    """
     import pytesseract
     from PIL import Image
     pix = page.get_pixmap(dpi=dpi)
-    return pytesseract.image_to_string(Image.open(io.BytesIO(pix.tobytes("png"))), lang=lang)
+    img = Image.open(io.BytesIO(pix.tobytes("png")))
+    if not table:
+        return pytesseract.image_to_string(img, lang=lang)
+    data = pytesseract.image_to_data(img, lang=lang, output_type=pytesseract.Output.DICT)
+    rows = {}
+    for i, word in enumerate(data["text"]):
+        if not word.strip() or int(data["conf"][i]) < 30:
+            continue
+        rows.setdefault(round(data["top"][i] / 12), []).append((data["left"][i], word))
+    return "\n".join(" ".join(w for _, w in sorted(v)) for _, v in sorted(rows.items()))
 
 
 def main():
@@ -56,6 +75,7 @@ def main():
     ap.add_argument("--find", help="искать строку, распознавая страницы по одной, и остановиться на первой найденной")
     ap.add_argument("--ocr", action="store_true", help="распознавать страницы без текстового слоя")
     ap.add_argument("--max-pages", type=int, default=25, help="предел числа распознаваемых страниц")
+    ap.add_argument("--table", action="store_true", help="собирать строки по координатам слов — для таблиц, где подписи слева, а числа справа")
     ap.add_argument("--lang", default="rus")
     ap.add_argument("--dpi", type=int, default=200)
     args = ap.parse_args()
@@ -76,7 +96,7 @@ def main():
     for i in pages:
         text = doc[i].get_text()
         if not text.strip() and args.ocr and ocr_used < args.max_pages:
-            text = ocr_page(doc[i], args.lang, args.dpi)
+            text = ocr_page(doc[i], args.lang, args.dpi, args.table)
             ocr_used += 1
         if args.find:
             if args.find.lower() in text.lower():
