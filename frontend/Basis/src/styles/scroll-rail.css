@@ -1,85 +1,60 @@
-/* SCROLL RAIL — линия-навигация справа (design/ScrollRail.jsx).
-   Хром монохромный, медь — только активная точка (дизайн-конституция). */
+/* SCROLL RAIL v2 — постоянное оглавление справа (design/ScrollRail.jsx).
+   Хром монохромный; медь — только активный пункт (дизайн-конституция).
+   Панель в свободном правом поле; на узких экранах скрыта, чтобы НИКОГДА
+   не загораживать текст (замечание владельца 2026-08-09). */
 .srail {
   position: fixed;
-  right: 10px;
-  top: 84px;
-  bottom: 28px;
-  width: 18px;
+  right: 14px;
+  top: 92px;
+  width: 198px;
+  max-height: calc(100vh - 130px);
+  overflow-y: auto;
   z-index: 55;
-}
-.srail-track {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  transform: translateX(-50%);
-  background: color-mix(in srgb, var(--cc-ink-3, #8a8578) 28%, transparent);
-  border-radius: 2px;
-}
-.srail-cursor {
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 8px;
-  height: 22px;
-  border-radius: 5px;
-  background: color-mix(in srgb, var(--cc-ink-2, #55504a) 35%, transparent);
-  transition: top 90ms linear;
-  pointer-events: none;
-}
-.srail-dot {
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 14px;
-  height: 14px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.srail-dot::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--cc-panel, #fff);
-  border: 1.5px solid var(--cc-ink-3, #8a8578);
-  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
-}
-.srail-dot:hover::before { transform: scale(1.35); border-color: var(--cc-ink, #24211d); }
-.srail-dot.on::before {
-  background: var(--bs-copper, #C97A4A);
-  border-color: var(--bs-copper, #C97A4A);
-  transform: scale(1.3);
-}
-.srail-dot:focus-visible { outline: 2px solid var(--bs-copper, #C97A4A); outline-offset: 2px; border-radius: 50%; }
-.srail-label {
-  position: absolute;
-  right: 22px;
-  top: 50%;
-  transform: translateY(-50%);
-  white-space: nowrap;
-  font: 500 11.5px/1.3 var(--bs-sans, Inter, sans-serif);
-  color: var(--cc-ink-2, #55504a);
   background: var(--cc-panel, #fff);
   border: 1px solid var(--cc-line-2, #e2ddd2);
+  border-radius: 12px;
+  padding: 10px 8px 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  scrollbar-width: thin;
+}
+.srail-title {
+  font: 600 10.5px/1 var(--cc-mono, "IBM Plex Mono", monospace);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cc-ink-3, #8a8578);
+  padding: 2px 9px 9px;
+}
+.srail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 5px 8px 5px 6px;
   border-radius: 7px;
-  padding: 4px 9px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 120ms ease;
+  cursor: pointer;
+  font: 500 11.5px/1.35 var(--bs-sans, Inter, sans-serif);
+  color: var(--cc-ink-2, #55504a);
 }
-.srail-dot:hover .srail-label,
-.srail-dot:focus-visible .srail-label { opacity: 1; }
-.srail-dot.on .srail-label { opacity: 1; color: var(--cc-ink, #24211d); font-weight: 600; }
-@media (max-width: 1100px) { .srail { display: none; } }
-@media (prefers-reduced-motion: reduce) {
-  .srail-cursor, .srail-dot::before, .srail-label { transition: none; }
+.srail-item::before {
+  content: "";
+  width: 3px;
+  align-self: stretch;
+  min-height: 14px;
+  border-radius: 2px;
+  background: var(--cc-line-2, #e2ddd2);
+  flex: none;
+  transition: background 120ms ease;
 }
+.srail-item:hover { background: color-mix(in srgb, var(--cc-ink, #24211d) 5%, transparent); }
+.srail-item.on {
+  color: var(--cc-ink, #24211d);
+  font-weight: 600;
+  background: color-mix(in srgb, var(--bs-copper, #C97A4A) 8%, transparent);
+}
+.srail-item.on::before { background: var(--bs-copper, #C97A4A); }
+.srail-item:focus-visible { outline: 2px solid var(--bs-copper, #C97A4A); outline-offset: 1px; }
+@media (max-width: 1359px) { .srail { display: none; } }
+@media (prefers-reduced-motion: reduce) { .srail-item::before { transition: none; } }
