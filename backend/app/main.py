@@ -983,6 +983,44 @@ async def _nonequity_facts_job():
         logger.exception("Ошибка свежести облигаций и фондов: %s", e)
 
 
+async def _card_rewrite_job():
+    """ТРЕТЬЯ СТУПЕНЬ: перезапись ВЫВОДА там, где цифра перевернула рассуждение.
+
+    🔴 Батч намеренно крошечный (2 макро + 2 рынка за прогон, раз в неделю). Это не
+    экономия, а осознанный темп: перезапись меняет СУЖДЕНИЕ на витрине, и её качество
+    мы пока меряем поштучно. Советник прямо предупредил — расширять только когда
+    challenger побеждает в 2/3 случаев при выборочной сверке; до тех пор больше
+    правок в неделю означает больше непроверенного текста, а не больше пользы.
+
+    Идёт ПОСЛЕ доводки патчером (env_card_interp, пн 6:40): сначала дешёвая ступень
+    закрывает, что может, и её отказы становятся сигналом эскалации для этой.
+    """
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.card_rewriter import run_macro_rewrites, run_markets_rewrites
+        db = SessionLocal()
+        try:
+            from app.services.card_rewriter import run_tab_rewrites
+            out = {"macro": run_macro_rewrites(db, batch=2),
+                   "markets": run_markets_rewrites(db, batch=2)}
+            # Остальные вкладки — тем же движком, но по своим сигналам. Батчи по
+            # единице: у этих вкладок сигнал редкий (отчётный период или повторные
+            # отказы патчера), и большой батч там просто нечем наполнить.
+            for tab in ("finance", "geo", "institutions", "governance", "business"):
+                try:
+                    out[tab] = run_tab_rewrites(db, tab, batch=1)
+                except Exception as e:  # noqa: BLE001 — одна вкладка не роняет прогон
+                    out[tab] = {"error": f"{type(e).__name__}"}
+            return out
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Перезапись выводов карточек: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка перезаписи выводов: %s", e)
+
+
 async def _futures_asset_facts_job():
     """Свежесть разборов базовых активов фьючерсов (владелец 2026-08-07: «чтобы в
     карточках по облигациям/фьючерсам/фондам информация обновлялась, а не была
@@ -1594,7 +1632,8 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("institutions_domains", _institutions_domains_job), "cron", day_of_week="sun", hour=21, minute=55, id="institutions_domains")  # замеры направлений — ДО портрета институтов: портрет использует их как вход
         scheduler.add_job(_with_heartbeat("institutions_profile", _institutions_profile_job), "cron", day_of_week="sun", hour=22, minute=20, id="institutions_profile")  # портрет институтов — недельный, после portrait очагов (22:10) и до ОТК (22:30)
         scheduler.add_job(_with_heartbeat("geo_verification", _geo_verification_job), "cron", hour=22, minute=30, id="geo_verification")
-        scheduler.add_job(_with_heartbeat("env_card_interp", _env_card_interp_job), "cron", day_of_week="mon", hour=6, minute=40, id="env_card_interp")  # доводка вкладок гео/институты карточек — утро понедельника, по свежим воскресным слоям  # «ОТК данных» гео без LLM — последним, меряет то, что реально уехало на витрину
+        scheduler.add_job(_with_heartbeat("env_card_interp", _env_card_interp_job), "cron", day_of_week="mon", hour=6, minute=40, id="env_card_interp")
+        scheduler.add_job(_with_heartbeat("card_rewrite", _card_rewrite_job), "cron", day_of_week="mon", hour=7, minute=30, id="card_rewrite")  # третья ступень — перезапись ВЫВОДА, крошечный батч; идёт ПОСЛЕ патчера: его отказы служат сигналом эскалации  # доводка вкладок гео/институты карточек — утро понедельника, по свежим воскресным слоям  # «ОТК данных» гео без LLM — последним, меряет то, что реально уехало на витрину
         scheduler.add_job(_with_heartbeat("geo_digest", _geo_digest_job), "cron", minute=10, id="geo_digest")  # каждый час
         scheduler.add_job(_with_heartbeat("company_signals", _company_signals_job), "cron", minute=35, id="company_signals")  # шина: после news(5)+geo_digest(10), их выход = вход
         scheduler.add_job(_with_heartbeat("rating_agencies", _rating_agencies_job), "cron", hour=20, minute=55, id="rating_agencies")  # рейтинговые действия АКРА/НКР → сигналы + освежение agency_rating бумаг

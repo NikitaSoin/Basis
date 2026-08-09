@@ -663,3 +663,101 @@ def dossier_block(dossier: dict) -> str:
         lines.append("НЕ НАЙДЕНО (так и напиши, что данных нет, ничего не выдумывай): "
                      + "; ".join(str(x)[:80] for x in dossier["not_found"][:3]))
     return "\n".join(lines)
+
+
+# ============================================================================
+# ОСТАЛЬНЫЕ ВКЛАДКИ: одна лестница на всех, разные только сигналы эскалации
+#
+# 🔴 Почему не копируем run_macro_rewrites пять раз. Ступень-то одна и та же:
+# «взять прозу → дать писателю методичку и факты → три проверки → публикация».
+# Разное только ДВА входа: чем меряем устаревание и какие факты подаём. Их и
+# параметризуем, а тело оставляем общим — иначе пять копий разъедутся, как разъехалась
+# копия read_prose в API витрины.
+#
+# 🔴 Сигналы по вкладкам — каждый честный по-своему:
+#   finance      — вышел отчётный период, которого разбор не видел (код, календарь);
+#   geo / institutions — сместилась среда Обозревателя + отказы патчера;
+#   governance   — то же, но среда институциональная;
+#   business     — САМАЯ МЕДЛЕННАЯ: бизнес-модель меняется годовым отчётом, а не
+#                  ценой. Здесь единственный триггер — повторные отказы патчера,
+#                  иначе система будет перемалывать текст от шума.
+# ============================================================================
+_ENV_GROUNDERS = {
+    "geo": "_geo_env_grounding",
+    "institutions": "_inst_env_grounding",
+    "governance": "_gov_env_grounding",
+}
+
+
+def _env_facts(db: Session, tab: str) -> str:
+    """Состояние среды для вкладки — тот же контекст, что у патчера."""
+    from app.services import card_prose_patcher as cpp
+    fn = getattr(cpp, _ENV_GROUNDERS.get(tab, ""), None)
+    if not fn:
+        return ""
+    res = fn(db)
+    # у гео/институтов грounder отдаёт (текст, кандидаты), у governance — просто текст
+    return (res[0] if isinstance(res, tuple) else res) or ""
+
+
+def finance_escalation(db: Session, ticker: str) -> tuple[str | None, str]:
+    """«Финансы»: вышел отчётный год, которого разбор не видел.
+
+    Ориентир дешёвый и однозначный — последний фискальный год в карточке против
+    календаря. Числа новой отчётности писателю НЕ подаём: их место в financials.json,
+    и вносит их отдельный слой. Здесь задача другая — снять с текста утверждения,
+    которые заведомо устарели, и честно сказать, что разбор ждёт обновления.
+    """
+    from app.services.card_claims import finance_claims
+    stale = [c for c in finance_claims(ticker) if c.get("stale")]
+    if not stale:
+        return None, ""
+    c = stale[0]
+    facts = ("СОСТОЯНИЕ ОТЧЁТНОСТИ В КАРТОЧКЕ:\n"
+             f"  {c['claim']} — отставание {c['lag_years']} года от календаря.\n"
+             "Свежих отчётных чисел у тебя НЕТ: не подставляй их и не оценивай "
+             "результаты, которых не видел. Задача — убрать из вывода утверждения, "
+             "которые опираются на устаревший период как на текущий, и честно "
+             "пометить, что разбор ждёт свежей отчётности.")
+    return f"последний отчётный год в разборе — {c['year']}", facts
+
+
+def run_tab_rewrites(db: Session, tab: str, batch: int = 2,
+                     only_ticker: str | None = None) -> dict:
+    """Перезапись выводов для вкладок, где сигнал — среда или календарь отчётности."""
+    from sqlalchemy import text as _t
+
+    env = _env_facts(db, tab) if tab in _ENV_GROUNDERS else ""
+    if tab in _ENV_GROUNDERS and not env:
+        return {"error": f"нет контекста среды для {tab}"}
+
+    if only_ticker:
+        candidates = [only_ticker.upper()]
+    else:
+        candidates = [r[0] for r in db.execute(_t(
+            "SELECT ticker FROM companies ORDER BY market_cap DESC NULLS LAST")).fetchall()]
+
+    stats = {"tab": tab, "checked": 0, "published": 0, "rejected": 0,
+             "skipped": 0, "tickers": []}
+    for tk in candidates:
+        if stats["published"] + stats["rejected"] >= batch and not only_ticker:
+            break
+        stats["checked"] += 1
+        if tab == "finance":
+            reason, facts = finance_escalation(db, tk)
+        else:
+            # Для средовых вкладок величину дрейфа посчитать нечем — там нет
+            # коэффициентов. Единственный честный сигнал — что патчер УЖЕ не
+            # справился дважды подряд: значит проза структурно разошлась.
+            reason, facts = escalation_reason(db, tk, tab, None), env
+        if not reason:
+            continue
+        row = rewrite_one(db, tk, tab, facts=facts, reason=reason,
+                          force=bool(only_ticker))
+        if row is None:
+            stats["skipped"] += 1
+        else:
+            stats[row.status] = stats.get(row.status, 0) + 1
+            stats["tickers"].append(f"{tk}:{row.status}")
+    logger.info("card_rewriter.run_tab_rewrites[%s]: %s", tab, stats)
+    return stats

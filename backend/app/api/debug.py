@@ -1759,6 +1759,23 @@ def debug_mark_overlays_consolidated(ids: str, status: str = "consolidated"):
         db.close()
 
 
+@router.post("/debug/trigger-tab-rewrite")
+def debug_trigger_tab_rewrite(tab: str, ticker: str | None = None, batch: int = 1):
+    """Перезапись вывода для вкладок finance|geo|institutions|governance|business.
+    Сигналы разные: у финансов — вышедший отчётный период, у остальных — повторные
+    отказы патчера (проза структурно разошлась, точечная правка уже не помогает)."""
+    from app.db.session import SessionLocal
+    from app.services.card_rewriter import run_tab_rewrites
+    db = SessionLocal()
+    try:
+        return run_tab_rewrites(db, tab, batch=batch, only_ticker=ticker)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-tab-rewrite: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-markets-rewrite")
 def debug_trigger_markets_rewrite(ticker: str | None = None, batch: int = 2,
                                   use_web: bool = True):
