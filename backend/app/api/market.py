@@ -864,6 +864,22 @@ def market_geo_barometer(db: Session = Depends(get_db)):
     payload = get_payload_with_meta(db, "geo")
     if payload is None:
         raise HTTPException(status_code=404, detail="Барометр ещё не сформирован")
+    # 🔴 Чистим НА ВЫДАЧЕ, а не только при генерации. Внутренние коды (S3→S4a,
+    # G7, ME2) и числовые баллы остроты убраны по требованию владельца, но
+    # генератор трогает только НОВЫЙ payload — уже опубликованный лежит в БД как
+    # есть и продолжает показывать «S3→S4a: официальное объявление мобилизации»
+    # ещё сутки после правки. Плюс перенос полей со вчера («не вернулось —
+    # взяли вчерашнее») способен протащить старьё и в свежую версию. Один и тот
+    # же payload проходит очистку дважды — это дёшево и снимает целый класс
+    # «починил, а на сайте по-прежнему».
+    try:
+        from app.services.barometer_daily import _drop_scores, _strip_codes
+        _drop_scores(payload)
+        _strip_codes(payload, [])
+    except Exception:  # noqa: BLE001 — витрина важнее косметики
+        import logging as _logging
+        _logging.getLogger(__name__).warning(
+            "geo-barometer: очистка кодов/баллов не отработала", exc_info=True)
     return JSONResponse(content=payload)
 
 

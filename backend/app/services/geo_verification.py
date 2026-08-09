@@ -204,30 +204,49 @@ def _check_delta_rationale(db: Session) -> dict:
                 f"Необоснованных сдвигов немного ({len(reverts)})")
 
 
-def _check_region_scores(db: Session) -> dict:
-    """У каждого очага должен быть СВОЙ балл остроты. Если балл очага исчез,
-    витрина молча подставляет общий балл рынка — и пользователь видит одно и то
-    же число на всех трёх вкладках, думая, что это оценка конкретного очага."""
+def _check_region_scenarios(db: Session) -> dict:
+    """У каждого очага должен быть СВОЙ набор сценариев с вероятностями.
+
+    🔴 Раньше здесь проверялся балл остроты очага (1..5). Балл убран с платформы
+    (владелец, 2026-08-10: «убери барометр, не надо его считать») — он был
+    суждением модели, а выглядел как расчёт. Главный измеритель теперь —
+    сценарии с вероятностями, и проверять надо их: если у очага нет своей
+    лестницы, витрина покажет пустое место там, где обещана оценка шансов; если
+    у всех трёх очагов вероятности совпали до десятой доли — модель не разделила
+    оценку, а размножила одну.
+    """
     row = barometer_store.current_row(db, "geo")
-    title = "У каждого очага свой балл остроты"
+    title = "У каждого очага свои сценарии с вероятностями"
     if not row or not row.payload:
-        return _res("region_scores", title, "unavailable", "Барометра нет")
+        return _res("region_scenarios", title, "unavailable", "Барометра нет")
     regions = (row.payload or {}).get("regions") or {}
-    missing, scores = [], {}
+    missing, shapes = [], {}
     for s in _SCOPES:
-        val = ((regions.get(s) or {}).get("barometer") or {}).get("overall")
-        scores[s] = val
-        if not isinstance(val, (int, float)):
+        items = ((regions.get(s) or {}).get("scenarios") or {}).get("items")
+        if not isinstance(items, list) or len(items) < 2:
             missing.append(_SCOPE_RU[s])
+            continue
+        probs = []
+        for it in items:
+            try:
+                probs.append(round(float(it.get("p6m")), 2))
+            except (TypeError, ValueError):
+                probs.append(None)
+        if all(p is None for p in probs):
+            missing.append(_SCOPE_RU[s])
+            continue
+        shapes[s] = probs
     if missing:
-        return _res("region_scores", title, "warn",
-                    "Нет собственного балла: " + ", ".join(missing) +
-                    " — на витрине подставится общий балл рынка", scores=scores)
-    if len({round(float(v), 1) for v in scores.values()}) == 1:
-        return _res("region_scores", title, "warn",
-                    "Все три очага получили одинаковый балл — вероятно, оценка не разделена",
-                    scores=scores)
-    return _res("region_scores", title, "ok", "Баллы очагов различаются", scores=scores)
+        return _res("region_scenarios", title, "warn",
+                    "Нет своих сценариев с вероятностями: " + ", ".join(missing) +
+                    " — на витрине очаг останется без оценки шансов", shapes=shapes)
+    uniq = {tuple(v) for v in shapes.values()}
+    if len(uniq) == 1:
+        return _res("region_scenarios", title, "warn",
+                    "У всех очагов совпали вероятности — вероятно, оценка не разделена",
+                    shapes=shapes)
+    return _res("region_scenarios", title, "ok",
+                "Очаги оценены по-разному", shapes=shapes)
 
 
 # ---------------------------- полнота витрины ----------------------------
@@ -306,7 +325,7 @@ def run_verification(db: Session) -> dict:
         lambda: _check_frontline_sync(db),
         lambda: _check_probabilities(db),
         lambda: _check_delta_rationale(db),
-        lambda: _check_region_scores(db),
+        lambda: _check_region_scenarios(db),
         lambda: _check_region_sections(db),
         lambda: _check_profile_fresh(db),
         lambda: _check_profile_reverse_links(db),

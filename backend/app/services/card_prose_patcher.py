@@ -1080,10 +1080,11 @@ def _geo_env_grounding(db: Session) -> tuple[str | None, list[str]]:
     sectors: set[str] = set()
     tickers: set[str] = set()
 
+    # Числового балла остроты больше нет (убран 2026-08-10): он был суждением модели,
+    # а выглядел как расчёт. Берём словесный вердикт — он говорит то же самое честнее.
     baro = payload.get("barometer") or {}
-    if baro.get("overall") is not None:
-        parts.append(f"Острота геополитической среды: {baro['overall']} из 5 "
-                     f"(5 — максимальный риск). {baro.get('label') or ''}".strip())
+    if baro.get("label"):
+        parts.append(f"Геополитическая среда: {baro['label']}")
     sc = payload.get("scenario") or {}
     if sc.get("current_lean"):
         parts.append(f"Базовый сценарий сейчас: {sc['current_lean']}.")
@@ -1092,8 +1093,8 @@ def _geo_env_grounding(db: Session) -> tuple[str | None, list[str]]:
         if not isinstance(reg, dict):
             continue
         head = f"Очаг «{reg.get('label') or key}»: {reg.get('direction') or ''}"
-        if (reg.get("barometer") or {}).get("overall") is not None:
-            head += f", острота {reg['barometer']['overall']}/5"
+        if (reg.get("barometer") or {}).get("label"):
+            head += f" — {reg['barometer']['label']}"
         parts.append(head.strip(" ,") + ".")
         if reg.get("summary"):
             parts.append(f"  {reg['summary'][:400]}")

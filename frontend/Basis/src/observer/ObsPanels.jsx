@@ -5563,15 +5563,10 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                 const ScopeIcon = scopeMeta?.icon || null;
                 const scopeRegionData = scopeKey ? baro.regions?.[scopeKey] : null;
                 const scopeDirColor = scopeRegionData ? obsGeoDirColor(scopeRegionData.direction) : null;
-                // Барометр ОЧАГА (владелец 2026-08-02: «барометр в самом начале для
-                // СВО/Востока/АТР должен считаться отдельно, не общий»). Балл берём
-                // из regions.<очаг>.barometer; если его ещё нет (барометр старой
-                // схемы) — честно показываем общий и подписываем это, а не выдаём
-                // рыночный агрегат за оценку очага.
+                // 🔴 Числового балла остроты очага больше нет (владелец 2026-08-10:
+                // «убери барометр, не надо его считать»). Остаётся словесный вердикт
+                // очага — его показываем над сценариями; сами шансы несут сценарии.
                 const scopeBaro = scopeRegionData?.barometer || null;
-                const scopeScore = scopeBaro?.overall != null ? scopeBaro.overall : baro.barometer?.overall;
-                const scopeScoreIsOwn = scopeBaro?.overall != null;
-                const compactTier = scopeScore != null ? obsScoreTier(scopeScore, "higherWorse") : null;
 
                 // ── Данные ВЫБРАННОГО ОЧАГА (владелец 2026-08-01: материал одного
                 // очага не должен попадать в другой). Сценарии и секторные флаги
@@ -5622,8 +5617,13 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                             <span className="obs-inst-scenario-current">уверенность {scopeScenarioMeta.confidence}</span>
                           )}
                         </div>
+                        {scopeBaro?.label && (
+                          <p className="obs-geo-scope-verdict">{scopeBaro.label}</p>
+                        )}
                         <p className="obs-inst-card-sub">
-                          Вероятности — оценка Basis по этому очагу, не прогноз рынка. Сумма по горизонту — 100%.
+                          Вероятности — <b>экспертная оценка Basis</b> по этому очагу (суждение
+                          аналитического слоя, а не расчёт по модели и не котировка рынка
+                          предсказаний). Сумма по горизонту — 100%.
                         </p>
                         <div className="obs-seg" style={{ marginBottom: 14 }}>
                           <button className={`obs-seg-opt${geoHorizon === "6m" ? " obs-seg-opt--on" : ""}`} onClick={() => setGeoHorizon("6m")}>6 мес.</button>
