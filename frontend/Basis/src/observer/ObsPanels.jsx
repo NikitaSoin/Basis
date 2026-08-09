@@ -2806,15 +2806,19 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                   <div className="obs-inst-card-title"><BarChart2 size={16} />Рынок и сектора</div>
                   <div className="obs-inst-list">
                     {interpSections.sectors.map((s, i) => {
-                      const neg = /встречный/i.test(s.wind || "");
-                      const pos = /попутный/i.test(s.wind || "");
+                      // Владелец, 2026-08-09: «попутный/встречный» — непонятные слова.
+                      // Новое поле effect («помогает|давит|неоднозначно»); старое wind
+                      // читаем фолбэком, пока не пересобрался последний выпуск.
+                      const eff = s.effect || s.wind || "";
+                      const neg = /давит|встречный/i.test(eff);
+                      const pos = /помогает|попутный/i.test(eff);
                       return (
                         <div key={i} className="obs-inst-row">
                           <div className="obs-inst-row-main">
                             <div className="obs-inst-row-title" style={{ display: "flex", alignItems: "center", gap: 6 }}>
                               {neg ? <TrendingDown size={14} style={{ color: "var(--danger)" }} /> : pos ? <TrendingUp size={14} style={{ color: "var(--success)" }} /> : null}
                               {s.sector}
-                              <span style={{ fontSize: 11, fontWeight: 700, color: neg ? "var(--danger)" : pos ? "var(--success)" : "var(--text-tertiary)", textTransform: "uppercase" }}>· {s.wind}</span>
+                              <span style={{ fontSize: 11, fontWeight: 700, color: neg ? "var(--danger)" : pos ? "var(--success)" : "var(--text-tertiary)", textTransform: "uppercase" }}>· {eff}</span>
                             </div>
                             {s.channel && <div className="obs-inst-row-why">{s.channel}</div>}
                             {/* Дисперсия внутри сектора: почему одни выигрывают, другие нет */}
@@ -2870,8 +2874,9 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                   <div className="obs-inst-card-title"><Briefcase size={16} />Что это значит для вашего портфеля</div>
                   <div className="obs-inst-list">
                     {interp.portfolio.items.map((p) => {
-                      const neg = /встречный/i.test(p.wind || "");
-                      const pos = /попутный/i.test(p.wind || "");
+                      const effP = p.effect || p.wind || "";
+                      const neg = /давит|встречный/i.test(effP);
+                      const pos = /помогает|попутный/i.test(effP);
                       return (
                         <div key={p.ticker} className="obs-inst-row">
                           <div className="obs-inst-row-main">
@@ -2879,7 +2884,7 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                               {neg ? <TrendingDown size={14} style={{ color: "var(--danger)" }} /> : pos ? <TrendingUp size={14} style={{ color: "var(--success)" }} /> : null}
                               <button className="obs-ticker-link" onClick={() => onSelectCompany?.(p.ticker)}>{p.ticker}</button>
                               {p.weight != null && <span className="obs-pf-weight">{p.weight}% портфеля</span>}
-                              {p.wind && <span style={{ fontSize: 11, fontWeight: 700, color: neg ? "var(--danger)" : pos ? "var(--success)" : "var(--text-tertiary)", textTransform: "uppercase" }}>· {p.wind} ветер</span>}
+                              {effP && <span style={{ fontSize: 11, fontWeight: 700, color: neg ? "var(--danger)" : pos ? "var(--success)" : "var(--text-tertiary)", textTransform: "uppercase" }}>· {effP}</span>}
                             </div>
                             {p.why && <div className="obs-inst-row-why">{p.why}</div>}
                             {p.no_wind_note && <div className="obs-pf-nowind">{p.no_wind_note}</div>}
@@ -2989,11 +2994,20 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                 <div>
                   <div className="obs-synth-head" style={{ marginBottom: 14 }}>Сценарии</div>
                   <div className="obs-scenario-row">
-                    {[
-                      { key: "base", data: scenarios.base, title: "Базовый", cls: "" },
-                      { key: "bull", data: scenarios.bull, title: "Бычий", cls: " obs-scenario-card--bull" },
-                      { key: "bear", data: scenarios.bear, title: "Медвежий", cls: " obs-scenario-card--bear" },
-                    ].map(({ key, data, title, cls }) =>
+                    {/* Сценарии теперь МАКРО и выбираются агентом (инфляция закрепляется,
+                        спрос сжимается, рецессия), поэтому это список с собственными
+                        названиями. Старую форму base/bull/bear читаем фолбэком, пока не
+                        пересобрался последний выпуск. */}
+                    {(Array.isArray(scenarios)
+                      ? scenarios.map((sc, i) => ({
+                          key: `sc${i}`, data: sc, title: sc.name || `Сценарий ${i + 1}`,
+                          cls: i === 0 ? "" : i === 1 ? " obs-scenario-card--bull" : " obs-scenario-card--bear",
+                        }))
+                      : [
+                        { key: "base", data: scenarios.base, title: "Базовый", cls: "" },
+                        { key: "bull", data: scenarios.bull, title: "Бычий", cls: " obs-scenario-card--bull" },
+                        { key: "bear", data: scenarios.bear, title: "Медвежий", cls: " obs-scenario-card--bear" },
+                      ]).map(({ key, data, title, cls }) =>
                       data ? (
                         <div key={key} className={`obs-scenario-card${cls}`}>
                           <div className="obs-scenario-title">{title}</div>
@@ -3007,13 +3021,24 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                               )}
                             </>
                           )}
-                          {data.key_numbers && (
-                            <div className="obs-scenario-num">{data.key_numbers}</div>
+                          {(data.key_numbers || data.vs_base) && (
+                            <div className="obs-scenario-num">{data.key_numbers || data.vs_base}</div>
                           )}
-                          {data.triggers && (
+                          {(data.triggers || data.early_signs) && (
                             <div className="obs-scenario-trig">
-                              <b>Триггеры</b>
-                              {data.triggers}
+                              <b>{data.early_signs ? "Как узнать раньше" : "Триггеры"}</b>
+                              {data.triggers || data.early_signs}
+                            </div>
+                          )}
+                          {data.equities && (
+                            <div className="obs-scenario-eq">
+                              {(data.equities.winners || []).length > 0 && (
+                                <div className="obs-scenario-eq-row"><span className="obs-scenario-eq-lbl obs-scenario-eq-up">Выигрывают</span>{(data.equities.winners || []).join(", ")}</div>
+                              )}
+                              {(data.equities.losers || []).length > 0 && (
+                                <div className="obs-scenario-eq-row"><span className="obs-scenario-eq-lbl obs-scenario-eq-dn">Теряют</span>{(data.equities.losers || []).join(", ")}</div>
+                              )}
+                              {data.equities.why && <div className="obs-scenario-eq-why">{data.equities.why}</div>}
                             </div>
                           )}
                         </div>

@@ -273,7 +273,7 @@ def scenario_impacts(db: Session, scenario: str, top_n: int = 15,
     }
 
 
-def scenario_board(db: Session, per_side: int = 5) -> dict:
+def scenario_board(db: Session, per_side: int = 5, family: str | None = "macro") -> dict:
     """Компактная сводка по всем сценариям — для промпта макро-выпуска.
 
     Полная выдача `scenario_impacts` для четырёх сценариев не нужна в промпте:
@@ -281,7 +281,12 @@ def scenario_board(db: Session, per_side: int = 5) -> dict:
     """
     conf = load_scenario_shocks()
     out = {}
-    for key in (conf.get("scenarios") or {}):
+    # 🔴 По умолчанию МАКРО-семейство (владелец, 2026-08-09: «сценарии внизу выпуска
+    # сделай не связанные с геополитикой — инфляция, рецессия…»). Геополитические
+    # никуда не делись: family="geo" отдаёт их геополитическому разделу, None — все.
+    for key, cfg in (conf.get("scenarios") or {}).items():
+        if family and (cfg.get("family") or "geo") != family:
+            continue
         try:
             data = scenario_impacts(db, key, top_n=per_side)
         except Exception:  # noqa: BLE001
@@ -304,6 +309,7 @@ def scenario_board(db: Session, per_side: int = 5) -> dict:
     if not out:
         return {}
     return {
+        "family": family,
         "_note": "Кого двигает сценарий: суммарный эффект макро-сдвигов сценария через "
                  "коэффициенты чувствительности карточек. cap_pct — доля капитализации "
                  "(сопоставима между компаниями), profit_pct — доля годовой прибыли. "
