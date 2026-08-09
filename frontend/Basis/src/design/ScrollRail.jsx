@@ -27,19 +27,44 @@ const DESC = {
   "Риск и доходность": "VaR/CVaR, волатильность и вклад позиций",
 };
 
+// «Вышел отчётфакт2025 · МСФО» (скрин владельца): заголовок = иконка + имя +
+// чипы тегов + мета-строка в одном h3. Вырезаем служебное и берём чистое имя.
+const _DROP = ".tag,.hmeta,.chip,.badge,.cc-tag,.sc-chip,.obs-tag,svg,sup,time";
 function _cleanLabel(el) {
-  // склейка «Что мы увиделисуждение» (скрин владельца): заголовок содержит
-  // вложенные чипы-теги — берём data-rail, иначе ТОЛЬКО прямые текстовые узлы,
-  // иначе первый вложенный элемент
   const attr = el.getAttribute("data-rail");
   if (attr) return attr.trim();
-  const direct = Array.from(el.childNodes)
-    .filter((n) => n.nodeType === 3)
-    .map((n) => n.textContent).join(" ").replace(/\s+/g, " ").trim();
-  if (direct) return direct.slice(0, 60);
-  const first = el.firstElementChild;
-  return ((first && first.textContent) || el.textContent || "")
-    .replace(/\s+/g, " ").trim().slice(0, 60);
+  let txt = "";
+  try {
+    const c = el.cloneNode(true);
+    c.querySelectorAll(_DROP).forEach((n) => n.remove());
+    txt = c.textContent || "";
+  } catch { txt = el.textContent || ""; }
+  return txt.replace(/\s+/g, " ").trim().slice(0, 58);
+}
+
+// краткое «что я здесь получу»: словарь → атрибут → первое предложение секции
+function _describe(el, label) {
+  if (el.getAttribute("data-rail-desc")) return el.getAttribute("data-rail-desc");
+  if (DESC[label]) return DESC[label];
+  const host = el.closest(".card, section, .obs-panel, .pf-panel, .cc-card") || el.parentElement;
+  if (!host) return null;
+  const p = host.querySelector("p, li, .cc-lead, .obs-lead");
+  if (!p) return null;
+  const t = (p.textContent || "").replace(/\s+/g, " ").trim();
+  if (t.length < 12) return null;
+  const cut = t.slice(0, 78);
+  return (t.length > 78 ? cut.replace(/[\s,;:.–-]+\S*$/, "") + "…" : cut);
+}
+
+// контейнер прокрутки: у платформы контент местами скроллится не окном
+function _scrollHost(el) {
+  let n = el && el.parentElement;
+  while (n && n !== document.body) {
+    const st = getComputedStyle(n);
+    if (/(auto|scroll)/.test(st.overflowY) && n.scrollHeight > n.clientHeight + 4) return n;
+    n = n.parentElement;
+  }
+  return null; // окно
 }
 
 export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, deps = [], containerRef = null }) {
@@ -51,6 +76,7 @@ export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, dep
   });
   const [narrow, setNarrow] = useState(() => typeof window !== "undefined" && window.innerWidth <= 1180);
   const listRef = useRef(null);
+  const hostRef = useRef(null);
 
   useEffect(() => {
     const onR = () => setNarrow(window.innerWidth <= 1180);
@@ -69,13 +95,12 @@ export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, dep
       const its = [];
       for (const el of els) {
         const label = _cleanLabel(el);
-        if (!label || seen.has(label)) continue;
+        if (!label || label.length < 3 || seen.has(label)) continue;
         seen.add(label);
-        its.push({
-          label,
-          desc: el.getAttribute("data-rail-desc") || DESC[label] || null,
-          top: el.getBoundingClientRect().top + window.scrollY,
-        });
+        // храним ЭЛЕМЕНТ: позиции читаются на лету. Кэш top ломался, когда
+        // данные дорисовывались после сборки списка — рейл замирал (владелец
+        // 2026-08-10: «при пролистывании ничего не происходит, клик не ведёт»)
+        its.push({ label, desc: _describe(el, label), el });
       }
       setItems(its.length >= minCount ? its : []);
     };
@@ -86,28 +111,43 @@ export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, dep
     return () => { cancelled = true; clearTimeout(t1); clearTimeout(t2); if (ro) ro.disconnect(); };
   }, deps); // eslint-disable-line
 
-  // резервируем место под рейл на body — контент никогда не перекрывается
+  // Резерв места — на КОНТЕЙНЕРЕ страницы, не на body: padding на body сжимал
+  // и верхнюю навигацию платформы (владелец 2026-08-10: «сайдбар съехал»).
   const visible = items.length > 0 && !narrow;
   useEffect(() => {
-    if (!visible) { document.body.style.paddingRight = ""; return; }
-    document.body.style.paddingRight = (hidden ? W_MIN : W_OPEN) + "px";
-    return () => { document.body.style.paddingRight = ""; };
-  }, [visible, hidden]);
+    const host = items.length
+      ? (items[0].el.closest(".cc-root, .obs-main, .pf-main, .mkt-main, .mk-screen, .sc-screen, .app-main-top") || null)
+      : null;
+    if (!visible || !host) return undefined;
+    const prev = host.style.paddingRight;
+    host.style.paddingRight = (hidden ? W_MIN : W_OPEN) + "px";
+    return () => { host.style.paddingRight = prev; };
+  }, [visible, hidden, items]);
 
   useEffect(() => {
-    if (!items.length) return;
+    if (!items.length) return undefined;
+    const host = _scrollHost(items[0].el);
+    hostRef.current = host;
     const onScroll = () => {
-      const doc = document.documentElement;
-      const denom = doc.scrollHeight - window.innerHeight;
-      setProgress(denom > 0 ? Math.min(1, window.scrollY / denom) : 0);
-      const anchor = window.scrollY + window.innerHeight * 0.33;
+      const vh = host ? host.clientHeight : window.innerHeight;
+      const sTop = host ? host.scrollTop : window.scrollY;
+      const sH = host ? host.scrollHeight : document.documentElement.scrollHeight;
+      const denom = sH - vh;
+      setProgress(denom > 4 ? Math.min(1, Math.max(0, sTop / denom)) : 0);
+      // позиция секции относительно вьюпорта — на лету, без кэша
+      const line = vh * 0.33 + (host ? host.getBoundingClientRect().top : 0);
       let a = 0;
-      items.forEach((it, i) => { if (it.top <= anchor) a = i; });
+      items.forEach((it, i) => {
+        const r = it.el.getBoundingClientRect();
+        if (r.top <= line) a = i;
+      });
       setActive(a);
     };
     onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const target = host || window;
+    target.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => { target.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); };
   }, [items]);
 
   useEffect(() => {
@@ -146,7 +186,12 @@ export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, dep
         <ol className="srail-list">
           {items.map((it, i) => (
             <li key={it.label} className={"srail-li" + (i === active ? " on" : i < active ? " done" : "")}>
-              <button type="button" onClick={() => window.scrollTo({ top: it.top - 76, behavior: reduced ? "auto" : "smooth" })}>
+              <button type="button" onClick={() => {
+                const host = hostRef.current;
+                const behavior = reduced ? "auto" : "smooth";
+                if (host) host.scrollTo({ top: host.scrollTop + it.el.getBoundingClientRect().top - host.getBoundingClientRect().top - 20, behavior });
+                else window.scrollTo({ top: window.scrollY + it.el.getBoundingClientRect().top - 84, behavior });
+              }}>
                 <span className="srail-name">{it.label}</span>
                 {it.desc && <span className="srail-gain">{it.desc}</span>}
               </button>

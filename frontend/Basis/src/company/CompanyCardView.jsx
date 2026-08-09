@@ -1866,6 +1866,8 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
 
   return (
     <div className="icard">
+      {/* содержание страницы (design/ScrollRail) — карточки инструментов */}
+      <ScrollRail selector='[data-rail], .icard h2, .icard h3' minCount={3} deps={[secid]} />
       <button onClick={onBack} className="ic-back">
         <ChevronRight size={13} className="tw-rotate-180" /> К списку облигаций
       </button>
@@ -2380,6 +2382,8 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
 
   return (
     <div className="icard">
+      {/* содержание страницы (design/ScrollRail) — карточки инструментов */}
+      <ScrollRail selector='[data-rail], .icard h2, .icard h3' minCount={3} deps={[secid]} />
       <button onClick={onBack} className="ic-back">
         <ChevronRight size={13} className="tw-rotate-180" /> К списку фьючерсов
       </button>
@@ -2653,6 +2657,8 @@ const FundCard = ({ secid, onBack }) => {
 
   return (
     <div className="icard">
+      {/* содержание страницы (design/ScrollRail) — карточки инструментов */}
+      <ScrollRail selector='[data-rail], .icard h2, .icard h3' minCount={3} deps={[secid]} />
       <button onClick={onBack} className="ic-back">
         <ChevronRight size={16} className="tw-rotate-180" /> К списку фондов
       </button>

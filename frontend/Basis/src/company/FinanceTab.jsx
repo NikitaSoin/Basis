@@ -10,6 +10,7 @@
    (заповедник). Служебные поля (data_flags, технические *_note) в UI не выводятся;
    честные оговорки методов сохранены. Работает для любой компании. */
 import React, { useState, useEffect, useRef } from "react";
+import { ScrollRail } from "../design/ScrollRail";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import "../styles/finance.css";
@@ -73,6 +74,8 @@ function BarChart({ data, color, fmt }) {
   const showLabel = (i) => n <= 6 || i === 0 || i === n - 1;
   return (
     <svg viewBox={`0 0 ${w} ${h}`} width="100%" style={{ display: "block", overflow: "visible" }}>
+      {/* содержание вкладки «Финансы и оценка» */}
+      <ScrollRail selector='[data-rail], h2, h3' minCount={4} />
       {xs.map((v, i) => {
         const bh = 5 + ((v - mn) / r) * plotH, x = xi(i), y = h - pB - bh, last = i === n - 1;
         return <rect key={i} x={(x - bw / 2).toFixed(1)} y={y.toFixed(1)} width={bw.toFixed(1)} height={bh.toFixed(1)} rx="2" fill={color} fillOpacity={last ? 1 : 0.32} />;
