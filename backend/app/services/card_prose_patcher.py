@@ -403,6 +403,35 @@ def _apply_and_gate(prose: str, result: dict, signal_text: str,
 
 
 # ----------------------------- ПРОГОН (общее ядро) -----------------------------
+def _sector_bridge(db: Session, ticker: str, tab: str) -> str:
+    """Методичка «макро → сектор» под сектор ЭТОЙ компании (владелец, 2026-08-09).
+
+    Патчер меняет живой разбор карточки, и без моста он правит текст «по смыслу
+    новости»: ставка выросла — «давление на бизнес». С мостом у него под рукой
+    ступени сектора (драйвер → операционная метрика → unit economics → P&L) и
+    сводные чувствительности, то есть правка становится содержательной.
+
+    Сектор берём ИЗ БАЗЫ, а не из meta карточки: в файлах 97 разных значений против
+    13 чистых в companies.sector, и у 35 компаний они противоречат друг другу
+    (см. память проекта). Вкладки — те, где сектор реально работает.
+    """
+    if tab not in ("macro", "market", "business"):
+        return ""
+    try:
+        from sqlalchemy import text as _sql
+        row = db.execute(_sql("SELECT sector FROM companies WHERE ticker = :t"),
+                         {"t": ticker.upper()}).first()
+        sector = row[0] if row else None
+        if not sector:
+            return ""
+        from app.services.macro_sector_playbook import for_sector
+        return for_sector(sector)
+    except Exception:  # noqa: BLE001 — правка важнее приложения к промпту
+        logger.warning("патчер: мост «макро → сектор» не приложен для %s", ticker,
+                       exc_info=True)
+        return ""
+
+
 def _run_patch(db: Session, ticker: str, tab: str, *, sys: str, task_builder,
                grounding_text: str, kind: str, source_signal_id: int | None = None,
                evidence_extra: dict | None = None,
@@ -418,6 +447,12 @@ def _run_patch(db: Session, ticker: str, tab: str, *, sys: str, task_builder,
     # прозу вместо JSON — боевой сбой). Прямой complete вместо tool-loop: патчеру
     # инструменты почти не нужны (grounding — в задаче), а json_mode устойчивее.
     from app.services.llm import complete, LLMError
+    bridge = _sector_bridge(db, ticker, tab)
+    if bridge:
+        sys = (sys + "\n\nНиже — методичка платформы по сектору этой компании. "
+               "Правку формулируй по ней: называй ступень (отраслевой драйвер → "
+               "операционная метрика → unit economics → P&L) и конкретную метрику "
+               "сектора, а не общее «давление на бизнес».\n\n" + bridge)
     stopped = "final"
     try:
         result = complete(sys, task_builder(prose), json_mode=True,

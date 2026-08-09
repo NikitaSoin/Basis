@@ -739,6 +739,22 @@ def debug_seed_inflation_yoy_jul27_2026():
         db.close()
 
 
+@router.get("/debug/sector-playbook")
+def debug_sector_playbook(sector: str | None = None):
+    """Мост «макро → сектор»: доехала ли методичка до рантайма и что из неё берут
+    выпуск Обозревателя и патчер карточек.
+
+    🔴 Нужен именно на бою: файл лежит в docs/, а в образ приложения попадает не всё —
+    молчаливое «методичка не найдена» выглядело бы как «агент просто пишет хуже»."""
+    from app.services.macro_sector_playbook import available, core, for_sector
+    out = available()
+    out["core_chars"] = len(core())
+    if sector:
+        block = for_sector(sector)
+        out["sector"] = {"name": sector, "chars": len(block), "head": block[:400]}
+    return out
+
+
 @router.post("/debug/trigger-weekly-inflation-watch")
 def debug_trigger_weekly_inflation_watch(force: bool = False, backfill_weeks: int = 3):
     """Ручной прогон целевого ловца недельной инфляции (macro_weekly_watch.py) —
