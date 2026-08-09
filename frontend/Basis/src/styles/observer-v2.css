@@ -7024,14 +7024,24 @@ details[open] > summary .obs-inst-chev,
   background: var(--bg-elevated);
   overflow: hidden;
 }
+/* 🔴 Шапка отраслевой карточки — КОЛОНКА, а не строка. Была строка с переносом:
+   балл, название, направление и фраза сваливались в одну ленту, и экран читался
+   как список ярлыков. Теперь три яруса: идентичность (балл+название+динамика) →
+   шкала → вердикт и цифры. Владелец 2026-08-09: блок должен передавать, что
+   происходит на рынке, а не только его название. */
 .obs-sector-head {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 13px 15px;
+  cursor: pointer;
+  list-style: none;
+}
+.obs-sector-top {
   display: flex;
   align-items: baseline;
   gap: 10px;
   flex-wrap: wrap;
-  padding: 11px 14px;
-  cursor: pointer;
-  list-style: none;
 }
 .obs-sector-head::-webkit-details-marker { display: none; }
 .obs-sector[open] .obs-sector-head {
@@ -7039,11 +7049,60 @@ details[open] > summary .obs-inst-chev,
 }
 .obs-sector-score {
   font-family: var(--font-mono);
-  font-size: 16px;
+  font-size: 19px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
-  min-width: 28px;
+  min-width: 42px;
+  letter-spacing: -0.02em;
+}
+/* «/5» мелко рядом с баллом: без шкалы «3,5» не значит ничего, а с ней читается
+   сразу. Цвет — только в данных, поэтому окрашивается сам балл, не хром. */
+.obs-sector-score i { font-size: 11px; font-style: normal; color: var(--text-tertiary); }
+.obs-sector-score--worse { color: var(--down); }
+.obs-sector-score--better { color: var(--up); }
+
+/* Полоса положения на шкале 1-5. Даёт «где мы» без чтения числа. */
+.obs-sector-scale {
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-subtle);
+  overflow: hidden;
+}
+.obs-sector-scale i {
+  display: block;
+  height: 100%;
+  background: var(--text-tertiary);
+  border-radius: 2px;
+}
+.obs-sector-scale i.is-worse { background: var(--down); }
+.obs-sector-scale i.is-better { background: var(--up); }
+
+/* Цифры рынка — моноширинные и на поверхности: это факты, а не проза. */
+.obs-sector-nums {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg-subtle, rgba(0,0,0,0.03));
+  border-radius: 6px;
+  padding: 6px 9px;
+}
+.obs-sector-deals,
+.obs-sector-env {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.obs-sector-deals b,
+.obs-sector-env b { color: var(--text-tertiary); font-weight: 700; }
+/* Связка со средой — отбивка слева: это мостик в соседний раздел, а не ещё одна
+   строка вердикта. */
+.obs-sector-env {
+  border-left: 2px solid var(--accent);
+  padding-left: 9px;
 }
 .obs-sector-label {
   font-family: var(--font-serif);
@@ -7066,10 +7125,10 @@ details[open] > summary .obs-inst-chev,
   padding: 1px 7px;
 }
 .obs-sector-headline {
-  flex: 1 1 260px;
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--text-secondary);
+  font-family: var(--font-serif);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text-primary);
 }
 .obs-sector-body {
   padding: 12px 14px 14px;

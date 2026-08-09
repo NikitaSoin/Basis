@@ -2122,19 +2122,42 @@ function ObsSectorCard({ s }) {
   const worse = /ухудш/i.test(s.direction || "");
   const better = /улучш/i.test(s.direction || "");
   const lowConf = /низк/i.test(s.confidence || "");
+  const score = Number(s.score);
+  // Балл — не украшение, а шкала: 1 кризис, 3 норма, 5 подъём. Полоса показывает
+  // положение на ней сразу, без чтения числа.
+  const fill = Math.max(0, Math.min(100, ((score - 1) / 4) * 100));
   return (
     <details className="obs-sector">
       <summary className="obs-sector-head">
-        <span className="obs-sector-score">{s.score}</span>
-        <span className="obs-sector-label">{s.label}</span>
-        <span className={`obs-sector-dir${worse ? " obs-sector-dir--worse" : better ? " obs-sector-dir--better" : ""}`}>
-          {s.direction}
+        <span className="obs-sector-top">
+          <span className={`obs-sector-score${worse ? " obs-sector-score--worse" : better ? " obs-sector-score--better" : ""}`}>
+            {s.score}<i>/5</i>
+          </span>
+          <span className="obs-sector-label">{s.label}</span>
+          <span className={`obs-sector-dir${worse ? " obs-sector-dir--worse" : better ? " obs-sector-dir--better" : ""}`}>
+            {worse ? "▼ " : better ? "▲ " : ""}{s.direction}
+          </span>
+          {/* «мало данных» — предупреждение, а не украшение: по части отраслей нет
+              ни свежей отчётности, ни цен, и честнее это назвать. */}
+          {lowConf && <span className="obs-sector-conf">мало данных</span>}
         </span>
-        {/* «мало данных» показываем только когда уверенность низкая — это
-            предупреждение, а не украшение: по части отраслей у нас нет ни
-            свежей отчётности, ни цен, и честнее это назвать. */}
-        {lowConf && <span className="obs-sector-conf">мало данных</span>}
+        <span className="obs-sector-scale" aria-hidden="true">
+          <i style={{ width: `${fill}%` }} className={worse ? "is-worse" : better ? "is-better" : ""} />
+        </span>
         <span className="obs-sector-headline">{s.headline}</span>
+        {/* 🔴 Цифры рынка и сделки — НА ПОВЕРХНОСТИ, без клика. Владелец (2026-08-09):
+            блок должен передавать, что происходит на рынке, как он растёт, что за
+            объёмами и ценами, есть ли крупные сделки. Раньше всё это лежало под
+            катом, и экран читался как список ярлыков без содержания. */}
+        {s.market_numbers && (
+          <span className="obs-sector-nums">{s.market_numbers}</span>
+        )}
+        {s.deals && (
+          <span className="obs-sector-deals"><b>Сдвиги в отрасли.</b> {s.deals}</span>
+        )}
+        {s.env_link && (
+          <span className="obs-sector-env"><b>Связка со средой.</b> {s.env_link}</span>
+        )}
       </summary>
       <div className="obs-sector-body">
         {s.what_happens && <p className="obs-sector-what">{s.what_happens}</p>}
