@@ -1358,7 +1358,14 @@ def market_macro_digest(limit: int = Query(30, ge=1, le=100), db: Session = Depe
     МЫ сохранили) — фронт показывает статьи вперемешку с записками ЦБ/ЦМАКП в
     одной ленте, отсортированной по дате, и created_at ломал бы порядок."""
     from app.models.geo_digest import GeoDigestArticle
+    from app.services.company_signals import INTERNAL_SOURCE_KEYS
+    # 🔴 Тот же фильтр internal-only, что у гео/институтов/бизнеса (владелец,
+    # 2026-08-09: «в макроэкономике убери moi_misli_vslukh и The Bell»). Из четырёх
+    # дайджестов он стоял в трёх, и ровно здесь его не было: на бою 18 из 40 статей
+    # публичного просмотра приходили с инсайд-канала и от иноагента. Источники
+    # остаются во ВХОДНОМ потоке (сигналы, барометры) — публикации нет.
     pool = (db.query(GeoDigestArticle).filter_by(target="macro")
+           .filter(GeoDigestArticle.source_key.notin_(INTERNAL_SOURCE_KEYS))
            .order_by(GeoDigestArticle.published_at.desc().nullslast(),
                      GeoDigestArticle.created_at.desc())
            .limit(limit * 4).all())
