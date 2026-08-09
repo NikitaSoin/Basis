@@ -11,7 +11,8 @@ import "../styles/scroll-rail.css";
 // (v2 наезжала на цену карточки). ≤1180px рейл не рендерится вовсе.
 // =========================
 
-const W_OPEN = 248, W_MIN = 30;
+const W_MIN = 30;
+const openWidth = () => (typeof window !== "undefined" && window.innerWidth <= 1520 ? 202 : 248);
 
 // описания «что я получу» для известных блоков платформы (fallback — без описания)
 const DESC = {
@@ -125,7 +126,7 @@ export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 3, dep
       : null;
     if (!visible || !host) return undefined;
     const prev = host.style.paddingRight;
-    host.style.paddingRight = (hidden ? W_MIN : W_OPEN) + "px";
+    host.style.paddingRight = (hidden ? W_MIN : openWidth()) + "px";
     return () => { host.style.paddingRight = prev; };
   }, [visible, hidden, items]);
 
