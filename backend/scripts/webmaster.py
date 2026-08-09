@@ -50,23 +50,42 @@ def _token() -> str:
     return t
 
 
-def call(path: str, method: str = "GET", body: dict | None = None):
+def call(path: str, method: str = "GET", body: dict | None = None, _tries: int = 4):
+    """🔴 Сетевой сбой ретраим ЗДЕСЬ, а не в вызывающем коде.
+
+    Дважды (2026-08-09 и 2026-08-10) отправка на переобход умирала с трейсбеком от
+    urllib «Tunnel connection failed: 503» — канал до api.webmaster.yandex.net рвётся
+    произвольно. Первый раз я обвязал ретраями сам цикл рассылки, и назавтра оно упало
+    снова, но уже в подготовке (host_id / чтение очереди) — то есть в местах, которые
+    обвязка не покрывала. Правильное место одно: единственная точка, через которую
+    ходят ВСЕ запросы. Ошибку API (HTTPError) по-прежнему не ретраим — она осмысленная.
+    """
     url = f"{API}{path}"
     data = json.dumps(body).encode() if body is not None else None
-    req = urllib.request.Request(url, data=data, method=method, headers={
-        "Authorization": f"OAuth {_token()}",
-        "Content-Type": "application/json",
-    })
-    try:
-        with urllib.request.urlopen(req, timeout=40) as r:
-            return json.loads(r.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        detail = e.read().decode("utf-8", "replace")[:400]
-        print(f"Ошибка API {e.code}: {detail}")
-        # 401/403 почти всегда означают протухший токен или нехватку прав, а не поломку
-        if e.code in (401, 403):
-            print("Похоже на проблему с токеном: истёк или выдан без прав Вебмастера.")
-        sys.exit(1)
+    for attempt in range(_tries):
+        # 🔴 Request СОБИРАЕМ ЗАНОВО на каждой попытке. urllib мутирует объект в процессе
+        # обработки (host/selector/прокси-туннель), и повторная отправка того же экземпляра
+        # даёт покорёженный адрес — «https:/api//api.webmaster.yandex.net/...» и HTTP 400
+        # «Ambiguous URI empty segment». Ровно так вторая попытка убила рассылку на 116-м
+        # адресе, хотя первые 115 ушли нормально.
+        req = urllib.request.Request(url, data=data, method=method, headers={
+            "Authorization": f"OAuth {_token()}",
+            "Content-Type": "application/json",
+        })
+        try:
+            with urllib.request.urlopen(req, timeout=40) as r:
+                return json.loads(r.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode("utf-8", "replace")[:400]
+            print(f"Ошибка API {e.code}: {detail}")
+            # 401/403 почти всегда означают протухший токен или нехватку прав, а не поломку
+            if e.code in (401, 403):
+                print("Похоже на проблему с токеном: истёк или выдан без прав Вебмастера.")
+            sys.exit(1)
+        except urllib.error.URLError as e:
+            if attempt == _tries - 1:
+                sys.exit(f"Связь с Вебмастером не поднялась за {_tries} попытки: {e}")
+            time.sleep(2 * (attempt + 1))
 
 
 def host_id() -> str:
