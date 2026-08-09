@@ -259,6 +259,10 @@ def audit(card, ticker):
     # объявила «прикидкой» всю Роснефть — она отчитывается в миллиардах, и в наших
     # миллионах её точные числа законно кратны сотне (20 000 000 = 8 значащих цифр).
     for name, vals in named.items():
+        # Уставный капитал и эмиссионный доход годами стоят на месте и часто выражаются
+        # круглым числом по самой своей природе — «грубыми» их считать нельзя.
+        if any(h in name for h in STATIC_HINTS):
+            continue
         nums = [v for v in vals if isinstance(v, (int, float)) and abs(v) >= 100]
         if len(nums) < 4:
             continue
