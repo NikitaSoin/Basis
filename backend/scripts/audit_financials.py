@@ -117,12 +117,18 @@ def audit(card, ticker):
     # включая вложенные (у небанков детализация лежит в current_assets/equity и т.д.).
     # Ограничиваться пятью верхнеуровневыми было мало: копии прятались в деталях.
     named = {}
+    explained = set()          # ряды, у которых на карточке есть пояснение `<ряд>_note`
 
     def collect(node, prefix=""):
         if not isinstance(node, dict):
             return
         for key, val in node.items():
             if key.endswith("note"):
+                # `capex_note` объясняет ряд `capex`: значит случай уже разобран человеком,
+                # и поднимать его снова — это гонять один и тот же вопрос по кругу
+                base = key[:-5].rstrip("_")
+                if base:
+                    explained.add(f"{prefix}{base}")
                 continue
             name = f"{prefix}{key}"
             if isinstance(val, list) and any(isinstance(x, (int, float)) for x in val):
@@ -146,7 +152,7 @@ def audit(card, ticker):
     # обычным неизменным гудвилом).
     STATIC_HINTS = ("share_capital", "additional_paid_in", "share_premium", "treasury", "goodwill")
     for name, vals in named.items():
-        if any(h in name for h in RATIO_HINTS) or any(h in name for h in STATIC_HINTS):
+        if any(h in name for h in RATIO_HINTS) or any(h in name for h in STATIC_HINTS) or name in explained:
             continue
         # Значение, стоящее в ТРЁХ и более годах, — это постоянная статья (у Глобалтрака так
         # выглядит «прочий капитал», неизменный пять лет подряд), а не перенесённая история.
@@ -165,6 +171,8 @@ def audit(card, ticker):
 
     # 4. разъехавшиеся единицы (скачок ровно на три порядка и обратно)
     for name, vals in named.items():
+        if name in explained:
+            continue
         for i in range(1, n):
             a, b = vals[i - 1], vals[i]
             if not a or not b:
