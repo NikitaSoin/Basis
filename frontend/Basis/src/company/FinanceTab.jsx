@@ -75,7 +75,7 @@ function BarChart({ data, color, fmt }) {
   return (
     <svg viewBox={`0 0 ${w} ${h}`} width="100%" style={{ display: "block", overflow: "visible" }}>
       {/* содержание вкладки «Финансы и оценка» */}
-      <ScrollRail minCount={3} minWidth={1280}
+      <ScrollRail minCount={3}
         selector='[data-rail], .fin-hybrid h2, .fin-hybrid h3, .fin-hybrid .dt, .fin-hybrid .rr-t' />
       {xs.map((v, i) => {
         const bh = 5 + ((v - mn) / r) * plotH, x = xi(i), y = h - pB - bh, last = i === n - 1;

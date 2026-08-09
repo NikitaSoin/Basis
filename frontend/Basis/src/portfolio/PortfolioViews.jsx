@@ -4278,7 +4278,7 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
 
       {/* ---- Light main area ---- */}
       <main className="pf-main" style={{ background: "var(--pf-tan)" }}>
-        <ScrollRail minCount={2} minWidth={1280} deps={[activeSection]}
+        <ScrollRail minCount={2} deps={[activeSection]}
           selector='[data-rail], .pf-sec-title, .pf-main h2, .pf-main h3, .pf-main h4' />
         <MobileSectionBar title={activeZoneLabel} open={drawerOpen} onOpenMenu={() => setDrawerOpen(true)} />
         <div className="pf-topbar">

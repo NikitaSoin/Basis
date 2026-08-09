@@ -101,11 +101,11 @@
 
 /* на средних экранах панель уже — контенту остаётся больше места */
 @media (max-width: 1520px) {
-  .srail { width: 202px; padding-left: 12px; }
+  .srail { width: 194px; padding-left: 10px; }
   .srail-name { font-size: 12px; }
   .srail-gain { font-size: 10px; }
 }
-@media (max-width: 1180px) { .srail, .srail-min { display: none; } }
+@media (max-width: 1080px) { .srail, .srail-min { display: none; } }
 @media (prefers-reduced-motion: reduce) {
   .srail-thread, .srail-li::before, .srail-li button, .srail-min-bar { transition: none; }
 }

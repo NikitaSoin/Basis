@@ -1206,12 +1206,12 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
 
       <main className="mkt-main">
         {tab === "stocks" && stockView === "rows" && (
-          <ScrollRail selector="[data-rail]" minCount={3} minWidth={1280}
+          <ScrollRail selector="[data-rail]" minCount={3}
             title="Секторы рынка" deps={[tab, stockView, sector, stocks.length]} />
         )}
         {/* «Карточки»/«Карта» — сетка без якорей: содержание = сектора-фильтры */}
         {tab === "stocks" && stockView !== "rows" && sectorItems && sectorItems.length >= 4 && (
-          <ScrollRail customItems={sectorItems} title="Секторы рынка" minWidth={1280} />
+          <ScrollRail customItems={sectorItems} title="Секторы рынка" />
         )}
         <div className="mkt-panel mk-screen">
           <MobileSectionBar

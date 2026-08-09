@@ -12,7 +12,7 @@ import "../styles/scroll-rail.css";
 // =========================
 
 const W_MIN = 30;
-const openWidth = () => (typeof window !== "undefined" && window.innerWidth <= 1520 ? 202 : 248);
+const openWidth = () => (typeof window !== "undefined" && window.innerWidth <= 1520 ? 194 : 248);
 
 // описания «что я получу» для известных блоков платформы (fallback — без описания)
 const DESC = {
@@ -71,7 +71,7 @@ function _scrollHost(el) {
 // customItems — готовый список пунктов [{label, desc, onClick, active}] для
 // экранов без секций-заголовков в потоке (Рынок: содержание = сектора рынка,
 // в описании крупные тикеры; клик выбирает сектор). Владелец 2026-08-10.
-export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 3, deps = [], containerRef = null, customItems = null, title = "Содержание", minWidth = 1180 }) {
+export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 3, deps = [], containerRef = null, customItems = null, title = "Содержание", minWidth = 1080 }) {
   const [items, setItems] = useState([]);
   const [active, setActive] = useState(0);
   const [progress, setProgress] = useState(0);

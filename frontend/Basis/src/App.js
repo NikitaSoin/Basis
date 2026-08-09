@@ -354,7 +354,7 @@ function ObserverV2({
       <main className="obs-main" key={inIndexMode ? `index:${indexTicker || "hub"}` : activeSection}>
         {/* Линия-навигация по длинному разделу (design/ScrollRail): секции — из
             заголовков панелей и глубоких карточек; коротким разделам не рисуется */}
-        <ScrollRail minCount={2} minWidth={1280} deps={[activeSection, inIndexMode]}
+        <ScrollRail minCount={2} deps={[activeSection, inIndexMode]}
           selector='[data-rail], .obs-sec-title, .obs-deep-eyebrow, .obs-main h2, .obs-main h3, .obs-main h4, .obs-main [class*="-card-title"], .obs-main [class*="-sec-t"]' />
         <MobileSectionBar
           title={inIndexMode ? "Индексы" : activeSectionLabel}
