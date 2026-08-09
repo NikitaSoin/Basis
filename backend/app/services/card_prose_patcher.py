@@ -106,6 +106,10 @@ _FACT_SYS = """Ты — редактор-факт-чекер платформы 
 кроме самого числа/факта. Если текст уже верен или сигнал не про факт из этого
 текста — confirmed=false.
 
+🔴 БЕЗ ФАМИЛИЙ. В сигнале и в проверке первоисточника могут стоять имена
+должностных лиц и руководителей — в текст карточки они не попадают: пиши нейтрально
+по должности («гендиректор компании», «профильное ведомство»).
+
 🔴 СМОТРИ НА ПОЛЕ «ДОВЕРИЕ» СИГНАЛА.
 • «официальное раскрытие» — можно править как ФАКТ, certainty: "факт".
 • «сообщение СМИ» — НЕЛЬЗЯ подавать как установленный факт. Либо припиши источник
@@ -499,6 +503,54 @@ def _run_patch(db: Session, ticker: str, tab: str, *, sys: str, task_builder,
 
 
 # ----------------------------- ФАКТЫ (дневной, по сигналу) -----------------------------
+_VERIFY_SYS = """Ты — проверяющий редактор. Дан ЗАГОЛОВОК новости о компании и ТЕКСТ
+страницы первоисточника. Ответь строго по тексту страницы, ничего не додумывая.
+
+Ответ — строго JSON:
+{"verdict": "подтверждено" | "не подтверждено" | "обсуждается",
+ "facts": "<конкретика из текста: числа, даты, стороны — одной строкой>",
+ "why": "<1 фраза: на чём основан вердикт>"}
+
+Правила:
+• «подтверждено» — событие СОСТОЯЛОСЬ и текст страницы это прямо говорит;
+• «обсуждается» — переговоры, планы, рекомендация, «может быть», «рассматривается».
+  Это НЕ подтверждение: рекомендация совета — ещё не выплата, переговоры — ещё не
+  сделка;
+• «не подтверждено» — на странице этого нет, страница о другом или недоступна.
+Сомневаешься — «не подтверждено». Ошибка в сторону осторожности здесь дешевле."""
+
+
+def _verify_media_signal(signal) -> dict | None:
+    """Открыть первоисточник и сверить: правда ли то, что в заголовке сигнала.
+
+    Дёшево и по делу: одно открытие страницы и один вызов модели. Свободного поиска
+    здесь нет намеренно — он дестабилизировал агентов (см. card_review_agent), а
+    задача узкая: подтверждает ли КОНКРЕТНАЯ страница КОНКРЕТНОЕ утверждение.
+    """
+    url = signal.source_url or ""
+    if not url.startswith("http"):
+        return {"verdict": "не подтверждено", "why": "нет ссылки на первоисточник"}
+    try:
+        from app.services.agent_web import fetch_document
+        doc = fetch_document(url, max_chars=6000)
+    except Exception as e:  # noqa: BLE001
+        return {"verdict": "не подтверждено", "why": f"источник не открылся ({type(e).__name__})"}
+    text_ = (doc or {}).get("text") or ""
+    if len(text_) < 200:
+        return {"verdict": "не подтверждено", "why": "страница пустая или недоступна"}
+    from app.services.llm import complete, LLMError
+    try:
+        res = complete(_VERIFY_SYS,
+                       f"ЗАГОЛОВОК НОВОСТИ: {signal.title}\n"
+                       f"КРАТКО: {(signal.summary or '')[:400]}\n\n"
+                       f"ТЕКСТ СТРАНИЦЫ:\n{text_[:6000]}",
+                       json_mode=True, max_tokens=700, temperature=0.1)
+    except LLMError:
+        return {"verdict": "не подтверждено", "why": "проверяющий вызов не прошёл"}
+    return res if isinstance(res, dict) else None
+
+
+
 def run_for_signal(db: Session, signal: CompanySignal, kind: str = "fact") -> CardProseOverlay | None:
     """Один сигнал → факт-патч прозы вкладки. None если нет прозы/уже отражено."""
     ticker = signal.ticker.upper()
@@ -521,12 +573,32 @@ def run_for_signal(db: Session, signal: CompanySignal, kind: str = "fact") -> Ca
             f"Первоисточник: {signal.source_url or '—'}\n\n"
             f"ТЕКСТ РАЗБОРА ВКЛАДКИ (правь точечно find/replace):\n<<<\n{prose[:8000]}\n>>>")
 
+    # 🔴 СИГНАЛ ИЗ СМИ ПЕРЕПРОВЕРЯЕМ (владелец, 2026-08-10: «новости из СМИ окей,
+    # просто агент, который меняет карточки, должен эти вещи перепроверять»).
+    # Официальное раскрытие берём как есть — это первоисточник. А сообщение СМИ
+    # сначала открываем и сверяем: подтверждает ли текст по ссылке то, что написано
+    # в заголовке сигнала, и СОСТОЯЛОСЬ ли событие или только обсуждается.
+    # Не подтвердилось — правку не делаем вовсе: карточка остаётся прежней, а в
+    # эвиденсе видно, почему.
+    check = None
+    if (signal.trust or "") != "official":
+        check = _verify_media_signal(signal)
+        if check and check.get("verdict") == "не подтверждено":
+            logger.info("card_prose_patcher: сигнал %s не подтверждён первоисточником "
+                        "(%s) — правка не делается", signal.id, check.get("why", "")[:90])
+            return None
+
+    grounding = f"{signal.title or ''} {signal.summary or ''}"
+    if check and check.get("facts"):
+        grounding += " " + str(check["facts"])
     return _run_patch(
-        db, ticker, tab, sys=_FACT_SYS + _JSON_ONLY, task_builder=_tb,
-        grounding_text=f"{signal.title or ''} {signal.summary or ''}", kind="fact",
+        db, ticker, tab, sys=_FACT_SYS + _JSON_ONLY,
+        task_builder=lambda prose: _tb(prose, check),
+        grounding_text=grounding, kind="fact",
         source_signal_id=signal.id,
         evidence_extra={"signal_id": signal.id, "source_key": signal.source_key,
-                        "source_url": signal.source_url})
+                        "source_url": signal.source_url,
+                        "trust": signal.trust, "verification": check})
 
 
 def _fact_queue(db: Session) -> list[CompanySignal]:
