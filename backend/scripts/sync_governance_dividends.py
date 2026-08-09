@@ -87,9 +87,28 @@ def main() -> int:
 
         last_date, last_amt = plist[-1]
         pay_year = int(last_date[:4])
-        # дивиденд, выплаченный в году N до осени, почти всегда за год N-1
-        fiscal = pay_year - 1 if int(last_date[5:7]) <= 8 else pay_year
-        row = next((h for h in hist if h.get("year") == fiscal), None)
+        # 🔴 Отчётный год выплаты нельзя определить одной датой. Правило «платёж до
+        # осени = за прошлый год» верно для большинства, но не для всех: Базис
+        # выплатил в июле 2026 дивиденд, который сам же оформил «за 1 кв. 2026», и
+        # эвристика уводила проверку на пустой 2025-й — расхождение попадало в
+        # список «нужен аналитик», хотя карточка была права.
+        # Поэтому сначала СУММА, потом дата: если у одного из двух кандидатных лет
+        # записанный дивиденд сходится с фактическим платежом, это он и есть.
+        by_date = pay_year - 1 if int(last_date[5:7]) <= 8 else pay_year
+        candidates = [by_date, pay_year if by_date != pay_year else pay_year - 1]
+
+        def _close(h) -> bool:
+            try:
+                v = float(h.get("dps"))
+            except (TypeError, ValueError):
+                return False
+            return v > 0 and abs(v - last_amt) / max(v, last_amt) <= 0.15
+
+        row = next((h for h in hist
+                    if h.get("year") in candidates and _close(h)), None)
+        fiscal = row.get("year") if row else by_date
+        if row is None:
+            row = next((h for h in hist if h.get("year") == fiscal), None)
         if row is None:
             skipped.append(f"{ticker}: нет строки за {fiscal} — нужен аналитик "
                            f"(выплата {last_date}, {last_amt:g} ₽)")
