@@ -353,7 +353,7 @@ function ObserverV2({
       <main className="obs-main" key={inIndexMode ? `index:${indexTicker || "hub"}` : activeSection}>
         {/* Линия-навигация по длинному разделу (design/ScrollRail): секции — из
             заголовков панелей и глубоких карточек; коротким разделам не рисуется */}
-        <ScrollRail selector='[data-rail], .obs-deep-eyebrow, .obs-sec-title' deps={[activeSection, inIndexMode]} />
+        <ScrollRail selector='[data-rail], .obs-deep-eyebrow, .obs-sec-title' deps={[activeSection, inIndexMode]} minWidth={1500} />
         <MobileSectionBar
           title={inIndexMode ? "Индексы" : activeSectionLabel}
           open={drawerOpen}

@@ -70,19 +70,19 @@ function _scrollHost(el) {
 // customItems — готовый список пунктов [{label, desc, onClick, active}] для
 // экранов без секций-заголовков в потоке (Рынок: содержание = сектора рынка,
 // в описании крупные тикеры; клик выбирает сектор). Владелец 2026-08-10.
-export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, deps = [], containerRef = null, customItems = null, title = "Содержание" }) {
+export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 4, deps = [], containerRef = null, customItems = null, title = "Содержание", minWidth = 1180 }) {
   const [items, setItems] = useState([]);
   const [active, setActive] = useState(0);
   const [progress, setProgress] = useState(0);
   const [hidden, setHidden] = useState(() => {
     try { return localStorage.getItem("srail.hidden") === "1"; } catch { return false; }
   });
-  const [narrow, setNarrow] = useState(() => typeof window !== "undefined" && window.innerWidth <= 1180);
+  const [narrow, setNarrow] = useState(() => typeof window !== "undefined" && window.innerWidth <= minWidth);
   const listRef = useRef(null);
   const hostRef = useRef(null);
 
   useEffect(() => {
-    const onR = () => setNarrow(window.innerWidth <= 1180);
+    const onR = () => setNarrow(window.innerWidth <= minWidth);
     window.addEventListener("resize", onR);
     return () => window.removeEventListener("resize", onR);
   }, []);

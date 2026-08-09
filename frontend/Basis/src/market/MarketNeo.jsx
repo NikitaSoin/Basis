@@ -440,7 +440,25 @@ function StockCards({ stocks, onOpen, Logo }) {
 }
 function StockRows({ stocks, onOpen, Logo }) {
   if (!stocks.length) return <div className="mk-empty">Ничего не найдено. Измените запрос или сектор.</div>;
-  const sorted = [...stocks].sort((a, b) => (b.mcap || 0) - (a.mcap || 0)); // по капитализации
+  // Лента сгруппирована ПО СЕКТОРАМ (владелец 2026-08-10: «в содержании порядок
+  // не тот, что при листании, и клик не перемещает»): секторы идут по крупнейшей
+  // бумаге, внутри — по капитализации. Заголовок сектора служит якорем для
+  // «Содержания» — порядок и переходы совпадают с тем, что видно на экране.
+  const secRank = {};
+  stocks.forEach((x) => { const k = x.sec || "—"; secRank[k] = Math.max(secRank[k] || 0, x.mcap || 0); });
+  const sorted = [...stocks].sort((a, b) => {
+    const ka = a.sec || "—", kb = b.sec || "—";
+    if (ka !== kb) return (secRank[kb] || 0) - (secRank[ka] || 0);
+    return (b.mcap || 0) - (a.mcap || 0);
+  });
+  const secCount = {};
+  const secTop = {};
+  sorted.forEach((x) => {
+    const k = x.sec || "—";
+    secCount[k] = (secCount[k] || 0) + 1;
+    if ((secTop[k] || []).length < 3) secTop[k] = [...(secTop[k] || []), x.t];
+  });
+  let prevSec = null;
   return (
     <>
       <div className="mk-tablewrap" style={{ marginTop: 18 }}>
@@ -450,8 +468,18 @@ function StockRows({ stocks, onOpen, Logo }) {
             {sorted.map(s => {
               const fv = s.upside == null ? null : Math.round(s.upside), tc = fv == null ? "var(--ink-3)" : fvColor(fv);
               const n = s.conf === "high" ? 3 : s.conf === "medium" ? 2 : 1;
+              const secKey = s.sec || "—";
+              const head = secKey !== prevSec ? secKey : null;
+              if (head) prevSec = secKey;
               return (
-                <tr key={s.t} onClick={() => onOpen(s)} style={{ cursor: "pointer" }}>
+                <React.Fragment key={s.t}>
+                {head && (
+                  <tr className="mk-secrow">
+                    <td colSpan={5} data-rail={head}
+                      data-rail-desc={`${secCount[head]} бумаг · ${(secTop[head] || []).join(", ")}`}>{head}</td>
+                  </tr>
+                )}
+                <tr onClick={() => onOpen(s)} style={{ cursor: "pointer" }}>
                   <td className="l">
                     <div className="mk-row-id">
                       <span className="mk-tonebar" style={{ background: tc }} title="Тон Basis" />
@@ -464,6 +492,7 @@ function StockRows({ stocks, onOpen, Logo }) {
                   <td className="num dim">{money(s.mcap)}</td>
                   <td className="l"><span className="mk-row-tone"><span className="mk-tone-dot" style={{ background: tc }} /><span style={{ color: tc, fontWeight: 600, fontSize: 13, fontFamily: "'JetBrains Mono',monospace" }}>{fv == null ? "—" : (fv > 0 ? "+" : "") + fv + "%"}</span><span className="mk-conf">{[0, 1, 2].map(i => <i key={i} className={i < n ? "on" : ""} />)}</span></span></td>
                 </tr>
+                </React.Fragment>
               );
             })}
           </tbody>
@@ -1176,8 +1205,9 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
       </nav>
 
       <main className="mkt-main">
-        {sectorItems && sectorItems.length >= 4 && (
-          <ScrollRail customItems={sectorItems} title="Секторы рынка" />
+        {tab === "stocks" && stockView === "rows" && (
+          <ScrollRail selector="[data-rail]" minCount={3} minWidth={1500}
+            title="Секторы рынка" deps={[tab, stockView, sector, stocks.length]} />
         )}
         <div className="mkt-panel mk-screen">
           <MobileSectionBar
