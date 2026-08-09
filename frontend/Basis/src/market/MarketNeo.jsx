@@ -444,11 +444,13 @@ function StockRows({ stocks, onOpen, Logo }) {
   // не тот, что при листании, и клик не перемещает»): секторы идут по крупнейшей
   // бумаге, внутри — по капитализации. Заголовок сектора служит якорем для
   // «Содержания» — порядок и переходы совпадают с тем, что видно на экране.
-  const secRank = {};
-  stocks.forEach((x) => { const k = x.sec || "—"; secRank[k] = Math.max(secRank[k] || 0, x.mcap || 0); });
+  // порядок секторов — ТОТ ЖЕ, что в шапке рынка (orderSectors: нефтегаз, финансы,
+  // металлургия…), владелец 2026-08-10: «в содержании нужен наш порядок секторов»
+  const secOrder = orderSectors([...new Set(stocks.map((x) => x.sec || "—"))]);
+  const secIdx = {}; secOrder.forEach((k, i) => { secIdx[k] = i; });
   const sorted = [...stocks].sort((a, b) => {
     const ka = a.sec || "—", kb = b.sec || "—";
-    if (ka !== kb) return (secRank[kb] || 0) - (secRank[ka] || 0);
+    if (ka !== kb) return (secIdx[ka] ?? 99) - (secIdx[kb] ?? 99);
     return (b.mcap || 0) - (a.mcap || 0);
   });
   const secCount = {};
