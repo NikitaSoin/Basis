@@ -107,18 +107,23 @@ def compute(db: Session, year: int | None = None) -> dict:
     mkt_rate = _num(survey.get("Ключевая ставка"))
     if cb_rate is not None and mkt_rate is not None:
         gap = mkt_rate - cb_rate
-        signals.append({"signal": "консенсус аналитиков по ставке против базового пути ЦБ",
-                        "value": f"{mkt_rate:.1f}% против {cb_rate:.1f}%",
+        # 🔴 И у ЦБ, и в макроопросе это СРЕДНЯЯ ЗА ГОД, а не уровень на конец года и не
+        # текущая ставка (владелец, 2026-08-09: «ставка уже 14 процентов» — подпись без
+        # слова „средняя“ читается как сегодняшний уровень и выглядит бредом).
+        signals.append({"signal": "консенсус аналитиков против базового пути ЦБ — "
+                                  "СРЕДНЯЯ ставка за год, не текущий уровень",
+                        "value": f"консенсус {mkt_rate:.1f}% против {cb_rate:.1f}% у ЦБ "
+                                 f"(оба — средняя за {year} год)",
                         "reading": "рынок ждёт более жёсткой политики" if gap > 0.3
                                    else "рынок ждёт более быстрого смягчения" if gap < -0.3
                                    else "совпадает с ЦБ"})
         steps = int(abs(gap) / 0.5)
         if gap > 0.3:
             _shift("proinflation", steps,
-                   f"консенсус по ставке на {gap:.1f} п.п. выше базового пути ЦБ")
+                   f"консенсус по средней за год ставке на {gap:.1f} п.п. выше базового пути ЦБ")
         elif gap < -0.3:
             _shift("disinflation", steps,
-                   f"консенсус по ставке на {abs(gap):.1f} п.п. ниже базового пути ЦБ")
+                   f"консенсус по средней за год ставке на {abs(gap):.1f} п.п. ниже базового пути ЦБ")
 
     # 2. Инфляционный импульс: где идёт годовая инфляция относительно коридора ЦБ
     cb_infl = _num(cb.get("Инфляция"))
@@ -175,8 +180,10 @@ def compute(db: Session, year: int | None = None) -> dict:
         "horizon": f"до конца {year}",
         "scenarios": scen,
         "signals": signals,
-        "market_anchor": {"consensus_rate_pct": _num(survey.get("Ключевая ставка")),
-                          "cb_base_rate_pct": _num(cb.get("Ключевая ставка")),
+        "market_anchor": {"_note": "ставка здесь — СРЕДНЯЯ ЗА ГОД (так публикуют и ЦБ, и "
+                                   "макроопрос), сравнивать с текущим уровнем ставки нельзя",
+                          "consensus_avg_rate_pct": _num(survey.get("Ключевая ставка")),
+                          "cb_base_avg_rate_pct": _num(cb.get("Ключевая ставка")),
                           "consensus_inflation_pct": _num(survey.get("ИПЦ")),
                           "cb_base_inflation_pct": _num(cb.get("Инфляция"))},
         "method": "Рамка — среднесрочный прогноз Банка России (базовый и альтернативные "

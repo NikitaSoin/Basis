@@ -2440,9 +2440,15 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
   // Связка «сценарий → бумаги»: расчёт платформы, не суждение модели. Грузим вместе
   // с оценкой ситуации — блок живёт под сценариями и без них не имеет смысла.
   const [scImpact, setScImpact] = useState(null);
+  // Веса макро-сценариев (считает код: /api/market/macro/scenario-odds)
+  const [scOdds, setScOdds] = useState(null);
   useEffect(() => {
     if (mode !== "assessment" || scImpact !== null) return;
-    fetch(`${apiUrl}/api/market/macro/scenario-impact?top=6`)
+fetch(`${apiUrl}/api/market/macro/scenario-odds`)
+  .then((r) => (r.ok ? r.json() : null))
+  .then((d) => setScOdds(d))
+  .catch(() => {});
+fetch(`${apiUrl}/api/market/macro/scenario-impact?top=6`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => setScImpact(d || {}))
       .catch(() => setScImpact({}));
@@ -2899,6 +2905,7 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                               <details className="obs-inst-details obs-sector-details">
                                 <summary>Разбор<ChevronDown size={14} className="obs-inst-chev" /></summary>
                                 <div className="obs-inst-details-body">
+                                  {s.analysis && <div className="obs-sector-analysis">{s.analysis}</div>}
                                   {s.dispersion && <div className="obs-sector-dispersion">{s.dispersion}</div>}
                                   {s.why_names && <div className="obs-sector-why-names">{s.why_names}</div>}
                                   {s.what_to_watch && (
@@ -2995,8 +3002,10 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                 </div>
               )}
 
-              {/* ТРЕКШЕН: что изменилось с прошлого выпуска и пересмотрели ли мы оценку */}
-              {interpSections.changed_since_last && (
+              {/* 🔴 Убрано с витрины (владелец, 2026-08-09): «с прошлого выпуска…»,
+                  оговорки и триггеры — внутренняя кухня выпуска, читателю она мешает.
+                  Данные продолжают собираться (нужны критику и ревизору), рендер снят. */}
+              {false && interpSections.changed_since_last && (
                 <div className="obs-macro-changed">
                   <Clock size={13} />
                   <span><b>С прошлого выпуска:</b> {interpSections.changed_since_last}</span>
@@ -3005,7 +3014,7 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
 
               {/* ПРОТИВОРЕЧИЯ ВО ВХОДНЫХ СИГНАЛАХ + качество данных (Часть 19.2):
                   методика требует показывать их, а не прятать. */}
-              {(interpSections.contradictions?.length > 0 || interpSections.data_flags?.length > 0) && (
+              {false && (interpSections.contradictions?.length > 0 || interpSections.data_flags?.length > 0) && (
                 <details className="obs-macro-caveats" open={interpSections.contradictions?.length > 0}>
                   <summary>
                     Оговорки: противоречия в сигналах и качество данных
@@ -3030,8 +3039,8 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                 </details>
               )}
 
-              {/* Триггеры (v3) — что подтвердит или сломает картину */}
-              {Array.isArray(interpSections.triggers) && interpSections.triggers.length > 0 && (
+              {/* Триггеры (v3) — убраны с витрины вместе с оговорками (см. выше). */}
+              {false && Array.isArray(interpSections.triggers) && interpSections.triggers.length > 0 && (
                 <div className="obs-inst-checkpoint">
                   <div className="obs-inst-checkpoint-label"><Info size={12} />Что подтвердит или сломает картину</div>
                   {interpSections.triggers.map((w, i) => (
@@ -3060,6 +3069,43 @@ function ObsMacroArticles({ token, onSelectCompany, onOpenPortfolio }) {
                 </div>
               )}
 
+              {/* Сценарии — лестницей, как в геополитике (владелец, 2026-08-09), на
+                  рамке среднесрочного прогноза Банка России. Вероятности считает КОД по
+                  наблюдаемым сигналам (методичка выпуска, 14.6), а не модель на глаз —
+                  поэтому рядом видно, из чего сложился вес. */}
+              {scOdds?.scenarios?.length > 0 && (
+                <div className="obs-inst-card">
+                  <div className="obs-inst-card-title"><GitBranch size={16} />Сценарии · {scOdds.horizon}</div>
+                  <p className="obs-inst-card-sub">
+                    Пути — из среднесрочного прогноза Банка России. Вероятности ЦБ не публикует:
+                    это оценка Basis по наблюдаемым сигналам (консенсус аналитиков, инфляция,
+                    кредит, нефть). Сумма — 100%.
+                  </p>
+                  <ObsBaroLadder
+                    items={scOdds.scenarios.map((sc) => ({ key: sc.key, label: sc.name, pct: sc.probability_pct }))}
+                    currentKey="base"
+                  />
+                  <div className="obs-scen-why">
+                    {scOdds.scenarios.filter((sc) => (sc.why || []).length > 0).map((sc) => (
+                      <div key={sc.key} className="obs-scen-why-row">
+                        <span className="obs-scen-why-name">{sc.name.split(":")[0]}</span>
+                        <span className="obs-scen-why-text">{sc.why.join("; ")}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {scOdds.market_anchor && (
+                    <div className="obs-inst-checkpoint">
+                      <div className="obs-inst-checkpoint-label"><Info size={12} />Что закладывает рынок</div>
+                      <div className="obs-inst-checkpoint-text">
+                        Консенсус аналитиков: ставка {scOdds.market_anchor.consensus_avg_rate_pct}% и
+                        инфляция {scOdds.market_anchor.consensus_inflation_pct}% — против {scOdds.market_anchor.cb_base_avg_rate_pct}%
+                        и {scOdds.market_anchor.cb_base_inflation_pct}% в базовом прогнозе ЦБ.
+                        Ставка здесь — средняя за год, а не текущий уровень.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
               {/* 🔴 Сценарии в этом виде СКРЫТЫ (владелец, 2026-08-09: «сценарии как они
                   сейчас выводятся убрать, сделал бы как в геополитике — лестницей, и брал
                   бы базово сценарии Банка России»). Данные продолжают собираться; вернём
@@ -5549,35 +5595,60 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
 
                 return (
                   <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                    {/* Общий барометр рынка остаётся ТОЛЬКО компактной строкой-фоном:
-                        режим «Весь рынок» убран (владелец 2026-08-01), а 13 показателей
-                        G1-G13 — сквозные оси рынка РФ, не свойство очага, поэтому в
-                        витрине очага им не место (иначе снова «всё замешано»). */}
-                    {(
-                      <div className="obs-baro-compact">
-                        <div className="obs-baro-compact-score" style={{ color: compactTier ? compactTier.color : "var(--text-tertiary)" }}>
-                          {scopeScore != null ? Number(scopeScore).toFixed(1) : "—"}
-                          <span className="obs-baro-compact-score-max">/5</span>
-                        </div>
-                        <div className="obs-baro-compact-meta">
-                          <span className="obs-baro-compact-label">
-                            <Activity size={11} aria-hidden="true" />
-                            {scopeScoreIsOwn ? `Барометр очага «${scopeMeta?.label}»` : "Барометр рынка РФ в целом"}
-                          </span>
-                          {scopeScoreIsOwn && scopeBaro?.label && (
-                            <span className="obs-baro-compact-verdict">{scopeBaro.label}</span>
+                    {/* 🔴 БАРОМЕТР (балл X/5) УБРАН С ВИТРИНЫ (владелец, 2026-08-10:
+                        «убери барометр, не надо его считать, а вверх лучше выведи сразу
+                        сценарии и вероятности»). Балл был экспертным суждением модели
+                        под ограничителями — не расчётом, и как единственное число вверху
+                        экрана он обещал точность, которой за ним нет. Сценарии с
+                        вероятностями говорят то же самое честнее: что может произойти и
+                        с какой оценкой шансов. */}
+                    {/* СЦЕНАРИИ ВЫБРАННОГО ОЧАГА (владелец 2026-08-01: «сценарии
+                        должны быть по каждому очагу отдельно, а не общие — иначе
+                        это какой-то бред, что значит общее»). Раньше здесь висела
+                        лестница S1-S4 из baro.scenario — а это шкала ИМЕННО СВО
+                        (прорыв к миру / перемирие / затяжная война / эскалация),
+                        и для Ближнего Востока с АТР она бессмысленна. Теперь каждый
+                        очаг несёт свой набор (regions.<очаг>.scenarios), см.
+                        backend/app/services/barometer_daily.py::_OUTPUT_SPEC.
+                        Фолбэк: если в барометре ещё старая схема без scenarios у
+                        очага — блок не рисуем вовсе, но общую лестницу СВО поверх
+                        чужого очага НЕ показываем (это и было претензией). */}
+                    {scopeScenarios.length > 0 && (
+                      <div className="obs-inst-card">
+                        <div className="obs-inst-card-title">
+                          <Swords size={16} />
+                          Сценарии · {scopeMeta?.label}
+                          {scopeScenarioMeta?.confidence && (
+                            <span className="obs-inst-scenario-current">уверенность {scopeScenarioMeta.confidence}</span>
                           )}
-                          {/* baro.barometer.label НЕ показываем: это сводный вердикт по
-                              всем очагам сразу («…мирный трек буксует, ближневосточное
-                              перемирие рушится») — на витрине одного очага он снова
-                              приносит рассказ про соседний (владелец 2026-08-01).
-                              Число оставляем: это честный фон рынка, оно не «про СВО». */}
                         </div>
-                        <span className="obs-baro-compact-note">
-                          {scopeScoreIsOwn
-                            ? `Острота по этому очагу${baro.as_of ? ` · срез на ${baro.as_of}` : ""} · 5 = максимальный риск`
-                            : `Своего балла у очага пока нет — показан общий фон рынка${baro.as_of ? ` · срез на ${baro.as_of}` : ""}`}
-                        </span>
+                        <p className="obs-inst-card-sub">
+                          Вероятности — оценка Basis по этому очагу, не прогноз рынка. Сумма по горизонту — 100%.
+                        </p>
+                        <div className="obs-seg" style={{ marginBottom: 14 }}>
+                          <button className={`obs-seg-opt${geoHorizon === "6m" ? " obs-seg-opt--on" : ""}`} onClick={() => setGeoHorizon("6m")}>6 мес.</button>
+                          <button className={`obs-seg-opt${geoHorizon === "18m" ? " obs-seg-opt--on" : ""}`} onClick={() => setGeoHorizon("18m")}>18 мес.</button>
+                        </div>
+                        <ObsBaroLadder items={scopeLadderItems} currentKey={scopeScenarioMeta?.current_lean || null} />
+                        {scopeScenarioNote && (
+                          <p className="obs-inst-card-sub" style={{ maxWidth: "100%", marginTop: 10 }}>{scopeScenarioNote}</p>
+                        )}
+                        {Array.isArray(scopeScenarioMeta?.triggers) && scopeScenarioMeta.triggers.length > 0 && (
+                          <>
+                            <div className="obs-inst-checkpoint">
+                              <div className="obs-inst-checkpoint-label"><Info size={12} />Ближайший триггер пересмотра</div>
+                              <div className="obs-inst-checkpoint-text">{scopeScenarioMeta.triggers[0]}</div>
+                            </div>
+                            {scopeScenarioMeta.triggers.length > 1 && (
+                              <details className="obs-inst-details">
+                                <summary>Другие триггеры ({scopeScenarioMeta.triggers.length - 1})<ChevronDown size={15} className="obs-inst-chev" /></summary>
+                                <div className="obs-inst-details-body">
+                                  {scopeScenarioMeta.triggers.slice(1).map((t, i) => <p key={i}>{t}</p>)}
+                                </div>
+                              </details>
+                            )}
+                          </>
+                        )}
                       </div>
                     )}
 
@@ -5682,56 +5753,6 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                           token={token}
                           activeTheater={scopeKey}
                         />
-                      </div>
-                    )}
-
-                    {/* СЦЕНАРИИ ВЫБРАННОГО ОЧАГА (владелец 2026-08-01: «сценарии
-                        должны быть по каждому очагу отдельно, а не общие — иначе
-                        это какой-то бред, что значит общее»). Раньше здесь висела
-                        лестница S1-S4 из baro.scenario — а это шкала ИМЕННО СВО
-                        (прорыв к миру / перемирие / затяжная война / эскалация),
-                        и для Ближнего Востока с АТР она бессмысленна. Теперь каждый
-                        очаг несёт свой набор (regions.<очаг>.scenarios), см.
-                        backend/app/services/barometer_daily.py::_OUTPUT_SPEC.
-                        Фолбэк: если в барометре ещё старая схема без scenarios у
-                        очага — блок не рисуем вовсе, но общую лестницу СВО поверх
-                        чужого очага НЕ показываем (это и было претензией). */}
-                    {scopeScenarios.length > 0 && (
-                      <div className="obs-inst-card">
-                        <div className="obs-inst-card-title">
-                          <Swords size={16} />
-                          Сценарии · {scopeMeta?.label}
-                          {scopeScenarioMeta?.confidence && (
-                            <span className="obs-inst-scenario-current">уверенность {scopeScenarioMeta.confidence}</span>
-                          )}
-                        </div>
-                        <p className="obs-inst-card-sub">
-                          Вероятности — оценка Basis по этому очагу, не прогноз рынка. Сумма по горизонту — 100%.
-                        </p>
-                        <div className="obs-seg" style={{ marginBottom: 14 }}>
-                          <button className={`obs-seg-opt${geoHorizon === "6m" ? " obs-seg-opt--on" : ""}`} onClick={() => setGeoHorizon("6m")}>6 мес.</button>
-                          <button className={`obs-seg-opt${geoHorizon === "18m" ? " obs-seg-opt--on" : ""}`} onClick={() => setGeoHorizon("18m")}>18 мес.</button>
-                        </div>
-                        <ObsBaroLadder items={scopeLadderItems} currentKey={scopeScenarioMeta?.current_lean || null} />
-                        {scopeScenarioNote && (
-                          <p className="obs-inst-card-sub" style={{ maxWidth: "100%", marginTop: 10 }}>{scopeScenarioNote}</p>
-                        )}
-                        {Array.isArray(scopeScenarioMeta?.triggers) && scopeScenarioMeta.triggers.length > 0 && (
-                          <>
-                            <div className="obs-inst-checkpoint">
-                              <div className="obs-inst-checkpoint-label"><Info size={12} />Ближайший триггер пересмотра</div>
-                              <div className="obs-inst-checkpoint-text">{scopeScenarioMeta.triggers[0]}</div>
-                            </div>
-                            {scopeScenarioMeta.triggers.length > 1 && (
-                              <details className="obs-inst-details">
-                                <summary>Другие триггеры ({scopeScenarioMeta.triggers.length - 1})<ChevronDown size={15} className="obs-inst-chev" /></summary>
-                                <div className="obs-inst-details-body">
-                                  {scopeScenarioMeta.triggers.slice(1).map((t, i) => <p key={i}>{t}</p>)}
-                                </div>
-                              </details>
-                            )}
-                          </>
-                        )}
                       </div>
                     )}
 

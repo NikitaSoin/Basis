@@ -2238,6 +2238,15 @@
 .obs-co-chip:hover { border-color: var(--accent); color: var(--text-primary); }
 .obs-sector-details > summary { font-size: 12px; }
 
+.obs-sector-analysis {
+  font-size: 13px; line-height: 1.65; color: var(--text-secondary); margin-bottom: 8px;
+}
+
+.obs-scen-why { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.obs-scen-why-row { display: flex; gap: 10px; font-size: 12px; line-height: 1.5; }
+.obs-scen-why-name { flex: none; min-width: 108px; font-weight: 700; color: var(--text-secondary); }
+.obs-scen-why-text { color: var(--text-tertiary); }
+
 .obs-scenario-eq {
   margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line);
   display: flex; flex-direction: column; gap: 5px;
