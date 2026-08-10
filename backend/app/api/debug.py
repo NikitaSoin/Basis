@@ -1577,6 +1577,37 @@ def debug_trigger_geo_digest_backfill_strikes(days: int = 7):
         db.close()
 
 
+@router.get("/debug/methodology-status")
+def debug_methodology_status():
+    """Доехали ли методички до контейнера — и какого они размера.
+
+    🔴 Зачем отдельная проверка. Сервисы читают методички по пути от корня
+    РЕПОЗИТОРИЯ (`docs/...`), а образ бэкенда собирается из папки `backend/` —
+    то есть `docs/` в контейнер может не попасть вовсе. Загрузчик при этом не
+    падает: он ловит OSError, пишет предупреждение в лог и возвращает пустую
+    строку. Снаружи это выглядит как нормальная работа — выпуск собирается,
+    эндпоинт отвечает 200, — но аналитический слой работает БЕЗ методики.
+    Проверка возвращает длину: ноль здесь значит «методички нет», а не «всё ок».
+    """
+    import os as _os
+    out = {}
+    try:
+        from app.services.barometer_daily import _METHODOLOGY, _load_methodology
+        out["geopolitics"] = {"path": _METHODOLOGY,
+                              "exists": _os.path.exists(_METHODOLOGY),
+                              "chars": len(_load_methodology())}
+    except Exception as e:  # noqa: BLE001
+        out["geopolitics"] = {"error": str(e)}
+    try:
+        from app.services.macro_interpreter import _methodology
+        out["macro"] = {"chars": len(_methodology() or "")}
+    except Exception as e:  # noqa: BLE001
+        out["macro"] = {"error": str(e)}
+    out["cwd"] = _os.getcwd()
+    out["есть_ли_docs_рядом"] = _os.path.isdir("docs")
+    return out
+
+
 @router.post("/debug/trigger-barometer-daily")
 def debug_trigger_barometer_daily():
     """Ручной запуск ежедневной пересборки ГЕО-барометра (обычно крон 21:50).
