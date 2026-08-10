@@ -323,7 +323,7 @@ def _sector_prices(db: Session, tickers: list[str]) -> list[str]:
 
 
 
-def _sector_financials(db: Session, tickers: list[str], limit: int = 12) -> tuple[list[str], dict]:
+def _sector_financials(db: Session, tickers: list[str], limit: int = 12) -> tuple[list[str], dict, dict]:
     """НАШИ числа по компаниям отрасли: выручка и чистая прибыль последнего года.
 
     🔴 Владелец, 2026-08-10: барометр написал «YDEX — убыток 51 млрд руб.», хотя у нас
@@ -337,6 +337,13 @@ def _sector_financials(db: Session, tickers: list[str], limit: int = 12) -> tupl
     from pathlib import Path
     root = Path(__file__).parent.parent.parent / "companies"
     lines, profits = [], {}
+    # 🔴 Имена нужны ГЕЙТУ (2026-08-11): модель перешла на названия компаний («Яндекс
+    # (полугодовой убыток 51 млрд)»), а проверка искала только тикеры — ложный факт
+    # прошёл насквозь во второй раз, уже другим маршрутом. Проверять надо по обоим
+    # написаниям, иначе гейт ловит лишь тот вариант, который видел при написании.
+    names = {r[0]: (r[1] or "") for r in db.execute(
+        text("SELECT ticker, name FROM companies WHERE ticker = ANY(:t)"),
+        {"t": list(tickers)}).fetchall()} if tickers else {}
     for t in tickers:
         f = root / t / "financials.json"
         if not f.exists():
@@ -363,7 +370,7 @@ def _sector_financials(db: Session, tickers: list[str], limit: int = 12) -> tupl
             trend = " (рост)" if last_p > prev_p else " (снижение)"
         lines.append(f"  {t}: выручка {last_r if last_r is not None else '—'} млн, "
                      f"чистая прибыль {last_p if last_p is not None else '—'} млн{trend}")
-    return lines, profits
+    return lines, profits, names
 
 
 
@@ -463,9 +470,47 @@ def previous(db: Session) -> dict:
 _LOSS_RE = re.compile(r"убыт\w*|в минусе|отрицательн\w+ прибыл\w*", re.I)
 
 
+
+_LEGAL_FORMS = {"МКПАО", "МКАО", "ПАО", "ОАО", "ЗАО", "АО", "ГК", "ООО", "НК", "КБ",
+                "ГМК", "АФК", "Группа", "Холдинг", "Банк", "Компания"}
+
+
+def _aliases(tk: str, names: dict | None) -> list[str]:
+    """Как компания может быть названа в тексте: тикер, полное имя и значимые слова.
+
+    🔴 Юридическая форма отбрасывается: у Яндекса имя «МКПАО Яндекс», и первая версия
+    брала первым словом «МКПАО» — в тексте «Яндекс (полугодовой убыток…)» совпадения не
+    находилось, и ложный факт прошёл гейт во ВТОРОЙ раз, уже через название вместо
+    тикера (2026-08-11).
+    """
+    out = [tk]
+    nm = str((names or {}).get(tk) or "").strip()
+    if nm:
+        out.append(nm)
+        for w in re.split(r"[ ,.()«»\"'\-]+", nm):
+            if len(w) >= 5 and w not in _LEGAL_FORMS:
+                out.append(w)
+    return out
+
+
+def _loss_exempt(tk: str, loss_ok: set[str] | None, names: dict | None) -> bool:
+    """Исключение по свежему убытку — общее для всех классов акций одного эмитента:
+    у Ростелекома убыток подтверждён по RTKM, значит и RTKMP законно называть
+    убыточным (это одна компания, две бумаги)."""
+    lo = loss_ok or set()
+    if tk in lo:
+        return True
+    base = tk[:-1] if tk.endswith("P") else tk
+    if base in lo or base + "P" in lo:
+        return True
+    nm = str((names or {}).get(tk) or "")
+    return any(nm and nm == str((names or {}).get(o) or "") for o in lo)
+
+
 def _check(items: list[dict], allowed: set[str],
            profits: dict[str, float | None] | None = None,
-           loss_ok: set[str] | None = None) -> tuple[list[str], list[str]]:
+           loss_ok: set[str] | None = None,
+           names: dict | None = None) -> tuple[list[str], list[str]]:
     bad, notes = [], []
     # 🔴 Проверка кодом: сказать «убыток» про компанию, у которой в НАШИХ данных
     # прибыль, — не стилистика, а ложный факт о бумаге (владелец, 2026-08-10: «у
@@ -475,12 +520,13 @@ def _check(items: list[dict], allowed: set[str],
         for field in ("headline", "losers", "what_happens", "for_investor"):
             txt = str(s.get(field) or "")
             for tk, prof in (profits or {}).items():
-                if prof is None or prof <= 0 or tk not in txt:
+                if prof is None or prof <= 0 or _loss_exempt(tk, loss_ok, names):
                     continue
-                if tk in (loss_ok or set()):
-                    continue      # квартальный убыток подтверждён отчётностью
-                # ищем слово об убытке рядом с тикером (в пределах 120 знаков)
-                i = txt.find(tk)
+                alias = next((a for a in _aliases(tk, names) if a in txt), None)
+                if not alias:
+                    continue
+                # ищем слово об убытке рядом с упоминанием (в пределах 120 знаков)
+                i = txt.find(alias)
                 around = txt[max(0, i - 60): i + 120]
                 if _LOSS_RE.search(around):
                     msg = (f"{s.get('key')}: «{tk}» назван убыточным, а в наших данных "
@@ -512,6 +558,7 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
     secs = [s for s in SECTORS if s["key"] in keys]
     blocks, allowed = [], set()
     profits: dict[str, float | None] = {}
+    names: dict[str, str] = {}
     loss_ok: set[str] = set()
     for sec in secs:
         tickers = _sector_tickers(db, sec)
@@ -531,8 +578,9 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
         ind = _sector_indicators(db, sec["key"])
         if ind:
             b.append("Показатели отрасли:\n" + "\n".join(ind))
-        fin, profit_map = _sector_financials(db, tickers)
+        fin, profit_map, name_map = _sector_financials(db, tickers)
         profits.update(profit_map)
+        names.update(name_map)
         loss_ok |= _recent_loss_tickers(db, tickers)
         if fin:
             b.append("НАШИ ЧИСЛА по компаниям отрасли (карточки платформы — единый "
@@ -581,7 +629,7 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
     if not isinstance(items, list) or not items:
         return [], [f"батч «{name}»: пустой ответ"]
     items = [s for s in items if isinstance(s, dict) and s.get("key") in keys]
-    bad, notes = _check(items, allowed, profits, loss_ok)
+    bad, notes = _check(items, allowed, profits, loss_ok, names)
     if bad:
         # 🔴 Ремонтный проход (2026-08-10). Без него брак означал «переносим ПРОШЛЫЙ
         # замер» — то есть ровно тот текст, из-за которого батч и забраковали: ложный
@@ -600,7 +648,7 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
             items2 = (out2 or {}).get("sectors") if isinstance(out2, dict) else None
             items2 = [s for s in (items2 or []) if isinstance(s, dict) and s.get("key") in keys]
             if items2:
-                bad2, notes2 = _check(items2, allowed, profits, loss_ok)
+                bad2, notes2 = _check(items2, allowed, profits, loss_ok, names)
                 if not bad2:
                     return items2, [f"батч «{name}»: починен после гейта"] + \
                         [f"батч «{name}»: {n}" for n in notes2]
@@ -634,23 +682,26 @@ def _recent_loss_tickers(db: Session, tickers: list[str], days: int = 180) -> se
     return {r[0] for r in rows if r[1] and _LOSS_RE.search(r[1])}
 
 
-def _all_profits(db: Session, keys: list[str]) -> tuple[dict[str, float | None], set[str]]:
-    """Карта «тикер → годовая прибыль» и тикеры с подтверждённым свежим убытком."""
+def _all_profits(db: Session, keys: list[str]) -> tuple[dict[str, float | None], set[str], dict]:
+    """Карта «тикер → годовая прибыль», тикеры с подтверждённым свежим убытком и имена."""
     out: dict[str, float | None] = {}
     loss_ok: set[str] = set()
+    names: dict[str, str] = {}
     for sec in (s for s in SECTORS if s["key"] in keys):
         try:
             tickers = _sector_tickers(db, sec)
-            _, profits = _sector_financials(db, tickers)
+            _, profits, nm = _sector_financials(db, tickers)
             out.update(profits)
+            names.update(nm)
             loss_ok |= _recent_loss_tickers(db, tickers)
         except Exception:  # noqa: BLE001
             continue
-    return out, loss_ok
+    return out, loss_ok, names
 
 
 def _sanitize_carried(items: list[dict], profits: dict[str, float | None],
-                      loss_ok: set[str] | None = None) -> tuple[list[dict], list[str]]:
+                      loss_ok: set[str] | None = None,
+                      names: dict | None = None) -> tuple[list[dict], list[str]]:
     """Вычистить ложные утверждения из ПЕРЕНЕСЁННЫХ замеров.
 
     🔴 Дыра в собственной защите (2026-08-10): гейт проверяет только свежий ответ
@@ -672,8 +723,9 @@ def _sanitize_carried(items: list[dict], profits: dict[str, float | None],
             kept = []
             for c in parts:
                 bad_clause = any(
-                    tk in c and (profits.get(tk) or 0) > 0 and _LOSS_RE.search(c)
-                    and tk not in (loss_ok or set()) for tk in profits)
+                    (profits.get(tk) or 0) > 0 and not _loss_exempt(tk, loss_ok, names)
+                    and any(a in c for a in _aliases(tk, names)) and _LOSS_RE.search(c)
+                    for tk in profits)
                 if bad_clause:
                     notes.append(f"{item.get('key')}: из перенесённого замера убрано "
                                  f"ложное утверждение — «{c.strip()[:80]}»")
@@ -681,8 +733,9 @@ def _sanitize_carried(items: list[dict], profits: dict[str, float | None],
                     kept.append(c.strip())
             item[field] = "; ".join(kept)
         head = str(item.get("headline") or "")
-        if any(tk in head and (profits.get(tk) or 0) > 0 and _LOSS_RE.search(head)
-               and tk not in (loss_ok or set()) for tk in profits):
+        if any((profits.get(tk) or 0) > 0 and not _loss_exempt(tk, loss_ok, names)
+               and any(a in head for a in _aliases(tk, names)) and _LOSS_RE.search(head)
+               for tk in profits):
             notes.append(f"{item.get('key')}: вердикт перенесённого замера содержал "
                          f"ложный факт — отрасль пропущена")
             drop = True
@@ -712,8 +765,8 @@ def rebuild(db: Session) -> BarometerVersion | None:
         else:
             carried = [prev_map[k] for k in keys if k in prev_map]
             # перенос тоже обязан пройти проверку — см. _sanitize_carried
-            _prof, _lok = _all_profits(db, keys)
-            carried, san_notes = _sanitize_carried(carried, _prof, _lok)
+            _prof, _lok, _nm = _all_profits(db, keys)
+            carried, san_notes = _sanitize_carried(carried, _prof, _lok, _nm)
             notes.extend(san_notes)
             collected.extend(carried)
             if carried:
