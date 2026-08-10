@@ -364,6 +364,39 @@ def audit(card, ticker):
                                        f"значения в три значащие цифры при точных в других годах "
                                        f"(похоже на кусок ряда из другого источника)"))
 
+    # 8б. ДЕТАЛИЗАЦИЯ БОЛЬШЕ СВОЕГО РАЗДЕЛА.
+    # «Прочие» — остаточная корзина: раздел минус известные статьи. Когда в неё попадает
+    # дубль, сумма статей превышает сам раздел — арифметически невозможно, а на экране
+    # выглядит просто «странными числами». Так вскрылось, что у Мосэнергосбыта «прочие
+    # краткосрочные обязательства» повторяли весь итог раздела (1 293 при остатке 68,9),
+    # у Светофора «долгосрочные вложения» дублировали НМА, у ЭЛ5 «краткосрочные вложения» —
+    # часть денежных средств, а у Ламбумиза кредиты стояли завышенными вдвое.
+    if not is_bank:
+        CANON = {
+            "non_current_assets": (["ppe", "intangibles", "goodwill", "long_term_investments",
+                                    "other_non_current"], "total_non_current"),
+            "current_assets": (["inventory", "receivables", "cash", "short_term_investments",
+                                "other_current"], "total_current"),
+            "non_current_liabilities": (["long_term_debt", "deferred_tax",
+                                         "other_non_current_liab"], "total_non_current_liab"),
+            "current_liabilities": (["short_term_debt", "payables",
+                                     "other_current_liab"], "total_current_liab"),
+        }
+        for sec, (keys, tot) in CANON.items():
+            node = bs.get(sec) or {}
+            if not isinstance(node, dict) or node.get(f"{tot}_note"):
+                continue
+            totals = pad(series(node, tot), n)
+            for i, y in enumerate(years):
+                if not isinstance(totals[i], (int, float)) or abs(totals[i]) < 100:
+                    continue
+                vals = [pad(series(node, k), n)[i] for k in keys]
+                vals = [v for v in vals if isinstance(v, (int, float))]
+                if len(vals) < 2 or sum(vals) <= abs(totals[i]) * 1.02:
+                    continue
+                out.append(("!", "деталь>раздела", f"{y}: статьи раздела «{sec}» дают {sum(vals):,.0f} "
+                                                   f"при итоге раздела {totals[i]:,.0f} — что-то посчитано дважды"))
+
     # 9. ЧИСЛО ИЗ ЧУЖОГО ГОДА, но не соседнего.
     # Проверка «копия соседа» ловила сдвиг на год. А у ЯНОСа и Нижнекамскнефтехима ряды
     # были сдвинуты на ДВА года: за 2021-й стояла округлённая выручка 2023-го (41 200 при
