@@ -431,7 +431,9 @@ function StockCards({ stocks, onOpen, Logo }) {
       </div>
       {order.map(g => (
         <section key={g}>
-          <div className="mk-grp-head"><span className="mk-grp-dot" style={{ background: secColor(g) }} />{g}<span className="mk-grp-n">{by[g].length}</span></div>
+          <div className="mk-grp-head" data-rail={g}
+            data-rail-desc={`${by[g].length} бумаг · ${by[g].slice(0, 3).map(x => x.t).join(", ")}`}>
+            <span className="mk-grp-dot" style={{ background: secColor(g) }} />{g}<span className="mk-grp-n">{by[g].length}</span></div>
           <div className="mk-grid mk-grid-stocks">{by[g].map(s => <StockCard key={s.t} s={s} onOpen={onOpen} Logo={Logo} compact={compact} />)}</div>
         </section>
       ))}
@@ -1207,13 +1209,12 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
       </nav>
 
       <main className="mkt-main">
-        {tab === "stocks" && stockView === "rows" && (
+        {/* Один режим для «Карточек» и «Ленты»: якоря на заголовках секторов —
+            порядок как на странице (orderSectors), листание двигает активный пункт,
+            клик перематывает (владелец 2026-08-10, четвёртая итерация) */}
+        {tab === "stocks" && stockView !== "map" && (
           <ScrollRail selector="[data-rail]" minCount={3}
             title="Секторы рынка" deps={[tab, stockView, sector, stocks.length]} />
-        )}
-        {/* «Карточки»/«Карта» — сетка без якорей: содержание = сектора-фильтры */}
-        {tab === "stocks" && stockView !== "rows" && sectorItems && sectorItems.length >= 4 && (
-          <ScrollRail customItems={sectorItems} title="Секторы рынка" />
         )}
         <div className="mkt-panel mk-screen">
           <MobileSectionBar
