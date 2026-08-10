@@ -596,6 +596,13 @@ function ViewToggle({ view, setView }) {
 // «+N ещё в категории» (не тащим все ~1000 «Корпораты — прочие» в DOM разом,
 // но и не обрезаем молча, как было раньше — slice(0,400) без индикации).
 const BOND_GROUP_CAP = 150;
+// склонение при числе — в описаниях «Содержания» («3 выпуска», «1114 выпусков»)
+function plural(n, one, few, many) {
+  const a = Math.abs(n) % 100;
+  const b = a % 10;
+  const w = (a > 10 && a < 20) || b === 0 || b > 4 ? many : b === 1 ? one : few;
+  return `${n} ${w}`;
+}
 function BondsTab({ rows, query, onOpen, Logo }) {
   const compact = useNarrowCards();
   const [coupon, setCoupon] = useState("Любой купон");
@@ -685,7 +692,8 @@ function BondsTab({ rows, query, onOpen, Logo }) {
         const hidden = items.length - shown.length;
         return (
           <div key={g}>
-            <div className="mk-grp-head" style={{ marginTop: 16 }}>{g}<span className="mk-grp-n">{items.length}</span></div>
+            <div className="mk-grp-head" style={{ marginTop: 16 }} data-rail={g}
+              data-rail-desc={`${plural(items.length, "выпуск", "выпуска", "выпусков")} · ${items.slice(0, 3).map(x => x.short_name || x.secid).join(", ")}`}>{g}<span className="mk-grp-n">{items.length}</span></div>
             {view === "cards" ? (
               <div className="mk-grid">{shown.map(renderCard)}</div>
             ) : (
@@ -749,7 +757,8 @@ function FuturesTab({ rows, query, onOpen, Logo }) {
       {!order.length && <div className="mk-tablewrap" style={{ marginTop: 16 }}><div className="mk-empty">Ничего не найдено.</div></div>}
       {order.map(g => (
         <div key={g}>
-          <div className="mk-grp-head" style={{ marginTop: 16 }}>{g}<span className="mk-grp-n">{by[g].length}</span></div>
+          <div className="mk-grp-head" style={{ marginTop: 16 }} data-rail={g}
+            data-rail-desc={`${plural(by[g].length, "контракт", "контракта", "контрактов")} · ${by[g].slice(0, 3).map(x => x.secid).join(", ")}`}>{g}<span className="mk-grp-n">{by[g].length}</span></div>
           {view === "cards" ? (
             <div className="mk-grid">{by[g].map(f => { const chg = futChg(f); return (
               <button key={f.secid} className="mk-card mk-card-asset" onClick={() => onOpen(f.secid)}>
@@ -831,7 +840,8 @@ function FundsTab({ rows, query, onOpen, sparks }) {
       {!order.length && <div className="mk-tablewrap" style={{ marginTop: 16 }}><div className="mk-empty">Ничего не найдено.</div></div>}
       {order.map(g => (
         <div key={g}>
-          <div className="mk-grp-head" style={{ marginTop: 16 }}>{g}<span className="mk-grp-n">{by[g].length}</span></div>
+          <div className="mk-grp-head" style={{ marginTop: 16 }} data-rail={g}
+            data-rail-desc={`${plural(by[g].length, "фонд", "фонда", "фондов")} · ${by[g].slice(0, 3).map(x => x.secid).join(", ")}`}>{g}<span className="mk-grp-n">{by[g].length}</span></div>
           {view === "cards" ? (
             <div className="mk-grid">{by[g].map(f => { const chg = chgOf(f); return (
               <button key={f.secid} className="mk-card mk-card-asset" onClick={() => onOpen(f.secid)}>
@@ -924,8 +934,10 @@ function FxMetalsTab({ rows, onOpen }) {
       <div className="mk-filterbar" style={{ marginTop: 16 }}>
         <ViewToggle view={view} setView={setView} />
       </div>
-      {fx.length > 0 && <><div className="mk-grp-head" style={{ marginTop: 18 }}>Валюты<span className="mk-grp-n">{fx.length}</span></div>{view === "cards" ? <Cards items={fx} dec={3} /> : <List items={fx} dec={3} />}</>}
-      {metals.length > 0 && <><div className="mk-grp-head" style={{ marginTop: 20 }}>Драгметаллы<span className="mk-grp-n">{metals.length}</span></div>{view === "cards" ? <Cards items={metals} dec={2} /> : <List items={metals} dec={2} />}</>}
+      {fx.length > 0 && <><div className="mk-grp-head" style={{ marginTop: 18 }} data-rail="Валюты"
+        data-rail-desc={`${plural(fx.length, "пара", "пары", "пар")} · ${fx.slice(0, 3).map(x => x.secid).join(", ")}`}>Валюты<span className="mk-grp-n">{fx.length}</span></div>{view === "cards" ? <Cards items={fx} dec={3} /> : <List items={fx} dec={3} />}</>}
+      {metals.length > 0 && <><div className="mk-grp-head" style={{ marginTop: 20 }} data-rail="Драгметаллы"
+        data-rail-desc={`${plural(metals.length, "инструмент", "инструмента", "инструментов")} · ${metals.slice(0, 3).map(x => x.secid).join(", ")}`}>Драгметаллы<span className="mk-grp-n">{metals.length}</span></div>{view === "cards" ? <Cards items={metals} dec={2} /> : <List items={metals} dec={2} />}</>}
     </div>
   );
 }
@@ -1215,6 +1227,25 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
         {tab === "stocks" && stockView !== "map" && (
           <ScrollRail selector="[data-rail]" minCount={3}
             title="Секторы рынка" deps={[tab, stockView, sector, stocks.length]} />
+        )}
+        {/* Списки облигаций/фьючерсов/фондов/валюты — то же содержание по группам
+            (владелец 2026-08-11: «открываешь Рынок → Облигации, куча карточек —
+            содержания здесь нет»). Якоря — заголовки категорий .mk-grp-head. */}
+        {tab === "bonds" && (
+          <ScrollRail selector="[data-rail]" minCount={2}
+            title="Категории выпусков" deps={[tab, bonds.length, query]} />
+        )}
+        {tab === "futures" && (
+          <ScrollRail selector="[data-rail]" minCount={2}
+            title="Группы контрактов" deps={[tab, futures.length, query]} />
+        )}
+        {tab === "funds" && (
+          <ScrollRail selector="[data-rail]" minCount={2}
+            title="Категории фондов" deps={[tab, funds.length, query]} />
+        )}
+        {tab === "fx" && (
+          <ScrollRail selector="[data-rail]" minCount={2}
+            title="Валюта и металлы" deps={[tab, spot.length]} />
         )}
         <div className="mkt-panel mk-screen">
           <MobileSectionBar
