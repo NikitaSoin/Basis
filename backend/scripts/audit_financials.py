@@ -364,7 +364,46 @@ def audit(card, ticker):
                                        f"значения в три значащие цифры при точных в других годах "
                                        f"(похоже на кусок ряда из другого источника)"))
 
-    # 8. дыры в ключевых строках
+    # 9. ЧИСЛО ИЗ ЧУЖОГО ГОДА, но не соседнего.
+    # Проверка «копия соседа» ловила сдвиг на год. А у ЯНОСа и Нижнекамскнефтехима ряды
+    # были сдвинуты на ДВА года: за 2021-й стояла округлённая выручка 2023-го (41 200 при
+    # настоящих 41 197), за 2022-й — 2024-го. Отчётности за пропущенные годы не существует
+    # вовсе, и вместо пустоты карточка показывала будущее. Признак: грубое значение почти
+    # равно ТОЧНОМУ значению того же ряда через два-три года.
+    for name, vals in named.items():
+        if name in explained or any(h in name for h in RATIO_HINTS) or any(h in name for h in STATIC_HINTS):
+            continue
+        for i in range(n):
+            a = vals[i]
+            if not isinstance(a, (int, float)) or abs(a) < 100 or sig_digits(a) > 3:
+                continue
+            for gap in (2, 3):
+                j = i + gap
+                if j >= n:
+                    continue
+                b = vals[j]
+                if not isinstance(b, (int, float)) or abs(b) < 100 or sig_digits(b) < 5:
+                    continue
+                if abs(a - b) <= abs(b) * 0.005:
+                    out.append(("!", "чужой-год", f"{name}: за {years[i]} стоит {a:,.0f} — это округлённое "
+                                                  f"значение {years[j]} года ({b:,.1f}); ряд сдвинут"))
+
+    # 10. EBITDA МЕНЬШЕ ОПЕРАЦИОННОЙ ПРИБЫЛИ при положительной амортизации.
+    # EBITDA = операционная прибыль ПЛЮС амортизация, поэтому меньше неё она быть не может.
+    # «Скорректированная» EBITDA законно отличается от суммы — но не в эту сторону.
+    ins_block = card.get("income_statement") or {}
+    if not ins_block.get("ebitda_note"):
+        op = pad(series(ins_block, "operating_profit"), n)
+        da = pad(series(ins_block, "da"), n)
+        eb = pad(series(ins_block, "ebitda"), n)
+        for i, y in enumerate(years):
+            if None in (op[i], da[i], eb[i]) or da[i] <= 0:
+                continue
+            if eb[i] < op[i] - max(abs(op[i]) * 0.01, 1):
+                out.append(("!", "ebitda<ebit", f"{y}: EBITDA {eb[i]:,.0f} меньше операционной прибыли "
+                                                f"{op[i]:,.0f} при амортизации {da[i]:,.0f} — так не бывает"))
+
+    # 11. дыры в ключевых строках
     holes = sum(1 for vals in (ta, tl, te) for v in vals if v is None)
     if holes:
         out.append(("·", "дыры", f"{holes} пустых из {3*n} в строках активы/обязательства/капитал"))
