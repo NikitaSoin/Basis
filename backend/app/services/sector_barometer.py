@@ -337,7 +337,7 @@ def _sector_financials(db: Session, tickers: list[str], limit: int = 12) -> tupl
     from pathlib import Path
     root = Path(__file__).parent.parent.parent / "companies"
     lines, profits = [], {}
-    for t in tickers[:limit * 3]:
+    for t in tickers:
         f = root / t / "financials.json"
         if not f.exists():
             continue
@@ -352,14 +352,17 @@ def _sector_financials(db: Session, tickers: list[str], limit: int = 12) -> tupl
         last_r = next((v for v in reversed(rev) if isinstance(v, (int, float))), None)
         if last_p is None and last_r is None:
             continue
+        # 🔴 Карта прибылей — по ВСЕМ компаниям отрасли, ограничение только на ПОКАЗ.
+        # Первая версия обрывала цикл после 12 строк, и YDEX не попадал в карту вовсе —
+        # гейт молча переставал проверять ровно ту компанию, из-за которой заводился.
         profits[t] = last_p
+        if len(lines) >= limit:
+            continue
         trend = ""
         if last_p is not None and prev_p not in (None, 0):
             trend = " (рост)" if last_p > prev_p else " (снижение)"
         lines.append(f"  {t}: выручка {last_r if last_r is not None else '—'} млн, "
                      f"чистая прибыль {last_p if last_p is not None else '—'} млн{trend}")
-        if len(lines) >= limit:
-            break
     return lines, profits
 
 
@@ -461,7 +464,8 @@ _LOSS_RE = re.compile(r"убыт\w*|в минусе|отрицательн\w+ п
 
 
 def _check(items: list[dict], allowed: set[str],
-           profits: dict[str, float | None] | None = None) -> tuple[list[str], list[str]]:
+           profits: dict[str, float | None] | None = None,
+           loss_ok: set[str] | None = None) -> tuple[list[str], list[str]]:
     bad, notes = [], []
     # 🔴 Проверка кодом: сказать «убыток» про компанию, у которой в НАШИХ данных
     # прибыль, — не стилистика, а ложный факт о бумаге (владелец, 2026-08-10: «у
@@ -473,6 +477,8 @@ def _check(items: list[dict], allowed: set[str],
             for tk, prof in (profits or {}).items():
                 if prof is None or prof <= 0 or tk not in txt:
                     continue
+                if tk in (loss_ok or set()):
+                    continue      # квартальный убыток подтверждён отчётностью
                 # ищем слово об убытке рядом с тикером (в пределах 120 знаков)
                 i = txt.find(tk)
                 around = txt[max(0, i - 60): i + 120]
@@ -506,6 +512,7 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
     secs = [s for s in SECTORS if s["key"] in keys]
     blocks, allowed = [], set()
     profits: dict[str, float | None] = {}
+    loss_ok: set[str] = set()
     for sec in secs:
         tickers = _sector_tickers(db, sec)
         allowed.update(tickers)
@@ -526,6 +533,7 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
             b.append("Показатели отрасли:\n" + "\n".join(ind))
         fin, profit_map = _sector_financials(db, tickers)
         profits.update(profit_map)
+        loss_ok |= _recent_loss_tickers(db, tickers)
         if fin:
             b.append("НАШИ ЧИСЛА по компаниям отрасли (карточки платформы — единый "
                      "источник, они СИЛЬНЕЕ пересказов в ленте):\n" + "\n".join(fin))
@@ -573,7 +581,7 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
     if not isinstance(items, list) or not items:
         return [], [f"батч «{name}»: пустой ответ"]
     items = [s for s in items if isinstance(s, dict) and s.get("key") in keys]
-    bad, notes = _check(items, allowed, profits)
+    bad, notes = _check(items, allowed, profits, loss_ok)
     if bad:
         # 🔴 Ремонтный проход (2026-08-10). Без него брак означал «переносим ПРОШЛЫЙ
         # замер» — то есть ровно тот текст, из-за которого батч и забраковали: ложный
@@ -592,7 +600,7 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
             items2 = (out2 or {}).get("sectors") if isinstance(out2, dict) else None
             items2 = [s for s in (items2 or []) if isinstance(s, dict) and s.get("key") in keys]
             if items2:
-                bad2, notes2 = _check(items2, allowed, profits)
+                bad2, notes2 = _check(items2, allowed, profits, loss_ok)
                 if not bad2:
                     return items2, [f"батч «{name}»: починен после гейта"] + \
                         [f"батч «{name}»: {n}" for n in notes2]
@@ -601,6 +609,86 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
             bad = bad + [f"ремонт не удался: {e}"]
         return [], [f"батч «{name}» отклонён: {b}" for b in bad] + notes
     return items, [f"батч «{name}»: {n}" for n in notes]
+
+
+
+
+
+def _recent_loss_tickers(db: Session, tickers: list[str], days: int = 180) -> set[str]:
+    """Тикеры, у которых в СВЕЖЕЙ отчётности реально есть убыток.
+
+    🔴 Без этой поправки гейт ложно срабатывал (2026-08-10): у Ростелекома квартальный
+    убыток 9,58 млрд — правда, а годовая чистая прибыль в карточке положительная, и
+    проверка «сказал убыток при нашей прибыли» вычёркивала законное утверждение. Годовые
+    и квартальные числа — РАЗНЫЕ периоды, противоречия между ними нет. Поэтому
+    исключение: убыток есть в дайджесте отчётности за последние полгода — слово «убыток»
+    рядом с этим тикером законно.
+    """
+    if not tickers:
+        return set()
+    rows = db.execute(text("""
+        SELECT e.ticker, coalesce(d.one_liner, d.headline, '')
+        FROM earnings_reports e LEFT JOIN earnings_digests d ON d.report_id = e.id
+        WHERE e.ticker = ANY(:t) AND e.published_at > current_date - :d
+    """), {"t": tickers, "d": days}).fetchall()
+    return {r[0] for r in rows if r[1] and _LOSS_RE.search(r[1])}
+
+
+def _all_profits(db: Session, keys: list[str]) -> tuple[dict[str, float | None], set[str]]:
+    """Карта «тикер → годовая прибыль» и тикеры с подтверждённым свежим убытком."""
+    out: dict[str, float | None] = {}
+    loss_ok: set[str] = set()
+    for sec in (s for s in SECTORS if s["key"] in keys):
+        try:
+            tickers = _sector_tickers(db, sec)
+            _, profits = _sector_financials(db, tickers)
+            out.update(profits)
+            loss_ok |= _recent_loss_tickers(db, tickers)
+        except Exception:  # noqa: BLE001
+            continue
+    return out, loss_ok
+
+
+def _sanitize_carried(items: list[dict], profits: dict[str, float | None],
+                      loss_ok: set[str] | None = None) -> tuple[list[dict], list[str]]:
+    """Вычистить ложные утверждения из ПЕРЕНЕСЁННЫХ замеров.
+
+    🔴 Дыра в собственной защите (2026-08-10): гейт проверяет только свежий ответ
+    модели, а при браке код подставляет ПРОШЛЫЙ замер — то есть ровно тот текст, из-за
+    которого батч и забраковали. На витрине это выглядело так, будто починка не
+    сработала: «YDEX — убыток 51 млрд» продолжал висеть после двух пересборок.
+    Теперь перенос тоже проходит проверку: клауза с ложным убытком вырезается, а если
+    заражён сам вердикт — отрасль в выпуск не идёт (честнее, чем повторять ложь).
+    """
+    out, notes = [], []
+    for it in items:
+        item = dict(it)
+        drop = False
+        for field in ("losers", "what_happens", "for_investor", "winners"):
+            txt = str(item.get(field) or "")
+            if not txt:
+                continue
+            parts = [c for c in re.split(r"[;•]\s*", txt) if c.strip()]
+            kept = []
+            for c in parts:
+                bad_clause = any(
+                    tk in c and (profits.get(tk) or 0) > 0 and _LOSS_RE.search(c)
+                    and tk not in (loss_ok or set()) for tk in profits)
+                if bad_clause:
+                    notes.append(f"{item.get('key')}: из перенесённого замера убрано "
+                                 f"ложное утверждение — «{c.strip()[:80]}»")
+                else:
+                    kept.append(c.strip())
+            item[field] = "; ".join(kept)
+        head = str(item.get("headline") or "")
+        if any(tk in head and (profits.get(tk) or 0) > 0 and _LOSS_RE.search(head)
+               and tk not in (loss_ok or set()) for tk in profits):
+            notes.append(f"{item.get('key')}: вердикт перенесённого замера содержал "
+                         f"ложный факт — отрасль пропущена")
+            drop = True
+        if not drop:
+            out.append(item)
+    return out, notes
 
 
 def rebuild(db: Session) -> BarometerVersion | None:
@@ -623,6 +711,10 @@ def rebuild(db: Session) -> BarometerVersion | None:
             collected.extend(items)
         else:
             carried = [prev_map[k] for k in keys if k in prev_map]
+            # перенос тоже обязан пройти проверку — см. _sanitize_carried
+            _prof, _lok = _all_profits(db, keys)
+            carried, san_notes = _sanitize_carried(carried, _prof, _lok)
+            notes.extend(san_notes)
             collected.extend(carried)
             if carried:
                 notes.append(f"батч «{name}»: перенесены прошлые оценки")
