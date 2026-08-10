@@ -53,14 +53,22 @@ const SLUGS = {
 };
 const slugOf = (code) => SLUGS[code] || String(code).replace(/_/g, "-").toLowerCase();
 
-function shell({ title, desc, canonical, crumbs, body, jsonLd, assets, note }) {
+function shell({ title, desc, canonical, crumbs, body, jsonLd, assets, note, indicatorCode }) {
   const css = assets && assets.css ? `<link rel="stylesheet" href="${assets.css}">` : "";
   const js = assets && assets.js ? `<script defer src="${assets.js}"></script>` : "";
+  // 🔴 КОД ПОКАЗАТЕЛЯ ОТДАЁМ ПРИЛОЖЕНИЮ ЧЕРЕЗ META, а не через разбор адреса.
+  // Приложению нужно открыть Экономическую статистику НА ЭТОМ показателе (человек искал
+  // «недельная инфляция» — он должен увидеть её, а не общий экран и поиск глазами).
+  // Восстанавливать код из адреса нельзя: slug у половины рядов русский и задан таблицей
+  // SLUGS здесь, в генераторе (key_rate → klyuchevaya-stavka). Копия этой таблицы во
+  // фронтенде разъехалась бы при первом же новом показателе, и отказ был бы молчаливым —
+  // страница просто открывала бы не тот график. Источник правды один: генератор.
+  const indMeta = indicatorCode ? `\n<meta name="basis:indicator" content="${esc(indicatorCode)}">` : "";
   return `<!doctype html>
 <html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title>
-<meta name="description" content="${esc(desc)}">
+<meta name="description" content="${esc(desc)}">${indMeta}
 <link rel="canonical" href="${SITE}${canonical}">
 <meta property="og:type" content="article"><meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${SITE}${canonical}">
@@ -176,7 +184,7 @@ ${seriesHtml(ind.code, v.unit || ind.unit)}
   return shell({
     title, desc, canonical: `/statistika/${slugOf(ind.code)}/`,
     crumbs: `<a href="/">Basis</a> → <a href="/ekonomicheskaya-statistika-rossii/">Экономическая статистика</a> → ${esc(ind.title)}`,
-    body, assets,
+    body, assets, indicatorCode: ind.code,
     jsonLd: {
       "@context": "https://schema.org", "@type": "Dataset", name: ind.title,
       description: desc, url: `${SITE}/statistika/${slugOf(ind.code)}/`,

@@ -577,6 +577,9 @@ const LANDING_ROUTES = {
   "razbor-otchetnosti-kompaniy": { view: "overview", obs: "reports" },
   "makroobzor-rossiyskoy-ekonomiki": { view: "overview", obs: "macro" },
   "geopolitika-i-rossiyskiy-rynok": { view: "overview", obs: "geo" },
+  "institutsionalnaya-sreda": { view: "overview", obs: "institutions" },
+  "korporativnye-sobytiya-emitentov": { view: "overview", obs: "corp-news" },
+  "ii-pomoshchnik-investoru": { view: "ai" },
   "futures-moex": { view: "companies", tab: "futures" },
   "bpif-etf-moex": { view: "companies", tab: "funds" },
   "kak-vybrat-ofz": { view: "companies", tab: "bonds" },
@@ -1183,11 +1186,21 @@ export default function App() {
       // Без этой ветки приложение не понимало адрес и рисовало ГЛАВНУЮ под статикой:
       // владелец поймал ровно это — «была SEO-страница, ниже лендинг, потом SEO-страница
       // пропала и остался лендинг». Теперь открывается тот раздел, о котором страница.
+      // 🔴 Показатель открываем НА СВОЁМ МЕСТЕ, а не «раздел целиком». Человек искал
+      // «недельная инфляция» — он должен увидеть её график, а не общий экран из полусотни
+      // плиток, где её ещё надо найти глазами. Код показателя берём из meta, которую
+      // проставил генератор: восстановить его из адреса нельзя, половина slug'ов русская
+      // и таблица соответствия живёт в generate-seo-indicators.js. ObsEconomy уже умеет
+      // открывать нужную плитку по forceIndicator — не хватало только этой передачи.
+      const indMeta = landing.startsWith("statistika/")
+        ? document.querySelector('meta[name="basis:indicator"]')?.getAttribute("content")
+        : null;
       const prefixRoute = landing.startsWith("statistika/") ? { view: "overview", obs: "economy" }
         : (landing === "indeks-strakha-i-zhadnosti" || landing.startsWith("indeks/"))
           ? { view: "overview", obs: "pulse" } : null;
       const route = LANDING_ROUTES[landing] || prefixRoute;
       if (route) {
+        if (indMeta) setForceEconIndicator(indMeta);
         if (route.obs) setForceObsSection(route.obs);
         if (route.tab) setForceInnerTab(route.tab);
         setActiveTab(route.view);

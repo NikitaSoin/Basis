@@ -584,8 +584,49 @@ function companyDataDate() {
   return BUILD_DATE;
 }
 
-function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, assets, note, dataDate }) {
+/** Бумаги, чьи страницы отдаём поиску. Всё остальное существует на сайте и доступно
+ *  человеку, но помечено noindex и не попадает в карту сайта.
+ *
+ *  🔴 ЗАЧЕМ СУЖЕНИЕ (решение владельца 2026-08-10). Мы отдавали поиску 264 компании ×
+ *  ~20 разделов ≈ 5000 однотипных страниц. Яндекс начал их косить пачками с вердиктом
+ *  LOW_QUALITY («малоценная ИЛИ маловостребованная»): 7 августа — 82, 9-го — 226,
+ *  10-го — ещё 134, причём под нож шли и главные страницы карточек. Дело не в объёме
+ *  текста — снятые страницы не тоньше оставшихся; дело в том, что по бумагам третьего
+ *  эшелона спроса нет, а шаблон у всех один. Балласт тянул вниз и живое.
+ *  Берём состав индекса МосБиржи — это и есть «бумаги, которые реально ищут».
+ *
+ *  Если снимок состава не прочитался — НЕ сужаем (пустое множество означало бы noindex
+ *  на весь сайт разом; такая ошибка стоит дороже, чем день без сужения). */
+const INDEXABLE_TICKERS = (() => {
+  try {
+    const idx = JSON.parse(fs.readFileSync(
+      path.join(__dirname, "data", "index-composition-snapshot.json"), "utf8")).indices || {};
+    const rows = (idx.IMOEX && idx.IMOEX.rows) || [];
+    const set = new Set(rows.map((r) => r.ticker || r.secid).filter(Boolean));
+    if (set.size < 20) {
+      console.log(`  ⚠ состав IMOEX подозрительно мал (${set.size}) — сужение выключено`);
+      return null;
+    }
+    console.log(`  индексируем бумаги состава IMOEX: ${set.size}`);
+    return set;
+  } catch (e) {
+    console.log(`  ⚠ состав IMOEX не прочитан (${e.message}) — сужение выключено`);
+    return null;
+  }
+})();
+
+/** Отдаём ли страницу поиску. Тикер берём ИЗ АДРЕСА страницы, а не из параметра:
+ *  точек вызова pageShell для карточек около десятка, и любая забытая тихо вернула бы
+ *  страницу в индекс — отказ был бы незаметным. Адрес есть у каждой страницы всегда. */
+function tickerIsIndexable(canonicalPath) {
+  if (!INDEXABLE_TICKERS) return true;
+  const m = /^\/company\/([A-Z0-9]+)\//.exec(canonicalPath || "");
+  return m ? INDEXABLE_TICKERS.has(m[1]) : true;
+}
+
+function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, assets, note, dataDate, noindex }) {
   const url = _SITE + canonicalPath;
+  if (!noindex && !tickerIsIndexable(canonicalPath)) noindex = true;
   const crumbsHtml = breadcrumbs
     .map((b, i) => (i < breadcrumbs.length - 1 && b.href ? `<a href="${b.href}">${escapeHtml(b.label)}</a>` : escapeHtml(b.label)))
     .join(" → ");
@@ -653,7 +694,7 @@ function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, 
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(desc)}">
 <link rel="canonical" href="${url}">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="${noindex ? "noindex, follow" : "index, follow"}">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Basis">
 <meta property="og:title" content="${escapeHtml(title)}">
@@ -3162,12 +3203,21 @@ function shortRedirectPage(c) {
 // аудит 2026-07-26 п.5: одинаковый lastmod=дата сборки у всех URL подрывает
 // доверие поисковиков к sitemap и ломает приоритет переобхода.
 function writeSitemap(urls) {
+  // 🔴 Отсев бумаг вне состава IMOEX — ЗДЕСЬ, одной точкой перед записью, а не в каждом
+  // из полутора десятков мест, где что-то пушится в urls. Пропущенная точка означала бы
+  // «страница помечена noindex, но лежит в карте сайта» — это противоречивый сигнал,
+  // хуже обоих вариантов по отдельности. Условие ровно то же, что в pageShell.
+  const before = urls.length;
+  urls = urls.filter((u) => tickerIsIndexable(String(u.loc).replace(_SITE, "")));
+  const dropped = before - urls.length;
+  if (dropped) console.log(`  вне состава IMOEX — не в карте сайта и noindex: ${dropped} адресов`);
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map((u) => `  <url><loc>${u.loc}</loc><lastmod>${u.lastmod || _TODAY}</lastmod><changefreq>${u.freq}</changefreq><priority>${u.pri}</priority></url>`).join("\n")}
 </urlset>
 `;
   fs.writeFileSync(path.join(_BUILD_DIR, "sitemap.xml"), xml, "utf8");
+  return urls.length;
 }
 
 /* ----------------------------- main ----------------------------- */
@@ -3550,8 +3600,10 @@ function main() {
   // в файл не попадали, хотя сами страницы существовали и открывались. Коварство в том,
   // что итоговый лог считает длину массива urls, а не строки файла: он рапортовал 4687
   // при реальных 4662 в sitemap.xml. Проверять карту по ФАЙЛУ, а не по логу.
-  writeSitemap(urls);
-  console.log(`SEO-страницы: ${companies.length} хабов + ${tabPagesCount} разделов + ${metricPagesCount} метрик + ${fairValuePagesCount} оценок + ${glossaryCount} справочника + ${observerCount} обозревателя + ${LANDINGS.length} лендингов + каталог; sitemap.xml — ${urls.length} URL; пропущено (нет financials.json): ${skipped.length}`);
+  // Печатаем то, что РЕАЛЬНО легло в карту (writeSitemap возвращает счётчик после
+  // отсева), а не длину исходного массива — ровно та ловушка, что описана выше.
+  const sitemapCount = writeSitemap(urls);
+  console.log(`SEO-страницы: ${companies.length} хабов + ${tabPagesCount} разделов + ${metricPagesCount} метрик + ${fairValuePagesCount} оценок + ${glossaryCount} справочника + ${observerCount} обозревателя + ${LANDINGS.length} лендингов + каталог; sitemap.xml — ${sitemapCount} URL; пропущено (нет financials.json): ${skipped.length}`);
   console.log(`Короткие редиректы /TICKER/: ${shortUrlCount}${shortUrlSkipped.length ? `; пропущены (конфликт с зарезервированным путём): ${shortUrlSkipped.join(", ")}` : ""}`);
   if (skipped.length) console.log("пропущены:", skipped.slice(0, 20).join(", "), skipped.length > 20 ? "..." : "");
 }

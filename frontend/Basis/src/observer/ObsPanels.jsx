@@ -8130,6 +8130,15 @@ function ObsEconomy({ token, forceIndicator }) {
       const forced = forceIndicator && arr.find((x) => x.code === forceIndicator && x.has_data);
       const first = forced || arr.find((x) => x.has_data && x.display_group === "ru");
       if (first) setDetailInd(first);
+      // 🔴 Пришли из поиска на страницу конкретного показателя — не только открываем его,
+      // но и ПРОКРУЧИВАЕМ к графику. Иначе человек, искавший «недельная инфляция», видит
+      // верх раздела и не понимает, что его показатель уже раскрыт ниже. Без задержки
+      // не работает: detail-карточка ещё не отрисована в момент установки состояния.
+      if (forced) {
+        setTimeout(() => {
+          detailCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 300);
+      }
     });
   }, [token]);
 
