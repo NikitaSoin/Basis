@@ -44,7 +44,12 @@
       3772.852,
       4324.247
     ],
-    "expense_lines": [],
+    "expense_lines": [
+      null,
+      null,
+      null,
+      null
+    ],
     "operating_profit": [
       293.87,
       343.726,

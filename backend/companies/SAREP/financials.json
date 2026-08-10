@@ -49,13 +49,19 @@
       12274.3,
       12867.7
     ],
-    "expense_lines": [],
+    "expense_lines": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
     "operating_profit": [
       null,
       691.3,
       961.4,
       1039.8,
-      945
+      1073.145
     ],
     "da": [
       null,
@@ -102,9 +108,9 @@
     "net_profit": [
       120,
       30.818,
-      640,
+      34.024,
       402.754,
-      926
+      939.765
     ],
     "margins": {
       "gross_margin": [
@@ -477,11 +483,11 @@
   },
   "cash_flow": {
     "cfo": [
-      null,
-      null,
-      null,
-      null,
-      932.6
+      1000,
+      415.3,
+      946.2,
+      736.7,
+      932.608
     ],
     "cfi": [
       null,
@@ -505,18 +511,18 @@
       874.9
     ],
     "capex": [
-      null,
-      null,
-      null,
-      null,
-      367
+      138,
+      53.2,
+      119.0,
+      195.9,
+      205.276
     ],
     "fcf": [
-      null,
-      null,
-      null,
-      null,
-      565.6
+      862,
+      362.1,
+      827.2,
+      540.8,
+      727.332
     ],
     "cfo_lines": [
       {

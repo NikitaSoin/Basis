@@ -199,12 +199,12 @@
       null
     ],
     "securities": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      96678,
+      127965,
+      134443,
+      174205,
+      195259,
+      158195
     ],
     "cash_and_cb": [
       null,
@@ -239,12 +239,12 @@
       634943
     ],
     "due_to_banks": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      21370,
+      26270,
+      33798,
+      42806,
+      127619,
+      41209
     ],
     "debt_issued": [
       null,

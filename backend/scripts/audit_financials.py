@@ -100,7 +100,9 @@ def audit(card, ticker):
         A, L, E = ta[i], tl[i], te[i]
         if None in (A, L, E) or A == 0:
             continue
-        if not close(A, L + E, 0.01):
+        # 0,3%, а не 1%: у Fix Price капитал за 2023 год просто повторял 2022-й, баланс
+        # расходился на 1 004 млн ₽ — это 0,74%, и при прежнем допуске проверка молчала.
+        if not close(A, L + E, 0.003):
             out.append(("!", "баланс", f"{y}: активы {A:,.0f} ≠ обязательства {L:,.0f} + капитал {E:,.0f} (расх. {A-L-E:+,.0f})"))
 
     # 2. части = целое (только небанки: у банков структура иная)
@@ -108,9 +110,11 @@ def audit(card, ticker):
         cur = pad(series(bs, "current_assets", "total_current"), n)
         noncur = pad(series(bs, "non_current_assets", "total_non_current"), n)
         for i, y in enumerate(years):
-            if None in (cur[i], noncur[i], ta[i]) or ta[i] == 0:
+            # порог по величине: у Самараэнерго весь баланс — единицы миллионов, там
+            # 0,03 млн расхождения это округление копеек, а не дефект данных
+            if None in (cur[i], noncur[i], ta[i]) or abs(ta[i]) < 100:
                 continue
-            if not close(cur[i] + noncur[i], ta[i], 0.02):
+            if not close(cur[i] + noncur[i], ta[i], 0.005):
                 out.append(("?", "части", f"{y}: оборотные {cur[i]:,.0f} + внеоборотные {noncur[i]:,.0f} ≠ активы {ta[i]:,.0f}"))
 
     # 2б. ЧАСТИ НЕ ДАЮТ ЦЕЛОГО — СО СТОРОНЫ ОБЯЗАТЕЛЬСТВ.
@@ -120,9 +124,9 @@ def audit(card, ticker):
         cl = pad(series(bs, "current_liabilities", "total_current_liab"), n)
         ncl = pad(series(bs, "non_current_liabilities", "total_non_current_liab"), n)
         for i, y in enumerate(years):
-            if None in (cl[i], ncl[i], tl[i]) or not tl[i]:
+            if None in (cl[i], ncl[i], tl[i]) or abs(tl[i]) < 100:
                 continue
-            if not close(cl[i] + ncl[i], tl[i], 0.02):
+            if not close(cl[i] + ncl[i], tl[i], 0.005):
                 out.append(("?", "части-обяз", f"{y}: краткосрочные {cl[i]:,.0f} + долгосрочные {ncl[i]:,.0f} "
                                                f"≠ итого обязательства {tl[i]:,.0f}"))
 

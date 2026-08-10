@@ -553,9 +553,30 @@
       null,
       null
     ],
-    "cfo_lines": [],
-    "cfi_lines": [],
-    "cff_lines": [],
+    "cfo_lines": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi_lines": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff_lines": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
     "ratios": {
       "fcf_margin": [
         null,

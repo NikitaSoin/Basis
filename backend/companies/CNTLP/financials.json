@@ -526,7 +526,13 @@
       null,
       null
     ],
-    "cfo_lines": [],
+    "cfo_lines": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
     "cfi_lines": [
       {
         "name": "Приобретение основных средств и НМА (CAPEX)",

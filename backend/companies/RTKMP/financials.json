@@ -192,13 +192,13 @@
       331048
     ],
     "finance_costs": [
-      -35263,
-      -36670,
-      -38923,
-      -53795,
-      -51559,
-      -86759,
-      -123396
+      35263,
+      36670,
+      38923,
+      53795,
+      51559,
+      86759,
+      123396
     ],
     "finance_income": [
       null,
@@ -842,7 +842,15 @@
       20713,
       4439
     ],
-    "cfo_lines": [],
+    "cfo_lines": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
     "cfi_lines": [
       {
         "name": "Капитальные вложения (приобретение ОС и НМА)",
@@ -857,7 +865,15 @@
         ]
       }
     ],
-    "cff_lines": [],
+    "cff_lines": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
     "ratios": {
       "fcf_margin": [
         1.4,
