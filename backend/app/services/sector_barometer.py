@@ -575,6 +575,30 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
     items = [s for s in items if isinstance(s, dict) and s.get("key") in keys]
     bad, notes = _check(items, allowed, profits)
     if bad:
+        # 🔴 Ремонтный проход (2026-08-10). Без него брак означал «переносим ПРОШЛЫЙ
+        # замер» — то есть ровно тот текст, из-за которого батч и забраковали: ложный
+        # убыток Яндекса продолжал висеть на витрине. Один проход: показываем замечания
+        # и просим исправить ровно их, дальше честный перенос.
+        logger.warning("sector_barometer: батч «%s» — ремонт по замечаниям: %s", name, bad[:4])
+        fix = ("\n\nТвой предыдущий ответ забракован проверкой кодом. Замечания:\n"
+               + "\n".join(f"- {b}" for b in bad)
+               + "\n\nВерни ПОЛНЫЙ JSON того же формата, исправив ровно эти места. "
+                 "Если названа убыточной компания, у которой в блоке «НАШИ ЧИСЛА» "
+                 "прибыль, — убери это утверждение и не заменяй его другим домыслом: "
+                 "бери число из наших данных. Остальное сохрани.")
+        try:
+            out2 = llm.complete(system, user + fix, json_mode=True, thinking=True,
+                                model=llm.pro_model(), max_tokens=7000, temperature=0.2)
+            items2 = (out2 or {}).get("sectors") if isinstance(out2, dict) else None
+            items2 = [s for s in (items2 or []) if isinstance(s, dict) and s.get("key") in keys]
+            if items2:
+                bad2, notes2 = _check(items2, allowed, profits)
+                if not bad2:
+                    return items2, [f"батч «{name}»: починен после гейта"] + \
+                        [f"батч «{name}»: {n}" for n in notes2]
+                bad = bad2
+        except llm.LLMError as e:
+            bad = bad + [f"ремонт не удался: {e}"]
         return [], [f"батч «{name}» отклонён: {b}" for b in bad] + notes
     return items, [f"батч «{name}»: {n}" for n in notes]
 
