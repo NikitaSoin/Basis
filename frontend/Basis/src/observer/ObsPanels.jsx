@@ -1819,7 +1819,9 @@ function ObsGeoChains({ macroChain, instChain }) {
         <div className="obs-inst-card">
           <div className="obs-inst-card-title"><Activity size={16} />Как война доходит до экономики</div>
           <div className="obs-inst-card-sub">
-            Цепочка по шагам: событие → прямой эффект → макропоказатель → кто под ударом следующим.
+            Цепочка по шагам: событие → прямой эффект → макропоказатель → кто под ударом
+            следующим. У каждого звена — канал, через который это идёт, порядок эффекта,
+            срок и обратимость: часть последствий отыграется при развороте, часть нет.
           </div>
           <div className="obs-geo-chain-list">
             {macroChain.map((c, i) => (
@@ -1827,6 +1829,29 @@ function ObsGeoChains({ macroChain, instChain }) {
                 <div className="obs-geo-chain-step obs-geo-chain-step--event">{c.event}</div>
                 {c.direct && <div className="obs-geo-chain-step">{c.direct}</div>}
                 {c.macro && <div className="obs-geo-chain-step obs-geo-chain-step--macro">{c.macro}</div>}
+                {/* 🔴 Разметка звена по методичке «геополитика → макроэкономика»
+                    (владелец, 2026-08-10). Без неё цепочка читалась как набор
+                    утверждений одинакового веса: непонятно, через какой канал это
+                    идёт, когда дойдёт и отыграется ли при развороте. Именно
+                    обратимость решает, что значит для рынка сценарий мира. */}
+                {(c.channel || c.order || c.scale || c.lag || c.reversibility) && (
+                  <div className="obs-geo-chain-tags">
+                    {c.channel && <span className="obs-geo-chain-tag obs-geo-chain-tag--ch">канал: {c.channel}</span>}
+                    {c.order && <span className="obs-geo-chain-tag">{c.order} порядок</span>}
+                    {c.scale && <span className="obs-geo-chain-tag">масштаб: {c.scale}</span>}
+                    {c.lag && <span className="obs-geo-chain-tag">срок: {c.lag}</span>}
+                    {c.reversibility && (
+                      <span className={`obs-geo-chain-tag${/необратим|гистерезис/i.test(c.reversibility) ? " obs-geo-chain-tag--hard" : ""}`}>
+                        {c.reversibility}
+                      </span>
+                    )}
+                  </div>
+                )}
+                {c.counterfactual && (
+                  <div className="obs-geo-chain-cf">
+                    <b>Без этого события:</b> {c.counterfactual}
+                  </div>
+                )}
                 {c.sectors_at_risk && (
                   <div className="obs-geo-chain-risk"><b>Под ударом дальше:</b> {c.sectors_at_risk}</div>
                 )}
@@ -1864,7 +1889,16 @@ function ObsProfileLinks({ title, forward, back, forwardLabel, backLabel }) {
   const row = (x, i) => (
     <div key={i} className="obs-profile-link-row">
       <span className="obs-profile-link-channel">{x.channel}</span>
-      <span className="obs-profile-link-effect">{x.effect}</span>
+      <span className="obs-profile-link-effect">
+        {x.effect}
+        {/* Обратимость канала (методичка «геополитика → макроэкономика»): без неё
+            читатель достраивает сценарий мира как возврат к прежней базе, а часть
+            последствий не отыгрывается вовсе. Показываем только необратимое —
+            остальное шумит. */}
+        {x.reversibility && /необратим|гистерезис/i.test(x.reversibility) && (
+          <span className="obs-profile-link-irrev">{x.reversibility}</span>
+        )}
+      </span>
       <ObsProfileTag tag={x.tag} />
     </div>
   );

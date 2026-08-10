@@ -7260,6 +7260,30 @@ details[open] > summary .obs-inst-chev,
 .obs-geo-chain-step { font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); }
 .obs-geo-chain-step--event { color: var(--text-primary); font-weight: 600; }
 .obs-geo-chain-step--macro { color: var(--text-primary); }
+/* Разметка звена цепочки по методичке «геополитика → макроэкономика»: канал,
+   порядок, масштаб, срок, обратимость. Хром монохромный — цветом выделяем только
+   необратимое, потому что это единственное, что меняет смысл сценария мира. */
+.obs-geo-chain-tags {
+  display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 4px;
+}
+.obs-geo-chain-tag {
+  font-family: var(--bs-sans, Inter), system-ui, sans-serif;
+  font-size: 10.5px; line-height: 1.4; letter-spacing: 0.02em;
+  padding: 2px 7px; border-radius: 999px;
+  border: 1px solid var(--border-subtle, rgba(255,255,255,0.14));
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.obs-geo-chain-tag--ch { color: var(--text-secondary); }
+.obs-geo-chain-tag--hard {
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+  color: var(--danger);
+}
+.obs-geo-chain-cf {
+  font-size: 12px; line-height: 1.5; color: var(--text-tertiary);
+  font-style: italic;
+}
+.obs-geo-chain-cf b { font-style: normal; font-weight: 700; }
 .obs-geo-chain-risk { font-size: 12px; line-height: 1.5; color: var(--text-secondary); }
 .obs-geo-chain-risk b { color: var(--text-tertiary); font-weight: 700; }
 .obs-geo-inst-list { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
@@ -7294,4 +7318,19 @@ details[open] > summary .obs-inst-chev,
   font-size: 16px;
   line-height: 1.4;
   color: var(--obs-text, #E8E4DC);
+}
+
+/* Пометка необратимого канала в связках портрета очага. Цвет — только в данных:
+   это единственное, что меняет смысл сценария разворота. */
+.obs-profile-link-irrev {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-family: var(--bs-sans, Inter), system-ui, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  color: var(--danger);
+  border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+  vertical-align: middle;
 }
