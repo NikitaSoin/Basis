@@ -337,7 +337,7 @@
       "long_term_debt": [
         null,
         8000,
-        7500,
+        1500,
         7000
       ],
       "deferred_tax": [
@@ -363,7 +363,7 @@
       "short_term_debt": [
         null,
         2283,
-        2300,
+        8300,
         1502
       ],
       "payables": [

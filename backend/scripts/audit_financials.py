@@ -340,7 +340,10 @@ def audit(card, ticker):
     for name, vals in named.items():
         # Уставный капитал и эмиссионный доход годами стоят на месте и часто выражаются
         # круглым числом по самой своей природе — «грубыми» их считать нельзя.
-        if any(h in name for h in STATIC_HINTS):
+        # Ровное число бывает и настоящим: у Ярославской сбытовой краткосрочные займы
+        # действительно стоят в балансе как 1 200 / 1 000 / 400 млн — это суммы кредитных
+        # линий, а не прикидка. Разобранный случай помечается `<ряд>_note` на карточке.
+        if any(h in name for h in STATIC_HINTS) or name in explained:
             continue
         nums = [v for v in vals if isinstance(v, (int, float)) and abs(v) >= 100]
         if len(nums) < 4:

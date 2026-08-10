@@ -506,12 +506,12 @@
   },
   "cash_flow": {
     "cfo": [
+      12700,
+      11000,
       null,
       null,
-      null,
-      null,
-      null,
-      null
+      11200,
+      29300
     ],
     "cfi": [
       null,
@@ -538,12 +538,12 @@
       null
     ],
     "capex": [
+      13600,
+      13300,
       null,
       null,
-      null,
-      null,
-      null,
-      null
+      32200,
+      31200
     ],
     "fcf": [
       null,
