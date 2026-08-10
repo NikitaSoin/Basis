@@ -181,35 +181,72 @@ function ObsNewsFeed({ token, portfolioOnly, onSelectCompany }) {
   const saveTimer = useRef(null);
   const firstUnreadRef = useRef(null);
 
+  // 🔴 Важность фильтруем НА СЕРВЕРЕ, а не после загрузки. Раньше грузились
+  // последние 120 новостей и уже из них отбирались «high» — а поток идёт ~190
+  // новостей в сутки при доле экстраординарных ~11%, то есть в 120 свежих
+  // попадало 5 важных, а после выбора темы оставалась одна карточка. Лента при
+  // настройках по умолчанию выглядела полупустой при полной базе (владелец,
+  // 2026-08-11). Запрос с importance=high отдаёт 200 ИМЕННО важных.
+  //
+  // 🔴 И второе: важность распределена по темам ОЧЕНЬ неравномерно — из 120
+  // важных 79 приходится на геополитику и лишь 4 на бизнес. Поэтому если по
+  // выбранной теме важного мало, добираем ленту обычными новостями ТОЙ ЖЕ темы
+  // (после важных): пустой экран хуже, чем экран, где сверху важное, а ниже
+  // остальное.
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
     setError(false);
-    const params = new URLSearchParams({ limit: "120" });
-    if (portfolioOnly) params.set("portfolio_only", "true");
-    fetch(`${apiUrl}/api/market/news?${params}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => { setItems(Array.isArray(d) ? d : []); setLoading(false); })
-      .catch(() => { setError(true); setLoading(false); });
-  }, [portfolioOnly, token]);
+    const base = () => {
+      const p = new URLSearchParams({ limit: "200" });
+      if (portfolioOnly) p.set("portfolio_only", "true");
+      return p;
+    };
+    const ask = (p) =>
+      fetch(`${apiUrl}/api/market/news?${p}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }).then((r) => (r.ok ? r.json() : Promise.reject()));
 
-  // Sort newest-first
+    const primary = base();
+    if (importance === "important") primary.set("importance", "high");
+    ask(primary)
+      .then(async (d) => {
+        let list = Array.isArray(d) ? d : [];
+        const cats = _NEWS_TOPIC_MAP[topic];
+        const inTopic = (n) => !cats || cats.some((c) => (n.category || "").includes(c));
+        if (importance === "important" && cats && list.filter(inTopic).length < 12) {
+          try {
+            const rest = await ask(base());
+            const seen = new Set(list.map((n) => n.id));
+            list = list.concat((rest || []).filter((n) => inTopic(n) && !seen.has(n.id)));
+          } catch { /* добор не удался — покажем то, что есть */ }
+        }
+        if (cancelled) return;
+        setItems(list);
+        setLoading(false);
+      })
+      .catch(() => { if (!cancelled) { setError(true); setLoading(false); } });
+    return () => { cancelled = true; };
+  }, [importance, topic, portfolioOnly, token]);
+
+  // Свежее сверху. В режиме «Важное» сначала идут экстраординарные новости, и
+  // только под ними — добор по теме: иначе более свежие обычные новости встали бы
+  // ВЫШЕ важных и обесценили сам фильтр.
   const sorted = [...items].sort((a, b) => {
+    if (importance === "important") {
+      const ha = a.importance === "high" ? 0 : 1, hb = b.importance === "high" ? 0 : 1;
+      if (ha !== hb) return ha - hb;
+    }
     const ta = new Date(a.published_at || 0).getTime(), tb = new Date(b.published_at || 0).getTime();
     return (tb - ta) || ((b.id || 0) - (a.id || 0));
   });
 
-  // Client-side filters
+  // Тему фильтруем на клиенте: у API нет параметра по категории, а важность уже
+  // отобрана сервером (см. запрос выше), поэтому в выдаче хватает материала на
+  // каждую тему.
   const filtered = sorted.filter((n) => {
-    // Рекалибровка важности (владелец 2026-08-02): high — ЭКСТРАОРДИНАРНОЕ.
-    // «Важное» = ТОЛЬКО high: вариант high+medium оказался пустышкой — low в БД
-    // почти не публикуется (keep-фильтр), и high+medium ≡ все записи («кнопка
-    // не работает, по дефолту всё сразу идёт» — владелец, 2026-08-02).
-    const impOk = importance === "all" || (importance === "important" && n.importance === "high");
     const cat = n.category || "";
-    const topicOk = topic === "all" || (_NEWS_TOPIC_MAP[topic] || []).some((t) => cat.includes(t));
-    return impOk && topicOk;
+    return topic === "all" || (_NEWS_TOPIC_MAP[topic] || []).some((t) => cat.includes(t));
   });
 
   const firstUnreadIdx = filtered.findIndex((n) => (n.id || 0) > baseline);
@@ -805,6 +842,12 @@ function ObsCorporateNews({ token, portfolioOnly, onSelectCompany, onOpenReports
 // =============================================================
 
 const OBS_CAL_TYPE_META = {
+  // 🔴 «Отчётности» ОБЯЗАНЫ быть здесь: без своей записи тип проваливался в
+  // запасной вариант `{ label: type, color: --text-tertiary }` — в календаре
+  // 56 предстоящих отчётностей рисовались серыми, как макрособытия, и подписаны
+  // были английским словом «earnings» (владелец, 2026-08-11). Для инвестора
+  // отчётность — главное корпоративное событие, ей нужен свой цвет.
+  earnings:      { label: "Отчётность",  color: "var(--cat-7)"                },
   macro:         { label: "Макро",       color: "var(--text-secondary)"       },
   dividend:      { label: "Дивиденды",   color: "var(--success)"              },
   corporate:     { label: "СД · ГОСА",   color: "var(--info)"                 },
@@ -1094,7 +1137,12 @@ function ObsCalendar({ token, portfolioOnly, onSelectCompany }) {
                         className="obs-cal-detail-type"
                         style={{ background: typeM(e.type).color }}
                       >{typeM(e.type).label}</div>
-                      {e.payload && e.payload.confidence !== "issuer" && (
+                      {/* та же проверка, что и в списке: раньше здесь стояло
+                          `confidence !== "issuer"`, и бейдж «оценка» вешался почти
+                          на всё — большинство событий это поле вообще не заполняют,
+                          хотя дата у них подтверждённая (дивиденды из листинга MOEX,
+                          оферты, погашения, график ЦБ). */}
+                      {_obsIsDateEstimate(e) && (
                         <span className="obs-cal-conf obs-cal-conf--estimate" title="Дата — агрегированная оценка, не подтверждена эмитентом/биржей">оценка</span>
                       )}
                     </div>
