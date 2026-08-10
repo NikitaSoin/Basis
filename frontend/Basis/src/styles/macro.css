@@ -383,10 +383,26 @@
 .mv3-tag-est{background:var(--mv3-amber-soft);color:var(--mv3-amber);}
 .mv3-tag-judg{background:var(--mv3-accent-soft);color:var(--mv3-accent-2);}
 
-/* layout: две колонки (dash + правый рельс) — ширина/гэп как в эталоне bm-shell (.layout) */
-.mv3-layout{display:grid;grid-template-columns:minmax(0,1fr) 312px;gap:30px;align-items:start;padding-top:2px;}
+/* layout: одна колонка — правое поле карточки отдано «Содержанию» (владелец 2026-08-10),
+   вывод переехал в выезжающую панель .mv3-drawer (триггер .mv3-teaser вверху вкладки) */
+.mv3-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:30px;align-items:start;padding-top:2px;}
 .mv3-layout > aside{min-width:0;}
-@media(max-width:1000px){.mv3-layout{grid-template-columns:minmax(0,1fr);}.mv3-layout > aside{display:none;}}
+
+/* ── триггер панели «Итог для инвестора» ── */
+.mv3-teaser{display:flex;align-items:center;gap:11px;width:100%;border:1px solid var(--mv3-line-2);background:var(--mv3-panel-2);border-radius:11px;padding:12px 15px;cursor:pointer;font-family:var(--mv3-font);text-align:left;}
+.mv3-teaser:hover{border-color:var(--mv3-amber);}
+.mv3-teaser:focus-visible{outline:2px solid var(--mv3-amber);outline-offset:2px;}
+.mv3-teaser-ic{font-family:var(--mv3-mono);font-size:15px;color:var(--mv3-amber);}
+.mv3-teaser-t{font-size:12.5px;color:var(--mv3-ink-2);}
+.mv3-teaser-chev{margin-left:auto;color:var(--mv3-ink-3);font-size:18px;}
+
+/* ── сама панель: выезжает справа поверх контента (паттерн Скринера/Финансов) ── */
+.mv3-scrim{position:fixed;inset:0;background:rgba(8,8,12,.42);z-index:80;}
+.mv3-drawer{position:fixed;top:0;right:0;bottom:0;width:400px;max-width:92vw;z-index:81;background:var(--cc-bg);border-left:1px solid var(--mv3-line-2);padding:56px 24px 28px;overflow-y:auto;box-shadow:-20px 0 50px rgba(0,0,0,.2);transform:translateX(100%);transition:transform .28s ease;}
+.mv3-drawer--open{transform:translateX(0);}
+.mv3-drawer-x{display:flex;position:absolute;top:18px;right:18px;background:var(--mv3-panel-2);border:1px solid var(--mv3-line-2);border-radius:8px;color:var(--mv3-ink-2);cursor:pointer;padding:7px;}
+.mv3-drawer-x:hover{color:var(--mv3-ink);}
+@media(prefers-reduced-motion:reduce){.mv3-drawer{transition:none;}}
 
 /* ===== Плашка «условия изменились с момента разбора» =====
    Честная маркировка устаревания: разбор писался в конкретный день, ночной агент

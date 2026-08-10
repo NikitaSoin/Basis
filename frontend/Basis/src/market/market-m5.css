@@ -30,10 +30,21 @@
   color: var(--m5-ink);
 }
 
-/* двухколоночная раскладка m5 (main + правый рельс) */
-.m5-layout{display:grid;grid-template-columns:minmax(0,1fr) 312px;gap:18px;align-items:start;}
-@media(max-width:1040px){.m5-layout{grid-template-columns:1fr;}}
+/* одна колонка: правое поле карточки отдано «Содержанию» (владелец 2026-08-10),
+   рельс с позицией/сигналами/конкурентами переехал в выезжающую панель (.m5-mrail) */
+.m5-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start;}
 .m5-dash{display:flex;flex-direction:column;gap:16px;min-width:0;}
+
+/* триггер панели */
+.m5-teaser{display:flex;align-items:center;gap:11px;width:100%;border:1px solid var(--m5-line-2);background:var(--m5-panel);border-radius:var(--m5-r-lg);padding:12px 15px;cursor:pointer;font-family:var(--m5-sans);text-align:left;}
+.m5-teaser:hover{border-color:var(--m5-accent);}
+.m5-teaser:focus-visible{outline:2px solid var(--m5-accent);outline-offset:2px;}
+.m5-teaser-ic{font-family:var(--m5-mono);font-size:15px;color:var(--m5-accent-2);}
+.m5-teaser-t{font-size:12.5px;color:var(--m5-ink-2);}
+.m5-teaser-chev{margin-left:auto;color:var(--m5-ink-3);font-size:18px;}
+.m5-scrim{position:fixed;inset:0;background:rgba(8,8,12,.42);z-index:80;}
+.m5-mrail-x{display:flex;position:absolute;top:18px;right:18px;background:var(--m5-panel-2,var(--m5-panel));border:1px solid var(--m5-line-2);border-radius:8px;color:var(--m5-ink-2);cursor:pointer;padding:7px;}
+.m5-mrail-x:hover{color:var(--m5-ink);}
 
 .m5-card{background:var(--m5-panel);border:1px solid var(--m5-line-2);border-radius:var(--m5-r-lg);padding:20px 22px;}
 .m5-card h3{font-family:var(--m5-serif);font-size:18px;font-weight:600;margin:0 0 3px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--m5-ink);}
@@ -196,8 +207,10 @@
 .m5-srcitem .m5-sr{font-family:var(--m5-mono);font-size:10px;color:var(--m5-ink-3);white-space:nowrap;}
 .m5-srcitem .m5-sr.m5-hi{color:var(--m5-pos);}
 
-/* правый рельс — скроллится вместе со страницей (не залипает), как в Governance/Finance */
-.m5-mrail{display:flex;flex-direction:column;gap:14px;}
+/* рельс = выезжающая панель справа (владелец 2026-08-10), как в Governance/Finance */
+.m5-mrail{position:fixed;top:0;right:0;bottom:0;width:400px;max-width:92vw;z-index:81;display:flex;flex-direction:column;gap:14px;background:var(--cc-bg);border-left:1px solid var(--m5-line-2);padding:56px 24px 28px;overflow-y:auto;box-shadow:-20px 0 50px rgba(0,0,0,.2);transform:translateX(100%);transition:transform .28s ease;}
+.m5-mrail--open{transform:translateX(0);}
+@media(prefers-reduced-motion:reduce){.m5-mrail{transition:none;}}
 .m5-mrcard{background:var(--m5-panel);border:1px solid var(--m5-line-2);border-radius:var(--m5-r-lg);padding:17px 19px;}
 .m5-mrt{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--m5-ink-3);}
 .m5-mrs{font-size:11.5px;color:var(--m5-ink-3);margin:5px 0 14px;}

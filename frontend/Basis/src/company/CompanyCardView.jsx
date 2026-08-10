@@ -1868,7 +1868,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
   return (
     <div className="icard">
       {/* содержание страницы (design/ScrollRail) — карточки инструментов */}
-      <ScrollRail selector='[data-rail], .icard h2, .icard h3' minCount={3} deps={[secid]} />
+      <ScrollRail selector='[data-rail], .icard section > h2, .icard section > h3' minCount={2} deps={[secid]} />
       <button onClick={onBack} className="ic-back">
         <ChevronRight size={13} className="tw-rotate-180" /> К списку облигаций
       </button>
@@ -2384,7 +2384,7 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
   return (
     <div className="icard">
       {/* содержание страницы (design/ScrollRail) — карточки инструментов */}
-      <ScrollRail selector='[data-rail], .icard h2, .icard h3' minCount={3} deps={[secid]} />
+      <ScrollRail selector='[data-rail], .icard section > h2, .icard section > h3' minCount={2} deps={[secid]} />
       <button onClick={onBack} className="ic-back">
         <ChevronRight size={13} className="tw-rotate-180" /> К списку фьючерсов
       </button>
@@ -2659,7 +2659,7 @@ const FundCard = ({ secid, onBack }) => {
   return (
     <div className="icard">
       {/* содержание страницы (design/ScrollRail) — карточки инструментов */}
-      <ScrollRail selector='[data-rail], .icard h2, .icard h3' minCount={3} deps={[secid]} />
+      <ScrollRail selector='[data-rail], .icard section > h2, .icard section > h3' minCount={2} deps={[secid]} />
       <button onClick={onBack} className="ic-back">
         <ChevronRight size={16} className="tw-rotate-180" /> К списку фондов
       </button>
@@ -3207,6 +3207,10 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
   const [macroMd, setMacroMd] = useState(null);
   const [macroJson, setMacroJson] = useState(null);
   const [macroLoading, setMacroLoading] = useState(true);
+  // Правые рельсы «Макро» и «Рынки» — выезжающие панели по триггеру (владелец 2026-08-10:
+  // правое поле карточки отдано «Содержанию», как в Финансах и Корп. управлении)
+  const [macroRailOpen, setMacroRailOpen] = useState(false);
+  const [mktRailOpen, setMktRailOpen] = useState(false);
   const [geoMd, setGeoMd] = useState(null);
   const [geoJson, setGeoJson] = useState(null);
   const [geoLoading, setGeoLoading] = useState(true);
@@ -6458,8 +6462,14 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
     const metricLabels = compSelf ? compSelf.metrics.map((mm) => mm.label) : [];
     const railHasContent = railPos || monitorRows.length > 0 || (comps.length > 1 && metricLabels.length > 0);
 
+    // Правый рельс «Рынков» → выезжающая панель (владелец 2026-08-10): правое поле
+    // карточки отдано «Содержанию», разборы открываются по интересу — тем же приёмом,
+    // что расчёт балла в «Корп. управлении» и заметка аналитика в «Финансах».
     const rail = railHasContent ? (
-      <aside className="m5-mrail">
+      <aside className={"m5-mrail" + (mktRailOpen ? " m5-mrail--open" : "")} inert={!mktRailOpen}>
+        <button type="button" className="m5-mrail-x" onClick={() => setMktRailOpen(false)} aria-label="Закрыть">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+        </button>
         {railPos && (
           <div className="m5-mrcard">
             <div className="m5-mrt">Позиция на рынке</div>
@@ -6520,6 +6530,13 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
         {meta.data_quality === "low" && <DataQualityBanner flags={flags} />}
         <div className="m5-layout">
           <div className="m5-dash">
+            {railHasContent && (
+              <button type="button" className="m5-teaser" onClick={() => setMktRailOpen(true)}>
+                <span className="m5-teaser-ic">◧</span>
+                <span className="m5-teaser-t">Позиция на рынке, что отслеживать и конкуренты</span>
+                <span className="m5-teaser-chev">&#8250;</span>
+              </button>
+            )}
             {meta.market_position_summary && (
               <div className="m5-verdict"><div className="m5-vh">{meta.market_position_summary}</div></div>
             )}
@@ -6598,6 +6615,7 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
               </div>
             )}
           </div>
+          {mktRailOpen && <div className="m5-scrim" onClick={() => setMktRailOpen(false)} />}
           {rail}
         </div>
       </AppearGroup>
@@ -6709,12 +6727,25 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
       </div>
     );
 
+    // есть ли что показывать в выезжающей панели вывода
+    const macroRailHas = !!(bottom.text || bottom.effect || scen.base || scen.dovish || scen.hawkish
+      || hc.value != null || vb.rate_sensitivity_capitalization || endo.text || bottom.confidence);
+
     return (
       <div className="mv3-root">
         <div className="mv3-layout">
           {/* ===================== ОСНОВНАЯ КОЛОНКА ===================== */}
           <div className="mv3-dash">
             {driftBanner}
+
+            {/* триггер выезжающей панели с выводом (см. ниже) */}
+            {macroRailHas && (
+              <button type="button" className="mv3-teaser" onClick={() => setMacroRailOpen(true)}>
+                <span className="mv3-teaser-ic">→</span>
+                <span className="mv3-teaser-t">Итог для инвестора — ставка → прибыль, боль и потенциал разворота</span>
+                <span className="mv3-teaser-chev">&#8250;</span>
+              </button>
+            )}
 
             {/* BLOCK 1 — режим макросреды */}
             <div className="mv3-regime">
@@ -7026,9 +7057,17 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
             )}
           </div>
 
-          {/* ===================== ПРАВЫЙ РЕЛЬС — ВЫВОД ===================== */}
-          <aside>
-            <div style={{ position: "sticky", top: 130, display: "flex", flexDirection: "column", gap: 14 }}>
+          {/* ============ ВЫВОД — ВЫЕЗЖАЮЩАЯ ПАНЕЛЬ (владелец 2026-08-10) ============
+              Раньше это был правый рельс: он повторял вердикт («Смешанный»), который уже
+              стоит в блоке «Эффект для компании», и занимал поле, отданное «Содержанию».
+              Теперь открывается по интересу — тем же приёмом, что расчёт балла в
+              «Корп. управлении» и заметка аналитика в «Финансах». */}
+          {macroRailOpen && <div className="mv3-scrim" onClick={() => setMacroRailOpen(false)} />}
+          <aside className={"mv3-drawer" + (macroRailOpen ? " mv3-drawer--open" : "")} inert={!macroRailOpen}>
+            <button type="button" className="mv3-drawer-x" onClick={() => setMacroRailOpen(false)} aria-label="Закрыть">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+            </button>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {/* итог для инвестора */}
               {(bottom.text || bottom.effect) && (
                 <div className="mv3-bottom-rail">
@@ -7857,7 +7896,10 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
         // «Обзор» и «Бизнес-модель» — тоже на всю ширину (владелец, 2026-07-30): в «Обзоре»
         // справедливая цена теперь живёт в теле вкладки (блок BFV), и рейл рядом дублировал
         // её вторым числом; в «Бизнес-модели» цена не по теме.
-        (tab === "overview" || tab === "business" ||
+        // «Институты» — на всю ширину (владелец, 2026-08-10: «правый блок убрать ВООБЩЕ,
+        // не в панель»): справедливая цена и «−58%» уже стоят в шапке карточки, а правое
+        // поле теперь занято «Содержанием».
+        (tab === "overview" || tab === "business" || tab === "institutions" ||
          tab === "finance" || tab === "governance" || tab === "markets" || tab === "macro" ||
          (tab === "geo" && Array.isArray(geoJson?.gre_profile) && geoJson.gre_profile.length > 0)) ? (
           <div className="tw-min-w-0">{tabBody}</div>

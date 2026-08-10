@@ -30,7 +30,12 @@ const DESC = {
 
 // «Вышел отчётфакт2025 · МСФО» (скрин владельца): заголовок = иконка + имя +
 // чипы тегов + мета-строка в одном h3. Вырезаем служебное и берём чистое имя.
-const _DROP = ".tag,.hmeta,.chip,.badge,.cc-tag,.sc-chip,.obs-tag,svg,sup,time";
+// Служебные хвосты заголовка вырезаем ПО ПРИЗНАКУ КЛАССА, а не поимённо: у каждой
+// вкладки свой префикс тега (ic-tag / m5-tag / mv3-sec-k / obs-tag…), и точный список
+// устаревал молча — в панели читалось «Параметры выпускафакт», «Главные макрофакторы —
+// механизм и числоfactors · ядро» (владелец 2026-08-10).
+const _DROP = ".tag,.hmeta,.chip,.badge,.cc-tag,.sc-chip,.obs-tag,svg,sup,time,"
+  + "[class*='tag'],[class*='badge'],[class*='chip'],[class*='pill'],[class*='sec-k'],[class*='eyebrow']";
 function _cleanLabel(el) {
   const attr = el.getAttribute("data-rail");
   if (attr) return attr.trim();
@@ -107,10 +112,17 @@ export function ScrollRail({ selector = "[data-rail], h2, h3", minCount = 3, dep
         // 2026-08-10: «при пролистывании ничего не происходит, клик не ведёт»)
         its.push({ label, desc: _describe(el, label), el });
       }
-      setItems(its.length >= minCount ? its : []);
+      const next = its.length >= minCount ? its : [];
+      // Тот же список — тот же объект состояния: ResizeObserver дёргает пересборку
+      // на каждое изменение размеров, а лишняя перерисовка сбрасывает прокрутку панели.
+      setItems((prev) => (prev.length === next.length
+        && prev.every((p, i) => p.label === next[i].label && p.el === next[i].el) ? prev : next));
     };
     const t1 = setTimeout(rebuild, 400);
     const t2 = setTimeout(rebuild, 1600);
+    // ResizeObserver на body догоняет поздние данные (проверено с задержкой API на
+    // 8 с: список собирается, когда контент дорисовался) — таймеры выше только для
+    // быстрого первого показа.
     let ro = null;
     try { ro = new ResizeObserver(rebuild); ro.observe(document.body); } catch { /* таймеров хватит */ }
     return () => { cancelled = true; clearTimeout(t1); clearTimeout(t2); if (ro) ro.disconnect(); };
