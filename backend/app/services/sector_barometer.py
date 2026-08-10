@@ -29,6 +29,7 @@
 from __future__ import annotations
 
 import json
+import re
 import logging
 from datetime import date, datetime, timedelta, timezone
 
@@ -169,8 +170,15 @@ _SPEC = """
 • Пиши коротко: каждое поле — одна-две фразы, не абзац.
 • market_numbers и deals — это ФАКТЫ из переданного, а не пересказ вывода. Пусто
   лучше, чем общие слова: пустое поле честно показывает, что данных нет.
-• env_link — не обязательное поле. Ставь его, только когда среда РЕАЛЬНО меняет
-  картину отрасли; «высокая ставка давит на всех» — не связка, а трюизм.
+• env_link — не обязательное поле, но если по отрасли передан ОТРАСЛЕВОЙ ФЛАГ
+  геополитики или замер институтов, связка ОБЯЗАНА называть конкретный механизм
+  оттуда, а не общие слова. «Удары по НПЗ вывели около четверти переработки —
+  downstream теряет объёмы и получает дорогие ремонты» — связка. «Геополитическая
+  напряжённость поддерживает риск-премию в нефти» и «высокая ставка давит на
+  оценку» — трюизмы, они не принимаются: ставка и так в макро-рамке.
+• Про НАШИ ЧИСЛА: если пересказ в ленте противоречит блоку «НАШИ ЧИСЛА» — верь
+  нашим числам и не пиши обратное. Назвать прибыльную компанию убыточной —
+  ложный факт о бумаге, замер с таким полем целиком бракуется.
 """
 
 
@@ -314,6 +322,48 @@ def _sector_prices(db: Session, tickers: list[str]) -> list[str]:
     return out
 
 
+
+def _sector_financials(db: Session, tickers: list[str], limit: int = 12) -> tuple[list[str], dict]:
+    """НАШИ числа по компаниям отрасли: выручка и чистая прибыль последнего года.
+
+    🔴 Владелец, 2026-08-10: барометр написал «YDEX — убыток 51 млрд руб.», хотя у нас
+    в карточке чистая прибыль 79,6 млрд и растёт. Число пришло из пересказа новости в
+    ленте: своих канонических чисел барометр НЕ ВИДЕЛ вовсе — только отчётность-дайджесты
+    и статьи. Пересказ всегда проигрывает собственным данным (CLAUDE.md: числа карточки —
+    из financials.json, единый источник), поэтому кладём их прямо во вход и возвращаем
+    вторым значением карту «тикер → прибыль» для гейта.
+    """
+    import json as _json
+    from pathlib import Path
+    root = Path(__file__).parent.parent.parent / "companies"
+    lines, profits = [], {}
+    for t in tickers[:limit * 3]:
+        f = root / t / "financials.json"
+        if not f.exists():
+            continue
+        try:
+            data = _json.loads(f.read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            continue
+        inc = data.get("income_statement") or {}
+        rev, prof = inc.get("revenue") or [], inc.get("net_profit") or []
+        last_p = next((v for v in reversed(prof) if isinstance(v, (int, float))), None)
+        prev_p = next((v for v in reversed(prof[:-1]) if isinstance(v, (int, float))), None)
+        last_r = next((v for v in reversed(rev) if isinstance(v, (int, float))), None)
+        if last_p is None and last_r is None:
+            continue
+        profits[t] = last_p
+        trend = ""
+        if last_p is not None and prev_p not in (None, 0):
+            trend = " (рост)" if last_p > prev_p else " (снижение)"
+        lines.append(f"  {t}: выручка {last_r if last_r is not None else '—'} млн, "
+                     f"чистая прибыль {last_p if last_p is not None else '—'} млн{trend}")
+        if len(lines) >= limit:
+            break
+    return lines, profits
+
+
+
 def _sector_articles(db: Session, key: str, label: str, drivers: str, limit: int = 6) -> list[str]:
     """Материалы ленты для отрасли — два слоя, в порядке точности.
 
@@ -407,8 +457,30 @@ def previous(db: Session) -> dict:
     return (row.payload or {}) if row else {}
 
 
-def _check(items: list[dict], allowed: set[str]) -> tuple[list[str], list[str]]:
+_LOSS_RE = re.compile(r"убыт\w*|в минусе|отрицательн\w+ прибыл\w*", re.I)
+
+
+def _check(items: list[dict], allowed: set[str],
+           profits: dict[str, float | None] | None = None) -> tuple[list[str], list[str]]:
     bad, notes = [], []
+    # 🔴 Проверка кодом: сказать «убыток» про компанию, у которой в НАШИХ данных
+    # прибыль, — не стилистика, а ложный факт о бумаге (владелец, 2026-08-10: «у
+    # Яндекса наоборот чистая прибыль выросла»). Уговорами это не лечится: число
+    # приходит из пересказа новости и выглядит убедительно.
+    for s in items:
+        for field in ("headline", "losers", "what_happens", "for_investor"):
+            txt = str(s.get(field) or "")
+            for tk, prof in (profits or {}).items():
+                if prof is None or prof <= 0 or tk not in txt:
+                    continue
+                # ищем слово об убытке рядом с тикером (в пределах 120 знаков)
+                i = txt.find(tk)
+                around = txt[max(0, i - 60): i + 120]
+                if _LOSS_RE.search(around):
+                    msg = (f"{s.get('key')}: «{tk}» назван убыточным, а в наших данных "
+                           f"чистая прибыль {prof:.0f} млн — ложный факт")
+                    if msg not in bad:
+                        bad.append(msg)
     for s in items:
         k = s.get("key")
         if not isinstance(s.get("score"), (int, float)):
@@ -433,6 +505,7 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
                prev_map: dict) -> tuple[list[dict], list[str]]:
     secs = [s for s in SECTORS if s["key"] in keys]
     blocks, allowed = [], set()
+    profits: dict[str, float | None] = {}
     for sec in secs:
         tickers = _sector_tickers(db, sec)
         allowed.update(tickers)
@@ -451,6 +524,11 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
         ind = _sector_indicators(db, sec["key"])
         if ind:
             b.append("Показатели отрасли:\n" + "\n".join(ind))
+        fin, profit_map = _sector_financials(db, tickers)
+        profits.update(profit_map)
+        if fin:
+            b.append("НАШИ ЧИСЛА по компаниям отрасли (карточки платформы — единый "
+                     "источник, они СИЛЬНЕЕ пересказов в ленте):\n" + "\n".join(fin))
         if earn:
             b.append("Свежая отчётность компаний отрасли:\n" + "\n".join(earn))
         else:
@@ -469,12 +547,17 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
             prev_part = ("\n\nПРОШЛЫЙ ЗАМЕР по этим отраслям (отправная точка):\n"
                          + json.dumps(sub, ensure_ascii=False, indent=1)[:6000])
 
+    try:
+        from app.services.macro_sector_playbook import drivers_digest
+        drivers = drivers_digest()
+    except Exception:  # noqa: BLE001
+        drivers = ""
     system = (
         "Ты — отраслевой аналитик Basis (независимая аналитика для частного "
         "инвестора в РФ). Ты оцениваешь СОСТОЯНИЕ ОТРАСЛЕЙ российского рынка: где "
         "отрасль сейчас, куда движется и что это значит для того, кто держит её "
         "акции. Пиши простым языком, без академических терминов и без жаргона.\n\n"
-        + _SPEC
+        + _SPEC + (("\n\n" + drivers) if drivers else "")
     )
     user = (f"БАТЧ «{name}». Оцени каждую отрасль ниже.\n\n{macro}\n\n"
             + "\n\n".join(blocks) + prev_part
@@ -490,7 +573,7 @@ def _run_batch(db: Session, name: str, keys: list[str], macro: str,
     if not isinstance(items, list) or not items:
         return [], [f"батч «{name}»: пустой ответ"]
     items = [s for s in items if isinstance(s, dict) and s.get("key") in keys]
-    bad, notes = _check(items, allowed)
+    bad, notes = _check(items, allowed, profits)
     if bad:
         return [], [f"батч «{name}» отклонён: {b}" for b in bad] + notes
     return items, [f"батч «{name}»: {n}" for n in notes]
