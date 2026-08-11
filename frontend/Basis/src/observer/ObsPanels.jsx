@@ -1913,14 +1913,41 @@ function ObsGeoChains({ macroChain, instChain }) {
           <div className="obs-inst-card-title"><ShieldAlert size={16} />Что война делает с правилами игры</div>
           <div className="obs-inst-card-sub">
             Второй канал до денег: издержки соблюдения, защита собственности, конкуренция
-            и работоспособность ставки.
+            и работоспособность ставки. У каждого сдвига — механизм, масштаб, стойкость
+            и путь, которым он доходит до оценки. Институты рушатся быстро, а
+            восстанавливаются медленно: отмена меры на бумаге не возвращает среду обратно.
           </div>
           <div className="obs-geo-inst-list">
             {instChain.map((c, i) => (
               <div key={i} className="obs-geo-inst">
                 <span className="obs-geo-inst-axis">{c.axis}</span>
                 <span className="obs-geo-inst-what">{c.what}</span>
+                {/* Форма вывода из методички «геополитика → институты» (Часть 5):
+                    масштаб, механизм, стойкость, путь до оценки. Без неё разговор
+                    об институтах съезжает в расплывчатость — «институты
+                    ухудшаются» вместо «работает механизм концентрации,
+                    системно, самовоспроизводится». */}
+                {(c.mechanism || c.scale || c.persistence || c.to_valuation) && (
+                  <span className="obs-geo-chain-tags">
+                    {c.mechanism && <span className="obs-geo-chain-tag obs-geo-chain-tag--ch">механизм: {c.mechanism}</span>}
+                    {c.scale && <span className="obs-geo-chain-tag">{c.scale}</span>}
+                    {c.persistence && (
+                      <span className={`obs-geo-chain-tag${/ловушк|переход/i.test(c.persistence) ? " obs-geo-chain-tag--hard" : ""}`}>
+                        {c.persistence}
+                      </span>
+                    )}
+                    {c.to_valuation && <span className="obs-geo-chain-tag">до оценки: {c.to_valuation}</span>}
+                  </span>
+                )}
                 {c.for_business && <span className="obs-geo-inst-biz">{c.for_business}</span>}
+                {/* Правило 4.4 методички: операционно позитивное событие не обязано
+                    быть позитивным для акционера. Показываем отдельной плашкой —
+                    это ровно то место, где читатель обычно радуется не тому. */}
+                {c.operational_vs_institutional && (
+                  <span className="obs-geo-inst-caveat">
+                    <b>Операционный плюс ≠ плюс акционеру:</b> {c.operational_vs_institutional}
+                  </span>
+                )}
               </div>
             ))}
           </div>

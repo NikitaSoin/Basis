@@ -1,0 +1,295 @@
+"""Полка методичек: агент ОТКРЫВАЕТ нужный раздел, а не получает стену текста.
+
+🔴 ЗАЧЕМ ЭТОТ СЛОЙ (постановка владельца, 2026-08-12).
+«Есть база знаний и методички — когда агенту нужно что-то проанализировать,
+вместо выдумывания или анализа по своей странной логике он идёт в методичку и
+смотрит, как там описано, а дальше реализует анализ по логике методички».
+
+Так и устроено здесь. Роли разведены жёстко:
+  • СИСТЕМНЫЙ ПРОМПТ отвечает за то, ЧТО должно оказаться на выходе — структуру
+    блока, поля, запреты, тон. Это контракт с витриной.
+  • МЕТОДИЧКА отвечает за то, КАК рассуждать, чтобы этот выход получился. Это
+    доменное знание, и оно меняется независимо от структуры экрана.
+Смешение этих двух вещей — то, из чего вырастают промпты на тысячу строк, где
+правку методики приходится делать в коде, а конфликт двух правил обнаруживается
+только на витрине.
+
+🔴 ПОЧЕМУ ИНСТРУМЕНТ, А НЕ ЦЕЛИКОМ В ПРОМПТ.
+Методички большие: «геополитика → макро» ~55 тыс. знаков, «геополитика →
+институты» ~31 тыс., макро-методичка ~55 тыс. Вклеивать их целиком — это
+десятки тысяч токенов в КАЖДОМ прогоне, причём 90% из них к текущей задаче
+отношения не имеют. Хуже того, в длинном промпте инструкции из середины
+размываются: на этом проекте уже ловили, как запрет из хвоста промпта модель
+игнорировала три прогона подряд.
+Поэтому агент получает ОГЛАВЛЕНИЕ (дёшево, ~1-2 тыс. знаков) и два инструмента —
+посмотреть список разделов и открыть нужный. Читает он то, что относится к делу,
+и мы видим в трейсе, ЧЕМ он на самом деле пользовался.
+
+🔴 ЧЕГО ЭТОТ СЛОЙ НЕ ДЕЛАЕТ. Не решает за агента, какой раздел нужен, и не
+подменяет системный промпт. Если методичка недоступна — честно возвращает ошибку,
+а не пустоту, чтобы «анализ без методики» не выглядел как нормальная работа.
+"""
+from __future__ import annotations
+
+import logging
+import os
+import re
+
+logger = logging.getLogger(__name__)
+
+_REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__)))))
+_DOCS = os.path.join(_REPO, "docs")
+
+# Максимум знаков на выдачу одного раздела. Разделы методичек редко длиннее,
+# но лимит нужен: без него один раздел-переросток съест бюджет прогона.
+_MAX_SECTION_CHARS = 14_000
+
+
+class MethodologyDoc:
+    """Одна методичка: файл + разобранное оглавление."""
+
+    __slots__ = ("doc_id", "filename", "title", "when_to_use")
+
+    def __init__(self, doc_id: str, filename: str, title: str, when_to_use: str):
+        self.doc_id = doc_id
+        self.filename = filename
+        self.title = title
+        self.when_to_use = when_to_use
+
+    @property
+    def path(self) -> str:
+        return os.path.join(_DOCS, self.filename)
+
+
+# 🔴 Полка. Добавляя методичку, пиши when_to_use так, чтобы по нему было ясно,
+# КОГДА её открывать: агент выбирает документ именно по этой фразе, а не по имени
+# файла. «Про институты» — плохое описание, «когда надо понять, как военное
+# давление меняет правила игры и что это делает со ставкой дисконтирования» —
+# хорошее.
+REGISTRY: dict[str, MethodologyDoc] = {
+    "geo": MethodologyDoc(
+        "geo", "geopolitics_methodology.md",
+        "Геополитика: как разбирать сам конфликт",
+        "Стороны, их цели, баланс сил, сценарии и вероятности, эскалация — "
+        "когда надо оценить ход самого конфликта, а не его экономические следствия."),
+    "geo_macro": MethodologyDoc(
+        "geo_macro", "geopolitics_to_macro.md",
+        "Геополитика → макроэкономика",
+        "Когда надо показать, как военное или санкционное событие доходит до "
+        "инфляции, бюджета, курса, ставки и рынка труда: 14 каналов передачи, "
+        "порядки эффектов, лаги, обратимость, контрфакт, реакция государства и ЦБ."),
+    "geo_inst": MethodologyDoc(
+        "geo_inst", "geopolitics_to_institutions.md",
+        "Геополитика → институты",
+        "Когда надо показать, как внешнее давление меняет ПРАВИЛА ИГРЫ внутри "
+        "страны: права собственности, суды и контракты, независимость регуляторов, "
+        "конкуренцию и барьеры, открытость информации — и как институциональный "
+        "сдвиг доходит до денежных потоков и ставки дисконтирования."),
+    "macro": MethodologyDoc(
+        "macro", "macro_interpreter_methodology_v3.md",
+        "Макроэкономика: интерпретация показателей",
+        "Когда надо связать макропоказатели в картину: что двигает инфляцию, "
+        "ставку, курс, и что из этого следует для рынка."),
+}
+
+
+def _read_file(doc: MethodologyDoc) -> str | None:
+    try:
+        with open(doc.path, encoding="utf-8") as f:
+            return f.read()
+    except OSError as e:
+        logger.warning("methodology: %s недоступна (%s)", doc.doc_id, e)
+        return None
+
+
+def _sections(text: str) -> list[tuple[str, str, int, int]]:
+    """[(номер|'', заголовок, начало, конец)] по заголовкам markdown."""
+    heads = [(m.start(), m.group(0).strip()) for m in
+             re.finditer(r"^#{1,3} .+$", text, re.M)]
+    out: list[tuple[str, str, int, int]] = []
+    for i, (pos, head) in enumerate(heads):
+        end = heads[i + 1][0] if i + 1 < len(heads) else len(text)
+        clean = head.lstrip("# ").strip()
+        m = re.match(r"^(\d+\.\d+|ЧАСТЬ\s+\d+)\.?\s*(.*)$", clean)
+        num = m.group(1) if m else ""
+        out.append((num, clean, pos, end))
+    return out
+
+
+def outline(doc_id: str) -> dict:
+    """Оглавление методички: номера и названия разделов с их размером."""
+    doc = REGISTRY.get(doc_id)
+    if not doc:
+        return {"error": f"методички «{doc_id}» нет на полке",
+                "доступны": sorted(REGISTRY)}
+    text = _read_file(doc)
+    if text is None:
+        return {"error": f"файл методички «{doc_id}» недоступен"}
+    items = [{"раздел": num or title, "название": title, "знаков": end - pos}
+             for num, title, pos, end in _sections(text)]
+    return {"методичка": doc.title, "разделов": len(items), "оглавление": items}
+
+
+def read_section(doc_id: str, section: str) -> dict:
+    """Текст раздела. `section` — номер («2.4», «ЧАСТЬ 3») или кусок названия."""
+    doc = REGISTRY.get(doc_id)
+    if not doc:
+        return {"error": f"методички «{doc_id}» нет на полке",
+                "доступны": sorted(REGISTRY)}
+    text = _read_file(doc)
+    if text is None:
+        return {"error": f"файл методички «{doc_id}» недоступен"}
+
+    want = (section or "").strip().lower()
+    if not want:
+        return {"error": "не указан раздел", "подсказка": "сначала посмотри оглавление"}
+
+    secs = _sections(text)
+    # 1) точное совпадение номера, 2) начало номера, 3) вхождение в название
+    hit = None
+    for num, title, pos, end in secs:
+        if num and num.lower() == want:
+            hit = (num, title, pos, end)
+            break
+    if hit is None:
+        for num, title, pos, end in secs:
+            if num and num.lower().startswith(want):
+                hit = (num, title, pos, end)
+                break
+    if hit is None:
+        for num, title, pos, end in secs:
+            if want in title.lower():
+                hit = (num, title, pos, end)
+                break
+    if hit is None:
+        return {"error": f"раздел «{section}» не найден",
+                "есть": [n or t for n, t, _, _ in secs][:40]}
+
+    num, title, pos, end = hit
+    body = text[pos:end]
+    truncated = len(body) > _MAX_SECTION_CHARS
+    return {"методичка": doc.title, "раздел": num or title, "название": title,
+            "текст": body[:_MAX_SECTION_CHARS],
+            "обрезано": truncated}
+
+
+def shelf_card(doc_ids: list[str] | None = None) -> str:
+    """Что положить в системный промпт: какие методички есть и что внутри.
+
+    Даёт агенту ровно столько, чтобы он ЗНАЛ, куда идти: название, когда
+    открывать, и список разделов. Сам текст он берёт инструментом.
+    """
+    ids = doc_ids or list(REGISTRY)
+    lines = ["\n===== ПОЛКА МЕТОДИЧЕК =====",
+             "Это твоя база знаний. 🔴 Правило: если для вывода нужно РАССУЖДЕНИЕ "
+             "(через какой канал идёт эффект, какого он порядка, обратим ли, что "
+             "было бы без события) — НЕ придумывай логику сам и не пересказывай "
+             "общие места. Открой соответствующий раздел методички инструментом "
+             "read_methodology_section и рассуждай по нему. Системный промпт "
+             "говорит, ЧТО должно быть на выходе; методичка — КАК до этого дойти.",
+             "Открытые разделы перечисли в поле methodology_used — мы проверяем, "
+             "чем именно ты пользовался."]
+    for doc_id in ids:
+        doc = REGISTRY.get(doc_id)
+        if not doc:
+            continue
+        info = outline(doc_id)
+        if info.get("error"):
+            lines.append(f"\n• {doc_id} — {doc.title}: ⚠ НЕДОСТУПНА ({info['error']})")
+            continue
+        names = [str(i["раздел"]) for i in info["оглавление"]]
+        lines.append(f"\n• id={doc_id} — {doc.title}")
+        lines.append(f"  Когда открывать: {doc.when_to_use}")
+        lines.append(f"  Разделы: {', '.join(names)}")
+    lines.append("===== КОНЕЦ ПОЛКИ =====\n")
+    return "\n".join(lines)
+
+
+def core(doc_id: str, sections: list[str], header: str = "") -> str:
+    """Склейка нескольких разделов — для слоёв БЕЗ цикла инструментов.
+
+    🔴 Когда это уместно, а когда нет. Инструментальный доступ (полка + чтение
+    раздела) лучше: агент берёт то, что нужно ЕМУ, и мы видим это в трейсе. Но
+    часть слоёв платформы — это ОДИН вызов модели без цикла (недельные портреты,
+    короткие интерпретаторы). Им инструменты дать негде, а рассуждать по методике
+    надо. Для них собираем ядро из заранее выбранных разделов.
+    Ненайденные разделы попадают в лог: методички правит владелец, нумерация
+    может поехать, и молчаливая потеря куска аппарата выглядела бы как «модель
+    стала хуже рассуждать» без видимой причины.
+    """
+    doc = REGISTRY.get(doc_id)
+    if not doc:
+        logger.warning("methodology.core: нет методички %s", doc_id)
+        return ""
+    text = _read_file(doc)
+    if text is None:
+        return ""
+    index = {}
+    for num, title, pos, end in _sections(text):
+        if num:
+            index[num.lower()] = text[pos:end]
+    parts, missing = [], []
+    for s in sections:
+        body = index.get(s.strip().lower())
+        if body:
+            parts.append(body)
+        else:
+            missing.append(s)
+    if missing:
+        logger.warning("methodology.core: в %s не найдены разделы %s — ядро неполное",
+                       doc_id, ", ".join(missing))
+    if not parts:
+        return ""
+    head = header or f"===== МЕТОДИЧКА: {doc.title.upper()} ====="
+    return f"\n\n{head}\n\n" + "\n".join(parts) + "\n===== КОНЕЦ МЕТОДИЧКИ =====\n"
+
+
+METHODOLOGY_TOOLS_SCHEMA = [
+    {
+        "type": "function",
+        "function": {
+            "name": "list_methodology_sections",
+            "description": ("Оглавление методички: какие разделы есть и какого они "
+                            "размера. Вызывай, если не уверен, в каком разделе "
+                            "нужный аппарат."),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "doc": {"type": "string",
+                            "description": "id методички с полки, например geo_macro"},
+                },
+                "required": ["doc"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "read_methodology_section",
+            "description": ("Открыть раздел методички и прочитать его текст. Это "
+                            "твой способ рассуждать ПО МЕТОДИКЕ, а не по общей "
+                            "эрудиции."),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "doc": {"type": "string",
+                            "description": "id методички с полки, например geo_inst"},
+                    "section": {"type": "string",
+                                "description": "номер раздела («2.4», «ЧАСТЬ 3») "
+                                               "или часть его названия"},
+                },
+                "required": ["doc", "section"],
+            },
+        },
+    },
+]
+
+
+def execute(name: str, args: dict) -> dict | None:
+    """Диспетчер инструментов полки. None — инструмент не наш."""
+    if name == "list_methodology_sections":
+        return outline(str(args.get("doc", "")))
+    if name == "read_methodology_section":
+        return read_section(str(args.get("doc", "")), str(args.get("section", "")))
+    return None

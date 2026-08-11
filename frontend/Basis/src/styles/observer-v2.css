@@ -7334,3 +7334,19 @@ details[open] > summary .obs-inst-chev,
   border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
   vertical-align: middle;
 }
+
+/* Оговорка «операционный плюс ≠ плюс акционеру» (методичка geo_inst, 4.4).
+   Отдельной плашкой, потому что это единственное место блока, где вывод идёт
+   ПРОТИВ интуиции читателя: хорошая новость компании и плохая новость рынку. */
+.obs-geo-inst-caveat {
+  display: block;
+  margin-top: 6px;
+  padding: 7px 10px;
+  border-left: 2px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  background: var(--accent-soft);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.obs-geo-inst-caveat b { color: var(--text-primary); font-weight: 700; }

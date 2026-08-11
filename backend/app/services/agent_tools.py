@@ -337,6 +337,18 @@ def execute_tool(db: Session, name: str, args: dict, allowed_ticker: str) -> dic
     """Диспетчер. allowed_ticker — агенту разрешён ТОЛЬКО его тикер (не даём
     пилоту гулять по всей базе — бюджет и предсказуемость). Веб-инструменты
     тикеро-агностичны."""
+    # Полка методичек — тоже до проверки тикера: методика доменная, к бумаге
+    # отношения не имеет. Мягкий импорт — модуль новый, а Timeweb выкатывает
+    # файлы неравномерно, и жёсткий импорт уронил бы весь диспетчер.
+    try:
+        from app.services.methodology import execute as _methodology_execute
+    except ImportError:  # pragma: no cover
+        _methodology_execute = None
+    if _methodology_execute is not None:
+        got = _methodology_execute(name, args)
+        if got is not None:
+            return got
+
     # веб-инструменты — до проверки тикера
     if name == "web_search":
         from app.services.agent_web import web_search
