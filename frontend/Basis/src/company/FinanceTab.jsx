@@ -589,7 +589,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
         // ── Расходы → прибыль ────────────────────────────────────────────────
         M("Операционные расходы",           ga(bp,"operating_expenses"), { muted: true, sign: -1 }),
         M("Прибыль до налога",              ga(bp,"pre_tax_profit"), { bold: true }),
-        M("Налог на прибыль",               ga(bp,"income_tax"), { det: true, muted: true, sign: -1 }),
+        M("Налог на прибыль",               ga(bp,"income_tax"), { det: true, muted: true, neg: true }),
         M("Чистая прибыль",                 ga(bp,"net_profit"), { bold: true }),
         M("Чистая прибыль (норм.)",         ga(bp,"net_profit_adj")||ga(adjBlk,"net_profit_adj"), { bold: true, accent: true }),
       ].filter(Boolean)
@@ -597,9 +597,9 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
         M("Выручка", is.revenue, { bold: true }),
         ...(isByFunc
           ? [
-              M("Себестоимость", is.cogs, { det: true, muted: true }),
+              M("Себестоимость", is.cogs, { det: true, muted: true, sign: -1 }),
               M("Валовая прибыль", orSum(is.gross_profit, [is.revenue, is.cogs && is.cogs.map((x) => x == null ? null : -x)]), { bold: true }),
-              M("Операционные расходы", is.operating_expenses, { det: true, muted: true }),
+              M("Операционные расходы", is.operating_expenses, { det: true, muted: true, sign: -1 }),
             ]
           // Статьи моста: СНАЧАЛА актуальные (заполнен последний год), потом
           // исторические. У компаний со сменой стандарта (Яндекс: US GAAP до
@@ -615,12 +615,12 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
         // (при by_nature D&A обычно уже статья expense_lines — иначе дубль
         // одной величины двумя строками, жалоба владельца 2026-07-28).
         ...(expLines.some((el) => /аморт|износ|d&a/i.test(el.name || ""))
-          ? [] : [M("Амортизация", is.da, { det: true, muted: true })]),
+          ? [] : [M("Амортизация", is.da, { det: true, muted: true, sign: -1 })]),
         M("Операционная прибыль (EBIT)", is.operating_profit, { bold: true }),
-        M("Финансовые расходы", is.finance_costs, { det: true, muted: true }),
+        M("Финансовые расходы", is.finance_costs, { det: true, muted: true, sign: -1 }),
         M("Финансовые доходы", is.finance_income, { det: true, muted: true }),
         M("Прибыль до налога", is.pre_tax_profit, { det: true, muted: true }),
-        M("Налог на прибыль", is.income_tax, { det: true, muted: true }),
+        M("Налог на прибыль", is.income_tax, { det: true, muted: true, neg: true }),
         M("Чистая прибыль", is.net_profit, { bold: true }),
         M("Чистая прибыль (норм.)", adjBlk.net_profit_adj, { bold: true, accent: true }),
         ...(isByFunc ? [{ l: "Валовая маржа", a: margins.gross_margin, kind: "pct", det: true, muted: true }] : []),
@@ -1057,8 +1057,14 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                         if (r.det && !detOpen) return null;
                         const rawVals = sl(r.a);
                         if (!rawVals.some((x) => x != null)) return null;
-                        // sign=-1: вычитаемые строки (расходы/резервы/налог) показываем отрицательно
-                        const vals = r.sign === -1 ? rawVals.map((v) => (v == null ? null : -Math.abs(v))) : rawVals;
+                        // sign=-1: вычитаемые строки (расходы/резервы) показываем отрицательно
+                        // neg: строка вычитается, но её ЗНАК несёт смысл — налог на прибыль
+                        // бывает льготой, и она обязана остаться со знаком «плюс». Поэтому
+                        // здесь умножение на −1, а не −Math.abs: иначе год с налоговой
+                        // льготой выглядел бы как год с налоговым расходом.
+                        const vals = r.sign === -1 ? rawVals.map((v) => (v == null ? null : -Math.abs(v)))
+                          : r.neg ? rawVals.map((v) => (v == null ? null : -v))
+                          : rawVals;
                         const rowUnit = r.kind === "money" ? rowMoneyUnit(vals) : null;
                         const cls = [r.bold ? "bold" : "", r.accent ? "accent" : ""].filter(Boolean).join(" ");
                         return (<tr className={cls} key={i}><td style={{ paddingLeft: r.det ? 24 : undefined, color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}{rowUnit && <span className="fm-row-unit"> · {rowUnit.u}</span>}</td>{yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j], j, rowUnit)}</span>{cellDelta(r, vals, j)}</td>)}</tr>);
