@@ -57,11 +57,12 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
     trace: list[dict] = []
     tokens_used = 0
     web_calls = 0
+    last_call_made = False   # выдали ли уже требование «финал сейчас»
 
     for step in range(1, max_steps + 1):
         # когда веб-бюджет исчерпан — не предлагаем веб-инструменты дальше
         step_tools = tools_schema
-        if web_calls >= web_call_cap:
+        if web_calls >= web_call_cap and step_tools:
             # 🔴 Исчерпан бюджет ПОИСКА — убираем только поисковые инструменты, но
             # оставляем чтение документов. Раньше срезалось всё разом, и агент,
             # потративший лимит на поиски, физически не мог открыть найденное:
@@ -70,7 +71,9 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
             step_tools = [t for t in tools_schema
                           if (t.get("function") or {}).get("name") not in _SEARCH_TOOLS]
         try:
-            resp = complete_messages(messages, tools=step_tools, max_tokens=step_max_tokens, temperature=0.2)
+            # tools=None при пустой схеме: часть провайдеров ругается на tools=[]
+            resp = complete_messages(messages, tools=step_tools or None,
+                                     max_tokens=step_max_tokens, temperature=0.2)
         except LLMError as e:
             trace.append({"step": step, "event": "llm_error", "detail": str(e)})
             return {"result": None, "trace": trace, "tokens_used": tokens_used,
@@ -97,6 +100,27 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
             return {"result": result, "trace": trace, "tokens_used": tokens_used,
                     "final_raw": content[:1500],
                     "stopped_reason": "final" if result is not None else "unparseable_final"}
+
+        # 🔴 ПОСЛЕДНИЙ ЗВОНОК ПЕРЕД ИСЧЕРПАНИЕМ БЮДЖЕТА.
+        # Найдено на первом же боевом прогоне разведки: агент потратил 106 тысяч
+        # токенов за 11 шагов, упёрся в потолок и вернул НИЧЕГО — вся работа
+        # (поиски, прочитанные разделы методичек, собранные факты) пропала, потому
+        # что финал он написать не успел. Причина роста расхода структурная:
+        # результаты инструментов остаются в диалоге и заново отправляются на
+        # КАЖДОМ шаге, поэтому чтение нескольких больших разделов удорожает все
+        # последующие шаги сразу.
+        # Поэтому при подходе к границе мы не обрываем прогон молча, а забираем
+        # инструменты и требуем финал сейчас. Половина работы лучше нуля, а
+        # «не успел» становится видимым в трейсе, а не выглядит как пустой ответ.
+        if not last_call_made and tokens_used > max_tokens_total * 0.7:
+            last_call_made = True
+            trace.append({"step": step, "event": "last_call", "tokens": tokens_used})
+            messages.append({"role": "user", "content": (
+                "🔴 БЮДЖЕТ ПРОГОНА ПОЧТИ ИСЧЕРПАН. Инструменты больше недоступны. "
+                "Немедленно верни ИТОГОВЫЙ JSON в заданном формате по тому, что ты "
+                "уже собрал. Неполный результат с честным списком пробелов нужнее, "
+                "чем отсутствие результата. Ничего не досочиняй.")})
+            tools_schema = []
 
         # исполняем вызовы инструментов и кладём результаты в диалог.
         # 🔴 Обрезаем СПИСОК ДО добавления в assistant-сообщение: API (DeepSeek/
