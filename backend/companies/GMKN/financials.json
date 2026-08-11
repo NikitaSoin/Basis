@@ -23,7 +23,7 @@
     ],
     "last_price": 129.5,
     "price_date": "2026-06-10",
-    "shares_outstanding": 15286.34,
+    "shares_outstanding": 15286340000.0,
     "data_quality": "high",
     "data_source_priority": [
       "Первичная МСФО-отчётность (sources/extracted_financials.json, arithmetic_check passed)",
@@ -31,7 +31,8 @@
       "Веб: цена/число акций/консенсус"
     ],
     "anomaly_note": "Циклическая металлургия: прибыль и FCF сильно зависят от корзины цен металлов (палладий, никель, медь, платина) и курса рубля. 2021 — пиковый год (P/B 7,2); 2024–2025 — спад на падении палладия и санкционных издержках. Сплит акций 1:100 в 2023 (15 286,34 млн акций).",
-    "adjustments_aggressive": false
+    "adjustments_aggressive": false,
+    "shares_outstanding_note": "Число акций приведено к ШТУКАМ по биржевому справочнику (rates.csv, ISSUESIZE). Раньше на этой карточке оно хранилось в миллионах, и движок справедливой цены вынужден был угадывать масштаб."
   },
   "anomaly_flag": true,
   "total_equity": [
