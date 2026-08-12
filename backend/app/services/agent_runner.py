@@ -40,7 +40,7 @@ _SEARCH_TOOLS = {"web_search", "search_our_feed"}
 def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[dict],
               allowed_ticker: str = "", max_steps: int = 8, max_tokens_total: int = 40_000,
               web_call_cap: int = 2, executor=None, step_max_tokens: int = 1600,
-              final_max_tokens: int = 0) -> dict:
+              final_max_tokens: int = 0, final_instruction: str = "") -> dict:
     """Возвращает {"result": dict|None, "trace": list, "tokens_used": int,
     "stopped_reason": str}. result=None — агент не дал валидного JSON-финала.
     web_call_cap — сколько раз всего разрешён веб-поиск/открытие документа: после
@@ -133,11 +133,18 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
         if not last_call_made and tokens_used > max_tokens_total * 0.7:
             last_call_made = True
             trace.append({"step": step, "event": "last_call", "tokens": tokens_used})
+            # 🔴 Формат ПОВТОРЯЕМ ЗДЕСЬ, а не отсылаем к системному промпту.
+            # Боевой прогон: агент отработал 26 шагов на 148 тысяч токенов и в
+            # финале написал связную прозу вместо JSON — формат был объявлен в
+            # начале очень длинного диалога и к этому моменту потерялся. Просьба
+            # «верни в заданном формате» ссылается на то, чего модель уже не
+            # видит; напоминание с самой схемой — видит.
             messages.append({"role": "user", "content": (
                 "🔴 БЮДЖЕТ ПРОГОНА ПОЧТИ ИСЧЕРПАН. Инструменты больше недоступны. "
-                "Немедленно верни ИТОГОВЫЙ JSON в заданном формате по тому, что ты "
-                "уже собрал. Неполный результат с честным списком пробелов нужнее, "
-                "чем отсутствие результата. Ничего не досочиняй.")})
+                "Немедленно верни ИТОГОВЫЙ JSON по тому, что уже собрал. Неполный "
+                "результат с честным списком пробелов нужнее, чем отсутствие "
+                "результата. Ничего не досочиняй. Ответ — ТОЛЬКО JSON, без "
+                "вступлений, пояснений и текста вокруг.\n" + (final_instruction or ""))})
             tools_schema = []
 
         # исполняем вызовы инструментов и кладём результаты в диалог.
