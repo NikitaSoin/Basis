@@ -457,6 +457,43 @@ def _drop_scores(payload: dict) -> None:
                 r["barometer"].pop(k, None)
 
 
+# Обязательные подполя блоков. Появилось новое поле в спецификации — допиши его
+# сюда, иначе блок будет копироваться из вчерашнего в старой форме бесконечно.
+_SHAPE_REQUIRED = {
+    "institutional_chain": ("layer", "winners", "losers"),
+    "macro_chain": ("channel", "order", "reversibility"),
+}
+
+
+def _drop_stale_shape(prev: dict) -> tuple[dict, list[str]]:
+    """Убрать из «вчерашнего» блоки, собранные по устаревшей форме.
+
+    Возвращает (очищенная копия, список того, что удалено). Проверяем по ПЕРВОМУ
+    элементу списка: если у него нет ни одного из обязательных новых подполей —
+    блок старый целиком. Частично заполненные не трогаем: там модель уже перешла
+    на новую форму, а отсутствие отдельного поля может быть законным «нечего
+    сказать».
+    """
+    import copy
+    out = copy.deepcopy(prev)
+    dropped: list[str] = []
+    for rkey, reg in (out.get("regions") or {}).items():
+        if not isinstance(reg, dict):
+            continue
+        for field, required in _SHAPE_REQUIRED.items():
+            items = reg.get(field)
+            if not isinstance(items, list) or not items:
+                continue
+            first = items[0] if isinstance(items[0], dict) else {}
+            if not any(first.get(k) for k in required):
+                reg.pop(field, None)
+                dropped.append(f"{rkey}.{field}")
+    if dropped:
+        logger.info("barometer_daily: удалены блоки устаревшей формы: %s",
+                    ", ".join(dropped))
+    return out, dropped
+
+
 def _gate(fresh: dict, prev: dict) -> tuple[dict, list[str]]:
     """Возвращает (выпуск, заметки). НЕ отклоняет весь прогон из-за одного балла:
     сдвиг без обоснования просто откатывается к вчерашнему значению — так суточная
@@ -571,11 +608,29 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
     except Exception:  # noqa: BLE001
         dossier_text = ""
 
+    # 🔴 ПРАВИЛО СТАБИЛЬНОСТИ БЛОКИРУЕТ СМЕНУ ФОРМЫ — и это не гипотеза, а то, что
+    # случилось. Модель получает вчерашний выпуск с указанием «сохраняй значения,
+    # если лента не даёт основания их менять» и добросовестно копирует старые
+    # блоки. Когда меняется МЕТОДИКА, а не мир, оснований в ленте нет — и новая
+    # форма не появляется никогда: связка с институтами вышла с пустыми
+    # winners/losers/layer и старым словарём направлений, хотя спецификация уже
+    # требовала новые поля.
+    # Лечим не уговором, а входом: блоки, собранные по устаревшей форме, из
+    # «вчерашнего» удаляются. Копировать нечего — модель собирает заново.
+    prev_for_prompt, dropped = _drop_stale_shape(prev)
+    stale_note = ""
+    if dropped:
+        stale_note = ("🔴 ВНИМАНИЕ: " + ", ".join(dropped) + " — вчерашние блоки "
+                      "собраны по УСТАРЕВШЕЙ форме и удалены из входа. Собери их "
+                      "заново по текущей спецификации, со всеми новыми полями. "
+                      "Правило стабильности на смену формы НЕ распространяется.\n\n")
+
     user = (
         (dossier_text + "\n\n" if dossier_text else "")
+        + stale_note
         + "ВЧЕРАШНИЙ БАРОМЕТР (отправная точка; сохраняй значения, если лента не даёт "
         "основания их менять):\n"
-        + json.dumps(prev, ensure_ascii=False, indent=1)[:60000]
+        + json.dumps(prev_for_prompt, ensure_ascii=False, indent=1)[:60000]
         + f"\n\nСВЕЖАЯ ЛЕНТА ПО ОЧАГАМ (за {window_days} дней, {total} статей):\n"
         + json.dumps(articles, ensure_ascii=False, indent=1)
         + f"\n\nСЕГОДНЯ: {date.today().isoformat()}"
