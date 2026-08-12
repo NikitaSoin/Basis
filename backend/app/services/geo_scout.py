@@ -137,6 +137,7 @@ def run(db: Session, articles: dict, prev_summary: str = "",
             tools_schema=tools, allowed_ticker="",
             max_steps=max_steps, max_tokens_total=150_000,
             web_call_cap=web_call_cap, step_max_tokens=3000,
+            final_max_tokens=7000,   # досье объёмное — иначе JSON обрывается
         )
     except Exception as e:  # noqa: BLE001 — разведка не должна ронять выпуск
         logger.warning("geo_scout: прогон не удался (%s) — выпуск пойдёт без досье", e)
@@ -173,9 +174,13 @@ def _save(db: Session, dossier: dict | None, run_out: dict) -> None:
             source="auto",
             status="published" if dossier else "rejected",
             payload=dossier,
+            # В заметки кладём и НАЧАЛО сырого финала: когда досье не распарсилось,
+            # без него нельзя отличить «модель написала прозу вместо JSON» от
+            # «JSON оборвался на середине» — а чинится это по-разному.
             gate_notes=[f"шагов: {len(run_out.get('trace') or [])}",
                         f"остановка: {run_out.get('stopped_reason')}",
-                        f"токенов: {run_out.get('tokens_used')}"],
+                        f"токенов: {run_out.get('tokens_used')}",
+                        f"хвост финала: {str(run_out.get('final_raw') or '')[-300:]}"],
             trigger_reason="разведка перед суточным выпуском",
         )
         db.add(row)

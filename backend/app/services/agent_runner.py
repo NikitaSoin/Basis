@@ -39,7 +39,8 @@ _SEARCH_TOOLS = {"web_search", "search_our_feed"}
 
 def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[dict],
               allowed_ticker: str = "", max_steps: int = 8, max_tokens_total: int = 40_000,
-              web_call_cap: int = 2, executor=None, step_max_tokens: int = 1600) -> dict:
+              web_call_cap: int = 2, executor=None, step_max_tokens: int = 1600,
+              final_max_tokens: int = 0) -> dict:
     """Возвращает {"result": dict|None, "trace": list, "tokens_used": int,
     "stopped_reason": str}. result=None — агент не дал валидного JSON-финала.
     web_call_cap — сколько раз всего разрешён веб-поиск/открытие документа: после
@@ -72,8 +73,17 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
                           if (t.get("function") or {}).get("name") not in _SEARCH_TOOLS]
         try:
             # tools=None при пустой схеме: часть провайдеров ругается на tools=[]
+            # 🔴 ФИНАЛУ — СВОЙ ПОТОЛОК. Шаги цикла короткие (модель зовёт инструмент),
+            # а итог бывает объёмным: досье разведки — это десятки фактов с
+            # источниками. На общем потолке 3000 токенов такой JSON обрывается на
+            # середине и не парсится: прогон на 130 тысяч токенов заканчивался
+            # «unparseable_final», то есть работа была сделана и снова потеряна —
+            # уже по другой причине, чем в прошлый раз. Когда инструментов не
+            # осталось (последний звонок), отвечать модель может только финалом —
+            # даём ему место.
+            cap = (final_max_tokens or step_max_tokens) if not step_tools else step_max_tokens
             resp = complete_messages(messages, tools=step_tools or None,
-                                     max_tokens=step_max_tokens, temperature=0.2)
+                                     max_tokens=cap, temperature=0.2)
         except LLMError as e:
             trace.append({"step": step, "event": "llm_error", "detail": str(e)})
             return {"result": None, "trace": trace, "tokens_used": tokens_used,
