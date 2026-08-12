@@ -1927,9 +1927,13 @@ function ObsGeoChains({ macroChain, instChain }) {
                     об институтах съезжает в расплывчатость — «институты
                     ухудшаются» вместо «работает механизм концентрации,
                     системно, самовоспроизводится». */}
-                {(c.mechanism || c.scale || c.persistence || c.to_valuation) && (
+                {(c.mechanism || c.scale || c.persistence || c.to_valuation || c.layer) && (
                   <span className="obs-geo-chain-tags">
                     {c.mechanism && <span className="obs-geo-chain-tag obs-geo-chain-tag--ch">механизм: {c.mechanism}</span>}
+                    {/* Слой института: правило может не измениться формально, но
+                        начать работать иначе. Функциональный слой часто важнее
+                        формального, и без пометки читатель их не различает. */}
+                    {c.layer && <span className="obs-geo-chain-tag">{c.layer} слой</span>}
                     {c.scale && <span className="obs-geo-chain-tag">{c.scale}</span>}
                     {c.persistence && (
                       <span className={`obs-geo-chain-tag${/ловушк|переход/i.test(c.persistence) ? " obs-geo-chain-tag--hard" : ""}`}>
@@ -1937,6 +1941,24 @@ function ObsGeoChains({ macroChain, instChain }) {
                       </span>
                     )}
                     {c.to_valuation && <span className="obs-geo-chain-tag">до оценки: {c.to_valuation}</span>}
+                  </span>
+                )}
+                {/* Кто выигрывает и кто проигрывает — прямой ответ на вопрос
+                    инвестора «а мне-то что». Монополизация глобально плоха, но
+                    для самой монополии это лучший расклад на рынке, и держатель
+                    её акций должен видеть обе стороны. */}
+                {(c.winners || c.losers) && (
+                  <span className="obs-geo-inst-sides">
+                    {c.winners && (
+                      <span className="obs-geo-inst-side obs-geo-inst-side--win">
+                        <b>Выигрывают:</b> {c.winners}
+                      </span>
+                    )}
+                    {c.losers && (
+                      <span className="obs-geo-inst-side obs-geo-inst-side--lose">
+                        <b>Проигрывают:</b> {c.losers}
+                      </span>
+                    )}
                   </span>
                 )}
                 {c.for_business && <span className="obs-geo-inst-biz">{c.for_business}</span>}

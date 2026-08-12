@@ -7350,3 +7350,20 @@ details[open] > summary .obs-inst-chev,
   color: var(--text-secondary);
 }
 .obs-geo-inst-caveat b { color: var(--text-primary); font-weight: 700; }
+
+/* Выигравшие и проигравшие от институционального сдвига. Цвет — только в данных:
+   направление здесь и есть данные, а не украшение. */
+.obs-geo-inst-sides {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 4px;
+}
+.obs-geo-inst-side {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.obs-geo-inst-side b { font-weight: 700; }
+.obs-geo-inst-side--win b { color: var(--success); }
+.obs-geo-inst-side--lose b { color: var(--danger); }
