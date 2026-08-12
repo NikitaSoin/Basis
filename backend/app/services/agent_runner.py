@@ -80,11 +80,14 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
                     "stopped_reason": "llm_error"}
         msg = resp["message"]
         tokens_used += resp.get("total_tokens") or 0
-        if tokens_used > max_tokens_total:
-            trace.append({"step": step, "event": "budget_exceeded", "tokens": tokens_used})
-            return {"result": None, "trace": trace, "tokens_used": tokens_used,
-                    "stopped_reason": "token_budget"}
 
+        # 🔴 ПОРЯДОК ЭТИХ ДВУХ ПРОВЕРОК ВАЖЕН: сначала смотрим, не пришёл ли ФИНАЛ,
+        # и только потом обрываем по бюджету. Было наоборот — и оба первых боевых
+        # прогона разведки кончились одинаково: агент отдавал итоговый JSON, а мы
+        # выбрасывали его, потому что тот же самый ответ перевалил за потолок.
+        # Работа на 150 тысяч токенов уходила в мусор из-за очерёдности двух if.
+        # Доставленный ответ не выбрасываем никогда; бюджет останавливает
+        # ПРОДОЛЖЕНИЕ цикла, а не приём уже готового результата.
         tool_calls = msg.get("tool_calls") or []
         if not tool_calls:
             # финальный ответ — парсим JSON
@@ -100,6 +103,11 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
             return {"result": result, "trace": trace, "tokens_used": tokens_used,
                     "final_raw": content[:1500],
                     "stopped_reason": "final" if result is not None else "unparseable_final"}
+
+        if tokens_used > max_tokens_total:
+            trace.append({"step": step, "event": "budget_exceeded", "tokens": tokens_used})
+            return {"result": None, "trace": trace, "tokens_used": tokens_used,
+                    "stopped_reason": "token_budget"}
 
         # 🔴 ПОСЛЕДНИЙ ЗВОНОК ПЕРЕД ИСЧЕРПАНИЕМ БЮДЖЕТА.
         # Найдено на первом же боевом прогоне разведки: агент потратил 106 тысяч
