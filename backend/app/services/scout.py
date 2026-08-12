@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 
 from sqlalchemy.orm import Session
 
@@ -53,6 +54,86 @@ COMMON_RULES = (
     '  "methodology_used": [ "<doc:раздел>", ... ]\n'
     "}\n"
 )
+
+
+# 🔴 ОЧИСТКА ДОСЬЕ ПЕРЕД ПЕРЕДАЧЕЙ ПИСАТЕЛЮ — защита от собственного материала.
+# Разведка ходит в открытый веб и приносит тексты как есть: украинские написания
+# топонимов, формулировки «оккупирован», имена изданий, которые платформа в РФ
+# называть не должна. Писатель, опираясь на такой материал, повторяет его — и
+# фильтр соответствия, работающий по принципу «всё или ничего», отклоняет ВЕСЬ
+# суточный выпуск. То есть чем лучше сработала разведка, тем выше шанс потерять
+# выпуск целиком. Поэтому материал приводится к допустимому виду ДО того, как
+# попадёт в промпт: подмена, а не запрет в инструкции — запреты в длинном промпте
+# размываются, замена в данных работает всегда.
+# Это не отменяет фильтр на выходе: он остаётся последней линией.
+_TOPONYMS = {
+    r"Бахмут\w*": "Артёмовск",
+    r"Артемівськ\w*|Артёмівськ\w*": "Артёмовск",
+    r"Покровськ\w*": "Красноармейск",
+    r"Часів\s+Яр\w*": "Часов Яр",
+    r"Авдіївк\w*": "Авдеевка",
+    r"Куп'янськ\w*|Куп’янськ\w*": "Купянск",
+    r"Соледар\w*\s*\(укр\.?\)": "Соледар",
+}
+_WORDINGS = {
+    # Замена должна ЧИТАТЬСЯ, а не только проходить фильтр: «город перешедш» —
+    # мусор, который писатель повторит буквально. «Под контролем» встаёт в текст
+    # и в именной, и в глагольной позиции без правки согласования.
+    r"оккупир\w*": "под контролем",
+    r"аннексир\w*": "вошедшие в состав",
+    r"незаконн\w*\s+присоедин\w*": "вхождение в состав",
+}
+# Издания, чьи имена не тиражируем в материале (в РФ у части статус, при котором
+# упоминание несёт юридический риск). Факт из них не выбрасываем — обезличиваем.
+_GREY_MEDIA = re.compile(
+    r"(?:The\s+)?(?:Meduza|Медуза|RFE/RL|RFE|Радио\s*Свобода|Настоящее\s*время|"
+    r"Insider|Moscow\s*Times|Медиазона)",
+    re.IGNORECASE)
+_GREY_DOMAINS = re.compile(
+    r"themoscowtimes\.com|meduza\.io|svoboda\.org|currenttime\.tv|theins\.ru|"
+    r"zona\.media", re.IGNORECASE)
+
+
+def _compliance_scrub(obj):
+    """Привести материал к допустимому виду. Возвращает (очищенное, сколько замен).
+
+    Ссылки обрабатываются ОТДЕЛЬНО от текста: подставлять «по данным ленты»
+    внутрь URL бессмысленно — получается битый адрес вида
+    «https://ru.по данным ленты/x». Адрес из серой зоны убирается целиком, а на
+    его месте остаётся пометка, что источник обезличен: факт сохраняется, ссылка
+    не тиражируется.
+    """
+    hits = 0
+
+    def fix_text(s: str) -> str:
+        nonlocal hits
+        for pat, repl in _TOPONYMS.items():
+            s, n = re.subn(pat, repl, s, flags=re.IGNORECASE)
+            hits += n
+        for pat, repl in _WORDINGS.items():
+            s, n = re.subn(pat, repl, s, flags=re.IGNORECASE)
+            hits += n
+        s, n = _GREY_MEDIA.subn("по данным ленты", s)
+        hits += n
+        return s
+
+    def fix_url(s: str) -> str:
+        nonlocal hits
+        if _GREY_DOMAINS.search(s) or _GREY_MEDIA.search(s):
+            hits += 1
+            return "источник обезличен"
+        return s
+
+    def walk(x, key: str = ""):
+        if isinstance(x, str):
+            return fix_url(x) if key in ("source_url", "url") else fix_text(x)
+        if isinstance(x, dict):
+            return {k: walk(v, k) for k, v in x.items()}
+        if isinstance(x, list):
+            return [walk(v, key) for v in x]
+        return x
+
+    return walk(obj), hits
 
 
 def run(db: Session, *, kind: str, system: str, task: str,
@@ -133,6 +214,9 @@ def dossier_block(dossier: dict | None, title: str = "СОБРАННОЕ ДОС�
     """Досье в вид, пригодный для промпта аналитика-писателя."""
     if not isinstance(dossier, dict):
         return ""
+    dossier, scrubbed = _compliance_scrub(dossier)
+    if scrubbed:
+        logger.info("scout: материал приведён к допустимому виду — %d замен", scrubbed)
     facts = dossier.get("facts") or []
     analysis = dossier.get("analysis") or []
     gaps = dossier.get("gaps") or []
