@@ -68,30 +68,11 @@ _SYS = (
     "соответствующий раздел методички и рассуждать по нему.\n"
     "4. Записать всё найденное как ДОСЬЕ: факты с источниками отдельно, суждения "
     "отдельно, и честно — чего добыть не удалось.\n\n"
-    "🔴 ЭКОНОМЬ ПРОГОН. Открывай НЕ БОЛЬШЕ трёх-четырёх разделов методичек и "
-    "выбирай КОНКРЕТНЫЕ номера, а не части целиком: прочитанное остаётся в "
-    "диалоге и дорожает с каждым шагом. Поиск — точечно, по тому, чего реально "
-    "не хватает. Начинай собирать досье сразу, не откладывая до конца.\n"
-    "🔴 ГЛАВНОЕ ПРАВИЛО. Досье — сырьё, а не витрина. Лучше пять проверенных "
-    "фактов со ссылками и честный список пробелов, чем двадцать гладких фраз без "
-    "опоры. Не выдумывай числа: если цифры нет — так и напиши, это ценнее ложной.\n"
     "🔴 Не пиши про мобилизационные и рекрутинговые меры как про установленный "
     "факт: это непроверяемые сообщения. Экономику рынка труда разбирать можно и "
     "нужно — через наблюдаемое (напряжённость рынка труда, зарплаты, кадры).\n"
     "🔴 РФ-топонимика (Артёмовск, не Бахмут; «перешёл под контроль», не "
     "«оккупирован»). Тон нейтральный, экономический, без политических оценок.\n\n"
-    "ФОРМАТ ОТВЕТА — строго JSON без пояснений вокруг:\n"
-    "{\n"
-    '  "facts": [ {"scope":"svo|middle_east|atr", "claim":"<что произошло, '
-    'конкретно>", "evidence":"<чем подтверждается: цифра, документ, решение>", '
-    '"source_url":"<ссылка или пусто, если из переданной ленты>", '
-    '"tag":"факт"} ],\n'
-    '  "analysis": [ {"scope":"...", "channel":"<канал/механизм из методички>", '
-    '"reasoning":"<как это доходит до экономики или до правил игры>", '
-    '"section":"<какой раздел методички применён>", "tag":"оценка|суждение"} ],\n'
-    '  "gaps": [ "<чего добыть не удалось и почему — честно>" ],\n'
-    '  "methodology_used": [ "<doc:раздел>", ... ]\n'
-    "}\n"
 )
 
 
@@ -119,97 +100,17 @@ def _task(articles: dict, prev_summary: str) -> str:
 
 def run(db: Session, articles: dict, prev_summary: str = "",
         max_steps: int = 12, web_call_cap: int = 5) -> dict | None:
-    """Разведка → досье. Возвращает досье или None (агент не дал валидный финал).
-
-    Досье сохраняется ОТДЕЛЬНОЙ версией: у него своя жизнь, свой аудит и своя
-    возможность оказаться пустым, не утащив за собой публикацию выпуска.
-    """
-    from app.services.agent_runner import run_agent
-    from app.services.agent_tools import WEB_TOOLS_SCHEMA
-    from app.services.methodology import METHODOLOGY_TOOLS_SCHEMA, shelf_card
-
-    tools = list(METHODOLOGY_TOOLS_SCHEMA) + list(WEB_TOOLS_SCHEMA)
-    system = _SYS + shelf_card(["geo", "geo_macro", "geo_inst", "macro"])
-
-    try:
-        out = run_agent(
-            db, system_prompt=system, task=_task(articles, prev_summary),
-            tools_schema=tools, allowed_ticker="",
-            max_steps=max_steps, max_tokens_total=150_000,
-            web_call_cap=web_call_cap, step_max_tokens=3000,
-            final_max_tokens=7000,   # досье объёмное — иначе JSON обрывается
-        )
-    except Exception as e:  # noqa: BLE001 — разведка не должна ронять выпуск
-        logger.warning("geo_scout: прогон не удался (%s) — выпуск пойдёт без досье", e)
-        return None
-
-    dossier = out.get("result")
-    trace = out.get("trace") or []
-    if not isinstance(dossier, dict):
-        logger.warning("geo_scout: агент не вернул досье (%s), шагов %d",
-                       out.get("stopped_reason"), len(trace))
-        _save(db, None, out)
-        return None
-
-    dossier["_stats"] = {
-        "фактов": len(dossier.get("facts") or []),
-        "разборов": len(dossier.get("analysis") or []),
-        "пробелов": len(dossier.get("gaps") or []),
-        "разделов_методички": len(dossier.get("methodology_used") or []),
-        "шагов": len(trace),
-        "токенов": out.get("tokens_used"),
-        "остановка": out.get("stopped_reason"),
-    }
-    logger.info("geo_scout: досье — %s", dossier["_stats"])
-    _save(db, dossier, out)
-    return dossier
-
-
-def _save(db: Session, dossier: dict | None, run_out: dict) -> None:
-    """Сохранить досье версией. Пустая разведка тоже сохраняется — как rejected:
-    «не сработало» обязано быть видно, иначе завтра будем гадать, был ли прогон."""
-    try:
-        row = BarometerVersion(
-            kind=DOSSIER_KIND,
-            source="auto",
-            status="published" if dossier else "rejected",
-            payload=dossier,
-            # В заметки кладём и НАЧАЛО сырого финала: когда досье не распарсилось,
-            # без него нельзя отличить «модель написала прозу вместо JSON» от
-            # «JSON оборвался на середине» — а чинится это по-разному.
-            gate_notes=[f"шагов: {len(run_out.get('trace') or [])}",
-                        f"остановка: {run_out.get('stopped_reason')}",
-                        f"токенов: {run_out.get('tokens_used')}",
-                        f"хвост финала: {str(run_out.get('final_raw') or '')[-300:]}"],
-            trigger_reason="разведка перед суточным выпуском",
-        )
-        db.add(row)
-        db.commit()
-    except Exception as e:  # noqa: BLE001
-        logger.warning("geo_scout: досье не сохранено (%s)", e)
-        db.rollback()
+    """Разведка по трём очагам → досье. Механика прогона — в общем `scout`:
+    домен задаёт только промпт и набор методичек, чтобы у каждого слоя не
+    заводилась своя расходящаяся копия одного цикла."""
+    from app.services import scout
+    return scout.run(db, kind=DOSSIER_KIND, system=_SYS,
+                     task=_task(articles, prev_summary),
+                     shelf_docs=["geo", "geo_macro", "geo_inst", "macro"],
+                     max_steps=max_steps, web_call_cap=web_call_cap,
+                     trigger_reason="разведка перед суточным гео-выпуском")
 
 
 def dossier_block(dossier: dict | None) -> str:
-    """Досье в вид, пригодный для промпта аналитика-писателя."""
-    if not isinstance(dossier, dict):
-        return ""
-    facts = dossier.get("facts") or []
-    analysis = dossier.get("analysis") or []
-    gaps = dossier.get("gaps") or []
-    if not facts and not analysis:
-        return ""
-    parts = ["СОБРАННОЕ ДОСЬЕ (разведка перед выпуском). 🔴 Это ТВОЙ материал: "
-             "опирайся на него, а не на общие представления. Числа и факты бери "
-             "отсюда; чего здесь нет — того не утверждай."]
-    if facts:
-        parts.append("ФАКТЫ С ПОДТВЕРЖДЕНИЕМ:\n"
-                     + json.dumps(facts, ensure_ascii=False, indent=1)[:7000])
-    if analysis:
-        parts.append("РАЗБОР ПО МЕТОДИЧКАМ (канал → как доходит):\n"
-                     + json.dumps(analysis, ensure_ascii=False, indent=1)[:7000])
-    if gaps:
-        parts.append("ЧЕГО РАЗВЕДКЕ НЕ ХВАТИЛО (не заполняй эти пробелы догадками — "
-                     "лучше честно сузить утверждение):\n- " + "\n- ".join(
-                         str(g) for g in gaps[:8]))
-    return "\n\n".join(parts)
+    from app.services.scout import dossier_block as _block
+    return _block(dossier, title="СОБРАННОЕ ДОСЬЕ ПО ОЧАГАМ")

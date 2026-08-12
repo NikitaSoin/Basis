@@ -630,14 +630,29 @@ def scout_dossier(db: Session, ticker: str, need: str, *, web_calls: int = 3) ->
     """Собрать досье под конкретную нехватку данных. Возвращает {facts, not_found}."""
     from app.services.agent_runner import run_agent
     from app.services.agent_tools import WEB_TOOLS_SCHEMA
+    # 🔴 Полка методичек и добытчику карточки. Он ищет не абстрактные «свежие
+    # данные», а то, что нужно для разбора ПО МЕТОДИКЕ: через какой канал макро
+    # или геополитика доходит до этой компании, что там считается значимым.
+    # Без методички он приносит первое похожее число, а не то, что закрывает
+    # дыру в рассуждении. Мягкий импорт — модуль новый, выкатка неравномерна.
+    shelf: list[dict] = []
+    shelf_txt = ""
+    try:
+        from app.services.methodology import METHODOLOGY_TOOLS_SCHEMA, shelf_card
+        shelf = list(METHODOLOGY_TOOLS_SCHEMA)
+        shelf_txt = shelf_card(["macro", "geo_macro", "geo_inst"])
+    except ImportError:  # pragma: no cover
+        logger.warning("card_rewriter: полка методичек недоступна")
     task = (f"Компания: {ticker}. Нужны свежие данные, чтобы обновить разбор.\n"
             f"ЧЕГО НЕ ХВАТАЕТ:\n{need}\n\n"
             f"Сегодня: {datetime.now(timezone.utc).date().isoformat()}. "
             f"Нужны САМЫЕ СВЕЖИЕ доступные значения с указанием периода.")
     try:
-        res = run_agent(db, system_prompt=_SCOUT_SYS, task=task,
-                        tools_schema=WEB_TOOLS_SCHEMA, allowed_ticker=ticker,
-                        max_steps=6, web_call_cap=web_calls, step_max_tokens=2200)
+        res = run_agent(db, system_prompt=_SCOUT_SYS + shelf_txt, task=task,
+                        tools_schema=list(WEB_TOOLS_SCHEMA) + shelf,
+                        allowed_ticker=ticker,
+                        max_steps=6, web_call_cap=web_calls, step_max_tokens=2200,
+                        final_max_tokens=4000)
     except Exception as e:  # noqa: BLE001
         logger.warning("scout_dossier %s: %s", ticker, type(e).__name__)
         return {"facts": [], "not_found": ["добытчик не отработал"], "error": str(e)[:120]}

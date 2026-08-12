@@ -1596,12 +1596,14 @@ def debug_methodology_shelf(doc: str | None = None, section: str | None = None):
 
 
 @router.get("/debug/geo-dossier")
-def debug_geo_dossier(limit: int = 3):
+def debug_geo_dossier(limit: int = 3, kind: str = ""):
     """Последние досье разведки — то, что агент СОБРАЛ до написания текста.
 
     🔴 Зачем смотреть сюда. Когда блок на витрине выглядит бедно, надо знать,
     что случилось: разведка не нашла материал или нашла, но аналитик им не
     воспользовался. Это разные поломки, и по готовому тексту их не различить.
+
+    kind — какой слой: geodoss (геополитика, по умолчанию), macdoss (макро).
     """
     from app.models.geo import BarometerVersion
     from app.services.geo_scout import DOSSIER_KIND
@@ -1609,7 +1611,7 @@ def debug_geo_dossier(limit: int = 3):
     db = SessionLocal()
     try:
         rows = (db.query(BarometerVersion)
-                .filter(BarometerVersion.kind == DOSSIER_KIND)
+                .filter(BarometerVersion.kind == (kind or DOSSIER_KIND))
                 .order_by(BarometerVersion.id.desc()).limit(max(1, min(limit, 10))).all())
         return {"досье": [{"id": r.id, "статус": r.status,
                            "создано": r.created_at.isoformat() if r.created_at else None,
