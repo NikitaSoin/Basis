@@ -566,7 +566,12 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
 
     try:
         fresh = llm.complete(system, user, json_mode=True, thinking=True,
-                             model=llm.pro_model(), max_tokens=16000, temperature=0.3)
+                             # 🔴 20000, а не 16000: с приходом досье вход вырос, и
+                             # выпуск начал обрываться на середине JSON — прогон
+                             # падал с JSONDecodeError и уходил в rejected. Это не
+                             # отказ гейта, а нехватка места на ответ; спутать их
+                             # легко, а чинятся они противоположно.
+                             model=llm.pro_model(), max_tokens=20000, temperature=0.3)
     except llm.LLMError as e:
         row = BarometerVersion(kind="geo", source="auto", status="rejected",
                                payload=None, gate_notes=[f"LLM недоступен: {e}"],

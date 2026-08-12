@@ -1595,6 +1595,40 @@ def debug_methodology_shelf(doc: str | None = None, section: str | None = None):
             for d in sorted(M.REGISTRY)}
 
 
+@router.post("/debug/trigger-scout")
+def debug_trigger_scout(kind: str = "geo"):
+    """Запустить ТОЛЬКО разведку, без написания выпуска.
+
+    🔴 Зачем отдельно. Полный прогон слоя — это разведка плюс длинный вызов
+    писателя; он не укладывается в таймаут запроса, и по молчащему ответу нельзя
+    понять, что именно не сработало. Разведка запускается сама по себе, быстро
+    и с внятной статистикой: сколько фактов собрано, какие разделы методичек
+    открыты, чего не хватило.
+    """
+    from app.db.session import SessionLocal
+    db = SessionLocal()
+    try:
+        if kind == "macro":
+            from app.services.macro_interpreter import gather_snapshot
+            from app.services import macro_scout
+            d = macro_scout.run(db, gather_snapshot(db))
+        else:
+            from app.services.barometer_daily import gather_articles
+            from app.services import geo_scout
+            d = geo_scout.run(db, gather_articles(db))
+        if not isinstance(d, dict):
+            return {"ok": False, "note": "досье не собрано — смотри /api/debug/geo-dossier"}
+        return {"ok": True, "статистика": d.get("_stats"),
+                "методички": d.get("methodology_used"),
+                "фактов_примеры": [f.get("claim") for f in (d.get("facts") or [])[:5]],
+                "пробелы": d.get("gaps")}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-scout: %s", e)
+        return {"ok": False, "error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.get("/debug/geo-dossier")
 def debug_geo_dossier(limit: int = 3, kind: str = ""):
     """Последние досье разведки — то, что агент СОБРАЛ до написания текста.
