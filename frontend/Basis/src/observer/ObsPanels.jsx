@@ -6100,6 +6100,43 @@ function ObsInstitutions({ token }) {
                       </details>
                     )}
 
+                    {/* 🔴 Узкое место среды (методичка «институциональная среда»,
+                        3.17). Институты дополняют друг друга: систему держит худшее
+                        звено, и улучшение остальных его не компенсирует. Для
+                        читателя это переводит разговор с «баллов по направлениям»
+                        на один понятный вопрос — что именно мешает. */}
+                    {profile.bottleneck?.what && (
+                      <div className="obs-inst-bottleneck">
+                        <div className="obs-inst-bottleneck-label">Что держит всю систему</div>
+                        <div className="obs-inst-bottleneck-what">{profile.bottleneck.what}</div>
+                        {profile.bottleneck.why && <p>{profile.bottleneck.why}</p>}
+                        {profile.bottleneck.if_fixed && (
+                          <p className="obs-inst-bottleneck-if">
+                            <b>Если расшить именно это:</b> {profile.bottleneck.if_fixed}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Режим отношений государства и бизнеса — отдельная подсистема
+                        (4.5). Режимы сосуществуют по отраслям, поэтому рядом с
+                        преобладающим показываем, где мягче и где жёстче. */}
+                    {profile.state_business?.dominant && (
+                      <div className="obs-inst-card">
+                        <div className="obs-inst-card-title"><Scale size={16} />Как бизнес договаривается с государством</div>
+                        <p className="obs-inst-sb-dominant">{profile.state_business.dominant}</p>
+                        {profile.state_business.by_sector && (
+                          <p className="obs-inst-card-sub" style={{ maxWidth: "100%" }}>{profile.state_business.by_sector}</p>
+                        )}
+                        {profile.state_business.for_investor && (
+                          <div className="obs-inst-checkpoint">
+                            <div className="obs-inst-checkpoint-label"><Info size={12} />Что это значит для акционера</div>
+                            <div className="obs-inst-checkpoint-text">{profile.state_business.for_investor}</div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <details className="obs-inst-details">
                       <summary>Кто выигрывает, а кто проигрывает</summary>
                       <div className="obs-inst-details-body"><ObsInstWinners wl={profile.winners_losers} /></div>

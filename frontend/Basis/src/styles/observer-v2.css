@@ -7367,3 +7367,44 @@ details[open] > summary .obs-inst-chev,
 .obs-geo-inst-side b { font-weight: 700; }
 .obs-geo-inst-side--win b { color: var(--success); }
 .obs-geo-inst-side--lose b { color: var(--danger); }
+
+/* Узкое место среды: один ответ вместо набора баллов по направлениям.
+   Выделено медью — это главный вывод блока, а не рядовая плитка. */
+.obs-inst-bottleneck {
+  border: 1px solid var(--border-subtle, rgba(255,255,255,0.14));
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm, 8px);
+  padding: 12px 14px;
+  background: var(--bg-elevated, rgba(255,255,255,0.03));
+}
+.obs-inst-bottleneck-label {
+  font-family: var(--bs-sans, Inter), system-ui, sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+.obs-inst-bottleneck-what {
+  font-family: var(--bs-serif, Fraunces), Georgia, serif;
+  font-size: 17px;
+  line-height: 1.35;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.obs-inst-bottleneck p {
+  margin: 0 0 6px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+.obs-inst-bottleneck-if b { color: var(--text-primary); }
+
+/* Режим отношений государства и бизнеса */
+.obs-inst-sb-dominant {
+  margin: 2px 0 8px;
+  font-family: var(--bs-serif, Fraunces), Georgia, serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--text-primary);
+}

@@ -79,7 +79,7 @@ def run(db: Session, snapshot: dict, prev_summary: str = "",
     from app.services import scout
     return scout.run(db, kind=DOSSIER_KIND, system=_SYS,
                      task=_task(snapshot, prev_summary),
-                     shelf_docs=["macro", "geo_macro"],
+                     shelf_docs=["macro", "geo_macro", "inst_env"],
                      max_steps=max_steps, web_call_cap=web_call_cap,
                      trigger_reason="разведка перед макро-выпуском")
 
