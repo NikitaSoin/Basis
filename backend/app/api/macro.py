@@ -9,7 +9,7 @@ import logging
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
@@ -344,6 +344,56 @@ def macro_series(code: str, metric: str = "level",
         "points": [{"as_of": p.as_of.isoformat(), "value": float(p.value),
                     "is_preliminary": p.is_preliminary} for p in pts],
     }
+
+
+@router.get("/market/macro/export.csv")
+def macro_export_csv(country: str | None = None, since: str | None = None,
+                     db: Session = Depends(get_db)):
+    """Вся макростатистика платформы одним файлом — для самостоятельной работы.
+
+    🔴 Владелец, 2026-08-14: «выгрузи все цифры в таблицу, которую можно скачать и
+    дальше поработать самому». Сделано эндпоинтом, а не разовым файлом: данные
+    обновляются ежедневно, и разовая выгрузка устареет к утру.
+
+    Формат — длинный (одна строка = одно наблюдение): так таблица годится и для сводных
+    в Excel, и для pandas, и не ломается, когда у показателей разные даты. Разделитель
+    «;» и BOM — чтобы русский Excel открыл файл двойным кликом без «Мастера импорта»,
+    а не одной колонкой с кракозябрами.
+    """
+    import csv
+    import io
+
+    q = db.query(MacroDataPoint, MacroIndicator).join(
+        MacroIndicator, MacroIndicator.code == MacroDataPoint.indicator_code)
+    if country:
+        q = q.filter(MacroIndicator.country == country)
+    if since:
+        try:
+            q = q.filter(MacroDataPoint.as_of >= date.fromisoformat(since))
+        except ValueError:
+            raise HTTPException(status_code=400, detail="since — дата в формате ГГГГ-ММ-ДД")
+    rows = q.order_by(MacroIndicator.sort_order, MacroDataPoint.indicator_code,
+                      MacroDataPoint.metric, MacroDataPoint.as_of).all()
+
+    buf = io.StringIO()
+    buf.write("\ufeff")                      # BOM для Excel
+    w = csv.writer(buf, delimiter=";", lineterminator="\r\n")
+    w.writerow(["Показатель", "Код", "Страна", "Метрика", "Единица", "Дата",
+                "Значение", "Предварительное", "Источник", "Ссылка", "Периодичность"])
+    for point, ind in rows:
+        val = float(point.value) if point.value is not None else None
+        w.writerow([
+            ind.title, ind.code, ind.country or "", point.metric, ind.unit or "",
+            point.as_of.isoformat() if point.as_of else "",
+            ("" if val is None else f"{val}".replace(".", ",")),   # запятая — для Excel
+            "да" if point.is_preliminary else "",
+            point.source or "", point.source_url or "", ind.frequency or "",
+        ])
+    data = buf.getvalue()
+    name = f"basis-macro-{date.today().isoformat()}.csv"
+    return StreamingResponse(
+        iter([data.encode("utf-8")]), media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{name}"'})
 
 
 @router.get("/market/macro/scenario-odds")

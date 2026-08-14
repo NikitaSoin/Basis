@@ -8431,6 +8431,19 @@ function ObsEconomy({ token, forceIndicator }) {
 
   return (
     <div>
+      {/* Выгрузка всей статистики (владелец, 2026-08-14: «чтобы скачать таблицу и
+          дальше поработать самому»). Ссылка, а не разовый файл: данные обновляются
+          ежедневно, и выгрузка вчерашнего дня устареет к утру. */}
+      <div className="obs-eco-export">
+        <a className="obs-eco-export-link" href={`${apiUrl}/api/market/macro/export.csv`}
+           download>
+          Скачать все данные (CSV)
+        </a>
+        <span className="obs-eco-export-note">
+          все показатели и вся история одним файлом · открывается в Excel
+        </span>
+      </div>
+
       {/* ──────────── 0. «ОТК ДАННЫХ» ──────────── */}
       {dq?.run_at && dqProblems.length === 0 && (
         <div style={{ fontSize: 12, color: "var(--text-tertiary)", margin: "0 0 12px",
