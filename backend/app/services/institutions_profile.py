@@ -661,7 +661,15 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
 
     try:
         fresh = llm.complete(system, "\n\n".join(user_parts), json_mode=True, thinking=True,
-                             model=llm.pro_model(), max_tokens=9000, temperature=0.3)
+                             # 🔴 18000, а не 9000. Потолок был рассчитан на прогон,
+                             # где прошлый портрет передаётся и модель правит текст
+                             # точечно. Но когда меняются наши правила, прошлый
+                             # портрет намеренно не передаётся — и весь портрет
+                             # пишется заново, целиком. Два прогона подряд ушли в
+                             # rejected с обрывом JSON именно поэтому: механизм,
+                             # который заставляет правку доехать, сам же делает
+                             # ответ вдвое длиннее.
+                             model=llm.pro_model(), max_tokens=18000, temperature=0.3)
     except llm.LLMError as e:
         row = BarometerVersion(kind=_KIND, source="auto", status="rejected", payload=None,
                                gate_notes=[f"LLM недоступен: {e}"],
