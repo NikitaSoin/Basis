@@ -467,6 +467,25 @@ def compliance_ok(payload: dict) -> tuple[bool, str | None]:
 # Организационная анатомия государства, пятнадцать механизмов и прогнозный аппарат
 # остаются в документе: их открывает инструментом тот, кто строит снимок, а
 # недельному портрету среды они вывод не меняют.
+
+def _rules_fingerprint() -> str:
+    """Отпечаток НАШИХ правил: формат вывода + подключённые методички.
+
+    🔴 ЗАЧЕМ. Портрету передаётся прошлый выпуск с указанием «среда меняется
+    медленно — сохраняй формулировки, если лента не даёт основания их менять».
+    Правило верное и защищает от шума. Но оно глушит и изменение НАШИХ правил:
+    когда меняется методичка или формат, событий в ленте для этого нет — и текст
+    остаётся прежним слово в слово. Ровно это и произошло 2026-08-15: добавили
+    режимный слой и запрет на политическую хронику, пересобрали портрет — и
+    получили байт в байт прежний текст.
+    Отпечаток решает это без ручного вмешательства: изменились правила — прошлый
+    портрет в промпт не кладётся, копировать нечего, блоки пишутся заново.
+    """
+    import hashlib
+    blob = (_OUTPUT_SPEC + _TX_DIGEST + _inst_env_core() + _geo_inst_core())
+    return hashlib.sha1(blob.encode("utf-8")).hexdigest()[:12]
+
+
 def _inst_env_core() -> str:
     try:
         from app.services.methodology import core
@@ -620,11 +639,24 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
             "ТЕКУЩЕЕ СОСТОЯНИЕ ЭКОНОМИКИ (для раздела links.from_macro — как "
             "экономика давит на сами правила игры):\n"
             + json.dumps(macro_ctx, ensure_ascii=False, indent=1)[:2500])
-    if prev:
+    rules_now = _rules_fingerprint()
+    rules_changed = bool(prev) and (prev.get("_rules") != rules_now)
+    if prev and not rules_changed:
         user_parts.append(
             "ПРОШЛЫЙ ПОРТРЕТ (отправная точка; среда меняется медленно — сохраняй "
             "формулировки, если лента не даёт основания их менять):\n"
             + json.dumps(prev, ensure_ascii=False, indent=1)[:18000])
+    elif rules_changed:
+        # Прошлый портрет НЕ передаём: модель копирует его дословно, и правка
+        # методики или формата не доезжает до витрины никогда.
+        logger.info("institutions_profile: правила изменились (%s → %s) — "
+                    "прошлый портрет в промпт не кладём, пишем заново",
+                    prev.get("_rules"), rules_now)
+        user_parts.append(
+            "🔴 ПРАВИЛА СБОРКИ ПОРТРЕТА ИЗМЕНИЛИСЬ (методичка и/или формат). "
+            "Прошлый выпуск намеренно НЕ передан: напиши все блоки ЗАНОВО по "
+            "текущим правилам. Правило «сохраняй формулировки» относится к "
+            "устойчивости среды, а не к устаревшим правилам сборки.")
     user_parts.append(f"СЕГОДНЯ: {date.today().isoformat()}")
 
     try:
@@ -651,6 +683,11 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
         ok, why = compliance_ok(fresh)
         if not ok:
             blocking.append(f"комплаенс: {why}")
+
+    # Отпечаток правил кладём В САМ ВЫПУСК: по нему следующий прогон поймёт, что
+    # методичка или формат сменились, и не станет копировать устаревший текст.
+    if isinstance(fresh, dict):
+        fresh["_rules"] = rules_now
 
     status = "rejected" if blocking else "published"
     row = BarometerVersion(
