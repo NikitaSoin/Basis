@@ -2,18 +2,18 @@
 
 Начиналось как «уровни в триллионах» (денежные агрегаты и номинальный ВВП), сейчас сюда
 же вынесены зарплаты Росстата и безработица еврозоны/Китая — по той же причине и по тому
-же протоколу: узкий поиск → строгое извлечение → жёсткая валидация диапазона и даты.
-
+же протоколу.
 
 🔴 Владелец, 2026-08-18: «сделай, чтобы ВВП можно было посмотреть в цифрах в триллионах,
-и денежную массу тоже; плюс другие агрегаты, если найдёшь».
+и денежную массу тоже; плюс другие агрегаты, если найдёшь». 2026-08-19: «закрой отставшие
+ряды» — часть из них отставала именно потому, что источника у них не было вовсе.
 
 Почему так, а не «загрузить из источника». Первичные держатели этих рядов машинно
 недоступны: fedstat/ЕМИСС отдаёт 403 даже с боевого IP (антибот-WAF), страница денежной
 массы ЦБ рисуется устаревшим Flash-дашбордом без JSON-эндпоинта, файла .xlsx по прямой
-ссылке нет. Поэтому используем тот же путь, который уже работает для недельной инфляции:
-узкий веб-поиск → строгое извлечение → жёсткая валидация диапазона и даты. Это честный
-рабочий канал, а не «данных нет».
+ссылке нет, Росстат не публикует зарплаты машиночитаемо. Поэтому используем тот путь,
+который уже работает для недельной инфляции: узкий веб-поиск → строгое извлечение →
+жёсткая валидация диапазона и даты. Это честный рабочий канал, а не «данных нет».
 
 Что здесь есть и чего нет:
 - ЕСТЬ уровни (M0, M2, M2X, номинальный ВВП) и производные от них темпы, которые
@@ -35,6 +35,9 @@ from app.services import llm
 from app.services.macro_ingest import upsert_point
 
 logger = logging.getLogger(__name__)
+
+# Почему не нашлось — заполняется на неудачных попытках, отдаётся в отчёте прогона
+_DIAG: dict[str, dict] = {}
 
 _MONTHS = ("января", "февраля", "марта", "апреля", "мая", "июня", "июля",
            "августа", "сентября", "октября", "ноября", "декабря")
@@ -60,10 +63,14 @@ _TARGETS = {
                  "unit": "трлн ₽", "min_age": 20, "derive": True},
     "m0_level": {"what": "наличные деньги вне банков M0, трлн рублей",
                  "range": (10.0, 40.0), "query": "денежный агрегат М0 наличные деньги Россия",
+                 "queries": ["наличные деньги в обращении М0 Россия трлн рублей",
+                             "денежный агрегат М0 ЦБ РФ объём наличных денег"],
                  "unit": "трлн ₽", "min_age": 20, "derive": True},
     "m2x_level": {"what": "широкая денежная масса M2X (включая валютные депозиты), трлн рублей",
                   "range": (90.0, 300.0),
                   "query": "широкая денежная масса M2X ЦБ РФ трлн рублей",
+                  "queries": ["широкая денежная масса России трлн рублей ЦБ",
+                              "денежный агрегат M2X Банк России статистика"],
                   "unit": "трлн ₽", "min_age": 20, "derive": True},
     "gdp_level": {"what": "номинальный ВВП России в текущих ценах за квартал, трлн рублей",
                   "range": (25.0, 90.0), "query": "номинальный ВВП России квартал трлн рублей",
@@ -73,10 +80,14 @@ _TARGETS = {
                              "рублей в месяц (Росстат)",
                      "range": (60_000.0, 250_000.0),
                      "query": "среднемесячная начисленная заработная плата Росстат рублей",
+                     "queries": ["средняя зарплата в России рублей Росстат данные",
+                                 "среднемесячная начисленная заработная плата составила рублей"],
                      "unit": "₽", "min_age": 25, "derive": False},
     "real_wage": {"what": "реальная заработная плата в России, рост в % год к году (Росстат)",
                   "range": (-25.0, 30.0), "metric": "yoy",
                   "query": "реальная заработная плата Росстат рост процентов год к году",
+                  "queries": ["реальные зарплаты в России выросли на процентов Росстат",
+                              "реальная заработная плата рост в годовом выражении Россия"],
                   "unit": "%", "min_age": 25, "derive": False},
     # Мир: FRED этих двух рядов не даёт, а первоисточники (Евростат/Госстат КНР) машинно
     # недоступны — до сих пор это были разовые ручные засевы, которые никто не обновлял
@@ -110,15 +121,37 @@ def _latest(db: Session, code: str, metric: str = "level"):
         "ORDER BY as_of DESC LIMIT 1"), {"c": code, "m": metric}).first()
 
 
+def _queries(spec: dict, today: date) -> list[str]:
+    """Формулировки запроса: от узкой к широкой.
+
+    🔴 Одна формулировка — половина неудач (прогон 2026-08-19: зарплаты Росстата, M0 и
+    M2X не нашлись, хотя данные опубликованы). Поисковик отдаёт разные выдачи на «М0
+    наличные деньги Россия август 2026» и «денежная масса в России последние данные», а
+    цена лишнего запроса — секунды. Список запросов задаётся рядом в реестре (`queries`),
+    иначе строится из базовой формулировки.
+    """
+    base = spec.get("queries") or [spec["query"]]
+    prev = today.replace(day=1) - timedelta(days=1)      # предыдущий месяц
+    hints = [f"{_MONTHS[today.month - 1]} {today.year}",
+             f"{_MONTHS[prev.month - 1]} {prev.year}",
+             f"последние данные {today.year}"]
+    out = []
+    for i, q in enumerate(base):
+        for h in hints[:2 if len(base) > 1 else 3]:
+            out.append(f"{q} {h}")
+        if i == 0 and len(base) == 1:
+            out.append(q)
+    return out[:5]
+
+
 def _fetch_one(code: str, spec: dict) -> dict | None:
     """Один показатель: поиск → извлечение → валидация."""
-    what, (lo, hi), query_base = spec["what"], spec["range"], spec["query"]
+    what, (lo, hi) = spec["what"], spec["range"]
     from app.services.agent_web import web_search
 
     today = date.today()
-    month_hint = f"{_MONTHS[today.month - 1]} {today.year}"
     results = []
-    for q in (f"{query_base} {month_hint}", f"{query_base} последние данные {today.year}"):
+    for q in _queries(spec, today):
         try:
             out = web_search(q, 6)
         except Exception as e:  # noqa: BLE001
@@ -126,20 +159,27 @@ def _fetch_one(code: str, spec: dict) -> dict | None:
             continue
         if isinstance(out, dict) and not out.get("error"):
             results.extend(r for r in (out.get("results") or []) if isinstance(r, dict))
-        if len(results) >= 8:
+        if len(results) >= 10:
             break
     if not results:
+        _DIAG[code] = {"этап": "поиск", "результатов": 0}
         return None
 
     payload = [{"idx": i, "title": r.get("title"), "text": str(r.get("snippet") or "")[:400],
-                "url": r.get("url")} for i, r in enumerate(results[:10])]
+                "url": r.get("url")} for i, r in enumerate(results[:12])]
     try:
         out = llm.complete(_SYS + f"\nИщем: {what}. Единица ответа: {spec.get('unit')}.",
                            str(payload), json_mode=True, max_tokens=300)
     except llm.LLMError as e:
         logger.warning("levels-watch: %s — LLM не отработал: %s", code, e)
+        _DIAG[code] = {"этап": "LLM", "ошибка": str(e)[:120]}
         return None
     if not isinstance(out, dict) or not out.get("found"):
+        # 🔴 Диагностика молчания: без неё «не найдено» неотличимо — то ли поиск не дал
+        # ничего по делу, то ли модель не смогла достать число из нормальной выдачи.
+        # Первое лечится запросом, второе — промптом; вслепую чинить нечего.
+        _DIAG[code] = {"этап": "извлечение", "результатов": len(results),
+                       "заголовки": [str(r.get("title") or "")[:90] for r in results[:5]]}
         return None
     try:
         raw = out.get("value")
@@ -200,6 +240,7 @@ def watch_levels(db: Session, codes: list[str] | None = None, force: bool = Fals
     не ходит вовсе (`force=True` — обойти, для ручной проверки).
     """
     report: dict = {}
+    _DIAG.clear()
     for code, spec in _TARGETS.items():
         if codes and code not in codes:
             continue
@@ -210,7 +251,7 @@ def watch_levels(db: Session, codes: list[str] | None = None, force: bool = Fals
             continue
         got = _fetch_one(code, spec)
         if not got:
-            report[code] = {"status": "не найдено"}
+            report[code] = {"status": "не найдено", "почему": _DIAG.get(code)}
             continue
         # 🔴 Не откатываться назад: поиск легко приносит прошлогоднюю публикацию. Точку
         # СТАРШЕ уже имеющейся молча не пишем — это не обновление, а порча ряда.
@@ -218,12 +259,18 @@ def watch_levels(db: Session, codes: list[str] | None = None, force: bool = Fals
             report[code] = {"status": "старее имеющейся", "as_of": str(got["as_of"]),
                             "have": str(last[0])}
             continue
-        res = upsert_point(db, code, got["as_of"], metric, got["value"],
+        # 🔴 Один месяц — одна точка. Источники датируют месячные данные по-разному
+        # (1 июня против 30 июня), и без нормализации в ряду заводятся два июня с одним
+        # и тем же значением: график рисует лишнюю ступеньку, расчёт темпов — лишний шаг.
+        as_of = got["as_of"]
+        if last and last[0].year == as_of.year and last[0].month == as_of.month:
+            as_of = last[0]
+        res = upsert_point(db, code, as_of, metric, got["value"],
                            unit=spec.get("unit", "трлн ₽"), source="Веб-поиск",
                            source_url=got.get("url"), ingested_via="news", commit=False)
         rates = _derive_rates(db, code) if spec.get("derive") else {}
         db.commit()
-        report[code] = {"status": res, "as_of": str(got["as_of"]), "value": got["value"],
+        report[code] = {"status": res, "as_of": str(as_of), "value": got["value"],
                         "period": got.get("period"), **rates}
         logger.info("levels-watch: %s = %s %s на %s (%s)", code, got["value"],
                     spec.get("unit"), got["as_of"], res)
