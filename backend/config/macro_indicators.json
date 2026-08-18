@@ -110,7 +110,8 @@
       "country": "ru",
       "frequency": "quarterly",
       "metric_types": [
-        "yoy"
+        "yoy",
+        "mom"
       ],
       "display_group": "ru",
       "sort_order": 8,
@@ -226,7 +227,7 @@
       "country": "ru",
       "frequency": "monthly",
       "metric_types": [
-        "level"
+        "yoy"
       ],
       "display_group": "ru",
       "sort_order": 15,
@@ -240,7 +241,8 @@
       "country": "ru",
       "frequency": "monthly",
       "metric_types": [
-        "level"
+        "mom",
+        "yoy"
       ],
       "display_group": "ru",
       "sort_order": 16,
