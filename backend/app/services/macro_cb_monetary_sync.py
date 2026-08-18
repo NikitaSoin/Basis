@@ -110,6 +110,38 @@ def _parse(blob: bytes) -> dict[str, list[tuple[date, float]]]:
     return out
 
 
+def _derive(db: Session, code: str, pts: list[tuple[date, float]]) -> dict:
+    """Темпы считает КОД по уровням: год к году и месяц к месяцу.
+
+    🔴 У модели темпы не спрашиваем и из файла владельца больше не берём: ряд m2/mom
+    именно так и осиротел — файл кончился в марте, а витрина продолжала показывать
+    последнее значение как «текущий рост денежной массы». Пока есть уровни от ЦБ,
+    производные есть всегда и считаются одинаково.
+    """
+    if len(pts) < 2:
+        return {}
+    out: dict = {}
+    last_d, last_v = pts[-1]
+    prev_d, prev_v = pts[-2]
+    year_ago = [(d, v) for d, v in pts if abs((last_d - d).days - 365) <= 20]
+    growth_code = {"m2_level": "m2"}.get(code)          # исторический код ряда темпов
+    for target in filter(None, (code, growth_code)):
+        if year_ago and year_ago[-1][1]:
+            yoy = round((last_v / year_ago[-1][1] - 1) * 100, 1)
+            upsert_point(db, target, last_d, "yoy", yoy, unit="%",
+                         source="расчёт Basis по данным ЦБ (денежные агрегаты)",
+                         source_url=_PAGE, ingested_via="cbr", commit=False)
+            out["yoy"] = yoy
+        if prev_v and (last_d - prev_d).days <= 45:
+            mom = round((last_v / prev_v - 1) * 100, 1)
+            upsert_point(db, target, last_d, "mom", mom, unit="%",
+                         source="расчёт Basis по данным ЦБ (денежные агрегаты)",
+                         source_url=_PAGE, ingested_via="cbr", commit=False)
+            out["mom"] = mom
+    db.commit()
+    return out
+
+
 def sync_monetary_aggregates(db: Session, full_history: bool = False) -> dict:
     """Загрузить агрегаты из файла ЦБ. По умолчанию — последние 24 месяца."""
     try:
@@ -140,9 +172,10 @@ def sync_monetary_aggregates(db: Session, full_history: bool = False) -> dict:
             if res in ("insert", "revise"):
                 saved += 1
         db.commit()
+        rates = _derive(db, code, sorted(set(parsed[code])))
         report[code] = {"points": len(pts), "saved": saved,
                         "last": str(pts[-1][0]) if pts else None,
-                        "value": pts[-1][1] if pts else None}
+                        "value": pts[-1][1] if pts else None, **rates}
         logger.info("ЦБ денежные агрегаты: %s — %s точек, последняя %s = %s трлн",
                     code, len(pts), report[code]["last"], report[code]["value"])
     return report
