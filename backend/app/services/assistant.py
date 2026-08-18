@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -545,6 +546,27 @@ _TOOL_REF_TITLES = {
 }
 
 
+# Модель в агентском цикле любит начать с реплики «про себя»: «Отлично, данных
+# достаточно, сейчас соберу ответ». Запрет в промпте держит не всегда (проверено
+# на бою), поэтому срезаем кодом — но ОСТОРОЖНО: только короткую первую строку,
+# только по явным маркерам процесса и только если после неё что-то осталось.
+_META_MARKERS = re.compile(
+    r"(данных достаточно|соберу ответ|дам (развёрнутый|подробный) ответ|сейчас посмотр|"
+    r"сейчас проверю|вызываю инструмент|использую инструмент|давайте (я )?(соберу|посмотрим)|"
+    r"начну с|проверю (данные|платформ)|у меня достаточно)", re.IGNORECASE)
+
+
+def _strip_meta_preamble(text: str) -> str:
+    parts = text.split("\n", 1)
+    if len(parts) != 2:
+        return text
+    first, rest = parts[0].strip(), parts[1].strip()
+    if first and len(first) <= 160 and not first.startswith("#") and _META_MARKERS.search(first) \
+            and len(rest) > 80:
+        return rest
+    return text
+
+
 def _answer_with_tools(db: Session, user_id: int | None, guest_token: str | None,
                        user_content: str, prior: list[Message]) -> tuple[str | None, list[dict]]:
     """Прогоняет вопрос через агентский цикл с инструментами платформы.
@@ -575,7 +597,7 @@ def _answer_with_tools(db: Session, user_id: int | None, guest_token: str | None
     except Exception:  # noqa: BLE001 — ответ пользователю важнее одного механизма
         logger.exception("Ассистент: агентский цикл упал")
         return None, []
-    text_out = ((run.get("result") or {}).get("text") or "").strip()
+    text_out = _strip_meta_preamble(((run.get("result") or {}).get("text") or "").strip())
     used: list[dict] = []
     seen = set()
     for ev in run.get("trace") or []:
