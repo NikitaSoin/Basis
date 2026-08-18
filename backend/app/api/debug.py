@@ -3489,3 +3489,33 @@ def debug_net_probe(data: dict | None = None):
         "user": os.environ.get("SMTP_USER"),
         "from": os.environ.get("SMTP_FROM"),
         "password_set": bool(pw), "password_len": len(pw)}}
+
+
+@router.get("/debug/assistant-index")
+def assistant_index(rebuild: bool = Query(False, description="пересобрать индекс прозы"),
+                    q: str = Query("", description="проверочный поиск")):
+    """Состояние поискового слоя ассистента (doc_index) — сколько документов
+    проиндексировано и что находится по запросу. Нужен, чтобы проверять RAG
+    НА БОЮ, а не по локальной папке: в образ едет свой срез файлов."""
+    from app.services import doc_index
+    if rebuild:
+        doc_index.ensure_index(force=True)
+    out = {"stats": doc_index.stats()}
+    if q:
+        out["results"] = [{k: v for k, v in r.items() if k != "snippet"} | {
+            "snippet": (r.get("snippet") or "")[:180]} for r in doc_index.search(q, limit=5)]
+    return out
+
+
+@router.post("/debug/assistant-tool")
+def assistant_tool(name: str = Query(..., description="имя инструмента"),
+                   args: dict | None = None):
+    """Прямой вызов ОДНОГО инструмента ассистента — проверка доступа к данным
+    без траты токенов LLM: видно, что именно увидит модель."""
+    from app.db.session import SessionLocal
+    from app.services import assistant_tools
+    db = SessionLocal()
+    try:
+        return {"tool": name, "result": assistant_tools.execute(db, name, args or {})}
+    finally:
+        db.close()

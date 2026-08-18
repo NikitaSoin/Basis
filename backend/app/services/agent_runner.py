@@ -40,7 +40,8 @@ _SEARCH_TOOLS = {"web_search", "search_our_feed"}
 def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[dict],
               allowed_ticker: str = "", max_steps: int = 8, max_tokens_total: int = 40_000,
               web_call_cap: int = 2, executor=None, step_max_tokens: int = 1600,
-              final_max_tokens: int = 0, final_instruction: str = "") -> dict:
+              final_max_tokens: int = 0, final_instruction: str = "",
+              text_final: bool = False, history: list[dict] | None = None) -> dict:
     """Возвращает {"result": dict|None, "trace": list, "tokens_used": int,
     "stopped_reason": str}. result=None — агент не дал валидного JSON-финала.
     web_call_cap — сколько раз всего разрешён веб-поиск/открытие документа: после
@@ -50,11 +51,16 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
     тикер-контур пилота; макро-вопросы тикера не имеют и приносят свой (2026-08-02).
     step_max_tokens — потолок ответа модели на шаг. 1600 рассчитан на короткие
     структурные ответы пилота; агент с объёмным финалом (разбор события с фактами и
-    цитатами) на нём ОБРЕЗАЕТСЯ на середине JSON, и финал не парсится."""
-    messages: list[dict] = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": task},
-    ]
+    цитатами) на нём ОБРЕЗАЕТСЯ на середине JSON, и финал не парсится.
+    text_final=True — финал ПРОЗОЙ, а не JSON (диалоговый ассистент отвечает
+    человеку): текст кладётся в result["text"], JSON не парсится и не требуется.
+    history — предыдущие реплики диалога [{role, content}], вставляются между
+    системным промптом и задачей."""
+    messages: list[dict] = [{"role": "system", "content": system_prompt}]
+    for h in (history or []):
+        if h.get("role") in ("user", "assistant") and h.get("content"):
+            messages.append({"role": h["role"], "content": str(h["content"])[:2000]})
+    messages.append({"role": "user", "content": task})
     trace: list[dict] = []
     tokens_used = 0
     web_calls = 0
@@ -99,6 +105,13 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
         # Доставленный ответ не выбрасываем никогда; бюджет останавливает
         # ПРОДОЛЖЕНИЕ цикла, а не приём уже готового результата.
         tool_calls = msg.get("tool_calls") or []
+        if not tool_calls and text_final:
+            # диалоговый режим: финал — обычный текст человеку, парсить нечего
+            content = (msg.get("content") or "").strip()
+            trace.append({"step": step, "event": "final_text", "chars": len(content)})
+            return {"result": ({"text": content} if content else None), "trace": trace,
+                    "tokens_used": tokens_used, "final_raw": content[:1500],
+                    "stopped_reason": "final" if content else "empty_final"}
         if not tool_calls:
             # финальный ответ — парсим JSON
             content = _strip_json_fence(msg.get("content") or "")
@@ -141,10 +154,14 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
             # видит; напоминание с самой схемой — видит.
             messages.append({"role": "user", "content": (
                 "🔴 БЮДЖЕТ ПРОГОНА ПОЧТИ ИСЧЕРПАН. Инструменты больше недоступны. "
+                "Ответь пользователю СЕЙЧАС по тому, что уже собрал, и честно скажи, "
+                "чего проверить не успел. Ничего не досочиняй.\n"
+                if text_final else
+                "🔴 БЮДЖЕТ ПРОГОНА ПОЧТИ ИСЧЕРПАН. Инструменты больше недоступны. "
                 "Немедленно верни ИТОГОВЫЙ JSON по тому, что уже собрал. Неполный "
                 "результат с честным списком пробелов нужнее, чем отсутствие "
                 "результата. Ничего не досочиняй. Ответ — ТОЛЬКО JSON, без "
-                "вступлений, пояснений и текста вокруг.\n" + (final_instruction or ""))})
+                "вступлений, пояснений и текста вокруг.\n") + (final_instruction or "")})
             tools_schema = []
 
         # исполняем вызовы инструментов и кладём результаты в диалог.

@@ -31,6 +31,11 @@ logger = logging.getLogger(__name__)
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 
 _MAX_HISTORY_MESSAGES = 8  # сколько последних сообщений диалога подмешиваем в контекст
+# Потолки агентского цикла (лимиты — кодом, а не «дисциплиной промпта»):
+# 5 шагов хватает на «найти бумагу → открыть её → сверить с разбором», а
+# результаты инструментов остаются в диалоге и дорожают каждый следующий шаг.
+_TOOL_MAX_STEPS = 5
+_TOOL_TOKEN_BUDGET = 60_000
 _MAX_TICKERS_PER_TURN = 8  # не даём одному вопросу утянуть контекст на пол-рынка
 # Было 4 — владелец попросил сравнить мультипликаторы банков, LLM-экстрактор
 # честно нашёл 13 тикеров (SBER/SBERP/VTBR/BSPB/BSPBP/CBOM/...), код обрезал до
@@ -76,9 +81,11 @@ _EXTRACT_SYSTEM_PREFIX = (
     "- wants_macro: true, если вопрос про макроэкономику РФ в целом (ставка, инфляция, "
     "курс) без привязки к конкретной компании.\n"
     "- wants_news: true, если вопрос про свежие новости/события.\n"
-    "- wants_report: true, если пользователь просит СГЕНЕРИРОВАТЬ ОТЧЁТ/сводку/обзор "
-    "рынка или портфеля («сделай отчёт», «дай сводку по рынку», «ИИ-обзор», «утренний "
-    "обзор») — не просто вопрос, а запрос готового структурного обзора.\n"
+    "- wants_report: true, ТОЛЬКО если пользователь прямо просит СГЕНЕРИРОВАТЬ "
+    "документ-обзор («сделай отчёт», «дай сводку по рынку», «ИИ-обзор», «утренний "
+    "обзор»). Обычный вопрос — даже про портфель целиком («что у меня в портфеле», "
+    "«какие риски у моих бумаг», «что с моими акциями») — это НЕ отчёт: на него "
+    "отвечают данными, а не генерацией документа. Сомневаешься — false.\n"
     "- report_topic: если wants_report — тема из списка: \"biz\" (бизнес/отчётности "
     "компаний), \"macro\" (макроэкономика), \"geo\" (геополитика), \"institutions\" "
     "(институциональная среда), \"mixed\" (общий/не уточнил). Иначе null.\n"
@@ -488,6 +495,113 @@ def _build_context(db: Session, entities: dict) -> tuple[dict, list[dict]]:
     return ctx, refs
 
 
+# ---------------------- Шаг 3': добор данных инструментами ----------------------
+# 🔴 Почему цикл, а не «положим в контекст ещё таблиц»: слотов слишком много.
+# Облигации (3294 выпуска), фонды, фьючерсы, валюта, дивиденды, календарь,
+# портфель пользователя, вся проза карточек и досье эмитентов — это не помещается
+# в один промпт и не должно: 90% вопросов касаются одной-двух сущностей. Модель
+# сама берёт нужное инструментом, а предзагруженный контекст (акции из вопроса)
+# остаётся, чтобы типовой вопрос отвечался БЕЗ единого вызова — одним запросом.
+_TOOLS_FRAMEWORK = (
+    "\n\nИНСТРУМЕНТЫ. У тебя есть доступ к данным платформы через инструменты — "
+    "пользуйся ими, а не отвечай «в моём контексте таких данных нет». Что где:\n"
+    "- облигации (3000+ выпусков), фонды, фьючерсы, валюта и металлы — search_bonds/"
+    "get_bond, search_funds/get_fund, search_futures, get_spot_prices;\n"
+    "- акции: подбор по метрикам — screen_stocks, карточка и проза вкладок — "
+    "get_company_card, выплаты — get_dividends;\n"
+    "- смысл, причины и формулировки разборов Basis (все вкладки карточек, досье "
+    "эмитентов облигаций, методички) — search_platform_docs, затем read_platform_doc "
+    "по doc_id из выдачи;\n"
+    "- макро и траектория ставки — get_macro; события — get_calendar; новости — get_news;\n"
+    "- портфель СПРАШИВАЮЩЕГО — get_portfolio (у гостя его нет, это нормально).\n"
+    "Если данных для ответа не хватает — СНАЧАЛА позови инструмент, и только если он "
+    "вернул found=false, говори, что таких данных на платформе нет. Не выдумывай "
+    "SECID и тикеры: сначала найди их поиском. Отвечай пользователю ОБЫЧНЫМ ТЕКСТОМ "
+    "(markdown), без JSON.\n"
+    "🔴 НЕ ОПИСЫВАЙ СВОЙ ПРОЦЕСС. Пользователь не должен читать «сейчас посмотрю», "
+    "«отлично, данных достаточно», «вызываю инструмент» — начинай сразу с ответа по "
+    "существу. Откуда взяты данные, видно по списку источников под ответом.\n"
+    "Ответ должен доводить до действия: не только «вот число», но и что оно значит "
+    "для держателя бумаги и на что смотреть дальше — при этом БЕЗ «покупать/продавать»."
+)
+
+# Человеческие названия инструментов — для списка источников под ответом.
+_TOOL_REF_TITLES = {
+    "search_bonds": "Облигации — база выпусков платформы",
+    "get_bond": "Облигация — параметры выпуска и разбор",
+    "search_funds": "Фонды (БПИФ/ETF) — база платформы",
+    "get_fund": "Фонд — параметры и разбор",
+    "search_futures": "Фьючерсы — база контрактов",
+    "get_spot_prices": "Валюта и металлы — биржевые цены",
+    "screen_stocks": "Скринер акций — метрики платформы",
+    "get_company_card": "Карточка компании",
+    "get_dividends": "Дивиденды — история выплат",
+    "get_macro": "Макропоказатели и решения ЦБ",
+    "get_calendar": "Календарь событий",
+    "get_portfolio": "Ваш портфель",
+    "get_news": "Лента новостей платформы",
+    "search_platform_docs": "Поиск по аналитике Basis",
+    "read_platform_doc": "Разбор аналитика Basis",
+}
+
+
+def _answer_with_tools(db: Session, user_id: int | None, guest_token: str | None,
+                       user_content: str, prior: list[Message]) -> tuple[str | None, list[dict]]:
+    """Прогоняет вопрос через агентский цикл с инструментами платформы.
+    Возвращает (текст ответа | None, источники по вызванным инструментам)."""
+    try:
+        from app.services.agent_runner import run_agent
+        from app.services import assistant_tools
+    except ImportError:
+        # Модуль ещё не доехал на инстанс (Timeweb выкатывает файлы неравномерно) —
+        # тихо откатываемся на однопроходный синтез, а не роняем ответ.
+        logger.warning("Ассистент: инструменты недоступны, отвечаю без цикла")
+        return None, []
+    try:
+        run = run_agent(
+            db,
+            system_prompt=_ANSWER_FRAMEWORK + _TOOLS_FRAMEWORK,
+            task=user_content,
+            tools_schema=assistant_tools.TOOLS_SCHEMA,
+            executor=assistant_tools.make_executor(user_id, guest_token),
+            history=[{"role": m.role, "content": m.content}
+                     for m in prior[-_MAX_HISTORY_MESSAGES:] if m.role in ("user", "assistant")],
+            text_final=True,
+            max_steps=_TOOL_MAX_STEPS,
+            max_tokens_total=_TOOL_TOKEN_BUDGET,
+            step_max_tokens=1400,
+            final_max_tokens=2200,
+        )
+    except Exception:  # noqa: BLE001 — ответ пользователю важнее одного механизма
+        logger.exception("Ассистент: агентский цикл упал")
+        return None, []
+    text_out = ((run.get("result") or {}).get("text") or "").strip()
+    used: list[dict] = []
+    seen = set()
+    for ev in run.get("trace") or []:
+        name = ev.get("name")
+        if ev.get("event") != "tool" or not name:
+            continue
+        args = {k: v for k, v in (ev.get("args") or {}).items()
+                if isinstance(v, (str, int, float))}
+        # В подписи источника — за ЧЕМ ходили: «Облигация — RU000A101H84» полезнее,
+        # чем просто «Облигация». Ключи в порядке узнаваемости для человека.
+        subject = next((str(args[k]) for k in ("secid", "ticker", "doc_id", "query", "issuer")
+                        if args.get(k)), "")
+        key = (name, subject)
+        if key in seen:
+            continue
+        seen.add(key)
+        title = _TOOL_REF_TITLES.get(name, name)
+        used.append({"kind": "tool", "tool": name,
+                     "title": f"{title} — {subject[:60]}" if subject else title,
+                     "args": args})
+    logger.info("Ассистент: цикл — шагов %d, инструментов %d, токенов %d, финал %s",
+                len([e for e in run.get("trace") or [] if e.get("event") == "tool"]),
+                len(used), run.get("tokens_used") or 0, run.get("stopped_reason"))
+    return (text_out or None), used
+
+
 def _history_text(messages: list[Message]) -> str:
     tail = messages[-_MAX_HISTORY_MESSAGES:]
     lines = []
@@ -519,7 +633,10 @@ def ask(db: Session, user_id: int | None, user_message: str, conversation_id: in
         db.add(conv)
         db.flush()
 
-    history_text = _history_text(conv.messages) if conv.messages else ""
+    # Реплики ДО этого хода: текущий вопрос идёт задачей и не должен дублироваться
+    # в истории (иначе модель видит его дважды и переспрашивает саму себя).
+    prior_messages = list(conv.messages) if conv.messages else []
+    history_text = _history_text(prior_messages) if prior_messages else ""
 
     user_msg = Message(conversation_id=conv.id, role="user", content=user_message)
     db.add(user_msg)
@@ -532,7 +649,12 @@ def ask(db: Session, user_id: int | None, user_message: str, conversation_id: in
     # и в чат (полным текстом), и в историю отчётов Обозревателя (generate сам
     # сохраняет ObserverReport). RAG-синтез в этой ветке не гоняем — пользователь
     # просил отчёт, не ответ на вопрос.
-    if entities.get("wants_report"):
+    # 🔴 ГОСТЮ отчёт не генерируем: observer_reports.user_id NOT NULL, и попытка
+    # сохранить отчёт без пользователя валила запрос IntegrityError → 500 на
+    # ровном месте (поймано 2026-08-19 на вопросе «что у меня в портфеле» —
+    # экстрактор счёл его запросом отчёта). Гость идёт обычным путём: с
+    # инструментами он и так соберёт сводку из новостей, макро и календаря.
+    if entities.get("wants_report") and user_id is not None:
         from app.services.observer_report import generate as generate_report
         depth = entities["report_depth"]
         topic = entities["report_topic"]
@@ -569,19 +691,31 @@ def ask(db: Session, user_id: int | None, user_message: str, conversation_id: in
                               "данные платформы подключай только если реально дополняют.",
                    "mixed": "Вопрос смешанный — сначала данные платформы, затем общий контекст.",
                    "platform": "Вопрос про данные платформы — цифры строго из контекста."}
-    user_content = ((f"Недавний диалог:\n{history_text}\n\n" if history_text else "") +
-                    f"Область вопроса: {_scope_hint.get(entities.get('scope'), '')}\n"
-                    f"Вопрос: {user_message}\n\nКонтекст (JSON):\n{json.dumps(ctx, ensure_ascii=False)}")
-    try:
-        answer_text = complete(_ANSWER_FRAMEWORK, user_content, json_mode=False,
-                               thinking=False, max_tokens=1800, temperature=0.3)
-        if not isinstance(answer_text, str):
-            answer_text = str(answer_text)
-        answer_text = answer_text.strip() or "Не удалось сформировать ответ — попробуйте переформулировать вопрос."
-    except LLMError:
-        logger.exception("Ассистент: синтез ответа не удался")
-        answer_text = "Сервис временно недоступен, попробуйте ещё раз через минуту."
-        refs = []
+    # Задача без пересказа диалога — в цикле история идёт отдельными репликами
+    # (у модели роли, а не абзац текста); в запасной однопроходный синтез диалог
+    # по-прежнему подмешивается строкой, там ролей нет.
+    task_text = (f"Область вопроса: {_scope_hint.get(entities.get('scope'), '')}\n"
+                 f"Вопрос: {user_message}\n\nПредзагруженный контекст (JSON):\n"
+                 f"{json.dumps(ctx, ensure_ascii=False)}")
+    user_content = (f"Недавний диалог:\n{history_text}\n\n" if history_text else "") + task_text
+
+    answer_text, tool_refs = _answer_with_tools(db, user_id, guest_token, task_text,
+                                                prior_messages)
+    refs = (refs or []) + tool_refs
+    if answer_text is None:
+        # Цикл не дал текста (провайдер, лимит шагов) — отвечаем одним проходом
+        # по предзагруженному контексту: хуже, чем с инструментами, но лучше, чем
+        # «сервис недоступен» при живом контексте.
+        try:
+            answer_text = complete(_ANSWER_FRAMEWORK, user_content, json_mode=False,
+                                   thinking=False, max_tokens=1800, temperature=0.3)
+            if not isinstance(answer_text, str):
+                answer_text = str(answer_text)
+            answer_text = answer_text.strip() or "Не удалось сформировать ответ — попробуйте переформулировать вопрос."
+        except LLMError:
+            logger.exception("Ассистент: синтез ответа не удался")
+            answer_text = "Сервис временно недоступен, попробуйте ещё раз через минуту."
+            refs = []
 
     assistant_msg = Message(conversation_id=conv.id, role="assistant",
                             content=answer_text, source_refs=refs)
