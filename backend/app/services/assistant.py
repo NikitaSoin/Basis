@@ -541,6 +541,7 @@ _TOOL_REF_TITLES = {
     "get_calendar": "Календарь событий",
     "get_portfolio": "Ваш портфель",
     "get_news": "Лента новостей платформы",
+    "get_earnings": "Отчётности компании — разбор Basis",
     "search_platform_docs": "Поиск по аналитике Basis",
     "read_platform_doc": "Разбор аналитика Basis",
 }

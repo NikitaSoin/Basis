@@ -333,6 +333,16 @@ def _get_company_card(db: Session, ticker: str, tabs: list | None = None,
             "upside_pct": round((fv / price - 1) * 100, 1) if fv and price else None,
             "note": "P/E и дивдоходность посчитаны от ТЕКУЩЕЙ цены — приоритетнее чисел в текстах",
         }
+    # Числовые ряды отчётности по годам (та же выжимка из financials.json, что
+    # идёт в предзагруженный контекст) — без них карточка отвечала прозой на
+    # вопрос «покажи выручку по годам».
+    try:
+        from app.services.assistant import _key_financials
+        kf = _key_financials(tk)
+        if kf:
+            out["key_financials"] = kf
+    except Exception:  # noqa: BLE001 — числа необязательны, карточка полезна и без них
+        logger.exception("get_company_card: не удалось собрать key_financials по %s", tk)
     wanted = [t for t in (tabs or ["business", "finance"]) if t in _CARD_FILES]
     prose = {}
     for t in wanted[:4]:
@@ -360,6 +370,18 @@ def _get_dividends(db: Session, ticker: str, limit: int = 10) -> dict:
 
 
 # ============================== МАКРО / СОБЫТИЯ / ПОРТФЕЛЬ ==============================
+
+def _get_earnings(db: Session, ticker: str) -> dict:
+    """Разобранные отчётности эмитента за последние 120 дней. Берём готовую
+    выборку из agent_tools — она уже используется агентами обновления карточек,
+    второй такой же запрос заводить незачем."""
+    from app.services.agent_tools import _get_recent_earnings
+    out = _get_recent_earnings(db, (ticker or "").strip().upper())
+    rows = out.get("earnings") or []
+    return {"found": bool(rows), "count": len(rows), "earnings": rows,
+            "note": "gist — краткий разбор Basis по вышедшему отчёту (суждение)."} if rows else {
+            "found": False, "reason": f"разобранных отчётов по {ticker} за 120 дней нет"}
+
 
 def _get_macro(db: Session, codes: list | None = None) -> dict:
     codes = codes or ["key_rate", "inflation", "usdrub", "gdp", "unemployment"]
@@ -527,6 +549,9 @@ TOOLS_SCHEMA = [
          "max_chars_per_tab": _I}, ["ticker"]),
     _fn("get_dividends", "История дивидендных выплат компании (дата отсечки, сумма на акцию).",
         {"ticker": _S, "limit": _I}, ["ticker"]),
+    _fn("get_earnings",
+        "Вышедшие отчётности компании за 120 дней с кратким разбором Basis.",
+        {"ticker": _S}, ["ticker"]),
     _fn("get_macro", "Макропоказатели РФ и траектория ключевой ставки из журнала решений ЦБ.",
         {"codes": {"type": "array", "items": _S}}, []),
     _fn("get_calendar", "Календарь событий: дивиденды, оферты, погашения, отчётности, макро.",
@@ -579,6 +604,8 @@ def execute(db: Session, name: str, args: dict, *, user_id: int | None = None,
                                      args.get("max_chars_per_tab", 2500))
         if name == "get_dividends":
             return _get_dividends(db, args.get("ticker", ""), args.get("limit", 10))
+        if name == "get_earnings":
+            return _get_earnings(db, args.get("ticker", ""))
         if name == "get_macro":
             return _get_macro(db, args.get("codes"))
         if name == "get_calendar":
