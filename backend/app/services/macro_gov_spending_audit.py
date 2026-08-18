@@ -146,6 +146,10 @@ def audit(db: Session, years: tuple[int, int] = (2016, 2025), *,
     write=False — только показать расхождения, ничего не трогая (режим по умолчанию для
     первого прогона: разрушительная правка ряда должна сначала быть видна глазами)."""
     lo_y, hi_y = years
+    if write:
+        # gov_spending_level — новый код: без записи в справочник точка не ляжет (FK)
+        from app.services.macro_ingest import seed_indicators
+        seed_indicators(db)
     levels: dict[int, dict] = {}
     for year in range(lo_y - 1, hi_y + 1):          # год раньше — база для первого темпа
         got = _level(year)
