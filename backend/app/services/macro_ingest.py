@@ -428,6 +428,26 @@ _STALE_DAYS = {"daily": 7, "weekly": 21, "monthly": 75, "quarterly": 140, "yearl
 # Ряды, которые сознательно больше не ведём (заменены другими) — не «сломались».
 _RETIRED_SERIES = {"budget_balance"}
 
+# 🔴 Лаг публикации, дни (2026-08-19). Порог по частоте считает от даты ПЕРИОДА, а не от
+# даты выхода данных: у Росстата зарплаты за месяц выходят через ~1,5–2 месяца, у ОЭСР
+# ставки Китая — через ~3. Из-за этого нормально работающие ряды годами висели в списке
+# «не обновляются», а рядом с ними терялись реально замолчавшие источники — тот самый
+# шум, из-за которого перестают читать алерт. Здесь — ТОЛЬКО подтверждённый лаг
+# первоисточника; «источник сломался» лечится починкой источника, а не поблажкой порога.
+_PUBLICATION_LAG = {
+    "nominal_wage": 40, "real_wage": 40, "real_income": 40,
+    "fixed_capital_investment": 60,          # инвестиции в основной капитал — квартал + лаг
+    "eu_inflation": 25, "eu_unemployment": 25, "eu_gdp": 40,
+    "cn_rate": 100, "cn_unemployment": 25,   # ОЭСР MEI по Китаю выходит с большим лагом
+    "us_gdp": 40,
+}
+
+# 🔴 Ряды, у которых НЕТ живого источника: числа пришли из таблицы владельца разово,
+# машинного канала не существует. Это не «сломалось вчера» и не «замолчал источник» —
+# это дыра по построению, и владелец должен видеть её именно так, а не как строку
+# «отстаёт на 230 дней», за которой не видно, что чинить нечего без нового источника.
+_NO_FEEDER_SERIES = {"sec_power_consumption", "sec_power_capacity"}
+
 
 def check_staleness(db: Session) -> list[dict]:
     """Найти ряды, которые перестали обновляться (последняя точка старше нормы частоты).
@@ -441,7 +461,8 @@ def check_staleness(db: Session) -> list[dict]:
         # замечать новые.
         if ind.code in _RETIRED_SERIES:
             continue
-        thr = _STALE_DAYS.get(ind.frequency or "monthly", 75)
+        thr = (_STALE_DAYS.get(ind.frequency or "monthly", 75)
+               + _PUBLICATION_LAG.get(ind.code, 0))
         for m in (ind.metric_types or ["level"]):
             p = (db.query(MacroDataPoint).filter_by(indicator_code=ind.code, metric=m)
                  .order_by(MacroDataPoint.as_of.desc()).first())
@@ -456,7 +477,8 @@ def check_staleness(db: Session) -> list[dict]:
             age = (today - p.as_of).days
             if age > thr:
                 stale.append({"code": ind.code, "metric": m, "last": str(p.as_of),
-                              "age_days": age, "via": p.ingested_via})
+                              "age_days": age, "via": p.ingested_via,
+                              "no_feeder": ind.code in _NO_FEEDER_SERIES})
     if stale:
         logger.warning("МАКРО-АЛЕРТ: %d рядов не обновляются дольше нормы: %s",
                        len(stale), ", ".join(

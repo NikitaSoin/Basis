@@ -484,6 +484,41 @@ def _check_metric_purity(db: Session) -> dict:
                 suspects=len(suspects))
 
 
+def _check_silent_sources(db: Session) -> dict:
+    """Какие ряды перестали обновляться — и по какой причине.
+
+    🔴 Зачем отдельной проверкой (2026-08-19). Список отставших жил только в логах: чтобы
+    его увидеть, надо было залезть в сервер. На витрине показатель со сломанным фидом
+    выглядел ровно как рабочий — просто с датой постарше. Здесь три РАЗНЫЕ болезни
+    разделены, потому что лечатся они по-разному:
+      • источник молчит — фид есть, но не отвечает (чинить фид);
+      • живого источника нет — числа завезены разово, машинного канала не существует
+        (нужен новый источник, «починить» нечего);
+      • ряд пуст — заведён, но данных нет ни одной точки.
+    Лаг публикации из `_PUBLICATION_LAG` уже учтён порогом, поэтому нормальные Росстат/
+    ОЭСР-лаги сюда не попадают и не создают шум.
+    """
+    key, t, title = "silent_sources", "freshness", "Источники не замолчали"
+    from app.services.macro_ingest import check_staleness
+    stale = check_staleness(db)
+    if not stale:
+        return _res(key, t, title, "ok", "Все ряды обновляются в срок")
+    empty = [s for s in stale if s.get("empty")]
+    no_feeder = [s for s in stale if s.get("no_feeder") and not s.get("empty")]
+    broken = [s for s in stale if not s.get("empty") and not s.get("no_feeder")]
+    parts = []
+    if broken:
+        parts.append("источник молчит: " + ", ".join(
+            f"{s['code']} ({s['age_days']} дн)" for s in sorted(
+                broken, key=lambda x: -(x["age_days"] or 0))[:5]))
+    if no_feeder:
+        parts.append("нет живого источника: " + ", ".join(s["code"] for s in no_feeder[:4]))
+    if empty:
+        parts.append("ряд пуст: " + ", ".join(s["code"] for s in empty[:4]))
+    return _res(key, t, title, "fail" if broken else "warn", "; ".join(parts),
+                broken=len(broken), no_feeder=len(no_feeder), empty=len(empty))
+
+
 def run_verification(db: Session) -> dict:
     """Полный прогон всех проверок → строки в macro_verifications (один run_at на
     прогон). Ошибка одной проверки не роняет остальные."""
@@ -505,6 +540,7 @@ def run_verification(db: Session) -> dict:
         lambda: _check_cross_expectations(db),
         lambda: _check_deltas(db),
         lambda: _check_metric_purity(db),
+        lambda: _check_silent_sources(db),
     ]
     run_at = datetime.now(timezone.utc)
     results = []

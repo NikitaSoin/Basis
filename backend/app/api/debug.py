@@ -771,9 +771,27 @@ def debug_repair_macro_series():
         db.close()
 
 
+@router.post("/debug/audit-gov-spending")
+def debug_audit_gov_spending(year_from: int = 2016, year_to: int = 2025,
+                             write: bool = True, threshold_pp: float = 1.0):
+    """Сверка годовых госрасходов с исполнением федерального бюджета (Минфин).
+    write=false — только показать расхождения, ничего не менять."""
+    from app.db.session import SessionLocal
+    from app.services.macro_gov_spending_audit import audit
+    db = SessionLocal()
+    try:
+        return audit(db, (year_from, year_to), threshold_pp=threshold_pp, write=write)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug audit-gov-spending: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/watch-macro-levels")
 def debug_watch_macro_levels(code: str | None = None, force: bool = False):
-    """Добор уровней в триллионах (M0/M2/M2X, ВВП в текущих ценах) и расчёт темпов.
+    """Добор рядов без машинного источника (M0/M2/M2X, номинальный ВВП, зарплаты Росстата,
+    безработица еврозоны/Китая) и расчёт темпов кодом.
     code — только один показатель; force снимает проверку свежести."""
     from app.db.session import SessionLocal
     from app.services.macro_levels_watch import watch_levels
