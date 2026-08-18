@@ -208,6 +208,20 @@ def audit(db: Session, years: tuple[int, int] = (2016, 2025), *,
     if write:
         db.commit()
 
+    # Хвост той же болезни за годом сверки: в файле владельца январь-март текущего года
+    # несут годовые значения прошлых лет (сдвиг), и рядом с ними уже лежат машинные
+    # месячные точки Минфина — накопленный рост с начала года. Два разных показателя в
+    # одном ряду, разница масштаба вдвое-втрое. Файл здесь неуместен целиком.
+    tail = 0
+    if write:
+        res = db.execute(text(
+            "DELETE FROM macro_data_points WHERE indicator_code='gov_spending_growth' "
+            "AND metric='yoy' AND as_of > :d "
+            "AND (ingested_via='file' OR source IS NULL OR source LIKE '%file%')"),
+            {"d": date(hi_y, 12, 31)})
+        tail = int(res.rowcount or 0)
+        db.commit()
+
     checked = [r for r in rows if r["computed_yoy"] is not None]
     out = {"rows": rows, "write": write,
            "summary": {"годы": len(rows), "сверено": len(checked),
@@ -217,7 +231,8 @@ def audit(db: Session, years: tuple[int, int] = (2016, 2025), *,
                        "числа исправлены": sum(1 for r in checked
                                                if r["diff_pp"] is not None
                                                and abs(r["diff_pp"]) >= threshold_pp),
-                       "удалено размазанных точек": sum(r["removed"] for r in rows),
+                       "удалено размазанных точек": sum(r["removed"] for r in rows) + tail,
+                       "удалено точек хвоста из файла": tail,
                        "без источника": len(rows) - len(checked)}}
     logger.info("gov-spending-audit: %s", out["summary"])
     return out
