@@ -382,6 +382,13 @@ async def _macro_job():
                 db.rollback()
                 yahoo_comm = {"error": f"unhandled:{type(e).__name__}"}
             try:
+                from app.services.macro_cb_monetary_sync import sync_monetary_aggregates
+                monetary = sync_monetary_aggregates(db)   # M0/M1/M2/M2X из файла ЦБ
+            except Exception as e:  # noqa: BLE001
+                logger.exception("ЦБ денежные агрегаты-sync упал: %s", e)
+                db.rollback()
+                monetary = {"error": f"unhandled:{type(e).__name__}"}
+            try:
                 metaltorg = sync_metaltorg_steel(db)  # рос. цены стали — см. докстринг, источник неофициальный
             except Exception as e:  # noqa: BLE001
                 logger.exception("metaltorg.ru-sync упал: %s", e)
@@ -398,7 +405,7 @@ async def _macro_job():
             return {"corrections": corrections,
                     "world": world, "cb": cb, "rosstat": ros, "ppi": ppi, "minfin": minfin,
                     "hh": hh, "urals": urals, "wb_commodities": wb_comm, "yahoo_commodities": yahoo_comm,
-                    "metaltorg_steel": metaltorg, "idex_diamond": idex,
+                    "monetary_agg": monetary, "metaltorg_steel": metaltorg, "idex_diamond": idex,
                     "analytics": analytics, "stale": len(stale)}
         finally:
             db.close()
