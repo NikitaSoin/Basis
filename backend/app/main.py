@@ -465,6 +465,27 @@ async def _report_fetch_job():
         logger.exception("Ошибка добытчика релизов: %s", e)
 
 
+async def _macro_levels_job():
+    """Уровни в триллионах (денежные агрегаты, ВВП в текущих ценах) и темпы по ним.
+
+    Раз в сутки: показатели месячные и квартальные, внутри стоит проверка свежести —
+    в обычный день прогон стоит пары SELECT.
+    """
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.macro_levels_watch import watch_levels
+        db = SessionLocal()
+        try:
+            return watch_levels(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Уровни макро: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка добора уровней макро: %s", e)
+
+
 async def _weekly_inflation_watch_job():
     """Целевой ловец недельной инфляции (macro_weekly_watch.py). Идемпотентен:
     точка за ожидаемый понедельник уже есть → один SELECT и выход; нет → узкая
@@ -1616,6 +1637,8 @@ async def lifespan(app: FastAPI):
         # среду во второй половине дня, а ряд дырявый — общая лента её пропускала).
         # ср 16-23 + чт/пт утро-день; внутри идемпотентный guard «точка есть → no-op»,
         # так что лишние прогоны бесплатны (один SELECT).
+        scheduler.add_job(_with_heartbeat("macro_levels", _macro_levels_job),
+                          "cron", hour=9, minute=15, id="macro_levels")
         scheduler.add_job(_with_heartbeat("weekly_inflation_watch", _weekly_inflation_watch_job),
                           "cron", day_of_week="wed,thu,fri", hour="8-23", minute=35,
                           id="weekly_inflation_watch")

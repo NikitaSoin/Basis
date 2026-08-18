@@ -755,6 +755,38 @@ def debug_sector_playbook(sector: str | None = None):
     return out
 
 
+@router.post("/debug/repair-macro-series")
+def debug_repair_macro_series():
+    """Разовый ремонт рядов с неверной метрикой (m2, госрасходы) — см.
+    macro_series_repair. Идемпотентно: повторный прогон ничего не найдёт."""
+    from app.db.session import SessionLocal
+    from app.services.macro_series_repair import repair
+    db = SessionLocal()
+    try:
+        return repair(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug repair-macro-series: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
+@router.post("/debug/watch-macro-levels")
+def debug_watch_macro_levels(code: str | None = None, force: bool = False):
+    """Добор уровней в триллионах (M0/M2/M2X, ВВП в текущих ценах) и расчёт темпов.
+    code — только один показатель; force снимает проверку свежести."""
+    from app.db.session import SessionLocal
+    from app.services.macro_levels_watch import watch_levels
+    db = SessionLocal()
+    try:
+        return watch_levels(db, [code] if code else None, force=force)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug watch-macro-levels: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-weekly-inflation-watch")
 def debug_trigger_weekly_inflation_watch(force: bool = False, backfill_weeks: int = 3):
     """Ручной прогон целевого ловца недельной инфляции (macro_weekly_watch.py) —

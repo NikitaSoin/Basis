@@ -442,6 +442,48 @@ def _check_deltas(db: Session) -> dict:
 
 
 # ----------------------------- прогон и выдача -----------------------------
+
+def _check_metric_purity(db: Session) -> dict:
+    """Не смешаны ли в одном ряду РАЗНЫЕ показатели под одной метрикой.
+
+    🔴 Прецедент 2026-08-18: в ряду m2 под метрикой level лежали месячные приросты из
+    таблицы владельца (−3,4…6,3%) и годовые из релизов ЦБ (9,7 и 13,2%). Витрина
+    показывала их одним рядом, и рост денежной массы выглядел как «то 10%, то 1%».
+    Формально с рядом всё было в порядке: точки свежие, значения в допустимых границах —
+    ломалась только СОВМЕСТИМОСТЬ соседних чисел. Признак, который это ловит: у одной
+    пары (код, метрика) значения приходят из источников с несопоставимым масштабом.
+    """
+    key, t, title = "metric_purity", "cross", "Ряды не смешивают разные показатели"
+    from sqlalchemy import text as _sql
+    rows = db.execute(_sql("""
+        SELECT indicator_code, metric, source,
+               count(*), avg(abs(value)), min(value), max(value)
+        FROM macro_data_points WHERE source IS NOT NULL
+        GROUP BY 1,2,3 HAVING count(*) >= 2
+    """)).fetchall()
+    by_series: dict = {}
+    for code, metric, source, n, avg_abs, mn, mx in rows:
+        by_series.setdefault((code, metric), []).append(
+            (source, int(n), float(avg_abs or 0)))
+    suspects = []
+    for (code, metric), srcs in by_series.items():
+        if len(srcs) < 2:
+            continue
+        scales = [a for _, _, a in srcs if a > 0]
+        if not scales:
+            continue
+        # разброс средних модулей больше чем в 4 раза между источниками — сигнал, что
+        # под одним кодом лежат разные величины (проценты и уровни, месяц и год)
+        if max(scales) > min(scales) * 4:
+            suspects.append(f"{code}/{metric}: " + ", ".join(
+                f"{s} ~{a:.1f} (n={n})" for s, n, a in srcs))
+    if not suspects:
+        return _res(key, t, title, "ok", "Смешанных рядов не найдено")
+    return _res(key, t, title, "warn",
+                "Похоже, под одним кодом лежат разные показатели: " + "; ".join(suspects[:4]),
+                suspects=len(suspects))
+
+
 def run_verification(db: Session) -> dict:
     """Полный прогон всех проверок → строки в macro_verifications (один run_at на
     прогон). Ошибка одной проверки не роняет остальные."""
@@ -462,6 +504,7 @@ def run_verification(db: Session) -> dict:
         lambda: _check_cross_forecast(db),
         lambda: _check_cross_expectations(db),
         lambda: _check_deltas(db),
+        lambda: _check_metric_purity(db),
     ]
     run_at = datetime.now(timezone.utc)
     results = []

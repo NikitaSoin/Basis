@@ -1029,6 +1029,64 @@
       "display_group": "ru",
       "source_type": "oilprice",
       "influence_short": "Ориентир, а не факт сделки: считается как разница котировок Brent и Urals. Реальная скидка у каждого покупателя своя — индийские и китайские НПЗ торгуются отдельно, часть контрактов закрыта. Смотрите на ДИНАМИКУ, а не на точную цифру."
+    },
+    {
+      "code": "m2_level",
+      "title": "Денежная масса M2",
+      "unit": "трлн ₽",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "level",
+        "yoy"
+      ],
+      "display_group": "ru",
+      "sort_order": 41,
+      "source_type": "news",
+      "influence_short": "Сколько денег в экономике: быстрый рост M2 при ограниченном предложении товаров — проинфляционный сигнал, торможение — признак охлаждения спроса и кредита."
+    },
+    {
+      "code": "m0_level",
+      "title": "Наличные деньги M0",
+      "unit": "трлн ₽",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 42,
+      "source_type": "news",
+      "influence_short": "Наличная часть денежной массы — индикатор недоверия к безналу и теневой активности."
+    },
+    {
+      "code": "m2x_level",
+      "title": "Широкая денежная масса M2X",
+      "unit": "трлн ₽",
+      "country": "ru",
+      "frequency": "monthly",
+      "metric_types": [
+        "level"
+      ],
+      "display_group": "ru",
+      "sort_order": 43,
+      "source_type": "news",
+      "influence_short": "M2 плюс валютные депозиты: показывает, уходят ли сбережения в валюту."
+    },
+    {
+      "code": "gdp_level",
+      "title": "ВВП в текущих ценах",
+      "unit": "трлн ₽",
+      "country": "ru",
+      "frequency": "quarterly",
+      "metric_types": [
+        "level",
+        "qoq"
+      ],
+      "display_group": "ru",
+      "sort_order": 21,
+      "source_type": "news",
+      "influence_short": "Размер экономики в деньгах: с ним сопоставляют дефицит бюджета, госдолг и капитализацию рынка."
     }
   ],
   "csv_mapping": {
@@ -1050,7 +1108,7 @@
     },
     "GDP_m": {
       "code": "gdp",
-      "metric": "level"
+      "metric": "mom"
     },
     "Unemployment": {
       "code": "unemployment",
@@ -1078,11 +1136,11 @@
     },
     "Government_spending_growth": {
       "code": "gov_spending_growth",
-      "metric": "level"
+      "metric": "yoy"
     },
     "M2": {
       "code": "m2",
-      "metric": "level"
+      "metric": "mom"
     },
     "hh-index": {
       "code": "hh_index",
@@ -1396,5 +1454,6 @@
       "min": -40,
       "max": 60
     }
-  }
+  },
+  "_csv_mapping_note": "🔴 Метрика столбца — часть КОНТРАКТА, а не украшение (2026-08-18). Столбцы M2 / Government_spending_growth / GDP_m в таблице владельца содержат ПРИРОСТЫ (месячный, годовой, месячный), а в маппинге стояли как level — из-за этого в одном ряду m2 оказались и месячные приросты из файла, и годовые из релизов ЦБ: на витрине это выглядело как «то 10%, то 1%». Уровни (трлн ₽) живут в отдельных кодах m2_level/gdp_level."
 }
