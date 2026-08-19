@@ -450,33 +450,56 @@ def _check_metric_purity(db: Session) -> dict:
     таблицы владельца (−3,4…6,3%) и годовые из релизов ЦБ (9,7 и 13,2%). Витрина
     показывала их одним рядом, и рост денежной массы выглядел как «то 10%, то 1%».
     Формально с рядом всё было в порядке: точки свежие, значения в допустимых границах —
-    ломалась только СОВМЕСТИМОСТЬ соседних чисел. Признак, который это ловит: у одной
-    пары (код, метрика) значения приходят из источников с несопоставимым масштабом.
+    ломалась только СОВМЕСТИМОСТЬ соседних чисел.
+
+    🔴 Как считать масштаб (уточнено 2026-08-19 по двум ложным срабатываниям). Сравнивать
+    средние ПО ВСЕЙ истории нельзя: у источников разные периоды, и разница в среднем
+    может быть чистой экономикой, а не дефектом. Кредит домохозяйствам рос на 13% в
+    2015–2023 и замедлился до 2,8% в 2026 — два источника, две эпохи, никакого смешения.
+    Поэтому источники сравниваются ТОЛЬКО на пересечении их периодов: если в одном и том
+    же окне числа расходятся в разы — это уже про показатель, а не про время. Второе
+    ограничение — абсолютный пол: у недельной инфляции 0,05 против 0,2 формально «в
+    четыре раза», а по сути обычный разброс недель около нуля (родня
+    [[plausibility-check-eats-small-values]] — кратный тест бессмысленен у нуля).
     """
     key, t, title = "metric_purity", "cross", "Ряды не смешивают разные показатели"
+    from collections import defaultdict
     from sqlalchemy import text as _sql
     rows = db.execute(_sql("""
-        SELECT indicator_code, metric, source,
-               count(*), avg(abs(value)), min(value), max(value)
-        FROM macro_data_points WHERE source IS NOT NULL
-        GROUP BY 1,2,3 HAVING count(*) >= 2
+        SELECT indicator_code, metric, source, as_of, value
+        FROM macro_data_points WHERE source IS NOT NULL AND value IS NOT NULL
     """)).fetchall()
-    by_series: dict = {}
-    for code, metric, source, n, avg_abs, mn, mx in rows:
-        by_series.setdefault((code, metric), []).append(
-            (source, int(n), float(avg_abs or 0)))
+    series: dict = defaultdict(lambda: defaultdict(list))
+    for code, metric, source, as_of, value in rows:
+        series[(code, metric)][source].append((as_of, abs(float(value))))
+
+    MIN_SCALE = 1.0          # ниже этого масштаба кратный тест ничего не значит
+    RATIO = 4.0
     suspects = []
-    for (code, metric), srcs in by_series.items():
+    for (code, metric), by_src in series.items():
+        srcs = {s: pts for s, pts in by_src.items() if len(pts) >= 2}
         if len(srcs) < 2:
             continue
-        scales = [a for _, _, a in srcs if a > 0]
-        if not scales:
-            continue
-        # разброс средних модулей больше чем в 4 раза между источниками — сигнал, что
-        # под одним кодом лежат разные величины (проценты и уровни, месяц и год)
-        if max(scales) > min(scales) * 4:
-            suspects.append(f"{code}/{metric}: " + ", ".join(
-                f"{s} ~{a:.1f} (n={n})" for s, n, a in srcs))
+        names = list(srcs)
+        for i in range(len(names)):
+            for j in range(i + 1, len(names)):
+                a, b = srcs[names[i]], srcs[names[j]]
+                lo = max(min(d for d, _ in a), min(d for d, _ in b))
+                hi = min(max(d for d, _ in a), max(d for d, _ in b))
+                if lo > hi:
+                    continue                     # периоды не пересекаются — не сравниваем
+                va = [v for d, v in a if lo <= d <= hi and v > 0]
+                vb = [v for d, v in b if lo <= d <= hi and v > 0]
+                if len(va) < 2 or len(vb) < 2:
+                    continue
+                ma = sum(va) / len(va)
+                mb = sum(vb) / len(vb)
+                big, small = max(ma, mb), min(ma, mb)
+                if big < MIN_SCALE or big <= small * RATIO:
+                    continue
+                suspects.append(
+                    f"{code}/{metric} на пересечении {lo}–{hi}: "
+                    f"{names[i]} ~{ma:.1f} против {names[j]} ~{mb:.1f}")
     if not suspects:
         return _res(key, t, title, "ok", "Смешанных рядов не найдено")
     return _res(key, t, title, "warn",

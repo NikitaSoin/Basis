@@ -8324,7 +8324,10 @@ function ObsEconomy({ token, forceIndicator }) {
       fetch(`${apiUrl}/api/market/macro`, { headers: h }).then((r) => (r.ok ? r.json() : [])).catch(() => []),
       fetch(`${apiUrl}/api/market/macro/forecast`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
       fetch(`${apiUrl}/api/market/macro/expert-survey`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-      fetch(`${apiUrl}/api/market/macro/data-quality`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      // 🔴 С заголовком авторизации: «ОТК данных» отдаётся только подписчику Max, и без
+      // токена сервер видит гостя даже у Max — плашка просто не приходила бы никому.
+      fetch(`${apiUrl}/api/market/macro/data-quality`, { headers: h })
+        .then((r) => (r.ok ? r.json() : null)).catch(() => null),
     ]).then(([rt, inds, fc, sv, dqRes]) => {
       setDq(dqRes);
       setRate(rt);

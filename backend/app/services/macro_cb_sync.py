@@ -576,7 +576,17 @@ def latest_expectations_reference() -> tuple[float, str] | None:
         links = re.findall(r'href="([^"]*Infl_exp_\d{2}-\d{2}[^"]*)"', r.text)
         if not links:
             return None
-        latest = sorted(links, key=lambda u: re.search(r"(\d{2}-\d{2})", u).group(1))[-1]
+
+        # 🔴 Сортировать имена файлов КАК СТРОКИ нельзя: в имени месяц-год («08-26»),
+        # и «12-25» строкой больше, чем «01-26» — на переломе года эталон уезжает на
+        # прошлогодний бюллетень. Ровно это и случилось 2026-08-19: ОТК сравнивал
+        # свежие 13,7% со старым файлом и показывал «расхождение» там, где расхождения
+        # не было. Разбираем месяц и год числами.
+        def _key(u: str) -> tuple[int, int]:
+            mm, yy = re.search(r"(\d{2})-(\d{2})", u).groups()
+            return (2000 + int(yy), int(mm))
+
+        latest = sorted(links, key=_key)[-1]
         url = latest if latest.startswith("http") else "https://www.cbr.ru" + latest
         series = _expectations_from_xlsx(
             httpx.Client(timeout=40, headers=_HTTP, follow_redirects=True).get(url).content)

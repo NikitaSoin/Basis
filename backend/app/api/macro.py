@@ -307,14 +307,29 @@ def macro_interpretation_post(user=Depends(get_current_user_optional)):
     return JSONResponse(status_code=202, content=out)
 
 
+def _is_max(user) -> bool:
+    """Подписчик Max (в модели тариф называется premium, в интерфейсе — «Max»)."""
+    return bool(user) and getattr(user, "subscription_type", None) is not None and \
+        str(getattr(user.subscription_type, "value", user.subscription_type)) != "free"
+
+
 @router.get("/market/macro/data-quality")
-def macro_data_quality(db: Session = Depends(get_db)):
-    """«ОТК данных» для плашки в Обозревателе (Экономическая статистика): результат
-    последнего прогона автопроверок (календарь заседаний ЦБ / кросс-сверка с
-    независимыми источниками / лимиты скачков). Витринная честность платформы:
-    зелёная строка «данные сверены» или жёлтый/красный callout с деталями.
+def macro_data_quality(db: Session = Depends(get_db),
+                       user=Depends(get_current_user_optional)):
+    """«ОТК данных»: результат последнего прогона автопроверок (календарь заседаний ЦБ /
+    кросс-сверка с независимыми источниками / лимиты скачков).
+
+    🔴 Видно только на тарифе Max (владелец, 2026-08-19). Плашка писалась как витринная
+    честность, но по факту это ВНУТРЕННЯЯ диагностика: человек, впервые открывший
+    платформу, читает «источник молчит», «ряд пуст», «расхождение с инФОМ» — и уходит с
+    ощущением, что данным нельзя верить, хотя речь о двух служебных рядах из семидесяти.
+    Плашка остаётся (она реально ловит дефекты), но её аудитория — владелец и подписчики
+    Max, а не случайный посетитель. Гость получает пустой ответ, и фронт ничего не
+    рисует — проверка на сервере, потому что фронтовый флаг обходится в две секунды.
     См. app/services/macro_verification.py."""
     from app.services.macro_verification import latest_results
+    if not _is_max(user):
+        return {}
     return latest_results(db)
 
 
