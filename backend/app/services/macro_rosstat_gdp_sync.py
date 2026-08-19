@@ -61,9 +61,13 @@ def _parse(blob: bytes) -> list[tuple[date, float]]:
         if "xl/sharedStrings.xml" in z.namelist() else []
     sheet = z.read(f"xl/worksheets/sheet{_SHEET}.xml").decode("utf-8", "replace")
 
-    years: dict[int, int] = {}          # индекс колонки → год
-    quarters: dict[int, int] = {}       # индекс колонки → номер квартала
-    values: dict[int, float] = {}       # индекс колонки → значение (млрд ₽)
+    # 🔴 Таблица идёт БЛОКАМИ по четыре года: шапка с годами → строка кварталов →
+    # строка значений, и так до конца листа. Первый вариант разбора искал одну «самую
+    # длинную» шапку и из-за этого прочитал ровно один блок (4 точки вместо всей
+    # истории). Поэтому идём по листу подряд и держим текущую раскладку блока.
+    cur_years: dict[int, int] = {}
+    cur_quarters: dict[int, int] = {}
+    out: list[tuple[date, float]] = []
     for body in re.findall(r"<row[^>]*>(.*?)</row>", sheet, re.DOTALL):
         row_years, row_q, row_v = {}, {}, {}
         for col, attrs, val in re.findall(r'<c r="([A-Z]+)\d+"([^>]*)>(?:<v>(.*?)</v>)?', body):
@@ -82,36 +86,31 @@ def _parse(blob: bytes) -> list[tuple[date, float]]:
                     row_v[idx] = float(val)
                 except ValueError:
                     pass
-        # 🔴 Год в шапке может быть ЧИСЛОМ, а не текстом — первый прогон из-за этого не
-        # нашёл ни одной строки-шапки и честно вернул «нет данных». Отличаем шапку от
-        # строки значений тем, что в шапке ВСЕ числа — целые в диапазоне лет: квартальный
-        # ВВП в млрд ₽ иногда попадает в 1990–2100, но никогда не бывает целым по всей
-        # строке сразу.
-        if not row_years and len(row_v) >= 5 and all(
+        # Год в шапке может быть числом, а не текстом. Отличаем шапку от строки значений
+        # тем, что в шапке ВСЕ числа — целые в диапазоне лет: квартальный ВВП в млрд ₽
+        # иногда попадает в 1990–2100, но не бывает целым по всей строке сразу.
+        if not row_years and 2 <= len(row_v) <= 6 and all(
                 float(v).is_integer() and 1990 <= v <= 2100 for v in row_v.values()):
-            row_years = {i: int(v) for i, v in row_v.items()}
-            row_v = {}
-        if len(row_years) > len(years):
-            years = row_years
-        if len(row_q) > len(quarters):
-            quarters = row_q
-        if len(row_v) > len(values):
-            values = row_v
-    if not (years and quarters and values):
-        return []
-
-    ordered = sorted(years.items())
-    out: list[tuple[date, float]] = []
-    for idx, raw in sorted(values.items()):
-        year = next((y for i, y in reversed(ordered) if i <= idx), None)
-        q = quarters.get(idx)
-        if not year or not q or year < _SINCE_YEAR:
+            row_years, row_v = {i: int(v) for i, v in row_v.items()}, {}
+        if row_years:
+            cur_years, cur_quarters = row_years, {}
             continue
-        trn = round(raw / 1000, 4)
-        if not (_RANGE_TRN[0] <= trn <= _RANGE_TRN[1]):
+        if row_q:
+            cur_quarters = row_q
             continue
-        m, d = _QUARTER_END[q]
-        out.append((date(year, m, d), trn))
+        if not (row_v and cur_years and cur_quarters):
+            continue
+        ordered = sorted(cur_years.items())
+        for idx, raw in sorted(row_v.items()):
+            year = next((y for i, y in reversed(ordered) if i <= idx), None)
+            q = cur_quarters.get(idx)
+            if not year or not q or year < _SINCE_YEAR:
+                continue
+            trn = round(raw / 1000, 4)
+            if not (_RANGE_TRN[0] <= trn <= _RANGE_TRN[1]):
+                continue
+            m, d = _QUARTER_END[q]
+            out.append((date(year, m, d), trn))
     return sorted(set(out))
 
 
