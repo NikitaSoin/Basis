@@ -3663,3 +3663,20 @@ def geocode_claims_backfill(limit: int = Query(200, ge=1, le=1000)):
         return backfill_claim_coords(db, limit=limit)
     finally:
         db.close()
+
+
+@router.post("/debug/fix-earnings-standard")
+def fix_earnings_standard(apply: bool = Query(False)):
+    """Сверить ярлык стандарта («МСФО»/«РСБУ») у сохранённых разборов отчётностей
+    с тем, что в них реально разобрано, и исправить расхождения.
+
+    Ярлык ставится в момент создания записи — по ЗАГОЛОВКУ события, до того как модель
+    прочитала источник. У «Интер РАО» из-за этого над разбором отчётности по РСБУ стояла
+    шапка «МСФО» (жалоба владельца 2026-08-19). Без ?apply=true — сухой прогон."""
+    from app.db.session import SessionLocal
+    from app.services.report_watch import backfill_standard_labels
+    db = SessionLocal()
+    try:
+        return backfill_standard_labels(db, dry_run=not apply)
+    finally:
+        db.close()

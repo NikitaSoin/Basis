@@ -849,6 +849,9 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
               if text_blob and len(text_blob) >= 150 else None)
     if not digest:
         digest = _digest(fig, mult)
+    # 🔴 Ярлык стандарта ставился по ЗАГОЛОВКУ, до чтения источника. Теперь, когда разбор
+    # готов, сверяем ярлык с тем, что в нём реально разобрано — см. _standard_from_digest.
+    _reconcile_standard(report, digest)
     db.add(report); db.flush()
     db.add(EarningsFigures(
         report_id=report.id, revenue_ttm=fig.get("revenue"), ebitda=fig.get("ebitda"),
@@ -908,6 +911,57 @@ def _classify_standard(headline: str, blob_l: str) -> tuple[str, bool]:
         standard = "МСФО" if "мсфо" in blob_l else "РСБУ" if "рсбу" in blob_l else (
             "операционные результаты" if is_operational else "отчётность")
     return standard, is_operational
+
+
+def _standard_from_digest(digest: dict | None) -> str | None:
+    """Какой стандарт НА САМОМ ДЕЛЕ разбирает готовый текст — или None, если по нему
+    не понять.
+
+    🔴 Зачем поверх _classify_standard. Ярлык ставится ДО того, как модель прочитала
+    источник: по заголовку события. А заголовок врёт — у «Интер РАО» (жалоба владельца
+    2026-08-19) ярлык стоял «МСФО», а весь разбор был про РСБУ: «Чистая прибыль ПО РСБУ
+    выросла…», в выводе «отчиталось по РСБУ», и сама модель вынесла в риски «Отчётность
+    по РСБУ, не МСФО». Инвестор видит шапку «МСФО» и читает под ней разбор совсем другой
+    отчётности — это прямая дезинформация, а не косметика.
+
+    Считаем по УТВЕРЖДЕНИЯМ разбора (что показал отчёт + вывод), а не по всему тексту:
+    в рисках и «что дальше» упоминание второго стандарта нормально и не означает смены
+    предмета («ждём публикации МСФО» — это про будущее, а не про этот отчёт). Отрицания
+    («не МСФО», «а не по МСФО») не засчитываем в пользу упомянутого стандарта."""
+    if not digest:
+        return None
+    parts: list[str] = []
+    for key in ("what_report_showed", "summary", "one_liner", "headline"):
+        val = digest.get(key)
+        if isinstance(val, str):
+            parts.append(val)
+        elif isinstance(val, list):
+            parts += [x for x in val if isinstance(x, str)]
+    text = " ".join(parts).lower()
+    if not text:
+        return None
+    # «…, а не по МСФО», «не МСФО» — упоминание ПРОТИВ стандарта, не за него
+    text = re.sub(r"\bа?\s*не\s+(?:по\s+)?(мсфо|рсбу)\b", " ", text)
+    ifrs = len(re.findall(r"\bмсфо\b|\bifrs\b", text))
+    rsbu = len(re.findall(r"\bрсбу\b", text))
+    if ifrs and not rsbu:
+        return "МСФО"
+    if rsbu and not ifrs:
+        return "РСБУ"
+    return None
+
+
+def _reconcile_standard(report: EarningsReport, digest: dict | None) -> str | None:
+    """Приводит ярлык отчёта к тому, что реально разобрано. Возвращает прежнее
+    значение, если пришлось менять (для лога), иначе None."""
+    actual = _standard_from_digest(digest)
+    if not actual or actual == (report.standard or ""):
+        return None
+    was = report.standard
+    report.standard = actual
+    logger.info("report_watch: %s %s — ярлык стандарта исправлен %s → %s по тексту разбора",
+                report.ticker, report.period, was, actual)
+    return was
 
 
 def _stale_needs_source(existing: EarningsReport) -> bool:
@@ -1578,3 +1632,34 @@ def refresh(db: Session, days_back: int = 5, run_girbo: bool = True) -> dict:
     logger.info("report_watch: %s (ir-событий: %d, smart-lab: %d, новостных кандидатов: %d, ГИР БО: %d, company_rss: %d)",
                 res, len(due_rows), len(smartlab_rows), len(news_items), len(girbo_items), len(rss_items))
     return res
+
+
+def backfill_standard_labels(db: Session, dry_run: bool = True) -> dict:
+    """Пересобрать ярлык стандарта у УЖЕ СОХРАНЁННЫХ разборов по их же тексту.
+
+    🔴 Зачем отдельная ручка. Ярлык ставится в момент создания записи — по заголовку
+    события, до того как модель прочитала источник. Записи, созданные до починки, живут
+    с неверной шапкой: у «Интер РАО» стояло «МСФО» над разбором отчётности по РСБУ
+    (жалоба владельца 2026-08-19). Пересчёт идёт по тем же правилам, что и на входе
+    (см. _standard_from_digest), поэтому «операционные результаты» и «отчётность» не
+    трогаются — только явное противоречие МСФО ↔ РСБУ.
+    """
+    from app.models.earnings import EarningsDigest as _Dg
+    rows = (db.query(EarningsReport, _Dg)
+            .join(_Dg, _Dg.report_id == EarningsReport.id)
+            .filter(EarningsReport.standard.in_(("МСФО", "РСБУ")))
+            .order_by(EarningsReport.published_at.desc()).all())
+    fixed: list[dict] = []
+    for rep, dg in rows:
+        actual = _standard_from_digest({
+            "what_report_showed": (dg.highlights or dg.what_report_showed),
+            "summary": dg.summary, "one_liner": dg.one_liner, "headline": dg.headline})
+        if actual and actual != (rep.standard or ""):
+            fixed.append({"ticker": rep.ticker, "period": rep.period,
+                          "was": rep.standard, "now": actual,
+                          "published_at": rep.published_at.isoformat() if rep.published_at else None})
+            if not dry_run:
+                rep.standard = actual
+    if not dry_run and fixed:
+        db.commit()
+    return {"checked": len(rows), "mislabeled": len(fixed), "dry_run": dry_run, "fixed": fixed}
