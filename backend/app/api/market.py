@@ -968,6 +968,25 @@ def market_situation_overlay(db: Session = Depends(get_db)):
             "model_used": row.model_used, "available": True}
 
 
+# 🔴 ТОЧНОСТЬ КООРДИНАТ = ВЕС ОТВЕТА. Геометрия ISW приходит с 14 знаками после
+# запятой (нанометры), и на карте очагов это давало 3,5 МБ сырого JSON: 10 секунд
+# только на загрузку, о чём владелец и сказал — «карта грузится очень долго».
+# Пять знаков — это ~1 метр на широте театра, то есть заведомо мельче любого
+# пикселя карты; при этом ответ сжимается вдвое лучше (короткие одинаковые числа):
+# 1,17 МБ → 517 КБ в gzip. Округляем на ВЫХОДЕ, хранимые данные не трогаем.
+_COORD_ND = 5
+
+
+def _round_coords(obj, nd: int = _COORD_ND):
+    if isinstance(obj, float):
+        return round(obj, nd)
+    if isinstance(obj, list):
+        return [_round_coords(v, nd) for v in obj]
+    if isinstance(obj, dict):
+        return {k: _round_coords(v, nd) for k, v in obj.items()}
+    return obj
+
+
 @router.get("/market/geo-map/{theater}")
 def market_geo_map(theater: str, db: Session = Depends(get_db)):
     """Интерактивная карта очага (Обозреватель, «Оценка ситуации» → карта): линия
@@ -1142,7 +1161,11 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
             ],
         }
 
-    return JSONResponse(content=payload)
+    # Кэш на 5 минут: слой ISW синкается дважды в сутки, лента событий — раз в час,
+    # то есть в пределах пяти минут ответ заведомо тот же. Повторный заход на вкладку
+    # (а по ней ходят туда-обратно) перестаёт заново тянуть мегабайт.
+    return JSONResponse(content=_round_coords(payload),
+                        headers={"Cache-Control": "public, max-age=300"})
 
 
 @router.get("/market/geo-map/svo/history")
