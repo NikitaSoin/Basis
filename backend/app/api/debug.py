@@ -772,7 +772,8 @@ def debug_repair_macro_series():
 
 
 @router.get("/debug/probe-url")
-def debug_probe_url(url: str, contains: str | None = None):
+def debug_probe_url(url: str, contains: str | None = None,
+                    rows_from: int = 0, rows: int = 25, sheet: int = 1):
     """Посмотреть глазами боевого сервера, что отдаёт внешний источник.
 
     🔴 Зачем (2026-08-19). Сеть боевого инстанса и сеть разработчика — разные миры:
@@ -815,9 +816,10 @@ def debug_probe_url(url: str, contains: str | None = None):
                                  _re.DOTALL) if "xl/sharedStrings.xml" in z.namelist() else []
             wb = z.read("xl/workbook.xml").decode("utf-8", "replace")
             out["sheets"] = _re.findall(r'<sheet name="([^"]+)"', wb)
-            sheet = z.read("xl/worksheets/sheet1.xml").decode("utf-8", "replace")
+            sheet_xml = z.read(f"xl/worksheets/sheet{sheet}.xml").decode("utf-8", "replace")
             preview = []
-            for body in _re.findall(r"<row[^>]*>(.*?)</row>", sheet, _re.DOTALL)[:25]:
+            for body in _re.findall(r"<row[^>]*>(.*?)</row>", sheet_xml,
+                                    _re.DOTALL)[rows_from:rows_from + rows]:
                 cells = _re.findall(r'<c r="([A-Z]+)\d+"([^>]*)>(?:<v>(.*?)</v>)?', body)
                 row = []
                 for col, attrs, val in cells[:14]:
