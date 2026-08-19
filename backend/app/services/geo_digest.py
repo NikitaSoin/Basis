@@ -244,6 +244,17 @@ def _fetch_rss(src: dict) -> list[dict]:
     return out
 
 
+# Каналы-первоисточники (Минобороны) мешают сводки с «настроенческим» контентом:
+# фото собак, поздравления, ролики про быт. Каждый такой пост уходит в LLM и стоит
+# денег, а дать может только target=null. Фильтр включается флагом источника
+# relevance_filter — по глаголам боевых действий; сомнительное ОСТАВЛЯЕМ (пропустить
+# заявление о взятии дороже, чем лишний раз заплатить за разбор).
+_RELEVANT_RE = re.compile(
+    r"(взят\w*|освобожд\w*|занял\w*|контрол\w*|удар\w*|пораж\w*|сбит\w*|уничтожен\w*|"
+    r"наступ\w*|оборон\w*|штурм\w*|всу\b|противник\w*|группировк\w*|направлени\w*|"
+    r"насел[её]нн\w*|сводк\w*|операци\w*)", re.IGNORECASE)
+
+
 def _fetch_telegram(src: dict) -> list[dict]:
     """Публичный Телеграм-канал через веб-превью t.me/s/ (владелец, 2026-07-21).
     Только публичные каналы; закрытые/инвайт-only — нужен Client API (не здесь).
@@ -260,6 +271,8 @@ def _fetch_telegram(src: dict) -> list[dict]:
         # заголовок — первая строка/предложение поста (для карточки дайджеста)
         first = re.split(r"[\n.!?]", text, 1)[0].strip()
         title = (first[:90] + "…") if len(first) > 90 else (first or res.get("title") or src["key"])
+        if src.get("relevance_filter") and not _RELEVANT_RE.search(text):
+            continue
         out.append({"title": title, "text": text[:_TEXT_CHARS],
                     "url": p["url"], "date_raw": p.get("date") or "", "src": src["key"]})
     return out
