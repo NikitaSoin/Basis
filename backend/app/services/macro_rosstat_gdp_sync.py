@@ -28,7 +28,13 @@ logger = logging.getLogger(__name__)
 
 _PAGE = "https://rosstat.gov.ru/statistics/accounts"
 _HOST = "https://rosstat.gov.ru"
-_SHEET = 2                     # «Валовой внутренний продукт (в текущих ценах, млрд руб.)»
+# 🔴 Лист выбирается ПО ДАННЫМ, а не по номеру. В файле полтора десятка листов: один и
+# тот же ВВП в текущих ценах и в ценах 2008/2011/2021 годов, и каждый лист покрывает
+# свой отрезок лет (лист с 1995 обрывается на 2011). Номер листа зашивать нельзя — он
+# уже подводил: разбор прочитал 4 точки 2011 года и остановился. Правило выбора:
+# берём лист с самой поздней точкой, а при равенстве — с наибольшим значением: после
+# базового года номинальный ВВП всегда выше пересчитанного в постоянные цены.
+_SHEETS = range(1, 16)
 _SINCE_YEAR = 2011
 _RANGE_TRN = (1.0, 200.0)      # трлн ₽ за квартал: отсекает годовые итоги и чужие единицы
 _QUARTER_END = {1: (3, 31), 2: (6, 30), 3: (9, 30), 4: (12, 31)}
@@ -54,12 +60,11 @@ def _find_table_url() -> str | None:
     return _HOST + m.group(1) if m.group(1).startswith("/") else m.group(1)
 
 
-def _parse(blob: bytes) -> list[tuple[date, float]]:
-    z = zipfile.ZipFile(io.BytesIO(blob))
-    shared = re.findall(r"<t[^>]*>(.*?)</t>",
-                        z.read("xl/sharedStrings.xml").decode("utf-8", "replace"), re.DOTALL) \
-        if "xl/sharedStrings.xml" in z.namelist() else []
-    sheet = z.read(f"xl/worksheets/sheet{_SHEET}.xml").decode("utf-8", "replace")
+def _parse_sheet(z: zipfile.ZipFile, shared: list[str], n: int) -> list[tuple[date, float]]:
+    name = f"xl/worksheets/sheet{n}.xml"
+    if name not in z.namelist():
+        return []
+    sheet = z.read(name).decode("utf-8", "replace")
 
     # 🔴 Таблица идёт БЛОКАМИ по четыре года: шапка с годами → строка кварталов →
     # строка значений, и так до конца листа. Первый вариант разбора искал одну «самую
@@ -120,7 +125,16 @@ def sync_gdp_quarterly(db: Session) -> dict:
     if not url:
         return {"error": "table_link_not_found"}
     try:
-        pts = _parse(_get(url))
+        blob = _get(url)
+        z = zipfile.ZipFile(io.BytesIO(blob))
+        shared = re.findall(r"<t[^>]*>(.*?)</t>",
+                            z.read("xl/sharedStrings.xml").decode("utf-8", "replace"),
+                            re.DOTALL) if "xl/sharedStrings.xml" in z.namelist() else []
+        variants = [(n, _parse_sheet(z, shared, n)) for n in _SHEETS]
+        variants = [(n, p) for n, p in variants if p]
+        if not variants:
+            return {"error": "no_rows", "url": url}
+        sheet_no, pts = max(variants, key=lambda v: (v[1][-1][0], v[1][-1][1]))
     except Exception as e:  # noqa: BLE001
         logger.exception("Росстат ВВП: таблица не разобрана")
         return {"error": f"parse_failed:{type(e).__name__}"}
@@ -148,7 +162,7 @@ def sync_gdp_quarterly(db: Session) -> dict:
                      source="расчёт Basis по данным Росстата", source_url=_PAGE,
                      ingested_via="rosstat", commit=False)
     db.commit()
-    out = {"url": url, "points": len(pts), "saved": saved, "last": str(last_d),
-           "value": last_v, **rates}
+    out = {"url": url, "sheet": sheet_no, "points": len(pts), "saved": saved,
+           "last": str(last_d), "value": last_v, **rates}
     logger.info("Росстат ВВП: %s точек, последняя %s = %s трлн", len(pts), last_d, last_v)
     return out
