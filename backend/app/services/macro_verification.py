@@ -65,6 +65,11 @@ def _res(key: str, type_: str, title: str, status: str, message: str | None = No
             "message": message, "details": details or None}
 
 
+def _month_end(d: date) -> date:
+    """Последний день месяца, к которому относится дата."""
+    return (date(d.year + (d.month == 12), (d.month % 12) + 1, 1) - timedelta(days=1))
+
+
 def _latest_point(db: Session, code: str, metric: str) -> MacroDataPoint | None:
     return (db.query(MacroDataPoint).filter_by(indicator_code=code, metric=metric)
             .order_by(MacroDataPoint.as_of.desc()).first())
@@ -374,16 +379,28 @@ def _check_cross_expectations(db: Session) -> dict:
     # это время висела в unavailable, то есть НЕ проверяла ничего.
     ref = latest_expectations_reference()
     if ref is not None:
-        ref_val, ref_url = ref
-        p = _latest_point(db, "inflation_expectations", "level")
+        ref_val, ref_url, ref_month = ref
+        # 🔴 Сверяем ОДИН И ТОТ ЖЕ месяц: файл бюллетеня выходит позже, чем число
+        # приходит к нам из пресс-релиза, и «последняя точка базы против последней
+        # строки файла» — это сравнение августа с июлем (ложное расхождение 13,7 vs 14,7).
+        p = (db.query(MacroDataPoint)
+             .filter(MacroDataPoint.indicator_code == "inflation_expectations",
+                     MacroDataPoint.metric == "level",
+                     MacroDataPoint.as_of >= ref_month.replace(day=1),
+                     MacroDataPoint.as_of <= _month_end(ref_month))
+             .order_by(MacroDataPoint.as_of.desc()).first())
         if p is None:
-            return _res(key, t, title, "fail", "В БД нет точек инфляционных ожиданий")
+            return _res(key, t, title, "unavailable",
+                        f"В БД нет точки за {ref_month.strftime('%m.%Y')} — сверять не с чем",
+                        ref_value=ref_val, ref_url=ref_url)
         db_val = float(p.value)
+        month_str = ref_month.strftime("%m.%Y")
         if abs(db_val - ref_val) <= 0.05:
-            return _res(key, t, title, "ok", f"Совпадает с таблицей инФОМ: {db_val}%",
+            return _res(key, t, title, "ok",
+                        f"Совпадает с таблицей инФОМ за {month_str}: {db_val}%",
                         db_value=db_val, ref_value=ref_val, ref_url=ref_url)
         return _res(key, t, title, "fail",
-                    f"РАСХОЖДЕНИЕ: в БД {db_val}%, в таблице инФОМ {ref_val}%",
+                    f"РАСХОЖДЕНИЕ за {month_str}: в БД {db_val}%, в таблице инФОМ {ref_val}%",
                     db_value=db_val, ref_value=ref_val, ref_url=ref_url)
 
     doc = (db.query(MacroAnalyticsDoc)

@@ -564,11 +564,20 @@ def _expectations_from_xlsx(content: bytes) -> list[tuple[date, float]]:
 _HIST_FIXED_SRC = "инФОМ (истор., сдвиг исправлен)"
 
 
-def latest_expectations_reference() -> tuple[float, str] | None:
-    """Эталонное значение ожиданий прямо из свежего XLSX инФОМ (значение, ссылка).
+def latest_expectations_reference() -> tuple[float, str, date] | None:
+    """Эталон ожиданий прямо из свежего XLSX инФОМ: (значение, ссылка, месяц значения).
 
     Отдельная точка входа для ОТК данных: проверка обязана брать эталон У ИСТОЧНИКА,
     а не из нашей же базы, иначе она сверяет число само с собой.
+
+    🔴 Месяц возвращается не для красоты (2026-08-19). Файл бюллетеня выходит ПОЗЖЕ, чем
+    само число попадает к нам из пресс-релиза: в базе уже август (13,7%), а свежайший
+    xlsx ещё июльский (14,7%). Проверка сравнивала последнюю точку базы с последней
+    строкой файла и показывала «РАСХОЖДЕНИЕ» там, где просто разные месяцы. Сверять
+    нужно ОДИН И ТОТ ЖЕ месяц.
+
+    🔴 Имя файла — `Infl_exp_ГГ-ММ.xlsx` (год впереди), а не «месяц-год». Разбирать
+    руками легко наоборот: тогда «26-07» читается как 26-й месяц 2007 года.
     """
     try:
         r = httpx.Client(timeout=25, headers=_HTTP, follow_redirects=True).get(_EXP_INDEX)
@@ -577,20 +586,15 @@ def latest_expectations_reference() -> tuple[float, str] | None:
         if not links:
             return None
 
-        # 🔴 Сортировать имена файлов КАК СТРОКИ нельзя: в имени месяц-год («08-26»),
-        # и «12-25» строкой больше, чем «01-26» — на переломе года эталон уезжает на
-        # прошлогодний бюллетень. Ровно это и случилось 2026-08-19: ОТК сравнивал
-        # свежие 13,7% со старым файлом и показывал «расхождение» там, где расхождения
-        # не было. Разбираем месяц и год числами.
         def _key(u: str) -> tuple[int, int]:
-            mm, yy = re.search(r"(\d{2})-(\d{2})", u).groups()
+            yy, mm = re.search(r"Infl_exp_(\d{2})-(\d{2})", u).groups()
             return (2000 + int(yy), int(mm))
 
         latest = sorted(links, key=_key)[-1]
         url = latest if latest.startswith("http") else "https://www.cbr.ru" + latest
         series = _expectations_from_xlsx(
             httpx.Client(timeout=40, headers=_HTTP, follow_redirects=True).get(url).content)
-        return (series[-1][1], url) if series else None
+        return (series[-1][1], url, series[-1][0]) if series else None
     except Exception as e:  # noqa: BLE001
         logger.warning("CB-sync: эталон ожиданий недоступен: %s", type(e).__name__)
         return None
