@@ -418,10 +418,42 @@ _DIGEST_SYS = (
 )
 
 
+# 🔴 ДЕТЕКТОР ЗАЯВЛЕНИЯ О ВЗЯТИИ — кодом, до LLM.
+# Найдено 2026-08-19 на канале Минобороны РФ: пост «Приманивали украинцев их же
+# речью… 13 августа в ДНР был освобождён ещё один населённый пункт — Петровка»
+# модель отнесла к target=null (это рассказ о бойцах, а не «геополитическая
+# статья») и, по правилу «territorial_claims только при target=svo», выбросила
+# заявление о взятии целиком. У первоисточника заявления и приходят такой
+# обёрткой — человеческой историей, репортажем, интервью. Поэтому наличие
+# заявления определяет КОД по формулировке, а модели остаётся распознать
+# название пункта; полагаться на её оценку «это вообще про войну?» здесь нельзя.
+_CAPTURE_VERB_RE = re.compile(
+    r"(освобожд[её]н\w*|взят\w*|заняли?|установлен\w*\s+контроль|перешёл\s+под\s+контроль)",
+    re.IGNORECASE)
+_CAPTURE_OBJ_RE = re.compile(
+    r"(насел[её]нн\w*\s+пункт|населенник|н\.\s?п\.|сел[оа]\b|посёл\w*|посел\w*|"
+    r"деревн\w*|станиц\w*|хутор\w*|город\w*)", re.IGNORECASE)
+# «продвижение к», «бои за», «зачистка» — процесс, не взятие: глаголов процесса в
+# детекторе нет намеренно (та же граница, что в промпте). Ложное срабатывание здесь
+# дёшево — это ПОДСКАЗКА модели, а не фильтр: решение о заявлении принимает она,
+# код лишь не даёт выбросить статью целиком.
+
+
+def _has_capture_claim(a: dict) -> bool:
+    txt = f"{a.get('title') or ''} {a.get('text') or ''}"
+    return bool(_CAPTURE_VERB_RE.search(txt) and _CAPTURE_OBJ_RE.search(txt))
+
+
 def _digest_batch(articles: list[dict]) -> list[dict]:
     from app.services.llm import complete, LLMError
     payload = {"articles": [{"i": i, "source": SOURCE_LABELS.get(a["src"], a["src"]),
-                             "title": a["title"], "text": a["text"]}
+                             "title": a["title"], "text": a["text"],
+                             **({"_hint": "В ТЕКСТЕ ЕСТЬ ЗАЯВЛЕНИЕ О ВЗЯТИИ НАСЕЛЁННОГО "
+                                          "ПУНКТА (обнаружено кодом). target ОБЯЗАН быть "
+                                          "\"svo\", а territorial_claims — заполнен этим "
+                                          "пунктом, даже если статья написана как репортаж "
+                                          "или человеческая история."}
+                                if _has_capture_claim(a) else {})}
                             for i, a in enumerate(articles)]}
     try:
         res = complete(_DIGEST_SYS, json.dumps(payload, ensure_ascii=False),
@@ -439,30 +471,83 @@ _STRIKE_RETENTION_DAYS = {"major": 60, "minor": 14}
 _geocode_cache: dict[str, tuple[float, float] | None] = {}
 
 
-def _geocode_place(name: str) -> tuple[float, float] | None:
-    """Лёгкий геокодинг через Wikipedia API (тот же паттерн, что
-    scripts/geo_svo_wikipedia_dates.py использовал офлайн) — best-effort, не
-    блокирует пайплайн при неудаче. Кэш на время процесса — карта Обозревателя
-    упоминает одни и те же города многократно за прогон."""
+# Рамка правдоподобия для театра СВО: Украина и приграничные регионы РФ.
+# Без неё поиск по названию уводит в тёзок — «Петровка» есть в Казахстане,
+# Молдавии и десятке областей России, и точка уехала бы за тысячи километров.
+_SVO_BBOX = (43.0, 54.0, 21.0, 43.0)  # lat_min, lat_max, lon_min, lon_max
+_WIKI_API = "https://ru.wikipedia.org/w/api.php"
+_WIKI_UA = {"User-Agent": "BasisPlatform/1.0 (https://inbasis.ru) geo_digest"}
+
+
+def _wiki_coords(titles: str) -> tuple[float, float] | None:
+    r = httpx.get(_WIKI_API, params={"action": "query", "titles": titles,
+                                     "prop": "coordinates", "format": "json", "redirects": 1},
+                  timeout=10, headers=_WIKI_UA)
+    for page in (r.json().get("query", {}).get("pages", {}) or {}).values():
+        co = page.get("coordinates")
+        if co:
+            return (co[0]["lat"], co[0]["lon"])
+    return None
+
+
+def _wiki_search_coords(query: str) -> tuple[float, float] | None:
+    """Поиск статьи по фразе «Петровка Донецкая область» и координаты первого
+    результата, у которого они есть. Точное совпадение заголовка не работает для
+    сёл: у половины из них статья называется иначе («Петровка (Волновахский
+    район)»), а голое «Петровка» — страница значений без координат."""
+    r = httpx.get(_WIKI_API, params={
+        "action": "query", "generator": "search", "gsrsearch": query, "gsrlimit": 5,
+        "prop": "coordinates", "format": "json"}, timeout=10, headers=_WIKI_UA)
+    pages = (r.json().get("query", {}) or {}).get("pages", {}) or {}
+    # порядок выдачи поиска важен — сортируем по index, который его сохраняет
+    for page in sorted(pages.values(), key=lambda p: p.get("index", 99)):
+        co = page.get("coordinates")
+        if co:
+            return (co[0]["lat"], co[0]["lon"])
+    return None
+
+
+def _in_bbox(pt: tuple[float, float] | None) -> bool:
+    if not pt:
+        return False
+    la0, la1, lo0, lo1 = _SVO_BBOX
+    return la0 <= pt[0] <= la1 and lo0 <= pt[1] <= lo1
+
+
+def _geocode_place(name: str, oblast: str | None = None) -> tuple[float, float] | None:
+    """Геокодинг населённого пункта через Wikipedia — best-effort, не блокирует
+    пайплайн при неудаче. Кэш на время процесса.
+
+    🔴 Было: единственная попытка «статья с ТОЧНО таким заголовком». Для крупных
+    городов работает, для сёл — нет, и это молча резало пайплайн: из 147
+    заявлений о взятии координаты получили 29 (20%), остальные не могли попасть
+    на карту вообще, хотя новостной поток их принёс. Теперь три попытки —
+    заголовок, заголовок с областью, полнотекстовый поиск — и проверка, что
+    точка вообще в театре (иначе берём тёзку за тысячу километров)."""
     if not name:
         return None
-    if name in _geocode_cache:
-        return _geocode_cache[name]
+    key = f"{name}|{oblast or ''}"
+    if key in _geocode_cache:
+        return _geocode_cache[key]
     result = None
-    try:
-        r = httpx.get("https://ru.wikipedia.org/w/api.php", params={
-            "action": "query", "titles": name, "prop": "coordinates",
-            "format": "json", "redirects": 1,
-        }, timeout=10, headers={"User-Agent": "BasisPlatform/1.0 (https://inbasis.ru) geo_digest"})
-        pages = r.json().get("query", {}).get("pages", {})
-        for page in pages.values():
-            co = page.get("coordinates")
-            if co:
-                result = (co[0]["lat"], co[0]["lon"])
-                break
-    except Exception as e:  # noqa: BLE001
-        logger.debug("geo_digest: геокодинг '%s' не удался: %s", name, type(e).__name__)
-    _geocode_cache[name] = result
+    obl = (oblast or "").strip()
+    attempts = [lambda: _wiki_coords(name)]
+    if obl:
+        attempts.append(lambda: _wiki_coords(f"{name} ({obl} область)"))
+        attempts.append(lambda: _wiki_search_coords(f"{name} {obl}"))
+    attempts.append(lambda: _wiki_search_coords(f"{name} населённый пункт Украина"))
+    for attempt in attempts:
+        try:
+            pt = attempt()
+        except Exception as e:  # noqa: BLE001 — источник необязателен
+            logger.debug("geo_digest: геокодинг '%s' — попытка не удалась: %s", name, type(e).__name__)
+            continue
+        if _in_bbox(pt):
+            result = pt
+            break
+        if pt:
+            logger.info("geo_digest: '%s' — координаты %s вне театра, пробуем дальше", name, pt)
+    _geocode_cache[key] = result
     return result
 
 
@@ -530,7 +615,8 @@ def _persist_territorial_claims(db: Session, claims: list, claimed_date, source_
         oblast = (cl.get("oblast") or None)
         row = (db.query(GeoTerritorialClaim)
                .filter_by(settlement=settlement, oblast=oblast).first())
-        coords = _geocode_place(settlement)
+        # область из заявления — главный ключ к развязке тёзок
+        coords = _geocode_place(settlement, oblast)
         if row is None:
             row = GeoTerritorialClaim(settlement=settlement, oblast=oblast)
             db.add(row)
@@ -548,6 +634,31 @@ def _persist_territorial_claims(db: Session, claims: list, claimed_date, source_
             db.rollback()
             logger.warning("geo_digest: territorial_claim не сохранён (%s): %s", settlement, type(e).__name__)
     return saved
+
+
+def backfill_claim_coords(db: Session, limit: int = 200) -> dict:
+    """Догеокодировать заявления о взятии, у которых координат нет.
+
+    Нужен разово после починки геокодера: прежний искал статью Википедии по
+    ТОЧНОМУ заголовку и находил только крупные города — 118 из 147 записей
+    остались без координат и физически не могли попасть на карту, хотя лента их
+    принесла. Идемпотентен: строки с координатами не трогает."""
+    from app.models.geo import GeoTerritorialClaim
+    rows = (db.query(GeoTerritorialClaim)
+            .filter(GeoTerritorialClaim.lat.is_(None))
+            .order_by(GeoTerritorialClaim.claimed_date.desc().nullslast())
+            .limit(limit).all())
+    fixed, still = 0, []
+    for r in rows:
+        pt = _geocode_place(r.settlement, r.oblast)
+        if pt:
+            r.lat, r.lon = pt[0], pt[1]
+            fixed += 1
+        else:
+            still.append(f"{r.settlement} ({r.oblast or '—'})")
+    db.commit()
+    logger.info("geo_digest: догеокодировано %d из %d заявлений", fixed, len(rows))
+    return {"checked": len(rows), "fixed": fixed, "still_unknown": still[:30]}
 
 
 def cleanup_expired_strikes(db: Session) -> int:

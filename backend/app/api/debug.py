@@ -3650,3 +3650,16 @@ def assistant_tool(name: str = Query(..., description="имя инструмен
         return {"tool": name, "result": assistant_tools.execute(db, name, args or {})}
     finally:
         db.close()
+
+
+@router.post("/debug/geocode-claims-backfill")
+def geocode_claims_backfill(limit: int = Query(200, ge=1, le=1000)):
+    """Догеокодировать заявления о взятии населённых пунктов, у которых нет
+    координат (после починки геокодера). Идемпотентно."""
+    from app.db.session import SessionLocal
+    from app.services.geo_digest import backfill_claim_coords
+    db = SessionLocal()
+    try:
+        return backfill_claim_coords(db, limit=limit)
+    finally:
+        db.close()
