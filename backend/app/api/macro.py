@@ -8,7 +8,7 @@ GET /api/market/macro/analytics  — выжимки ЦБ/ЦМАКП
 import logging
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
@@ -314,7 +314,7 @@ def _is_max(user) -> bool:
 
 
 @router.get("/market/macro/data-quality")
-def macro_data_quality(db: Session = Depends(get_db),
+def macro_data_quality(request: Request, db: Session = Depends(get_db),
                        user=Depends(get_current_user_optional)):
     """«ОТК данных»: результат последнего прогона автопроверок (календарь заседаний ЦБ /
     кросс-сверка с независимыми источниками / лимиты скачков).
@@ -327,8 +327,12 @@ def macro_data_quality(db: Session = Depends(get_db),
     Max, а не случайный посетитель. Гость получает пустой ответ, и фронт ничего не
     рисует — проверка на сервере, потому что фронтовый флаг обходится в две секунды.
     См. app/services/macro_verification.py."""
+    import os
     from app.services.macro_verification import latest_results
-    if not _is_max(user):
+    # служебный доступ по отладочному токену — чтобы можно было посмотреть результат
+    # прогона, не заводя себе подписку
+    dbg = os.environ.get("DEBUG_API_TOKEN", "").strip()
+    if not _is_max(user) and not (dbg and request.headers.get("X-Debug-Token") == dbg):
         return {}
     return latest_results(db)
 
