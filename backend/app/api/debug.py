@@ -773,7 +773,8 @@ def debug_repair_macro_series():
 
 @router.get("/debug/probe-url")
 def debug_probe_url(url: str, contains: str | None = None,
-                    rows_from: int = 0, rows: int = 25, sheet: int = 1):
+                    rows_from: int = 0, rows: int = 25, sheet: int = 1,
+                    cells: int = 14):
     """Посмотреть глазами боевого сервера, что отдаёт внешний источник.
 
     🔴 Зачем (2026-08-19). Сеть боевого инстанса и сеть разработчика — разные миры:
@@ -820,9 +821,9 @@ def debug_probe_url(url: str, contains: str | None = None,
             preview = []
             for body in _re.findall(r"<row[^>]*>(.*?)</row>", sheet_xml,
                                     _re.DOTALL)[rows_from:rows_from + rows]:
-                cells = _re.findall(r'<c r="([A-Z]+)\d+"([^>]*)>(?:<v>(.*?)</v>)?', body)
+                row_cells = _re.findall(r'<c r="([A-Z]+)\d+"([^>]*)>(?:<v>(.*?)</v>)?', body)
                 row = []
-                for col, attrs, val in cells[:14]:
+                for col, attrs, val in row_cells[:cells]:
                     if val is None or val == "":
                         continue
                     row.append(f"{col}={shared[int(val)][:40]}" if 't="s"' in attrs
