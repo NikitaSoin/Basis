@@ -208,7 +208,16 @@ def build(ticker: str) -> tuple[dict | None, list[str]]:
             if isinstance(v, (int, float)) and v:
                 target, d_val = cand, float(v)
                 break
-        live_ok = key != "commodity" or any(s in sector for s in COMMODITY_LIVE_SECTORS)
+        # 🔴 «commodity» у разных компаний — РАЗНЫЙ товар: у Татнефти база 50 $ это Urals,
+        # у Полюса — золото, у РУСАЛа — алюминий. Движок умеет подставлять живьём только
+        # Brent. Сравнивать базу Urals с живым Brent нельзя: на бою это дало «+82%» и
+        # накрутило выручку Татнефти на треть из воздуха. Живым делаем ТОЛЬКО когда база
+        # сама похожа на Brent (в пределах 20% от котировки) — иначе драйвер остаётся
+        # справочным, и это видно на витрине.
+        live_ok = True
+        if key == "commodity":
+            brent = _SNAP.get("oil_brent")
+            live_ok = bool(brent) and abs(float(base_val) / brent - 1) <= 0.20
         drv = {
             "key": {"fx": "usd_rub", "rate": "key_rate", "commodity": "commodity_usd"}[key],
             "name": DRIVER_NAME[key],
