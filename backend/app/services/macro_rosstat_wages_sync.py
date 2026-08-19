@@ -40,6 +40,8 @@ _HTTP = {"User-Agent": "Mozilla/5.0 (compatible; BasisBot/1.0)"}
 # Помесячные колонки таблицы: G — январь … R — декабрь
 _MONTH_COLS = ["G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R"]
 _SINCE_YEAR = 2015
+# До этого года подпись года в таблице чистая; дальше в ней встречаются сноски
+_LABELS_CLEAN_UNTIL = 2021
 # Зарплата ниже этого — данные до деноминации или другая единица; выше — явная ошибка
 _RANGE = (5_000.0, 500_000.0)
 
@@ -78,10 +80,9 @@ def _parse_months(blob: bytes, file_year: int) -> list[tuple[date, float]]:
     🔴 Почему так. С 2022 года в колонке с годом стоят сноски («(2)», «2)», пусто), и
     подпись перестаёт быть годом. Первый прогон из-за этого положил данные 2025 года в
     2023-й — ряд выглядел заполненным и был неверен, самая опасная из ошибок. Строки в
-    таблице идут подряд по годам, а год файла известен из его имени, поэтому годы
-    расставляются отсчётом назад от последней строки. Подпись используется как ПРОВЕРКА:
-    если читаемый год не совпадает с расставленным, разбор прекращается — лучше без
-    данных, чем со сдвинутыми.
+    таблице идут подряд по годам, поэтому год берётся от последней чистой подписи и
+    дальше наращивается по строкам, а совпадение последней строки с годом файла служит
+    контролем: не сошлось — не разбираем вовсе. Лучше без данных, чем со сдвинутыми.
     """
     z = zipfile.ZipFile(io.BytesIO(blob))
     shared = re.findall(r"<t[^>]*>(.*?)</t>",
@@ -109,15 +110,28 @@ def _parse_months(blob: bytes, file_year: int) -> list[tuple[date, float]]:
     if not rows:
         return []
 
+    # Якорь — ПОСЛЕДНЯЯ строка с чистой подписью года в «спокойной» зоне (до 2022, где
+    # сносок ещё нет). Дальше годы идут подряд: каждая следующая строка — следующий год.
+    anchor_idx = anchor_year = None
+    for i, (label, _) in enumerate(rows):
+        if re.fullmatch(r"(19|20)\d{2}", label) and int(label) <= _LABELS_CLEAN_UNTIL:
+            anchor_idx, anchor_year = i, int(label)
+    if anchor_idx is None:
+        logger.warning("Росстат зарплаты: не нашёл строку-якорь с годом — разбор отменён")
+        return []
+    last_year = anchor_year + (len(rows) - 1 - anchor_idx)
+    if last_year != file_year:
+        # Год последней строки обязан совпасть с годом файла — иначе таблица изменилась
+        # (появилась/исчезла строка), и раскладка по годам уже ничем не подтверждена.
+        logger.warning("Росстат зарплаты: последняя строка даёт %s, а файл за %s — "
+                       "разбор отменён", last_year, file_year)
+        return []
+
     out: list[tuple[date, float]] = []
-    for back, (label, months) in enumerate(reversed(rows)):
-        year = file_year - back
+    for i, (_, months) in enumerate(rows):
+        year = anchor_year + (i - anchor_idx)
         if year < _SINCE_YEAR:
-            break
-        if re.fullmatch(r"(19|20)\d{2}", label) and int(label) != year:
-            logger.warning("Росстат зарплаты: подпись строки %s не совпала с расчётным "
-                           "годом %s — разбор остановлен", label, year)
-            break
+            continue
         for m, val in months.items():
             out.append((_month_end(year, m), val))
     return sorted(set(out))
