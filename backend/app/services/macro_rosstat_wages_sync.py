@@ -199,7 +199,18 @@ def sync_wages(db: Session) -> dict:
         if res in ("insert", "revise"):
             saved += 1
     db.commit()
-    out = {"url": url, "points": len(pts), "saved": saved,
+    # 🔴 Старый ряд из файла владельца в этом же диапазоне — со СДВИГОМ на месяц
+    # (в январе 2026 стояло значение декабря 2025). Пока он лежит рядом с точками
+    # Росстата, у одного месяца два разных значения и график рисует пилу. Диапазон
+    # закрыт первоисточником целиком, поэтому чужие точки внутри него удаляем.
+    dropped = db.execute(text(
+        "DELETE FROM macro_data_points WHERE indicator_code IN ('nominal_wage','real_wage') "
+        "AND (ingested_via IS NULL OR ingested_via <> 'rosstat') "
+        "AND as_of >= :a AND as_of <= :b"),
+        {"a": pts[0][0], "b": pts[-1][0]}).rowcount
+    db.commit()
+
+    out = {"url": url, "points": len(pts), "saved": saved, "удалено чужих точек": int(dropped or 0),
            "last": str(pts[-1][0]), "value": pts[-1][1],
            "real_wage": _derive_real(db, pts)}
     logger.info("Росстат зарплаты: %s точек, последняя %s = %s ₽", len(pts),
