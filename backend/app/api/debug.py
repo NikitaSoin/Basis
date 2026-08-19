@@ -803,6 +803,34 @@ def debug_probe_url(url: str, contains: str | None = None):
     ctype = r.headers.get("content-type", "")
     out = {"status": r.status_code, "content_type": ctype, "bytes": len(r.content),
            "final_url": str(r.url), "tls": tls}
+    if url.lower().endswith((".xlsx", ".xlsm")) or "spreadsheet" in ctype:
+        # Предпросмотр таблицы: без него парсер источника пишется вслепую — а вслепую
+        # он и ломается (см. историю с денежными агрегатами, где помогло увидеть файл).
+        import io as _io
+        import zipfile as _zip
+        try:
+            z = _zip.ZipFile(_io.BytesIO(r.content))
+            shared = _re.findall(r"<t[^>]*>(.*?)</t>",
+                                 z.read("xl/sharedStrings.xml").decode("utf-8", "replace"),
+                                 _re.DOTALL) if "xl/sharedStrings.xml" in z.namelist() else []
+            wb = z.read("xl/workbook.xml").decode("utf-8", "replace")
+            out["sheets"] = _re.findall(r'<sheet name="([^"]+)"', wb)
+            sheet = z.read("xl/worksheets/sheet1.xml").decode("utf-8", "replace")
+            preview = []
+            for body in _re.findall(r"<row[^>]*>(.*?)</row>", sheet, _re.DOTALL)[:25]:
+                cells = _re.findall(r'<c r="([A-Z]+)\d+"([^>]*)>(?:<v>(.*?)</v>)?', body)
+                row = []
+                for col, attrs, val in cells[:14]:
+                    if val is None or val == "":
+                        continue
+                    row.append(f"{col}={shared[int(val)][:40]}" if 't="s"' in attrs
+                               else f"{col}={val}")
+                if row:
+                    preview.append(" | ".join(row))
+            out["preview"] = preview
+        except Exception as e:  # noqa: BLE001
+            out["preview_error"] = f"{type(e).__name__}: {e}"
+        return out
     if "html" in ctype:
         html = r.text
         links = []
