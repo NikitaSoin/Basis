@@ -784,14 +784,25 @@ def debug_probe_url(url: str, contains: str | None = None):
     """
     import re as _re
     import httpx as _httpx
+    hdr = {"User-Agent": "Mozilla/5.0 (compatible; BasisBot/1.0)"}
+    tls = "проверен"
     try:
-        r = _httpx.get(url, timeout=30, follow_redirects=True,
-                       headers={"User-Agent": "Mozilla/5.0 (compatible; BasisBot/1.0)"})
+        r = _httpx.get(url, timeout=30, follow_redirects=True, headers=hdr)
     except Exception as e:  # noqa: BLE001
-        return {"error": f"{type(e).__name__}: {e}"}
+        # 🔴 Российские госсайты подписаны сертификатом Минцифры, которого нет в
+        # доверенных у контейнера: rosstat.gov.ru падает с CERTIFICATE_VERIFY_FAILED.
+        # Для ПУБЛИЧНОЙ статистики это приемлемо — читаем без проверки цепочки, но
+        # честно помечаем, чтобы это не выглядело как обычное защищённое соединение.
+        if "CERTIFICATE_VERIFY_FAILED" not in str(e):
+            return {"error": f"{type(e).__name__}: {e}"}
+        try:
+            r = _httpx.get(url, timeout=30, follow_redirects=True, headers=hdr, verify=False)
+            tls = "БЕЗ проверки сертификата"
+        except Exception as e2:  # noqa: BLE001
+            return {"error": f"{type(e2).__name__}: {e2}"}
     ctype = r.headers.get("content-type", "")
     out = {"status": r.status_code, "content_type": ctype, "bytes": len(r.content),
-           "final_url": str(r.url)}
+           "final_url": str(r.url), "tls": tls}
     if "html" in ctype:
         html = r.text
         links = []
