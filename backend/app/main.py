@@ -382,6 +382,13 @@ async def _macro_job():
                 db.rollback()
                 yahoo_comm = {"error": f"unhandled:{type(e).__name__}"}
             try:
+                from app.services.macro_rosstat_wages_sync import sync_wages
+                wages = sync_wages(db)                    # зарплаты Росстата (xlsx)
+            except Exception as e:  # noqa: BLE001
+                logger.exception("Росстат зарплаты-sync упал: %s", e)
+                db.rollback()
+                wages = {"error": f"unhandled:{type(e).__name__}"}
+            try:
                 from app.services.macro_cb_monetary_sync import sync_monetary_aggregates
                 monetary = sync_monetary_aggregates(db)   # M0/M1/M2/M2X из файла ЦБ
             except Exception as e:  # noqa: BLE001
@@ -405,7 +412,7 @@ async def _macro_job():
             return {"corrections": corrections,
                     "world": world, "cb": cb, "rosstat": ros, "ppi": ppi, "minfin": minfin,
                     "hh": hh, "urals": urals, "wb_commodities": wb_comm, "yahoo_commodities": yahoo_comm,
-                    "monetary_agg": monetary, "metaltorg_steel": metaltorg, "idex_diamond": idex,
+                    "wages": wages, "monetary_agg": monetary, "metaltorg_steel": metaltorg, "idex_diamond": idex,
                     "analytics": analytics, "stale": len(stale)}
         finally:
             db.close()

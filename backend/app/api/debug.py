@@ -1546,6 +1546,8 @@ def debug_trigger_macro_sync():
             ("urals", lambda: sync_urals(db, period="max")),
             ("wb_commodities", lambda: sync_wb_commodities(db, months_back=120)),
             ("yahoo_commodities", lambda: sync_yahoo_commodities(db)),
+            ("wages", lambda: __import__("app.services.macro_rosstat_wages_sync",
+                                         fromlist=["x"]).sync_wages(db)),
             ("monetary_agg", lambda: __import__("app.services.macro_cb_monetary_sync",
                                                 fromlist=["x"]).sync_monetary_aggregates(db)),
             ("metaltorg_steel", lambda: sync_metaltorg_steel(db)),
