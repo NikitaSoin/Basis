@@ -772,7 +772,8 @@ def debug_repair_macro_series():
 
 
 @router.post("/debug/purge-macro-points")
-def debug_purge_macro_points(code: str, via: str, confirm: bool = False):
+def debug_purge_macro_points(code: str, via: str | None = None,
+                             as_of: str | None = None, confirm: bool = False):
     """Удалить точки ОДНОГО ряда, пришедшие ОДНИМ каналом (разбор оказался неверным).
 
     🔴 Разрушительная операция, поэтому узкая по построению: обязательны и код ряда, и
@@ -784,16 +785,24 @@ def debug_purge_macro_points(code: str, via: str, confirm: bool = False):
     from app.db.session import SessionLocal
     db = SessionLocal()
     try:
-        n = db.execute(_sql("SELECT count(*) FROM macro_data_points WHERE "
-                            "indicator_code=:c AND ingested_via=:v"),
-                       {"c": code, "v": via}).scalar()
+        if not via and not as_of:
+            return {"error": "нужен хотя бы один фильтр: via или as_of"}
+        where = "indicator_code=:c"
+        args = {"c": code}
+        if via:
+            where += " AND ingested_via=:v"
+            args["v"] = via
+        if as_of:
+            where += " AND as_of=:d"
+            args["d"] = as_of
+        n = db.execute(_sql(f"SELECT count(*) FROM macro_data_points WHERE {where}"),
+                       args).scalar()
         if not confirm:
-            return {"code": code, "via": via, "будет удалено": int(n or 0),
+            return {"code": code, "via": via, "as_of": as_of, "будет удалено": int(n or 0),
                     "подсказка": "повторите с confirm=true"}
-        db.execute(_sql("DELETE FROM macro_data_points WHERE indicator_code=:c "
-                        "AND ingested_via=:v"), {"c": code, "v": via})
+        db.execute(_sql(f"DELETE FROM macro_data_points WHERE {where}"), args)
         db.commit()
-        return {"code": code, "via": via, "удалено": int(n or 0)}
+        return {"code": code, "via": via, "as_of": as_of, "удалено": int(n or 0)}
     except Exception as e:  # noqa: BLE001
         db.rollback()
         logger.exception("debug purge-macro-points: %s", e)
