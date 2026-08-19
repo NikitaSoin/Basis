@@ -173,6 +173,12 @@ def get_financial_model(db: Session, ticker: str) -> dict | None:
         if not isinstance(series, dict):
             continue
         line_f = factors.get(line, 1.0)
+        # 🔴 Прибыль на акцию — это чистая прибыль, делённая на число акций: если драйвер
+        # двинул прибыль (у ставки целевая строка именно она — процентный расход лежит
+        # ниже EBITDA), EPS обязана поехать вместе с ней. Без этого модель показывала
+        # изменившуюся прибыль при неподвижной прибыли на акцию.
+        if line == "eps_rub" and "net_profit" in factors and "eps_rub" not in factors:
+            line_f *= factors["net_profit"]
         if line != "revenue" and line in passthrough and rev_f != 1.0:
             # Δстроки = Δвыручки × passthrough (операционный рычаг от аналитика)
             line_f *= 1.0 + (rev_f - 1.0) * float(passthrough[line])
