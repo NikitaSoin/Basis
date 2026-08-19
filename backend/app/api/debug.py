@@ -771,6 +771,42 @@ def debug_repair_macro_series():
         db.close()
 
 
+@router.get("/debug/probe-url")
+def debug_probe_url(url: str, contains: str | None = None):
+    """Посмотреть глазами боевого сервера, что отдаёт внешний источник.
+
+    🔴 Зачем (2026-08-19). Сеть боевого инстанса и сеть разработчика — разные миры:
+    rosstat.gov.ru и metaltorg.ru с моей машины не отвечают вовсе, а cbr.ru отдаёт файл.
+    Без этого «источник недоступен» превращается в гадание. Инструмент читающий: только
+    GET, только сводка (код, тип, размер) и ссылки на файлы данных — чтобы находить
+    machine-readable источник там, где страница выглядит как дашборд без данных
+    (так нашёлся monetary_agg.xlsx у ЦБ, заменивший веб-поиск по денежным агрегатам).
+    """
+    import re as _re
+    import httpx as _httpx
+    try:
+        r = _httpx.get(url, timeout=30, follow_redirects=True,
+                       headers={"User-Agent": "Mozilla/5.0 (compatible; BasisBot/1.0)"})
+    except Exception as e:  # noqa: BLE001
+        return {"error": f"{type(e).__name__}: {e}"}
+    ctype = r.headers.get("content-type", "")
+    out = {"status": r.status_code, "content_type": ctype, "bytes": len(r.content),
+           "final_url": str(r.url)}
+    if "html" in ctype:
+        html = r.text
+        links = []
+        for u, title in _re.findall(r'href="([^"]+\.(?:xlsx|xls|csv|zip))"[^>]*>([^<]{0,90})', html):
+            title = _re.sub(r"\s+", " ", title).strip()
+            if contains and contains.lower() not in (title + " " + u).lower():
+                continue
+            links.append({"title": title[:90], "url": u[:200]})
+        out["files"] = links[:40]
+        if contains:
+            idx = html.lower().find(contains.lower())
+            out["context"] = _re.sub(r"<[^>]+>", " ", html[max(0, idx - 200): idx + 300]) if idx >= 0 else None
+    return out
+
+
 @router.post("/debug/audit-gov-spending")
 def debug_audit_gov_spending(year_from: int = 2016, year_to: int = 2025,
                              write: bool = True, threshold_pp: float = 1.0):
