@@ -640,7 +640,7 @@ def scout_dossier(db: Session, ticker: str, need: str, *, web_calls: int = 3) ->
     try:
         from app.services.methodology import METHODOLOGY_TOOLS_SCHEMA, shelf_card
         shelf = list(METHODOLOGY_TOOLS_SCHEMA)
-        shelf_txt = shelf_card(["macro", "geo_macro", "geo_inst", "inst_env"])
+        shelf_txt = shelf_card(["macro", "geo_macro", "geo_inst", "inst_env", "inst_macro"])
     except ImportError:  # pragma: no cover
         logger.warning("card_rewriter: полка методичек недоступна")
     task = (f"Компания: {ticker}. Нужны свежие данные, чтобы обновить разбор.\n"

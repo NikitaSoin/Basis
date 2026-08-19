@@ -2978,6 +2978,46 @@ fetch(`${apiUrl}/api/market/macro/scenario-impact?top=6`)
                 </div>
               )}
 
+              {/* 🔴 РАЗЛОЖЕНИЕ ПОКАЗАТЕЛЯ (методичка «институты → макроэкономика»).
+                  Отвечает на вопрос, который иначе остаётся без ответа: почему
+                  ставку приходится держать выше, чем следует из инфляции. Часть
+                  причины циклическая, часть шоковая, а часть — устройство самой
+                  экономики, и она не уйдёт от смены ставки. Разделение важно
+                  практически: первое лечится политикой и обратимо, третье нет. */}
+              {Array.isArray(interpSections.decomposition) && interpSections.decomposition.length > 0 && (
+                <div className="obs-macro-decomp">
+                  <div className="obs-macro-eyebrow">
+                    <Layers size={12} style={{ marginRight: 5, verticalAlign: -2 }} />
+                    Из чего складывается
+                  </div>
+                  {interpSections.decomposition.map((d, i) => (
+                    <div key={i} className="obs-macro-decomp-row">
+                      <div className="obs-macro-decomp-var">{d.variable}</div>
+                      <div className="obs-macro-decomp-parts">
+                        {d.cyclical && (
+                          <div className="obs-macro-decomp-part">
+                            <span className="obs-macro-decomp-kind">цикл</span>{d.cyclical}
+                          </div>
+                        )}
+                        {d.shock && (
+                          <div className="obs-macro-decomp-part">
+                            <span className="obs-macro-decomp-kind">события</span>{d.shock}
+                          </div>
+                        )}
+                        {d.institutional && (
+                          <div className="obs-macro-decomp-part obs-macro-decomp-part--inst">
+                            <span className="obs-macro-decomp-kind">устройство экономики</span>{d.institutional}
+                          </div>
+                        )}
+                      </div>
+                      {d.policy_or_structure && (
+                        <div className="obs-macro-decomp-fix">{d.policy_or_structure}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* ЧТО ГОВОРИТ ПРОТИВ НАС (Часть 19.3 п.5) — обязательный блок доверия */}
               {Array.isArray(interpSections.against_us) && interpSections.against_us.length > 0 && (
                 <div className="obs-macro-against">

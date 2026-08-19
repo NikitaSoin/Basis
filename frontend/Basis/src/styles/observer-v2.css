@@ -7418,3 +7418,47 @@ details[open] > summary .obs-inst-chev,
   line-height: 1.4;
   color: var(--text-primary);
 }
+
+/* Разложение показателя на цикл / события / устройство экономики.
+   Институциональная часть выделена медью: она единственная не лечится сменой
+   ставки, и читатель должен видеть её отдельно от временных причин. */
+.obs-macro-decomp { margin: 14px 0; }
+.obs-macro-decomp-row {
+  border-top: 1px solid var(--border-subtle, rgba(255,255,255,0.1));
+  padding: 10px 0;
+}
+.obs-macro-decomp-var {
+  font-family: var(--bs-serif, Fraunces), Georgia, serif;
+  font-size: 15px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.obs-macro-decomp-parts { display: flex; flex-direction: column; gap: 5px; }
+.obs-macro-decomp-part {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+.obs-macro-decomp-kind {
+  display: inline-block;
+  min-width: 132px;
+  font-family: var(--bs-sans, Inter), system-ui, sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-right: 8px;
+  vertical-align: baseline;
+}
+.obs-macro-decomp-part--inst .obs-macro-decomp-kind { color: var(--accent); }
+.obs-macro-decomp-fix {
+  margin-top: 6px;
+  padding-left: 10px;
+  border-left: 2px solid var(--accent);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+@media (max-width: 640px) {
+  .obs-macro-decomp-kind { display: block; min-width: 0; margin: 0 0 2px; }
+}
