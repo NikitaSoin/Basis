@@ -72,37 +72,54 @@ def _find_table_url() -> str | None:
     return (_HOST + m.group(1)) if m and m.group(1).startswith("/") else (m.group(1) if m else None)
 
 
-def _parse_months(blob: bytes) -> list[tuple[date, float]]:
-    """Год в первой колонке, месяцы в колонках G..R → список точек."""
+def _parse_months(blob: bytes, file_year: int) -> list[tuple[date, float]]:
+    """Месячные значения по годам. Год берём НЕ из подписи строки, а по порядку.
+
+    🔴 Почему так. С 2022 года в колонке с годом стоят сноски («(2)», «2)», пусто), и
+    подпись перестаёт быть годом. Первый прогон из-за этого положил данные 2025 года в
+    2023-й — ряд выглядел заполненным и был неверен, самая опасная из ошибок. Строки в
+    таблице идут подряд по годам, а год файла известен из его имени, поэтому годы
+    расставляются отсчётом назад от последней строки. Подпись используется как ПРОВЕРКА:
+    если читаемый год не совпадает с расставленным, разбор прекращается — лучше без
+    данных, чем со сдвинутыми.
+    """
     z = zipfile.ZipFile(io.BytesIO(blob))
     shared = re.findall(r"<t[^>]*>(.*?)</t>",
                         z.read("xl/sharedStrings.xml").decode("utf-8", "replace"), re.DOTALL) \
         if "xl/sharedStrings.xml" in z.namelist() else []
     sheet = z.read("xl/worksheets/sheet1.xml").decode("utf-8", "replace")
-    out: list[tuple[date, float]] = []
+
+    rows: list[tuple[str, dict]] = []
     for body in re.findall(r"<row[^>]*>(.*?)</row>", sheet, re.DOTALL):
         cells = {}
         for col, attrs, val in re.findall(r'<c r="([A-Z]+)\d+"([^>]*)>(?:<v>(.*?)</v>)?', body):
             if val is None or val == "":
                 continue
             cells[col] = shared[int(val)] if 't="s"' in attrs else val
-        a = (cells.get("A") or "").strip()
-        if not re.fullmatch(r"(19|20)\d{2}", a):
-            continue
-        year = int(a)
-        if year < _SINCE_YEAR:
-            continue
+        months = {}
         for i, col in enumerate(_MONTH_COLS, start=1):
-            raw = cells.get(col)
-            if raw is None:
-                continue
             try:
-                val = float(str(raw).replace(",", "."))
+                v = float(str(cells.get(col, "")).replace(",", "."))
             except ValueError:
                 continue
-            if not (_RANGE[0] <= val <= _RANGE[1]):
-                continue
-            out.append((_month_end(year, i), round(val, 1)))
+            if _RANGE[0] <= v <= _RANGE[1]:
+                months[i] = round(v, 1)
+        if months:
+            rows.append(((cells.get("A") or "").strip(), months))
+    if not rows:
+        return []
+
+    out: list[tuple[date, float]] = []
+    for back, (label, months) in enumerate(reversed(rows)):
+        year = file_year - back
+        if year < _SINCE_YEAR:
+            break
+        if re.fullmatch(r"(19|20)\d{2}", label) and int(label) != year:
+            logger.warning("Росстат зарплаты: подпись строки %s не совпала с расчётным "
+                           "годом %s — разбор остановлен", label, year)
+            break
+        for m, val in months.items():
+            out.append((_month_end(year, m), val))
     return sorted(set(out))
 
 
@@ -145,14 +162,21 @@ def sync_wages(db: Session) -> dict:
     except Exception as e:  # noqa: BLE001
         logger.warning("Росстат: таблица недоступна: %s", type(e).__name__)
         return {"error": f"fetch_failed:{type(e).__name__}"}
+    fy = re.search(r"_(\d{1,2})-(\d{4})\.xlsx", url)
+    file_year = int(fy.group(2)) if fy else date.today().year
     try:
-        pts = _parse_months(blob)
+        pts = _parse_months(blob, file_year)
     except Exception as e:  # noqa: BLE001
         logger.exception("Росстат: таблица зарплат не разобрана")
         return {"error": f"parse_failed:{type(e).__name__}"}
     if not pts:
         return {"error": "no_rows", "url": url}
 
+    # Полная перезапись своего канала: файл несёт всю историю, а прошлый разбор мог
+    # положить точки не на те даты (см. докстринг _parse_months). Чистим только СВОИ
+    # точки — чужие каналы (файл владельца, лента) не трогаем.
+    db.execute(text("DELETE FROM macro_data_points WHERE indicator_code IN "
+                    "('nominal_wage','real_wage') AND ingested_via='rosstat'"))
     saved = 0
     for d, val in pts:
         res = upsert_point(db, "nominal_wage", d, "level", val, unit="₽",
