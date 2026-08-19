@@ -82,6 +82,15 @@ def _parse(blob: bytes) -> list[tuple[date, float]]:
                     row_v[idx] = float(val)
                 except ValueError:
                     pass
+        # 🔴 Год в шапке может быть ЧИСЛОМ, а не текстом — первый прогон из-за этого не
+        # нашёл ни одной строки-шапки и честно вернул «нет данных». Отличаем шапку от
+        # строки значений тем, что в шапке ВСЕ числа — целые в диапазоне лет: квартальный
+        # ВВП в млрд ₽ иногда попадает в 1990–2100, но никогда не бывает целым по всей
+        # строке сразу.
+        if not row_years and len(row_v) >= 5 and all(
+                float(v).is_integer() and 1990 <= v <= 2100 for v in row_v.values()):
+            row_years = {i: int(v) for i, v in row_v.items()}
+            row_v = {}
         if len(row_years) > len(years):
             years = row_years
         if len(row_q) > len(quarters):
