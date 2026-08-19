@@ -382,6 +382,13 @@ async def _macro_job():
                 db.rollback()
                 yahoo_comm = {"error": f"unhandled:{type(e).__name__}"}
             try:
+                from app.services.macro_rosstat_gdp_sync import sync_gdp_quarterly
+                gdp_q = sync_gdp_quarterly(db)            # номинальный ВВП по кварталам
+            except Exception as e:  # noqa: BLE001
+                logger.exception("Росстат ВВП-sync упал: %s", e)
+                db.rollback()
+                gdp_q = {"error": f"unhandled:{type(e).__name__}"}
+            try:
                 from app.services.macro_rosstat_wages_sync import sync_wages
                 wages = sync_wages(db)                    # зарплаты Росстата (xlsx)
             except Exception as e:  # noqa: BLE001
@@ -412,7 +419,7 @@ async def _macro_job():
             return {"corrections": corrections,
                     "world": world, "cb": cb, "rosstat": ros, "ppi": ppi, "minfin": minfin,
                     "hh": hh, "urals": urals, "wb_commodities": wb_comm, "yahoo_commodities": yahoo_comm,
-                    "wages": wages, "monetary_agg": monetary, "metaltorg_steel": metaltorg, "idex_diamond": idex,
+                    "gdp_quarterly": gdp_q, "wages": wages, "monetary_agg": monetary, "metaltorg_steel": metaltorg, "idex_diamond": idex,
                     "analytics": analytics, "stale": len(stale)}
         finally:
             db.close()

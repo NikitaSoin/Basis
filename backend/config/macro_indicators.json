@@ -1131,11 +1131,12 @@
       "frequency": "quarterly",
       "metric_types": [
         "level",
+        "yoy",
         "qoq"
       ],
       "display_group": "ru",
       "sort_order": 21,
-      "source_type": "news",
+      "source_type": "rosstat",
       "influence_short": "Размер экономики в деньгах: с ним сопоставляют дефицит бюджета, госдолг и капитализацию рынка."
     }
   ],
