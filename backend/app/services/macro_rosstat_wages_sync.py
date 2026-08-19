@@ -145,10 +145,14 @@ def _derive_real(db: Session, pts: list[tuple[date, float]]) -> dict:
         prev = by_date.get(_month_end(d.year - 1, d.month))
         if not prev:
             continue
+        # 🔴 Окно — ВЕСЬ месяц: точки инфляции датируются по-разному (28-е из файла
+        # владельца, последнее число из релиза ЦБ). Узкое окно «до 28-го» молча брало
+        # файловую точку и игнорировало официальную — расчёт получался по устаревшему
+        # ряду при живом рядом.
         cpi = db.execute(text(
             "SELECT value FROM macro_data_points WHERE indicator_code='inflation' AND "
             "metric='yoy' AND as_of >= :a AND as_of <= :b ORDER BY as_of DESC LIMIT 1"),
-            {"a": date(d.year, d.month, 1), "b": date(d.year, d.month, 28)}).scalar()
+            {"a": date(d.year, d.month, 1), "b": d}).scalar()
         if cpi is None:
             continue
         nom_yoy = val / prev - 1
