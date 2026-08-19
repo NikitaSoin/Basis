@@ -771,6 +771,37 @@ def debug_repair_macro_series():
         db.close()
 
 
+@router.post("/debug/purge-macro-points")
+def debug_purge_macro_points(code: str, via: str, confirm: bool = False):
+    """Удалить точки ОДНОГО ряда, пришедшие ОДНИМ каналом (разбор оказался неверным).
+
+    🔴 Разрушительная операция, поэтому узкая по построению: обязательны и код ряда, и
+    канал, и явное confirm. Без confirm возвращает только СКОЛЬКО удалит — «сначала
+    посмотреть, потом резать» (правило платформы после двух случаев, когда правило
+    чистки сносило живые ряды).
+    """
+    from sqlalchemy import text as _sql
+    from app.db.session import SessionLocal
+    db = SessionLocal()
+    try:
+        n = db.execute(_sql("SELECT count(*) FROM macro_data_points WHERE "
+                            "indicator_code=:c AND ingested_via=:v"),
+                       {"c": code, "v": via}).scalar()
+        if not confirm:
+            return {"code": code, "via": via, "будет удалено": int(n or 0),
+                    "подсказка": "повторите с confirm=true"}
+        db.execute(_sql("DELETE FROM macro_data_points WHERE indicator_code=:c "
+                        "AND ingested_via=:v"), {"c": code, "v": via})
+        db.commit()
+        return {"code": code, "via": via, "удалено": int(n or 0)}
+    except Exception as e:  # noqa: BLE001
+        db.rollback()
+        logger.exception("debug purge-macro-points: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.get("/debug/probe-url")
 def debug_probe_url(url: str, contains: str | None = None,
                     rows_from: int = 0, rows: int = 25, sheet: int = 1,
@@ -1549,8 +1580,6 @@ def debug_trigger_macro_sync():
             ("urals", lambda: sync_urals(db, period="max")),
             ("wb_commodities", lambda: sync_wb_commodities(db, months_back=120)),
             ("yahoo_commodities", lambda: sync_yahoo_commodities(db)),
-            ("gdp_quarterly", lambda: __import__("app.services.macro_rosstat_gdp_sync",
-                                                 fromlist=["x"]).sync_gdp_quarterly(db)),
             ("wages", lambda: __import__("app.services.macro_rosstat_wages_sync",
                                          fromlist=["x"]).sync_wages(db)),
             ("monetary_agg", lambda: __import__("app.services.macro_cb_monetary_sync",
