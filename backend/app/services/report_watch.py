@@ -1643,6 +1643,14 @@ def backfill_standard_labels(db: Session, dry_run: bool = True) -> dict:
     (жалоба владельца 2026-08-19). Пересчёт идёт по тем же правилам, что и на входе
     (см. _standard_from_digest), поэтому «операционные результаты» и «отчётность» не
     трогаются — только явное противоречие МСФО ↔ РСБУ.
+
+    🔴 Про столкновение с уникальным ключом (ticker, period, standard). У ТГК-1 рядом с
+    ошибочно помеченной записью уже лежала пустая заготовка с ВЕРНЫМ ярлыком РСБУ
+    (status=needs_source, без разбора) — переименование падало на constraint, и весь
+    прогон откатывался. Правило: пустую заготовку убираем (разбор у нас, а у неё его
+    нет), полноценную processed-запись НЕ трогаем — вместо тихой потери данных
+    возвращаем конфликт в ответе. Каждая запись коммитится отдельно, чтобы одно
+    столкновение не отменяло остальные исправления.
     """
     from app.models.earnings import EarningsDigest as _Dg
     rows = (db.query(EarningsReport, _Dg)
@@ -1650,16 +1658,34 @@ def backfill_standard_labels(db: Session, dry_run: bool = True) -> dict:
             .filter(EarningsReport.standard.in_(("МСФО", "РСБУ")))
             .order_by(EarningsReport.published_at.desc()).all())
     fixed: list[dict] = []
+    conflicts: list[dict] = []
     for rep, dg in rows:
         actual = _standard_from_digest({
             "what_report_showed": (dg.highlights or dg.what_report_showed),
             "summary": dg.summary, "one_liner": dg.one_liner, "headline": dg.headline})
-        if actual and actual != (rep.standard or ""):
-            fixed.append({"ticker": rep.ticker, "period": rep.period,
-                          "was": rep.standard, "now": actual,
-                          "published_at": rep.published_at.isoformat() if rep.published_at else None})
+        if not actual or actual == (rep.standard or ""):
+            continue
+        item = {"ticker": rep.ticker, "period": rep.period, "was": rep.standard, "now": actual,
+                "published_at": rep.published_at.isoformat() if rep.published_at else None}
+        clash = (db.query(EarningsReport)
+                 .filter(EarningsReport.ticker == rep.ticker,
+                         EarningsReport.period == rep.period,
+                         EarningsReport.standard == actual,
+                         EarningsReport.id != rep.id).first())
+        if clash is not None:
+            clash_has_digest = db.query(_Dg).filter(_Dg.report_id == clash.id).first() is not None
+            if clash.status == "processed" and clash_has_digest:
+                item["conflict"] = (f"запись id={clash.id} с ярлыком {actual} уже есть и содержит "
+                                    "разбор — не трогаю, нужен разбор человеком")
+                conflicts.append(item)
+                continue
+            item["removed_placeholder_id"] = clash.id
             if not dry_run:
-                rep.standard = actual
-    if not dry_run and fixed:
-        db.commit()
-    return {"checked": len(rows), "mislabeled": len(fixed), "dry_run": dry_run, "fixed": fixed}
+                db.delete(clash)
+                db.flush()
+        if not dry_run:
+            rep.standard = actual
+            db.commit()
+        fixed.append(item)
+    return {"checked": len(rows), "mislabeled": len(fixed) + len(conflicts),
+            "dry_run": dry_run, "fixed": fixed, "conflicts": conflicts}
