@@ -489,12 +489,21 @@ _geocode_cache: dict[str, tuple[float, float] | None] = {}
 # Молдавии и десятке областей России, и точка уехала бы за тысячи километров.
 _SVO_BBOX = (43.0, 54.0, 21.0, 43.0)  # lat_min, lat_max, lon_min, lon_max
 _WIKI_API = "https://ru.wikipedia.org/w/api.php"
+_WIKI_API_EN = "https://en.wikipedia.org/w/api.php"
 _WIKI_UA = {"User-Agent": "BasisPlatform/1.0 (https://inbasis.ru) geo_digest"}
+_LATIN_RE = re.compile(r"[A-Za-z]")
+
+
+def _wiki_api_for(name: str) -> str:
+    """Латиница в названии — это запись из англоязычного фида ISW («Tsehelne»);
+    русская Википедия таких заголовков не знает, поиск возвращает пусто. Такие
+    имена ищем в английской (на бою так осталось 25 точек без координат)."""
+    return _WIKI_API_EN if _LATIN_RE.search(name or "") else _WIKI_API
 
 
 def _wiki_coords(titles: str) -> tuple[float, float] | None:
-    r = httpx.get(_WIKI_API, params={"action": "query", "titles": titles,
-                                     "prop": "coordinates", "format": "json", "redirects": 1},
+    r = httpx.get(_wiki_api_for(titles), params={"action": "query", "titles": titles,
+                                                 "prop": "coordinates", "format": "json", "redirects": 1},
                   timeout=10, headers=_WIKI_UA)
     for page in (r.json().get("query", {}).get("pages", {}) or {}).values():
         co = page.get("coordinates")
@@ -508,7 +517,7 @@ def _wiki_search_coords(query: str) -> tuple[float, float] | None:
     результата, у которого они есть. Точное совпадение заголовка не работает для
     сёл: у половины из них статья называется иначе («Петровка (Волновахский
     район)»), а голое «Петровка» — страница значений без координат."""
-    r = httpx.get(_WIKI_API, params={
+    r = httpx.get(_wiki_api_for(query), params={
         "action": "query", "generator": "search", "gsrsearch": query, "gsrlimit": 5,
         "prop": "coordinates", "format": "json"}, timeout=10, headers=_WIKI_UA)
     pages = (r.json().get("query", {}) or {}).get("pages", {}) or {}
@@ -548,7 +557,8 @@ def _geocode_place(name: str, oblast: str | None = None) -> tuple[float, float] 
     if obl:
         attempts.append(lambda: _wiki_coords(f"{name} ({obl} область)"))
         attempts.append(lambda: _wiki_search_coords(f"{name} {obl}"))
-    attempts.append(lambda: _wiki_search_coords(f"{name} населённый пункт Украина"))
+    attempts.append(lambda: _wiki_search_coords(
+        f"{name} village Ukraine" if _LATIN_RE.search(name) else f"{name} населённый пункт Украина"))
     for attempt in attempts:
         try:
             pt = attempt()
