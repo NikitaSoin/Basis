@@ -966,6 +966,9 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const mCardFair = typeof mVal.card_fair_price_rub === "number" ? mVal.card_fair_price_rub : null;
   const mCrossCheck = mVal.cross_check || null;
   const mSensRows = Array.isArray(model?.sensitivity) ? model.sensitivity : [];
+  // авто-модели не считают свою справедливую цену — без этого колонка «Δ цена»
+  // печатала голую зелёную стрелку без числа
+  const mSensHasPrice = mSensRows.some((s) => s.fair_price_pct);
   const mTrackRows = Array.isArray(model?.track_record) ? model.track_record : [];
   const mDataFlags = Array.isArray(model?.data_flags) ? model.data_flags : [];
   const mBridge = model?.bridge || null;
@@ -1403,7 +1406,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                       <div className="subh" style={{ marginTop: 22 }}>Чувствительность</div>
                       <div className="tbl-scroll">
                         <table className="ftbl">
-                          <thead><tr><th>Драйвер</th><th>Сдвиг</th><th>Δ прибыль</th><th>Δ цена</th></tr></thead>
+                          <thead><tr><th>Драйвер</th><th>Сдвиг</th><th>Δ прибыль</th>{mSensHasPrice && <th>Δ цена</th>}</tr></thead>
                           <tbody>
                             {mSensRows.map((s, i) => {
                               const dName = mDriversByKey[s.driver]?.name || s.driver;
@@ -1414,7 +1417,11 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                                   <td>{dName}</td>
                                   <td>{s.shift}</td>
                                   <td><span className={`delta ${npDn ? "dn" : "up"}`}>{npDn ? "▼" : "▲"} {s.net_profit_pct}</span></td>
-                                  <td><span className={`delta ${fpDn ? "dn" : "up"}`}>{fpDn ? "▼" : "▲"} {s.fair_price_pct}</span></td>
+                                  {mSensHasPrice && (
+                                    <td>{s.fair_price_pct
+                                      ? <span className={`delta ${fpDn ? "dn" : "up"}`}>{fpDn ? "▼" : "▲"} {s.fair_price_pct}</span>
+                                      : <span className="muted">—</span>}</td>
+                                  )}
                                 </tr>
                               );
                             })}

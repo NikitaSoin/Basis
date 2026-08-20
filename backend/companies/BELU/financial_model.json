@@ -40,7 +40,7 @@
       "key": "commodity_usd",
       "name": "Цена сырья, $",
       "kind": "live",
-      "base_value": 90.97,
+      "base_value": 91.57,
       "applies_to": "revenue",
       "cross_check_stress": {
         "per": "1_usd",
@@ -160,14 +160,14 @@
   "bridge": null,
   "sensitivity": [
     {
-      "driver": "fx",
-      "shift": "1_rub",
+      "driver": "usd_rub",
+      "shift": "+1 ₽ к курсу",
       "net_profit_pct": "-0.2%",
       "basis": "стресс-коэффициент карточки, пересчитан в % от прибыли базового года"
     },
     {
-      "driver": "rate",
-      "shift": "100bp",
+      "driver": "key_rate",
+      "shift": "+100 б.п.",
       "net_profit_pct": "-2.5%",
       "basis": "стресс-коэффициент карточки, пересчитан в % от прибыли базового года"
     }

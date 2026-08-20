@@ -40,7 +40,7 @@
       "key": "commodity_usd",
       "name": "Цена сырья, $",
       "kind": "live",
-      "base_value": 90.97,
+      "base_value": 91.57,
       "applies_to": "revenue",
       "cross_check_stress": {
         "per": "1_usd",

@@ -109,8 +109,8 @@
   "bridge": null,
   "sensitivity": [
     {
-      "driver": "rate",
-      "shift": "100bp",
+      "driver": "key_rate",
+      "shift": "+100 б.п.",
       "net_profit_pct": "-13.4%",
       "basis": "стресс-коэффициент карточки, пересчитан в % от прибыли базового года"
     }

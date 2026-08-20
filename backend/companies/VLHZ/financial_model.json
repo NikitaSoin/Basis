@@ -117,14 +117,14 @@
   "bridge": null,
   "sensitivity": [
     {
-      "driver": "rate",
-      "shift": "100bp",
+      "driver": "key_rate",
+      "shift": "+100 б.п.",
       "net_profit_pct": "-31.6%",
       "basis": "стресс-коэффициент карточки, пересчитан в % от прибыли базового года"
     },
     {
-      "driver": "fx",
-      "shift": "1_rub",
+      "driver": "usd_rub",
+      "shift": "+1 ₽ к курсу",
       "net_profit_pct": "-7.2%",
       "basis": "стресс-коэффициент карточки, пересчитан в % от прибыли базового года"
     }

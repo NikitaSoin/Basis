@@ -371,16 +371,21 @@ def build(ticker: str) -> tuple[dict | None, list[str]]:
 
 
 def _payout(gov: dict) -> float | None:
-    """Доля прибыли на дивиденды из дивполитики. None — политики нет/не платит."""
-    blob = json.dumps(gov, ensure_ascii=False).lower()
-    if "не выплач" in blob or "дивиденды не" in blob:
-        return 0.0
-    import re
-    m = re.search(r"(\d{2,3})\s*%\s*(?:от\s*)?(?:чистой\s*приб|прибыли|fcf|ЧП)", blob)
-    if m:
-        v = int(m.group(1))
-        if 5 <= v <= 100:
-            return v / 100.0
+    """Доля прибыли на дивиденды — ТОЛЬКО из структурного поля дивполитики.
+
+    🔴 Первая версия грепала прозу всего governance.json по «не выплач» и брала
+    первое совпадение. У МТС это поймало фразу про АФК «Система» («СД рекомендовал
+    НЕ выплачивать») и обнулило дивиденд компании, которая платит 35 ₽/акцию —
+    на экране карточки стояло «DPS 0 ₽» три года подряд. Так же обнулилось ещё
+    123 модели. Проза для чисел не годится: рядом стоящее отрицание относится к
+    другому лицу. Берём только policy_min_payout_pct; нет его — строки DPS нет
+    вовсе (честный пропуск лучше уверенного нуля)."""
+    div = gov.get("dividends") if isinstance(gov, dict) else None
+    if not isinstance(div, dict):
+        return None
+    pct = div.get("policy_min_payout_pct")
+    if isinstance(pct, (int, float)) and 5 <= float(pct) <= 100:
+        return float(pct) / 100.0
     return None
 
 
@@ -392,15 +397,19 @@ def _has_adjusted(fin: dict) -> bool:
 
 def _sensitivity(coefs: dict, rev0: float, np0: float | None, q_to_card: float) -> list:
     out = []
-    label = {"fx": "Курс USD/RUB", "rate": "Ключевая ставка", "commodity": "Цена сырья"}
+    # 🔴 driver обязан совпадать с drivers[].key — фронт ищет подпись по нему
+    # (mDriversByKey[s.driver]?.name), не найдя — печатает сырой ключ: на карточке
+    # МТС в таблице чувствительности стояло английское «rate».
+    dkey = {"fx": "usd_rub", "rate": "key_rate", "commodity": "commodity_usd"}
+    shift_ru = {"fx": "+1 ₽ к курсу", "rate": "+100 б.п.", "commodity": "+1 $ за баррель"}
     for key, c in coefs.items():
-        if key not in label:
+        if key not in dkey:
             continue
         d_np = c.get("net_profit")
         if not isinstance(d_np, (int, float)) or not d_np or not np0 or np0 <= 0:
             continue
         out.append({
-            "driver": key, "shift": c.get("per"),
+            "driver": dkey[key], "shift": shift_ru.get(key) or c.get("per"),
             "net_profit_pct": f"{float(d_np) * q_to_card / np0 * 100:+.1f}%",
             "basis": "стресс-коэффициент карточки, пересчитан в % от прибыли базового года",
         })

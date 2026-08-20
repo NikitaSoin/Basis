@@ -19,7 +19,7 @@
       "key": "usd_rub",
       "name": "Курс USD/RUB",
       "kind": "live",
-      "base_value": 85.1645,
+      "base_value": 85.1293,
       "applies_to": "revenue",
       "cross_check_stress": {
         "per": "1_rub",
@@ -36,7 +36,7 @@
       "key": "commodity_usd",
       "name": "Цена сырья, $",
       "kind": "live",
-      "base_value": 90.97,
+      "base_value": 91.57,
       "applies_to": "revenue",
       "cross_check_stress": {
         "per": "1_usd",
@@ -93,11 +93,6 @@
         "2026": 0.06,
         "2027": 0.07,
         "2028": 0.07
-      },
-      "dps_rub": {
-        "2026": 0.01,
-        "2027": 0.01,
-        "2028": 0.01
       }
     },
     "bear": {
@@ -117,10 +112,6 @@
       "eps_rub": {
         "2026": 0.06,
         "2027": 0.06
-      },
-      "dps_rub": {
-        "2026": 0.01,
-        "2027": 0.01
       }
     },
     "bull": {
@@ -140,10 +131,6 @@
       "eps_rub": {
         "2026": 0.06,
         "2027": 0.07
-      },
-      "dps_rub": {
-        "2026": 0.01,
-        "2027": 0.01
       }
     }
   },
@@ -156,8 +143,8 @@
   "bridge": null,
   "sensitivity": [
     {
-      "driver": "rate",
-      "shift": "100bp",
+      "driver": "key_rate",
+      "shift": "+100 б.п.",
       "net_profit_pct": "+1.4%",
       "basis": "стресс-коэффициент карточки, пересчитан в % от прибыли базового года"
     }
