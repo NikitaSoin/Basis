@@ -112,6 +112,7 @@ import PricingView from "./account/PricingView";
 import ProfileView from "./account/ProfileView";
 import { CompanyCard, CompaniesView, NEO_CARD, BondCard, FuturesCard, FundCard, SpotCard } from "./company/CompanyCardView";
 import AssistantView from "./AssistantView";
+import { AssistantNudge } from "./design/AssistantNudge";
 import "./styles/compare.css";
 const ScreenerCompareView = React.lazy(() => import("./screener/ScreenerCompareShell"));
 import "./styles/mobile-nav.css";
@@ -1056,6 +1057,10 @@ export default function App() {
   // Вкладка карточки из deep-link (?company=T&tab=finance) — применяется только
   // при первом монтировании карточки, дальше пользователь управляет вкладками сам.
   const [initialCardTab, setInitialCardTab] = useState(null);
+  // Вопрос, с которым человек уходит в Ассистента из подсказки «залипания»
+  // (design/AssistantNudge): текст подставляется в поле ввода, НЕ отправляется
+  // сам — решение спросить остаётся за человеком, и лимит не тратится впустую.
+  const [assistantPrefill, setAssistantPrefill] = useState("");
   // Вкладка внутри раздела из адреса (?view=portfolio&tab=risk) — прокидывается в
   // MarketNeo/PortfolioV2/ObserverV2 как начальная секция.
   const [forceInnerTab, setForceInnerTab] = useState(null);
@@ -1348,6 +1353,37 @@ export default function App() {
     if (t) syncUrl({ company: t });
   };
 
+  // Что человек сейчас читает — из этого строится и подпись подсказки, и
+  // заготовленный вопрос. key важен: при его смене таймеры «залипания»
+  // сбрасываются, то есть на каждом новом экране отсчёт начинается заново.
+  const assistantNudgeContext = React.useMemo(() => {
+    const tickerOf = (v) => (typeof v === "string" ? v : (v && v.ticker) || "");
+    if (selectedCompany) {
+      const tk = tickerOf(selectedCompany);
+      const nm = (typeof selectedCompany === "object" && selectedCompany.name) || tk;
+      // Имя и тикер совпадают, когда карточка открыта по прямой ссылке (/company/SBER/)
+      // и объекта компании ещё нет — тогда «SBER (SBER)» читалось бы как ошибка.
+      const label = nm === tk ? tk : `${nm} (${tk})`;
+      return { key: `company:${tk}`, subject: `карточку ${label}`,
+               question: `Объясни простыми словами, что сейчас главное в карточке ${label} — на что смотреть инвестору?` };
+    }
+    if (selectedBond) return { key: `bond:${selectedBond}`, subject: `этот выпуск (${selectedBond})`,
+                               question: `Разбери выпуск ${selectedBond}: адекватна ли доходность взятому риску?` };
+    if (selectedFund) return { key: `fund:${selectedFund}`, subject: `этот фонд (${selectedFund})`,
+                               question: `Что внутри фонда ${selectedFund}, сколько он стоит по комиссии и честно ли следует бенчмарку?` };
+    if (selectedFuture) return { key: `future:${selectedFuture}`, subject: `этот контракт (${selectedFuture})`,
+                                 question: `Объясни контракт ${selectedFuture}: на что ставка, какое плечо и чем рискую?` };
+    const byTab = {
+      overview: { subject: "этот обзор рынка", q: "Что сейчас главное на рынке и что это значит для частного инвестора?" },
+      companies: { subject: "этот раздел рынка", q: "С чего начать выбор бумаги на российском рынке — на какие метрики смотреть?" },
+      screener: { subject: "метрики скринера", q: "Как правильно читать метрики скринера — P/E, дивдоходность, потенциал к справедливой цене?" },
+      portfolio: { subject: "ваш портфель", q: "Посмотри мой портфель: какие риски в нём главные?" },
+      stress: { subject: "этот стресс-тест", q: "Что показывает стресс-тест и как читать его результат?" },
+    };
+    const t = byTab[activeTab];
+    return t ? { key: `tab:${activeTab}`, subject: t.subject, question: t.q } : null;
+  }, [selectedCompany, selectedBond, selectedFund, selectedFuture, activeTab]);
+
   const navigate = (tab) => {
     setActiveTab(tab);
     setSelectedCompany(null);
@@ -1466,7 +1502,9 @@ export default function App() {
         // «доступно на тарифе Max» на своей же оплаченной подписке.
         return <StressTestView token={token} onOpenCompany={selectCompany} />;
       case "ai":
-        return <AssistantView token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={selectCompany} />;
+        return <AssistantView token={token} onAuthRequired={() => setShowAuthModal(true)}
+                 onOpenCompany={selectCompany} initialQuestion={assistantPrefill}
+                 onQuestionConsumed={() => setAssistantPrefill("")} />;
       case "pricing":
         return (
           <PricingView
@@ -1621,6 +1659,16 @@ export default function App() {
           хром — это ВЕРХНИЙ маркетинговый nav (Features/Pricing), не имеет
           отношения к навигации по разделам приложения — конфликта с нижним
           таббаром нет (фиксированных элементов снизу в landing.css нет). */}
+      {/* Подсказка «спросите ассистента» — показывается, когда человек ЗАЛИП на
+          чтении (открыл давно и перестал листать), а не при входе. Контекст даёт
+          заготовленный вопрос: из карточки спрашивается про компанию, из
+          Обозревателя — про раздел. Владелец, 2026-08-20. */}
+      <AssistantNudge
+        context={assistantNudgeContext}
+        disabled={isLanding || activeTab === "ai" || showAuthModal}
+        onAsk={(q) => { setAssistantPrefill(q); navigate("ai"); }}
+      />
+
       <MobileTabBar
         activeTab={selectedCompany || isLanding ? null : activeTab}
         onNav={navigate}

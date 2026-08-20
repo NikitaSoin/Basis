@@ -215,7 +215,7 @@ function refIcon(kind) {
   return null;
 }
 
-export default function AssistantView({ token, onAuthRequired, onOpenCompany }) {
+export default function AssistantView({ token, onAuthRequired, onOpenCompany, initialQuestion = "", onQuestionConsumed }) {
   // Lazy-инициализатор — считается один раз ПРИ МОНТИРОВАНИИ компонента:
   // вкладка Ассистента рендерится через switch(section) в App.js (не
   // держится смонтированной в фоне), значит уход на другую вкладку и
@@ -300,6 +300,22 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
     const el = feedRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, sending]);
+
+  // Вопрос из подсказки «залипания» (design/AssistantNudge): подставляем в поле и
+  // ставим курсор, но НЕ отправляем — человек дочитает формулировку, поправит под
+  // себя и решит сам. Автоотправка тратила бы его лимит на вопрос, которого он не
+  // задавал. Подставляем только в пустое поле — не затираем начатое.
+  useEffect(() => {
+    if (!initialQuestion) return;
+    setInput((prev) => (prev.trim() ? prev : initialQuestion));
+    const ta = textareaRef.current;
+    if (ta) { ta.focus(); try { ta.setSelectionRange(ta.value.length, ta.value.length); } catch { /* не критично */ } }
+    if (onQuestionConsumed) onQuestionConsumed();
+  // Зависимость намеренно одна: подстановка привязана к ПРИХОДУ нового вопроса,
+  // а не к изменениям input/колбэка. (Комментарий eslint-disable здесь ставить
+  // нельзя — правило react-hooks в сборке не зарегистрировано и ссылка на него
+  // роняет прод-сборку целиком, см. память проекта.)
+  }, [initialQuestion]);
 
   // авто-высота textarea
   useEffect(() => {
