@@ -1397,6 +1397,11 @@ def generate(db: Session) -> MacroInterpretation:
 
     out = _ask()
     sections = out.get("sections") if isinstance(out, dict) else None
+    # Список открытых методичек агент возвращает РЯДОМ с sections, а сохраняем мы
+    # только sections — без переноса он терялся, и «на чём построен вывод» опять
+    # становилось невидимым. Ровно ту прозрачность, ради которой поле и заводилось.
+    if isinstance(sections, dict) and isinstance(out, dict) and out.get("methodology_used"):
+        sections.setdefault("methodology_used", out["methodology_used"])
     if not sections:
         raise llm.LLMError("Интерпретатор: модель не вернула sections")
 
