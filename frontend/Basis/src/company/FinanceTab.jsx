@@ -992,6 +992,17 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const mCcDivergence = (mCrossCheck && typeof mCrossCheck.weighted_rub === "number" && mCardFair)
     ? Math.abs(mCrossCheck.weighted_rub / mCardFair - 1) * 100
     : null;
+  // Первая фраза выкладки драйвера — она отвечает «почему это вообще влияет».
+  // Дальше в derivation идёт арифметика и служебные оговорки («ТЕМПОРАЛЬНЫЙ ЯКОРЬ…»),
+  // которым на витрине не место: их читает редакция, а не инвестор.
+  const mDriverWhy = (d) => {
+    const src = d?.assumption || d?.rationale || d?.derivation;
+    if (typeof src !== "string" || src.length < 25) return null;
+    const first = src.split(/(?<=[.;])\s+/).find((s) => s.trim().length > 25);
+    if (!first) return null;
+    const t = first.trim();
+    return t.length > 190 ? `${t.slice(0, 187)}…` : t;
+  };
   const mSensRows = Array.isArray(model?.sensitivity) ? model.sensitivity : [];
   // авто-модели не считают свою справедливую цену — без этого колонка «Δ цена»
   // печатала голую зелёную стрелку без числа. И наоборот: если цену модели мы
@@ -1336,7 +1347,10 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                 <div className="disc-body">
                   {FM_ROWS.length > 0 && (
                     <>
-                      <div className="subh">Прогноз {mHorizon[0]}–{mHorizon[mHorizon.length - 1]}</div>
+                      {/* Таблица считается по БАЗОВОМУ сценарию — раньше это нигде не было
+                          сказано, и рядом с плитками «медведь/база/бык» читалось как
+                          «сценариев три, а в таблице почему-то один». */}
+                      <div className="subh">Прогноз {mHorizon[0]}–{mHorizon[mHorizon.length - 1]} · базовый сценарий{mBasePct != null ? ` (вес ${mBasePct} %)` : ""}</div>
                       <div className="tbl-scroll">
                         <table className="ftbl">
                           <thead><tr><th>Показатель</th>{mHorizon.map((y) => <th key={y}>{y}</th>)}</tr></thead>
@@ -1360,7 +1374,12 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                                     return (
                                       <td key={y}>
                                         <span className="cv">{fmtFmVal(showV, r.kind, rowUnit)}</span>
-                                        {meaningfulDiff(liveV, baseV) && <div className="fm-basehint">база {fmtFmVal(baseV, r.kind, rowUnit)}</div>}
+                                        {/* 🔴 не «база»: этим словом на том же экране назван
+                                            базовый СЦЕНАРИЙ (плитки медведь/база/бык). ОТК-инвестор
+                                            прочитал подпись как «число базового сценария» и не понял,
+                                            к какому сценарию относится таблица. Здесь смысл другой —
+                                            уровень до живого пересчёта. */}
+                                        {meaningfulDiff(liveV, baseV) && <div className="fm-basehint">до пересчёта {fmtFmVal(baseV, r.kind, rowUnit)}</div>}
                                       </td>
                                     );
                                   })}
@@ -1370,7 +1389,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                           </tbody>
                         </table>
                       </div>
-                      <div className="fc-note">Единица указана у каждой строки (масштаб млрд/трлн ₽ зависит от величины — EPS/DPS/BVPS в ₽/акция, ROE/NIM/маржа в %).{mLiveAdj ? " ⚡ живой пересчёт — база скорректирована под текущие значения живых драйверов (Brent/курс/ставка и т.п.), см. «Драйверы модели» ниже; исходный (застывший на дату сборки) уровень — под живым значением." : ""}</div>
+                      <div className="fc-note">Единица указана у каждой строки (масштаб млрд/трлн ₽ зависит от величины — EPS/DPS/BVPS в ₽/акция, ROE/NIM/маржа в %).{mLiveAdj ? " ⚡ живой пересчёт — прогноз скорректирован под текущие значения живых драйверов (Brent/курс/ставка и т.п.), см. «Драйверы модели» ниже; уровень до пересчёта (застывший на дату сборки) — под живым значением." : ""}</div>
                     </>
                   )}
 
@@ -1402,6 +1421,12 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                                 <div className="fm-drv-vals">база {num(d.base_value, 2)}</div>
                               )}
                               {d.kind === "live" && d.live_status && <div className="fm-drv-status">{d.live_status}</div>}
+                              {/* ПОЧЕМУ этот драйвер вообще двигает компанию. Без строки на
+                                  экране была одна механика («живое 14 против базы 14,25 →
+                                  net_profit ×1.032»), и ОТК-инвестор справедливо спросил,
+                                  с чего вдруг ставка ЦБ влияет на телеком. Ответ есть в
+                                  данных (derivation), просто не выводился. */}
+                              {mDriverWhy(d) && <div className="fm-drv-why">{mDriverWhy(d)}</div>}
                             </div>
                           );
                         })}
@@ -1452,7 +1477,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                                   {mSensHasPrice && (
                                     <td>{s.fair_price_pct
                                       ? <span className={`delta ${fpDn ? "dn" : "up"}`}>{fpDn ? "▼" : "▲"} {s.fair_price_pct}</span>
-                                      : <span className="muted">—</span>}</td>
+                                      : <span style={{ color: "var(--ink-3)" }}>—</span>}</td>
                                   )}
                                 </tr>
                               );

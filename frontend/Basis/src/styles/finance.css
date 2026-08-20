@@ -347,6 +347,10 @@
 .fin-hybrid .fm-scen-mini{font-family:var(--mono);font-size:11px;color:var(--ink-2);background:var(--panel-3);border-radius:5px;padding:2px 7px;}
 .fin-hybrid .fm-scen-mini i{font-style:normal;color:var(--ink-3);margin-right:5px;}
 .fin-hybrid .fm-drv-status{font-size:11px;color:var(--ink-3);margin-top:7px;line-height:1.4;}
+/* «почему этот драйвер влияет» — проза, поэтому НЕ mono: моноширинный шрифт в
+   карточке драйвера закреплён за числами (база → живое), и предложение в нём
+   читается как продолжение расчёта, а не как объяснение */
+.fin-hybrid .fm-drv-why{font-size:12px;color:var(--ink-2);margin-top:8px;padding-top:8px;border-top:1px solid var(--line);line-height:1.5;}
 /* мост EBITDA — простой горизонтальный список шагов */
 .fin-hybrid .fm-bridge-list{display:flex;flex-direction:column;}
 .fin-hybrid .fm-bridge-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;}
