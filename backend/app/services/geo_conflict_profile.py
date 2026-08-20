@@ -459,18 +459,20 @@ def build_one(db: Session, scope: str, prev: dict | None,
         + json.dumps(articles, ensure_ascii=False, indent=1))
     user_parts.append(f"СЕГОДНЯ: {date.today().isoformat()}")
 
+    _diag: list[str] = []
     try:
         from app.services import analyst
         fresh = analyst.run(
             db, system=system, task="\n\n".join(user_parts),
             shelf_docs=["geo", "geo_macro", "geo_inst", "inst_env"],
-            max_steps=9, budget=140_000, final_max_tokens=10_000,
+            max_steps=11, budget=170_000, final_max_tokens=14_000,
+            notes=_diag,
             final_instruction="Верни JSON строго в формате из твоей роли "
                               "(parties, balance, macro_link, institutional_link, "
                               "watchpoints, methodology_used).",
             label=f"geo_profile:{scope}")
         if fresh is None:
-            return None, [f"{scope}: аналитик не вернул валидный портрет"]
+            return None, ([f"{scope}: аналитик не вернул валидный портрет"] + _diag)
     except llm.LLMError as e:
         return None, [f"{scope}: LLM недоступен ({e})"]
 

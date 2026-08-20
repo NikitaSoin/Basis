@@ -62,12 +62,18 @@ def run(db: Session, *, system: str, task: str, shelf_docs: list[str],
         extra_tools: list[dict] | None = None, extra_executor=None,
         max_steps: int = 10, budget: int = 160_000,
         step_max_tokens: int = 3000, final_max_tokens: int = 20_000,
-        final_instruction: str = "", label: str = "analyst") -> dict | None:
+        final_instruction: str = "", label: str = "analyst",
+        notes: list[str] | None = None) -> dict | None:
     """Прогнать пишущего аналитика. Возвращает разобранный JSON или None.
 
     system — РОЛЬ и ФОРМА ВЫВОДА (без методичек!). shelf_docs — какие методички
     показать в оглавлении. extra_tools/extra_executor — доменные инструменты слоя,
     если они есть (данные платформы, веб).
+
+    🔴 notes — сюда складывается ПРИЧИНА неудачи. Без неё слой пишет в журнал
+    «аналитик не вернул валидный портрет» и всё: непонятно, кончились ли шаги,
+    оборвался ли JSON или модель ответила прозой. Это разные поломки с разным
+    лечением, и первый же боевой прогон портрета очага упёрся ровно в это.
     """
     from app.services.agent_runner import run_agent
     from app.services.methodology import METHODOLOGY_TOOLS_SCHEMA, shelf_card
@@ -95,6 +101,8 @@ def run(db: Session, *, system: str, task: str, shelf_docs: list[str],
         )
     except Exception as e:  # noqa: BLE001
         logger.warning("analyst[%s]: прогон не удался (%s)", label, e)
+        if notes is not None:
+            notes.append(f"{label}: прогон упал — {type(e).__name__}: {e}")
         return None
 
     result = out.get("result")
@@ -104,9 +112,13 @@ def run(db: Session, *, system: str, task: str, shelf_docs: list[str],
                 label, len(trace), out.get("tokens_used"), out.get("stopped_reason"),
                 json.dumps(used, ensure_ascii=False) if used else "НЕ ОТКРЫВАЛ")
     if not isinstance(result, dict):
+        tail = str(out.get("final_raw") or "")[-260:]
         logger.warning("analyst[%s]: валидного JSON нет (%s); хвост финала: %s",
-                       label, out.get("stopped_reason"),
-                       str(out.get("final_raw") or "")[-300:])
+                       label, out.get("stopped_reason"), tail)
+        if notes is not None:
+            notes.append(f"{label}: JSON не получен — остановка "
+                         f"{out.get('stopped_reason')}, шагов {len(trace)}, "
+                         f"токенов {out.get('tokens_used')}; хвост: {tail}")
         return None
     if not used:
         # Не отклоняем: бывают задачи, где методика не нужна. Но это должно быть
