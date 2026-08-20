@@ -937,12 +937,20 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const mHasLiveRow = (key) => !!(mLiveAdj && mLiveAdj[key] && mHorizon.some((y) => mLiveAdj[key][y] != null));
   const meaningfulDiff = (a, b) => a != null && b != null && Math.abs(a - b) > Math.abs(b || 1) * 0.002;
   const mVal = model?.valuation || {};
-  const mWeighted = typeof mVal.weighted_fair_price_rub === "number" ? mVal.weighted_fair_price_rub : null;
+  const mValWeighted = typeof mVal.weighted_fair_price_rub === "number" ? mVal.weighted_fair_price_rub : null;
   const mLivePrice = typeof model?.live_price_rub === "number" ? model.live_price_rub : null;
   const mUpsideLive = typeof model?.upside_pct_live === "number" ? model.upside_pct_live : null;
   const mFwdPeLive = typeof model?.forward_pe_live === "number" ? model.forward_pe_live : null;
   const mBasePct = model?.scenario_weights?.base != null ? Math.round(model.scenario_weights.base * 100) : null;
-  const mScenPrices = model ? ["bear", "base", "bull"].map((k) => ({
+  // 🔴 Правило «одна цена на карточке»: вердикт цены принадлежит слою оценки (живой
+  // BFV — он же в рейле и в шапке). Своя цена модели выходит на экран, только если
+  // сошлась с ним. У трёх пилотных (авторских) моделей она НЕ сходится и печаталась
+  // рядом с ценой карточки: Лукойл 5020 ₽ против 2163 ₽, X5 3284 против 1868 —
+  // читатель видел два разных ответа на один вопрос и не мог знать, какой верен.
+  const mOwnPriceOk = mValWeighted != null && bfvFair != null
+    && Math.abs(mValWeighted / bfvFair - 1) <= 0.15;
+  const mWeighted = mOwnPriceOk ? mValWeighted : null;
+  const mScenPrices = (model && mOwnPriceOk) ? ["bear", "base", "bull"].map((k) => ({
     key: k, label: SCEN_LABEL[k], weight: model.scenario_weights?.[k], price: mVal.per_scenario?.[k]?.fair_price_rub,
   })).filter((s) => typeof s.price === "number") : [];
   // 🔴 У собранных моделей (built_by: assembler) СВОЕЙ справедливой цены нет — вердикт
@@ -962,13 +970,26 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     : [];
   const mScenLineUnit = mScenLines.length ? moneyRowUnit(mScenLines.map((s) => s.value)) : null;
   const mScenLineLabel = (FM_ROW_DEFS.find((r) => r.key === mScenLineKey) || {}).l;
-  const mVerdictFromCard = mVal.verdict_source === "карточка";
-  const mCardFair = typeof mVal.card_fair_price_rub === "number" ? mVal.card_fair_price_rub : null;
+  const mVerdictFromCard = mVal.verdict_source === "карточка" || (mValWeighted != null && !mOwnPriceOk);
+  // 🔴 Справедливая цена карточки — это ЖИВОЙ BFV (тот самый, что стоит в рейле
+  // «Заметка аналитика» и в шапке), а НЕ число, запечённое в модель на сборке.
+  // Сборщик брал financials.json → fair_value_range.base, и у МТС блок писал
+  // «из оценки карточки: 178 ₽», пока карточка рядом показывала 68 ₽. Ровно то
+  // расхождение методик, ради устранения которого блок и написан.
+  const mCardFair = bfvFair != null ? bfvFair : null;
   const mCrossCheck = mVal.cross_check || null;
+  // расхождение сверки считаем ЖИВЬЁМ против BFV: запечённое divergence_from_card_pct
+  // измерено против устаревшего числа (у ABIO «сошлось» с 42 ₽ при живых 13,9 ₽).
+  const FM_CROSS_CHECK_MAX_PCT = 15;
+  const mCcDivergence = (mCrossCheck && typeof mCrossCheck.weighted_rub === "number" && mCardFair)
+    ? Math.abs(mCrossCheck.weighted_rub / mCardFair - 1) * 100
+    : null;
   const mSensRows = Array.isArray(model?.sensitivity) ? model.sensitivity : [];
   // авто-модели не считают свою справедливую цену — без этого колонка «Δ цена»
-  // печатала голую зелёную стрелку без числа
-  const mSensHasPrice = mSensRows.some((s) => s.fair_price_pct);
+  // печатала голую зелёную стрелку без числа. И наоборот: если цену модели мы
+  // скрыли (не сошлась с карточкой), процент «Δ цена» ссылается на непоказанное
+  // число — тоже убираем.
+  const mSensHasPrice = mWeighted != null && mSensRows.some((s) => s.fair_price_pct);
   const mTrackRows = Array.isArray(model?.track_record) ? model.track_record : [];
   const mDataFlags = Array.isArray(model?.data_flags) ? model.data_flags : [];
   const mBridge = model?.bridge || null;
@@ -1230,7 +1251,10 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                         <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 4 }}>взвешенная справедливая · модель</div>
                       </div>
                     )}
-                    {mUpsideLive != null && (
+                    {/* апсайд считается от собственной цены модели — если её мы не
+                        показываем, то и процент от неё показывать нельзя: он спорил бы
+                        с потенциалом в шапке карточки, посчитанным от BFV */}
+                    {mUpsideLive != null && mWeighted != null && (
                       <div className={`ud delta ${mUpsideLive >= 0 ? "up" : "dn"}`}>{mUpsideLive >= 0 ? "▲" : "▼"} {num(Math.abs(mUpsideLive), 1)} % {mUpsideLive >= 0 ? "апсайд" : "даунсайд"} от живой цены</div>
                     )}
                     <div className="corr">
@@ -1248,8 +1272,8 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                   <div className="ff-note" style={{ marginBottom: 14 }}>
                     <div className="nh">Справедливая цена — из оценки карточки{mCardFair != null ? `: ${num(mCardFair, mCardFair >= 100 ? 0 : 1)} ${ccy}` : ""}</div>
                     Эта модель отвечает на вопрос «что будет с выручкой и прибылью при такой ставке, курсе и цене сырья», а цену не назначает: её считает раздел оценки секторными методами. Двух разных справедливых цен на одной карточке быть не должно.
-                    {mCrossCheck && typeof mCrossCheck.weighted_rub === "number" && (
-                      <> Независимая сверка модели (прогнозная прибыль × исторический мультипликатор) даёт <b>{num(mCrossCheck.weighted_rub, mCrossCheck.weighted_rub >= 100 ? 0 : 1)} {ccy}</b> — расхождение {num(mCrossCheck.divergence_from_card_pct, 1)} %, то есть оценка подтверждается независимым способом.</>
+                    {mCcDivergence != null && mCcDivergence <= FM_CROSS_CHECK_MAX_PCT && (
+                      <> Независимая сверка модели (прогнозная прибыль × исторический мультипликатор) даёт <b>{num(mCrossCheck.weighted_rub, mCrossCheck.weighted_rub >= 100 ? 0 : 1)} {ccy}</b> — расхождение {num(mCcDivergence, 1)} %, то есть оценка подтверждается независимым способом.</>
                     )}
                     {/* 🔴 Причину, по которой сверка не сошлась, на экран НЕ выносим: там
                         лежит само расхождение в рублях («модель даёт 244 ₽ против 178 ₽»)
