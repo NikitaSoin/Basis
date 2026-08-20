@@ -960,8 +960,16 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   // Берём первую заполненную из выручки/прибыли и последний год горизонта.
   const mScenLineKey = ["revenue", "operating_income", "net_interest_income", "net_profit"]
     .find((k) => model?.forecast?.base?.[k] && mHorizon.some((y) => model.forecast.base[k][y] != null));
+  // 🔴 Год берём ПОСЛЕДНИЙ ОБЩИЙ для всех трёх сценариев, а не последний у базы.
+  // У 121 модели из 203 медведь и бык заканчиваются на год раньше базы (столько лет
+  // задано в сценариях market.json). Раньше год брался по базе — и под подписью
+  // «по трём сценариям» стояла ОДНА плитка «База»: два других сценария просто
+  // отфильтровывались как пустые. Дорисовывать им недостающий год нельзя (это уже
+  // не прогноз аналитика, а наша выдумка) — значит сравниваем по общему году.
   const mScenLineYear = mScenLineKey
-    ? [...mHorizon].reverse().find((y) => model.forecast.base[mScenLineKey][y] != null) : null;
+    ? [...mHorizon].reverse().find((y) => ["bear", "base", "bull"]
+        .every((k) => typeof model.forecast?.[k]?.[mScenLineKey]?.[y] === "number"))
+    : null;
   const mScenLines = (model && !mScenPrices.length && mScenLineKey && mScenLineYear)
     ? ["bear", "base", "bull"].map((k) => ({
         key: k, label: SCEN_LABEL[k], weight: model.scenario_weights?.[k],
@@ -1296,7 +1304,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                 )}
                 {/* Нет сценарных ЦЕН — показываем сценарии по прогнозной строке: сам веер
                     «медведь/база/бык» с весами и есть главное, что даёт модель. */}
-                {mScenLines.length > 0 && (
+                {mScenLines.length >= 2 && (
                   <>
                     <div className="fm-scen-row">
                       {mScenLines.map((s) => (
@@ -1307,11 +1315,11 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                       ))}
                     </div>
                     <div className="fc-note" style={{ marginTop: 8 }}>
-                      {mScenLineLabel} в {mScenLineYear} году по трём сценариям.
+                      {mScenLineLabel} в {mScenLineYear} году{mScenLines.length === 3 ? " по трём сценариям" : ` — ${mScenLines.length} сценария`}.
                     </div>
                   </>
                 )}
-                {(mScenPrices.length > 0 || mScenLines.length > 0) && (
+                {(mScenPrices.length > 0 || mScenLines.length >= 2) && (
                   <div className="ff-note" style={{ marginTop: 14 }}>
                     <div className="nh">Как читать сценарии</div>
                     База — не среднее, а наиболее вероятный режим рынка прямо сейчас{mBasePct != null ? ` (вес ${mBasePct} %)` : ""}; бык и медведь — другой набор допущений по цене/ставке/риску, а не симметричные «±%». Если вес медведя и быка не совпадают — это суждение аналитика о том, куда смещён риск.
