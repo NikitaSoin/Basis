@@ -609,7 +609,7 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
         from app.services import analyst
         fresh = analyst.run(
             db, system=system, task="\n\n".join(user_parts),
-            shelf_docs=["inst_env", "geo_inst", "inst_macro", "macro"],
+            shelf_docs=["inst_env", "geo_inst", "inst_geo", "inst_macro", "macro"],
             max_steps=10, budget=170_000, final_max_tokens=18_000,
             final_instruction="Верни JSON строго в формате из твоей роли (ключи "
                               "as_of, axis, price_tag, plain, bottleneck, "

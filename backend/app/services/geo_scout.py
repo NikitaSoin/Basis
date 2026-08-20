@@ -106,7 +106,8 @@ def run(db: Session, articles: dict, prev_summary: str = "",
     from app.services import scout
     return scout.run(db, kind=DOSSIER_KIND, system=_SYS,
                      task=_task(articles, prev_summary),
-                     shelf_docs=["geo", "geo_macro", "geo_inst", "inst_env", "inst_macro", "macro"],
+                     shelf_docs=["geo", "geo_macro", "geo_inst", "inst_geo", "inst_env",
+                                "inst_macro", "macro"],
                      max_steps=max_steps, web_call_cap=web_call_cap,
                      trigger_reason="разведка перед суточным гео-выпуском")
 
