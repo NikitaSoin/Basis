@@ -65,6 +65,7 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
     tokens_used = 0
     web_calls = 0
     last_call_made = False   # выдали ли уже требование «финал сейчас»
+    retried_final = False    # просили ли переписать неразобранный финал
 
     for step in range(1, max_steps + 1):
         # когда веб-бюджет исчерпан — не предлагаем веб-инструменты дальше
@@ -130,6 +131,27 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
                 result = json.loads(content[lo:hi + 1]) if lo != -1 and hi > lo else None
             except json.JSONDecodeError:
                 result = None
+            # 🔴 ОДНА ПОПЫТКА ИСПРАВИТЬСЯ, если финал не разобрался.
+            # Боевой случай: на последнем шаге, когда инструменты уже забраны,
+            # модель всё равно захотела вызвать инструмент — и написала вызов
+            # ТЕКСТОМ, своей внутренней разметкой (<｜｜DSML｜｜invoke ...>). JSON
+            # не распарсился, восемь шагов и 209 тысяч токенов ушли в никуда.
+            # Отказ здесь дешевле не становится: попросить переписать ответ стоит
+            # один шаг, а потеря прогона стоит всего прогона. Просим один раз.
+            if result is None and not retried_final:
+                retried_final = True
+                trace.append({"step": step, "event": "final_retry",
+                              "why": "не JSON"})
+                messages.append({"role": "assistant",
+                                 "content": (msg.get("content") or "")[:2000]})
+                messages.append({"role": "user", "content": (
+                    "🔴 Твой ответ не является корректным JSON — возможно, ты "
+                    "попытался вызвать инструмент текстом. Инструменты больше "
+                    "недоступны, вызывать их нельзя. Верни ТОЛЬКО итоговый JSON "
+                    "по заданному формату, без разметки вызовов, без пояснений и "
+                    "без текста вокруг.\n" + (final_instruction or ""))})
+                tools_schema = []
+                continue
             trace.append({"step": step, "event": "final", "parsed": result is not None})
             # final_raw — сырой финал агента (для диагностики unparseable-падений;
             # аддитивно, не ломает существующих потребителей run_agent)
