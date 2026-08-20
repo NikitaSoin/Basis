@@ -90,6 +90,15 @@ def run(db: Session, *, system: str, task: str, shelf_docs: list[str],
             return extra_executor(_db, name, args)
         return {"error": "unknown_tool", "note": name}
 
+    # Размер входа — в лог и в диагностику ВСЕГДА: у агента каждый шаг отправляет
+    # историю заново, поэтому «большой вход» это не про один вызов, а про
+    # умножение на число шагов. Один прогон макро-выпуска так сжёг 590 тысяч
+    # токенов за единственный шаг, и без размеров причину было не увидеть.
+    sizes = (f"вход: роль {len(full_system)} зн., задача {len(task)} зн.")
+    logger.info("analyst[%s]: %s", label, sizes)
+    if notes is not None:
+        notes.append(f"{label}: {sizes}")
+
     try:
         out = run_agent(
             db, system_prompt=full_system, task=task, tools_schema=tools,
