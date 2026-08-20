@@ -1364,7 +1364,9 @@ export default function App() {
       // Имя и тикер совпадают, когда карточка открыта по прямой ссылке (/company/SBER/)
       // и объекта компании ещё нет — тогда «SBER (SBER)» читалось бы как ошибка.
       const label = nm === tk ? tk : `${nm} (${tk})`;
-      return { key: `company:${tk}`, subject: `карточку ${label}`,
+      // nameFromCard: если имя равно тикеру (зашли по прямой ссылке и объекта компании
+      // ещё нет), подсказка возьмёт настоящее название с самого экрана карточки.
+      return { key: `company:${tk}`, subject: `карточку ${label}`, nameFromCard: nm === tk ? tk : null,
                question: `Объясни простыми словами, что сейчас главное в карточке ${label} — на что смотреть инвестору?` };
     }
     if (selectedBond) return { key: `bond:${selectedBond}`, subject: `этот выпуск (${selectedBond})`,

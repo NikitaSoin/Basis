@@ -93,6 +93,20 @@ export function AssistantNudge({ context, onAsk, disabled = false }) {
     if (rail) rightOffset += Math.round(rail.getBoundingClientRect().width);
   } catch { /* нет DOM — берём отступ по умолчанию */ }
 
+  // При заходе по прямой ссылке (/company/GAZP/ из поиска) приложение знает только
+  // тикер, и подсказка говорила «карточку GAZP». Имя компании в этот момент уже
+  // напечатано на экране — берём его оттуда, чтобы фраза читалась по-человечески.
+  let subject = context.subject;
+  if (context.nameFromCard) {
+    try {
+      const el = document.querySelector(".cc-identity-name");
+      const nm = el && el.textContent.trim();
+      if (nm && nm.length < 60 && nm !== context.nameFromCard) {
+        subject = `карточку ${nm}`;
+      }
+    } catch { /* оставим исходную подпись */ }
+  }
+
   const dismiss = () => {
     try { localStorage.setItem(SNOOZE_KEY, String(Date.now())); } catch { /* приватный режим */ }
     hide();
@@ -105,7 +119,7 @@ export function AssistantNudge({ context, onAsk, disabled = false }) {
       <div className="asn-body">
         <b className="asn-title">Что-то осталось непонятным?</b>
         <span className="asn-text">
-          Ассистент знает {context.subject || "эту страницу"} и всю базу Basis — цифры карточек,
+          Ассистент знает {subject || "эту страницу"} и всю базу Basis — цифры карточек,
           облигации и фонды, макро, разборы аналитиков. Спросите своими словами.
         </span>
       </div>
