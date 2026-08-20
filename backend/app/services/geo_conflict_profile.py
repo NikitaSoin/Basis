@@ -223,32 +223,8 @@ _OUTPUT_SPEC = """
 """
 
 
-# 🔴 Портрет очага живёт на ТОМ ЖЕ экране, что и барометр, и отвечает на тот же
-# вопрос «как это доходит до денег» — только медленным недельным слоем. Берём то
-# же операционное ядро методички «геополитика → макроэкономика», что и суточный
-# выпуск: иначе два блока одного экрана рассуждали бы по разным правилам и
-# начали бы противоречить друг другу — ровно та болезнь стыков, из-за которой
-# платформа ломается чаще, чем внутри вкладок.
-# Импорт МЯГКИЙ: Timeweb выкатывает файлы неравномерно, и модуль-потребитель
-# может доехать раньше модуля с новой функцией. Жёсткий импорт превратил бы это
-# в ImportError и 500 на соседних живых эндпоинтах; мягкий — в один прогон без
-# нового слоя методички, что заметно только в качестве текста.
-try:  # noqa: SIM105
-    from app.services.barometer_daily import _load_geo_macro_core
-except ImportError:  # pragma: no cover
-    def _load_geo_macro_core() -> str:  # type: ignore[misc]
-        logger.warning("geo_conflict_profile: ядро методички геополитика→макро "
-                       "ещё не доехало — профиль собирается без него")
-        return ""
-
-
-def _load_methodology() -> str:
-    try:
-        with open(_METHODOLOGY, encoding="utf-8") as f:
-            return f.read()
-    except OSError as e:
-        logger.warning("geo_conflict_profile: методичка недоступна (%s)", e)
-        return ""
+# 🔴 Загрузчик методички удалён 2026-08-20: методичка — база знаний, агент
+# открывает нужный раздел инструментом (analyst.py), а не получает всё в промпт.
 
 
 def gather_articles(db: Session, scope: str, window_days: int = _WINDOW_DAYS) -> list[dict]:
@@ -450,7 +426,8 @@ def build_one(db: Session, scope: str, prev: dict | None,
         + _COMPLIANCE_HEAD +
         f"ОЧАГ: {_SCOPE_RU.get(scope, scope)}\n"
         f"ГЛАВНЫЙ КАНАЛ ВЛИЯНИЯ НА РЫНОК РФ: {_SCOPE_CHANNEL.get(scope, '')}\n\n"
-        + _load_methodology() + _load_geo_macro_core() + _OUTPUT_SPEC
+        # 🔴 Методичек в промпте нет: агент открывает разделы инструментом.
+        + _OUTPUT_SPEC
     )
     user_parts = []
     if prev:
@@ -483,8 +460,17 @@ def build_one(db: Session, scope: str, prev: dict | None,
     user_parts.append(f"СЕГОДНЯ: {date.today().isoformat()}")
 
     try:
-        fresh = llm.complete(system, "\n\n".join(user_parts), json_mode=True, thinking=True,
-                             model=llm.pro_model(), max_tokens=8000, temperature=0.3)
+        from app.services import analyst
+        fresh = analyst.run(
+            db, system=system, task="\n\n".join(user_parts),
+            shelf_docs=["geo", "geo_macro", "geo_inst", "inst_env"],
+            max_steps=9, budget=140_000, final_max_tokens=10_000,
+            final_instruction="Верни JSON строго в формате из твоей роли "
+                              "(parties, balance, macro_link, institutional_link, "
+                              "watchpoints, methodology_used).",
+            label=f"geo_profile:{scope}")
+        if fresh is None:
+            return None, [f"{scope}: аналитик не вернул валидный портрет"]
     except llm.LLMError as e:
         return None, [f"{scope}: LLM недоступен ({e})"]
 
