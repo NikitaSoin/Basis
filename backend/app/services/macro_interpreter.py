@@ -1357,15 +1357,20 @@ def generate(db: Session) -> MacroInterpretation:
     def _ask(extra: str = "") -> dict:
         """Спросить аналитика. Методички он открывает сам — см. analyst.run."""
         from app.services import analyst
+        _diag: list[str] = []
         out = analyst.run(
             db, system=system, task=user + ("\n\n" + extra if extra else ""),
             shelf_docs=["macro", "inst_macro", "geo_macro", "inst_env", "geo_inst"],
             max_steps=12, budget=200_000, final_max_tokens=16_000,
             final_instruction="Верни JSON вида {\"sections\": {...}} строго по "
                               "формату из твоей роли, плюс methodology_used.",
-            label="macro_interpreter")
+            label="macro_interpreter", notes=_diag)
         if out is None:
-            raise llm.LLMError("аналитик не вернул валидный выпуск")
+            # Причина обязана дойти до вызывающего: «не вернул валидный выпуск» —
+            # это не диагноз, а констатация. Внутри лежит остановка, число шагов и
+            # хвост сырого ответа, по которым видно, что именно сломалось.
+            raise llm.LLMError("аналитик не вернул валидный выпуск. "
+                               + " | ".join(_diag)[:600])
         return out
 
     out = _ask()
