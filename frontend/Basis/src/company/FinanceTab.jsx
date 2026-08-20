@@ -1248,7 +1248,12 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                     {mCrossCheck && typeof mCrossCheck.weighted_rub === "number" && (
                       <> Независимая сверка модели (прогнозная прибыль × исторический мультипликатор) даёт <b>{num(mCrossCheck.weighted_rub, mCrossCheck.weighted_rub >= 100 ? 0 : 1)} {ccy}</b> — расхождение {num(mCrossCheck.divergence_from_card_pct, 1)} %, то есть оценка подтверждается независимым способом.</>
                     )}
-                    {!mCrossCheck && mVal.cross_check_note && <> {mVal.cross_check_note}</>}
+                    {/* 🔴 Причину, по которой сверка не сошлась, на экран НЕ выносим: там
+                        лежит само расхождение в рублях («модель даёт 244 ₽ против 178 ₽»)
+                        и внутренняя кухня «тикер в очередь аналитику». Показать это —
+                        значит напечатать ровно то второе число справедливой цены, от
+                        которого мы и отказались. Причина остаётся в data_flags модели,
+                        её видит редакция, а не читатель. */}
                   </div>
                 )}
 
