@@ -945,6 +945,26 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const mScenPrices = model ? ["bear", "base", "bull"].map((k) => ({
     key: k, label: SCEN_LABEL[k], weight: model.scenario_weights?.[k], price: mVal.per_scenario?.[k]?.fair_price_rub,
   })).filter((s) => typeof s.price === "number") : [];
+  // 🔴 У собранных моделей (built_by: assembler) СВОЕЙ справедливой цены нет — вердикт
+  // цены остаётся за оценкой карточки, чтобы на одной карточке не появилось двух разных
+  // чисел. Значит и плитки сценариев по ЦЕНЕ пусты. Но сценарии — самое ценное на этом
+  // экране, и показать их можно по тому, что в модели есть: по прогнозной строке.
+  // Берём первую заполненную из выручки/прибыли и последний год горизонта.
+  const mScenLineKey = ["revenue", "operating_income", "net_interest_income", "net_profit"]
+    .find((k) => model?.forecast?.base?.[k] && mHorizon.some((y) => model.forecast.base[k][y] != null));
+  const mScenLineYear = mScenLineKey
+    ? [...mHorizon].reverse().find((y) => model.forecast.base[mScenLineKey][y] != null) : null;
+  const mScenLines = (model && !mScenPrices.length && mScenLineKey && mScenLineYear)
+    ? ["bear", "base", "bull"].map((k) => ({
+        key: k, label: SCEN_LABEL[k], weight: model.scenario_weights?.[k],
+        value: model.forecast?.[k]?.[mScenLineKey]?.[mScenLineYear],
+      })).filter((s) => typeof s.value === "number")
+    : [];
+  const mScenLineUnit = mScenLines.length ? moneyRowUnit(mScenLines.map((s) => s.value)) : null;
+  const mScenLineLabel = (FM_ROW_DEFS.find((r) => r.key === mScenLineKey) || {}).l;
+  const mVerdictFromCard = mVal.verdict_source === "карточка";
+  const mCardFair = typeof mVal.card_fair_price_rub === "number" ? mVal.card_fair_price_rub : null;
+  const mCrossCheck = mVal.cross_check || null;
   const mSensRows = Array.isArray(model?.sensitivity) ? model.sensitivity : [];
   const mTrackRows = Array.isArray(model?.track_record) ? model.track_record : [];
   const mDataFlags = Array.isArray(model?.data_flags) ? model.data_flags : [];
@@ -1217,6 +1237,21 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                   </div>
                 )}
 
+                {/* Справедливую цену у собранных моделей считает НЕ модель, а слой оценки
+                    карточки — говорим об этом прямо, иначе пустое место читается как
+                    «модель не досчитала». Своё число модель показывает только если оно
+                    сошлось с карточкой — и тогда это сверка, а не второе мнение. */}
+                {mVerdictFromCard && (
+                  <div className="ff-note" style={{ marginBottom: 14 }}>
+                    <div className="nh">Справедливая цена — из оценки карточки{mCardFair != null ? `: ${num(mCardFair, mCardFair >= 100 ? 0 : 1)} ${ccy}` : ""}</div>
+                    Эта модель отвечает на вопрос «что будет с выручкой и прибылью при такой ставке, курсе и цене сырья», а цену не назначает: её считает раздел оценки секторными методами. Двух разных справедливых цен на одной карточке быть не должно.
+                    {mCrossCheck && typeof mCrossCheck.weighted_rub === "number" && (
+                      <> Независимая сверка модели (прогнозная прибыль × исторический мультипликатор) даёт <b>{num(mCrossCheck.weighted_rub, mCrossCheck.weighted_rub >= 100 ? 0 : 1)} {ccy}</b> — расхождение {num(mCrossCheck.divergence_from_card_pct, 1)} %, то есть оценка подтверждается независимым способом.</>
+                    )}
+                    {!mCrossCheck && mVal.cross_check_note && <> {mVal.cross_check_note}</>}
+                  </div>
+                )}
+
                 {mScenPrices.length > 0 && (
                   <div className="fm-scen-row">
                     {mScenPrices.map((s) => (
@@ -1227,7 +1262,24 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                     ))}
                   </div>
                 )}
-                {mScenPrices.length > 0 && (
+                {/* Нет сценарных ЦЕН — показываем сценарии по прогнозной строке: сам веер
+                    «медведь/база/бык» с весами и есть главное, что даёт модель. */}
+                {mScenLines.length > 0 && (
+                  <>
+                    <div className="fm-scen-row">
+                      {mScenLines.map((s) => (
+                        <div className={`fm-scen-chip${s.key === "base" ? " fm-scen-base" : ""}`} key={s.key}>
+                          <span className="fm-scen-lbl">{s.label}{s.weight != null ? ` · вес ${Math.round(s.weight * 100)} %` : ""}</span>
+                          <span className="fm-scen-val">{fmtFmVal(s.value, "money", mScenLineUnit)} {mScenLineUnit?.u}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="fc-note" style={{ marginTop: 8 }}>
+                      {mScenLineLabel} в {mScenLineYear} году по трём сценариям.
+                    </div>
+                  </>
+                )}
+                {(mScenPrices.length > 0 || mScenLines.length > 0) && (
                   <div className="ff-note" style={{ marginTop: 14 }}>
                     <div className="nh">Как читать сценарии</div>
                     База — не среднее, а наиболее вероятный режим рынка прямо сейчас{mBasePct != null ? ` (вес ${mBasePct} %)` : ""}; бык и медведь — другой набор допущений по цене/ставке/риску, а не симметричные «±%». Если вес медведя и быка не совпадают — это суждение аналитика о том, куда смещён риск.
