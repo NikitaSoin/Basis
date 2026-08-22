@@ -488,6 +488,481 @@ def _get_news(db: Session, ticker: str | None = None, query: str | None = None,
                       "published_at": _f(r.published_at), "url": r.source_url} for r in rows]}
 
 
+# ============================== ОТЧЁТНОСТЬ ЦЕЛИКОМ ==============================
+
+_STATEMENTS = {"income": "income_statement", "balance": "balance_sheet",
+               "cash_flow": "cash_flow", "bank": "bank_pnl"}
+
+# Строки, которые отдаём при statement="all" — иначе три полных отчёта не влезают
+# в лимит ответа инструмента и обрезаются на середине числа.
+_STATEMENT_CORE = {
+    "income": ["revenue", "ebitda", "operating_profit", "net_profit"],
+    "balance": ["total_assets", "total_equity", "net_debt", "cash"],
+    "cash_flow": ["cfo", "capex", "fcf"],
+}
+
+
+def _series_by_year(series, years: list) -> dict | None:
+    """Ряд из financials.json — позиционный список, выровненный по meta.fiscal_years.
+    🔴 Отдаём модели ПАРАМИ год→значение, а не голым списком: позиционное
+    выравнивание — источник года-сдвига (в файлах такие сдвиги уже находились),
+    и модель, считая «последний элемент = последний год», ошибётся молча."""
+    if not isinstance(series, list) or not years:
+        return None
+    out = {str(y): _f(v) for y, v in zip(years, series) if v is not None}
+    return out or None
+
+
+def _itemized(series: list, years: list, expand: bool) -> dict:
+    """Постатейная расшифровка (`cfo_lines`, `expense_lines` …) — это СПИСОК
+    СЛОВАРЕЙ [{name, values, note}], а не числовой ряд.
+    🔴 Обрабатывать её как ряд нельзя: zip с годами даёт «2016 → {name: …}» —
+    правдоподобную с виду чушь, которую модель пересказала бы как факт.
+    По умолчанию отдаём только перечень статей (расшифровка тяжелее самого
+    отчёта — до 5 КБ), полностью — по адресному запросу через lines."""
+    names = [str(it.get("name")) for it in series if isinstance(it, dict) and it.get("name")]
+    if not expand:
+        return {"available": names[:20], "count": len(names),
+                "note": "расшифровка свёрнута — запроси её через lines"}
+    out = {}
+    for it in series:
+        if not isinstance(it, dict) or not it.get("name"):
+            continue
+        row = _series_by_year(it.get("values"), years)
+        if row:
+            out[str(it["name"])[:80]] = row
+    return out
+
+
+def _statement_block(node: dict, years: list, lines: list | None) -> dict:
+    out = {}
+    for name, series in (node or {}).items():
+        if lines and name not in lines:
+            continue
+        if isinstance(series, str):         # cost_format и подобные метки
+            out[name] = series[:120]
+            continue
+        if isinstance(series, dict):        # margins / ratios — вложенная группа
+            sub = {k: _series_by_year(v, years) for k, v in series.items()}
+            sub = {k: v for k, v in sub.items() if v}
+            if sub:
+                out[name] = sub
+            continue
+        if isinstance(series, list) and any(isinstance(x, dict) for x in series):
+            block = _itemized(series, years, expand=bool(lines and name in lines))
+            if block:
+                out[name] = block
+            continue
+        row = _series_by_year(series, years)
+        if row:
+            out[name] = row
+    return out
+
+
+def _get_financial_statements(db: Session, ticker: str, statement: str = "all",
+                              period: str = "annual", lines: list | None = None) -> dict:
+    """Полная отчётность из financials.json — единого источника чисел карточки.
+    До этого ассистент видел только выжимку (_key_financials): выручка, прибыль и
+    ещё несколько строк. Вопрос «какой у компании операционный денежный поток» или
+    «сколько было капзатрат в 2023-м» упирался в её отсутствие."""
+    tk = (ticker or "").strip().upper()
+    path = BACKEND_DIR / "companies" / tk / "financials.json"
+    if not path.is_file():
+        return {"found": False, "reason": f"по {tk} нет файла отчётности на платформе"}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"found": False, "reason": f"файл отчётности {tk} не читается"}
+
+    meta = data.get("meta") or {}
+    years = meta.get("fiscal_years") or []
+    out = {"found": True, "ticker": tk, "name": meta.get("name"),
+           "currency": meta.get("currency", "RUB"), "unit": meta.get("unit"),
+           "standard": meta.get("reporting_standard"), "fiscal_years": years,
+           "profile": meta.get("profile")}
+
+    if period == "interim":
+        interim = data.get("interim") or {}
+        periods = interim.get("periods") or []
+        if not periods:
+            return {"found": False, "ticker": tk,
+                    "reason": "промежуточной отчётности (квартал/полугодие) по этой "
+                              "компании на платформе нет — она раскатана только на "
+                              "~45 голубых фишек"}
+        labels = [p.get("label") for p in periods]
+        block = {}
+        for key in ("income_statement", "balance_sheet", "cash_flow"):
+            node = _statement_block(interim.get(key) or {}, labels, lines)
+            if node:
+                block[key] = node
+        out["interim"] = {"periods": periods, "statements": block}
+        out["note"] = ("Промежуточные периоды кумулятивные (6М = полугодие нарастающим "
+                       "итогом), сравнивать их можно только с таким же периодом прошлого года.")
+        return out
+
+    wanted = ([statement] if statement in _STATEMENTS
+              else ["income", "balance", "cash_flow"])
+    for short in wanted:
+        node = data.get(_STATEMENTS[short])
+        if not isinstance(node, dict):
+            continue
+        pick = lines if lines else (None if statement in _STATEMENTS
+                                    else _STATEMENT_CORE.get(short))
+        block = _statement_block(node, years, pick)
+        if block:
+            out[short] = block
+    if data.get("bank_pnl") and statement in ("all", "bank", "income"):
+        out["bank"] = _statement_block(data["bank_pnl"], years, lines)
+
+    # 🔴 data_flags у части компаний — 9 КБ прозы (оговорки аналитика к каждой
+    # строке). Сами отчёты весят ~2 КБ, а лимит ответа инструмента 5 КБ: без
+    # обрезки флаги съедали бы ответ целиком и JSON приходил бы рубленым.
+    flags = data.get("data_flags")
+    if flags:
+        flags = flags if isinstance(flags, list) else [str(flags)]
+        out["data_flags"] = [str(f)[:260] for f in flags[:5]]
+        if len(flags) > 5:
+            out["data_flags_more"] = len(flags) - 5
+    out["note"] = (f"Числа в {meta.get('unit') or '?'} {meta.get('currency', 'RUB')}. "
+                   "🔴 Знак capex в файлах непоследователен (у части компаний минус, "
+                   "у части плюс) — свободный поток считай как CFO − |capex|, а не "
+                   "вычитанием вслепую. Если statement не задан, отданы только "
+                   "ключевые строки; полный отчёт — вызвать с statement=income/balance/cash_flow.")
+    return out
+
+
+# ============================== ФИНАНСОВАЯ МОДЕЛЬ ==============================
+
+def _fm_lines(series: dict | None, keep: int = 4) -> dict | None:
+    if not isinstance(series, dict):
+        return None
+    return {k: _f(v) for k, v in list(series.items())[:keep]}
+
+
+def _get_financial_model(db: Session, ticker: str) -> dict:
+    """Прогнозная модель компании (три сценария) — та же, что на вкладке «Финансы».
+    Берём через движок, а не файлом: он подставляет живые Brent/курс/ставку и
+    пересчитывает базовый сценарий, поэтому числа совпадают с экраном."""
+    tk = (ticker or "").strip().upper()
+    try:
+        from app.services.financial_model import get_financial_model
+        model = get_financial_model(db, tk)
+    except Exception as e:  # noqa: BLE001 — модель необязательна
+        logger.exception("assistant: финмодель %s не собралась", tk)
+        return {"found": False, "reason": f"модель не собралась: {type(e).__name__}"}
+    if not model:
+        return {"found": False, "ticker": tk,
+                "reason": "прогнозной модели по этой компании нет (построены не для всех "
+                          "эмитентов) — прогноз и справедливая цена есть в блоке valuation "
+                          "карточки, инструмент get_company_card"}
+
+    meta = model.get("meta") or {}
+    forecast = model.get("forecast") or {}
+    out = {"found": True, "ticker": tk, "horizon": meta.get("horizon_years"),
+           "currency": meta.get("currency", "RUB"), "unit": meta.get("unit"),
+           "as_of": meta.get("as_of"),
+           "drivers": [{"name": d.get("name"), "kind": d.get("kind"),
+                        "base_value": _f(d.get("base_value")),
+                        "live_value": _f(d.get("live_value")),
+                        "live_status": d.get("live_status"),
+                        "rationale": (d.get("rationale") or "")[:220]}
+                       for d in (model.get("drivers") or [])[:6]],
+           "scenarios": {},
+           "scenario_weights": model.get("scenario_weights"),
+           "valuation": model.get("valuation"),
+           "sensitivity": model.get("sensitivity"),
+           "data_flags": model.get("data_flags")}
+    for name in ("base", "bull", "bear"):
+        sc = forecast.get(name)
+        if not isinstance(sc, dict):
+            continue
+        out["scenarios"][name] = {
+            k: _fm_lines(v) for k, v in sc.items()
+            if k in ("revenue", "ebitda", "net_profit", "fcf", "eps", "dps") and v}
+        if sc.get("assumptions"):
+            out["scenarios"][name]["assumptions"] = str(sc["assumptions"])[:300]
+    out["note"] = ("Модель — ОЦЕНКА (суждение аналитика Basis по методике), не факт. "
+                   "Базовый сценарий пересчитан на живые значения драйверов, "
+                   "бык/медведь — авторские. Справедливая цена карточки считается "
+                   "отдельным движком (BFV) и может отличаться от valuation модели.")
+    return out
+
+
+# ============================== БАРОМЕТРЫ СРЕДЫ ==============================
+
+_BAROMETER_KINDS = {"geo": "геополитический", "inst": "институциональный"}
+
+
+def _get_barometer(db: Session, kind: str = "geo", section: str | None = None) -> dict:
+    """Барометр среды из Обозревателя («Оценка ситуации»): геополитический (13
+    субиндексов G1-G13, сценарии S1-S4) или институциональный (M1-M13).
+    🔴 Институциональный отдаём ЧЕРЕЗ ту же анонимизацию, что и витрина: иначе
+    через ассистента утекло бы то, что на экране намеренно обезличено."""
+    k = "inst" if str(kind).startswith("inst") else "geo"
+    try:
+        from app.services.barometer_store import get_payload_with_meta
+        payload = get_payload_with_meta(db, k)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("assistant: барометр %s не читается", k)
+        return {"found": False, "reason": f"барометр не читается: {type(e).__name__}"}
+    if not payload:
+        return {"found": False, "reason": f"{_BAROMETER_KINDS[k]} барометр ещё не сформирован"}
+    if k == "inst":
+        try:
+            from app.api.market import _inst_anonymize
+            payload = _inst_anonymize(payload)
+        except Exception:  # noqa: BLE001 — без анонимизации отдавать нельзя
+            logger.exception("assistant: анонимизация институционального барометра упала")
+            return {"found": False, "reason": "институциональный барометр временно недоступен"}
+
+    out = {"found": True, "kind": k, "as_of": payload.get("as_of"),
+           "barometer": payload.get("barometer"),
+           "summary": (payload.get("summary") or "")[:900] or None,
+           "meta": payload.get("_meta")}
+    scen = payload.get("scenario") or {}
+    if scen:
+        out["scenario"] = {kk: vv for kk, vv in scen.items()
+                           if kk in ("current", "scenarios", "probabilities", "horizon",
+                                     "current_key", "rationale")}
+    subs = payload.get("subindices") or []
+    out["subindices"] = [{"key": s.get("key"), "name": s.get("name"),
+                          "score": _f(s.get("score")), "direction": s.get("direction"),
+                          "comment": (s.get("comment") or "")[:180]} for s in subs[:13]]
+    if k == "geo":
+        out["sector_flags"] = payload.get("sector_flags")
+        out["regions"] = {r: (v if not isinstance(v, str) else v[:300])
+                          for r, v in (payload.get("regions") or {}).items()}
+    else:
+        out["alerts"] = (payload.get("alerts") or [])[:6]
+        out["institutional_crp_floor_pp"] = payload.get("institutional_crp_floor_pp")
+
+    if section and isinstance(payload.get(section), (list, dict)):
+        out["section_full"] = json.loads(
+            json.dumps(payload[section], ensure_ascii=False, default=str)[:3500] + "")
+    out["note"] = ("Барометр — контекст РЫНКА, не рекомендация по бумаге. Оценка "
+                   "конкретной компании в этой рамке — вкладки «Геополитика»/«Институты» "
+                   "её карточки (get_company_card с tabs=[geo] / [institutions]).")
+    return out
+
+
+# ============================== КАРТА РЫНКА И ИНДЕКСЫ ==============================
+
+def _top_movers(sectors: list, limit: int = 8) -> dict:
+    tiles = [t for s in (sectors or []) for t in (s.get("tiles") or [])]
+    tiles = [t for t in tiles if t.get("change_pct") is not None]
+    tiles.sort(key=lambda t: t["change_pct"], reverse=True)
+    short = lambda t: {"ticker": t.get("ticker"), "name": t.get("name"),  # noqa: E731
+                       "sector": t.get("sector"), "change_pct": t.get("change_pct")}
+    return {"leaders": [short(t) for t in tiles[:limit]],
+            "laggards": [short(t) for t in tiles[-limit:][::-1]],
+            "instruments_total": len(tiles)}
+
+
+def _get_market_map(db: Session, kind: str = "stocks", period: str = "day",
+                    limit: int = 8) -> dict:
+    """Карта рынка Обозревателя. Целиком (261 бумага) отдавать нельзя — ответ
+    инструмента переотправляется на каждом шаге; отдаём лидеров, аутсайдеров и
+    сводку по секторам, а деталь по конкретной бумаге модель добирает точечно."""
+    kind = (kind or "stocks").lower()
+    lim = max(3, min(int(limit or 8), 15))
+    from app.services import market_maps
+    try:
+        if kind == "indices":
+            rows = db.execute(text(
+                "SELECT DISTINCT ON (ticker) ticker, date, close FROM index_history "
+                "ORDER BY ticker, date DESC")).all()
+            if not rows:
+                return {"found": False, "reason": "истории индексов в базе нет"}
+            out = []
+            for r in rows:
+                prev = db.execute(text(
+                    "SELECT close FROM index_history WHERE ticker = :t AND date < :d "
+                    "ORDER BY date DESC LIMIT 1"), {"t": r.ticker, "d": r.date}).first()
+                chg = None
+                if prev and _f(prev.close):
+                    chg = round((float(r.close) / float(prev.close) - 1) * 100, 2)
+                out.append({"ticker": r.ticker, "close": _f(r.close),
+                            "date": _f(r.date), "change_pct": chg})
+            return {"found": True, "kind": "indices", "indices": out,
+                    "note": "IMOEX — ценовой индекс, MCFTR — полной доходности (с дивидендами)."}
+        if kind == "valuation":
+            data = market_maps.valuation(db)
+            tiles = [t for s in (data.get("sectors") or []) for t in (s.get("tiles") or [])
+                     if t.get("upside_pct") is not None]
+            tiles.sort(key=lambda t: t["upside_pct"], reverse=True)
+            keep = lambda t: {"ticker": t.get("ticker"), "name": t.get("name"),  # noqa: E731
+                              "upside_pct": t.get("upside_pct"), "sector": t.get("sector")}
+            return {"found": True, "kind": "valuation",
+                    "most_undervalued": [keep(t) for t in tiles[:lim]],
+                    "most_overvalued": [keep(t) for t in tiles[-lim:][::-1]],
+                    "covered": len(tiles),
+                    "note": "Потенциал — к справедливой цене Basis (модель), не прогноз рынка."}
+        if kind == "spot":
+            return {"found": True, "kind": "spot", **market_maps.spot_grid(db)}
+        if kind in ("bonds", "funds", "futures"):
+            fn = {"bonds": market_maps.heatmap_bonds, "funds": market_maps.heatmap_funds,
+                  "futures": market_maps.heatmap_futures}[kind]
+            data = fn(db)
+            items = data.get("items") or [t for s in (data.get("sectors") or [])
+                                          for t in (s.get("tiles") or [])]
+            return {"found": True, "kind": kind, "count": len(items), "items": items[:lim * 2]}
+        data = market_maps.heatmap(db, period if period in ("day", "week", "month") else "day")
+        sectors = data.get("sectors") or []
+        return {"found": True, "kind": "stocks", "period": data.get("period"),
+                "sectors": [{"sector": s.get("sector"), "change_pct": s.get("change_pct"),
+                             "count": len(s.get("tiles") or [])} for s in sectors],
+                **_top_movers(sectors, lim)}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("assistant: карта рынка %s упала", kind)
+        return {"found": False, "reason": f"карта не собралась: {type(e).__name__}"}
+
+
+# ============================== СТРЕСС-ТЕСТ И ДИАГНОЗ ==============================
+
+def _portfolio_id(db: Session, user_id: int | None, guest_token: str | None) -> int | None:
+    if user_id is not None:
+        row = db.execute(text("SELECT id FROM portfolios WHERE user_id = :u ORDER BY id LIMIT 1"),
+                         {"u": user_id}).first()
+    elif guest_token:
+        row = db.execute(text("SELECT id FROM portfolios WHERE guest_token = :g ORDER BY id LIMIT 1"),
+                         {"g": guest_token}).first()
+    else:
+        return None
+    return row.id if row else None
+
+
+def _stress_test(db: Session, scenario: str | None = None, key_rate_pct: float | None = None,
+                 fx_usdrub: float | None = None, oil_brent_usd: float | None = None,
+                 apply_to_portfolio: bool = False, *, user_id: int | None = None,
+                 guest_token: str | None = None) -> dict:
+    """Стресс-тест: пресет («ставка 25%», «нефть 40$») или свои уровни. Уровни —
+    АБСОЛЮТНЫЕ целевые значения, не сдвиги: так же, как в экране платформы."""
+    from app.services import stress_numeric, stress_scenarios
+    out = {"found": True}
+    try:
+        out["current_levels"] = stress_numeric.get_current_levels(db)
+    except Exception:  # noqa: BLE001 — уровни справочные
+        logger.exception("assistant: текущие уровни стресса не читаются")
+
+    if scenario:
+        try:
+            res = stress_scenarios.build_scenario_result(db, scenario, None, None) or {}
+            if res.get("error"):
+                raise ValueError(res["error"])
+            meta = res.get("scenario") or {}
+            short = lambda r: {"ticker": r.get("ticker"), "name": r.get("name"),  # noqa: E731
+                               "impact_pct": r.get("impact_pct") or r.get("change_pct"),
+                               "sector": r.get("sector")}
+            # 🔴 Среднего «по рынку» здесь намеренно нет: один выброс перекашивает
+            # его в плюс, когда почти все задетые в минусе (боевой случай Ozon
+            # +377 % в «Индексе рынка»). Отдаём разброс: секторы и края.
+            out["scenario"] = {
+                "key": meta.get("key", scenario), "label": meta.get("label"),
+                "description": (meta.get("description") or "")[:400],
+                "intensities": meta.get("intensities"),
+                "sectors": (res.get("sectors") or [])[:12],
+                "winners": [short(r) for r in (res.get("winners") or [])[:8]],
+                "losers": [short(r) for r in (res.get("losers") or [])[:8]],
+                "companies_with_signal": res.get("companies_with_signal"),
+                "total_companies": res.get("total_companies")}
+        except Exception as e:  # noqa: BLE001
+            logger.exception("assistant: пресет стресса %s упал", scenario)
+            out["scenario_error"] = f"{type(e).__name__}"
+            out["available_scenarios"] = [s.get("key") for s in stress_scenarios.list_scenarios()]
+    elif any(v is not None for v in (key_rate_pct, fx_usdrub, oil_brent_usd)):
+        try:
+            out["numeric"] = stress_numeric.numeric_impact(db, key_rate_pct, fx_usdrub,
+                                                           oil_brent_usd)
+        except Exception as e:  # noqa: BLE001
+            logger.exception("assistant: числовой стресс упал")
+            out["numeric_error"] = f"{type(e).__name__}"
+    else:
+        out["available_scenarios"] = stress_scenarios.list_scenarios()
+
+    if apply_to_portfolio:
+        pid = _portfolio_id(db, user_id, guest_token)
+        if pid is None:
+            out["portfolio"] = {"found": False,
+                                "reason": "портфель доступен только в своём аккаунте — "
+                                          "пользователь не авторизован или портфеля нет"}
+        else:
+            try:
+                from app.services.portfolio import compute_portfolio_stress_v2
+                res = compute_portfolio_stress_v2(db, pid, key_rate_pct, fx_usdrub, oil_brent_usd)
+                if res is None:
+                    out["portfolio"] = {"found": False,
+                                        "reason": "по позициям портфеля нет коэффициентов "
+                                                  "чувствительности — расчёт не покрывает их"}
+                else:
+                    out["portfolio"] = {
+                        "found": True, "drop_pct": res.get("drop_pct"),
+                        "value_loss_rub": res.get("value_loss"),
+                        "coverage_pct": res.get("coverage_pct"),
+                        "positions": (res.get("positions") or [])[:12],
+                        "uncovered_tickers": res.get("uncovered_tickers"),
+                        "assumption": res.get("assumption")}
+            except Exception as e:  # noqa: BLE001
+                logger.exception("assistant: стресс портфеля упал")
+                out["portfolio"] = {"found": False, "reason": f"{type(e).__name__}"}
+    out["note"] = ("🔴 Это МОДЕЛЬ, а не прогноз: считается чувствительность прибыли к "
+                   "факторам при неизменном P/E. Средняя по рынку легко искажается одним "
+                   "выбросом — смотри на разброс по секторам, а не только на итог.")
+    return out
+
+
+def _get_portfolio_diagnosis(db: Session, user_id: int | None, guest_token: str | None) -> dict:
+    """Уже сгенерированный ИИ-диагноз портфеля + индекс качества.
+    🔴 ЧИТАЕМ, а не генерируем: генерация — отдельный дорогой LLM-прогон по кнопке
+    «Обновить диагноз», запускать его из ответа ассистента нельзя."""
+    pid = _portfolio_id(db, user_id, guest_token)
+    if pid is None:
+        return {"found": False, "reason": "портфель доступен только в своём аккаунте — "
+                                          "пользователь не авторизован или портфеля нет"}
+    out = {"found": False, "portfolio_id": pid}
+    try:
+        from app.models.portfolio_diagnosis import PortfolioDiagnosis
+        diag = db.query(PortfolioDiagnosis).filter_by(portfolio_id=pid).first()
+        if diag:
+            out.update({"found": True,
+                        "shield": (diag.shield or [])[:6],
+                        "vulnerabilities": (diag.vulnerabilities or [])[:6],
+                        "summary": diag.summary,
+                        "summary_type": diag.summary_type,
+                        "generated_at": _f(diag.generated_at),
+                        "portfolio_snapshot": diag.portfolio_snapshot or []})
+    except Exception:  # noqa: BLE001
+        logger.exception("assistant: диагноз портфеля не читается")
+    try:
+        from app.services.portfolio import compute_portfolio_metrics
+        m = compute_portfolio_metrics(db, pid) or {}
+        q = m.get("quality") or {}
+        if isinstance(q, dict) and q:
+            out["quality_index"] = {k: v for k, v in q.items()
+                                    if k in ("score", "grade", "label", "verdict",
+                                             "coverage_pct", "subindices", "dimensions")}
+        # Риск-метрики лежат в строке «портфель целиком», причём каждая — не число,
+        # а {value, ...}: разворачиваем в плоские числа, иначе модель пересказала бы
+        # служебную обёртку вместо значения.
+        prow = m.get("portfolio") or {}
+        risk = {}
+        for k in ("volatility", "var_95", "max_drawdown", "sharpe", "beta",
+                  "return_total_3y", "alpha"):
+            v = prow.get(k)
+            if isinstance(v, dict):
+                v = v.get("value")
+            if v is not None:
+                risk[k] = _f(v)
+        if risk:
+            out["risk"] = risk
+        out["risk_scope"] = m.get("risk_metrics_scope")
+    except Exception:  # noqa: BLE001 — метрики необязательны
+        logger.exception("assistant: метрики портфеля не собрались")
+    if not out["found"]:
+        out["reason"] = ("диагноз по этому портфелю ещё не сгенерирован — его запускает "
+                         "сам пользователь кнопкой на вкладке «ИИ-Диагноз»")
+    return out
+
+
 # ============================== СХЕМА ДЛЯ МОДЕЛИ ==============================
 
 def _fn(name, desc, props, required=None):
@@ -564,6 +1039,51 @@ TOOLS_SCHEMA = [
         "авторизован — вернёт found:false, это нормально.", {}, []),
     _fn("get_news", "Лента новостей платформы с оценкой влияния; фильтр по тикеру или теме.",
         {"ticker": _S, "query": _S, "limit": _I}, []),
+    _fn("get_financial_statements",
+        "ПОЛНАЯ отчётность компании по годам: отчёт о прибылях (выручка, себестоимость, EBITDA, "
+        "проценты, налог, чистая прибыль, маржи), баланс (активы, капитал, долг, чистый долг, "
+        "оборотные/внеоборотные) и ОДДС (операционный/инвестиционный/финансовый поток, capex, "
+        "свободный поток). Есть промежуточные периоды (квартал/полугодие) у крупнейших компаний. "
+        "Используй, когда спрашивают конкретную строку отчётности или динамику за годы.",
+        {"ticker": _S,
+         "statement": {**_S, "enum": ["all", "income", "balance", "cash_flow", "bank"],
+                       "description": "bank — процентные доходы/расходы банков"},
+         "period": {**_S, "enum": ["annual", "interim"]},
+         "lines": {"type": "array", "items": _S,
+                   "description": "конкретные строки, напр. ['revenue','net_profit']"}},
+        ["ticker"]),
+    _fn("get_financial_model",
+        "Прогнозная финансовая модель компании: драйверы с эластичностями, три сценария "
+        "(база/бык/медведь) на 3 года — выручка, EBITDA, прибыль, FCF, EPS, дивиденд на акцию, "
+        "веса сценариев, таблица чувствительности. Базовый сценарий пересчитан на живые нефть/"
+        "курс/ставку. Построена не по всем компаниям.", {"ticker": _S}, ["ticker"]),
+    _fn("get_barometer",
+        "Барометр среды из Обозревателя: геополитический (13 субиндексов, сценарии по войне/"
+        "санкциям/логистике, секторные флаги, очаги СВО/Ближний Восток/АТР) или "
+        "институциональный (защита собственности, верховенство закона, госсектор, алерты). "
+        "Это контекст РЫНКА, а не оценка отдельной бумаги.",
+        {"kind": {**_S, "enum": ["geo", "inst"]},
+         "section": {**_S, "description": "вернуть раздел целиком: subindices, scenario, "
+                                          "regions, sector_flags, alerts, watchlist_30d"}}, []),
+    _fn("get_market_map",
+        "Карта рынка и индексы: движение акций по секторам (лидеры/аутсайдеры за день/неделю/"
+        "месяц), карта недооценённости к справедливой цене Basis, срезы облигаций, фондов, "
+        "фьючерсов, валюты и металлов, значения индексов (IMOEX, RTSI, MCFTR).",
+        {"kind": {**_S, "enum": ["stocks", "valuation", "indices", "bonds", "funds",
+                                 "futures", "spot"]},
+         "period": {**_S, "enum": ["day", "week", "month"]}, "limit": _I}, []),
+    _fn("stress_test",
+        "Стресс-тест: как сценарий (ставка, нефть, курс, санкции) бьёт по компаниям и секторам. "
+        "Без параметров вернёт список готовых пресетов. Можно задать свои АБСОЛЮТНЫЕ уровни "
+        "(не сдвиги): ставка в %, курс ₽/$, нефть $/барр. С apply_to_portfolio=true считает "
+        "просадку портфеля СПРАШИВАЮЩЕГО по его реальным позициям.",
+        {"scenario": {**_S, "description": "ключ пресета из списка"},
+         "key_rate_pct": _N, "fx_usdrub": _N, "oil_brent_usd": _N,
+         "apply_to_portfolio": {"type": "boolean"}}, []),
+    _fn("get_portfolio_diagnosis",
+        "ИИ-диагноз портфеля текущего пользователя (что защищает, где уязвимости, резюме) + "
+        "индекс качества и риск-метрики. Только читает уже сделанный диагноз — если его ещё "
+        "не запускали, честно вернёт found:false.", {}, []),
 ]
 
 
@@ -615,6 +1135,24 @@ def execute(db: Session, name: str, args: dict, *, user_id: int | None = None,
             return _get_portfolio(db, user_id, guest_token)
         if name == "get_news":
             return _get_news(db, args.get("ticker"), args.get("query"), args.get("limit", 8))
+        if name == "get_financial_statements":
+            return _get_financial_statements(db, args.get("ticker", ""),
+                                             args.get("statement", "all"),
+                                             args.get("period", "annual"), args.get("lines"))
+        if name == "get_financial_model":
+            return _get_financial_model(db, args.get("ticker", ""))
+        if name == "get_barometer":
+            return _get_barometer(db, args.get("kind", "geo"), args.get("section"))
+        if name == "get_market_map":
+            return _get_market_map(db, args.get("kind", "stocks"), args.get("period", "day"),
+                                   args.get("limit", 8))
+        if name == "stress_test":
+            return _stress_test(db, args.get("scenario"), args.get("key_rate_pct"),
+                                args.get("fx_usdrub"), args.get("oil_brent_usd"),
+                                bool(args.get("apply_to_portfolio")),
+                                user_id=user_id, guest_token=guest_token)
+        if name == "get_portfolio_diagnosis":
+            return _get_portfolio_diagnosis(db, user_id, guest_token)
         return {"error": f"инструмент {name} не поддерживается"}
     except Exception as e:  # noqa: BLE001 — цикл важнее одного инструмента
         logger.exception("Ассистент: инструмент %s упал", name)
