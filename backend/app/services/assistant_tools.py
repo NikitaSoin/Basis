@@ -669,9 +669,24 @@ def _get_financial_model(db: Session, ticker: str) -> dict:
                        for d in (model.get("drivers") or [])[:6]],
            "scenarios": {},
            "scenario_weights": model.get("scenario_weights"),
-           "valuation": model.get("valuation"),
-           "sensitivity": model.get("sensitivity"),
-           "data_flags": model.get("data_flags")}
+           "sensitivity": model.get("sensitivity")}
+    # valuation и data_flags у части моделей — по 4 КБ прозы каждый, и вместе с
+    # тремя сценариями ответ переваливал за лимит инструмента (12 КБ): модель
+    # получала бы обрезанный JSON. Оставляем суть, оговорки — первыми пунктами.
+    val = model.get("valuation") or {}
+    if isinstance(val, dict):
+        out["valuation"] = {k: (str(v)[:400] if isinstance(v, str) else v)
+                            for k, v in val.items()
+                            if k in ("method", "fair_value", "fair_value_per_share",
+                                     "upside_pct", "target_multiple", "wacc",
+                                     "terminal_growth", "cross_check", "comment",
+                                     "rationale", "as_of")}
+    flags = model.get("data_flags")
+    if flags:
+        flags = flags if isinstance(flags, list) else [str(flags)]
+        out["data_flags"] = [str(f)[:260] for f in flags[:4]]
+        if len(flags) > 4:
+            out["data_flags_more"] = len(flags) - 4
     for name in ("base", "bull", "bear"):
         sc = forecast.get(name)
         if not isinstance(sc, dict):
@@ -691,6 +706,25 @@ def _get_financial_model(db: Session, ticker: str) -> dict:
 # ============================== БАРОМЕТРЫ СРЕДЫ ==============================
 
 _BAROMETER_KINDS = {"geo": "геополитический", "inst": "институциональный"}
+
+
+def _shrink(node, str_max: int = 500, list_max: int = 12, depth: int = 0):
+    """Ужать ветку payload до размера, который влезает в ответ инструмента.
+    🔴 Резать сериализованный JSON строкой нельзя — обратно он не разберётся;
+    сжимаем САМУ структуру: длинные строки укорачиваем, длинные списки
+    подрезаем с честной пометкой, вглубь не уходим дальше четвёртого уровня."""
+    if isinstance(node, str):
+        return node if len(node) <= str_max else node[:str_max] + "…"
+    if isinstance(node, dict):
+        if depth >= 4:
+            return {"…": f"вложенность свёрнута, ключи: {sorted(node)[:8]}"}
+        return {k: _shrink(v, str_max, list_max, depth + 1) for k, v in node.items()}
+    if isinstance(node, list):
+        out = [_shrink(v, str_max, list_max, depth + 1) for v in node[:list_max]]
+        if len(node) > list_max:
+            out.append(f"…ещё {len(node) - list_max} пунктов")
+        return out
+    return node
 
 
 def _get_barometer(db: Session, kind: str = "geo", section: str | None = None) -> dict:
@@ -729,16 +763,44 @@ def _get_barometer(db: Session, kind: str = "geo", section: str | None = None) -
                           "score": _f(s.get("score")), "direction": s.get("direction"),
                           "comment": (s.get("comment") or "")[:180]} for s in subs[:13]]
     if k == "geo":
-        out["sector_flags"] = payload.get("sector_flags")
-        out["regions"] = {r: (v if not isinstance(v, str) else v[:300])
-                          for r, v in (payload.get("regions") or {}).items()}
+        out["sector_flags"] = [{"sector": s.get("sector"), "direction": s.get("direction"),
+                                "comment": (s.get("comment") or "")[:200]}
+                               if isinstance(s, dict) else s
+                               for s in (payload.get("sector_flags") or [])[:8]]
+        # 🔴 Очаги целиком — 19 КБ (по каждому: траектория, ход боёв, переговоры,
+        # сценарии). Больше лимита ответа инструмента, то есть модель получила бы
+        # обрывок. Отдаём шапку по каждому очагу, полностью — section="regions".
+        out["regions"] = {}
+        for name, node in (payload.get("regions") or {}).items():
+            if isinstance(node, dict):
+                out["regions"][name] = {
+                    "status": node.get("status") or node.get("label"),
+                    "direction": node.get("direction") or node.get("trend"),
+                    "summary": str(node.get("summary") or node.get("comment") or "")[:400],
+                    "detail_available": sorted(kk for kk in node if kk not in
+                                               ("status", "label", "direction", "trend",
+                                                "summary", "comment"))[:12]}
+            else:
+                out["regions"][name] = str(node)[:400]
+        out["regions_note"] = ("по очагу целиком — вызвать с section='regions' "
+                               "(вернётся подробный разбор, он большой)")
     else:
-        out["alerts"] = (payload.get("alerts") or [])[:6]
+        out["alerts"] = [{"title": a.get("title") or a.get("name"),
+                          "severity": a.get("severity") or a.get("level"),
+                          "comment": (a.get("comment") or a.get("text") or "")[:220]}
+                         if isinstance(a, dict) else str(a)[:220]
+                         for a in (payload.get("alerts") or [])[:6]]
         out["institutional_crp_floor_pp"] = payload.get("institutional_crp_floor_pp")
 
     if section and isinstance(payload.get(section), (list, dict)):
-        out["section_full"] = json.loads(
-            json.dumps(payload[section], ensure_ascii=False, default=str)[:3500] + "")
+        node = _shrink(payload[section])
+        # Страховка: разделы барометра растут (очаги на бою — 19 КБ против 4 КБ
+        # в файле-якоре). Если после первого сжатия всё ещё много — сжимаем жёстче,
+        # чтобы ответ не обрезали на транспорте.
+        if len(json.dumps(node, ensure_ascii=False, default=str)) > 8000:
+            node = _shrink(payload[section], str_max=260, list_max=6)
+            out["section_truncated"] = True
+        out["section_full"] = node
     out["note"] = ("Барометр — контекст РЫНКА, не рекомендация по бумаге. Оценка "
                    "конкретной компании в этой рамке — вкладки «Геополитика»/«Институты» "
                    "её карточки (get_company_card с tabs=[geo] / [institutions]).")
