@@ -45,9 +45,28 @@ _LENTA_KEEP_DAYS = 30
 
 
 # ----------------------------- конфиг -----------------------------
-def load_config() -> dict:
+def load_config(db: Session | None = None) -> dict:
+    """Ленты = ядро из файла + одобренные находки ревизии из БД.
+
+    🔴 Владелец, 2026-08-26: источник, с которого агент вытащил факт, должен попадать в
+    пул парсинга. Файл конфигурации едет только с деплоем, а находки появляются
+    ежедневно, поэтому периферия живёт в БД (см. app/services/source_pool.py).
+    Без `db` работает как раньше — вызовы из скриптов и тестов не ломаются.
+    """
     with open(_CONFIG_PATH, encoding="utf-8") as f:
-        return json.load(f)
+        cfg = json.load(f)
+    if db is not None:
+        try:
+            from app.services.source_pool import extra_feeds
+            found = extra_feeds(db)
+        except Exception:  # noqa: BLE001
+            logger.warning("Ленты: находки ревизии не подключились", exc_info=True)
+            found = []
+        if found:
+            known = {str(f.get("url")) for f in cfg.get("feeds", [])}
+            cfg["feeds"] = list(cfg.get("feeds", [])) + [
+                f for f in found if f["url"] not in known]
+    return cfg
 
 
 # ----------------------------- Шаг 1: RSS -----------------------------
@@ -519,7 +538,7 @@ def cleanup_market_updates(db: Session, keep_days: int = _LENTA_KEEP_DAYS) -> di
 
 def run_pipeline(db: Session) -> dict:
     """Полный прогон. Возвращает сводку для лога/диагностики."""
-    cfg = load_config()
+    cfg = load_config(db)          # ядро из файла + одобренные находки ревизии
     items = fetch_new_items(db, cfg)
     if not items:
         return {"fetched": 0, "published": 0, "filtered_out": 0, "note": "нет новых записей"}

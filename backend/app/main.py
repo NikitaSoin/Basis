@@ -1251,6 +1251,46 @@ async def _card_consumer_job():
         logger.exception("Ошибка consumer-агента карточек: %s", e)
 
 
+async def _revision_scout_job():
+    """Активная ревизия карточек по кругу: агент сам идёт проверять, изменилось ли
+    что-то, а не ждёт сигнала во входном потоке (владелец, 2026-08-26).
+
+    Находка становится сигналом в общей шине — правит вкладку уже патчер под своим
+    гейтом; адрес источника уходит в пул, и домен, пригодившийся несколько раз,
+    становится постоянной лентой. Идёт ДО дневного патчера (21:35), чтобы найденное
+    в тот же вечер попало в правки."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.revision_scout import run_revision
+        db = SessionLocal()
+        try:
+            return run_revision(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Ревизия карточек: %s", {k: v for k, v in res.items() if k != "details"})
+    except Exception as e:
+        logger.exception("Ошибка ревизии карточек: %s", e)
+
+
+async def _source_promote_job():
+    """Повышение найденных источников до постоянных лент (раз в неделю)."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.source_pool import promote_candidates
+        db = SessionLocal()
+        try:
+            return promote_candidates(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Пул источников: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка повышения источников: %s", e)
+
+
 async def _prose_patcher_job():
     """Авто-свежесть ПРОЗЫ вкладок — дневной проход ФАКТОВ (владелец 2026-07-29,
     docs/prose-freshness-plan.md). Очередь из входного потока (значимые офиц.
@@ -1704,6 +1744,10 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("company_signals", _company_signals_job), "cron", minute=35, id="company_signals")  # шина: после news(5)+geo_digest(10), их выход = вход
         scheduler.add_job(_with_heartbeat("rating_agencies", _rating_agencies_job), "cron", hour=20, minute=55, id="rating_agencies")  # рейтинговые действия АКРА/НКР → сигналы + освежение agency_rating бумаг
         scheduler.add_job(_with_heartbeat("card_consumer", _card_consumer_job), "cron", hour=21, minute=15, id="card_consumer")  # consumer-агент: точные сигналы → addendum вкладки (гейт); после rating_agencies(20:55)+company_signals(:35)
+        scheduler.add_job(_with_heartbeat("revision_scout", _revision_scout_job),
+                          "cron", hour=20, minute=10, id="revision_scout")  # активная ревизия по кругу — ДО дневного патчера
+        scheduler.add_job(_with_heartbeat("source_promote", _source_promote_job),
+                          "cron", day_of_week="tue", hour=5, minute=40, id="source_promote")  # находки → постоянные ленты
         scheduler.add_job(_with_heartbeat("prose_patcher", _prose_patcher_job), "cron", hour=21, minute=35, id="prose_patcher")  # авто-свежесть прозы: дневной факт-патч из входного потока (гейт, БД-оверлей)
         # Недельная интерпретация прозы по потоку недели (дельта, гейт). День недели
         # смещён с воскресенья на ЧЕТВЕРГ (владелец, 2026-07-30): нужно было прогнать

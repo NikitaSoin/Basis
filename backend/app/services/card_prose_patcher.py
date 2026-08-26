@@ -61,9 +61,16 @@ _TAB_FILE = {
     "institutions": "institutions_summary.md",
 }
 # вкладки сигнала → вкладка прозы (bonds/dividends не имеют summary у КОМПАНИИ)
+#
+# 🔴 «Бизнес-модель» добавлена 2026-08-26. Файл вкладки в реестре был с самого начала,
+# а сигнала, который на неё маппится, — не было: за всю историю НИ ОДНОЙ попытки правки,
+# при 87 днях среднего возраста текста. Сделки M&A и решения по капвложениям — ровно то,
+# что меняет бизнес-модель (состав активов, сегменты, точки роста), поэтому они и ведут
+# на эту вкладку.
 _SIGNAL_TAB_TO_PROSE = {
     "finance": "finance", "governance": "governance", "markets": "markets",
     "macro": "macro", "geo": "geo", "institutions": "institutions",
+    "ma": "business", "capital": "business",
 }
 
 _MAX_EDITS = 10         # было 4 («вывод не упирается в токены») — насыщенной макро-
@@ -83,7 +90,11 @@ _MAX_FIND_LEN = 600     # якорь find: раньше 200 «≤ предлож
 # KAZT) отсекается. Остальные предохранители не ослаблены: числа обязаны быть
 # заземлены, рост replace ограничен, запрещённые формулировки и комплаенс — на месте
 _FRESH_DAYS = 10
-_BATCH_CAP = 5
+# Сколько пар (компания, вкладка) обрабатываем за дневной прогон. Было 5 на всю
+# платформу — при потоке в тысячи сигналов это покрывало доли процента (см. докстринг
+# _fact_queue). 40 при 261 компании и шести вкладках закрывает круг примерно за месяц.
+_BATCH_CAP = 40
+_QUEUE_SCAN = 600       # сколько свежих сигналов просматриваем, чтобы собрать пары
 
 # прогнозные/оценочные конструкции — факт-патч НЕ добавляет суждение о будущем
 _FORBIDDEN = re.compile(
@@ -312,6 +323,47 @@ def _flexible_spans(haystack: str, needle: str) -> list[tuple[int, int]]:
         return []
 
 
+def _paragraph_span(haystack: str, needle: str) -> tuple[int, int] | None:
+    """Третья линия поиска якоря: САМЫЙ ПОХОЖИЙ АБЗАЦ, когда дословного совпадения нет.
+
+    🔴 Зачем (2026-08-26, вопрос владельца «почему вкладки не обновляются»). Замер на
+    бою: у вкладки «Рынки» 59 технических отказов из 113 попыток, у «Финансов» — 11 из
+    36, и это `find_not_in_prose` — правка СГЕНЕРИРОВАНА, но применить её не удаётся.
+    Причина не в модели: она цитирует абзац близко к тексту, а первые две линии поиска
+    требуют совпадения слово-в-слово (с точностью до тире, кавычек и пробелов). Стоит
+    в прозе поменяться одному слову после прошлого патча — якорь уже не находится.
+
+    Здесь мы находим абзац, максимально похожий на якорь, и правим ЕГО целиком. Два
+    предохранителя, чтобы «похожий» не превратился в «какой попало»: сходство не ниже
+    0,72 и заметный отрыв от второго кандидата. Всё остальное (лимит роста, запреты,
+    заземление чисел) проверяется дальше по общему пути — эта функция только находит
+    место, а не разрешает правку.
+    """
+    from difflib import SequenceMatcher
+    target = _norm_match(needle).lower()
+    if len(target) < 40:
+        return None                      # слишком короткий якорь — рискованно
+    best = (0.0, None)
+    second = 0.0
+    pos = 0
+    for para in haystack.split("\n\n"):
+        start = haystack.find(para, pos)
+        if start < 0:
+            continue
+        pos = start + len(para)
+        if len(para.strip()) < 40:
+            continue
+        ratio = SequenceMatcher(None, target, _norm_match(para).lower()).ratio()
+        if ratio > best[0]:
+            second = best[0]
+            best = (ratio, (start, start + len(para)))
+        elif ratio > second:
+            second = ratio
+    if best[0] >= 0.72 and best[0] - second >= 0.12:
+        return best[1]
+    return None
+
+
 def _apply_and_gate(prose: str, result: dict, signal_text: str,
                     kind: str = "fact",
                     strict_numbers: bool = False) -> tuple[str | None, list[str]]:
@@ -380,8 +432,17 @@ def _apply_and_gate(prose: str, result: dict, signal_text: str,
                 notes.append(f"edit{i}:find_ambiguous({len(spans)})")
                 continue
             else:
-                notes.append(f"edit{i}:find_not_in_prose")
-                continue
+                span = _paragraph_span(patched, find)      # третья линия: похожий абзац
+                if span is None:
+                    notes.append(f"edit{i}:find_not_in_prose")
+                    continue
+                # 🔴 Замена идёт по АБЗАЦУ, а модель метила в предложение внутри него:
+                # короткий replace тут не «правка», а тихое удаление текста. Требуем,
+                # чтобы новый текст был сопоставим по объёму со старым абзацем.
+                para_len = span[1] - span[0]
+                if len(repl) < para_len * 0.6:
+                    notes.append(f"edit{i}:paragraph_replace_too_short")
+                    continue
         else:
             notes.append(f"edit{i}:find_ambiguous({cnt})")
             continue
@@ -602,8 +663,23 @@ def run_for_signal(db: Session, signal: CompanySignal, kind: str = "fact") -> Ca
 
 
 def _fact_queue(db: Session) -> list[CompanySignal]:
-    """Свежие ЗНАЧИМЫЕ сигналы, мапящиеся на прозу-вкладку, ещё не отражённые
-    оверлеем. Триггер от входного потока — не слепой прогон всех карточек."""
+    """Очередь дневного прохода: по одному свежему сигналу на пару (компания, вкладка),
+    сначала те пары, которых дольше всего не касались.
+
+    🔴 Почему не «просто свежие сигналы» (переделано 2026-08-26 по вопросу владельца
+    «почему так мало попыток проверки — там должно каждую компанию перепроверять»).
+    Замер на бою: за 30 дней пришло 3133 значимых сигнала по управлению (261 компания),
+    1398 по рынкам, 743 по финансам — поводов море. А проход брал ПЯТЬ САМЫХ СВЕЖИХ
+    сигналов в сутки: за месяц это ~150 штук из шести тысяч, причём одни и те же
+    компании-ньюсмейкеры, а сигналы вчерашнего дня, не попавшие в пятёрку, не
+    обрабатывались уже никогда — очередь вела себя как стек. Отсюда 57 попыток по
+    управлению против 1115 по макро (у макро свой проход со своим капом).
+
+    Теперь порядок честный: поток сворачивается в пары (компания, вкладка) — по одному
+    самому свежему сигналу на пару, — и пары идут в порядке «кого дольше всех не
+    проверяли». Так дневной бюджет расходится по разным компаниям, а не по трём самым
+    шумным, и круг по платформе закрывается за разумное время.
+    """
     fresh = datetime.now(timezone.utc).date() - timedelta(days=_FRESH_DAYS)
     # 🔴 ТРЕБОВАНИЕ «ТОЛЬКО ОФИЦИАЛЬНЫЙ ИСТОЧНИК» ОТСЕКАЛО ПОЧТИ ВЕСЬ ПОТОК.
     # Замер на бою 2026-08-09: за 30 дней 6596 значимых сигналов, фильтр пропускал
@@ -620,11 +696,31 @@ def _fact_queue(db: Session) -> list[CompanySignal]:
                     CompanySignal.card_tab.in_(list(_SIGNAL_TAB_TO_PROSE)),
                     CompanySignal.published_at >= fresh)
             .order_by(CompanySignal.published_at.desc().nullslast())
-            .limit(_BATCH_CAP * 3).all())
-    # отфильтровать уже отражённые оверлеем (по source_signal_id)
+            .limit(_QUEUE_SCAN).all())
     done = {r[0] for r in db.query(CardProseOverlay.source_signal_id)
             .filter(CardProseOverlay.source_signal_id.isnot(None)).all()}
-    return [s for s in rows if s.id not in done][:_BATCH_CAP]
+
+    # один сигнал на пару (тикер, прозная вкладка) — самый свежий
+    best: dict[tuple[str, str], CompanySignal] = {}
+    for s in rows:
+        if s.id in done:
+            continue
+        tab = _SIGNAL_TAB_TO_PROSE.get(s.card_tab or "")
+        if not tab:
+            continue
+        best.setdefault((s.ticker.upper(), tab), s)
+    if not best:
+        return []
+
+    # когда пару в последний раз трогали (любым статусом — важна сама попытка)
+    from sqlalchemy import func as _f
+    seen = {(t.upper(), tab): ts for t, tab, ts in db.query(
+        CardProseOverlay.ticker, CardProseOverlay.tab,
+        _f.max(CardProseOverlay.created_at)).group_by(
+        CardProseOverlay.ticker, CardProseOverlay.tab).all()}
+    epoch = datetime(1970, 1, 1, tzinfo=timezone.utc)
+    ordered = sorted(best.items(), key=lambda kv: seen.get(kv[0]) or epoch)
+    return [s for _, s in ordered[:_BATCH_CAP]]
 
 
 def run_daily_facts(db: Session) -> dict:
@@ -644,7 +740,10 @@ def run_daily_facts(db: Session) -> dict:
 # ----------------------------- ИНТЕРПРЕТАЦИЯ (недельный, по потоку) -----------------------------
 _INTERP_COOLDOWN_DAYS = 6   # не переинтерпретировать вкладку чаще раза в ~неделю
 _INTERP_FLOW_DAYS = 8       # окно «входного потока за неделю»
-_INTERP_BATCH_CAP = 6       # (тикер, вкладка) за прогон
+# (тикер, вкладка) за прогон. Было 6 в НЕДЕЛЮ на всю платформу — при 261 компании с
+# потоком круг занял бы пять лет. 25 при недельном ритме и cooldown 6 дней — это ~100
+# пар в месяц поверх дневного прохода фактов.
+_INTERP_BATCH_CAP = 25
 
 
 def _week_flow(db: Session, ticker: str, prose_tab: str) -> list[CompanySignal]:
@@ -713,7 +812,24 @@ def run_weekly_interp(db: Session) -> dict:
         key = (s.ticker.upper(), pt)
         w = 10 if s.importance == "high" else 1
         score[key] = score.get(key, 0) + w
-    pairs = [k for k, _ in sorted(score.items(), key=lambda kv: kv[1], reverse=True)][:_INTERP_BATCH_CAP]
+    # 🔴 Не только «самые активные»: при отборе строго по активности одни и те же
+    # компании-ньюсмейкеры забирали весь недельный бюджет, а тихие не проверялись
+    # никогда. Половина мест уходит по активности, половина — тем парам, которых
+    # дольше всего не касались (тот же принцип, что в дневной очереди).
+    from sqlalchemy import func as _f
+    seen = {(t.upper(), tab): ts for t, tab, ts in db.query(
+        CardProseOverlay.ticker, CardProseOverlay.tab,
+        _f.max(CardProseOverlay.created_at)).group_by(
+        CardProseOverlay.ticker, CardProseOverlay.tab).all()}
+    epoch = datetime(1970, 1, 1, tzinfo=timezone.utc)
+    by_activity = [k for k, _ in sorted(score.items(), key=lambda kv: kv[1], reverse=True)]
+    half = max(1, _INTERP_BATCH_CAP // 2)
+    pairs = by_activity[:half]
+    for k in sorted(score, key=lambda k: seen.get(k) or epoch):
+        if len(pairs) >= _INTERP_BATCH_CAP:
+            break
+        if k not in pairs:
+            pairs.append(k)
     stats = {"pairs": len(pairs), "published": 0, "rejected": 0, "skipped": 0}
     for tk, pt in pairs:
         row = run_interp_for_tab(db, tk, pt, _week_flow(db, tk, pt))

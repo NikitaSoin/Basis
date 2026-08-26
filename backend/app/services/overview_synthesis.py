@@ -404,13 +404,17 @@ def _candidates(db: Session, batch: int, stale_days: int) -> list[str]:
         "SELECT ticker, max(created_at) FROM card_overview_synthesis "
         "WHERE status='published' GROUP BY ticker"
     )).all()}
-    # Компания с заготовкой в карточке уже не «пустая» — крон идёт к тем, у кого
-    # вывода нет вовсе, а не пересобирает готовое платной моделью.
-    with_file = {t for t in all_tickers if (COMPANIES_DIR / t / SYNTHESIS_FILE).exists()}
+    # 🔴 Файл-заготовка больше НЕ отменяет очередь (2026-08-26). Логика «есть файл —
+    # значит компания не пустая, платной моделью не пересобираем» звучала разумно, но
+    # заготовка есть у ВСЕХ 264 карточек: очередь оказывалась пуста каждый день, крон
+    # 22 раза отработал вхолостую, и свод завис на 22 компаниях с 6 августа. Файл —
+    # это стартовая заготовка, а не свежий вывод; он тоже стареет.
+    # Порядок работы: сперва те, у кого свода нет вовсе, потом самые давние.
     cutoff = datetime.now(timezone.utc).timestamp() - stale_days * 86400
     fresh = {t for t, ts in seen.items() if ts and ts.timestamp() >= cutoff}
-    never = [t for t in all_tickers if t not in seen and t not in with_file]
-    stale = [t for t in all_tickers if t in seen and t not in fresh]
+    never = [t for t in all_tickers if t not in seen]
+    stale = sorted((t for t in all_tickers if t in seen and t not in fresh),
+                   key=lambda t: seen[t])
     return (never + stale)[:batch]
 
 

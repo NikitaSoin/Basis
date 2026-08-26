@@ -811,6 +811,62 @@ def debug_purge_macro_points(code: str, via: str | None = None,
         db.close()
 
 
+@router.post("/debug/trigger-revision-scout")
+def debug_trigger_revision_scout(batch: int = 5, tab: str | None = None,
+                                 ticker: str | None = None):
+    """Активная ревизия карточек: агент идёт проверять, изменилось ли что-то.
+    tab — одна вкладка (governance/institutions/geo/business/markets/finance);
+    ticker — проверить конкретную компанию по всем вкладкам."""
+    from app.db.session import SessionLocal
+    from app.services.revision_scout import run_revision
+    db = SessionLocal()
+    try:
+        return run_revision(db, batch=batch, tabs=[tab] if tab else None,
+                            only_ticker=ticker)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-revision-scout: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
+@router.get("/debug/discovered-sources")
+def debug_discovered_sources(status: str | None = None, limit: int = 40):
+    """Пул источников, найденных ревизией: кто пригодился и сколько раз."""
+    from app.db.session import SessionLocal
+    from app.models.source_pool import DiscoveredSource
+    db = SessionLocal()
+    try:
+        q = db.query(DiscoveredSource)
+        if status:
+            q = q.filter(DiscoveredSource.status == status)
+        rows = q.order_by(DiscoveredSource.hits.desc()).limit(limit).all()
+        return {"всего": q.count(), "источники": [
+            {"домен": r.domain, "пригодился": r.hits, "статус": r.status,
+             "лента": r.feed_url, "темы": r.topics, "по кому": (r.found_for or "")[:120],
+             "последний раз": str(r.last_seen)[:10]} for r in rows]}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug discovered-sources: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
+@router.post("/debug/promote-sources")
+def debug_promote_sources(min_hits: int = 3, limit: int = 5):
+    """Проверить кандидатов на наличие RSS и повысить до постоянных лент."""
+    from app.db.session import SessionLocal
+    from app.services.source_pool import promote_candidates
+    db = SessionLocal()
+    try:
+        return promote_candidates(db, min_hits=min_hits, limit=limit)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug promote-sources: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.get("/debug/probe-url")
 def debug_probe_url(url: str, contains: str | None = None,
                     rows_from: int = 0, rows: int = 25, sheet: int = 1,
