@@ -3725,6 +3725,38 @@ def assistant_index(rebuild: bool = Query(False, description="пересобра
     return out
 
 
+@router.post("/debug/payments-probe")
+def payments_probe(amount_rub: int = Query(1, ge=1, le=10)):
+    """Живая проверка связи с эквайрингом: создаёт платёж на рубль и сразу
+    спрашивает его статус. Ничего не пишет в нашу базу и никого не подписывает.
+
+    Зачем отдельная ручка: у платёжного шлюза первая подозреваемая — сеть
+    инстанса (egress этого хостинга уже резал TLS к внешним API), и отличить
+    «банк отказал» от «мы туда не ходим» надо ДО того, как первый живой человек
+    нажмёт «Оплатить». Пригодится и при переезде на боевой терминал."""
+    import time as _time
+    from app.services import tbank_acquiring as tb
+    if not tb.configured():
+        return {"ok": False, "reason": "нет TBANK_TERMINAL_KEY/TBANK_PASSWORD в окружении"}
+    order = f"probe-{int(_time.time())}"
+    out = {"terminal_demo": tb.is_demo(), "api_url": tb.API_URL, "order_id": order}
+    t0 = _time.time()
+    try:
+        init = tb.init_payment(order_id=order, amount_kopecks=amount_rub * 100,
+                               description="Проверка связи с эквайрингом")
+        out["init"] = {"status": init.get("Status"), "payment_id": init.get("PaymentId"),
+                       "has_payment_url": bool(init.get("PaymentURL"))}
+        state = tb.get_state(str(init.get("PaymentId")))
+        out["get_state"] = {"status": state.get("Status")}
+        out["ok"] = True
+    except tb.AcquiringError as e:
+        out["ok"] = False
+        out["error"] = str(e)
+        out["error_code"] = e.code
+    out["elapsed_sec"] = round(_time.time() - t0, 2)
+    return out
+
+
 @router.post("/debug/assistant-tool")
 def assistant_tool(name: str = Query(..., description="имя инструмента"),
                    args: dict | None = None):
