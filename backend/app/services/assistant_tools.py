@@ -590,11 +590,16 @@ def _get_financial_statements(db: Session, ticker: str, statement: str = "all",
                               "компании на платформе нет — она раскатана только на "
                               "~45 голубых фишек"}
         labels = [p.get("label") for p in periods]
+        # Перебираем ВСЕ блоки, а не фиксированную тройку: у банков промежуточные
+        # ряды лежат в bank_pnl/bank_metrics, и жёсткий список молча отдавал по
+        # Сберу пустую отчётность при found=true — худший вид ошибки.
         block = {}
-        for key in ("income_statement", "balance_sheet", "cash_flow"):
-            node = _statement_block(interim.get(key) or {}, labels, lines)
-            if node:
-                block[key] = node
+        for key, node in interim.items():
+            if key in ("periods", "data_flags") or not isinstance(node, dict):
+                continue
+            packed = _statement_block(node, labels, lines)
+            if packed:
+                block[key] = packed
         out["interim"] = {"periods": periods, "statements": block}
         out["note"] = ("Промежуточные периоды кумулятивные (6М = полугодие нарастающим "
                        "итогом), сравнивать их можно только с таким же периодом прошлого года.")
@@ -793,12 +798,15 @@ def _get_barometer(db: Session, kind: str = "geo", section: str | None = None) -
         out["institutional_crp_floor_pp"] = payload.get("institutional_crp_floor_pp")
 
     if section and isinstance(payload.get(section), (list, dict)):
-        node = _shrink(payload[section])
-        # Страховка: разделы барометра растут (очаги на бою — 19 КБ против 4 КБ
-        # в файле-якоре). Если после первого сжатия всё ещё много — сжимаем жёстче,
-        # чтобы ответ не обрезали на транспорте.
-        if len(json.dumps(node, ensure_ascii=False, default=str)) > 8000:
-            node = _shrink(payload[section], str_max=260, list_max=6)
+        # Страховка по РАЗМЕРУ, а не по одному проходу: разделы барометра растут
+        # (очаги на бою — 19 КБ против 4 КБ в файле-якоре), и одного сжатия не
+        # хватало — ответ всё равно вылезал за лимит и приходил рубленым.
+        node = None
+        for str_max, list_max, depth_cap in ((500, 12, 4), (260, 6, 3), (140, 4, 2)):
+            node = _shrink(payload[section], str_max=str_max, list_max=list_max,
+                           depth=4 - depth_cap)
+            if len(json.dumps(node, ensure_ascii=False, default=str)) <= 8000:
+                break
             out["section_truncated"] = True
         out["section_full"] = node
     out["note"] = ("Барометр — контекст РЫНКА, не рекомендация по бумаге. Оценка "
@@ -912,9 +920,12 @@ def _stress_test(db: Session, scenario: str | None = None, key_rate_pct: float |
             if res.get("error"):
                 raise ValueError(res["error"])
             meta = res.get("scenario") or {}
+            # Поле реакции в движке называется reaction_pct (не impact/change) —
+            # промах в имени давал null у каждой компании при внешне рабочем ответе.
             short = lambda r: {"ticker": r.get("ticker"), "name": r.get("name"),  # noqa: E731
-                               "impact_pct": r.get("impact_pct") or r.get("change_pct"),
-                               "sector": r.get("sector")}
+                               "reaction_pct": r.get("reaction_pct"),
+                               "sector": r.get("sector"),
+                               "coverage": r.get("coverage")}
             # 🔴 Среднего «по рынку» здесь намеренно нет: один выброс перекашивает
             # его в плюс, когда почти все задетые в минусе (боевой случай Ozon
             # +377 % в «Индексе рынка»). Отдаём разброс: секторы и края.
