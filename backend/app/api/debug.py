@@ -3171,6 +3171,10 @@ font-size:13px;cursor:pointer}
 .wrap{overflow-x:auto}
 </style></head><body>
 <h1>SQL-консоль Basis</h1>
+<p class="sub" style="margin:0 0 14px"><b>Метрика, Search Console и посещаемость —
+на <a href="/api/debug/analytics" style="color:#C97A4A">странице «Аналитика»</a></b>
+(сутки / неделя / месяц, разделы по блокам, время на платформе, возвраты).
+Здесь — только SQL по базе.</p>
 <p class="sub">Только чтение: транзакция объявлена READ ONLY на стороне базы, запись
 отклонит сам Postgres. Ограничение — 15 секунд на запрос.</p>
 <p><input id="tok" placeholder="X-Debug-Token" size="46"> <span id="saved"></span></p>
@@ -3952,7 +3956,8 @@ border-radius:8px;color:#5A5248}
 </style></head><body>
 <h1>Аналитика Basis</h1>
 <p class="sub">Наш лог, Яндекс.Метрика и Google Search Console в одном окне.
-Роботы отделены везде, где это возможно.</p>
+Роботы отделены везде, где это возможно.
+Запросы по базе — в <a href="/api/debug/sql-console" style="color:#C97A4A">SQL-консоли</a>.</p>
 <p><input id="tok" placeholder="X-Debug-Token" size="46"> <span id="saved"></span></p>
 <p>
   <button id="b1" onclick="load(1)">Сутки</button>
