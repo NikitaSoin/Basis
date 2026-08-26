@@ -177,8 +177,26 @@ _ISSUER_CIRCLE_DAYS = 60      # профилей 513 — круг длиннее
 _ISSUER_BATCH = 10
 
 
+def _issuer_names(db: Session) -> dict[str, str]:
+    """слаг → человеческое имя эмитента, взятое из справочника облигаций.
+
+    🔴 Из слага имя восстанавливать нельзя. Часть слагов собрана из имён выпусков с
+    ПЕРЕМЕШАННОЙ кириллицей и латиницей («rzd-сарitаl-рlс» — здесь а, с, р русские):
+    поисковый запрос по такой строке не найдёт ничего и потратит бюджет. В таблице
+    bonds лежит issuer_name в исходном виде — берём его.
+    """
+    from app.services.moex_bonds import issuer_slug
+    out: dict[str, str] = {}
+    for (name,) in db.execute(text(
+            "SELECT DISTINCT issuer_name FROM bonds WHERE issuer_name IS NOT NULL")).all():
+        slug = issuer_slug(name)
+        if slug and slug not in out:
+            out[slug] = name
+    return out
+
+
 def _issuer_name(slug: str) -> str:
-    """Человеческое имя эмитента из слага папки."""
+    """Запасной вариант, если эмитента нет в справочнике."""
     return slug.replace("_cat-", "").replace("-", " ").strip()
 
 
@@ -186,8 +204,12 @@ def _issuer_candidates(db: Session, batch: int, tabs: list[str] | None) -> list[
     from app.services.card_prose_patcher import ISSUERS_DIR
     if not ISSUERS_DIR.exists():
         return []
+    # 🔴 `_cat-*` — не эмитенты, а КАТЕГОРИЙНЫЕ пояснители (муниципальные бумаги,
+    # суверенный долг, секьюритизация, структурные ноты). Искать «новости
+    # муниципального эмитента» бессмысленно: первый же прогон честно вернул «материалы
+    # не относятся к конкретному эмитенту» и потратил бюджет впустую.
     slugs = sorted(d.name for d in ISSUERS_DIR.iterdir()
-                   if d.is_dir() and not d.name.startswith("."))
+                   if d.is_dir() and not d.name.startswith((".", "_")))
     use = [t for t in (tabs or list(_ISSUER_TOPICS)) if t in _ISSUER_TOPICS]
     seen: dict[tuple[str, str], datetime] = {}
     for tk, tab, ts in db.query(CardProseOverlay.ticker, CardProseOverlay.tab,
@@ -213,8 +235,9 @@ def run_issuer_revision(db: Session, batch: int = _ISSUER_BATCH,
              else _issuer_candidates(db, batch, tabs))
     stats = {"проверено": 0, "с изменениями": 0, "правок опубликовано": 0,
              "правок отклонено": 0, "источников записано": 0, "details": []}
+    names = _issuer_names(db)
     for slug, tab in pairs:
-        name = _issuer_name(slug)
+        name = names.get(slug) or _issuer_name(slug)
         results = _search(name, slug, _ISSUER_TOPICS[tab])
         if not results:
             stats["details"].append({"эмитент": slug, "раздел": tab, "note": "поиск пуст"})
