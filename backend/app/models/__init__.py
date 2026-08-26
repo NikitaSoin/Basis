@@ -15,6 +15,7 @@ from app.models.screener_filter import SavedScreenerFilter
 from app.models.agent_addendum import AgentAddendum
 from app.models.chronicle import ChronicleEntry
 from app.models.source_pool import DiscoveredSource
+from app.models.payment import Payment
 
 __all__ = [
     "GeoBlock", "ObserverReport",
@@ -32,4 +33,5 @@ __all__ = [
     "AgentAddendum",
     "ChronicleEntry",
     "DiscoveredSource",
+    "Payment",
 ]

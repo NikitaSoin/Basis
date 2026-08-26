@@ -31,6 +31,35 @@ async function postTier(tierId, token) {
   return r.json();
 }
 
+// =========================================================================
+// ОПЛАТА КАРТОЙ — интернет-эквайринг Т-Бизнеса (backend/app/api/payments.py).
+// Сценарий non-PCI: бэкенд создаёт платёж, банк отдаёт свою форму, карту мы
+// не видим и не храним. Сумму фронт НЕ передаёт — только выбор периода;
+// сколько стоит месяц и год, решает сервер (иначе цену правят в консоли).
+//
+// Пока приём оплаты не настроен (нет ключей терминала), /config отвечает
+// enabled:false, и страница ведёт себя как раньше — переключателем тарифа.
+// =========================================================================
+async function startPayment(period, token) {
+  const r = await fetch(`${apiUrl}/api/payments/create?period=${encodeURIComponent(period)}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok || !data.payment_url) {
+    throw new Error(data.detail || "Не удалось создать платёж. Попробуйте ещё раз.");
+  }
+  return data;
+}
+
+async function fetchPaymentStatus(orderId, token) {
+  const r = await fetch(`${apiUrl}/api/payments/status/${encodeURIComponent(orderId)}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!r.ok) return null;
+  return r.json();
+}
+
 export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
   const appearGate = useRef(new Set());
   const [busyTier, setBusyTier] = useState(null);
@@ -39,13 +68,57 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
   // Годовой выбран по умолчанию: он выгоднее, и это честнее показать сразу, а не
   // прятать за переключателем.
   const [billing, setBilling] = useState("year"); // "month" | "year"
+  const [pay, setPay] = useState(null);           // конфиг приёма оплаты с бэка
+  const [payResult, setPayResult] = useState(null); // итог возврата с формы банка
   const currentTierId = user ? user.subscription_type || "free" : null;
+
+  // Включён ли приём оплаты — решает сервер, а не флаг во фронте: ключи терминала
+  // живут только там, и рисовать кнопку «Оплатить», когда платить некуда, нельзя.
+  React.useEffect(() => {
+    let alive = true;
+    fetch(`${apiUrl}/api/payments/config`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (alive) setPay(d); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
+  // Возврат с формы банка: ?payment=success&order=… . 🔴 Сам по себе этот адрес
+  // ничего не подтверждает (его можно открыть руками) — спрашиваем у сервера,
+  // что он видит по заказу, и только его ответ показываем человеку.
+  React.useEffect(() => {
+    if (!token) return;
+    const q = new URLSearchParams(window.location.search);
+    const order = q.get("order");
+    if (!order || !q.get("payment")) return;
+    let alive = true;
+    fetchPaymentStatus(order, token).then((s) => {
+      if (!alive || !s) return;
+      setPayResult(s);
+      if (s.paid) {
+        // Подписка начислена сервером — подтягиваем свежего пользователя, чтобы
+        // на экране сразу стоял Max, а не прежний тариф из старого состояния.
+        fetch(`${apiUrl}/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((u) => { if (u && onUserUpdate) onUserUpdate(u); })
+          .catch(() => {});
+      }
+    });
+    return () => { alive = false; };
+  }, [token, onUserUpdate]);
 
   async function changeTier(tierId) {
     if (!token) { onShowAuth && onShowAuth(); return; }
     setErrorInfo(null);
     setBusyTier(tierId);
     try {
+      // Платный тариф при работающем эквайринге покупается, а не переключается.
+      const paid = TIERS.find((t) => t.id === tierId)?.priceRub > 0;
+      if (paid && pay && pay.enabled) {
+        const created = await startPayment(billing, token);
+        window.location.href = created.payment_url;   // форма банка
+        return;
+      }
       const updated = await postTier(tierId, token);
       onUserUpdate && onUserUpdate(updated);
     } catch (e) {
@@ -77,7 +150,10 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
               <b>Сейчас открыто всё и бесплатно.</b> Платформа новая, мы её обкатываем: тарифы
               ниже описывают, как доступ будет устроен позже, а пока ни одна возможность не
               закрыта — ни аналитика карточек, ни разборы отчётов, ни свои сценарии
-              стресс-теста. Оплата картой тоже ещё не подключена.
+              стресс-теста.{" "}
+              {pay && pay.enabled
+                ? "Оплату картой мы уже подключили — она поддерживает работу платформы, но ничего не открывает сверх того, что и так открыто."
+                : "Оплата картой тоже ещё не подключена."}
             </p>
           </div>
         )}
@@ -85,6 +161,30 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
         {user && (
           <div className="tar-status">
             Сейчас у вас тариф <b>{TIERS.find((t) => t.id === currentTierId)?.name || "Бесплатный"}</b>
+          </div>
+        )}
+
+        {/* Человек вернулся с формы банка. Показываем то, что ВИДИТ СЕРВЕР по
+            заказу: успешный возврат ещё не значит оплату, а отказ по карте —
+            обычное дело, и человеку нужно сказать об этом прямо. */}
+        {payResult && (
+          <div className={cx("bs-callout", "tar-pay-result",
+                             payResult.paid && "tar-pay-result--ok")}>
+            {payResult.paid ? (
+              <p>
+                <b>Оплата прошла.</b> Тариф Max активен
+                {payResult.subscription_expires_at
+                  ? ` до ${new Date(payResult.subscription_expires_at).toLocaleDateString("ru-RU")}`
+                  : ""}. Спасибо, что поддерживаете платформу.
+              </p>
+            ) : (
+              <p>
+                <b>Платёж не завершён.</b> Банк вернул статус «{payResult.status}»
+                {payResult.error ? `: ${payResult.error}` : ""}. Деньги не списаны —
+                можно попробовать ещё раз или другой картой. Если списание всё же
+                прошло, напишите нам: оно вернётся автоматически.
+              </p>
+            )}
           </div>
         )}
 
@@ -178,7 +278,10 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
                       disabled={disabledByOther}
                       onClick={() => changeTier(tier.id)}
                     >
-                      Перейти на {tier.name}
+                      {isPaid && pay && pay.enabled
+                        ? `Оплатить ${formatNumber(
+                            billing === "year" ? tier.priceRubYear : tier.priceRub)} ₽`
+                        : `Перейти на ${tier.name}`}
                     </Button>
                   )}
                 </div>
@@ -188,7 +291,20 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
           })}
         </AppearGroup>
 
-        <p className="tar-note">Тариф применяется сразу, без оплаты картой — она появится позже.</p>
+        <p className="tar-note">
+          {pay && pay.enabled ? (
+            <>
+              Оплата картой — на защищённой странице банка (Т-Бизнес). Реквизиты карты
+              платформа не видит и не хранит. Подписка включается сразу после
+              подтверждения платежа банком.
+              {pay.demo && (
+                <> {" "}<b>Сейчас подключён тестовый терминал: деньги не списываются.</b></>
+              )}
+            </>
+          ) : (
+            "Тариф применяется сразу, без оплаты картой — она появится позже."
+          )}
+        </p>
 
         <p className="tar-compare-lead">
           Поиск, весь Скринер, лента новостей и карты Обозревателя, карточки всех бумаг —

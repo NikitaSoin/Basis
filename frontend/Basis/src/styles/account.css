@@ -418,3 +418,14 @@
   border-top: 1px solid var(--line);
 }
 .acct-tour-guest .acct-tour-note { text-align: center; }
+
+/* Итог возврата с формы банка (PricingView, оплата подписки через эквайринг
+   Т-Бизнеса). Плашка нейтральная по умолчанию: незавершённый платёж — не
+   ошибка платформы, пугать красным незачем; успех подсвечиваем зелёной
+   левой границей, цвет только в данных, как велит канон. */
+.tar-pay-result {
+  margin: 0 0 20px;
+  text-align: left;
+}
+.tar-pay-result p { margin: 0; font-size: 13.5px; line-height: 1.55; }
+.tar-pay-result--ok { border-left: 3px solid var(--bs-up, #2e7d5b); }
