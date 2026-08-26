@@ -660,7 +660,7 @@ ${col.intro}
 ${extraHtml || ""}
 <h2>${escapeHtml(col.tableTitle || "Список выпусков")}</h2>
 ${bondsTable(rows.slice(0, col.top || rows.length), col.tableOpts)}
-<a class="cta" href="/?view=companies&tab=bonds">Полный список, фильтры и живые котировки — в скринере облигаций Basis →</a>
+<a class="cta" href="/?view=companies&tab=bonds&preset=${col.slug}">Полный список, фильтры и живые котировки — в скринере облигаций Basis →</a>
 <h2>Другие подборки</h2>
 <div class="grid">${others}<a class="chip" href="/bonds/">Каталог облигаций</a></div>`;
   return pageShell({

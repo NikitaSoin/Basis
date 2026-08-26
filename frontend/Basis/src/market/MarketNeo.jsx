@@ -619,6 +619,18 @@ function BondsTab({ rows, query, onOpen, Logo, preset }) {
   const p = BOND_PRESETS[preset] || {};
   const [coupon, setCoupon] = useState(p.coupon || "Любой купон");
   const [reli, setReli] = useState(p.reli || "Любая надёжность");
+  // 🔴 Пресет применяем И ЭФФЕКТОМ, а не только начальным значением useState.
+  // Инициализатор срабатывает ОДИН раз при создании компонента, и если проп приезжает
+  // позже (адрес разбирается в эффекте App.js, порядок монтирования не гарантирован) —
+  // фильтр молча не включится. Именно это владелец и увидел: «раздел открывается, а
+  // фильтр ВДО не включён». Эффект зависит от preset, поэтому срабатывает ровно на смену
+  // подборки и не мешает человеку менять фильтры руками дальше.
+  React.useEffect(() => {
+    const q = BOND_PRESETS[preset];
+    if (!q) return;
+    if (q.reli) setReli(q.reli);
+    if (q.coupon) setCoupon(q.coupon);
+  }, [preset]);
   const [sort, setSort] = useState({ key: "default", dir: -1 });
   // Дефолт "cards" — владелец, 2026-07-30: базовый режим экрана «Рынок»
   // должен быть карточками, не лентой, во всех классах активов (акции —
@@ -986,6 +998,12 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   // не должна перебивать намерение.
   const VALID_TABS = ["stocks", "bonds", "futures", "funds", "spot"];
   const [tab, setTab] = useState(() => (VALID_TABS.includes(forceTab) ? forceTab : persist("mk.tab", "stocks")));
+  // Та же болезнь, что была у пресета: forceTab читался ТОЛЬКО инициализатором useState.
+  // Если адрес разобрался после монтирования (порядок не гарантирован), человек оставался
+  // на прошлой вкладке — ссылка на облигации открывала акции. Досинхронизируем эффектом.
+  React.useEffect(() => {
+    if (VALID_TABS.includes(forceTab)) setTab(forceTab);
+  }, [forceTab]);
   // Мобильный (≤760px) выезжающий сайдбар — тот же переиспользуемый паттерн,
   // что у Портфеля/Обозревателя/Скринера (design/MobileSidebarDrawer.jsx).
   // Заменяет собой горизонтальную полосу mk-tabbar-mobile (Фаза 1) — владелец,

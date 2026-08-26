@@ -1306,6 +1306,13 @@ export default function App() {
         // конкретную вкладку открывала раздел на дефолтной, и адрес терял смысл.
         const tabInner = (params.get("tab") || "").toLowerCase();
         if (tabInner) setForceInnerTab(tabInner);
+        // ?preset=vdo — подборка, которую надо открыть с включённым фильтром.
+        // 🔴 Владелец 2026-08-26: «в гугле открывается раздел облигации, но БЕЗ включённого
+        // фильтра ВДО». Он нажимал кнопку на странице подборки, а она вела на общий
+        // /?view=companies&tab=bonds. Адрес /bonds/vdo/ фильтр включал, кнопка — теряла.
+        // Теперь слаг едет в параметре, и оба пути ведут к одному результату.
+        const presetP = (params.get("preset") || "").toLowerCase();
+        if (presetP) setForceMarketPreset(presetP);
         if (viewP === "overview") {
           const OBS_SECTIONS = ["news", "economy", "pulse", "maps", "calendar", "reports", "corp-news", "macro", "geo", "institutions", "ai"];
           const obsP = (params.get("obs") || "").toLowerCase();
