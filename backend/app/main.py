@@ -24,6 +24,7 @@ from app.api.observer import router as observer_router
 from app.api.assistant import router as assistant_router
 from app.api.stress import router as stress_router
 from app.api.agents import router as agents_router
+from app.api.payments import router as payments_router
 # Мягкий импорт (timeweb-uneven-file-rollout): модуль новый, при неравномерной
 # раскатке файлов его может ещё не быть — бэк не должен падать целиком.
 try:
@@ -1274,6 +1275,28 @@ async def _revision_scout_job():
         logger.exception("Ошибка ревизии карточек: %s", e)
 
 
+async def _issuer_revision_job():
+    """Ревизия ПРОФИЛЕЙ ЭМИТЕНТОВ облигаций (владелец, 2026-08-26: «по облигациям нужна
+    отдельная очередь, когда агент отправляется и проверяет, есть ли изменения»).
+
+    У эмитента нет тикера и нет входного потока: 13 лент про непубличную лизинговую
+    компанию не пишут никогда. Профилей 513, круг длиннее — партия десять в сутки."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.revision_scout import run_issuer_revision
+        db = SessionLocal()
+        try:
+            return run_issuer_revision(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Ревизия эмитентов облигаций: %s",
+                    {k: v for k, v in res.items() if k != "details"})
+    except Exception as e:
+        logger.exception("Ошибка ревизии эмитентов: %s", e)
+
+
 async def _source_promote_job():
     """Повышение найденных источников до постоянных лент (раз в неделю)."""
     def _run():
@@ -1746,6 +1769,8 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("card_consumer", _card_consumer_job), "cron", hour=21, minute=15, id="card_consumer")  # consumer-агент: точные сигналы → addendum вкладки (гейт); после rating_agencies(20:55)+company_signals(:35)
         scheduler.add_job(_with_heartbeat("revision_scout", _revision_scout_job),
                           "cron", hour=20, minute=10, id="revision_scout")  # активная ревизия по кругу — ДО дневного патчера
+        scheduler.add_job(_with_heartbeat("issuer_revision", _issuer_revision_job),
+                          "cron", hour=19, minute=40, id="issuer_revision")  # профили эмитентов облигаций — своя очередь
         scheduler.add_job(_with_heartbeat("source_promote", _source_promote_job),
                           "cron", day_of_week="tue", hour=5, minute=40, id="source_promote")  # находки → постоянные ленты
         scheduler.add_job(_with_heartbeat("prose_patcher", _prose_patcher_job), "cron", hour=21, minute=35, id="prose_patcher")  # авто-свежесть прозы: дневной факт-патч из входного потока (гейт, БД-оверлей)
@@ -1887,6 +1912,7 @@ app.include_router(observer_router, prefix="/api")
 app.include_router(assistant_router, prefix="/api")
 app.include_router(stress_router, prefix="/api")
 app.include_router(agents_router, prefix="/api")
+app.include_router(payments_router, prefix="/api")
 
 
 @app.get("/")

@@ -257,7 +257,9 @@ class CardProseOverlay(Base):
     __tablename__ = "card_prose_overlays"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    ticker: Mapped[str] = mapped_column(String(20), index=True)
+    # 80, а не 20: тем же оверлеем живут ПРОФИЛИ ЭМИТЕНТОВ облигаций, а их слаги
+    # длинные и кириллические («суэк-securities-dac» и подобные, до 52 знаков).
+    ticker: Mapped[str] = mapped_column(String(80), index=True)
     tab: Mapped[str] = mapped_column(String(20))          # business|finance|governance|markets|macro|geo|institutions
     kind: Mapped[str] = mapped_column(String(16))          # fact | interpretation
     status: Mapped[str] = mapped_column(String(16))        # published | rejected

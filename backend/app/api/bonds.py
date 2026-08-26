@@ -24,10 +24,30 @@ COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 ISSUERS_DIR = Path(__file__).parent.parent.parent / "bond_issuers"
 
 
-def _read_issuer_file(slug: str | None, fname: str) -> str | None:
-    """Профиль непубличного эмитента (бизнес/финансы), общий для всех его серий."""
+# файл профиля → вкладка оверлея (авто-обновление профилей эмитентов, 2026-08-26)
+_ISSUER_FILE_TAB = {"business.md": "issuer_business",
+                    "financials.md": "issuer_financials",
+                    "risk.md": "issuer_risk"}
+
+
+def _read_issuer_file(slug: str | None, fname: str, db: Session | None = None) -> str | None:
+    """Профиль непубличного эмитента (бизнес/финансы/риск), общий для всех его серий.
+
+    🔴 Оверлей-first, как у карточек компаний: ревизия дописывает в профиль новые
+    факты, а файлы на Timeweb эфемерны — контейнер пересобирается при деплое. Без
+    этого чтения работа ревизии по 513 профилям осталась бы невидимой на витрине.
+    """
     if not slug:
         return None
+    tab = _ISSUER_FILE_TAB.get(fname)
+    if db is not None and tab:
+        try:
+            from app.services.card_prose_patcher import read_prose
+            md, _src = read_prose(db, slug, tab)
+            if md:
+                return md
+        except Exception:  # noqa: BLE001 — модуль-потребитель может доехать раньше
+            pass
     p = ISSUERS_DIR / slug / fname
     return p.read_text(encoding="utf-8") if p.exists() else None
 
@@ -463,7 +483,7 @@ def get_bond(secid: str, db: Session = Depends(get_db)):
         if not risk_md:
             cat = _category_slug(bond.get("issuer_name") or bond.get("short_name"), bond.get("bond_type"))
             if cat:
-                risk_md = _read_issuer_file(cat, "risk.md")
+                risk_md = _read_issuer_file(cat, "risk.md", db)
         issuer = {
             "ticker": comp[0], "name": comp[1], "sector": comp[2], "is_public": True,
             "debt": _issuer_debt_block(tk),
@@ -476,16 +496,16 @@ def get_bond(secid: str, db: Session = Depends(get_db)):
         # секьюритизация/структурные ноты), иначе заглушка.
         name = bond.get("issuer_name") or bond.get("short_name")
         slug = issuer_slug(name)
-        bus = _read_issuer_file(slug, "business.md")
-        fin = _read_issuer_file(slug, "financials.md")
-        risk_md = _read_issuer_file(slug, "risk.md")
+        bus = _read_issuer_file(slug, "business.md", db)
+        fin = _read_issuer_file(slug, "financials.md", db)
+        risk_md = _read_issuer_file(slug, "risk.md", db)
         is_category = False
         if not bus and not fin:
             cat = _category_slug(name, bond.get("bond_type"))
             if cat:
-                bus = _read_issuer_file(cat, "business.md")
-                fin = _read_issuer_file(cat, "financials.md")
-                risk_md = _read_issuer_file(cat, "risk.md")
+                bus = _read_issuer_file(cat, "business.md", db)
+                fin = _read_issuer_file(cat, "financials.md", db)
+                risk_md = _read_issuer_file(cat, "risk.md", db)
                 is_category = bool(bus or fin)
         if bus or fin or bond.get("bond_type") != "ofz":
             issuer = {

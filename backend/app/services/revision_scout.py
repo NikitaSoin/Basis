@@ -162,6 +162,109 @@ def _make_signal(db: Session, ticker: str, prose_tab: str, fact: dict) -> bool:
     return True
 
 
+# ---------------------- ревизия ЭМИТЕНТОВ облигаций ----------------------
+# Владелец, 2026-08-26: «по облигациям не исключаю, что вообще нужна отдельная очередь,
+# когда агент отправляется и проверяет, есть ли изменения». Так и есть: у эмитента нет
+# тикера и нет входного потока — 13 лент про непубличную лизинговую компанию не пишут
+# никогда. Единственный способ узнать, что у неё сменился собственник или вышел новый
+# рейтинг, — пойти и посмотреть.
+_ISSUER_TOPICS = {
+    "issuer_risk": "рейтинг, дефолт, реструктуризация, суд, долговая нагрузка",
+    "issuer_business": "бизнес, собственники, сделки, новые проекты",
+    "issuer_financials": "выручка, прибыль, отчётность, облигационный выпуск",
+}
+_ISSUER_CIRCLE_DAYS = 60      # профилей 513 — круг длиннее, чем у компаний
+_ISSUER_BATCH = 10
+
+
+def _issuer_name(slug: str) -> str:
+    """Человеческое имя эмитента из слага папки."""
+    return slug.replace("_cat-", "").replace("-", " ").strip()
+
+
+def _issuer_candidates(db: Session, batch: int, tabs: list[str] | None) -> list[tuple[str, str]]:
+    from app.services.card_prose_patcher import ISSUERS_DIR
+    if not ISSUERS_DIR.exists():
+        return []
+    slugs = sorted(d.name for d in ISSUERS_DIR.iterdir()
+                   if d.is_dir() and not d.name.startswith("."))
+    use = [t for t in (tabs or list(_ISSUER_TOPICS)) if t in _ISSUER_TOPICS]
+    seen: dict[tuple[str, str], datetime] = {}
+    for tk, tab, ts in db.query(CardProseOverlay.ticker, CardProseOverlay.tab,
+                                func.max(CardProseOverlay.created_at)).filter(
+            CardProseOverlay.tab.in_(list(_ISSUER_TOPICS))).group_by(
+            CardProseOverlay.ticker, CardProseOverlay.tab).all():
+        seen[(tk.lower(), tab)] = ts
+    epoch = datetime(1970, 1, 1, tzinfo=timezone.utc)
+    cutoff = datetime.now(timezone.utc) - timedelta(days=_ISSUER_CIRCLE_DAYS)
+    pairs = [(s, tab) for s in slugs for tab in use
+             if (seen.get((s.lower(), tab)) or epoch) < cutoff]
+    pairs.sort(key=lambda p: seen.get((p[0].lower(), p[1])) or epoch)
+    return pairs[:batch]
+
+
+def run_issuer_revision(db: Session, batch: int = _ISSUER_BATCH,
+                        tabs: list[str] | None = None,
+                        only_slug: str | None = None) -> dict:
+    """Ревизия профилей эмитентов облигаций: проверить и вписать найденное."""
+    from app.services.card_prose_patcher import read_prose, run_issuer_add
+
+    pairs = ([(only_slug, t) for t in (tabs or list(_ISSUER_TOPICS))] if only_slug
+             else _issuer_candidates(db, batch, tabs))
+    stats = {"проверено": 0, "с изменениями": 0, "правок опубликовано": 0,
+             "правок отклонено": 0, "источников записано": 0, "details": []}
+    for slug, tab in pairs:
+        name = _issuer_name(slug)
+        results = _search(name, slug, _ISSUER_TOPICS[tab])
+        if not results:
+            stats["details"].append({"эмитент": slug, "раздел": tab, "note": "поиск пуст"})
+            continue
+        try:
+            prose, _ = read_prose(db, slug, tab)
+        except Exception:  # noqa: BLE001
+            prose = None
+        if not prose:
+            stats["details"].append({"эмитент": slug, "раздел": tab, "note": "нет профиля"})
+            continue
+        payload = {"issuer": name, "tab": tab, "already_written": prose[:1800],
+                   "found": [{"title": r.get("title"),
+                              "text": str(r.get("snippet") or "")[:400],
+                              "url": r.get("url")} for r in results]}
+        try:
+            out = llm.complete(_SYS, json.dumps(payload, ensure_ascii=False),
+                               json_mode=True, max_tokens=900)
+        except llm.LLMError as e:
+            logger.warning("revision_scout: эмитент %s/%s — LLM не отработал: %s",
+                           slug, tab, e)
+            continue
+        stats["проверено"] += 1
+        if not isinstance(out, dict) or not out.get("changed"):
+            stats["details"].append({"эмитент": slug, "раздел": tab,
+                                     "note": str((out or {}).get("note") or "")[:80]})
+            continue
+        stats["с изменениями"] += 1
+        for f in [x for x in (out.get("facts") or []) if isinstance(x, dict)][:2]:
+            try:
+                row = run_issuer_add(db, slug, tab, f)
+            except Exception:  # noqa: BLE001
+                logger.exception("revision_scout: правка профиля %s не прошла", slug)
+                continue
+            if row is not None:
+                key = "правок опубликовано" if row.status == "published" else "правок отклонено"
+                stats[key] += 1
+            try:
+                from app.services.source_pool import record_find
+                if record_find(db, str(f.get("url") or ""), topic=tab, found_for=slug,
+                               note=str(f.get("source") or "")[:200]):
+                    stats["источников записано"] += 1
+            except Exception:  # noqa: BLE001
+                logger.warning("revision_scout: источник эмитента не записан", exc_info=True)
+        db.commit()
+    logger.info("revision_scout(эмитенты): %s",
+                {k: v for k, v in stats.items() if k != "details"})
+    return stats
+
+
 def run_revision(db: Session, batch: int = _BATCH, tabs: list[str] | None = None,
                  only_ticker: str | None = None) -> dict:
     """Один прогон ревизии по кругу. Возвращает сводку."""

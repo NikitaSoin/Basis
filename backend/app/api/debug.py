@@ -830,6 +830,24 @@ def debug_trigger_revision_scout(batch: int = 5, tab: str | None = None,
         db.close()
 
 
+@router.post("/debug/trigger-issuer-revision")
+def debug_trigger_issuer_revision(batch: int = 3, tab: str | None = None,
+                                  slug: str | None = None):
+    """Ревизия профилей эмитентов облигаций: проверить и вписать найденное.
+    tab — issuer_risk / issuer_business / issuer_financials; slug — конкретный эмитент."""
+    from app.db.session import SessionLocal
+    from app.services.revision_scout import run_issuer_revision
+    db = SessionLocal()
+    try:
+        return run_issuer_revision(db, batch=batch, tabs=[tab] if tab else None,
+                                   only_slug=slug)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-issuer-revision: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.get("/debug/discovered-sources")
 def debug_discovered_sources(status: str | None = None, limit: int = 40):
     """Пул источников, найденных ревизией: кто пригодился и сколько раз."""

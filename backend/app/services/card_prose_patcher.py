@@ -49,6 +49,16 @@ _NONEQUITY_DIR = {
     "bond": Path(__file__).parent.parent.parent / "bonds",
     "fund": Path(__file__).parent.parent.parent / "funds",
 }
+# 🔴 Профили ЭМИТЕНТОВ облигаций (2026-08-26). Именно их видит владелец на большинстве
+# бумаг: индивидуальный разбор написан у 24 выпусков, а профиль эмитента — у 513, и он
+# же служит «текстом разбора» для всех серий этого эмитента. Автообновления у него не
+# было вообще: патчер умел работать только с файлом конкретного выпуска.
+ISSUERS_DIR = Path(__file__).parent.parent.parent / "bond_issuers"
+_ISSUER_TAB_FILE = {
+    "issuer_business": "business.md",
+    "issuer_financials": "financials.md",
+    "issuer_risk": "risk.md",
+}
 
 # вкладка → файл прозы (summary.md — основной аналитический текст вкладки)
 _TAB_FILE = {
@@ -204,6 +214,10 @@ def _tab_path(ticker: str, tab: str) -> Path | None:
     # которых уже нет в списке торгуемых).
     if tab == "futures_asset":
         return FUTURES_ASSETS_DIR / _safe_code(ticker) / "analysis.md"
+    # Профиль эмитента облигаций: «тикер» — слаг папки (может быть длинным и
+    # кириллическим, поэтому свой санитайзер, а не _safe_code).
+    if tab in _ISSUER_TAB_FILE:
+        return ISSUERS_DIR / _safe_slug(ticker) / _ISSUER_TAB_FILE[tab]
     # Облигации и фонды: «тикер» — это SECID/ISIN, проза лежит своим деревом.
     if tab in _NONEQUITY_DIR:
         return _NONEQUITY_DIR[tab] / _safe_code(ticker) / "analysis_summary.md"
@@ -213,6 +227,11 @@ def _tab_path(ticker: str, tab: str) -> Path | None:
 
 def _safe_code(code: str) -> str:
     return re.sub(r"[^A-Za-z0-9_-]", "", code or "")[:20]
+
+
+def _safe_slug(slug: str) -> str:
+    """Слаг папки эмитента: кириллица допустима, длина до 80 (есть 52-символьные)."""
+    return re.sub(r"[^\w-]", "", (slug or "").lower(), flags=re.UNICODE)[:80]
 
 
 def current_overlay(db: Session, ticker: str, tab: str) -> CardProseOverlay | None:
@@ -700,6 +719,38 @@ def run_for_signal(db: Session, signal: CompanySignal, kind: str = "fact") -> Ca
         evidence_extra={"signal_id": signal.id, "source_key": signal.source_key,
                         "source_url": signal.source_url,
                         "trust": signal.trust, "verification": check})
+
+
+def run_issuer_add(db: Session, slug: str, tab: str, fact: dict) -> CardProseOverlay | None:
+    """Вписать подтверждённый факт в ПРОФИЛЬ ЭМИТЕНТА облигаций.
+
+    🔴 Зачем отдельный вход (2026-08-26). У компаний находка ревизии идёт через шину
+    сигналов — та привязана к тикеру и к карточке акции. У эмитента облигаций тикера
+    нет вовсе (их 513, и большинство непубличные), поэтому шина ему не подходит:
+    правка вызывается напрямую, но проходит ТОТ ЖЕ гейт и ложится в ТОТ ЖЕ оверлей —
+    второй механики правки в проекте не появляется.
+    """
+    if tab not in _ISSUER_TAB_FILE:
+        return None
+    claim = str(fact.get("claim") or "").strip()
+    url = str(fact.get("url") or "").strip()
+    if len(claim) < 25:
+        return None
+
+    def _tb(prose: str) -> str:
+        return (
+            f"Эмитент: {slug}. Раздел профиля: {tab}. Сегодня "
+            f"{datetime.now(timezone.utc).date().isoformat()}.\n\n"
+            f"ПОДТВЕРЖДЁННОЕ СОБЫТИЕ (источник {fact.get('source') or '—'}, "
+            f"дата {fact.get('date') or '—'}):\n{claim}\n"
+            f"Ссылка: {url or '—'}\n\n"
+            f"ТЕКСТ ПРОФИЛЯ (верни правку абзаца целиком):\n<<<\n{prose[:8000]}\n>>>")
+
+    return _run_patch(
+        db, slug, tab, sys=_FACT_ADD_SYS + _JSON_ONLY, task_builder=_tb,
+        grounding_text=f"{claim} {fact.get('source') or ''}", kind="fact_add",
+        evidence_extra={"source_url": url, "source": fact.get("source"),
+                        "found_by": "revision_scout"})
 
 
 def _fact_queue(db: Session) -> list[CompanySignal]:
