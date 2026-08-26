@@ -622,7 +622,19 @@ def run_for_signal(db: Session, signal: CompanySignal, kind: str = "fact") -> Ca
             CardProseOverlay.source_signal_id == signal.id).first():
         return None  # уже патчили этим сигналом
 
-    def _tb(prose: str) -> str:
+    def _tb(prose: str, verification: dict | None = None) -> str:
+        # 🔴 verification — результат перепроверки сообщения СМИ по первоисточнику.
+        # Параметр обязан быть в сигнатуре: вызов идёт как _tb(prose, check), и без
+        # него дневной проход падал с TypeError на ПЕРВОМ же сигнале — то есть с
+        # 10 августа (когда добавили перепроверку) факт-патч не работал вовсе, а
+        # выглядело это как «изменений нет». Урок тот же, что и с другими тихими
+        # отказами: падение внутри партии обязано быть видно снаружи.
+        checked = ""
+        if verification:
+            checked = (f"\n\nПЕРЕПРОВЕРКА ПО ПЕРВОИСТОЧНИКУ: "
+                       f"{verification.get('verdict') or '—'}. "
+                       f"{str(verification.get('why') or '')[:300]}\n"
+                       f"Подтверждённые факты: {str(verification.get('facts') or '—')[:500]}")
         return (
             f"Компания: {ticker}. Вкладка: {tab}. Сегодня "
             f"{datetime.now(timezone.utc).date().isoformat()}.\n\n"
@@ -631,7 +643,7 @@ def run_for_signal(db: Session, signal: CompanySignal, kind: str = "fact") -> Ca
             f"{'официальное раскрытие' if signal.trust == 'official' else 'сообщение СМИ'}"
             f"):\nЗаголовок: {signal.title}\n"
             f"Содержание: {(signal.summary or '')[:600]}\n"
-            f"Первоисточник: {signal.source_url or '—'}\n\n"
+            f"Первоисточник: {signal.source_url or '—'}{checked}\n\n"
             f"ТЕКСТ РАЗБОРА ВКЛАДКИ (правь точечно find/replace):\n<<<\n{prose[:8000]}\n>>>")
 
     # 🔴 СИГНАЛ ИЗ СМИ ПЕРЕПРОВЕРЯЕМ (владелец, 2026-08-10: «новости из СМИ окей,
@@ -726,9 +738,19 @@ def _fact_queue(db: Session) -> list[CompanySignal]:
 def run_daily_facts(db: Session) -> dict:
     """Дневной проход ФАКТОВ: очередь из входного потока → факт-патч под гейтом."""
     queue = _fact_queue(db)
-    stats = {"queued": len(queue), "published": 0, "rejected": 0, "skipped": 0}
+    stats = {"queued": len(queue), "published": 0, "rejected": 0, "skipped": 0,
+             "failed": 0}
     for s in queue:
-        row = run_for_signal(db, s, kind="fact")
+        # 🔴 Одна упавшая правка не должна уносить партию: именно так TypeError в
+        # одном месте остановил дневной проход целиком на две с половиной недели,
+        # и снаружи это выглядело как «сигналов нет, менять нечего».
+        try:
+            row = run_for_signal(db, s, kind="fact")
+        except Exception:  # noqa: BLE001
+            db.rollback()
+            stats["failed"] += 1
+            logger.exception("card_prose_patcher: сигнал %s не обработан", s.id)
+            continue
         if row is None:
             stats["skipped"] += 1
         else:
