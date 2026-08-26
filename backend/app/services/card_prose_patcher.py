@@ -455,7 +455,12 @@ def _apply_and_gate(prose: str, result: dict, signal_text: str,
         repl = e.get("replace") or ""
         if not find or not repl:
             notes.append(f"edit{i}:empty"); continue
-        if len(find) > _MAX_FIND_LEN:
+        # В режиме ДОПОЛНЕНИЯ якорь — это абзац целиком (мы сами так просим), и
+        # предел «≤600 знаков» режет корректные правки: первый же прогон по эмитентам
+        # отклонил find(653). Для остальных режимов предел прежний — там длинный
+        # якорь означает попытку переписать кусок вместо точечной правки.
+        max_find = 1600 if kind == "fact_add" else _MAX_FIND_LEN
+        if len(find) > max_find:
             notes.append(f"edit{i}:find_too_long({len(find)})"); continue
         # поиск find толерантно к тире/пробелам (1:1 нормализация сохраняет длину →
         # индекс в нормализованной = индекс в оригинале)
