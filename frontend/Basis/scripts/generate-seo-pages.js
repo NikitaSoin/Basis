@@ -1310,7 +1310,7 @@ ${sectors.map((s) => `<h2>${escapeHtml(s)} <span style="color:var(--faint);font-
     .map((c) => `<a class="chip" href="/company/${c.ticker}/">${escapeHtml(c.short)} (${c.ticker})</a>`).join("")}</div>`).join("\n")}
 <h2>Инструменты и методики Basis</h2>
 <div class="grid">${LANDINGS.map((l) => `<a class="chip" href="/${l.slug}/">${escapeHtml(l.crumb)}</a>`).join("")}</div>
-<a class="cta" href="/">Открыть приложение Basis →</a>`;
+<a class="cta" href="/?view=companies&amp;tab=stocks">Открыть список компаний в приложении Basis →</a>`;
   return pageShell({
     title: `Аналитика по ${companies.length} компаниям Мосбиржи — разборы Basis`,
     desc: `Каталог разборов Basis: ${companies.length} компаний Московской биржи по секторам — бизнес-модель, финансы, дивиденды, справедливая цена, риски. Без сигналов «купить/продать».`,

@@ -3689,3 +3689,291 @@ def fix_earnings_standard(apply: bool = Query(False)):
         return backfill_standard_labels(db, dry_run=not apply)
     finally:
         db.close()
+
+
+# ══════════════════════════ АНАЛИТИКА В ОДНОМ ОКНЕ ══════════════════════════
+# Заказ владельца 2026-08-26: «сделать в консоли, чтобы можно было посмотреть Метрику,
+# Search Console (по дням/неделе/месяцу), распределение времени, сколько людей заходило
+# несколько раз, какие страницы буквами („Рынок: акции“) и агрегированно по блокам».
+#
+# 🔴 Три источника, и они НЕ взаимозаменяемы — в этом весь смысл собрать их рядом:
+#   наш лог      — что человек делал ВНУТРИ платформы (разделы, время, возвраты);
+#   Метрика      — откуда пришёл и сколько среди визитов роботов (isRobot есть только в API);
+#   Search Console — что показывает Google и по каким запросам.
+# Раньше за каждым надо было идти отдельно, а два последних — вообще только со скрипта на
+# ноутбуке владельца. Внешние два необязательны: нет доступа — блок честно пишет почему.
+
+_VISITS_CTE = """
+WITH ev AS (
+  SELECT anon_id, created_at, path,
+         CASE WHEN created_at - lag(created_at) OVER (PARTITION BY anon_id ORDER BY created_at)
+                   > interval '30 minutes'
+               OR lag(created_at) OVER (PARTITION BY anon_id ORDER BY created_at) IS NULL
+              THEN 1 ELSE 0 END AS nv
+  FROM user_events
+  WHERE is_bot IS FALSE AND anon_id IS NOT NULL
+    AND created_at >= current_date - CAST(:days AS integer)
+),
+v AS (SELECT anon_id, created_at, path,
+             sum(nv) OVER (PARTITION BY anon_id ORDER BY created_at) AS vn FROM ev),
+vis AS (SELECT anon_id, vn,
+               EXTRACT(EPOCH FROM (max(created_at) - min(created_at))) AS sec,
+               count(*) AS events
+        FROM v GROUP BY 1,2)
+"""
+
+# 🔴 ВТОРОЙ ФИЛЬТР — ПО ПОВЕДЕНИЮ, ПОВЕРХ is_bot. Флаг is_bot ставится при записи по
+# User-Agent, и после того как его сузили (он записывал живых людей в роботы по словам
+# «yandex»/«mail.ru»), он стал пропускать ботов. Насколько — видно по расхождению:
+# за 30 дней наш лог насчитал 1501 «человека», Метрика за тот же период — 272.
+# Разницу выдаёт форма распределения: 989 визитов короче 30 секунд и 557, где открыта
+# ровно одна страница и ничего больше.
+#
+# Правило владельца (2026-08-07): «роботы на платформе проводят времени пару секунд от
+# силы». Первая версия правила была «больше одной страницы ИЛИ 15+ секунд» — она дала 1015
+# «людей» и оказалась негодной: 989 визитов открывают вторую страницу за ОДНУ секунду,
+# человек так не умеет, а условие через ИЛИ их пропускало. Нужна связка через И.
+#
+# Замер порогов на боевых данных за 30 дней (всего в логе 1533 отпечатка):
+#     >1 стр ИЛИ 15 с   1015     ← пропускает роботов
+#     >1 стр И 5 с         84
+#     15 с и дольше        63
+#     30 с и дольше        56
+# Взято «больше одной страницы И не меньше 5 секунд между первым и последним событием».
+#
+# 🔴 84 против 272 у Метрики — это НЕ ошибка ни одной из систем, они меряют РАЗНОЕ.
+# Счётчик Метрики стоит и на статических SEO-страницах и срабатывает до загрузки
+# приложения: человек, открывший страницу облигации из выдачи и ушедший, попадёт к ней и
+# не попадёт к нам. Наш лог пишется из приложения и отвечает на другой вопрос — «сколько
+# людей реально РАБОТАЛИ с платформой». Поэтому в отчёте обе цифры стоят рядом и подписаны
+# по-разному; сводить их к одной — значит потерять смысл обеих.
+#
+# Фильтр живёт В ОТЧЁТЕ, а не при записи: сырой лог остаётся нетронутым, порог можно
+# поменять задним числом и пересчитать всю историю.
+_HUMANLIKE = "(events > 1 AND sec >= 5)"
+
+
+@router.get("/debug/analytics-data")
+def analytics_data(days: int = Query(30, ge=1, le=365)):
+    """Все три источника разом, в JSON. Период задаётся днями: 1 / 7 / 30 и т.д."""
+    from sqlalchemy import text as _sql
+    from app.db.session import SessionLocal
+    from app.services import analytics_console as AC
+
+    out: dict = {"дней": days}
+
+    with SessionLocal() as db:
+        db.execute(_sql("SET TRANSACTION READ ONLY"))
+
+        # ── распределение визитов по длительности ──
+        # Границы выбраны так, чтобы первым делом было видно «вошёл и сразу ушёл»: именно
+        # эта доля отличает живой интерес от случайного клика в выдаче.
+        rows = db.execute(_sql(_VISITS_CTE + """
+            SELECT CASE WHEN events = 1 THEN 'открыл одну страницу'
+                        WHEN sec < 30   THEN 'меньше 30 секунд'
+                        WHEN sec < 60   THEN '30 секунд — 1 минута'
+                        WHEN sec < 180  THEN '1 — 3 минуты'
+                        WHEN sec < 600  THEN '3 — 10 минут'
+                        ELSE 'больше 10 минут' END AS корзина,
+                   count(*) AS визитов, count(DISTINCT anon_id) AS людей,
+                   round(CAST(avg(sec) AS numeric)) AS средне_секунд
+            FROM vis GROUP BY 1
+        """), {"days": days}).mappings().all()
+        order = ["открыл одну страницу", "меньше 30 секунд", "30 секунд — 1 минута",
+                 "1 — 3 минуты", "3 — 10 минут", "больше 10 минут"]
+        by = {r["корзина"]: dict(r) for r in rows}
+        out["время_на_платформе"] = [by[k] for k in order if k in by]
+
+        # ── сколько из этого похоже на людей, а сколько на роботов (см. _HUMANLIKE) ──
+        r0 = db.execute(_sql(_VISITS_CTE + f"""
+            SELECT count(*) FILTER (WHERE {_HUMANLIKE}) AS визитов_людей,
+                   count(DISTINCT anon_id) FILTER (WHERE {_HUMANLIKE}) AS людей,
+                   count(*) FILTER (WHERE NOT {_HUMANLIKE}) AS визитов_ботов,
+                   count(DISTINCT anon_id) FILTER (WHERE NOT {_HUMANLIKE}) AS ботов,
+                   round(CAST(avg(sec) FILTER (WHERE {_HUMANLIKE})/60 AS numeric), 1) AS минут_на_визит
+            FROM vis
+        """), {"days": days}).mappings().first()
+        out["по_поведению"] = dict(r0) if r0 else {}
+        out["по_поведению"]["правило"] = (
+            "Работой с платформой считается визит, где открыта больше одной страницы И между "
+            "первым и последним событием прошло не меньше 5 секунд. Флаг is_bot по User-Agent "
+            "пропускает часть ботов: без этого фильтра в логе видно визиты, где вторая "
+            "страница открывается за одну секунду. "
+            "Эта цифра МЕНЬШЕ, чем «людей» у Метрики, и так и должно быть: счётчик Метрики "
+            "стоит и на статических страницах и срабатывает до загрузки приложения, поэтому "
+            "она считает всех, кто открыл сайт, а мы — тех, кто в нём работал.")
+
+        # ── возвраты: сколько раз один и тот же человек приходил ──
+        out["повторные_заходы"] = [dict(r) for r in db.execute(_sql(_VISITS_CTE + """
+            , per AS (SELECT anon_id, count(*) AS visits FROM vis GROUP BY 1)
+            SELECT CASE WHEN visits = 1 THEN 'один раз'
+                        WHEN visits = 2 THEN 'два раза'
+                        WHEN visits <= 5 THEN '3 — 5 раз'
+                        ELSE 'больше 5 раз' END AS сколько_раз,
+                   count(*) AS людей, sum(visits) AS визитов
+            FROM per GROUP BY 1 ORDER BY 2 DESC
+        """), {"days": days}).mappings().all()]
+
+        # ── страницы: сырьё из базы, названия — питоном (см. analytics_console.label) ──
+        pages = db.execute(_sql("""
+            SELECT path, count(*) AS просмотров, count(DISTINCT anon_id) AS людей
+            FROM user_events
+            WHERE is_bot IS FALSE AND kind = 'pageview'
+              AND created_at >= current_date - CAST(:days AS integer)
+            GROUP BY 1
+        """), {"days": days}).mappings().all()
+
+        # ── по дням ──
+        # 🔴 Свой CTE, а не подмена строки в общем: день визита — это date(min(created_at)),
+        # то есть агрегат, и он не может стоять в GROUP BY по номеру позиции. Первая версия
+        # именно так и падала; группировать надо по anon_id и номеру визита, а дату брать
+        # уже во внешнем запросе.
+        out["по_дням"] = [dict(r) for r in db.execute(_sql("""
+            WITH ev AS (
+              SELECT anon_id, created_at,
+                     CASE WHEN created_at - lag(created_at) OVER (PARTITION BY anon_id ORDER BY created_at)
+                               > interval '30 minutes'
+                           OR lag(created_at) OVER (PARTITION BY anon_id ORDER BY created_at) IS NULL
+                          THEN 1 ELSE 0 END AS nv
+              FROM user_events
+              WHERE is_bot IS FALSE AND anon_id IS NOT NULL
+                AND created_at >= current_date - CAST(:days AS integer)
+            ),
+            v AS (SELECT anon_id, created_at,
+                         sum(nv) OVER (PARTITION BY anon_id ORDER BY created_at) AS vn FROM ev),
+            vis AS (SELECT anon_id, vn, date(min(created_at)) AS d,
+                           EXTRACT(EPOCH FROM (max(created_at) - min(created_at))) AS sec
+                    FROM v GROUP BY anon_id, vn)
+            SELECT d AS день, count(*) AS визитов, count(DISTINCT anon_id) AS людей,
+                   round(CAST(avg(sec)/60 AS numeric), 1) AS минут_на_визит
+            FROM vis GROUP BY d ORDER BY d DESC
+        """), {"days": days}).mappings().all()]
+
+    blocks: dict[str, dict] = {}
+    detail: dict[str, dict] = {}
+    for r in pages:
+        b, full = AC.label(r["path"])
+        for store, key in ((blocks, b), (detail, full)):
+            cur = store.setdefault(key, {"название": key, "просмотров": 0, "людей": 0})
+            cur["просмотров"] += r["просмотров"]
+            cur["людей"] = max(cur["людей"], r["людей"])   # людей не суммируем: пересекаются
+    out["по_блокам"] = sorted(blocks.values(), key=lambda x: -x["просмотров"])
+    out["по_страницам"] = sorted(detail.values(), key=lambda x: -x["просмотров"])[:40]
+
+    out["метрика"] = AC.metrika(f"{days}daysAgo")
+    out["search_console"] = AC.gsc(days)
+    return out
+
+
+@open_router.get("/debug/analytics", response_class=HTMLResponse)
+def analytics_console_page():
+    """Страница «Аналитика» — то же, что /debug/analytics-data, но глазами.
+
+    Токен вводится один раз и живёт в localStorage браузера, как в SQL-консоли. Период
+    переключается кнопками: сутки / неделя / месяц — владелец просил именно эти три.
+    """
+    return HTMLResponse("""<!doctype html><html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Аналитика Basis</title><meta name="robots" content="noindex">
+<style>
+body{font:15px/1.6 -apple-system,Inter,sans-serif;max-width:1100px;margin:0 auto;padding:24px;
+background:#F7F5F0;color:#1F1B16}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:26px 0 8px}
+p.sub{color:#5A5248;margin:0 0 18px}
+input{padding:8px;border:1px solid #E4DFD5;border-radius:8px;font:14px ui-monospace,monospace}
+button{background:#C97A4A;color:#fff;border:0;border-radius:8px;padding:9px 16px;font-size:14px;
+cursor:pointer;margin-right:6px}button.off{background:#fff;color:#5A5248;border:1px solid #E4DFD5}
+table{border-collapse:collapse;width:100%;margin-top:8px;font-size:14px;background:#fff}
+th,td{border:1px solid #E4DFD5;padding:6px 9px;text-align:left}th{background:#F0EBE2}
+td.n{text-align:right;font-family:ui-monospace,Menlo,monospace}
+.cards{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.card{background:#fff;border:1px solid #E4DFD5;border-radius:10px;padding:12px 16px;min-width:150px}
+.card b{display:block;font-size:24px;font-family:ui-monospace,monospace}
+.card span{color:#5A5248;font-size:13px}
+.warn{background:#fff;border:1px solid #E4DFD5;border-left:3px solid #C97A4A;padding:10px 14px;
+border-radius:8px;color:#5A5248}
+.wrap{overflow-x:auto}
+</style></head><body>
+<h1>Аналитика Basis</h1>
+<p class="sub">Наш лог, Яндекс.Метрика и Google Search Console в одном окне.
+Роботы отделены везде, где это возможно.</p>
+<p><input id="tok" placeholder="X-Debug-Token" size="46"> <span id="saved"></span></p>
+<p>
+  <button id="b1" onclick="load(1)">Сутки</button>
+  <button id="b7" class="off" onclick="load(7)">Неделя</button>
+  <button id="b30" class="off" onclick="load(30)">Месяц</button>
+</p>
+<div id="out"><p class="sub">Введите токен и выберите период.</p></div>
+<script>
+const $=s=>document.querySelector(s);
+const tok=$('#tok');
+tok.value=localStorage.getItem('dbg')||'';
+tok.oninput=()=>{localStorage.setItem('dbg',tok.value);$('#saved').textContent='сохранён'};
+const num=v=>(v===null||v===undefined)?'—':(''+v).replace(/\\B(?=(\\d{3})+(?!\\d))/g,' ');
+function table(rows, cols){
+  if(!rows||!rows.length) return '<p class="sub">нет данных</p>';
+  let h='<div class="wrap"><table><tr>'+cols.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr>';
+  for(const r of rows){
+    h+='<tr>'+cols.map(c=>{const v=r[c[1]];
+      return c[2]==='n'?'<td class="n">'+num(v)+'</td>':'<td>'+(v===null||v===undefined?'—':v)+'</td>';
+    }).join('')+'</tr>';
+  }
+  return h+'</table></div>';
+}
+function card(v,label){return '<div class="card"><b>'+num(v)+'</b><span>'+label+'</span></div>'}
+async function load(days){
+  for(const d of [1,7,30]) $('#b'+d).className = d===days?'':'off';
+  $('#out').innerHTML='<p class="sub">Считаю…</p>';
+  let d;
+  try{
+    const r=await fetch('/api/debug/analytics-data?days='+days,{headers:{'X-Debug-Token':tok.value}});
+    d=await r.json();
+    if(!r.ok){$('#out').innerHTML='<div class="warn">'+(d.detail||'ошибка')+'</div>';return}
+  }catch(e){$('#out').innerHTML='<div class="warn">Не удалось получить данные: '+e+'</div>';return}
+  const m=d['метрика']||{}, g=d['search_console']||{};
+  let h='';
+  h+='<h2>Люди на платформе — Метрика</h2>';
+  if(m.ok){
+    h+='<div class="cards">'+card(m['людей'],'живых людей')+card(m['визитов_людей'],'визитов людей')
+      +card(m['роботов'],'визитов роботов')+card(m['минут_на_визит'],'минут на визит')
+      +card(m['глубина'],'страниц за визит')+card(m['отказы_проц']+'%','отказы')+'</div>';
+    h+='<h2>Откуда пришли</h2><div class="cards">'
+      +card(m['из_поиска_людей'],'из поиска')+card(m['яндекс_людей'],'из Яндекса')
+      +card(m['google_людей'],'из Google')+card(m['прямые_людей'],'прямые заходы')+'</div>';
+    h+=table(m['по_дням'],[['день','день'],['визиты','визиты','n'],['люди','люди','n'],['минут','минут','n']]);
+  } else h+='<div class="warn">'+m.why+'</div>';
+  const bh=d['по_поведению']||{};
+  h+='<h2>Наш лог: кто реально работал с платформой</h2>'
+    +'<div class="cards">'+card(bh['людей'],'работали с платформой')+card(bh['визитов_людей'],'их визитов')
+    +card(bh['ботов'],'открыли и ушли / боты')+card(bh['визитов_ботов'],'их визитов')
+    +card(bh['минут_на_визит'],'минут на визит')+'</div>'
+    +'<p class="sub">'+(bh['правило']||'')+'</p>';
+  h+='<h2>Сколько времени проводят (наш лог)</h2>'
+    +table(d['время_на_платформе'],[['длительность визита','корзина'],['визитов','визитов','n'],
+      ['людей','людей','n'],['в среднем, сек','средне_секунд','n']]);
+  h+='<h2>Кто возвращался</h2>'
+    +table(d['повторные_заходы'],[['сколько раз заходил','сколько_раз'],['людей','людей','n'],
+      ['визитов','визитов','n']]);
+  h+='<h2>Разделы платформы — по блокам</h2>'
+    +table(d['по_блокам'],[['блок','название'],['просмотров','просмотров','n'],['людей','людей','n']]);
+  h+='<h2>Разделы платформы — подробно</h2>'
+    +table(d['по_страницам'],[['страница','название'],['просмотров','просмотров','n'],['людей','людей','n']]);
+  h+='<h2>Визиты по дням (наш лог)</h2>'
+    +table(d['по_дням'],[['день','день'],['визитов','визитов','n'],['людей','людей','n'],
+      ['минут на визит','минут_на_визит','n']]);
+  h+='<h2>Google Search Console</h2>';
+  if(g.ok){
+    h+='<div class="cards">'+card(g['показы'],'показов')+card(g['клики'],'кликов')
+      +card(g['ctr_проц']+'%','CTR')+card(g['позиция'],'средняя позиция')+'</div>'
+      +'<p class="sub">Период: '+g['период']+' (Google отдаёт данные с задержкой ~2 суток)</p>';
+    h+=table(g['по_дням'],[['день','день'],['показы','показы','n'],['клики','клики','n'],
+      ['позиция','позиция','n']]);
+    h+='<h2>Google: страницы</h2>'+table(g['страницы'],[['адрес','адрес'],['показы','показы','n'],
+      ['клики','клики','n'],['позиция','позиция','n']]);
+    h+='<h2>Google: запросы</h2>'+table(g['запросы'],[['запрос','запрос'],['показы','показы','n'],
+      ['клики','клики','n'],['позиция','позиция','n']]);
+  } else h+='<div class="warn">'+g.why+'</div>';
+  $('#out').innerHTML=h;
+}
+if(tok.value){$('#saved').textContent='сохранён';load(7)}
+</script></body></html>""")

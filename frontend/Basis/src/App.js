@@ -1064,6 +1064,10 @@ export default function App() {
   // Вкладка внутри раздела из адреса (?view=portfolio&tab=risk) — прокидывается в
   // MarketNeo/PortfolioV2/ObserverV2 как начальная секция.
   const [forceInnerTab, setForceInnerTab] = useState(null);
+  // Подборка инструментов из адреса (/bonds/vdo/ → включить фильтр «ВДО»).
+  // 🔴 Владелец 2026-08-26: «вбил высокодоходные облигации — открылась SEO-страница,
+  // а должен открываться Рынок → облигации с уже включённым фильтром ВДО».
+  const [forceMarketPreset, setForceMarketPreset] = useState(null);
   // Статическая SEO-страница, адрес которой приложение не распознало. В этом случае
   // НЕЛЬЗЯ рисовать главную: получается «сверху SEO-страница, снизу лендинг», что и
   // поймал владелец на /statistika/indeks-pmi/. Честнее оставить статику — она
@@ -1181,6 +1185,27 @@ export default function App() {
         // перестал находиться по запросу, хотя раньше находился. Теперь событие шлёт
         // сама карточка (BondCard/FuturesCard/FundCard) по приходу данных — так же, как
         // карточка компании шлёт basis:company-ready.
+        return;
+      }
+
+      // 🔴 ПОДБОРКИ И КАТАЛОГИ ИНСТРУМЕНТОВ: /bonds/vdo/, /bonds/ofz/, /bonds/vse/3/,
+      // /futures/, /funds/. Ветка выше ловит только КОДЫ бумаг (в них есть заглавные), а
+      // подборки называются строчными — и проваливались в самый низ, где приложение
+      // оставляло статическую страницу и рисовало под ней ЛЕНДИНГ.
+      // Владелец 2026-08-26: «вбил высокодоходные облигации, открылась SEO-страница, а
+      // кнопка внизу вела на лендинг — что за бред? Должен открываться Рынок → облигации
+      // с уже включённым фильтром ВДО».
+      // Теперь адрес подборки открывает нужный раздел «Рынка», а слаг подборки уходит в
+      // фильтр (соответствия — BOND_PRESETS в market/MarketNeo.jsx; там же объяснено,
+      // почему для части подборок фильтра нет и мы честно открываем без него).
+      // 🔴 Событие basis:app-ready ЗДЕСЬ НЕ ШЛЁМ — его посылает MarketNeo, когда список
+      // реально пришёл с бэка. Пошли мы его сразу — статика удалилась бы, а список ещё
+      // пуст, и робот увидел бы пустую страницу (так однажды «пропал» фьючерс из выдачи).
+      const mColl = window.location.pathname.match(/^\/(bonds|futures|funds)(?:\/([a-z0-9-]+))?\/?/);
+      if (mColl) {
+        setActiveTab("companies");
+        setForceInnerTab(mColl[1]);
+        if (mColl[1] === "bonds" && mColl[2]) setForceMarketPreset(mColl[2]);
         return;
       }
 
@@ -1465,7 +1490,7 @@ export default function App() {
     if (selectedSpot) return <SpotCard secid={selectedSpot} onBack={() => setSelectedSpot(null)} />;
     switch (activeTab) {
       case "companies":
-        return <CompaniesView onSelectCompany={selectCompany} onSelectIndex={openIndex} onSelectDriver={openDriverChart} forceTab={forceInnerTab} />;
+        return <CompaniesView onSelectCompany={selectCompany} onSelectIndex={openIndex} onSelectDriver={openDriverChart} forceTab={forceInnerTab} forcePreset={forceMarketPreset} />;
       case "screener":
         return <ScreenerCompareView onSelectCompany={selectCompany} token={token} onAuthRequired={() => setShowAuthModal(true)} />;
       case "overview":

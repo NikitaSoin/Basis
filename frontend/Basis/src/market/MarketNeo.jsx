@@ -603,10 +603,22 @@ function plural(n, one, few, many) {
   const w = (a > 10 && a < 20) || b === 0 || b > 4 ? many : b === 1 ? one : few;
   return `${n} ${w}`;
 }
-function BondsTab({ rows, query, onOpen, Logo }) {
+// Подборка из адреса (/bonds/vdo/) → фильтр, который надо включить при открытии.
+// 🔴 Только ТОЧНЫЕ соответствия. У панели два фильтра — «Купон» и «Надёжность»; для
+// «ОФЗ», «квазивалютных», «коротких» и «ежемесячного купона» такого фильтра нет, и
+// подменять их приблизительным («ОФЗ» ≈ «Надёжные», куда попадают и корпораты) — значит
+// показать человеку не тот список, чем он просил. Для них просто открываем облигации
+// без фильтра: это честно, а недостающие фильтры — отдельная задача.
+const BOND_PRESETS = {
+  vdo: { reli: "ВДО" },
+  flotery: { coupon: "Флоатеры" },
+};
+
+function BondsTab({ rows, query, onOpen, Logo, preset }) {
   const compact = useNarrowCards();
-  const [coupon, setCoupon] = useState("Любой купон");
-  const [reli, setReli] = useState("Любая надёжность");
+  const p = BOND_PRESETS[preset] || {};
+  const [coupon, setCoupon] = useState(p.coupon || "Любой купон");
+  const [reli, setReli] = useState(p.reli || "Любая надёжность");
   const [sort, setSort] = useState({ key: "default", dir: -1 });
   // Дефолт "cards" — владелец, 2026-07-30: базовый режим экрана «Рынок»
   // должен быть карточками, не лентой, во всех классах активов (акции —
@@ -967,7 +979,7 @@ function inTradingHours() {
   return t >= 7 * 60 && t <= 23 * 60 + 50;
 }
 
-export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot, onOpenOption, onSelectIndex, onSelectDriver, Logo, forceTab }) {
+export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot, onOpenOption, onSelectIndex, onSelectDriver, Logo, forceTab, forcePreset }) {
   const persist = (k, d) => { try { return localStorage.getItem(k) || d; } catch { return d; } };
   // forceTab — вкладка из адреса (?view=companies&tab=bonds). Приоритет у неё: человек
   // пришёл по ссылке на конкретный класс активов, и запомненная в localStorage вкладка
@@ -1097,6 +1109,14 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
       if (!alive) return;
       const arr = Array.isArray(d) ? d : [];
       setter(arr);
+      // 🔴 Статическую SEO-страницу убираем ТОЛЬКО ПОСЛЕ прихода данных, а не в момент
+      // разбора адреса. Если послать событие раньше, статика уже удалена, а список ещё
+      // пуст — и робот, исполняющий скрипты, видит пустую страницу. Ровно так однажды
+      // «пропал» фьючерс из выдачи; у карточек это лечится тем же приёмом (BondCard и
+      // соседи шлют basis:app-ready по данным). Подборки облигаций попадают сюда же.
+      if (arr.length) {
+        try { window.dispatchEvent(new Event("basis:app-ready")); } catch { /* не критично */ }
+      }
       if (tab === "funds" && arr.length) {
         const ids = arr.map(f => f.secid).slice(0, 200).join(",");
         fetch(`${api}/api/market/instruments/sparklines?asset_class=fund&secids=${encodeURIComponent(ids)}&days=30&_=${Date.now()}`, { cache: "no-store" })
@@ -1310,7 +1330,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
               {tab === "stocks" && stockView === "map" && <Heatmap stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} />}
               {tab === "stocks" && stockView === "rows" && <StockRows stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} Logo={Logo} />}
               {tab === "stocks" && stockView === "list" && <StockCards stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} Logo={Logo} />}
-              {tab === "bonds" && <BondsTab rows={bonds} query={query} onOpen={onOpenBond} Logo={Logo} />}
+              {tab === "bonds" && <BondsTab rows={bonds} query={query} onOpen={onOpenBond} Logo={Logo} preset={forcePreset} />}
               {tab === "futures" && <FuturesTab rows={futures} query={query} onOpen={onOpenFuture} Logo={Logo} />}
               {tab === "funds" && <FundsTab rows={funds} query={query} onOpen={onOpenFund} sparks={fundSparks} />}
               {tab === "fx" && <FxMetalsTab rows={spot} onOpen={onOpenSpot} />}

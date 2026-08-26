@@ -2884,7 +2884,7 @@ const ScreenerView = ({ onSelectCompany, token, onAuthRequired }) => {
   );
 };
 
-const CompaniesView = ({ onSelectCompany, onSelectIndex, onSelectDriver, forceTab }) => {
+const CompaniesView = ({ onSelectCompany, onSelectIndex, onSelectDriver, forceTab, forcePreset }) => {
   // Тонкая оболочка: состояние выбора детальной карточки класса + редизайн-экран
   // MarketNeo (Direction A, живые данные). Детальные карточки (BondCard/FuturesCard/
   // FundCard/SpotCard/OptionCard) сохранены как есть — открываются по выбору из MarketNeo.
@@ -2903,6 +2903,7 @@ const CompaniesView = ({ onSelectCompany, onSelectIndex, onSelectDriver, forceTa
   return (
     <MarketNeo
       forceTab={forceTab}
+      forcePreset={forcePreset}
       onOpenCompany={onSelectCompany}
       onOpenBond={setSelectedBond}
       onOpenFuture={setSelectedFuture}

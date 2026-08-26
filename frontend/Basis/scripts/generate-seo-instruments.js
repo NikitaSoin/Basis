@@ -596,7 +596,7 @@ ${params}
 <h2>Рыночные данные на ${dataDate}</h2>
 ${market}
 ${bondMathBlock(b, ctx.ofzCurve)}
-<a class="cta" href="/">Открыть в приложении Basis: скринер и карточка облигации →</a>
+<a class="cta" href="/?view=companies&tab=bonds">Открыть в приложении Basis: скринер и карточка облигации →</a>
 ${chips ? `<h2>Подборки с этой бумагой</h2><div class="grid">${chips}</div>` : ""}
 ${nbs ? `<h2>Похожие выпуски</h2><div class="grid">${nbs}</div>` : ""}
 <p><a href="/bonds/">← Все облигации: каталог и подборки Basis</a></p>`;
@@ -660,7 +660,7 @@ ${col.intro}
 ${extraHtml || ""}
 <h2>${escapeHtml(col.tableTitle || "Список выпусков")}</h2>
 ${bondsTable(rows.slice(0, col.top || rows.length), col.tableOpts)}
-<a class="cta" href="/">Полный список, фильтры и живые котировки — в скринере облигаций Basis →</a>
+<a class="cta" href="/?view=companies&tab=bonds">Полный список, фильтры и живые котировки — в скринере облигаций Basis →</a>
 <h2>Другие подборки</h2>
 <div class="grid">${others}<a class="chip" href="/bonds/">Каталог облигаций</a></div>`;
   return pageShell({
@@ -737,7 +737,7 @@ ${params}
 <h2>Торги на ${dataDate}</h2>
 <p class="tag">Факт — данные Московской биржи; ликвидность важна не меньше комиссии</p>
 ${market}
-<a class="cta" href="/">Открыть в приложении Basis: раздел «Рынок» → Фонды →</a>
+<a class="cta" href="/?view=companies&tab=funds">Открыть в приложении Basis: раздел «Рынок» → Фонды →</a>
 ${peers ? `<h2>Другие фонды этого типа</h2><div class="grid">${peers}</div>` : ""}
 <p><a href="/funds/">← Все биржевые фонды: каталог Basis</a></p>`;
   const descBits = [];
@@ -778,7 +778,7 @@ function fundsIndex(funds, ctx) {
 <p class="sub">${funds.length} ${plural(funds.length, "фонд", "фонда", "фондов")} (БПИФ/ETF) по типам. Фонд — упаковка чужих активов:
 главные вопросы — что внутри, сколько съедает комиссия (TER) и хватает ли ликвидности. «—» в колонке TER — комиссия в данных Basis не заполнена.</p>
 ${sections}
-<a class="cta" href="/">Открыть приложение Basis: раздел «Рынок» → Фонды →</a>`;
+<a class="cta" href="/?view=companies&tab=funds">Открыть приложение Basis: раздел «Рынок» → Фонды →</a>`;
   return pageShell({
     title: `Биржевые фонды (БПИФ/ETF) на Мосбирже: комиссии TER, типы, ликвидность | Basis`,
     desc: `Каталог ${funds.length} биржевых фондов Московской биржи: акции, облигации, золото, денежный рынок. Комиссии TER, бенчмарки, обороты — разбор Basis. Данные на ${dataDate}.`,
@@ -891,7 +891,7 @@ ${params}
 <h2>Рыночные данные на ${dataDate}</h2>
 ${market}
 ${riskBlock}
-<a class="cta" href="/">Открыть в приложении Basis: срочная структура, базис, связь с активом →</a>
+<a class="cta" href="/?view=companies&tab=futures">Открыть в приложении Basis: срочная структура, базис, связь с активом →</a>
 ${termStructureBlock(f, all)}
 ${series ? `<h2>Другие серии на этот актив</h2><div class="grid">${series}</div>` : ""}
 <p><a href="/futures/">← Все фьючерсы: каталог Basis</a></p>`;
@@ -989,7 +989,7 @@ function futuresIndex(futs, ctx) {
 <p class="sub">${futs.length} ${plural(futs.length, "живой контракт", "живых контракта", "живых контрактов")} FORTS по типам базового актива
 (экспирированные не показываются). Фьючерс — инструмент со встроенным плечом: сначала риск (ГО и плечо), потом всё остальное.</p>
 ${sections}
-<a class="cta" href="/">Открыть приложение Basis: раздел «Рынок» → Фьючерсы →</a>`;
+<a class="cta" href="/?view=companies&tab=futures">Открыть приложение Basis: раздел «Рынок» → Фьючерсы →</a>`;
   const nWord = plural(futs.length, "контракт", "контракта", "контрактов");
   return pageShell({
     title: `Фьючерсы на Мосбирже: ГО, плечо и экспирации — ${futs.length} ${nWord} | Basis`,
@@ -1029,7 +1029,7 @@ ${table(cur)}
 ${table(met)}
 <p>Металлы (цена за грамм) — классический защитный актив: не приносят купона и дивиденда,
 но исторически сглаживают просадки портфеля в кризисы и при ослаблении рубля.</p>
-<a class="cta" href="/">Открыть в приложении Basis: живые курсы, динамика и роль в портфеле →</a>
+<a class="cta" href="/?view=companies&tab=spot">Открыть в приложении Basis: живые курсы, динамика и роль в портфеле →</a>
 <h2>Другие классы активов Basis</h2>
 <div class="grid">
 <a class="chip" href="/bonds/">Облигации</a>
@@ -1329,7 +1329,7 @@ ${pagerHtml(p)}
 ${colCards}
 <h2>Полный список выпусков</h2>
 <p>Все ${bonds.length} ${plural(bonds.length, "бумага", "бумаги", "бумаг")} на ${pages} страницах: <a href="/bonds/vse/1/">открыть список →</a></p>
-<a class="cta" href="/">Скринер облигаций с фильтрами и живыми котировками — в приложении Basis →</a>
+<a class="cta" href="/?view=companies&tab=bonds">Скринер облигаций с фильтрами и живыми котировками — в приложении Basis →</a>
 <h2>Другие классы активов</h2>
 <div class="grid">
 <a class="chip" href="/company/">Компании</a>
