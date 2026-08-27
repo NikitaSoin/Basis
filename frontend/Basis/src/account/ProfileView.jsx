@@ -229,7 +229,7 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
       <p className="acct-deep-note">
         {isFree
           ? "Рынок, скринер, карточки и портфель — бесплатно. Банковская карта не нужна."
-          : `${user.subscription_expires_at ? `Активен до ${fmtDate(user.subscription_expires_at)}` : "Тариф активен"} · или ${tier.priceRubYear} ₽ за год. Оплата картой появится позже — сейчас тарифы переключаются свободно.`}
+          : `${user.subscription_expires_at ? `Активен до ${fmtDate(user.subscription_expires_at)}` : "Тариф активен"} · или ${tier.priceRubYear} ₽ за год. Продлить или сменить период — на странице тарифов; по вопросам оплаты и возврата напишите нам.`}
       </p>
       <div className="acct-deep-actions">
         <Button variant="primary" className="acct-pill" onClick={() => onNavigate("pricing")}>

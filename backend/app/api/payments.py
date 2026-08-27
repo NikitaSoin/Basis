@@ -50,6 +50,17 @@ DEFAULT_PLAN = "month"
 # двухстадийке делает банк по настройке терминала.
 PAID_STATUSES = {"CONFIRMED", "AUTHORIZED"}
 FAILED_STATUSES = {"REJECTED", "CANCELED", "DEADLINE_EXPIRED", "REVERSED", "REFUNDED"}
+# Возврат денег. REVERSED — отмена до списания (по захолдированному платежу),
+# REFUNDED — возврат уже списанных, PARTIAL_REFUNDED — частичный.
+# 🔴 Без обработки этих статусов возврат превращался в подарок: деньги ушли
+# обратно, а подписка осталась бы висеть до конца оплаченного срока.
+REFUND_STATUSES = {"REFUNDED", "REVERSED", "PARTIAL_REFUNDED"}
+
+
+def _granted_days(months: int) -> int:
+    """Сколько дней даёт оплата. Год — 365, а не 12×30: за «двенадцать месяцев
+    по тридцать» человек недополучил бы пять оплаченных дней."""
+    return 365 if months >= 12 else 30 * max(1, months)
 
 
 def _new_order_id(user_id: int) -> str:
@@ -77,17 +88,81 @@ def _grant_subscription(db: Session, payment: Payment) -> bool:
         base = now
     elif base.tzinfo is None:
         base = base.replace(tzinfo=timezone.utc)
-    # Год — это 365 дней, а не 12×30: за «двенадцать месяцев по тридцать» человек
-    # недополучил бы пять оплаченных дней.
-    months = max(1, payment.months)
-    days = 365 if months >= 12 else 30 * months
     user.subscription_type = SubscriptionType.premium
-    user.subscription_expires_at = base + timedelta(days=days)
+    user.subscription_expires_at = base + timedelta(days=_granted_days(payment.months))
     payment.granted_at = now
     db.commit()
     logger.info("Платёж %s: подписка до %s (пользователь %s)",
                 payment.order_id, user.subscription_expires_at, user.id)
+    _notify_user(user, payment, kind="paid")
     return True
+
+
+def _revoke_subscription(db: Session, payment: Payment) -> bool:
+    """Снять подписку при возврате денег. Возвращает True, если сняли сейчас.
+
+    Отматываем ровно то, что выдавали этим платежом: если человек успел
+    доплатить второй период, у него останется остаток от него, а не ноль."""
+    if payment.granted_at is None:
+        return False   # начисления не было — отзывать нечего
+    user = db.get(User, payment.user_id)
+    if user is None:
+        return False
+    now = datetime.now(timezone.utc)
+    expires = user.subscription_expires_at
+    if expires is not None and expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    new_expires = (expires - timedelta(days=_granted_days(payment.months))) if expires else None
+    if new_expires is None or new_expires <= now:
+        user.subscription_type = SubscriptionType.free
+        user.subscription_expires_at = None
+    else:
+        user.subscription_expires_at = new_expires
+    payment.granted_at = None          # снова «не начислено» — повторный возврат не отмотает дважды
+    db.commit()
+    logger.info("Платёж %s: возврат, подписка → %s (пользователь %s)",
+                payment.order_id, user.subscription_expires_at, user.id)
+    _notify_user(user, payment, kind="refunded")
+    return True
+
+
+def _notify_user(user: User, payment: Payment, kind: str) -> None:
+    """Письмо от ПЛАТФОРМЫ о судьбе платежа.
+
+    Банк присылает своё письмо о списании, но это письмо банка: в нём нет ни
+    слова про то, что подписка включена и до какого числа. Человек не должен
+    догадываться, сработало ли у нас, — поэтому пишем сами.
+
+    Отправка не должна ронять обработку платежа: деньги важнее письма, и если
+    почта недоступна, платёж всё равно засчитан."""
+    try:
+        from app.services.email_codes import send_mail
+        amount = f"{payment.amount / 100:,.0f}".replace(",", " ")
+        if kind == "paid":
+            until = (user.subscription_expires_at.strftime("%d.%m.%Y")
+                     if user.subscription_expires_at else "—")
+            subject = "Basis — оплата получена, тариф Max активен"
+            body = (
+                f"Оплата прошла успешно.\n\n"
+                f"Тариф: Max\n"
+                f"Сумма: {amount} ₽\n"
+                f"Действует до: {until}\n"
+                f"Номер заказа: {payment.order_id}\n\n"
+                f"Тариф уже активен — заходить заново не нужно. Посмотреть срок можно в "
+                f"профиле: {FRONT_BASE}/?view=profile\n\n"
+                f"Если оплата была ошибочной, напишите нам в ответ на это письмо — вернём.\n\n"
+                f"Basis — {FRONT_BASE}")
+        else:
+            subject = "Basis — возврат платежа оформлен"
+            body = (
+                f"Возврат по заказу {payment.order_id} на сумму {amount} ₽ оформлен.\n\n"
+                f"Деньги вернутся на карту в срок, установленный банком (обычно до 3 рабочих "
+                f"дней, иногда дольше — зависит от банка-эмитента).\n"
+                f"Тариф Max, оплаченный этим платежом, отключён.\n\n"
+                f"Basis — {FRONT_BASE}")
+        send_mail(user.email, subject, body)
+    except Exception:  # noqa: BLE001 — письмо не должно влиять на исход платежа
+        logger.exception("Платёж %s: письмо (%s) не отправилось", payment.order_id, kind)
 
 
 @router.get("/config")
@@ -133,8 +208,13 @@ def create_payment(request: Request, period: str = DEFAULT_PLAN,
             order_id=order_id,
             amount_kopecks=plan["kopecks"],
             description=plan["title"],
-            success_url=f"{FRONT_BASE}/?payment=success&order={order_id}",
-            fail_url=f"{FRONT_BASE}/?payment=fail&order={order_id}",
+            # 🔴 Возвращаем на ЭКРАН ТАРИФОВ, а не на главную: подтверждение
+            # «оплата прошла, Max до такого-то» живёт там. С возвратом на «/»
+            # человек видел обычную главную и не понимал, сработало ли вообще
+            # (владелец так и прогнал первый платёж — письмо от банка пришло,
+            # а от платформы никакого ответа).
+            success_url=f"{FRONT_BASE}/?view=pricing&payment=success&order={order_id}",
+            fail_url=f"{FRONT_BASE}/?view=pricing&payment=fail&order={order_id}",
             notification_url=f"{api_base}/api/payments/notification",
             customer_email=current_user.email,
             receipt=tb.build_receipt(current_user.email, None, plan["title"], plan["kopecks"]),
@@ -209,6 +289,10 @@ async def payment_notification(request: Request, db: Session = Depends(get_db)):
                                order_id, e)
         if confirmed:
             _grant_subscription(db, payment)
+    elif status_ in REFUND_STATUSES:
+        # Возврат оформляется в личном кабинете банка (или нашей ручкой ниже) —
+        # к нам он приходит вот этой нотификацией, и подписку надо снять.
+        _revoke_subscription(db, payment)
     return Response(content="OK", media_type="text/plain")
 
 

@@ -1299,7 +1299,11 @@ export default function App() {
         return;
       }
       const VIEW_TABS = ["companies", "overview", "portfolio", "stress", "screener", "ai", "pricing"];
-      const viewP = (params.get("view") || "").toLowerCase();
+      // Возврат с формы банка (?payment=success|fail&order=…). Подтверждение
+      // «оплата прошла, Max до такого-то» живёт на экране тарифов — ведём туда,
+      // даже если в ссылке нет view: ссылки, выданные банку раньше, вели на «/»,
+      // и человек попадал на обычную главную, не понимая, сработало ли вообще.
+      const viewP = (params.get("view") || (params.get("payment") ? "pricing" : "")).toLowerCase();
       if (VIEW_TABS.includes(viewP)) {
         // ?tab=… — вкладка ВНУТРИ раздела (Рынок: stocks/bonds/futures/funds;
         // Портфель: composition/risk/correlation/quality/…). Без этого ссылка на

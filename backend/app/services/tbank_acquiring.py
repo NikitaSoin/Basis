@@ -130,6 +130,22 @@ def get_state(payment_id: str) -> dict:
     return _call("GetState", {"PaymentId": str(payment_id)})
 
 
+def cancel_payment(payment_id: str, amount_kopecks: int | None = None) -> dict:
+    """Возврат денег (метод Cancel).
+
+    Один метод на три случая — банк сам выбирает по текущему статусу платежа:
+    отмена до списания (AUTHORIZED → REVERSED) и возврат уже списанных
+    (CONFIRMED → REFUNDED). Без суммы возвращается всё, с суммой — частично
+    (PARTIAL_REFUNDED).
+
+    Возврат — необратимая операция с чужими деньгами, поэтому наружу она
+    выведена только под отладочным токеном, а не в открытую ручку."""
+    payload: dict = {"PaymentId": str(payment_id)}
+    if amount_kopecks:
+        payload["Amount"] = int(amount_kopecks)
+    return _call("Cancel", payload)
+
+
 def verify_notification(payload: dict) -> bool:
     """Подпись нотификации. Без этой проверки любой, кто знает адрес вебхука,
     выпишет себе подписку обычным POST-запросом."""
