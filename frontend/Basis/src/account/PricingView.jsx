@@ -52,6 +52,10 @@ async function startPayment(period, token) {
   return data;
 }
 
+// Статусы банка, означающие возврат денег (те же, что снимают подписку на
+// бэкенде — backend/app/api/payments.py, REFUND_STATUSES).
+const REFUND_STATUSES = ["REFUNDED", "REVERSED", "PARTIAL_REFUNDED"];
+
 async function fetchPaymentStatus(orderId, token) {
   const r = await fetch(`${apiUrl}/api/payments/status/${encodeURIComponent(orderId)}`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -175,7 +179,17 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
                 <b>Оплата прошла.</b> Тариф Max активен
                 {payResult.subscription_expires_at
                   ? ` до ${new Date(payResult.subscription_expires_at).toLocaleDateString("ru-RU")}`
-                  : ""}. Спасибо, что поддерживаете платформу.
+                  : ""}. Подтверждение отправили на вашу почту. Спасибо, что
+                поддерживаете платформу.
+              </p>
+            ) : REFUND_STATUSES.includes(payResult.status) ? (
+              /* Возврат — это НЕ «платёж не прошёл»: деньги списывались и теперь
+                 идут обратно. Общая формулировка «деньги не списаны» здесь врала бы
+                 человеку про его же счёт. */
+              <p>
+                <b>Платёж возвращён.</b> Деньги вернутся на карту в срок, установленный
+                банком — обычно до трёх рабочих дней. Тариф Max, оплаченный этим
+                платежом, отключён; на почту отправили подтверждение возврата.
               </p>
             ) : (
               <p>
