@@ -205,7 +205,8 @@ def find_report_docs(inn: str, since: date, until: date | None = None,
     # Счётчики разбора: без них «ноль сообщений» неотличим от «страница пустая»,
     # «строки не те» и «фильтр по категории слишком узкий» — а это три разные починки.
     diag = {"html_chars": len(html), "rows": 0, "rows_with_message": 0,
-            "titles_seen": [], "matched_category": 0}
+            "titles_seen": [], "matched_category": 0,
+            "window": [since.isoformat(), until.isoformat()]}
     candidates: list[dict] = []
     for row in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S):
         diag["rows"] += 1
@@ -255,6 +256,8 @@ def find_report_docs(inn: str, since: date, until: date | None = None,
         msg_date = _parse_ru_date(dm.group(1)) if dm else None
         if msg_date is None:
             diag["msg_no_date"] += 1
+        if len(diag.setdefault("msg_dates", [])) < 8:
+            diag["msg_dates"].append(msg_date.isoformat() if msg_date else None)
         if msg_date and not (since <= msg_date <= until):
             diag["msg_out_of_window"] += 1
             continue
