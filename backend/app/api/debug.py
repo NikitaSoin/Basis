@@ -1312,6 +1312,32 @@ def debug_report_documents(ticker: str | None = None, inn: str | None = None,
     return out
 
 
+@router.post("/debug/ingest-statement-doc")
+def debug_ingest_statement_doc(ticker: str, url: str, apply: bool = False,
+                               period_hint: str | None = None):
+    """Вся цепочка на одном документе: скачать → извлечь статьи → проверить
+    тождества → (по apply) записать в квартальный слой карточки.
+
+    apply=false по умолчанию — СУХОЙ ПРОГОН: видно, что извлеклось и сошлись ли
+    тождества, но карточка не трогается. На новом эмитенте смотреть надо именно
+    так: цена ошибки в витрине выше стоимости лишнего прогона."""
+    from app.db.session import SessionLocal
+    from app.models.company import Company
+    from app.services.statement_ingest import ingest_from_url
+    db = SessionLocal()
+    try:
+        t = ticker.upper()
+        row = db.query(Company).filter(Company.ticker == t).first()
+        return ingest_from_url(db, t, url, company_name=(row.name if row else None),
+                               period_hint=period_hint, apply=apply)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug ingest-statement-doc %s: %s", ticker, e)
+        db.rollback()
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/ingest-report-source")
 def debug_ingest_report_source(payload: dict):
     """Приём полного текста отчётного релиза от агента-добытчика (пилот, владелец
