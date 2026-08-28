@@ -188,16 +188,25 @@ def find_report_docs(inn: str, since: date, until: date | None = None,
         logger.warning("report_documents: страница эмитента не открылась: %s", org)
         return {"org_page": org, "messages": [], "documents": [], "site_links": []}
 
+    # Счётчики разбора: без них «ноль сообщений» неотличим от «страница пустая»,
+    # «строки не те» и «фильтр по категории слишком узкий» — а это три разные починки.
+    diag = {"html_chars": len(html), "rows": 0, "rows_with_message": 0,
+            "titles_seen": [], "matched_category": 0}
     candidates: list[dict] = []
     for row in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S):
+        diag["rows"] += 1
         if "GetMessage" not in row:
             continue
+        diag["rows_with_message"] += 1
         cells = re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)
         if len(cells) < 2:
             continue
         title = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", cells[1])).strip()
+        if len(diag["titles_seen"]) < 8:
+            diag["titles_seen"].append(title[:110])
         if not any(k in title.lower() for k in _REPORT_TITLES):
             continue
+        diag["matched_category"] += 1
         gm = re.search(r"guid=(\{[0-9A-Fa-f-]+\})", row)
         if not gm:
             continue
@@ -234,7 +243,7 @@ def find_report_docs(inn: str, since: date, until: date | None = None,
                   if not re.search(r"cbr\.ru|consultant|garant|yandex|google|vk\.com|t\.me|"
                                    r"1prime\.ru|interfax", u, re.I)]
     return {"org_page": org, "messages": picked, "documents": documents,
-            "site_links": site_links[:12]}
+            "site_links": site_links[:12], "diag": diag}
 
 
 def fetch_document_text(url: str) -> dict:

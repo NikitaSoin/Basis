@@ -552,6 +552,13 @@ _FIN_SPEC = (
     '"ebitda": число|null, "ebitda_yoy_pct": число|null, '
     '"net_profit": число|null, "net_profit_yoy_pct": число|null, '
     '"net_debt": число|null, '
+    # Период отчёта. Заголовок новости называет его далеко не всегда, и тогда в базу
+    # уходит сырая дата публикации — с такой меткой отчёт не ложится в квартальный
+    # слот карточки и цифры до витрины не доезжают (Эталон 2026-08-28: цифры
+    # извлеклись, период «2026-08-28», в карточку не попало ничего). Модель читает
+    # ПОЛНЫЙ текст, где период почти всегда назван прямо.
+    '"period_label": "период, ЗА КОТОРЫЙ отчёт, в формате 1П2026 / 2кв2026 / 9М2026 / '
+    '2025 — ровно как он назван в тексте; null, если в тексте периода нет", '
     # Баланс и денежный поток. Раньше не спрашивались вовсе — и на карточке в
     # квартальном виде «Баланс» состоял из одной строки (чистый долг), а вкладки
     # ОДДС не было. Пресс-релизы эти строки часто называют (у банков активы и
@@ -777,6 +784,53 @@ def _live_price(ticker: str, db: Session) -> tuple[float | None, float | None]:
     return live, close
 
 
+
+_DATE_PERIOD_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def _reconcile_period(db: Session, report: EarningsReport, fig_raw: dict) -> None:
+    """Заменить период-заглушку (сырую дату) на настоящий, если модель его назвала.
+
+    🔴 Зачем. Период парсится из ЗАГОЛОВКА новости, а заголовок называет его далеко
+    не всегда — тогда в базу уходит `pub_date.isoformat()`. С такой меткой отчёт
+    не ложится в квартальный слот карточки: `interim_periods` не знает, что такое
+    «2026-08-28», и оверлей пропускает запись. Эталон 2026-08-28 — цифры извлеклись
+    (выручка 54 400, EBITDA 9 200), а на карточке не появилось ничего.
+
+    Заменяем ТОЛЬКО заглушку-дату: если период уже осмысленный («1П2026»), он взят
+    из заголовка первоисточника и доверия к нему больше, чем к пересказу.
+
+    Уникальный ключ — (ticker, period, standard), поэтому перед переименованием
+    проверяем, нет ли уже записи с новым периодом: иначе апдейт упадёт на
+    IntegrityError и потеряет весь разбор. Есть такая — оставляем как есть, дубль
+    приберёт общий отбор «самой содержательной записи» на стороне карточки.
+    """
+    cur = (report.period or "").strip()
+    if not _DATE_PERIOD_RE.match(cur):
+        return
+    new = (fig_raw or {}).get("period_label")
+    if not isinstance(new, str):
+        return
+    new = new.strip()
+    if not new or new == cur or len(new) > 24 or _DATE_PERIOD_RE.match(new):
+        return
+    from app.services import interim_periods  # локально: модуль тянет за собой модели
+    if interim_periods.report_period_to_interim(new, report.published_at) is None \
+            and not re.fullmatch(r"\d{4}", new):
+        return  # модель вернула что-то, чего наш разбор периодов не понимает
+    exists = (db.query(EarningsReport)
+              .filter(EarningsReport.ticker == report.ticker,
+                      EarningsReport.period == new,
+                      EarningsReport.standard == report.standard)
+              .first())
+    if exists is not None and exists.id != report.id:
+        logger.info("report_watch: период %s → %s не применён (%s: запись уже есть)",
+                    cur, new, report.ticker)
+        return
+    logger.info("report_watch: период уточнён по тексту отчёта: %s → %s (%s)",
+                cur, new, report.ticker)
+    report.period = new
+
 def _store_report(db: Session, report: EarningsReport, company: Company, text_blob: str | None,
                   is_operational: bool, price_now: float | None, mcap: float | None,
                   fig_override: dict | None = None) -> str:
@@ -869,6 +923,7 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
         digest = _digest(fig, mult)
     # 🔴 Ярлык стандарта ставился по ЗАГОЛОВКУ, до чтения источника. Теперь, когда разбор
     # готов, сверяем ярлык с тем, что в нём реально разобрано — см. _standard_from_digest.
+    _reconcile_period(db, report, fig_raw)
     _reconcile_standard(report, digest)
     db.add(report); db.flush()
     db.add(EarningsFigures(
