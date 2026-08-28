@@ -1321,6 +1321,35 @@ def debug_fetch_article(url: str):
     return {"ok": bool(t), "chars": len(t) if t else 0, "head": (t or "")[:300]}
 
 
+def _restore_missing_reports(db, snapshot: list[dict]) -> list[dict]:
+    """Возвращает заглушки по записям, которые удалили, а разбор не пересоздал.
+
+    Текст разбора этим не вернуть — он был построен по источнику, которого уже может
+    не быть. Но событие «отчёт вышел» восстановить обязаны: без него карточка и лента
+    молча теряют факт публикации отчёта, а следующий прогон детекта считает событие
+    новым и разбирает его заново. Статус — needs_source: это честное «отчёт есть,
+    цифр пока нет», а не притворство, что разбор существует."""
+    from app.models.earnings import EarningsReport
+    from datetime import date as _date
+    out = []
+    for s in snapshot:
+        exists = (db.query(EarningsReport)
+                  .filter(EarningsReport.ticker == s["ticker"],
+                          EarningsReport.period == s["period"],
+                          EarningsReport.standard == s["standard"]).first())
+        if exists:
+            continue
+        db.add(EarningsReport(
+            ticker=s["ticker"], period=s["period"], standard=s["standard"],
+            report_type=s["report_type"], source=s["source"], source_url=s["source_url"],
+            published_at=_date.fromisoformat(s["published_at"]) if s["published_at"] else None,
+            status="needs_source"))
+        out.append({"ticker": s["ticker"], "period": s["period"]})
+    if out:
+        db.commit()
+    return out
+
+
 @router.post("/debug/redo-report")
 def debug_redo_report(ticker: str, days_back: int = 7):
     """Пересоздать РАЗБОР ОТЧЁТА одного или НЕСКОЛЬКИХ тикеров (через запятую,
@@ -1349,12 +1378,28 @@ def debug_redo_report(ticker: str, days_back: int = 7):
                         EarningsReport.status.in_(("processed", "extract_failed", "needs_source")),
                         EarningsReport.published_at.isnot(None),
                         EarningsReport.published_at >= cutoff).all())
+        # 🔴 СНАЧАЛА СНИМАЕМ КОПИЮ, ПОТОМ УДАЛЯЕМ (инцидент 2026-08-28).
+        # Удаление коммитится отдельно от разбора, поэтому любой сбой на втором шаге
+        # оставляет дыру: прогон по SOFL и ASTR не уложился в таймаут прокси (502 на
+        # 484-й секунде), записи удалились, новые не создались — свежие разборы
+        # пропали и с карточек, и из ленты. Проверка «доступен ли исходный текст»
+        # от этого не спасает: дело не в источнике, а в порядке операций.
+        # Копия лежит в snapshot и возвращается в ответе; если разбор не пересоздал
+        # запись — восстанавливаем заглушку, чтобы событие «отчёт вышел» не пропало
+        # молча вместе с текстом разбора.
+        snapshot = [{"ticker": r.ticker, "period": r.period, "standard": r.standard,
+                     "report_type": r.report_type, "status": r.status, "source": r.source,
+                     "source_url": r.source_url,
+                     "published_at": r.published_at.isoformat() if r.published_at else None}
+                    for r in rows]
         deleted = len(rows)
         for r in rows:
             db.delete(r)   # ORM-delete → каскад figures/digest по relationship
         db.commit()
         res = refresh(db, days_back=days_back, run_girbo=False)
-        return {"tickers": tickers, "deleted": deleted, "refresh": res}
+        restored = _restore_missing_reports(db, snapshot)
+        return {"tickers": tickers, "deleted": deleted, "refresh": res,
+                "snapshot": snapshot, "restored_stubs": restored}
     except Exception as e:  # noqa: BLE001
         logger.exception("debug redo-report %s: %s", ticker, e)
         db.rollback()
