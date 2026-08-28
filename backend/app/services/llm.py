@@ -107,17 +107,45 @@ def _strip_json_fence(text: str) -> str:
     return t.strip()
 
 
+def _effective_base_url(provider: str) -> str:
+    """Адрес API провайдера с учётом релея — ОЧИЩЕННЫЙ.
+
+    🔴 Инцидент 2026-08-28: весь ИИ-слой на бою лежал, каждый вызов падал с
+    `InvalidURL`, 262 новости остались без фильтрации. Причина — не сеть и не ключ:
+    значение DEEPSEEK_BASE_URL в панели содержало лишнее (пробел/кавычки/перенос
+    строки), а код подставлял его в адрес как есть. httpx на таком адресе не делает
+    запрос вовсе — отсюда и мгновенные три «попытки» подряд.
+
+    Переменная окружения приходит от человека через панель хостинга, и обращаться с
+    ней надо как с вводом: обрезать пробелы и кавычки, проверить схему. Битое
+    значение НЕ должно убивать слой целиком — откатываемся на прямой адрес
+    провайдера (он может быть недоступен из ЦОД, но у него хотя бы есть шанс) и
+    говорим об этом в лог, а не молча.
+    """
+    base_url, _, _ = _PROVIDERS[provider]
+    if provider != "deepseek":
+        return base_url
+    raw = os.environ.get("DEEPSEEK_BASE_URL")
+    if not raw:
+        return base_url
+    cleaned = raw.strip().strip('"').strip("'").strip().rstrip("/")
+    if cleaned.startswith(("http://", "https://")) and " " not in cleaned:
+        return cleaned
+    logger.error("LLM: DEEPSEEK_BASE_URL непригоден как адрес (%r) — работаю по прямому "
+                 "адресу %s. Проверьте переменную в панели: лишние пробелы, кавычки "
+                 "или перенос строки.", raw[:60], base_url)
+    return base_url
+
+
 def _call_openai_compatible(provider: str, system_prompt: str, user_content: str,
                             json_mode: bool, max_tokens: int, temperature: float,
                             thinking: bool, model_override: str | None = None,
                             timeout_override: float | None = None) -> str:
-    base_url, _, _ = _PROVIDERS[provider]
     # Релей через Cloudflare Worker (как ANTHROPIC_PROXY_URL): на этом инстансе egress
     # к api.deepseek.com режется на TLS (TCP проходит, TLS молча в таймаут — подтверждено
     # raw-socket + openssl с внешнего узла проходит). DEEPSEEK_BASE_URL направляет вызов
     # на воркер, который форвардит к DeepSeek со своей сети. Без релея DeepSeek недостижим.
-    if provider == "deepseek" and os.environ.get("DEEPSEEK_BASE_URL"):
-        base_url = os.environ["DEEPSEEK_BASE_URL"].rstrip("/")
+    base_url = _effective_base_url(provider)
     model = model_override or _model(provider)
     payload = {
         "model": model,
@@ -251,9 +279,7 @@ def complete_messages(messages: list[dict], *, tools: list[dict] | None = None,
     provider = _provider()
     if provider == "claude":
         raise LLMError("complete_messages: claude-провайдер не поддержан (агентский контур — DeepSeek/OpenAI)")
-    base_url, _, _ = _PROVIDERS[provider]
-    if provider == "deepseek" and os.environ.get("DEEPSEEK_BASE_URL"):
-        base_url = os.environ["DEEPSEEK_BASE_URL"].rstrip("/")
+    base_url = _effective_base_url(provider)
     payload: dict = {
         "model": _model(provider),
         "messages": messages,
@@ -290,9 +316,19 @@ def provider_info() -> dict:
     """Диагностика для health-эндпоинта (без секретов)."""
     p = _provider()
     base, default_model, key_env = _PROVIDERS.get(p, (None, None, None))
+    # 🔴 Здесь отдавался ДЕФОЛТНЫЙ адрес провайдера, а вызовы шли по релею из
+    # DEEPSEEK_BASE_URL. В инциденте 2026-08-28 (весь ИИ-слой лежал из-за битого
+    # значения этой переменной) health-эндпоинт показывал бодрое
+    # base_url=https://api.deepseek.com — то есть диагностика уводила от причины.
+    # Показываем ФАКТИЧЕСКИЙ адрес и признак того, что он взят из релея.
+    effective = _effective_base_url(p) if p in _PROVIDERS else None
+    raw_override = os.environ.get("DEEPSEEK_BASE_URL") if p == "deepseek" else None
     return {
         "provider": p,
         "model": _model(p) if p in _PROVIDERS else None,
         "key_present": bool(os.environ.get(key_env)) if key_env else False,
-        "base_url": base,
+        "base_url": effective,
+        "base_url_default": base,
+        "relay_configured": bool(raw_override),
+        "relay_usable": bool(raw_override) and effective != base,
     }
