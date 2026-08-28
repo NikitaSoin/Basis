@@ -805,8 +805,18 @@ def _reconcile_period(db: Session, report: EarningsReport, fig_raw: dict) -> Non
     IntegrityError и потеряет весь разбор. Есть такая — оставляем как есть, дубль
     приберёт общий отбор «самой содержательной записи» на стороне карточки.
     """
+    from app.services import interim_periods  # локально: модуль тянет за собой модели
     cur = (report.period or "").strip()
-    if not _DATE_PERIOD_RE.match(cur):
+    # Заменяем не только метку-дату, но и ЛЮБУЮ, которая не ложится в квартальный
+    # слот. Самолёт 2026-08-29: период «6 мес.» — вроде осмысленный, но года в нём
+    # нет и взять его неоткуда (published_at пуст), поэтому разбор возвращает None
+    # и цифры так же не доезжают до карточки, как при сырой дате.
+    # Годовые отчёты не трогаем: для них None — штатный ответ (годовые данные ведёт
+    # аналитик), и подмена периода увела бы их в квартальный слой.
+    if report.report_type == "annual":
+        return
+    cur_ok = interim_periods.report_period_to_interim(cur, report.published_at) is not None
+    if cur_ok:
         return
     new = (fig_raw or {}).get("period_label")
     if not isinstance(new, str):
@@ -814,7 +824,6 @@ def _reconcile_period(db: Session, report: EarningsReport, fig_raw: dict) -> Non
     new = new.strip()
     if not new or new == cur or len(new) > 24 or _DATE_PERIOD_RE.match(new):
         return
-    from app.services import interim_periods  # локально: модуль тянет за собой модели
     if interim_periods.report_period_to_interim(new, report.published_at) is None \
             and not re.fullmatch(r"\d{4}", new):
         return  # модель вернула что-то, чего наш разбор периодов не понимает
