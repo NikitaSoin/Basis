@@ -113,6 +113,7 @@ import ProfileView from "./account/ProfileView";
 import { CompanyCard, CompaniesView, NEO_CARD, BondCard, FuturesCard, FundCard, SpotCard } from "./company/CompanyCardView";
 import AssistantView from "./AssistantView";
 import { AssistantNudge } from "./design/AssistantNudge";
+import PaymentResultBanner from "./design/PaymentResultBanner";
 import "./styles/compare.css";
 const ScreenerCompareView = React.lazy(() => import("./screener/ScreenerCompareShell"));
 import "./styles/mobile-nav.css";
@@ -1705,6 +1706,16 @@ export default function App() {
         context={assistantNudgeContext}
         disabled={isLanding || activeTab === "ai" || showAuthModal}
         onAsk={(q) => { setAssistantPrefill(q); navigate("ai"); }}
+      />
+
+      {/* Чем закончился платёж. Банк показывает свой результат («Оплачено») и
+          возвращает кнопкой «В магазин» — на главную и БЕЗ номера заказа, так
+          что платформа узнаёт исход сама и говорит главное: подписка включена и
+          до какого числа. Владелец, 2026-08-28. */}
+      <PaymentResultBanner
+        token={token}
+        onOpenPricing={() => navigate("pricing")}
+        onUserUpdate={handleUserUpdate}
       />
 
       <MobileTabBar

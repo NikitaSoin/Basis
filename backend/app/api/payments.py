@@ -208,13 +208,15 @@ def create_payment(request: Request, period: str = DEFAULT_PLAN,
             order_id=order_id,
             amount_kopecks=plan["kopecks"],
             description=plan["title"],
-            # 🔴 Возвращаем на ЭКРАН ТАРИФОВ, а не на главную: подтверждение
-            # «оплата прошла, Max до такого-то» живёт там. С возвратом на «/»
-            # человек видел обычную главную и не понимал, сработало ли вообще
-            # (владелец так и прогнал первый платёж — письмо от банка пришло,
-            # а от платформы никакого ответа).
-            success_url=f"{FRONT_BASE}/?view=pricing&payment=success&order={order_id}",
-            fail_url=f"{FRONT_BASE}/?view=pricing&payment=fail&order={order_id}",
+            # 🔴 SuccessURL/FailURL НЕ передаём намеренно (владелец, 2026-08-28).
+            # Когда они заданы, банк уводит человека к нам мгновенно, и он не
+            # видит от банка ни «Оплачено», ни «Платёж не прошёл» — деньги ушли,
+            # а подтверждения от того, кто их взял, не было. Без этих полей банк
+            # показывает СВОЙ экран результата с кнопкой «В магазин», и она ведёт
+            # на адрес сайта из настроек терминала (проверено: возвращает на
+            # inbasis.ru). Результат человек к этому моменту уже увидел у банка,
+            # а платформа встречает его баннером о последнем платеже — см.
+            # /payments/last и design/PaymentResultBanner.jsx.
             notification_url=f"{api_base}/api/payments/notification",
             customer_email=current_user.email,
             receipt=tb.build_receipt(current_user.email, None, plan["title"], plan["kopecks"]),
@@ -228,7 +230,13 @@ def create_payment(request: Request, period: str = DEFAULT_PLAN,
         raise HTTPException(status_code=502, detail=f"Банк не принял платёж: {e}") from e
 
     payment.payment_id = str(result.get("PaymentId") or "") or None
-    payment.payment_url = result.get("PaymentURL")
+    # Язык формы банка задаётся параметром ссылки. Без него страница оплаты и
+    # экран результата открываются по-английски («Paid», «To the shop») —
+    # проверено на демо-терминале.
+    url = result.get("PaymentURL")
+    if url and "language=" not in url:
+        url = f"{url}{'&' if '?' in url else '?'}language=ru"
+    payment.payment_url = url
     payment.status = result.get("Status") or "NEW"
     payment.raw = result
     db.commit()
@@ -294,6 +302,56 @@ async def payment_notification(request: Request, db: Session = Depends(get_db)):
         # к нам он приходит вот этой нотификацией, и подписку надо снять.
         _revoke_subscription(db, payment)
     return Response(content="OK", media_type="text/plain")
+
+
+@router.get("/last")
+def last_payment(db: Session = Depends(get_db),
+                 current_user: User = Depends(get_current_user)):
+    """Последний платёж спрашивающего — чтобы встретить человека после оплаты.
+
+    Банк возвращает его кнопкой «В магазин» на адрес сайта из настроек терминала,
+    БЕЗ номера заказа в ссылке. Значит платформа обязана узнать результат сама,
+    иначе после оплаты она молчит — ровно то, на что жаловался владелец.
+
+    Возвращает `finished_recently`: показывать баннер стоит только про свежий
+    платёж, иначе он всплывал бы через неделю после покупки."""
+    payment = (db.query(Payment).filter(Payment.user_id == current_user.id)
+               .order_by(Payment.created_at.desc()).first())
+    if payment is None:
+        return {"found": False}
+
+    # Незавершённый платёж мог обновиться уже после нашей последней записи —
+    # спрашиваем банк (нотификация могла не дойти или прийти позже).
+    if payment.granted_at is None and payment.payment_id \
+            and payment.status not in FAILED_STATUSES:
+        try:
+            state = tb.get_state(payment.payment_id)
+            new_status = str(state.get("Status") or payment.status)
+            if new_status != payment.status:
+                payment.status = new_status
+                payment.raw = state
+                db.commit()
+            if payment.status in PAID_STATUSES:
+                _grant_subscription(db, payment)
+        except tb.AcquiringError as e:
+            logger.info("Последний платёж %s: банк не ответил (%s)", payment.order_id, e)
+
+    updated = payment.updated_at or payment.created_at
+    if updated.tzinfo is None:
+        updated = updated.replace(tzinfo=timezone.utc)
+    age_sec = (datetime.now(timezone.utc) - updated).total_seconds()
+    return {
+        "found": True,
+        "order_id": payment.order_id,
+        "status": payment.status,
+        "paid": payment.granted_at is not None,
+        "refunded": payment.status in REFUND_STATUSES,
+        "amount_rub": round(payment.amount / 100, 2),
+        "months": payment.months,
+        "finished_recently": age_sec < 2 * 3600,
+        "subscription_expires_at": (current_user.subscription_expires_at.isoformat()
+                                    if current_user.subscription_expires_at else None),
+    }
 
 
 @router.get("/status/{order_id}")

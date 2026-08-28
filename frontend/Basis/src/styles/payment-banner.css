@@ -1,0 +1,93 @@
+/* Итог платежа — баннер, встречающий человека после возврата из банка
+   (design/PaymentResultBanner.jsx). Канон Basis: кремовая поверхность, хром
+   монохромный, цвет — только в статусе (полоса слева), без «празднующих»
+   анимаций. Стоит внизу справа, как подсказка ассистента, но выше её по
+   значимости: платёж важнее совета. */
+.pbn {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 85;                 /* выше выезжающих панелей (80/81) и подсказки (70) */
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 430px;
+  max-width: calc(100vw - 32px);
+  padding: 14px 16px;
+  background: var(--cc-panel, #fdfcf9);
+  border: 1px solid var(--cc-line-2, #d8d2c3);
+  border-left-width: 3px;
+  border-radius: var(--bs-radius, 12px);
+  box-shadow: 0 12px 34px rgba(8, 8, 12, 0.16);
+  animation: pbn-in 200ms ease-out;
+}
+@keyframes pbn-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) { .pbn { animation: none; } }
+
+.pbn--ok { border-left-color: var(--bs-up, #2e7d5b); }
+.pbn--refund { border-left-color: var(--bs-copper, #C97A4A); }
+.pbn--fail { border-left-color: var(--bs-down, #b3453a); }
+
+.pbn-ic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.pbn--ok .pbn-ic { color: var(--bs-up, #2e7d5b); }
+.pbn--refund .pbn-ic { color: var(--bs-copper, #C97A4A); }
+.pbn--fail .pbn-ic { color: var(--bs-down, #b3453a); }
+
+.pbn-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.pbn-title { font: 600 13.5px/1.3 var(--bs-sans, Inter, sans-serif); color: var(--cc-ink, #26221c); }
+.pbn-text { font: 400 12.5px/1.45 var(--bs-sans, Inter, sans-serif); color: var(--cc-ink-2, #5a5248); }
+
+.pbn-cta {
+  flex-shrink: 0;
+  align-self: center;
+  font: 600 12.5px/1 var(--bs-sans, Inter, sans-serif);
+  color: #fff;
+  background: var(--bs-copper, #C97A4A);
+  border: 0;
+  border-radius: 9px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: filter 140ms ease;
+}
+.pbn-cta:hover { filter: brightness(1.06); }
+.pbn-cta:focus-visible { outline: 2px solid var(--bs-copper, #C97A4A); outline-offset: 2px; }
+
+.pbn-x {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--cc-ink-3, #948c7e);
+  cursor: pointer;
+  border-radius: 6px;
+}
+.pbn-x:hover { color: var(--cc-ink, #26221c); background: color-mix(in srgb, var(--cc-ink, #26221c) 6%, transparent); }
+.pbn-x:focus-visible { outline: 2px solid var(--bs-copper, #C97A4A); outline-offset: 1px; }
+
+/* Мобильный: во всю ширину над нижним таббаром (mobile-nav.css, высота ~64px) */
+@media (max-width: 760px) {
+  .pbn {
+    right: 10px;
+    left: 10px;
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .pbn-cta { align-self: stretch; width: 100%; padding: 11px 14px; }
+}
