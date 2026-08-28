@@ -1291,6 +1291,27 @@ def debug_trigger_report_fetch(max_tickers: int = 4):
         db.close()
 
 
+@router.get("/debug/report-documents")
+def debug_report_documents(ticker: str | None = None, inn: str | None = None,
+                           days_back: int = 120):
+    """Что доступно по эмитенту в центре раскрытия: страница эмитента, сообщения об
+    отчётности, прямые ссылки на файлы и адреса IR-страниц из текста сообщений.
+
+    Проверять надо С БОЯ, а не с ноутбука: доступность зависит от точки проверки
+    (e-disclosure отдаёт нам 403, а с ноутбука 200). Ничего не пишет в БД."""
+    from app.services.report_documents import probe
+    from app.services.calendar_events import _load_inn_ticker_map
+    if not inn and ticker:
+        t = ticker.upper()
+        inn = next((i for i, ts in _load_inn_ticker_map().items() if t in ts), None)
+    if not inn:
+        return {"error": "не нашёл ИНН — передайте inn напрямую", "ticker": ticker}
+    out = probe(inn, days_back=days_back)
+    out["inn"] = inn
+    out["ticker"] = (ticker or "").upper() or None
+    return out
+
+
 @router.post("/debug/ingest-report-source")
 def debug_ingest_report_source(payload: dict):
     """Приём полного текста отчётного релиза от агента-добытчика (пилот, владелец
