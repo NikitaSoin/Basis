@@ -202,8 +202,12 @@ def find_report_docs(inn: str, since: date, until: date | None = None,
         if len(cells) < 2:
             continue
         title = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", cells[1])).strip()
-        if len(diag["titles_seen"]) < 8:
-            diag["titles_seen"].append(title[:110])
+        # РАЗНЫЕ заголовки, а не первые восемь: первые восемь — это подряд идущие
+        # решения СД и собрания, по ним нельзя понять, есть ли вообще у эмитента
+        # категория «раскрытие отчётности» в этом центре.
+        short = title[:110]
+        if short not in diag["titles_seen"] and len(diag["titles_seen"]) < 30:
+            diag["titles_seen"].append(short)
         if not any(k in title.lower() for k in _REPORT_TITLES):
             continue
         diag["matched_category"] += 1
