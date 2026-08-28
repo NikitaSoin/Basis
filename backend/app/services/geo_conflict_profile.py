@@ -131,6 +131,11 @@ _OUTPUT_SPEC = """
 {
  "theater": "<ключ очага, как во входных данных>",
  "as_of": "<сегодняшняя дата YYYY-MM-DD>",
+ // 🔴 Стороны, их цели и баланс сил разбирай по методичке geo_base (измерения
+ // власти, структурная и сетевая власть, асимметрия взаимозависимости, санкции
+ // как отдельная теория), а класс самого события — по geo_events. Там же
+ // протокол конкурирующих интерпретаций: одно и то же действие объясняется
+ // по-разному, и выбирать одну версию молча — ошибка.
  "parties": [           // 2-4 стороны, не больше
    {"name": "<сторона>",
     "role": "<участник|посредник|бенефициар|пострадавшая сторона>",
@@ -475,7 +480,8 @@ def build_one(db: Session, scope: str, prev: dict | None,
         from app.services import analyst
         fresh = analyst.run(
             db, system=system, task="\n\n".join(user_parts),
-            shelf_docs=["geo", "geo_macro", "geo_inst", "inst_geo", "inst_env"],
+            shelf_docs=["geo_base", "geo_events", "geo", "geo_macro", "geo_inst",
+                        "inst_geo", "inst_env"],
             max_steps=11, budget=170_000, final_max_tokens=14_000,
             notes=_diag,
             final_instruction="Верни JSON строго в формате из твоей роли "
