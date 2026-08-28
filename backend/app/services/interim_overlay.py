@@ -36,6 +36,13 @@ _COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 
 _HEADLINE_FIELDS = ("revenue", "ebitda", "net_profit", "net_debt")
 
+# Баланс и денежный поток. НЕ входят в _HEADLINE_FIELDS намеренно: по ним считается
+# порог «≥2 из 4», который решает, достаточно ли данных для показа периода. Если
+# добавить их в счётчик, период с одними активами (без выручки и прибыли) начнёт
+# проходить гейт — на витрине это строка «отчёт вышел», в которой нет ни одного
+# показателя результата. Здесь они — ДОПОЛНЕНИЕ к прошедшему гейт периоду.
+_EXTRA_FIELDS = ("total_assets", "total_equity", "operating_cash_flow", "capex")
+
 # ранг источника — при равном fields_present более богатый источник побеждает
 # при повторном апсерте того же периода (новость из Ленты не должна перетереть
 # цифры, уже добытые из полного релиза)
@@ -88,6 +95,7 @@ def _write(db: Session, report: EarningsReport, fig: dict, company_name: str | N
     if period_obj is None:
         return "skipped_period"
     figures = {k: fig.get(k) for k in _HEADLINE_FIELDS}
+    figures.update({k: fig.get(k) for k in _EXTRA_FIELDS if fig.get(k) is not None})
     fields_present = _fields_present(figures)
     # Банк: merge_into() маппит ТОЛЬКО net_profit (bank_pnl) — revenue/EBITDA/net_debt
     # для банка структурно не бывают заполнены в этой схеме, «≥2 из 4» недостижимо
@@ -173,10 +181,16 @@ _UNIT_FACTORS = {"млн": 1.0, None: 1.0, "": 1.0, "млрд": 0.001,
 # обычная компания vs банк — какие поля оверлея куда мапятся
 _PLAIN_MAP = {
     "income_statement": {"revenue": "revenue", "ebitda": "ebitda", "net_profit": "net_profit"},
-    "balance_sheet": {"net_debt": "net_debt"},
+    "balance_sheet": {"net_debt": "net_debt", "total_assets": "total_assets",
+                      "total_equity": "total_equity"},
+    # ключ назначения — «cfo», как строка ОДДС называется в файле и во фронте
+    # (FinanceTab читает cf.cfo и cf.capex). Под своим именем operating_cash_flow
+    # число доехало бы до карточки и не отрисовалось ни в одной строке.
+    "cash_flow": {"operating_cash_flow": "cfo", "capex": "capex"},
 }
 _BANK_MAP = {
     "bank_pnl": {"net_profit": "net_profit"},
+    "balance_sheet": {"total_assets": "total_assets", "total_equity": "total_equity"},
 }
 
 
@@ -281,7 +295,16 @@ def _merge_into(db: Session, ticker: str, fin: dict) -> None:
         interim[section] = block
 
     n = len(candidates)
-    note = (f"{n} период(а) добавлены автоматически из потока отчётов: только "
-            f"выручка/EBITDA/прибыль/чистый долг, предварительно, не сверено аналитиком.")
+    # Подпись перечисляет то, что РЕАЛЬНО пришло, а не то, что мы умеем извлекать:
+    # текст «только выручка/EBITDA/прибыль/чистый долг» был зашит жёстко и после
+    # добавления баланса и потока начал бы врать в обратную сторону — занижать.
+    _RU = {"revenue": "выручка", "ebitda": "EBITDA", "net_profit": "прибыль",
+           "net_debt": "чистый долг", "total_assets": "активы", "total_equity": "капитал",
+           "operating_cash_flow": "операционный поток", "capex": "капзатраты"}
+    got = [k for k in _HEADLINE_FIELDS + _EXTRA_FIELDS
+           if any(isinstance((r.figures or {}).get(k), (int, float)) for r in candidates)]
+    what = "/".join(_RU[k] for k in got) or "без показателей"
+    note = (f"{n} период(а) добавлены автоматически из потока отчётов: {what}; "
+            f"предварительно, не сверено аналитиком.")
     interim["data_flags"] = list(interim.get("data_flags") or []) + [note]
     fin["interim"] = interim

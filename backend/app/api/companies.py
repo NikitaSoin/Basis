@@ -620,13 +620,48 @@ def _earnings_sort_key(r):
     return (pe or date.min, r.published_at or date.min, r.id or 0)
 
 
-def _latest_earnings_row(db: Session, ticker: str):
-    """Самый свежий отчёт по СУТИ (покрываемому периоду), любого статуса."""
-    from app.models.earnings import EarningsReport
+def _latest_earnings_row(db: Session, ticker: str, with_pending: bool = False):
+    """Отчёт для карточки: самый свежий из тех, у которых ЕСТЬ ЧТО ПОКАЗАТЬ.
+
+    🔴 Раньше здесь брался просто самый свежий по покрываемому периоду, любого
+    статуса — и карточка регулярно писала «источник с цифрами ещё не найден»,
+    когда готовый разбор ТОГО ЖЕ отчёта лежал рядом (замер 2026-08-28: 5 карточек
+    из 43 со свежим отчётом). Механика: один отчёт попадает в базу несколькими
+    путями и раскладывается на разные записи, потому что period парсится
+    эвристикой из заголовка. У Норникеля их пять на один полугодовой отчёт:
+    «1П2026», «1П 2026», «2кв2026», «2026-08-20», «2026-07-31». Ярлык-дата даёт
+    конец периода 20 августа — позже, чем 30 июня у настоящего «1П2026», — и
+    пустая запись обгоняла содержательную.
+
+    Поэтому порядок предпочтения: сначала записи с разбором, затем с цифрами,
+    и только потом заглушки. Внутри группы — прежний порядок по периоду.
+    Заглушку СВЕЖЕЕ выбранной записи не выбрасываем: возвращаем отдельно
+    (with_pending), чтобы карточка могла сказать «вышел ещё один отчёт, цифры
+    проверяем» — это честнее, чем и молчать о нём, и прятать готовый разбор."""
+    from app.models.earnings import EarningsReport, EarningsDigest, EarningsFigures
     rows = db.query(EarningsReport).filter(EarningsReport.ticker == ticker).all()
     if not rows:
-        return None
-    return sorted(rows, key=_earnings_sort_key)[-1]
+        return (None, None) if with_pending else None
+    ids = [r.id for r in rows]
+    with_digest = {d.report_id for d in
+                   db.query(EarningsDigest.report_id).filter(EarningsDigest.report_id.in_(ids))}
+    with_figures = {f.report_id for f in
+                    db.query(EarningsFigures.report_id).filter(EarningsFigures.report_id.in_(ids))}
+
+    def rank(r):
+        content = 2 if r.id in with_digest else (1 if r.id in with_figures else 0)
+        return (content,) + _earnings_sort_key(r)
+
+    best = sorted(rows, key=rank)[-1]
+    if not with_pending:
+        return best
+    # заглушка новее выбранного разбора — о ней стоит сказать одной строкой
+    best_end = _earnings_sort_key(best)[0]
+    pend = [r for r in rows
+            if r.id != best.id and r.id not in with_digest
+            and _earnings_sort_key(r)[0] > best_end]
+    pending = sorted(pend, key=_earnings_sort_key)[-1] if pend else None
+    return best, pending
 
 
 @router.get("/companies/by-ticker/{ticker}/earnings/archive")
@@ -664,7 +699,7 @@ def get_latest_earnings(ticker: str, db: Session = Depends(get_db)):
     """Разбор последнего отчёта для карточки (Направление 3): метрики + блок «Разбор отчёта».
     Состояния: нет отчёта (404), отчёт без разбора (status=extract_failed)."""
     from app.models.earnings import EarningsFigures, EarningsDigest
-    r = _latest_earnings_row(db, _safe(ticker).upper())
+    r, pending = _latest_earnings_row(db, _safe(ticker).upper(), with_pending=True)
     if not r:
         raise HTTPException(status_code=404, detail="Нет разобранных отчётов")
     fig = db.query(EarningsFigures).filter_by(report_id=r.id).first()
@@ -676,6 +711,12 @@ def get_latest_earnings(ticker: str, db: Session = Depends(get_db)):
         "report_type": r.report_type, "status": r.status,
         "published_at": r.published_at.isoformat() if r.published_at else None,
         "source_url": r.source_url,
+        # отчёт, вышедший ПОЗЖЕ показанного разбора, но ещё без цифр: раньше такая
+        # запись вытесняла разбор целиком, теперь идёт одной честной строкой рядом
+        "pending": {
+            "period": pending.period, "status": pending.status,
+            "published_at": pending.published_at.isoformat() if pending.published_at else None,
+        } if pending else None,
         "figures": {
             "unit": "млн ₽", "revenue_ttm": f(fig.revenue_ttm), "ebitda": f(fig.ebitda),
             "net_profit_ttm": f(fig.net_profit_ttm), "adjusted_profit": f(fig.adjusted_profit),

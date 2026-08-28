@@ -3494,6 +3494,15 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
             {earnings.digest.summary && <p style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5, margin: 0 }}>{earnings.digest.summary}</p>}
           </div>
         )}
+        {/* Отчёт, вышедший ПОЗЖЕ показанного разбора, но ещё без цифр. Раньше такая
+            запись вытесняла разбор целиком, и карточка писала «источник с цифрами не
+            найден», хотя готовый разбор лежал рядом. Теперь разбор остаётся на месте,
+            а про свежий отчёт — одна честная строка. */}
+        {earnings.pending && (
+          <p style={{ fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5, margin: "10px 0 0" }}>
+            Вышел ещё один отчёт{earnings.pending.published_at ? ` (${earnings.pending.published_at})` : ""} — цифры проверяем, разбор появится после сверки источника.
+          </p>
+        )}
         <p className="fv-note">
           Ознакомительный разбор события «вышел отчёт» по свежим источникам. Не является ИИР.
         </p>

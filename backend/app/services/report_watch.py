@@ -552,6 +552,12 @@ _FIN_SPEC = (
     '"ebitda": число|null, "ebitda_yoy_pct": число|null, '
     '"net_profit": число|null, "net_profit_yoy_pct": число|null, '
     '"net_debt": число|null, '
+    # Баланс и денежный поток. Раньше не спрашивались вовсе — и на карточке в
+    # квартальном виде «Баланс» состоял из одной строки (чистый долг), а вкладки
+    # ОДДС не было. Пресс-релизы эти строки часто называют (у банков активы и
+    # капитал почти всегда), так что спрашиваем — с той же дисциплиной null.
+    '"total_assets": число|null, "total_equity": число|null, '
+    '"operating_cash_flow": число|null, "capex": число|null, '
     '"extra_metrics": [{"name": "название показателя как в тексте (GMV, OIBDA, '
     'скорр. EBITDA, FCF, процентный доход, выручка сегмента и т.п.)", '
     '"value": "значение С ЕДИНИЦЕЙ как в тексте (напр. 780,6 млрд ₽ или 28,5 млн)", '
@@ -565,7 +571,14 @@ _FIN_SPEC = (
     'или общерыночная новость (напр. «добыча газа в РФ», «производство в отрасли», '
     '«индекс снизился»), даже если компания в ней упоминается. Рыночные дайджесты '
     'и обзоры дня («рынок акций вырос, акции компании X +10%») — тоже false: движение '
-    'котировок компании внутри обзора рынка НЕ является её отчётностью.'
+    'котировок компании внутри обзора рынка НЕ является её отчётностью. '
+    'total_assets/total_equity — итог баланса и итог капитала НА КОНЕЦ периода; '
+    'operating_cash_flow — чистый денежный поток от операционной деятельности; '
+    'capex — капитальные затраты (приобретение основных средств), ПОЛОЖИТЕЛЬНЫМ '
+    'числом. Эти четыре поля бери ТОЛЬКО из явных строк отчётности или релиза. '
+    'Не выводи их из других показателей и не путай с похожими: «чистые активы» — '
+    'не total_assets, «свободный денежный поток» — не operating_cash_flow. '
+    'Не уверен — null.'
 )
 
 
@@ -839,6 +852,11 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
         "ebitda": fig_raw.get("ebitda"), "ebitda_prev": _prev(fig_raw.get("ebitda"), fig_raw.get("ebitda_yoy_pct")),
         "net_profit": fig_raw.get("net_profit"), "net_profit_prev": _prev(fig_raw.get("net_profit"), fig_raw.get("net_profit_yoy_pct")),
         "net_debt": fig_raw.get("net_debt"), "adjusted_profit": None, "is_company_adjusted": False,
+        # баланс и денежный поток — идут дальше в оверлей (JSONB), колонок в
+        # earnings_figures под них нет и не заводим: на бою несколько alembic-голов,
+        # миграция молча не применится (см. комментарий ниже про metrics_snapshot)
+        "total_assets": fig_raw.get("total_assets"), "total_equity": fig_raw.get("total_equity"),
+        "operating_cash_flow": fig_raw.get("operating_cash_flow"), "capex": fig_raw.get("capex"),
     }
     mult = _multiples(fig, price_now, mcap)
     # Богатый разбор, когда на руках реальный текст источника (не просто заголовок
