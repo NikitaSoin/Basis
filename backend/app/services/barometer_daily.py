@@ -569,6 +569,12 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
         + f"\n\nСЕГОДНЯ: {date.today().isoformat()}"
     )
 
+    # Диагностика прогона — в заметки версии. Барометр оставался единственным
+    # слоем, где отказ выглядел как «аналитик не вернул валидный барометр» без
+    # причины: не отличить исчерпание бюджета от обрыва JSON и от недоступности
+    # LLM. Ровно на этом 2026-08-28 пришлось гадать, моя ли правка виновата, —
+    # а виноват был перенос строки в адресе релея, к правке отношения не имевший.
+    _diag: list[str] = []
     try:
         from app.services import analyst
         fresh = analyst.run(
@@ -579,9 +585,10 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
             final_instruction="Верни JSON строго в формате из твоей роли (ключи "
                               "as_of, subindices, scenario, regions, sector_flags, "
                               "watchlist_30d, summary, methodology_used).",
-            label="barometer_daily")
+            label="barometer_daily", notes=_diag)
         if fresh is None:
-            raise llm.LLMError("аналитик не вернул валидный барометр")
+            raise llm.LLMError("аналитик не вернул валидный барометр. "
+                               + " | ".join(_diag)[:600])
     except llm.LLMError as e:
         row = BarometerVersion(kind="geo", source="auto", status="rejected",
                                payload=None, gate_notes=[f"LLM недоступен: {e}"],
