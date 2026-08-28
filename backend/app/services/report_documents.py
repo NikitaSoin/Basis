@@ -39,9 +39,20 @@ _from_azipi/_from_prime), но за период не дали НИ ОДНОЙ �
 (interim_overlay). Разделение намеренное: добыча ломается от сети и анти-ботов, а
 извлечение — от формулировок, это разные отказы и чинить их надо порознь.
 
-🔴 e-disclosure.ru (Интерфакс, самый полный) сюда НЕ входит: с боевого сервера отдаёт
-403 (JS-challenge ServicePipe), это не лечится User-Agent'ом. Проверено 2026-08-28:
-СКРИН 200, IR-сайты компаний 200 (tatneft.ru, gazprom.ru), e-disclosure 403.
+🔴 Какие центры реально доступны С БОЕВОГО СЕРВЕРА (замер 2026-08-29, проверять
+только оттуда — с ноутбука картина другая):
+
+    ПРАЙМ  disclosure.1prime.ru    200  ← используем, есть постоянная страница по ИНН
+    СКРИН  disclosure.skrin.ru     200  ← резерв (там лента по ДАТАМ, не по эмитенту)
+    АК&М   disclosure.ru           200     не подключён, точка расширения
+    АЗИПИ  e-disclosure.azipi.ru   ConnectTimeout — НЕДОСТУПЕН
+    Интерфакс e-disclosure.ru      403 (JS-challenge) — нужен headless-браузер
+
+Первая версия этого модуля ходила в АЗИПИ — и возвращала ноль по всем эмитентам,
+потому что центр с боя не отвечает вовсе. Это же объясняет ноль записей от АЗИПИ в
+замере источников: код `report_watch._from_azipi` существует, но исполниться не
+может. Работаем через ПРАЙМ: у него страница эмитента адресуется прямо по ИНН
+(portal/default.aspx?emId=<ИНН>), что и требуется для реестра.
 """
 from __future__ import annotations
 
@@ -53,6 +64,7 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
+_PRIME_BASE = "https://disclosure.1prime.ru"
 _AZIPI_BASE = "https://e-disclosure.azipi.ru"
 _UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                      "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"}
@@ -78,40 +90,70 @@ _DOC_HINT_RE = re.compile(
     r"итог|результат", re.I)
 
 
-def azipi_org_page(inn: str) -> str | None:
-    """Постоянный адрес страницы эмитента в АЗИПИ по ИНН. Это точка входа в реестр:
-    один запрос вместо ручного справочника IR-адресов на 264 компании."""
-    if not inn:
-        return None
-    try:
-        r = httpx.get(f"{_AZIPI_BASE}/search/index.php",
-                      params={"orgs": "Y", "ORG_INN": inn, "search_organization": "Поиск"},
-                      timeout=_TIMEOUT, headers=_UA, follow_redirects=True)
-        r.raise_for_status()
-        m = re.search(r'href="(/organization/personal-pages/\d+/)"', r.text)
-        return f"{_AZIPI_BASE}{m.group(1)}" if m else None
-    except Exception:  # noqa: BLE001 — недоступность центра не должна ронять вызывающего
-        logger.warning("report_documents: АЗИПИ не ответил по ИНН %s", inn)
-        return None
+
+_EVENT_DATE_RE = re.compile(
+    r"Дата наступления события[^:]*:\s*(\d{1,2}\.\d{1,2}\.\d{4}|\d{1,2}\s+\S+\s+\d{4})",
+    re.IGNORECASE)
+_RU_MONTHS = {"января": 1, "февраля": 2, "марта": 3, "апреля": 4, "мая": 5, "июня": 6,
+              "июля": 7, "августа": 8, "сентября": 9, "октября": 10, "ноября": 11,
+              "декабря": 12}
+
+
+def _parse_ru_date(s: str):
+    m = re.match(r"(\d{1,2})\.(\d{1,2})\.(\d{4})", s)
+    if m:
+        d, mo, y = m.groups()
+        try:
+            return date(int(y), int(mo), int(d))
+        except ValueError:
+            return None
+    m = re.match(r"(\d{1,2})\s+(\S+)\s+(\d{4})", s)
+    if m:
+        d, mon, y = m.groups()
+        mo = _RU_MONTHS.get(mon.lower())
+        if mo:
+            try:
+                return date(int(y), mo, int(d))
+            except ValueError:
+                return None
+    return None
+
+
+def issuer_page(inn: str) -> str | None:
+    """Постоянный адрес страницы эмитента по ИНН — точка входа в реестр раскрытия.
+
+    ПРАЙМ адресует эмитента прямо по ИНН, без поискового запроса: один предсказуемый
+    адрес вместо ручного справочника IR-ссылок на 264 компании. АЗИПИ оставлен
+    резервом — он требует поиска и с боевого сервера сейчас не отвечает.
+    """
+    return f"{_PRIME_BASE}/portal/default.aspx?emId={inn}" if inn else None
+
+
+def _prime_message_url(inn: str, guid: str) -> str:
+    return f"{_PRIME_BASE}/Portal/GetMessage.aspx?emId={inn}&guid={guid}"
 
 
 def _message_urls(msg_url: str) -> tuple[str, list[str]]:
-    """Текст сообщения о раскрытии + все ссылки из него."""
+    """Текст сообщения о раскрытии + все ссылки из него.
+
+    Ссылки собираем и из href, и из видимого текста: адрес страницы с полным текстом
+    эмитент по Положению №714-П пишет ПРОЗОЙ в теле сообщения, ссылкой он там быть
+    не обязан.
+    """
     try:
         r = httpx.get(msg_url, timeout=_TIMEOUT, headers=_UA, follow_redirects=True)
         r.raise_for_status()
         html = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", r.text)
     except Exception:  # noqa: BLE001
         return "", []
-    # ссылки берём ДО срезания тегов: часть адресов живёт только в href
     hrefs = re.findall(r'href="([^"]+)"', html)
     text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html))
-    urls = [u for u in _URL_RE.findall(text)]
+    urls = list(_URL_RE.findall(text))
     for h in hrefs:
         if h.startswith("http"):
             urls.append(h)
         elif h.startswith("/"):
-            urls.append(f"{_AZIPI_BASE}{h}")
+            urls.append(f"{_PRIME_BASE}{h}")
     seen, out = set(), []
     for u in urls:
         u = u.rstrip(".,;)")
@@ -125,14 +167,17 @@ def find_report_docs(inn: str, since: date, until: date | None = None,
                      max_messages: int = 6) -> dict:
     """Документы отчётности эмитента за окно дат.
 
-    Возвращает {"org_page", "messages": [...], "documents": [...], "site_links": [...]}.
-    documents — прямые ссылки на файлы (pdf/xls/doc), site_links — адреса страниц
-    (обычно IR-раздел компании), куда эмитент отправляет за полным текстом.
-    Пустой результат — нормальный исход, а не ошибка: у эмитента может не быть
-    раскрытия в этом центре или за это окно.
+    Возвращает {"org_page", "messages", "documents", "site_links"}. Пустой результат —
+    нормальный исход, а не ошибка: у эмитента может не быть раскрытия за это окно.
+
+    🔴 В таблице ПРАЙМ первая ячейка — порядковый НОМЕР строки, а не дата (в отличие
+    от СКРИН и АЗИПИ). Дата события лежит только внутри самого сообщения, поэтому
+    сначала фильтруем по КАТЕГОРИИ (дёшево, по заголовку), и лишь потом читаем
+    содержимое и проверяем дату. Обратный порядок означал бы чтение всей ленты
+    эмитента ради нескольких строк.
     """
     until = until or date.today()
-    org = azipi_org_page(inn)
+    org = issuer_page(inn)
     if not org:
         return {"org_page": None, "messages": [], "documents": [], "site_links": []}
     try:
@@ -143,49 +188,51 @@ def find_report_docs(inn: str, since: date, until: date | None = None,
         logger.warning("report_documents: страница эмитента не открылась: %s", org)
         return {"org_page": org, "messages": [], "documents": [], "site_links": []}
 
-    picked: list[dict] = []
+    candidates: list[dict] = []
     for row in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S):
-        if "/messages/" not in row:
+        if "GetMessage" not in row:
             continue
         cells = re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)
-        if len(cells) < 3:
+        if len(cells) < 2:
             continue
-        date_txt = re.sub(r"<[^>]+>", "", cells[0]).strip()
-        try:
-            d, mo, y = date_txt.split(".")
-            row_date = date(int(y), int(mo), int(d))
-        except ValueError:
-            continue
-        if not (since <= row_date <= until):
-            continue
-        title = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", cells[2])).strip()
+        title = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", cells[1])).strip()
         if not any(k in title.lower() for k in _REPORT_TITLES):
             continue
-        m = re.search(r'href="(/messages/\d+/)"', cells[2])
-        if not m:
+        gm = re.search(r"guid=(\{[0-9A-Fa-f-]+\})", row)
+        if not gm:
             continue
-        picked.append({"date": row_date.isoformat(), "title": title[:200],
-                       "url": f"{_AZIPI_BASE}{m.group(1)}"})
-        if len(picked) >= max_messages:
+        candidates.append({"title": title[:200], "url": _prime_message_url(inn, gm.group(1))})
+        if len(candidates) >= max_messages * 3:
             break
 
+    picked: list[dict] = []
     documents: list[dict] = []
     site_links: list[str] = []
-    for msg in picked:
-        text, urls = _message_urls(msg["url"])
-        msg["chars"] = len(text)
+    for cand in candidates:
+        if len(picked) >= max_messages:
+            break
+        text, urls = _message_urls(cand["url"])
+        if not text:
+            continue
+        dm = _EVENT_DATE_RE.search(text)
+        msg_date = _parse_ru_date(dm.group(1)) if dm else None
+        if msg_date and not (since <= msg_date <= until):
+            continue
+        msg = {"date": msg_date.isoformat() if msg_date else None,
+               "title": cand["title"], "url": cand["url"], "chars": len(text)}
+        picked.append(msg)
         for u in urls:
-            if _AZIPI_BASE in u and "/messages/" in u:
-                continue  # ссылка на саму себя
+            if _PRIME_BASE in u:
+                continue  # навигация самого портала
             if _DOC_EXT_RE.search(u):
-                documents.append({"url": u, "from": msg["url"], "date": msg["date"],
+                documents.append({"url": u, "from": cand["url"], "date": msg["date"],
                                   "looks_relevant": bool(_DOC_HINT_RE.search(u))})
-            elif u.startswith("http") and _AZIPI_BASE not in u:
+            elif u.startswith("http"):
                 site_links.append(u)
 
-    # свои и очевидно нерелевантные адреса не тащим дальше
     site_links = [u for u in dict.fromkeys(site_links)
-                  if not re.search(r"cbr\.ru|consultant|garant|yandex|google|vk\.com|t\.me", u, re.I)]
+                  if not re.search(r"cbr\.ru|consultant|garant|yandex|google|vk\.com|t\.me|"
+                                   r"1prime\.ru|interfax", u, re.I)]
     return {"org_page": org, "messages": picked, "documents": documents,
             "site_links": site_links[:12]}
 
