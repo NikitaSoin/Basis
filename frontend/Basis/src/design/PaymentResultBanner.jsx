@@ -36,10 +36,7 @@ function remember(orderId) {
 
 export default function PaymentResultBanner({ token, onOpenPricing, onUserUpdate }) {
   const [info, setInfo] = useState(null);
-  const hide = useCallback(() => {
-    if (info) remember(info.order_id);
-    setInfo(null);
-  }, [info]);
+  const hide = useCallback(() => setInfo(null), []);
 
   useEffect(() => {
     if (!token) return undefined;
@@ -52,6 +49,10 @@ export default function PaymentResultBanner({ token, onOpenPricing, onUserUpdate
         const finished = d.paid || d.refunded || ["REJECTED", "CANCELED",
           "DEADLINE_EXPIRED"].includes(d.status);
         if (!finished || !d.finished_recently || seen(d.order_id)) return;
+        // Помечаем показанным СРАЗУ, а не по закрытию: иначе баннер всплывал бы
+        // на каждой перезагрузке страницы ближайшие два часа. Продублировано
+        // письмом и датой в профиле, так что один показ — достаточно.
+        remember(d.order_id);
         setInfo(d);
         if (d.paid && onUserUpdate) {
           // Подписку начислил сервер — подтягиваем пользователя, чтобы тариф на
