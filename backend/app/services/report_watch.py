@@ -789,7 +789,7 @@ _DATE_PERIOD_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def _reconcile_period(db: Session, report: EarningsReport, fig_raw: dict) -> None:
-    """Заменить период-заглушку (сырую дату) на настоящий, если модель его назвала.
+    """Заменить непригодную метку периода на настоящую, если модель её назвала.
 
     🔴 Зачем. Период парсится из ЗАГОЛОВКА новости, а заголовок называет его далеко
     не всегда — тогда в базу уходит `pub_date.isoformat()`. С такой меткой отчёт
@@ -797,8 +797,9 @@ def _reconcile_period(db: Session, report: EarningsReport, fig_raw: dict) -> Non
     «2026-08-28», и оверлей пропускает запись. Эталон 2026-08-28 — цифры извлеклись
     (выручка 54 400, EBITDA 9 200), а на карточке не появилось ничего.
 
-    Заменяем ТОЛЬКО заглушку-дату: если период уже осмысленный («1П2026»), он взят
-    из заголовка первоисточника и доверия к нему больше, чем к пересказу.
+    Заменяем только НЕПРИГОДНУЮ метку — ту, что не ложится в квартальный слот. Если
+    период уже разбирается («1П2026»), он взят из заголовка первоисточника, и доверия
+    к нему больше, чем к пересказу: такой не трогаем.
 
     Уникальный ключ — (ticker, period, standard), поэтому перед переименованием
     проверяем, нет ли уже записи с новым периодом: иначе апдейт упадёт на
@@ -824,9 +825,10 @@ def _reconcile_period(db: Session, report: EarningsReport, fig_raw: dict) -> Non
     new = new.strip()
     if not new or new == cur or len(new) > 24 or _DATE_PERIOD_RE.match(new):
         return
-    if interim_periods.report_period_to_interim(new, report.published_at) is None \
-            and not re.fullmatch(r"\d{4}", new):
-        return  # модель вернула что-то, чего наш разбор периодов не понимает
+    if interim_periods.report_period_to_interim(new, report.published_at) is None:
+        # Модель вернула метку, которую наш разбор периодов не понимает. Менять
+        # одну непригодную на другую бессмысленно — оставляем как есть.
+        return
     exists = (db.query(EarningsReport)
               .filter(EarningsReport.ticker == report.ticker,
                       EarningsReport.period == new,

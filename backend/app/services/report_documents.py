@@ -235,15 +235,28 @@ def find_report_docs(inn: str, since: date, until: date | None = None,
     picked: list[dict] = []
     documents: list[dict] = []
     site_links: list[str] = []
+    diag["msg_fetched"] = 0
+    diag["msg_empty"] = 0
+    diag["msg_out_of_window"] = 0
+    diag["msg_no_date"] = 0
     for cand in candidates:
         if len(picked) >= max_messages:
             break
         text, urls = _message_urls(cand["url"])
         if not text:
+            # Страница сообщения не открылась или пуста. Отличать это от «дата не
+            # подошла» обязательно: первое чинится запросом, второе — окном дат.
+            diag["msg_empty"] += 1
+            if not diag.get("msg_fail_example"):
+                diag["msg_fail_example"] = cand["url"]
             continue
+        diag["msg_fetched"] += 1
         dm = _EVENT_DATE_RE.search(text)
         msg_date = _parse_ru_date(dm.group(1)) if dm else None
+        if msg_date is None:
+            diag["msg_no_date"] += 1
         if msg_date and not (since <= msg_date <= until):
+            diag["msg_out_of_window"] += 1
             continue
         msg = {"date": msg_date.isoformat() if msg_date else None,
                "title": cand["title"], "url": cand["url"], "chars": len(text)}
