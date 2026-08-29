@@ -4016,6 +4016,64 @@ def ir_documents(ticker: str = Query(...), fetch: bool = Query(False)):
         db.close()
 
 
+@router.post("/debug/report-deep-extract")
+def report_deep_extract(url: str = Query(None, description="ссылка на документ"),
+                        ticker: str = Query(None, description="или тикер — возьмём свежий с IR-страницы")):
+    """Постатейный разбор документа отчётности: три формы, разовые факторы,
+    налог, оборотный капитал (services/report_deep_extract). Ничего не пишет —
+    видно ровно то, что модель достала из файла."""
+    from app.db.session import SessionLocal
+    from app.services import ir_registry, report_deep_extract as deep
+    db = SessionLocal()
+    try:
+        doc_url, name = url, None
+        if ticker and not doc_url:
+            from sqlalchemy import text as _t
+            row = db.execute(_t("SELECT name FROM companies WHERE ticker = :t"),
+                             {"t": ticker.upper()}).first()
+            name = row.name if row else ticker
+            found = ir_registry.latest_documents(db, ticker.upper(), limit=3)
+            if not found.get("found"):
+                return {"ok": False, "reason": found.get("reason") or "документов не нашлось"}
+            doc_url = found["documents"][0]["url"]
+        if not doc_url:
+            return {"ok": False, "reason": "нужен url или ticker"}
+        got = ir_registry.fetch_document(doc_url, max_chars=90_000)
+        if not got.get("ok"):
+            return {"ok": False, "url": doc_url, "reason": got.get("reason")}
+        res = deep.extract_from_document(got["text"], company_name=name)
+        if res is None:
+            return {"ok": False, "url": doc_url, "chars": got["chars"],
+                    "reason": "модель не признала текст отчётностью или недоступна"}
+        return {"ok": True, "url": doc_url, "chars": got["chars"], "extracted": res}
+    finally:
+        db.close()
+
+
+@router.get("/debug/reports-due")
+def reports_due(days: int = Query(1, ge=0, le=14)):
+    """Кто отчитывается сегодня/на днях — вход для добычи документов. Именно так
+    владелец описал замысел: «видим в календаре, что отчёт Северстали завтра, в
+    этот день идём на сайт и берём отчётность»."""
+    from datetime import date as _date, timedelta as _td
+    from sqlalchemy import text as _t
+    from app.db.session import SessionLocal
+    db = SessionLocal()
+    try:
+        rows = db.execute(_t(
+            "SELECT e.event_date, e.ticker, e.title, p.url AS ir_url, p.file_links "
+            "FROM calendar_events e LEFT JOIN ir_pages p ON p.ticker = e.ticker "
+            "WHERE e.event_type = 'earnings' AND e.event_date BETWEEN :d0 AND :d1 "
+            "ORDER BY e.event_date, e.ticker"),
+            {"d0": _date.today(), "d1": _date.today() + _td(days=days)}).all()
+        return {"count": len(rows), "events": [
+            {"date": str(r.event_date), "ticker": r.ticker, "title": r.title,
+             "ir_page": r.ir_url, "docs_on_page": r.file_links,
+             "ready": bool(r.ir_url)} for r in rows]}
+    finally:
+        db.close()
+
+
 @router.post("/debug/payment-refund")
 def payment_refund(order_id: str = Query(..., description="номер заказа Basis"),
                    amount_rub: float | None = Query(None, description="частичный возврат")):
