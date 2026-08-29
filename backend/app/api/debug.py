@@ -3332,6 +3332,8 @@ async function anLoad(days){
     h+='<div class="cards">'+anCard(m['людей'],'живых людей')+anCard(m['визитов_людей'],'визитов людей')
       +anCard(m['роботов'],'визитов роботов')+anCard(m['минут_на_визит'],'минут на визит')
       +anCard(m['глубина'],'страниц за визит')+anCard(m['отказы_проц']+'%','отказы')+'</div>';
+    h+='<p class="sub">Период: '+(m['период']||'')+' (тот же отрезок, что и в таблицах ниже — '
+      +'включая сегодняшний день). В интерфейсе Метрики выберите ровно эти даты, чтобы сверить.</p>';
     h+='<h2>Откуда пришли</h2><div class="cards">'
       +anCard(m['из_поиска_людей'],'из поиска')+anCard(m['яндекс_людей'],'из Яндекса')
       +anCard(m['google_людей'],'из Google')+anCard(m['прямые_людей'],'прямые заходы')+'</div>';
@@ -3934,6 +3936,84 @@ def payments_probe(amount_rub: int = Query(1, ge=1, le=10)):
     return out
 
 
+@router.get("/debug/ir-discover")
+def ir_discover(ticker: str = Query(..., description="тикер компании"),
+                verify: bool = Query(True, description="открывать найденные страницы")):
+    """РАЗВЕДКА (ничего не пишет): что веб-поиск находит по компании и что реально
+    лежит на этих страницах — сколько ссылок на pdf/xlsx, какие подписи, видны ли
+    периоды. Урок из этой же задачи: фильтр, написанный «по здравому смыслу», уже
+    стоил двух кругов деплоя — сначала смотрим фактическую картину."""
+    from app.db.session import SessionLocal
+    from app.services import ir_registry
+    db = SessionLocal()
+    try:
+        row = db.execute(text("SELECT name FROM companies WHERE ticker = :t"),
+                         {"t": ticker.upper()}).first()
+        name = row.name if row else ticker
+        cands = ir_registry.discover_candidates(name, ticker.upper())
+        out = {"ticker": ticker.upper(), "name": name, "candidates": cands}
+        if verify:
+            out["verified"] = [ir_registry.verify_page(c["url"]) for c in cands[:4]]
+        return out
+    finally:
+        db.close()
+
+
+@router.post("/debug/ir-registry-build")
+def ir_registry_build(tickers: str | None = Query(None, description="через запятую; пусто — следующий батч"),
+                      limit: int = Query(5, ge=1, le=25)):
+    """Собрать реестр IR-страниц. Батчами: веб-поиск + открытие страниц — это
+    десятки секунд на компанию, за один заход весь рынок не пройти."""
+    from app.db.session import SessionLocal
+    from app.services import ir_registry
+    db = SessionLocal()
+    try:
+        if tickers:
+            todo = [t.strip().upper() for t in tickers.split(",") if t.strip()]
+        else:
+            rows = db.execute(text(
+                "SELECT c.ticker FROM companies c LEFT JOIN ir_pages p ON p.ticker = c.ticker "
+                "WHERE p.id IS NULL ORDER BY c.market_cap DESC NULLS LAST LIMIT :lim"),
+                {"lim": limit}).all()
+            todo = [r.ticker for r in rows]
+        done = []
+        for tk in todo[:limit]:
+            try:
+                res = ir_registry.build_for_ticker(db, tk)
+            except Exception as e:  # noqa: BLE001 — батч не должен падать целиком
+                logger.exception("ir-registry: %s упал", tk)
+                res = {"ticker": tk, "found": False, "reason": f"{type(e).__name__}"}
+            best = res.get("best") or {}
+            done.append({"ticker": tk, "found": res.get("found"),
+                         "url": best.get("url"), "file_links": best.get("file_links"),
+                         "reason": res.get("reason")})
+        left = db.execute(text(
+            "SELECT COUNT(*) FROM companies c LEFT JOIN ir_pages p ON p.ticker = c.ticker "
+            "WHERE p.id IS NULL")).scalar()
+        return {"processed": done, "left_without_page": left}
+    finally:
+        db.close()
+
+
+@router.get("/debug/ir-documents")
+def ir_documents(ticker: str = Query(...), fetch: bool = Query(False)):
+    """Свежие документы отчётности по сохранённой IR-странице; fetch=1 — ещё и
+    прочитать первый документ (проверка, что файл реально читается с боя)."""
+    from datetime import date as _date
+    from app.db.session import SessionLocal
+    from app.services import ir_registry
+    db = SessionLocal()
+    try:
+        out = ir_registry.latest_documents(db, ticker.upper(), since=_date.today())
+        if fetch and out.get("documents"):
+            doc = ir_registry.fetch_document(out["documents"][0]["url"], max_chars=1500)
+            out["first_document"] = {k: v for k, v in doc.items() if k != "text"}
+            out["first_document"]["head"] = (doc.get("text") or "")[:600]
+        return out
+    finally:
+        db.close()
+
+
 @router.post("/debug/payment-refund")
 def payment_refund(order_id: str = Query(..., description="номер заказа Basis"),
                    amount_rub: float | None = Query(None, description="частичный возврат")):
@@ -4051,7 +4131,7 @@ WITH ev AS (
               THEN 1 ELSE 0 END AS nv
   FROM user_events
   WHERE is_bot IS FALSE AND anon_id IS NOT NULL
-    AND created_at >= current_date - CAST(:days AS integer)
+    AND created_at >= current_date - CAST(:days AS integer) + 1
 ),
 v AS (SELECT anon_id, created_at, path, kind,
              sum(nv) OVER (PARTITION BY anon_id ORDER BY created_at) AS vn FROM ev),
@@ -4159,7 +4239,7 @@ def analytics_data(days: int = Query(30, ge=1, le=365)):
     out["по_страницам"] = sorted(detail.values(), key=lambda x: -x["просмотров"])[:40]
     out["просмотров_всего"] = sum(r["просмотров"] for r in pages)
 
-    out["метрика"] = AC.metrika(f"{days}daysAgo")
+    out["метрика"] = AC.metrika(days)
     out["search_console"] = AC.gsc(days)
     return out
 
