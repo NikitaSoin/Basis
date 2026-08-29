@@ -304,21 +304,83 @@ def get_page(db: Session, ticker: str) -> dict | None:
             "status": row.status, "checked_at": row.checked_at}
 
 
+def _staleness(links: list[dict], since: date | None) -> str | None:
+    """Почему сохранённая страница больше не годится. None — годится.
+
+    🔴 Проверяем не только «открылась ли», но и СОДЕРЖИМОЕ: после редизайна
+    старый адрес часто продолжает отвечать 200, отдавая архив прошлых лет или
+    вообще другой раздел. Такая страница хуже, чем 404: она молча делает вид,
+    что источник жив."""
+    if not links:
+        return "на странице нет ссылок на документы"
+    years = []
+    for l in links:
+        for token in (l.get("period_hint") or "", l.get("label") or ""):
+            m = _YEAR_RE.search(token)
+            if m:
+                years.append(int(m.group(1)))
+    if not years:
+        return None  # периодов не видно — не повод считать страницу мёртвой
+    ref = (since or date.today()).year
+    # Отчёт за прошлый год — норма (годовая отчётность выходит весной); всё, что
+    # старше, означает, что свежие документы уехали на другой адрес.
+    if max(years) < ref - 1:
+        return f"самый свежий документ за {max(years)} год, ожидается {ref - 1}–{ref}"
+    return None
+
+
+def _rebind(db: Session, ticker: str, old_url: str | None, reason: str) -> dict | None:
+    """Найти страницу заново и записать в реестр вместо протухшей."""
+    logger.info("ir_registry: перепривязка %s (%s), был %s", ticker, reason, old_url)
+    res = build_for_ticker(db, ticker, save=True)
+    if not res.get("found"):
+        # Реестр не трогаем: старый адрес хотя бы известен, а причину пишем —
+        # по ней видно, что источник требует ручного взгляда.
+        db.execute(text("UPDATE ir_pages SET stale_reason = :r, updated_at = now() "
+                        "WHERE ticker = :t"), {"r": reason[:200], "t": ticker})
+        db.commit()
+        return None
+    db.execute(text(
+        "UPDATE ir_pages SET previous_url = :old, rebound_count = rebound_count + 1, "
+        "stale_reason = :r, updated_at = now() WHERE ticker = :t"),
+        {"old": (old_url or "")[:600], "r": reason[:200], "t": ticker})
+    db.commit()
+    return res.get("best")
+
+
 def latest_documents(db: Session, ticker: str, since: date | None = None,
-                     limit: int = 8) -> dict:
+                     limit: int = 8, allow_rebind: bool = True) -> dict:
     """Свежие документы отчётности эмитента по сохранённой IR-странице.
 
     Даты у файлов на сайте почти никогда не проставлены машиночитаемо, поэтому
     свежесть определяем по ПЕРИОДУ в названии («1П2026», «за 6 месяцев 2026»),
     а не по дате публикации — так же, как это делает человек глазами."""
+    rebound_from = None
     page = get_page(db, ticker)
     if not page:
-        return {"found": False, "reason": f"IR-страница для {ticker} не в реестре"}
+        # Страницы нет вовсе — ищем сразу: «нет в реестре» не должно быть концом
+        # процесса, процесс обязан заканчиваться добычей.
+        if not allow_rebind:
+            return {"found": False, "reason": f"IR-страница для {ticker} не в реестре"}
+        best = _rebind(db, ticker, None, "страницы не было в реестре")
+        if not best:
+            return {"found": False, "reason": f"страницу с отчётностью {ticker} найти не удалось"}
+        page, rebound_from = get_page(db, ticker), "не было в реестре"
+
     code, html = _fetch(page["url"])
+    links = _doc_links(html, page["url"]) if html else []
+    reason = (f"страница не открылась (код {code})" if not html
+              else _staleness(links, since))
+    if reason and allow_rebind:
+        best = _rebind(db, ticker, page["url"], reason)
+        if best:
+            page, rebound_from = get_page(db, ticker), reason
+            code, html = _fetch(page["url"])
+            links = _doc_links(html, page["url"]) if html else []
     if not html:
-        return {"found": False, "reason": f"страница {page['url']} не открылась (код {code})",
-                "url": page["url"]}
-    links = _doc_links(html, page["url"])
+        return {"found": False, "url": page["url"],
+                "reason": f"страница {page['url']} не открылась (код {code})",
+                "rebound_from": rebound_from}
     files = [l for l in links if l["is_file"]] or links
     if since:
         year = since.year
@@ -333,10 +395,62 @@ def latest_documents(db: Session, ticker: str, since: date | None = None,
     # (у ФосАгро из 39 документов на странице отчётность — единицы).
     files.sort(key=lambda l: (-_KIND_PRIORITY.get(l.get("kind", "other"), 0),
                               0 if l.get("period_hint") else 1))
+    if files:
+        db.execute(text("UPDATE ir_pages SET last_ok_at = now(), stale_reason = NULL "
+                        "WHERE ticker = :t"), {"t": ticker})
+        db.commit()
     return {"found": bool(files), "url": page["url"], "count": len(files),
-            "documents": files[:limit],
+            "documents": files[:limit], "rebound_from": rebound_from,
             "by_kind": {k: sum(1 for l in files if l.get("kind") == k)
                         for k in {l.get("kind") for l in files}}}
+
+
+def harvest(db: Session, ticker: str, since: date | None = None,
+            max_docs: int = 3, extract: bool = True) -> dict:
+    """Сквозной проход: найти документ → прочитать → извлечь показатели.
+
+    Владелец сформулировал требование к результату так: «процесс закончился
+    добычей отчётности и извлечением». Поэтому здесь один вход и один ответ, а
+    все промежуточные отказы — перепривязка реестра, нечитаемый файл, документ
+    не той природы — разруливаются внутри: пробуем следующий документ, а не
+    возвращаем ошибку на первом же.
+    """
+    from app.services import report_deep_extract as deep
+
+    found = latest_documents(db, ticker, since=since, limit=max_docs + 3)
+    if not found.get("found"):
+        return {"ticker": ticker, "ok": False, "stage": "discovery",
+                "reason": found.get("reason"), "rebound_from": found.get("rebound_from")}
+
+    name_row = db.execute(text("SELECT name FROM companies WHERE ticker = :t"),
+                          {"t": ticker}).first()
+    company = name_row.name if name_row else ticker
+
+    tried = []
+    for doc in found["documents"][:max_docs]:
+        got = fetch_document(doc["url"], max_chars=90_000)
+        if not got.get("ok") or len(got.get("text") or "") < 1500:
+            tried.append({"url": doc["url"][:120], "kind": doc.get("kind"),
+                          "result": "не прочитался"})
+            continue
+        if not extract:
+            return {"ticker": ticker, "ok": True, "stage": "document", "document": doc,
+                    "chars": got["chars"], "url": found["url"],
+                    "rebound_from": found.get("rebound_from"), "tried": tried}
+        data = deep.extract_from_document(got["text"], company_name=company)
+        if data is None:
+            tried.append({"url": doc["url"][:120], "kind": doc.get("kind"),
+                          "result": "модель не признала отчётностью"})
+            continue
+        return {"ticker": ticker, "ok": True, "stage": "extracted",
+                "ir_page": found["url"], "rebound_from": found.get("rebound_from"),
+                "document": {"url": doc["url"], "label": doc.get("label"),
+                             "kind": doc.get("kind"), "period_hint": doc.get("period_hint")},
+                "chars": got["chars"], "extracted": data, "tried": tried}
+    return {"ticker": ticker, "ok": False, "stage": "extraction",
+            "reason": "ни один из документов не разобрался",
+            "ir_page": found["url"], "rebound_from": found.get("rebound_from"),
+            "tried": tried}
 
 
 def fetch_document(url: str, max_chars: int = 120_000) -> dict:

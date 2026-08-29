@@ -4016,6 +4016,24 @@ def ir_documents(ticker: str = Query(...), fetch: bool = Query(False)):
         db.close()
 
 
+@router.post("/debug/report-harvest")
+def report_harvest(ticker: str = Query(..., description="тикер"),
+                   extract: bool = Query(True, description="ещё и разобрать документ")):
+    """Сквозной проход: найти документ отчётности → прочитать → извлечь.
+
+    Здесь же видно самолечение реестра: если сохранённый адрес умер или отдаёт
+    архив прошлых лет, слой ищет страницу заново, пишет новую в реестр и
+    продолжает — в ответе это поле `rebound_from`."""
+    from datetime import date as _date
+    from app.db.session import SessionLocal
+    from app.services import ir_registry
+    db = SessionLocal()
+    try:
+        return ir_registry.harvest(db, ticker.upper(), since=_date.today(), extract=extract)
+    finally:
+        db.close()
+
+
 @router.post("/debug/report-deep-extract")
 def report_deep_extract(url: str = Query(None, description="ссылка на документ"),
                         ticker: str = Query(None, description="или тикер — возьмём свежий с IR-страницы")):
