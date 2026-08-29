@@ -3943,11 +3943,12 @@ def ir_discover(ticker: str = Query(..., description="тикер компани�
     лежит на этих страницах — сколько ссылок на pdf/xlsx, какие подписи, видны ли
     периоды. Урок из этой же задачи: фильтр, написанный «по здравому смыслу», уже
     стоил двух кругов деплоя — сначала смотрим фактическую картину."""
+    from sqlalchemy import text as _t
     from app.db.session import SessionLocal
     from app.services import ir_registry
     db = SessionLocal()
     try:
-        row = db.execute(text("SELECT name FROM companies WHERE ticker = :t"),
+        row = db.execute(_t("SELECT name FROM companies WHERE ticker = :t"),
                          {"t": ticker.upper()}).first()
         name = row.name if row else ticker
         cands = ir_registry.discover_candidates(name, ticker.upper())
@@ -3964,6 +3965,7 @@ def ir_registry_build(tickers: str | None = Query(None, description="через 
                       limit: int = Query(5, ge=1, le=25)):
     """Собрать реестр IR-страниц. Батчами: веб-поиск + открытие страниц — это
     десятки секунд на компанию, за один заход весь рынок не пройти."""
+    from sqlalchemy import text as _t
     from app.db.session import SessionLocal
     from app.services import ir_registry
     db = SessionLocal()
@@ -3971,7 +3973,7 @@ def ir_registry_build(tickers: str | None = Query(None, description="через 
         if tickers:
             todo = [t.strip().upper() for t in tickers.split(",") if t.strip()]
         else:
-            rows = db.execute(text(
+            rows = db.execute(_t(
                 "SELECT c.ticker FROM companies c LEFT JOIN ir_pages p ON p.ticker = c.ticker "
                 "WHERE p.id IS NULL ORDER BY c.market_cap DESC NULLS LAST LIMIT :lim"),
                 {"lim": limit}).all()
@@ -3987,7 +3989,7 @@ def ir_registry_build(tickers: str | None = Query(None, description="через 
             done.append({"ticker": tk, "found": res.get("found"),
                          "url": best.get("url"), "file_links": best.get("file_links"),
                          "reason": res.get("reason")})
-        left = db.execute(text(
+        left = db.execute(_t(
             "SELECT COUNT(*) FROM companies c LEFT JOIN ir_pages p ON p.ticker = c.ticker "
             "WHERE p.id IS NULL")).scalar()
         return {"processed": done, "left_without_page": left}
