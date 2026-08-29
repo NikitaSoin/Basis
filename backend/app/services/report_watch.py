@@ -515,6 +515,33 @@ def _parse_ru_date_str(s: str) -> date | None:
     return None
 
 
+def _from_ir_page(db: Session, ticker: str, event_date: date) -> str | None:
+    """Сам ДОКУМЕНТ отчётности с сайта эмитента — последний и самый ценный путь.
+
+    Все пути выше дают ПЕРЕСКАЗ (новость, сообщение о раскрытии), и из пересказа
+    берутся только заголовочные числа. В документе есть то, ради чего он и нужен:
+    разовые факторы, курсовые переоценки, налог, движение оборотного капитала.
+    Поэтому путь стоит последним, но текст даёт самый полный.
+
+    Работает по реестру IR-страниц (services/ir_registry): адрес найден заранее,
+    здесь только открываем и читаем — иначе на каждом отчёте пришлось бы заново
+    угадывать путь к разделу раскрытия."""
+    try:
+        from app.services import ir_registry
+        found = ir_registry.latest_documents(db, ticker, since=event_date, limit=4)
+        if not found.get("found"):
+            return None
+        for doc in found["documents"]:
+            got = ir_registry.fetch_document(doc["url"], max_chars=90_000)
+            if got.get("ok") and len(got.get("text") or "") > 2000:
+                logger.info("report_watch: %s — документ с IR-страницы (%s знаков): %s",
+                            ticker, got["chars"], doc["url"][:110])
+                return got["text"]
+    except Exception:  # noqa: BLE001 — путь необязательный, остальные уже отработали
+        logger.exception("report_watch: IR-страница %s не отдала документ", ticker)
+    return None
+
+
 def _source_text(db: Session, event: CalendarEvent, inn: str | None) -> tuple[str, str] | None:
     cr = _from_company_rss(event.ticker, event.event_date)
     if cr:
@@ -531,6 +558,9 @@ def _source_text(db: Session, event: CalendarEvent, inn: str | None) -> tuple[st
     az = _from_azipi(inn, event.event_date)
     if az:
         return az, "azipi_disclosure"
+    ir = _from_ir_page(db, event.ticker, event.event_date)
+    if ir:
+        return ir, "ir_page"
     desc = (event.payload or {}).get("description") or ""
     fallback = f"{event.title}\n{desc}".strip()
     # заголовок без описания — почти никогда не содержит цифр, не считаем источником
