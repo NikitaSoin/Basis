@@ -103,6 +103,33 @@ def extract_from_document(text_blob: str, company_name: str | None = None,
     return enrich(res)
 
 
+def to_overlay_figures(data: dict) -> dict:
+    """Свести постатейный разбор к плоскому виду, который принимает витрина.
+
+    Карточка (interim_overlay) знает восемь имён: revenue/ebitda/net_profit/
+    net_debt + активы/капитал/операционный поток/капзатраты. Документ даёт их
+    все и ещё десятки строк — те живут в `data` целиком и пойдут дальше по мере
+    того, как витрина научится их показывать. Здесь только сведение к контракту,
+    без единой новой цифры: что не названо в документе — остаётся пустым."""
+    ist = data.get("income_statement") or {}
+    bs = data.get("balance_sheet") or {}
+    cf = data.get("cash_flow") or {}
+    out = {
+        "revenue": _num(ist.get("revenue")),
+        "ebitda": _num(ist.get("ebitda")),
+        "net_profit": _num(ist.get("net_profit")),
+        "net_debt": _num(bs.get("net_debt")),
+        "total_assets": _num(bs.get("total_assets")),
+        "total_equity": _num(bs.get("total_equity")),
+        "operating_cash_flow": _num(cf.get("cfo")),
+        # Знак капзатрат в источниках непоследователен, витрина ждёт положительное.
+        "capex": abs(_num(cf.get("capex"))) if _num(cf.get("capex")) is not None else None,
+        "period_label": data.get("period_label"),
+        "standard": data.get("standard"),
+    }
+    return {k: v for k, v in out.items() if v is not None}
+
+
 def _num(v):
     if isinstance(v, bool) or v is None:
         return None
