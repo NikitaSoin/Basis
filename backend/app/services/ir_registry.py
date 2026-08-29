@@ -67,6 +67,38 @@ _PERIOD_RE = re.compile(
     r"(?:(1|2|3|4)\s*(?:кв|квартал)|(\d)\s*(?:мес|месяц)|(1|2)\s*(?:п|полугод)|"
     r"(?:q([1-4]))|(?:h([12])))[^\d]{0,12}(20\d{2})|(20\d{2})[^\d]{0,12}"
     r"(?:(1|2|3|4)\s*(?:кв|квартал)|(?:q([1-4])))", re.IGNORECASE)
+# Голый год — тоже период: у ФосАгро 39 документов на странице и НИ ОДНОГО с
+# кварталом в названии, там просто «ИНТЕГРИРОВАННЫЙ ОТЧЕТ 2025». Проверено на
+# живой странице 2026-08-29 — без этого правила годовая отчётность не находилась.
+_YEAR_RE = re.compile(r"(?<!\d)(20[12]\d)(?!\d)")
+
+# Тип документа. Нужен, потому что на одной странице лежат вперемешку
+# «Интегрированный отчёт» (ESG-брошюра на 300 страниц), презентация для
+# инвесторов и собственно финансовая отчётность. Для разбора нужна последняя —
+# качать брошюру вместо отчётности значит потратить деньги на LLM впустую.
+_KIND_RULES = (
+    ("ifrs_statements", ("мсфо", "ifrs", "консолидированная финансовая",
+                         "консолидированной финансовой", "consolidated financial",
+                         "financial statements", "финансовая отчетность",
+                         "финансовая отчётность")),
+    ("ras_statements", ("рсбу", "бухгалтерская отчет", "бухгалтерская отчёт", "ras ")),
+    ("results_release", ("финансовые результаты", "операционные результаты",
+                         "results for", "пресс-релиз", "press release")),
+    ("presentation", ("презентац", "presentation", "investor day", "слайд")),
+    ("annual_report", ("годовой отчет", "годовой отчёт", "интегрированный отчет",
+                       "интегрированный отчёт", "annual report", "integrated report")),
+)
+# Порядок предпочтения при выборе, что качать первым.
+_KIND_PRIORITY = {"ifrs_statements": 5, "ras_statements": 4, "results_release": 3,
+                  "annual_report": 2, "presentation": 1, "other": 0}
+
+
+def _doc_kind(label: str, url: str) -> str:
+    hay = f"{label} {url}".lower()
+    for kind, words in _KIND_RULES:
+        if any(w in hay for w in words):
+            return kind
+    return "other"
 
 
 def _client():
@@ -149,7 +181,12 @@ def _doc_links(html: str, base_url: str) -> list[dict]:
         if not by_ext and not by_word:
             continue
         links.append({"url": url, "label": label,
-                      "is_file": by_ext,
+                      # 🔴 «Файл» не равно «есть расширение»: у ФосАгро документы
+                      # лежат на CDN без расширения вовсе (…/upload/iblock/245/txku…),
+                      # и распознаются только по подписи ссылки.
+                      "is_file": by_ext or by_word,
+                      "has_ext": by_ext,
+                      "kind": _doc_kind(label, url),
                       "period_hint": _period_from(label) or _period_from(url)})
     # дубли по адресу
     uniq, seen = [], set()
@@ -163,9 +200,10 @@ def _doc_links(html: str, base_url: str) -> list[dict]:
 
 def _period_from(s: str) -> str | None:
     m = _PERIOD_RE.search(s or "")
-    if not m:
-        return None
-    return re.sub(r"\s+", " ", m.group(0)).strip()[:32]
+    if m:
+        return re.sub(r"\s+", " ", m.group(0)).strip()[:32]
+    y = _YEAR_RE.search(s or "")
+    return y.group(1) if y else None
 
 
 def verify_page(url: str) -> dict:
@@ -176,12 +214,25 @@ def verify_page(url: str) -> dict:
         return {"url": url, "http": code, "ok": False, "reason": "страница не открылась"}
     links = _doc_links(html, url)
     files = [l for l in links if l["is_file"]]
+    by_kind: dict[str, int] = {}
+    for l in links:
+        by_kind[l["kind"]] = by_kind.get(l["kind"], 0) + 1
+    # 🔴 Годится страница, где есть ФИНАНСОВАЯ отчётность, а не просто много
+    # файлов. Проверено на ФосАгро: на /investors/reports/ 39 документов и ноль
+    # отчётности — одни интегрированные отчёты (ESG-брошюры). Считать такую
+    # страницу «найденной» значит потом скармливать модели не тот документ.
+    statements = by_kind.get("ifrs_statements", 0) + by_kind.get("ras_statements", 0)
+    releases = by_kind.get("results_release", 0)
     return {
-        "url": url, "http": code, "ok": bool(links),
+        "url": url, "http": code,
+        "ok": bool(statements or releases or files),
+        "has_statements": bool(statements),
         "text_len": len(html),
         "doc_links": len(links), "file_links": len(files),
+        "statements": statements, "releases": releases,
+        "by_kind": by_kind,
         "with_period": sum(1 for l in links if l["period_hint"]),
-        "examples": [{"label": l["label"], "url": l["url"][:140],
+        "examples": [{"label": l["label"], "url": l["url"][:140], "kind": l["kind"],
                       "period": l["period_hint"]} for l in (files or links)[:6]],
     }
 
@@ -201,11 +252,18 @@ def build_for_ticker(db: Session, ticker: str, name: str | None = None,
     for c in cands[:5]:
         v = verify_page(c["url"])
         v["title"] = c["title"]
-        v["score"] = c["score"] + v.get("file_links", 0) * 3 + v.get("with_period", 0) * 2
+        # Вес по убыванию ценности: сама отчётность → релизы результатов →
+        # просто файлы. Без этого побеждала страница с максимумом PDF, а это
+        # обычно архив годовых брошюр.
+        v["score"] = (c["score"]
+                      + v.get("statements", 0) * 10
+                      + v.get("releases", 0) * 4
+                      + min(v.get("file_links", 0), 10)
+                      + min(v.get("with_period", 0), 10))
         checked.append(v)
-        # Ранний выход: страница со списком файлов и распознанными периодами —
-        # это то, что нужно, дальше искать незачем.
-        if v.get("file_links", 0) >= 3 and v.get("with_period", 0) >= 2:
+        # Ранний выход только когда нашли именно отчётность — иначе продолжаем
+        # смотреть остальных кандидатов.
+        if v.get("statements", 0) >= 2:
             break
     checked.sort(key=lambda x: -x.get("score", 0))
     best = checked[0]
@@ -229,7 +287,8 @@ def save_page(db: Session, ticker: str, verified: dict) -> None:
             checked_at = now(), updated_at = now()
     """), {"t": ticker, "u": verified["url"], "title": (verified.get("title") or "")[:250],
            "dl": verified.get("doc_links", 0), "fl": verified.get("file_links", 0),
-           "st": "ok" if verified.get("ok") else "no_docs", "src": "search",
+           "st": ("ok" if verified.get("has_statements") else
+                  ("docs_only" if verified.get("ok") else "no_docs")), "src": "search",
            "ex": __import__("json").dumps(verified.get("examples") or [], ensure_ascii=False)})
     db.commit()
 
@@ -268,8 +327,16 @@ def latest_documents(db: Session, ticker: str, since: date | None = None,
         years = {str(year), str(year - 1)}
         with_year = [l for l in files if any(y in (l["label"] + l["url"]) for y in years)]
         files = with_year or files
+    # 🔴 Порядок важен: на одной странице лежат и финансовая отчётность, и
+    # интегрированный отчёт на 300 страниц, и презентация. Разбирать надо
+    # отчётность — иначе модель читает ESG-брошюру и не находит ни P&L, ни ОДДС
+    # (у ФосАгро из 39 документов на странице отчётность — единицы).
+    files.sort(key=lambda l: (-_KIND_PRIORITY.get(l.get("kind", "other"), 0),
+                              0 if l.get("period_hint") else 1))
     return {"found": bool(files), "url": page["url"], "count": len(files),
-            "documents": files[:limit]}
+            "documents": files[:limit],
+            "by_kind": {k: sum(1 for l in files if l.get("kind") == k)
+                        for k in {l.get("kind") for l in files}}}
 
 
 def fetch_document(url: str, max_chars: int = 120_000) -> dict:
