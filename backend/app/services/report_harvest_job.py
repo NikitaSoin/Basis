@@ -113,6 +113,16 @@ def store_harvested(db: Session, ticker: str, data: dict, doc: dict) -> str:
         # Документ первоисточника точнее пересказа — обновляем источник.
         report.source = "ir_document"
         report.source_url = (doc.get("url") or "")[:1000]
+        # 🔴 Ядро записи рассчитано на СОЗДАНИЕ: оно всегда добавляет новые
+        # EarningsFigures и EarningsDigest, а связь с отчётом один-к-одному.
+        # Для уже существующего отчёта это UniqueViolation, и разбор пропадал
+        # целиком (на бою так потерялись Инарктика и Эталон при живом разборе:
+        # 9-10 строк P&L, статус «error»). Поэтому старые снимаем — их место
+        # займут те, что построены по документу.
+        from app.models.earnings import EarningsDigest, EarningsFigures
+        db.query(EarningsFigures).filter(EarningsFigures.report_id == exists.id).delete()
+        db.query(EarningsDigest).filter(EarningsDigest.report_id == exists.id).delete()
+        db.flush()
     try:
         return _store_report(db, report, company, text_blob=None, is_operational=False,
                              price_now=None, mcap=None, fig_override=figures)
