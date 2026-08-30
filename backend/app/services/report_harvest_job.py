@@ -101,6 +101,16 @@ def store_harvested(db: Session, ticker: str, data: dict, doc: dict) -> str:
     figures["ticker"] = ticker
     figures["period"] = period
     figures["name"] = company.name
+    # 🔴 Ядро кладёт fig_override целиком в EarningsFigures.extracted_fields.
+    # Если отдать только восемь плоских чисел, вся глубина документа (построчные
+    # формы, разовые факторы, ставка налога, оборотный капитал) исчезнет сразу
+    # после лога — ради неё документ и качали. Поэтому прикладываем полный разбор:
+    # лишние ключи ядро игнорирует, а в базе они сохранятся.
+    figures["deep"] = {k: data.get(k) for k in (
+        "income_statement", "balance_sheet", "cash_flow", "one_offs", "tax_note",
+        "working_capital_note", "derived", "currency", "unit_in_source",
+        "scale_factor_applied", "scale_fixed_by") if data.get(k) is not None}
+    figures["deep"]["document_url"] = (doc.get("url") or "")[:500]
     # Годовой период («2025») от квартального отличается наличием квартальной
     # метки: витрина показывает квартальные периоды отдельной шкалой.
     is_annual = period.isdigit() and len(period) == 4
