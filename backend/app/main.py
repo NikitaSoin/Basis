@@ -629,6 +629,29 @@ async def _chronicle_maintenance_job():
         hb_err("chronicle_maintenance", e)
 
 
+async def _report_harvest_job():
+    """Добыча САМОГО документа отчётности у тех, кто отчитался сегодня-вчера
+    (report_harvest_job). Отдельно от report_watch намеренно: тот ходит раз в
+    два часа и читает новости — это дёшево, а здесь скачивается и разбирается
+    документ на десятки тысяч знаков, что стоит минут и денег на модель.
+    Поэтому раз в сутки вечером и с потолком компаний за прогон."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.report_harvest_job import run
+        db = SessionLocal()
+        try:
+            return run(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("report_harvest (документы отчётности): %s", res)
+    except Exception as e:
+        logger.exception("Ошибка report_harvest: %s", e)
+        from app.services.job_heartbeat import hb_err
+        hb_err("report_harvest", e)
+
+
 async def _report_watch_job():
     """Автообнаружение вышедших отчётов (report_watch.py) — НЕЗАВИСИМО от _earnings_job:
     тот видит новый период только после РУЧНОГО обновления financials.json, этот детектит
@@ -1736,6 +1759,11 @@ async def lifespan(app: FastAPI):
         # слой защиты от той же гонки (напр. если новость пришла НЕ через Ленту, а
         # только через MOEX ir-calendar/ГИР БО, которые этот триггер не покрывает).
         scheduler.add_job(_with_heartbeat("report_watch", _report_watch_job), "cron", hour="*/2", minute=45, id="report_watch")
+        # 21:20 — после того, как отчитавшиеся за день успели выложить документ, и
+        # после планового report_watch в 20:45: сперва дешёвый разбор новости,
+        # потом дорогая добыча самого файла у тех, кто отчитался.
+        scheduler.add_job(_with_heartbeat("report_harvest", _report_harvest_job),
+                          "cron", hour=21, minute=20, id="report_harvest")
         # 🔴 Крон `geopolitics` (ежедневный слитый синтез в geo_blocks, Pro +
         # thinking) ВЫКЛЮЧЕН 2026-08-02. Его результат витрина не рисует с
         # 2026-08-01: карточка «Обзор · факты» удалена по просьбе владельца
