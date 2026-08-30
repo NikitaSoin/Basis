@@ -96,6 +96,23 @@ def _write(db: Session, report: EarningsReport, fig: dict, company_name: str | N
         return "skipped_period"
     figures = {k: fig.get(k) for k in _HEADLINE_FIELDS}
     figures.update({k: fig.get(k) for k in _EXTRA_FIELDS if fig.get(k) is not None})
+    # Постатейные строки из самого документа (fig["deep"] кладёт report_harvest_job).
+    # Из пресс-релиза их не бывает, поэтому блок необязательный: нет — работаем как
+    # раньше, на четырёх headline-полях.
+    deep = fig.get("deep") if isinstance(fig.get("deep"), dict) else {}
+    for section, names in _DEEP_LINES.items():
+        node = deep.get(section) if isinstance(deep.get(section), dict) else {}
+        for name in names:
+            val = node.get(name)
+            if isinstance(val, (int, float)):
+                figures[name] = val
+    # Качество прибыли — то, ради чего документ и качается: разовые факторы,
+    # эффективная ставка, вклад оборотного капитала. Хранится рядом с числами,
+    # чтобы витрина могла объяснить прибыль, а не только показать её.
+    quality = {k: deep.get(k) for k in ("one_offs", "tax_note", "working_capital_note",
+                                        "derived", "document_url") if deep.get(k)}
+    if quality:
+        figures["quality"] = quality
     fields_present = _fields_present(figures)
     # Банк: merge_into() маппит ТОЛЬКО net_profit (bank_pnl) — revenue/EBITDA/net_debt
     # для банка структурно не бывают заполнены в этой схеме, «≥2 из 4» недостижимо
@@ -188,6 +205,18 @@ _PLAIN_MAP = {
     # число доехало бы до карточки и не отрисовалось ни в одной строке.
     "cash_flow": {"operating_cash_flow": "cfo", "capex": "capex"},
 }
+
+# Постатейные строки, которые приходят ТОЛЬКО из самого документа отчётности
+# (в пресс-релизе их не бывает). Имена совпадают с теми, что вкладка «Финансы»
+# уже умеет рисовать — доставки достаточно, менять фронт не требуется.
+_DEEP_LINES = {
+    "income_statement": ("cogs", "gross_profit", "operating_expenses",
+                         "operating_profit", "da", "finance_income", "finance_costs",
+                         "pre_tax_profit", "income_tax"),
+    "balance_sheet": ("cash", "current_assets", "non_current_assets",
+                      "total_liabilities", "short_term_debt", "long_term_debt"),
+    "cash_flow": ("cfi", "cff"),
+}
 _BANK_MAP = {
     "bank_pnl": {"net_profit": "net_profit"},
     "balance_sheet": {"total_assets": "total_assets", "total_equity": "total_equity"},
@@ -251,7 +280,16 @@ def _merge_into(db: Session, ticker: str, fin: dict) -> None:
         return
 
     is_bank = (fin.get("meta") or {}).get("profile") == "bank"
-    field_map = _BANK_MAP if is_bank else _PLAIN_MAP
+    field_map = dict(_BANK_MAP if is_bank else _PLAIN_MAP)
+    # Постатейные строки лежат в figures под теми же именами, что ждёт витрина,
+    # поэтому маппинг для них тождественный. Добавляем ТОЛЬКО те, что реально
+    # пришли хоть в одном периоде: иначе карточка обрастёт пустыми строками.
+    for section, names in _DEEP_LINES.items():
+        present = {n: n for n in names
+                   if any(isinstance((r.figures or {}).get(n), (int, float))
+                          for r in candidates)}
+        if present:
+            field_map[section] = {**field_map.get(section, {}), **present}
 
     interim = fin.get("interim") if isinstance(fin.get("interim"), dict) else {}
     periods = list(interim.get("periods") or [])
@@ -304,7 +342,15 @@ def _merge_into(db: Session, ticker: str, fin: dict) -> None:
     got = [k for k in _HEADLINE_FIELDS + _EXTRA_FIELDS
            if any(isinstance((r.figures or {}).get(k), (int, float)) for r in candidates)]
     what = "/".join(_RU[k] for k in got) or "без показателей"
+    # Из документа приходят и постатейные строки — про это честно говорим отдельно:
+    # человек должен понимать, читаем мы пересказ или сам отчёт.
+    from_doc = [r for r in candidates if (r.figures or {}).get("quality")
+                or any(isinstance((r.figures or {}).get(k), (int, float))
+                       for names in _DEEP_LINES.values() for k in names)]
     note = (f"{n} период(а) добавлены автоматически из потока отчётов: {what}; "
             f"предварительно, не сверено аналитиком.")
+    if from_doc:
+        note += (f" Из них {len(from_doc)} — из самого документа отчётности "
+                 f"(постатейные формы).")
     interim["data_flags"] = list(interim.get("data_flags") or []) + [note]
     fin["interim"] = interim
