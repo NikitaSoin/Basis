@@ -95,6 +95,12 @@ def store_harvested(db: Session, ticker: str, data: dict, doc: dict) -> str:
     figures = dict(figures)
     figures["has_figures"] = True
     figures["is_company_report"] = True
+    # 🔴 Ядро записи обращается к fig["ticker"]/["period"]/["name"] по КЛЮЧУ, а не
+    # через .get — без них падает KeyError и весь разбор пропадает (на бою так
+    # потерялась Инарктика: документ разобран, 9 строк P&L, а запись «error»).
+    figures["ticker"] = ticker
+    figures["period"] = period
+    figures["name"] = company.name
     # Годовой период («2025») от квартального отличается наличием квартальной
     # метки: витрина показывает квартальные периоды отдельной шкалой.
     is_annual = period.isdigit() and len(period) == 4

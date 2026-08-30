@@ -45,6 +45,10 @@ _NOT_ISSUER = (
     "wikipedia.org", "conomy.ru", "investing.com", "tradingview.com", "dohod.ru",
     "youtube.com", "t.me", "vk.com", "cbr.ru", "nalog.ru", "rusprofile.ru",
     "list-org.com", "audit-it.ru", "consultant.ru", "garant.ru",
+    # Агрегаторы, пойманные при сборке реестра 2026-08-30: выдавали себя за
+    # страницу эмитента по запросам «Татнефть отчётность», «Газпром нефть».
+    "investonic.ru", "investemika.ru", "investfuture", "bcs-express",
+    "gazpromcapital.ru",  # дочерняя структура-эмитент облигаций, не сам Газпром
 )
 
 # Путь, по которому у российских эмитентов обычно живёт раскрытие. Порядок важен:
@@ -130,6 +134,50 @@ def _fetch(url: str) -> tuple[int, str]:
 def _looks_like_issuer(url: str) -> bool:
     host = (urlparse(url).netloc or "").lower()
     return bool(host) and not any(bad in host for bad in _NOT_ISSUER)
+
+
+def _core_name(name: str) -> str:
+    """Ядро названия: без организационной формы и кавычек. «ПАО «Роснефть»» →
+    «роснефть»."""
+    s = (name or "").lower().replace("ё", "е")
+    s = re.sub(r"[«»\"'()]", " ", s)
+    s = re.sub(r"\b(пао|оао|ао|зао|ооо|пуб\w*|акционерн\w*|обществ\w*|группа|"
+               r"компания|холдинг|корпорация|концерн|нк|гк)\b", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def belongs_to_company(name: str, html: str, url: str) -> bool:
+    """Точно ли эта страница принадлежит НУЖНОЙ компании.
+
+    🔴 Найдено на бою 2026-08-30, и это опаснее пустого реестра: по запросу
+    «Роснефть …» поиск отдал сайт РУССНЕФТИ, по «Газпром» — Газпром капитал, по
+    «Татнефть» и «Газпром нефть» — сайты-агрегаторы. Привязка к чужой компании
+    означает чужие цифры в карточке, причём выглядящие правдоподобно.
+
+    Проверяем по тексту страницы: название эмитента на его собственном сайте
+    встречается всегда (шапка, подвал, реквизиты). Это надёжнее догадок по
+    домену — у половины компаний домен не совпадает с названием (ir.mts.ru,
+    nornickel.com, sistema.ru)."""
+    core = _core_name(name)
+    if not core or not html:
+        return True   # нечем проверить — не блокируем
+    words = [w for w in core.split() if len(w) >= 4]
+    if not words:
+        return True
+    hay = re.sub(r"\s+", " ", html.lower().replace("ё", "е"))
+    # Достаточно самого длинного слова названия: «роснефть» из «ПАО «НК «Роснефть»».
+    key = max(words, key=len)
+    if key in hay:
+        return True
+    # Латинская форма в адресе (rosneft.ru, lukoil.ru) — тоже принадлежность.
+    translit = str.maketrans({
+        "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ж": "zh",
+        "з": "z", "и": "i", "й": "y", "к": "k", "л": "l", "м": "m", "н": "n",
+        "о": "o", "п": "p", "р": "r", "с": "s", "т": "t", "у": "u", "ф": "f",
+        "х": "h", "ц": "c", "ч": "ch", "ш": "sh", "щ": "sch", "ъ": "", "ы": "y",
+        "ь": "", "э": "e", "ю": "yu", "я": "ya"})
+    lat = key.translate(translit)
+    return bool(lat) and len(lat) >= 4 and lat in url.lower()
 
 
 def _path_score(url: str) -> int:
@@ -257,12 +305,15 @@ def _period_from(s: str) -> str | None:
     return y.group(1) if y else None
 
 
-def verify_page(url: str) -> dict:
+def verify_page(url: str, company_name: str | None = None) -> dict:
     """Что на странице реально есть. Отдаёт факты, а не вердикт: сколько ссылок
     на документы, сколько из них файлы, примеры — по ним решает вызывающий."""
     code, html = _fetch(url)
     if not html:
         return {"url": url, "http": code, "ok": False, "reason": "страница не открылась"}
+    if company_name and not belongs_to_company(company_name, html, url):
+        return {"url": url, "http": code, "ok": False, "wrong_company": True,
+                "reason": f"страница не про {company_name} — чужой эмитент или агрегатор"}
     links = _doc_links(html, url)
     files = [l for l in links if l["is_file"]]
     by_kind: dict[str, int] = {}
@@ -301,7 +352,7 @@ def build_for_ticker(db: Session, ticker: str, name: str | None = None,
 
     checked = []
     for c in cands[:5]:
-        v = verify_page(c["url"])
+        v = verify_page(c["url"], company_name=name)
         v["title"] = c["title"]
         # Вес по убыванию ценности: сама отчётность → релизы результатов →
         # просто файлы. Без этого побеждала страница с максимумом PDF, а это
