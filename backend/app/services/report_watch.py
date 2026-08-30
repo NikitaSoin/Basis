@@ -953,6 +953,13 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
         "total_assets": fig_raw.get("total_assets"), "total_equity": fig_raw.get("total_equity"),
         "operating_cash_flow": fig_raw.get("operating_cash_flow"), "capex": fig_raw.get("capex"),
     }
+    # 🔴 fig пересобирается по фиксированному списку ключей, поэтому всё, что не
+    # перечислено выше, до оверлея не доходит. Постатейные формы и «качество
+    # прибыли» из самого документа (их кладёт report_harvest_job в fig_raw["deep"])
+    # надо пробросить явно — иначе документ разобран, а карточка по-прежнему
+    # показывает четыре числа.
+    if isinstance(fig_raw.get("deep"), dict):
+        fig["deep"] = fig_raw["deep"]
     mult = _multiples(fig, price_now, mcap)
     # Богатый разбор, когда на руках реальный текст источника (не просто заголовок
     # календаря) — модель видит текст целиком, не только 4 сжатых числа. Порог 150
