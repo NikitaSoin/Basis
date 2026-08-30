@@ -3997,6 +3997,41 @@ def ir_registry_build(tickers: str | None = Query(None, description="через 
         db.close()
 
 
+@router.post("/debug/ir-registry-audit")
+def ir_registry_audit(fix: bool = Query(False, description="удалять чужие записи")):
+    """Проверить реестр на чужие привязки: страница должна принадлежать своему
+    эмитенту. Нужна, потому что записи, сделанные ДО появления проверки, могли
+    привязать сайт другой компании (Роснефть → РуссНефть, Газпром → Газпром
+    капитал). Без fix=1 только показывает."""
+    from sqlalchemy import text as _t
+    from app.db.session import SessionLocal
+    from app.services import ir_registry
+    db = SessionLocal()
+    try:
+        rows = db.execute(_t(
+            "SELECT p.ticker, p.url, c.name FROM ir_pages p "
+            "JOIN companies c ON c.ticker = p.ticker ORDER BY p.ticker")).all()
+        bad, ok = [], 0
+        for r in rows:
+            code, html = ir_registry._fetch(r.url)
+            if not html:
+                bad.append({"ticker": r.ticker, "url": r.url, "why": f"не открылась ({code})"})
+                continue
+            if ir_registry.belongs_to_company(r.name, html, r.url):
+                ok += 1
+            else:
+                bad.append({"ticker": r.ticker, "url": r.url,
+                            "why": f"страница не про «{r.name}»"})
+        if fix and bad:
+            db.execute(_t("DELETE FROM ir_pages WHERE ticker = ANY(:tt)"),
+                       {"tt": [b["ticker"] for b in bad]})
+            db.commit()
+        return {"checked": len(rows), "ok": ok, "suspicious": bad,
+                "removed": len(bad) if fix else 0}
+    finally:
+        db.close()
+
+
 @router.get("/debug/ir-documents")
 def ir_documents(ticker: str = Query(...), fetch: bool = Query(False)):
     """Свежие документы отчётности по сохранённой IR-странице; fetch=1 — ещё и
