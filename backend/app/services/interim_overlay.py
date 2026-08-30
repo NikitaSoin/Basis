@@ -46,8 +46,10 @@ _EXTRA_FIELDS = ("total_assets", "total_equity", "operating_cash_flow", "capex")
 # ранг источника — при равном fields_present более богатый источник побеждает
 # при повторном апсерте того же периода (новость из Ленты не должна перетереть
 # цифры, уже добытые из полного релиза)
-_SOURCE_RANK = {"girbo": 3, "company_rss": 3, "agent_fetcher": 2, "report_watch": 2,
-                "market_updates": 1}
+# Документ отчётности — первоисточник, он выше любого пересказа: из него
+# приходят построчные формы, которых в новости не бывает в принципе.
+_SOURCE_RANK = {"ir_document": 4, "girbo": 3, "company_rss": 3, "agent_fetcher": 2,
+                "report_watch": 2, "market_updates": 1}
 
 
 def _fields_present(figures: dict) -> int:
@@ -138,12 +140,21 @@ def _write(db: Session, report: EarningsReport, fig: dict, company_name: str | N
         )
     ).scalar_one_or_none()
 
-    source = "report_watch"
+    source = "ir_document" if deep else "report_watch"
     if existing is not None:
         new_rank = _SOURCE_RANK.get(source, 0)
         old_rank = _SOURCE_RANK.get(existing.source or "", 0)
-        better = fields_present > existing.fields_present or (
-            fields_present == existing.fields_present and new_rank > old_rank)
+        # 🔴 «Лучше» нельзя мерить одними headline-полями: запись из документа с
+        # 12 построчными строками имеет те же 3-4 headline, что запись из
+        # пресс-релиза, признаётся «не лучше» и отбрасывается — вся глубина
+        # молча не доезжает до карточки (найдено на бою 2026-08-31: разбор
+        # писал 9-12 строк, карточка показывала 3).
+        richer = len([v for v in figures.values() if isinstance(v, (int, float))])
+        old_rich = len([v for v in (existing.figures or {}).values()
+                        if isinstance(v, (int, float))])
+        better = (fields_present > existing.fields_present
+                  or richer > old_rich
+                  or new_rank > old_rank)
         if not better:
             return "unchanged"
         existing.period_label = period_obj["period_label"]
