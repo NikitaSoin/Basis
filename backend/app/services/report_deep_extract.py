@@ -134,10 +134,23 @@ def normalize_scale(data: dict, annual_revenue_mln: float | None) -> dict:
         lo, hi = annual_revenue_mln / 40.0, annual_revenue_mln * 2.0
         if not (lo <= rev * factor <= hi):
             # Пробуем стандартные множители, прежде чем сдаваться.
-            for candidate in (1000.0, 0.001, 1_000_000.0):
+            # 🔴 1.0 в списке ПЕРВОЙ и обязательно (найдено 2026-08-31): подсказка из
+            # шапки документа сама бывает неверной — в тексте попадается «тыс.» из
+            # соседней таблицы, а числа уже в млн. Без единицы в списке такой случай
+            # неисправим в принципе: исходное значение подходит, но вернуться к нему
+            # нечем, и разбор уходит в scale_suspect. Так на витрину не попали
+            # РусГидро (22,3 % годовой выручки за полугодие), Позитив (51,2 %) и
+            # третий тикер (25,2 %) — все три лежали внутри коридора без всякой
+            # поправки. Токены на извлечение потрачены, результат выброшен.
+            for candidate in (1.0, 1000.0, 0.001, 1_000_000.0):
                 if lo <= rev * candidate <= hi:
                     factor = candidate
-                    data["scale_fixed_by"] = candidate
+                    # 1.0 — не «поправка», а отмена неверной подсказки: помечаем
+                    # иначе, чтобы в логе было видно, что подвела шапка документа.
+                    if candidate == 1.0:
+                        data["scale_hint_ignored"] = str(data.get("unit_in_source") or "")
+                    else:
+                        data["scale_fixed_by"] = candidate
                     break
             else:
                 data["scale_suspect"] = {
@@ -252,7 +265,18 @@ def enrich(data: dict) -> dict:
 
     tax, pre_tax = _num(ist.get("income_tax")), _num(ist.get("pre_tax_profit"))
     if tax is not None and pre_tax:
-        derived["effective_tax_rate_pct"] = round(abs(tax) / abs(pre_tax) * 100, 1)
+        rate = round(abs(tax) / abs(pre_tax) * 100, 1)
+        # 🔴 «Эффективная ставка 207,5 %» — не ставка, а сигнал (Артген, 1П2026:
+        # налог 16,6 при прибыли до налога 8,0). Такое бывает по делу — отложенные
+        # налоги, убыточные дочерние, доначисления — но на витрине читается как
+        # ошибка расчёта и подрывает доверие ко всему блоку. Ставкой называем
+        # только то, что ею выглядит; остальное показываем как факт с двумя
+        # числами, из которых видно, что произошло.
+        if pre_tax > 0 and 0 <= rate <= 60:
+            derived["effective_tax_rate_pct"] = rate
+        else:
+            derived["tax_unusual"] = {"income_tax": abs(tax), "pre_tax_profit": pre_tax,
+                                      "ratio_pct": rate}
 
     data["derived"] = derived
     return data
