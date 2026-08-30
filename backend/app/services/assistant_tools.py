@@ -582,6 +582,16 @@ def _get_financial_statements(db: Session, ticker: str, statement: str = "all",
            "profile": meta.get("profile")}
 
     if period == "interim":
+        # 🔴 Файл — не вся правда: свежие кварталы приходят автоматически из
+        # потока отчётов и живут в БД-оверлее (файлы на Timeweb эфемерны).
+        # Карточка домешивает их на выдаче — ассистент обязан видеть то же самое,
+        # иначе на вопрос «какой был последний квартал» он ответит по файлу и
+        # разойдётся с экраном, который смотрит пользователь.
+        try:
+            from app.services import interim_overlay
+            interim_overlay.merge_into(db, tk, data)
+        except Exception:  # noqa: BLE001 — без оверлея данные всё равно полезны
+            logger.exception("assistant: оверлей интерима для %s не применился", tk)
         interim = data.get("interim") or {}
         periods = interim.get("periods") or []
         if not periods:
