@@ -58,6 +58,64 @@ def _already_harvested(db: Session, ticker: str, days_back: int) -> bool:
     return row is not None
 
 
+def store_harvested(db: Session, ticker: str, data: dict, doc: dict) -> str:
+    """Записать разобранный документ так же, как записываются отчёты из новостей.
+
+    Переиспользуем ядро report_watch._store_report через `fig_override` — это
+    предусмотренный там путь для готовых цифр без LLM-угадывания (им же ходит
+    ГИР БО). Свой параллельный путь записи означал бы вторую логику слияния с
+    карточкой и второй набор ошибок.
+
+    Возвращает статус ядра (created/updated/…) либо причину отказа."""
+    from app.models.company import Company
+    from app.models.earnings import EarningsReport
+    from app.services import report_deep_extract as deep
+    from app.services.report_watch import _store_report
+
+    period = (data.get("period_label") or "").strip()
+    if not period:
+        return "skip_no_period"
+    figures = deep.to_overlay_figures(data)
+    if not figures:
+        # Пусто бывает по делу: масштаб не сошёлся с карточкой (см.
+        # normalize_scale) — тогда лучше не писать ничего.
+        return "skip_no_figures"
+
+    company = db.query(Company).filter(Company.ticker == ticker).first()
+    if company is None:
+        return "skip_no_company"
+
+    standard = data.get("standard") or "МСФО"
+    exists = db.query(EarningsReport).filter(
+        EarningsReport.ticker == ticker, EarningsReport.period == period,
+        EarningsReport.standard == standard).first()
+    if exists is not None and exists.source == "ir_document":
+        return "already_stored"
+
+    figures = dict(figures)
+    figures["has_figures"] = True
+    figures["is_company_report"] = True
+    # Годовой период («2025») от квартального отличается наличием квартальной
+    # метки: витрина показывает квартальные периоды отдельной шкалой.
+    is_annual = period.isdigit() and len(period) == 4
+    report = exists or EarningsReport(
+        ticker=ticker, period=period, standard=standard,
+        report_type="annual" if is_annual else "quarter",
+        published_at=date.today(), source="ir_document",
+        source_url=(doc.get("url") or "")[:1000])
+    if exists is not None:
+        # Документ первоисточника точнее пересказа — обновляем источник.
+        report.source = "ir_document"
+        report.source_url = (doc.get("url") or "")[:1000]
+    try:
+        return _store_report(db, report, company, text_blob=None, is_operational=False,
+                             price_now=None, mcap=None, fig_override=figures)
+    except Exception:  # noqa: BLE001 — запись не должна ронять прогон
+        db.rollback()
+        logger.exception("harvest_job: запись отчёта %s/%s не удалась", ticker, period)
+        return "error"
+
+
 def run(db: Session, days_back: int = 2, limit: int = MAX_PER_RUN) -> dict:
     """Пройти по отчитавшимся и добыть у них документ отчётности."""
     from app.services import ir_registry
@@ -87,6 +145,10 @@ def run(db: Session, days_back: int = 2, limit: int = MAX_PER_RUN) -> dict:
             item["period"] = extracted.get("period_label")
             item["lines"] = forms
             item["one_offs"] = len(extracted.get("one_offs") or [])
+            # Разобрали — значит доводим до карточки, иначе добыча остаётся
+            # красивым логом, которого пользователь не видит.
+            item["stored"] = store_harvested(db, ticker, extracted,
+                                             res.get("document") or {})
         else:
             item["reason"] = res.get("reason")
         out["processed"].append(item)
