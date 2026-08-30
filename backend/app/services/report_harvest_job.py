@@ -58,6 +58,23 @@ def _already_harvested(db: Session, ticker: str, days_back: int) -> bool:
     return row is not None
 
 
+def _redone_recently(db: Session, ticker: str, hours: int = 12) -> bool:
+    """Переразобран ли тикер ЗА ПОСЛЕДНИЕ hours часов.
+
+    🔴 Без этой проверки массовое дообогащение невозможно: `force` отключает
+    «уже разобран», очередь берётся по алфавиту, и каждый следующий прогон
+    заново перебирает те же первые шесть компаний. Три батча подряд ушли на
+    ABIO/AFKS/AFLT/AKRN/AQUA/ASTR (2026-08-31) — деньги на модель потрачены
+    трижды за один и тот же результат, а остальные пятьдесят не сдвинулись."""
+    row = db.execute(text("""
+        SELECT 1 FROM interim_financials_overlay
+         WHERE ticker = :t AND source = 'ir_document'
+           AND COALESCE(updated_at, created_at) >= now() - make_interval(hours => :h)
+         LIMIT 1
+    """), {"t": ticker, "h": hours}).first()
+    return row is not None
+
+
 def store_harvested(db: Session, ticker: str, data: dict, doc: dict,
                     force: bool = False) -> str:
     """Записать разобранный документ так же, как записываются отчёты из новостей.
@@ -173,6 +190,11 @@ def run(db: Session, days_back: int = 2, limit: int = MAX_PER_RUN,
         try:
             if not force and _already_harvested(db, ticker, days_back):
                 out["skipped"].append({"ticker": ticker, "why": "документ уже разобран"})
+                continue
+            if force and _redone_recently(db, ticker):
+                # Переразбор — не повод крутиться на месте: свежедобытых пропускаем,
+                # чтобы очередь двигалась дальше по рынку.
+                out["skipped"].append({"ticker": ticker, "why": "переразобран только что"})
                 continue
             res = ir_registry.harvest(db, ticker, since=date.today(), extract=True)
         except Exception as e:  # noqa: BLE001 — один эмитент не должен ронять прогон

@@ -24,6 +24,17 @@ function bln(vMln) {
   if (Math.abs(mlrd) >= 1000) return { v: num(mlrd / 1000, 2), u: "трлн ₽" };
   return { v: num(mlrd, Math.abs(mlrd) >= 100 ? 0 : 1), u: "млрд ₽" };
 }
+// Денежное значение с единицей ПО САМОМУ ЗНАЧЕНИЮ. bln() всегда считает в млрд, и
+// для сумм меньше миллиарда на экране выходит «−0,0» — число есть, читать нечего
+// (проверено глазами на бою 2026-08-31: разовые факторы Инарктики, 0,7 и 0,04 млрд).
+// Нужна там, где значения стоят по одному, а не строкой таблицы с общей шапкой.
+function mny(vMln) {
+  if (vMln == null || isNaN(vMln)) return { v: "—", u: "" };
+  const a = Math.abs(vMln);
+  if (a >= 1e6) return { v: num(vMln / 1e6, 2), u: "трлн ₽" };
+  if (a >= 1000) return { v: num(vMln / 1000, 1), u: "млрд ₽" };
+  return { v: num(vMln, a >= 100 ? 0 : 1), u: "млн ₽" };
+}
 const lastN = (a) => (Array.isArray(a) ? [...a].reverse().find((x) => x != null) ?? null : null);
 const prevN = (a) => {
   if (!Array.isArray(a)) return null;
@@ -1198,28 +1209,28 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                             <td>{o.up ? "+ " : "− "}{o.name}</td>
                             <td className={`amt ${o.amount == null ? "" : (o.up ? "pos" : "neg")}`}>
                               {o.amount == null ? "сумма не раскрыта"
-                                : `${o.up ? "+" : "−"}${B(Math.abs(o.amount)).v}`}</td>
+                                : `${o.up ? "+" : "−"}${mny(Math.abs(o.amount)).v} ${mny(Math.abs(o.amount)).u}`}</td>
                             <td className="lvl"><span className="tg fc-tg-f">факт</span></td>
                           </tr>
                         ))}
                         {q.adjusted != null && (
                           <tr><td>Прибыль без разовых</td>
-                            <td className="amt">{B(q.adjusted).v} {B(q.adjusted).u}</td>
+                            <td className="amt">{mny(q.adjusted).v} {mny(q.adjusted).u}</td>
                             <td className="lvl"><span className="tg fc-tg-e">расчёт</span></td></tr>
                         )}
                         {q.exFx != null && (
                           <tr><td>Прибыль без курсовых</td>
-                            <td className="amt">{B(q.exFx).v} {B(q.exFx).u}</td>
+                            <td className="amt">{mny(q.exFx).v} {mny(q.exFx).u}</td>
                             <td className="lvl"><span className="tg fc-tg-e">расчёт</span></td></tr>
                         )}
                         {q.wc != null && (
                           <tr><td>Вклад оборотного капитала в поток</td>
-                            <td className={`amt ${q.wc >= 0 ? "pos" : "neg"}`}>{q.wc >= 0 ? "+" : "−"}{B(Math.abs(q.wc)).v}</td>
+                            <td className={`amt ${q.wc >= 0 ? "pos" : "neg"}`}>{q.wc >= 0 ? "+" : "−"}{mny(Math.abs(q.wc)).v} {mny(Math.abs(q.wc)).u}</td>
                             <td className="lvl"><span className="tg fc-tg-f">факт</span></td></tr>
                         )}
                         {q.fcfExWc != null && (
                           <tr><td>Свободный поток без оборотного капитала</td>
-                            <td className="amt">{B(q.fcfExWc).v} {B(q.fcfExWc).u}</td>
+                            <td className="amt">{mny(q.fcfExWc).v} {mny(q.fcfExWc).u}</td>
                             <td className="lvl"><span className="tg fc-tg-e">расчёт</span></td></tr>
                         )}
                         {q.taxRate != null && (
@@ -1228,9 +1239,11 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                             <td className="lvl"><span className="tg fc-tg-f">факт</span></td></tr>
                         )}
                         {q.taxOdd != null && (
-                          <tr><td>Налог начислен больше прибыли до налога
+                          <tr><td>{q.taxOdd.pre_tax_profit < 0
+                              ? "Налог начислен при убытке до налога"
+                              : "Налог начислен больше прибыли до налога"}
                             <span className="fc-hint"> · обычно отложенные налоги или убытки дочерних</span></td>
-                            <td className="amt">{B(q.taxOdd.income_tax).v} при {B(q.taxOdd.pre_tax_profit).v} {B(q.taxOdd.pre_tax_profit).u}</td>
+                            <td className="amt">{mny(q.taxOdd.income_tax).v} {mny(q.taxOdd.income_tax).u} при {mny(q.taxOdd.pre_tax_profit).v} {mny(q.taxOdd.pre_tax_profit).u}</td>
                             <td className="lvl"><span className="tg fc-tg-f">факт</span></td></tr>
                         )}
                       </React.Fragment>
