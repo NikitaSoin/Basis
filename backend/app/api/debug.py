@@ -3953,6 +3953,17 @@ def ir_discover(ticker: str = Query(..., description="тикер компани�
         name = row.name if row else ticker
         cands = ir_registry.discover_candidates(name, ticker.upper())
         out = {"ticker": ticker.upper(), "name": name, "candidates": cands}
+        if not cands:
+            # «Кандидатов нет» — это ДВА разных диагноза: поиск ничего не вернул
+            # (провайдер/лимит) или вернул одни агрегаторы, и их отсеял фильтр.
+            # Лечатся по-разному, поэтому показываем сырую выдачу целиком.
+            from app.services.agent_web import web_search
+            raw = web_search(f"{name} раскрытие информации финансовая отчётность МСФО",
+                             max_results=6) or {}
+            out["raw_search"] = [{"url": (i.get("url") or "")[:160],
+                                  "title": (i.get("title") or "")[:120]}
+                                 for i in (raw.get("results") or [])]
+            out["raw_error"] = raw.get("error")
         if verify:
             out["verified"] = [ir_registry.verify_page(c["url"]) for c in cands[:4]]
         return out

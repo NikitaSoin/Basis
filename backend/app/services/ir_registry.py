@@ -41,7 +41,12 @@ logger = logging.getLogger(__name__)
 _NOT_ISSUER = (
     "smart-lab.ru", "smartlab.ru", "e-disclosure.ru", "disclosure.ru", "1prime.ru",
     "skrin.ru", "azipi.ru", "interfax.ru", "rbc.ru", "kommersant.ru", "vedomosti.ru",
-    "finam.ru", "bcs", "tinkoff.ru", "tbank.ru", "sberbank.com/ru/investor" "moex.com",
+    # 🔴 Здесь была пропущена запятая: "sberbank.com/ru/investor" "moex.com"
+    # склеивались в один несуществующий хост, и Мосбиржа переставала считаться
+    # агрегатором — она же потом и подставлялась вместо Фикс Прайса и ВИ.ру.
+    # Путь в этом списке бесполезен (сверка идёт по хосту), поэтому его нет:
+    # чужие страницы отсекает belongs_to_company, а сайт Сбера Сберу законен.
+    "finam.ru", "bcs", "tinkoff.ru", "tbank.ru", "moex.com",
     "wikipedia.org", "conomy.ru", "investing.com", "tradingview.com", "dohod.ru",
     "youtube.com", "t.me", "vk.com", "cbr.ru", "nalog.ru", "rusprofile.ru",
     "list-org.com", "audit-it.ru", "consultant.ru", "garant.ru",

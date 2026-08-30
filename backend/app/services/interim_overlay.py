@@ -152,6 +152,11 @@ def _write(db: Session, report: EarningsReport, fig: dict, company_name: str | N
         richer = len([v for v in figures.values() if isinstance(v, (int, float))])
         old_rich = len([v for v in (existing.figures or {}).values()
                         if isinstance(v, (int, float))])
+        if new_rank < old_rank:
+            # Обратная сторона того же счётчика: пересказ с четырьмя headline-полями
+            # формально «полнее» документа, у которого их три, — и стёр бы двенадцать
+            # построчных строк. Первоисточник пересказу не уступает никогда.
+            return "unchanged"
         better = (fields_present > existing.fields_present
                   or richer > old_rich
                   or new_rank > old_rank)

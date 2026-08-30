@@ -79,7 +79,11 @@ def store_harvested(db: Session, ticker: str, data: dict, doc: dict,
     figures = deep.to_overlay_figures(data)
     if not figures:
         # Пусто бывает по делу: масштаб не сошёлся с карточкой (см.
-        # normalize_scale) — тогда лучше не писать ничего.
+        # normalize_scale) — тогда лучше не писать ничего. Но «масштаб не сошёлся»
+        # и «документ ничего не дал» лечатся по-разному, а один общий статус
+        # заставляет каждый раз лезть в логи — разводим их сразу.
+        if data.get("scale_suspect"):
+            return "skip_scale_suspect"
         return "skip_no_figures"
 
     company = db.query(Company).filter(Company.ticker == ticker).first()
