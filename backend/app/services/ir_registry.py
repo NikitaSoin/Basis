@@ -198,6 +198,47 @@ def _doc_links(html: str, base_url: str) -> list[dict]:
     return uniq
 
 
+_PERIOD_PARSERS = (
+    # «1кв2026», «2 кв 2026»
+    (re.compile(r"([1-4])\s*кв\w*\s*(20\d{2})", re.I), lambda m: (int(m.group(2)), int(m.group(1)) * 3)),
+    # «1П2026», «2 полугодие 2026»
+    (re.compile(r"([12])\s*п(?:олугод\w*)?\s*(20\d{2})", re.I), lambda m: (int(m.group(2)), int(m.group(1)) * 6)),
+    # «6М2026», «9 мес 2026»
+    (re.compile(r"(\d{1,2})\s*м(?:ес\w*)?\s*(20\d{2})", re.I), lambda m: (int(m.group(2)), min(12, int(m.group(1))))),
+    # «Q2 2026»
+    (re.compile(r"q([1-4])\s*(20\d{2})", re.I), lambda m: (int(m.group(2)), int(m.group(1)) * 3)),
+    # просто год — годовой отчёт
+    (re.compile(r"^\s*(20\d{2})\s*$"), lambda m: (int(m.group(1)), 12)),
+)
+
+
+def _period_end(label: str) -> date | None:
+    """Дата окончания периода из его подписи. Нужна, чтобы мерить свежесть
+    ВРЕМЕНЕМ, а не годом: в августе 2026-го «1кв2025» формально «прошлый год»,
+    а по сути отчёт полуторагодовой давности (найдено на бою у АФК Системы)."""
+    s = (label or "").strip()
+    for rx, fn in _PERIOD_PARSERS:
+        m = rx.search(s)
+        if m:
+            year, month = fn(m)
+            day = 31 if month in (1, 3, 5, 7, 8, 10, 12) else (30 if month != 2 else 28)
+            try:
+                return date(year, month, day)
+            except ValueError:
+                return date(year, month, 28)
+    return None
+
+
+def _is_fresh(label: str, ref: date, max_age_days: int = 300) -> bool:
+    """Свежий ли отчёт. Годовому даём больше времени: отчётность за 2025 год
+    выходит весной 2026-го и до следующей весны остаётся последней."""
+    end = _period_end(label)
+    if end is None:
+        return True  # период не распознан — не повод выбрасывать документ
+    limit = 460 if re.fullmatch(r"\s*20\d{2}\s*", label or "") else max_age_days
+    return (ref - end).days <= limit
+
+
 def _doc_year(*parts: str) -> int | None:
     """Год документа — максимальный, встреченный в подписи или адресе. Максимум,
     а не первый: в адресе часто сидит год архива («/2019/upload/…»), а в подписи
@@ -550,11 +591,11 @@ def harvest(db: Session, ticker: str, since: date | None = None,
         # Свежесть проверяем по ИЗВЛЕЧЁННОМУ периоду, а не по подписи ссылки:
         # подпись врёт чаще (в имени файла год выгрузки, а внутри отчёт за
         # прошлый период). Старый документ — не отказ, а повод взять следующий.
-        ref_year = (since or date.today()).year
-        got_year = _doc_year(str(data.get("period_label") or ""))
-        if got_year and got_year < ref_year - 1:
+        ref_day = since or date.today()
+        label = str(data.get("period_label") or "")
+        if label and not _is_fresh(label, ref_day):
             tried.append({"url": doc["url"][:120], "kind": doc.get("kind"),
-                          "result": f"период {data.get('period_label')} — старый"})
+                          "result": f"период {label} — устарел"})
             continue
         return {"ticker": ticker, "ok": True, "stage": "extracted",
                 "ir_page": page_url, "via_search": bool(doc.get("via")),
