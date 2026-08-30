@@ -58,7 +58,8 @@ def _already_harvested(db: Session, ticker: str, days_back: int) -> bool:
     return row is not None
 
 
-def store_harvested(db: Session, ticker: str, data: dict, doc: dict) -> str:
+def store_harvested(db: Session, ticker: str, data: dict, doc: dict,
+                    force: bool = False) -> str:
     """Записать разобранный документ так же, как записываются отчёты из новостей.
 
     Переиспользуем ядро report_watch._store_report через `fig_override` — это
@@ -89,7 +90,9 @@ def store_harvested(db: Session, ticker: str, data: dict, doc: dict) -> str:
     exists = db.query(EarningsReport).filter(
         EarningsReport.ticker == ticker, EarningsReport.period == period,
         EarningsReport.standard == standard).first()
-    if exists is not None and exists.source == "ir_document":
+    if exists is not None and exists.source == "ir_document" and not force:
+        # Уже разобран этим же путём — повторять незачем. При force перезаписываем:
+        # разбор мог стать лучше, и старая запись иначе осталась бы навсегда.
         return "already_stored"
 
     figures = dict(figures)
@@ -142,8 +145,14 @@ def store_harvested(db: Session, ticker: str, data: dict, doc: dict) -> str:
         return "error"
 
 
-def run(db: Session, days_back: int = 2, limit: int = MAX_PER_RUN) -> dict:
-    """Пройти по отчитавшимся и добыть у них документ отчётности."""
+def run(db: Session, days_back: int = 2, limit: int = MAX_PER_RUN,
+        force: bool = False) -> dict:
+    """Пройти по отчитавшимся и добыть у них документ отчётности.
+
+    force=True переразбирает даже тех, у кого документ уже разобран. Нужен, когда
+    улучшился САМ разбор: старые записи сделаны прежней версией и обновятся только
+    повторным проходом (иначе карточка навсегда останется с тем, что удалось
+    извлечь в первый раз)."""
     from app.services import ir_registry
 
     todo = _candidates(db, days_back)
@@ -153,7 +162,7 @@ def run(db: Session, days_back: int = 2, limit: int = MAX_PER_RUN) -> dict:
             out["stopped_at_limit"] = True
             break
         try:
-            if _already_harvested(db, ticker, days_back):
+            if not force and _already_harvested(db, ticker, days_back):
                 out["skipped"].append({"ticker": ticker, "why": "документ уже разобран"})
                 continue
             res = ir_registry.harvest(db, ticker, since=date.today(), extract=True)
@@ -174,7 +183,7 @@ def run(db: Session, days_back: int = 2, limit: int = MAX_PER_RUN) -> dict:
             # Разобрали — значит доводим до карточки, иначе добыча остаётся
             # красивым логом, которого пользователь не видит.
             item["stored"] = store_harvested(db, ticker, extracted,
-                                             res.get("document") or {})
+                                             res.get("document") or {}, force=force)
         else:
             item["reason"] = res.get("reason")
         out["processed"].append(item)

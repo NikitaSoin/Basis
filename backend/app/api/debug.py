@@ -4053,14 +4053,15 @@ def ir_documents(ticker: str = Query(...), fetch: bool = Query(False)):
 
 @router.post("/debug/report-harvest-run")
 def report_harvest_run(days_back: int = Query(2, ge=0, le=14),
-                       limit: int = Query(3, ge=1, le=10)):
+                       limit: int = Query(3, ge=1, le=10),
+                       force: bool = Query(False, description="переразобрать уже добытых")):
     """Прогнать ежедневную добычу вручную — тот же код, что и по расписанию
     (21:20). Полезно сразу после отчётного дня, не дожидаясь вечера."""
     from app.db.session import SessionLocal
     from app.services.report_harvest_job import run
     db = SessionLocal()
     try:
-        return run(db, days_back=days_back, limit=limit)
+        return run(db, days_back=days_back, limit=limit, force=force)
     finally:
         db.close()
 
