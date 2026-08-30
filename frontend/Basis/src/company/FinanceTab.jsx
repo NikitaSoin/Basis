@@ -416,10 +416,15 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     return order.map((label) => {
       const item = q[label] || {};
       const d = item.derived || {};
+      // Разовый фактор без суммы — это НЕ пустая строка: «разовые расходы на SPO
+      // дочерней компании» объясняет разрыв между EBITDA и EBITDA adj. даже без
+      // цифры. Раньше такие молча отбрасывались, и блок выглядел так, будто
+      // компания ничего разового не раскрывала (Артген, 1П2026).
       const oneOffs = (item.one_offs || [])
-        .filter((o) => o && typeof o.amount === "number")
+        .filter((o) => o && (typeof o.amount === "number" || o.name))
         .slice(0, 4)
-        .map((o) => ({ name: o.name || "разовый фактор", amount: o.amount,
+        .map((o) => ({ name: o.name || "разовый фактор",
+                       amount: typeof o.amount === "number" ? o.amount : null,
                        up: (o.direction || "increase") === "increase" }));
       const row = {
         period: label, oneOffs,
@@ -428,9 +433,13 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
         wc: typeof item.working_capital_change === "number" ? item.working_capital_change : null,
         fcfExWc: typeof d.fcf_ex_working_capital === "number" ? d.fcf_ex_working_capital : null,
         taxRate: typeof d.effective_tax_rate_pct === "number" ? d.effective_tax_rate_pct : null,
+        // Налог, не похожий на ставку (превысил прибыль до налога или прибыли не
+        // было вовсе). Показываем двумя числами: «207,5 %» читалось как ошибка.
+        taxOdd: d.tax_unusual && typeof d.tax_unusual.income_tax === "number"
+          ? d.tax_unusual : null,
       };
       const hasAny = row.oneOffs.length || row.adjusted != null || row.exFx != null
-        || row.fcfExWc != null || row.taxRate != null;
+        || row.fcfExWc != null || row.taxRate != null || row.taxOdd != null;
       return hasAny ? row : null;
     }).filter(Boolean);
   }, [usingInterim, interim]);
@@ -795,10 +804,16 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   // (выручка/активы Газпрома, Роснефти, Сбера и т.п.) показывалась под общей шапкой
   // «млрд ₽», занижая масштаб в 1000×. Единица — по МАКСИМУМУ |значения| в строке
   // (по всем годам), одна на всю строку — чтобы годы внутри строки не расходились.
+  // 🔴 Нижняя ступень нужна ровно по той же причине, что верхняя: у небольшой
+  // компании (Артген — выручка 879 млн ₽ за полугодие) ВСЯ квартальная таблица
+  // показывалась как «0,0» и «0,1» под шапкой «млрд ₽» — числа есть, читать
+  // нечего. Проверено глазами на бою 2026-08-31.
   const rowMoneyUnit = (vals) => {
     const nums = (vals || []).filter((v) => typeof v === "number" && !isNaN(v)).map((v) => Math.abs(v * U) / 1000);
     const maxMlrd = nums.length ? Math.max(...nums) : 0;
-    return maxMlrd >= 1000 ? { div: 1e6, dec: 2, u: "трлн ₽" } : { div: 1e3, dec: maxMlrd >= 100 ? 0 : 1, u: "млрд ₽" };
+    if (maxMlrd >= 1000) return { div: 1e6, dec: 2, u: "трлн ₽" };
+    if (maxMlrd < 1 && maxMlrd > 0) return { div: 1, dec: maxMlrd * 1000 >= 100 ? 0 : 1, u: "млн ₽" };
+    return { div: 1e3, dec: maxMlrd >= 100 ? 0 : 1, u: "млрд ₽" };
   };
   // форматирование ячейки по kind
   // j — индекс в yslice (для проверки убытка по соответствующему году)
@@ -1181,7 +1196,9 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                         {q.oneOffs.map((o, k) => (
                           <tr key={`o${k}`}>
                             <td>{o.up ? "+ " : "− "}{o.name}</td>
-                            <td className={`amt ${o.up ? "pos" : "neg"}`}>{o.up ? "+" : "−"}{B(Math.abs(o.amount)).v}</td>
+                            <td className={`amt ${o.amount == null ? "" : (o.up ? "pos" : "neg")}`}>
+                              {o.amount == null ? "сумма не раскрыта"
+                                : `${o.up ? "+" : "−"}${B(Math.abs(o.amount)).v}`}</td>
                             <td className="lvl"><span className="tg fc-tg-f">факт</span></td>
                           </tr>
                         ))}
@@ -1208,6 +1225,12 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                         {q.taxRate != null && (
                           <tr><td>Эффективная ставка налога</td>
                             <td className="amt">{num(q.taxRate, 1)} %</td>
+                            <td className="lvl"><span className="tg fc-tg-f">факт</span></td></tr>
+                        )}
+                        {q.taxOdd != null && (
+                          <tr><td>Налог начислен больше прибыли до налога
+                            <span className="fc-hint"> · обычно отложенные налоги или убытки дочерних</span></td>
+                            <td className="amt">{B(q.taxOdd.income_tax).v} при {B(q.taxOdd.pre_tax_profit).v} {B(q.taxOdd.pre_tax_profit).u}</td>
                             <td className="lvl"><span className="tg fc-tg-f">факт</span></td></tr>
                         )}
                       </React.Fragment>

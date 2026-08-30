@@ -150,7 +150,7 @@ def store_harvested(db: Session, ticker: str, data: dict, doc: dict,
 
 
 def run(db: Session, days_back: int = 2, limit: int = MAX_PER_RUN,
-        force: bool = False) -> dict:
+        force: bool = False, only: list[str] | None = None) -> dict:
     """Пройти по отчитавшимся и добыть у них документ отчётности.
 
     force=True переразбирает даже тех, у кого документ уже разобран. Нужен, когда
@@ -160,6 +160,11 @@ def run(db: Session, days_back: int = 2, limit: int = MAX_PER_RUN,
     from app.services import ir_registry
 
     todo = _candidates(db, days_back)
+    if only:
+        # Точечный прогон: очередь отчётного сезона длинная, и «прогнать одну
+        # компанию» иначе означает «надеяться, что она окажется первой».
+        want = {t.upper() for t in only}
+        todo = [t for t in todo if t.upper() in want]
     out = {"candidates": len(todo), "processed": [], "skipped": []}
     for ticker in todo:
         if len(out["processed"]) >= limit:
