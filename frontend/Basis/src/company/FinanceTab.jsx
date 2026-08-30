@@ -640,7 +640,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
         M("Прибыль до налога",              ga(bp,"pre_tax_profit"), { bold: true }),
         M("Налог на прибыль",               ga(bp,"income_tax"), { det: true, muted: true, neg: true }),
         M("Чистая прибыль",                 ga(bp,"net_profit"), { bold: true }),
-        M("Чистая прибыль (норм.)",         ga(bp,"net_profit_adj")||ga(adjBlk,"net_profit_adj"), { bold: true, accent: true }),
+        M("Чистая прибыль (норм.)",         ga(bp,"net_profit_adj") || (usingInterim ? null : ga(adjBlk,"net_profit_adj")), { bold: true, accent: true }),
       ].filter(Boolean)
     : [
         M("Выручка", is.revenue, { bold: true }),
@@ -671,7 +671,11 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
         M("Прибыль до налога", is.pre_tax_profit, { det: true, muted: true }),
         M("Налог на прибыль", is.income_tax, { det: true, muted: true, neg: true }),
         M("Чистая прибыль", is.net_profit, { bold: true }),
-        M("Чистая прибыль (норм.)", adjBlk.net_profit_adj, { bold: true, accent: true }),
+        // 🔴 Только годовой режим: adjBlk — ГОДОВОЙ ряд, а в квартальном его
+        // значения встают в колонки периодов по номеру индекса. У Инарктики это
+        // выглядело как «1П2026 · чистая прибыль (норм.) 3,9 млрд» при фактическом
+        // убытке −425 млн в той же колонке (проверено глазами 2026-08-31).
+        M("Чистая прибыль (норм.)", usingInterim ? null : adjBlk.net_profit_adj, { bold: true, accent: true }),
         ...(isByFunc ? [{ l: "Валовая маржа", a: margins.gross_margin, kind: "pct", det: true, muted: true }] : []),
         { l: "Маржа EBITDA", a: margins.ebitda_margin, kind: "pct", det: true, muted: true },
         { l: "Операционная маржа", a: margins.operating_margin, kind: "pct", det: true, muted: true },
