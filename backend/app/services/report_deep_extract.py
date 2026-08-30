@@ -103,6 +103,67 @@ def extract_from_document(text_blob: str, company_name: str | None = None,
     return enrich(res)
 
 
+_SCALE_HINTS = {"млрд": 1000.0, "billion": 1000.0, "bn": 1000.0,
+                "тыс": 0.001, "thousand": 0.001, "тысяч": 0.001}
+
+
+def normalize_scale(data: dict, annual_revenue_mln: float | None) -> dict:
+    """Привести числа к млн ₽ и не пустить на витрину то, что не сходится.
+
+    🔴 Найдено на бою 2026-08-30: у Северстали с годовой выручкой 712 900 млн ₽
+    из документа пришёл FCF «−30,3». Это миллиарды — модель не перевела единицы,
+    хотя промпт требует млн. Ошибка масштаба тише любой другой: число выглядит
+    правдоподобно и молча уезжает на витрину, где отличается в тысячу раз.
+
+    Поэтому масштаб не «доверяется», а ПРОВЕРЯЕТСЯ по известной величине самой
+    компании — годовой выручке из её же карточки. Не сходится и после поправки —
+    помечаем `scale_suspect`, и свод к витрине такие числа не отдаёт."""
+    ist = data.get("income_statement") or {}
+    rev = _num(ist.get("revenue"))
+    unit = str(data.get("unit_in_source") or "").lower()
+
+    factor = 1.0
+    for hint, mult in _SCALE_HINTS.items():
+        if hint in unit:
+            factor = mult
+            break
+
+    if annual_revenue_mln and rev:
+        # Квартал — примерно четверть года, полугодие — половина. Берём широкий
+        # коридор: сравниваем ПОРЯДОК, а не точное значение.
+        lo, hi = annual_revenue_mln / 40.0, annual_revenue_mln * 2.0
+        if not (lo <= rev * factor <= hi):
+            # Пробуем стандартные множители, прежде чем сдаваться.
+            for candidate in (1000.0, 0.001, 1_000_000.0):
+                if lo <= rev * candidate <= hi:
+                    factor = candidate
+                    data["scale_fixed_by"] = candidate
+                    break
+            else:
+                data["scale_suspect"] = {
+                    "revenue_extracted": rev,
+                    "annual_revenue_known_mln": annual_revenue_mln,
+                    "note": "масштаб не сошёлся с карточкой — на витрину не отдаём",
+                }
+                return data
+
+    if factor != 1.0:
+        for form in ("income_statement", "balance_sheet", "cash_flow"):
+            node = data.get(form) or {}
+            for k, v in list(node.items()):
+                n = _num(v)
+                if n is not None:
+                    node[k] = round(n * factor, 1)
+        for o in data.get("one_offs") or []:
+            n = _num(o.get("amount"))
+            if n is not None:
+                o["amount"] = round(n * factor, 1)
+        data["scale_factor_applied"] = factor
+        data["derived"] = {}          # пересчитываем на приведённых числах
+        enrich(data)
+    return data
+
+
 def to_overlay_figures(data: dict) -> dict:
     """Свести постатейный разбор к плоскому виду, который принимает витрина.
 
@@ -111,6 +172,11 @@ def to_overlay_figures(data: dict) -> dict:
     все и ещё десятки строк — те живут в `data` целиком и пойдут дальше по мере
     того, как витрина научится их показывать. Здесь только сведение к контракту,
     без единой новой цифры: что не названо в документе — остаётся пустым."""
+    if data.get("scale_suspect"):
+        # Масштаб не сошёлся с известной величиной компании — молча отдать такие
+        # числа витрине хуже, чем не отдать ничего.
+        logger.warning("deep_extract: числа не отданы на витрину, %s", data["scale_suspect"])
+        return {}
     ist = data.get("income_statement") or {}
     bs = data.get("balance_sheet") or {}
     cf = data.get("cash_flow") or {}

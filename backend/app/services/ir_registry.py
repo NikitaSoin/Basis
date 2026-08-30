@@ -450,6 +450,24 @@ def find_documents_by_search(name: str, ticker: str, year: int | None = None,
     return out[:limit]
 
 
+def _known_annual_revenue(ticker: str) -> float | None:
+    """Последняя годовая выручка компании из её карточки (млн ₽) — эталон
+    масштаба для проверки извлечённых чисел."""
+    from pathlib import Path
+    import json as _json
+    path = (Path(__file__).parent.parent.parent / "companies" / ticker.upper()
+            / "financials.json")
+    if not path.is_file():
+        return None
+    try:
+        data = _json.loads(path.read_text(encoding="utf-8"))
+        series = ((data.get("income_statement") or {}).get("revenue") or [])
+        vals = [v for v in series if isinstance(v, (int, float)) and v]
+        return float(vals[-1]) if vals else None
+    except Exception:  # noqa: BLE001 — эталон необязателен
+        return None
+
+
 def harvest(db: Session, ticker: str, since: date | None = None,
             max_docs: int = 3, extract: bool = True) -> dict:
     """Сквозной проход: найти документ → прочитать → извлечь показатели.
@@ -501,6 +519,11 @@ def harvest(db: Session, ticker: str, since: date | None = None,
                     "via_search": bool(doc.get("via")),
                     "rebound_from": found.get("rebound_from"), "tried": tried}
         data = deep.extract_from_document(got["text"], company_name=company)
+        if data is not None:
+            # Масштаб проверяем по годовой выручке из карточки этой же компании:
+            # «−30,3» при годовой выручке 712 900 млн — это миллиарды, а не провал
+            # бизнеса. Ошибка масштаба не видна на глаз и уезжает молча.
+            data = deep.normalize_scale(data, _known_annual_revenue(ticker))
         if data is None:
             tried.append({"url": doc["url"][:120], "kind": doc.get("kind"),
                           "result": "модель не признала отчётностью"})
