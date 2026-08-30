@@ -54,6 +54,9 @@ _NOT_ISSUER = (
     # страницу эмитента по запросам «Татнефть отчётность», «Газпром нефть».
     "investonic.ru", "investemika.ru", "investfuture", "bcs-express",
     "gazpromcapital.ru",  # дочерняя структура-эмитент облигаций, не сам Газпром
+    # Пойманы 2026-08-31: реестр привязал к АКРОНУ аналитику Сбера, к БЕЛУГЕ —
+    # cbonds; на «странице эмитента» лежали новости про АЛРОСУ и Сегежу.
+    "nfksber.ru", "cbonds.ru", "cbonds.info", "finmarket.ru", "profinance.ru",
 )
 
 # Путь, по которому у российских эмитентов обычно живёт раскрытие. Порядок важен:
@@ -151,6 +154,14 @@ def _core_name(name: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
 
+_TRANSLIT = str.maketrans({
+    "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ж": "zh",
+    "з": "z", "и": "i", "й": "y", "к": "k", "л": "l", "м": "m", "н": "n",
+    "о": "o", "п": "p", "р": "r", "с": "s", "т": "t", "у": "u", "ф": "f",
+    "х": "h", "ц": "c", "ч": "ch", "ш": "sh", "щ": "sch", "ъ": "", "ы": "y",
+    "ь": "", "э": "e", "ю": "yu", "я": "ya"})
+
+
 def belongs_to_company(name: str, html: str, url: str) -> bool:
     """Точно ли эта страница принадлежит НУЖНОЙ компании.
 
@@ -175,14 +186,41 @@ def belongs_to_company(name: str, html: str, url: str) -> bool:
     if key in hay:
         return True
     # Латинская форма в адресе (rosneft.ru, lukoil.ru) — тоже принадлежность.
-    translit = str.maketrans({
-        "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ж": "zh",
-        "з": "z", "и": "i", "й": "y", "к": "k", "л": "l", "м": "m", "н": "n",
-        "о": "o", "п": "p", "р": "r", "с": "s", "т": "t", "у": "u", "ф": "f",
-        "х": "h", "ц": "c", "ч": "ch", "ш": "sh", "щ": "sch", "ъ": "", "ы": "y",
-        "ь": "", "э": "e", "ю": "yu", "я": "ya"})
-    lat = key.translate(translit)
+    lat = key.translate(_TRANSLIT)
     return bool(lat) and len(lat) >= 4 and lat in url.lower()
+
+
+def _name_in_domain(name: str, url: str) -> bool:
+    """Ядро названия (или его латинская форма) присутствует в домене."""
+    core = _core_name(name)
+    words = [w for w in core.split() if len(w) >= 4]
+    if not words:
+        return False
+    host = (urlparse(url).netloc or "").lower()
+    key = max(words, key=len)
+    lat = key.translate(_TRANSLIT)
+    return (key in host) or (len(lat) >= 4 and lat in host)
+
+
+def docs_look_like_company(name: str, docs: list[dict]) -> bool:
+    """Подписи документов не противоречат компании.
+
+    🔴 Проверки текста страницы мало: у агрегатора название нужной компании на
+    странице ЕСТЬ (о ней там статья), а документы рядом — чужие. Так к Акрону
+    приехали отчёты АЛРОСЫ и Сегежи, к Белуге — новости Новабев вперемешку с
+    другими эмитентами. Смотрим сами подписи: хотя бы одна должна называть нашу
+    компанию, если домен её имени не несёт."""
+    core = _core_name(name)
+    words = [w for w in core.split() if len(w) >= 4]
+    if not words or not docs:
+        return True
+    key = max(words, key=len)
+    lat = key.translate(_TRANSLIT)
+    for d in docs:
+        hay = f"{d.get('label') or ''} {d.get('url') or ''}".lower().replace("ё", "е")
+        if key in hay or (len(lat) >= 4 and lat in hay):
+            return True
+    return False
 
 
 def _path_score(url: str) -> int:
@@ -373,6 +411,19 @@ def build_for_ticker(db: Session, ticker: str, name: str | None = None,
         if v.get("statements", 0) >= 2:
             break
     checked.sort(key=lambda x: -x.get("score", 0))
+    # Страницы, где документы принадлежат КОМУ-ТО ДРУГОМУ, из выбора убираем до
+    # сортировки по «богатству»: у агрегатора документов всегда больше, поэтому
+    # по очкам он выигрывает у настоящего сайта эмитента (Акрон, Белуга —
+    # 2026-08-31). Исключение — домен, несущий имя компании: там подписи могут
+    # быть какими угодно, это её собственный сайт.
+    fit = [v for v in checked
+           if _name_in_domain(name, v.get("url") or "")
+           or docs_look_like_company(name, v.get("examples") or [])]
+    if not fit:
+        return {"ticker": ticker, "found": False,
+                "reason": "найденные страницы принадлежат другим компаниям",
+                "checked": checked}
+    checked = fit
     best = checked[0]
     if not best.get("ok"):
         return {"ticker": ticker, "found": False, "reason": "на найденных страницах нет документов",

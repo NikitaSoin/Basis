@@ -4070,7 +4070,8 @@ def ir_documents(ticker: str = Query(...), fetch: bool = Query(False)):
 def report_harvest_run(days_back: int = Query(2, ge=0, le=14),
                        limit: int = Query(3, ge=1, le=10),
                        force: bool = Query(False, description="переразобрать уже добытых"),
-                       tickers: str | None = Query(None, description="через запятую; пусто — вся очередь")):
+                       tickers: str | None = Query(None, description="через запятую; пусто — вся очередь"),
+                       offset: int = Query(0, ge=0, le=300, description="сдвиг по очереди кандидатов")):
     """Прогнать ежедневную добычу вручную — тот же код, что и по расписанию
     (21:20). Полезно сразу после отчётного дня, не дожидаясь вечера.
 
@@ -4082,7 +4083,8 @@ def report_harvest_run(days_back: int = Query(2, ge=0, le=14),
     db = SessionLocal()
     try:
         only = [t.strip().upper() for t in (tickers or "").split(",") if t.strip()]
-        return run(db, days_back=days_back, limit=limit, force=force, only=only or None)
+        return run(db, days_back=days_back, limit=limit, force=force,
+                   only=only or None, offset=offset)
     finally:
         db.close()
 

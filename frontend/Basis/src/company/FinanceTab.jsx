@@ -884,8 +884,14 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   ]).filter(Boolean);
 
   /* нормализация (последние 2 года, отчётная → норм.) */
+  // 🔴 Только ГОДОВОЙ режим. `adj` (financials.json → adjusted) — годовой ряд, а
+  // `years`/`is.net_profit` в квартальном режиме это периоды interim: сопоставление
+  // шло ПО НОМЕРУ ИНДЕКСА, и полугодие получало нормализованную прибыль какого-то
+  // года. На бою 2026-08-31 это выглядело так: у Инарктики в блоке «что стоит за
+  // прибылью» разовые −718 млн, а прямо под ним «1П2026 · норм. 3,9 млрд, разовые
+  // +4,3 млрд» — два блока на одном экране противоречили друг другу.
   const normYears = [];
-  if (Array.isArray(adj.net_profit_adj) && Array.isArray(is.net_profit)) {
+  if (!usingInterim && Array.isArray(adj.net_profit_adj) && Array.isArray(is.net_profit)) {
     for (let i = years.length - 1; i >= Math.max(0, years.length - 2); i--) {
       const rep = is.net_profit[i], adv = adj.net_profit_adj[i];
       if (rep != null && adv != null && Math.abs(adv - rep) > 1) normYears.push({ y: years[i], rep, adv, delta: adv - rep });

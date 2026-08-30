@@ -72,6 +72,16 @@ def _redone_recently(db: Session, ticker: str, hours: int = 12) -> bool:
            AND COALESCE(updated_at, created_at) >= now() - make_interval(hours => :h)
          LIMIT 1
     """), {"t": ticker, "h": hours}).first()
+    if row is not None:
+        return True
+    # Годовой отчёт в квартальный оверлей не пишется вовсе — по нему одного
+    # взгляда в оверлей мало, и АФК Система переразбиралась в каждом батче
+    # заново. Второй признак: сам отчёт, созданный из документа сегодня.
+    row = db.execute(text("""
+        SELECT 1 FROM earnings_reports
+         WHERE ticker = :t AND source = 'ir_document' AND published_at >= :today
+         LIMIT 1
+    """), {"t": ticker, "today": date.today()}).first()
     return row is not None
 
 
@@ -167,7 +177,8 @@ def store_harvested(db: Session, ticker: str, data: dict, doc: dict,
 
 
 def run(db: Session, days_back: int = 2, limit: int = MAX_PER_RUN,
-        force: bool = False, only: list[str] | None = None) -> dict:
+        force: bool = False, only: list[str] | None = None,
+        offset: int = 0) -> dict:
     """Пройти по отчитавшимся и добыть у них документ отчётности.
 
     force=True переразбирает даже тех, у кого документ уже разобран. Нужен, когда
@@ -182,7 +193,14 @@ def run(db: Session, days_back: int = 2, limit: int = MAX_PER_RUN,
         # компанию» иначе означает «надеяться, что она окажется первой».
         want = {t.upper() for t in only}
         todo = [t for t in todo if t.upper() in want]
-    out = {"candidates": len(todo), "processed": [], "skipped": []}
+    total = len(todo)
+    if offset:
+        # 🔴 Компании, у которых документ не разбирается (АКРОН, Белуга, БСПБ —
+        # 2026-08-31), при каждом прогоне занимают одни и те же первые слоты и
+        # дальше очередь не идёт. «Уже разобран» их не отсекает: разбора-то нет.
+        # Сдвиг по очереди — способ пройти рынок целиком, не гадая о причине.
+        todo = todo[offset:]
+    out = {"candidates": total, "offset": offset, "processed": [], "skipped": []}
     for ticker in todo:
         if len(out["processed"]) >= limit:
             out["stopped_at_limit"] = True
