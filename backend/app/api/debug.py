@@ -196,7 +196,11 @@ def debug_env():
             # сюда 2026-07-25 при отладке "агентский разбор документа падает на
             # severstal.com": без них здесь нельзя было удалённо проверить, реально ли
             # применилась переменная, добавленная в панели Timeweb, без failing-теста.
-            "WEB_FETCH_PROXY_URL", "DEEPSEEK_BASE_URL", "FRED_BASE_URL"]
+            "WEB_FETCH_PROXY_URL", "DEEPSEEK_BASE_URL", "FRED_BASE_URL",
+            # Ключ веб-поиска: без него агент-добытчик не находит отчёты вовсе, а
+            # понять «ключа нет» / «ключ есть, но отвергнут» иначе нельзя (2026-08-31:
+            # 253 отказа поиска подряд, и в логе только «HTTPStatusError»).
+            "TAVILY_API_KEY", "WEB_SEARCH_BASE_URL"]
     out = {}
     for k in keys:
         v = os.environ.get(k)
@@ -4065,14 +4069,20 @@ def ir_documents(ticker: str = Query(...), fetch: bool = Query(False)):
 @router.post("/debug/report-harvest-run")
 def report_harvest_run(days_back: int = Query(2, ge=0, le=14),
                        limit: int = Query(3, ge=1, le=10),
-                       force: bool = Query(False, description="переразобрать уже добытых")):
+                       force: bool = Query(False, description="переразобрать уже добытых"),
+                       tickers: str | None = Query(None, description="через запятую; пусто — вся очередь")):
     """Прогнать ежедневную добычу вручную — тот же код, что и по расписанию
-    (21:20). Полезно сразу после отчётного дня, не дожидаясь вечера."""
+    (21:20). Полезно сразу после отчётного дня, не дожидаясь вечера.
+
+    `tickers` нужен для точечной проверки: без него прогон берёт очередь по
+    порядку и до нужной компании может не дойти (в отчётный сезон кандидатов
+    под шестьдесят, а потолок прогона — единицы)."""
     from app.db.session import SessionLocal
     from app.services.report_harvest_job import run
     db = SessionLocal()
     try:
-        return run(db, days_back=days_back, limit=limit, force=force)
+        only = [t.strip().upper() for t in (tickers or "").split(",") if t.strip()]
+        return run(db, days_back=days_back, limit=limit, force=force, only=only or None)
     finally:
         db.close()
 

@@ -73,8 +73,19 @@ def _search_tavily(query: str, max_results: int) -> dict | None:
             for x in (data.get("results") or [])[:max_results]
         ]}
     except Exception as e:  # noqa: BLE001
-        logger.warning("web_search tavily fail: %s", type(e).__name__)
-        return {"error": "tavily_failed", "detail": type(e).__name__}
+        # 🔴 Логировать ОДИН тип исключения недостаточно (урок 2026-08-28, когда весь
+        # ИИ-слой лежал, а в логе стояло только «InvalidURL» — причина искалась
+        # вручную полдня). У HTTPStatusError весь смысл в коде: 401 — ключ неверный,
+        # 429 — упёрлись в частоту, 432 — кончились кредиты плана Tavily, 5xx — их
+        # сторона. Это РАЗНЫЕ починки, и по «HTTPStatusError» их не различить.
+        code = getattr(getattr(e, "response", None), "status_code", None)
+        detail = f"{type(e).__name__}{f' {code}' if code else ''}"
+        hint = {401: "ключ неверен", 403: "ключ не даёт доступа",
+                429: "превышена частота запросов",
+                432: "кончились кредиты плана Tavily"}.get(code)
+        logger.warning("web_search tavily fail: %s%s", detail,
+                       f" — {hint}, проверьте TAVILY_API_KEY/тариф в панели" if hint else "")
+        return {"error": "tavily_failed", "detail": detail, "hint": hint}
 
 
 def _ddg_unwrap(href: str) -> str:
