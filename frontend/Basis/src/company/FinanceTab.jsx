@@ -405,6 +405,35 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   // отдаёт готовым индексом interim.yoy_idx; нет пары в ряду — дельты нет (пусто
   // честнее ложного числа). На годовых рядах поведение прежнее.
   const yoyIdx = usingInterim && Array.isArray(interim.yoy_idx) ? interim.yoy_idx : null;
+
+  // «Что стоит за прибылью» — качество прибыли по периодам из самого документа
+  // отчётности (interim.quality кладёт interim_overlay). Показываем в том же
+  // порядке, что колонки таблицы, и только периоды, по которым что-то есть.
+  const qualityRows = React.useMemo(() => {
+    const q = (usingInterim && interim.quality) || null;
+    if (!q || typeof q !== "object") return [];
+    const order = (interim.periods || []).map((p) => p.label).filter((l) => q[l]);
+    return order.map((label) => {
+      const item = q[label] || {};
+      const d = item.derived || {};
+      const oneOffs = (item.one_offs || [])
+        .filter((o) => o && typeof o.amount === "number")
+        .slice(0, 4)
+        .map((o) => ({ name: o.name || "разовый фактор", amount: o.amount,
+                       up: (o.direction || "increase") === "increase" }));
+      const row = {
+        period: label, oneOffs,
+        adjusted: typeof d.net_profit_adjusted === "number" ? d.net_profit_adjusted : null,
+        exFx: typeof d.net_profit_ex_fx === "number" ? d.net_profit_ex_fx : null,
+        wc: typeof item.working_capital_change === "number" ? item.working_capital_change : null,
+        fcfExWc: typeof d.fcf_ex_working_capital === "number" ? d.fcf_ex_working_capital : null,
+        taxRate: typeof d.effective_tax_rate_pct === "number" ? d.effective_tax_rate_pct : null,
+      };
+      const hasAny = row.oneOffs.length || row.adjusted != null || row.exFx != null
+        || row.fcfExWc != null || row.taxRate != null;
+      return hasAny ? row : null;
+    }).filter(Boolean);
+  }, [usingInterim, interim]);
   const yoyAt = (a) => {
     if (!yoyIdx) return yoy(a);
     if (!Array.isArray(a)) return null;
@@ -1135,6 +1164,61 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                     </tbody>
                   </table>
                 </div>
+
+                {/* Что стоит за прибылью периода — приходит ТОЛЬКО из самого
+                    документа отчётности (services/report_deep_extract): в
+                    пресс-релизе разовых факторов и оборотного капитала не бывает.
+                    Показываем рядом с квартальной таблицей, потому что объясняет
+                    именно её числа. Владелец 2026-08-29: «в отчётностях есть
+                    детали — разовые факторы, курсовые, налоги, FCF стоит
+                    скорректировать на оборотный капитал». */}
+                {usingInterim && qualityRows.length > 0 && (<>
+                  <div className="subh">Что стоит за прибылью · из самого отчёта</div>
+                  <table className="fc-norm"><tbody>
+                    {qualityRows.map((q, i) => (
+                      <React.Fragment key={i}>
+                        <tr className="yr"><td colSpan="3">{q.period}</td></tr>
+                        {q.oneOffs.map((o, k) => (
+                          <tr key={`o${k}`}>
+                            <td>{o.up ? "+ " : "− "}{o.name}</td>
+                            <td className={`amt ${o.up ? "pos" : "neg"}`}>{o.up ? "+" : "−"}{B(Math.abs(o.amount)).v}</td>
+                            <td className="lvl"><span className="tg fc-tg-f">факт</span></td>
+                          </tr>
+                        ))}
+                        {q.adjusted != null && (
+                          <tr><td>Прибыль без разовых</td>
+                            <td className="amt">{B(q.adjusted).v} {B(q.adjusted).u}</td>
+                            <td className="lvl"><span className="tg fc-tg-e">расчёт</span></td></tr>
+                        )}
+                        {q.exFx != null && (
+                          <tr><td>Прибыль без курсовых</td>
+                            <td className="amt">{B(q.exFx).v} {B(q.exFx).u}</td>
+                            <td className="lvl"><span className="tg fc-tg-e">расчёт</span></td></tr>
+                        )}
+                        {q.wc != null && (
+                          <tr><td>Вклад оборотного капитала в поток</td>
+                            <td className={`amt ${q.wc >= 0 ? "pos" : "neg"}`}>{q.wc >= 0 ? "+" : "−"}{B(Math.abs(q.wc)).v}</td>
+                            <td className="lvl"><span className="tg fc-tg-f">факт</span></td></tr>
+                        )}
+                        {q.fcfExWc != null && (
+                          <tr><td>Свободный поток без оборотного капитала</td>
+                            <td className="amt">{B(q.fcfExWc).v} {B(q.fcfExWc).u}</td>
+                            <td className="lvl"><span className="tg fc-tg-e">расчёт</span></td></tr>
+                        )}
+                        {q.taxRate != null && (
+                          <tr><td>Эффективная ставка налога</td>
+                            <td className="amt">{num(q.taxRate, 1)} %</td>
+                            <td className="lvl"><span className="tg fc-tg-f">факт</span></td></tr>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </tbody></table>
+                  <div className="fc-note">
+                    Разобрано из опубликованного отчёта компании автоматически. Суммы —
+                    как названы в документе; «без разовых», «без курсовых» и поток без
+                    оборотного капитала посчитаны от них. Предварительно, не сверено аналитиком.
+                  </div>
+                </>)}
 
                 {normYears.length > 0 && (<>
                   <div className="subh">Нормализация прибыли · отчётная → скорректированная</div>

@@ -111,6 +111,12 @@ def _write(db: Session, report: EarningsReport, fig: dict, company_name: str | N
     # чтобы витрина могла объяснить прибыль, а не только показать её.
     quality = {k: deep.get(k) for k in ("one_offs", "tax_note", "working_capital_note",
                                         "derived", "document_url") if deep.get(k)}
+    # Изменение оборотного капитала лежит в ОДДС — кладём рядом с остальным
+    # «качеством», чтобы витрине не пришлось выводить его косвенно из потока.
+    wc = ((deep.get("cash_flow") or {}) if isinstance(deep.get("cash_flow"), dict) else {}
+          ).get("working_capital_change")
+    if isinstance(wc, (int, float)):
+        quality["working_capital_change"] = wc
     if quality:
         figures["quality"] = quality
     fields_present = _fields_present(figures)
@@ -353,4 +359,14 @@ def _merge_into(db: Session, ticker: str, fin: dict) -> None:
         note += (f" Из них {len(from_doc)} — из самого документа отчётности "
                  f"(постатейные формы).")
     interim["data_flags"] = list(interim.get("data_flags") or []) + [note]
+    # Качество прибыли по периодам — то, чего нет ни в одном пресс-релизе:
+    # разовые факторы, эффективная ставка, вклад оборотного капитала. Ключ —
+    # подпись периода, чтобы витрина показала объяснение рядом с колонкой.
+    quality = dict(interim.get("quality") or {})
+    for r in candidates:
+        q = (r.figures or {}).get("quality")
+        if q:
+            quality[r.period_label] = q
+    if quality:
+        interim["quality"] = quality
     fin["interim"] = interim
