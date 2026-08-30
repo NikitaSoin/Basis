@@ -198,6 +198,16 @@ def _doc_links(html: str, base_url: str) -> list[dict]:
     return uniq
 
 
+def _doc_year(*parts: str) -> int | None:
+    """Год документа — максимальный, встреченный в подписи или адресе. Максимум,
+    а не первый: в адресе часто сидит год архива («/2019/upload/…»), а в подписи
+    актуальный период."""
+    years = []
+    for p in parts:
+        years += [int(m.group(1)) for m in _YEAR_RE.finditer(p or "")]
+    return max(years) if years else None
+
+
 def _period_from(s: str) -> str | None:
     m = _PERIOD_RE.search(s or "")
     if m:
@@ -440,13 +450,22 @@ def find_documents_by_search(name: str, ticker: str, year: int | None = None,
             if kind not in ("ifrs_statements", "ras_statements", "results_release"):
                 continue
             seen.add(url)
+            hint = _period_from(label) or _period_from(url)
+            # 🔴 Отбрасываем заведомо старое. Поиск охотно отдаёт документ
+            # трёхлетней давности (на бою так пришли «1П2025» и «9М2024», когда
+            # шёл 2026-й) — а агент должен принести ПОСЛЕДНИЙ отчёт, иначе
+            # карточка получит прошлогодние цифры как свежие.
+            doc_year = _doc_year(hint, label, url)
+            if doc_year and doc_year < y - 1:
+                continue
             out.append({"url": url, "label": label, "kind": kind,
                         "is_file": url.lower().endswith(_DOC_EXT),
-                        "period_hint": _period_from(label) or _period_from(url),
-                        "via": "search"})
+                        "period_hint": hint, "year": doc_year, "via": "search"})
         if len(out) >= limit:
             break
-    out.sort(key=lambda l: -_KIND_PRIORITY.get(l["kind"], 0))
+    # Сначала свежесть, потом тип: годовой отчёт за этот год полезнее, чем
+    # отчётность МСФО двухлетней давности.
+    out.sort(key=lambda l: (-(l.get("year") or 0), -_KIND_PRIORITY.get(l["kind"], 0)))
     return out[:limit]
 
 
@@ -527,6 +546,15 @@ def harvest(db: Session, ticker: str, since: date | None = None,
         if data is None:
             tried.append({"url": doc["url"][:120], "kind": doc.get("kind"),
                           "result": "модель не признала отчётностью"})
+            continue
+        # Свежесть проверяем по ИЗВЛЕЧЁННОМУ периоду, а не по подписи ссылки:
+        # подпись врёт чаще (в имени файла год выгрузки, а внутри отчёт за
+        # прошлый период). Старый документ — не отказ, а повод взять следующий.
+        ref_year = (since or date.today()).year
+        got_year = _doc_year(str(data.get("period_label") or ""))
+        if got_year and got_year < ref_year - 1:
+            tried.append({"url": doc["url"][:120], "kind": doc.get("kind"),
+                          "result": f"период {data.get('period_label')} — старый"})
             continue
         return {"ticker": ticker, "ok": True, "stage": "extracted",
                 "ir_page": page_url, "via_search": bool(doc.get("via")),
