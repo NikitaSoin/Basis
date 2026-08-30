@@ -405,6 +405,51 @@ def latest_documents(db: Session, ticker: str, since: date | None = None,
                         for k in {l.get("kind") for l in files}}}
 
 
+def find_documents_by_search(name: str, ticker: str, year: int | None = None,
+                             limit: int = 8) -> list[dict]:
+    """Искать САМ ДОКУМЕНТ, а не страницу. Запасной путь, закрывающий два случая,
+    которые страница не закрывает (оба найдены на бою 2026-08-29):
+
+      • сайт рисуется скриптом — у Норникеля страницы отвечают 200, а ссылок в
+        HTML ноль, потому что список документов подставляет JavaScript;
+      • нужного документа нет на найденной странице — у Северстали на
+        «financial-results» лежат только пресс-релизы и презентации, сама
+        отчётность МСФО на другой странице.
+
+    Поисковик индексирует PDF напрямую, поэтому запрос про отчётность часто
+    ведёт прямо в файл, минуя навигацию сайта."""
+    from app.services.agent_web import web_search
+    y = year or date.today().year
+    queries = [
+        f"{name} консолидированная финансовая отчётность МСФО {y} pdf",
+        f"{name} промежуточная сокращённая финансовая отчётность {y}",
+        f'"{name}" отчётность МСФО {y} filetype:pdf',
+    ]
+    out, seen = [], set()
+    for q in queries:
+        for item in (web_search(q, max_results=6) or {}).get("results") or []:
+            url = (item.get("url") or "").split("#")[0]
+            if not url.startswith("http") or url in seen:
+                continue
+            if not _looks_like_issuer(url):
+                continue
+            label = (item.get("title") or "")[:160]
+            kind = _doc_kind(label, url)
+            # Берём только то, что похоже на отчётность или релиз результатов:
+            # поиск охотно подсовывает новости и аналитику сторонних сайтов.
+            if kind not in ("ifrs_statements", "ras_statements", "results_release"):
+                continue
+            seen.add(url)
+            out.append({"url": url, "label": label, "kind": kind,
+                        "is_file": url.lower().endswith(_DOC_EXT),
+                        "period_hint": _period_from(label) or _period_from(url),
+                        "via": "search"})
+        if len(out) >= limit:
+            break
+    out.sort(key=lambda l: -_KIND_PRIORITY.get(l["kind"], 0))
+    return out[:limit]
+
+
 def harvest(db: Session, ticker: str, since: date | None = None,
             max_docs: int = 3, extract: bool = True) -> dict:
     """Сквозной проход: найти документ → прочитать → извлечь показатели.
@@ -417,17 +462,34 @@ def harvest(db: Session, ticker: str, since: date | None = None,
     """
     from app.services import report_deep_extract as deep
 
-    found = latest_documents(db, ticker, since=since, limit=max_docs + 3)
-    if not found.get("found"):
-        return {"ticker": ticker, "ok": False, "stage": "discovery",
-                "reason": found.get("reason"), "rebound_from": found.get("rebound_from")}
-
     name_row = db.execute(text("SELECT name FROM companies WHERE ticker = :t"),
                           {"t": ticker}).first()
     company = name_row.name if name_row else ticker
 
+    found = latest_documents(db, ticker, since=since, limit=max_docs + 3)
+    docs = list(found.get("documents") or [])
+    page_url = found.get("url")
+
+    # Отчётности на странице может не быть вовсе (там релизы и презентации) или
+    # страница может оказаться пустой в HTML (сайт на скриптах). Тогда ищем сам
+    # документ — иначе процесс закончился бы ничем, а он обязан закончиться
+    # добычей.
+    has_statements = any(d.get("kind") in ("ifrs_statements", "ras_statements")
+                         for d in docs)
+    via_search: list[dict] = []
+    if not docs or not has_statements:
+        via_search = find_documents_by_search(
+            company, ticker, year=(since or date.today()).year)
+        # Найденное поиском ставим первым: это отчётность, а на странице —
+        # в лучшем случае пресс-релиз.
+        docs = via_search + docs
+    if not docs:
+        return {"ticker": ticker, "ok": False, "stage": "discovery",
+                "reason": found.get("reason") or "документов не нашлось ни на странице, ни поиском",
+                "ir_page": page_url, "rebound_from": found.get("rebound_from")}
+
     tried = []
-    for doc in found["documents"][:max_docs]:
+    for doc in docs[:max_docs]:
         got = fetch_document(doc["url"], max_chars=90_000)
         if not got.get("ok") or len(got.get("text") or "") < 1500:
             tried.append({"url": doc["url"][:120], "kind": doc.get("kind"),
@@ -435,7 +497,8 @@ def harvest(db: Session, ticker: str, since: date | None = None,
             continue
         if not extract:
             return {"ticker": ticker, "ok": True, "stage": "document", "document": doc,
-                    "chars": got["chars"], "url": found["url"],
+                    "chars": got["chars"], "ir_page": page_url,
+                    "via_search": bool(doc.get("via")),
                     "rebound_from": found.get("rebound_from"), "tried": tried}
         data = deep.extract_from_document(got["text"], company_name=company)
         if data is None:
@@ -443,14 +506,15 @@ def harvest(db: Session, ticker: str, since: date | None = None,
                           "result": "модель не признала отчётностью"})
             continue
         return {"ticker": ticker, "ok": True, "stage": "extracted",
-                "ir_page": found["url"], "rebound_from": found.get("rebound_from"),
+                "ir_page": page_url, "via_search": bool(doc.get("via")),
+                "rebound_from": found.get("rebound_from"),
                 "document": {"url": doc["url"], "label": doc.get("label"),
                              "kind": doc.get("kind"), "period_hint": doc.get("period_hint")},
                 "chars": got["chars"], "extracted": data, "tried": tried}
     return {"ticker": ticker, "ok": False, "stage": "extraction",
             "reason": "ни один из документов не разобрался",
-            "ir_page": found["url"], "rebound_from": found.get("rebound_from"),
-            "tried": tried}
+            "ir_page": page_url, "rebound_from": found.get("rebound_from"),
+            "searched": len(via_search), "tried": tried}
 
 
 def fetch_document(url: str, max_chars: int = 120_000) -> dict:
