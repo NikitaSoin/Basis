@@ -354,8 +354,15 @@ def list_news_endpoint(
     from app.services.company_signals import INTERNAL_SOURCE_KEYS
     # internal-only источники (инсайд-TG, The Bell/иноагент) — во входном потоке
     # участвуют (сигналы/барометры), но в клиентскую Ленту НЕ отдаются.
+    #
+    # 🔴 NULL-безопасно (07.09.2026). Голый `notin_` молча выбрасывает записи с ПУСТЫМ
+    # источником: в SQL `NULL NOT IN (...)` — это не «истина», а «неизвестно», и строка
+    # в выборку не попадает. Новость без источника внутренней не является и обязана
+    # показываться. Дефект нашёл тест `test_news_filters`, который считали устаревшим.
+    from sqlalchemy import or_ as _or
     q = (db.query(MarketUpdate).filter(MarketUpdate.status == "published")
-         .filter(MarketUpdate.source.notin_(INTERNAL_SOURCE_KEYS)))
+         .filter(_or(MarketUpdate.source.is_(None),
+                     MarketUpdate.source.notin_(INTERNAL_SOURCE_KEYS))))
     if importance:
         q = q.filter(MarketUpdate.importance == importance)
     if rubric:

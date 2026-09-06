@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
+import pathlib
 
 load_dotenv()
 
@@ -16,10 +17,44 @@ TestingSessionLocal = sessionmaker(bind=engine)
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_database():
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
+    """Тестовая схема строится МИГРАЦИЯМИ, а не `create_all`.
+
+    🔴 Почему так (07.09.2026). Часть таблиц живёт только в миграциях и ORM-модели не
+    имеет: `market_params`, `user_events`, `verification_codes`. На схеме, собранной
+    через `create_all`, их просто не было, и тесты падали с `UndefinedTable` — не
+    потому что код сломан, а потому что тестовая база не равна боевой. Заодно это
+    проверяет сами миграции: если цепочка не применяется, сюита падает сразу и громко,
+    а не через месяц на выкатке.
+
+    Схема сносится целиком (`DROP SCHEMA`), потому что `Base.metadata.drop_all` не знает
+    про таблицы без моделей и оставлял бы их от прошлого прогона.
+    """
+    url = os.getenv("TEST_DATABASE_URL") or ""
+    # Предохранитель: тут выполняется DROP SCHEMA. Ошибиться переменной окружения —
+    # значит снести рабочую базу. Имя обязано содержать «test».
+    if "test" not in url.rsplit("/", 1)[-1].lower():
+        raise RuntimeError(
+            "TEST_DATABASE_URL должна указывать на отдельную тестовую базу "
+            f"(в имени ожидается «test»), получено: {url.rsplit('/', 1)[-1] or '—'}")
+
+    with engine.begin() as conn:
+        conn.exec_driver_sql("DROP SCHEMA public CASCADE")
+        conn.exec_driver_sql("CREATE SCHEMA public")
+
+    # env.py читает адрес из DATABASE_URL, поэтому подменяем его на время миграций.
+    prev = os.environ.get("DATABASE_URL")
+    os.environ["DATABASE_URL"] = url
+    try:
+        from alembic import command
+        from alembic.config import Config
+        cfg = Config(str(pathlib.Path(__file__).resolve().parents[1] / "alembic.ini"))
+        command.upgrade(cfg, "head")
+    finally:
+        if prev is None:
+            os.environ.pop("DATABASE_URL", None)
+        else:
+            os.environ["DATABASE_URL"] = prev
     yield
-    Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture()
