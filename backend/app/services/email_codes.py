@@ -137,7 +137,10 @@ def request_code(db: Session, email: str) -> dict:
     try:
         _send_email(email, code)
     except Exception as e:
-        logger.error("email_codes: отправка на %s не удалась: %s", email, e)
+        # адрес в лог не пишем (юр-аудит 2026-09-06): домен для диагностики
+        # достаточен, сам адрес — персональные данные
+        logger.error("email_codes: отправка не удалась (домен %s): %s",
+                     email.rsplit("@", 1)[-1] if "@" in email else "?", e)
         raise ValueError("Не удалось отправить письмо. Проверьте адрес и попробуйте ещё раз.")
 
     # новый код инвалидирует прежние

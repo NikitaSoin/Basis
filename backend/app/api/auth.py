@@ -32,8 +32,12 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
         send_verification_link(db, user, enforce_limit=False)
     except Exception:  # noqa: BLE001 — письмо не должно ронять регистрацию
         import logging
+        # 🔴 Юр-аудит 2026-09-06: почта в логе — это персональные данные в
+        # журнале хостинга, который живёт дольше и доступен шире, чем БД.
+        # Пишем идентификатор: по нему всё находится, а адрес не утекает.
         logging.getLogger(__name__).warning(
-            "register: письмо подтверждения на %s не отправилось", user.email, exc_info=True)
+            "register: письмо подтверждения пользователю id=%s не отправилось",
+            user.id, exc_info=True)
     token = create_access_token(user.id)
     return TokenResponse(access_token=token, user=user)
 

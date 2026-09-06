@@ -1458,6 +1458,38 @@ async def _barometer_reviser_job():
         logger.exception("Ошибка ревизора барометров: %s", e)
 
 
+async def _retention_job():
+    """Удаление данных по истечении сроков хранения (152-ФЗ ч. 7 ст. 5).
+
+    Сроки — в services/retention.py, они обязаны совпадать с разделом 6
+    опубликованной Политики обработки персональных данных. Внутри стоит
+    предохранитель: правило, под которое попало больше 60% таблицы, не
+    выполняется, а кричит в лог — так дешевле пережить ошибку в условии,
+    чем восстанавливать снесённую таблицу из бэкапа."""
+    # 🔴 Первый выкат идёт в РЕЖИМЕ ПЛАНА: удаление включается переменной
+    # RETENTION_APPLY=1 в панели Timeweb — и только после того, как владелец
+    # посмотрел /api/debug/retention-preview на боевых данных. Правило удаления
+    # ошибается тихо и необратимо; в этом проекте так уже теряли живые ряды.
+    apply = os.environ.get("RETENTION_APPLY", "0") in ("1", "true", "True")
+
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.retention import run_retention
+        db = SessionLocal()
+        try:
+            return run_retention(db, dry_run=not apply)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Ретеншен ПДн (%s): удалено %s, правила: %s",
+                    "БОЕВОЙ" if apply else "план, RETENTION_APPLY не задан",
+                    res.get("deleted_total"),
+                    [f"{r['rule']}={r.get('deleted', 0)}/{r.get('status')}" for r in res.get("rules", [])])
+    except Exception as e:
+        logger.exception("Ошибка ретеншена ПДн: %s", e)
+
+
 async def _barometer_daily_job():
     """ЕЖЕДНЕВНАЯ полная пересборка ГЕО-барометра (владелец 2026-08-01: «слой 1
     перестроить так же, как в макроэкономике — ежедневный крон, где DeepSeek всё
@@ -1829,6 +1861,10 @@ async def lifespan(app: FastAPI):
         # Запустить вручную по-прежнему можно: app/services/macro_addendum_agent.py.
         scheduler.add_job(_with_heartbeat("chronicle_maintenance", _chronicle_maintenance_job), "cron", hour=5, minute=20, id="chronicle_maintenance")  # летопись: бэкфилл + ретеншен Ленты
         logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo/geo_digest)")
+    # Ретеншен персональных данных — ежедневно в 4:10 МСК, до дневных задач.
+    # Вне блока внешних задач намеренно: обязанность по закону не должна
+    # отключаться флагом, которым глушат внешние интеграции.
+    scheduler.add_job(_with_heartbeat("pd_retention", _retention_job), "cron", hour=4, minute=10, id="pd_retention")
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 

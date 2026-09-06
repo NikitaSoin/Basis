@@ -78,7 +78,8 @@ def send_verification_link(db: Session, user: User, enforce_limit: bool = True) 
     try:
         send_mail(email, "Basis — подтвердите адрес почты", body)
     except Exception as e:  # noqa: BLE001
-        logger.error("email_verify: отправка на %s не удалась: %s", email, e)
+        # почту в лог не пишем (юр-аудит 2026-09-06) — только id пользователя
+        logger.error("email_verify: отправка пользователю id=%s не удалась: %s", user.id, e)
         raise ValueError("Не удалось отправить письмо. Попробуйте позже.")
     # факт отправки — для кулдауна (code_hash не используется ссылкой)
     db.execute(text(

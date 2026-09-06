@@ -3908,6 +3908,34 @@ def assistant_index(rebuild: bool = Query(False, description="пересобра
     return out
 
 
+@router.get("/debug/retention-preview")
+def retention_preview():
+    """ПЛАН очистки по срокам хранения: сколько строк попадает под каждое правило.
+    Ничего не удаляет (dry-run). Смотреть ПЕРЕД тем, как поверить ночному крону:
+    правило с ошибкой в условии выглядит здесь как «попало 90% таблицы»."""
+    from app.db.session import SessionLocal
+    from app.services.retention import run_retention
+    db = SessionLocal()
+    try:
+        return run_retention(db, dry_run=True)
+    finally:
+        db.close()
+
+
+@router.post("/debug/retention-run")
+def retention_run(force: bool = Query(False, description="снять предохранитель доли таблицы")):
+    """Ручной прогон очистки (обычно её делает крон pd_retention в 4:10 МСК).
+    force=true снимать только после того, как посмотрел preview и понял, почему
+    под правило попадает больше половины таблицы."""
+    from app.db.session import SessionLocal
+    from app.services.retention import run_retention
+    db = SessionLocal()
+    try:
+        return run_retention(db, dry_run=False, force=force)
+    finally:
+        db.close()
+
+
 @router.post("/debug/payments-probe")
 def payments_probe(amount_rub: int = Query(1, ge=1, le=10)):
     """Живая проверка связи с эквайрингом: создаёт платёж на рубль и сразу
