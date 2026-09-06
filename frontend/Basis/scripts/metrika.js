@@ -31,14 +31,28 @@ const METRIKA_ID = "111213378";
  */
 function metrikaSnippet() {
   if (!METRIKA_ID) return "";
+  // 🔴 СЧЁТЧИК БОЛЬШЕ НЕ ЗАПУСКАЕТСЯ САМ (07.09.2026). Здесь только объявляется
+  // функция загрузки; вызывает её сборщик аналитики — и ТОЛЬКО если человек нажал
+  // «Принять» в баннере (см. public/basis-analytics.js).
+  //
+  // Почему так. Идентификаторы, которые ставит счётчик, Роскомнадзор относит к
+  // персональным данным, а договором аналитика не покрывается — нужно согласие,
+  // причём ДО загрузки, а не после. Прежний вариант грузил счётчик прямо из <head>
+  // на всех ~9200 страницах: к моменту, когда человек видел бы любой вопрос, данные
+  // уже ушли бы в Яндекс.
+  //
+  // noscript-пикселя здесь тоже больше нет: он срабатывает без всякого условия и
+  // ровно то же нарушение и создаёт.
   return `<script>window.__BASIS_METRIKA_ID__=${JSON.stringify(METRIKA_ID)};
-(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
-k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-(window,document,"script","https://mc.yandex.ru/metrika/tag.js?id=${METRIKA_ID}","ym");
-ym(${METRIKA_ID},"init",{ssr:true,webvisor:true,clickmap:true,accurateTrackBounce:true,trackLinks:true});
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/${METRIKA_ID}" style="position:absolute;left:-9999px" alt=""></div></noscript>`;
+window.__basisLoadMetrika=function(){
+  if(window.__basisMetrikaLoaded)return; window.__basisMetrikaLoaded=1;
+  (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+  m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
+  k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+  (window,document,"script","https://mc.yandex.ru/metrika/tag.js?id=${METRIKA_ID}","ym");
+  ym(${METRIKA_ID},"init",{ssr:true,webvisor:true,clickmap:true,accurateTrackBounce:true,trackLinks:true});
+};
+</script>`;
 }
 
 module.exports = { METRIKA_ID, metrikaSnippet };

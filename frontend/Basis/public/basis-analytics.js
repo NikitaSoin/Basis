@@ -40,17 +40,45 @@
   var K_CONSENT = "basis_consent_analytics";
   var SESSION_TIMEOUT_MS = 30 * 60 * 1000;   // как визит у Метрики
 
-  /* Согласие. Пока баннера нет, режим «спрашиваем» выключен: собираем всех, кроме тех,
-     кто уже явно отказался. Когда баннер появится — включается одной строкой в каркасе:
-     window.__BASIS_ANALYTICS_REQUIRE_CONSENT__ = true. */
-  function allowed() {
+  /* 🔴 СОГЛАСИЕ ОБЯЗАТЕЛЬНО (07.09.2026). До нажатия «Принять» не собирается ничего:
+     ни событий, ни счётчика Метрики. Идентификаторы, которые ставит аналитика,
+     Роскомнадзор относит к персональным данным, а договором аналитика не покрывается —
+     нужно согласие, причём ДО начала сбора, а не после. */
+  var CONSENT_VERSION = "1.0";
+
+  function consentState() {
     try {
       var raw = localStorage.getItem(K_CONSENT);
-      var c = raw ? JSON.parse(raw) : null;
-      if (c && c.choice === "reject") return false;
-      if (window.__BASIS_ANALYTICS_REQUIRE_CONSENT__) return !!(c && c.choice === "accept");
-      return true;
-    } catch (e) { return !window.__BASIS_ANALYTICS_REQUIRE_CONSENT__; }
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+
+  function allowed() {
+    var c = consentState();
+    return !!(c && c.choice === "accept");
+  }
+
+  /** Записать выбор: в браузере всегда, на сервере — если человек вошёл в аккаунт. */
+  function saveChoice(choice) {
+    var rec = { v: CONSENT_VERSION, at: new Date().toISOString(), choice: choice };
+    try { localStorage.setItem(K_CONSENT, JSON.stringify(rec)); } catch (e) { /* приватный режим */ }
+    try {
+      var token = localStorage.getItem("basis_token");
+      var headers = { "Content-Type": "application/json" };
+      if (token) headers.Authorization = "Bearer " + token;
+      else {
+        var g = null;
+        try { g = localStorage.getItem("basis_guest_token"); } catch (e2) { /* нет */ }
+        if (g) headers["X-Guest-Token"] = g;
+      }
+      if (token || headers["X-Guest-Token"]) {
+        fetch(API + "/api/consents", {
+          method: "POST", headers: headers,
+          body: JSON.stringify({ kind: "analytics", version: CONSENT_VERSION,
+                                 granted: choice === "accept" }),
+        }).catch(function () { /* запись в браузере уже есть — этого достаточно */ });
+      }
+    } catch (e) { /* молча */ }
   }
 
   function rnd(p) { return p + Math.random().toString(36).slice(2) + Date.now().toString(36); }
@@ -204,11 +232,103 @@
   });
   window.addEventListener("pagehide", function () { endView(true); });
 
+  /* ── Баннер согласия ───────────────────────────────────────────────────────
+   * Живёт здесь, а не в приложении, по той же причине, что и сам сбор: страницы
+   * облигаций, фондов и фьючерсов приложение не грузят, а спрашивать надо на всех.
+   * Поэтому — чистый DOM и стили в атрибуте: ни React, ни внешнего CSS-файла,
+   * которого на статической странице может не быть.
+   *
+   * Обе кнопки равнозначны по виду: согласие, где «Принять» — заметная кнопка, а
+   * «Отклонить» — серая ссылка мелким шрифтом, добровольным не считается.
+   */
+  var bannerEl = null;
+
+  function closeBanner() {
+    if (bannerEl && bannerEl.parentNode) bannerEl.parentNode.removeChild(bannerEl);
+    bannerEl = null;
+  }
+
+  function decide(choice) {
+    saveChoice(choice);
+    closeBanner();
+    if (choice === "accept") {
+      if (typeof window.__basisLoadMetrika === "function") window.__basisLoadMetrika();
+      // 🔴 Сбрасываем состояние просмотра перед стартом. Пока согласия не было,
+      // приложение всё равно звало pageView() (оно про согласие не знает), просмотр
+      // молча открывался, а событие отбрасывалось. Без сброса защита от дубля решала,
+      // что эту страницу уже посчитали, и первый разрешённый просмотр терялся —
+      // именно он и пропал в проверке 07.09.2026.
+      view = null;
+      // Считаем страницу с момента согласия, а не задним числом.
+      pageView();
+    }
+  }
+
+  function showBanner() {
+    if (bannerEl) return;
+    var dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var bg = dark ? "#1B1713" : "#FFFFFF";
+    var ink = dark ? "#F2EDE4" : "#1F1B16";
+    var muted = dark ? "#B8AE9F" : "#5A5248";
+    var line = dark ? "#332C24" : "#E4DFD5";
+
+    var el = document.createElement("div");
+    el.setAttribute("role", "dialog");
+    el.setAttribute("aria-label", "Аналитика посещений");
+    el.style.cssText = "position:fixed;left:16px;right:16px;bottom:16px;z-index:2147483000;"
+      + "max-width:560px;margin:0 auto;background:" + bg + ";color:" + ink + ";"
+      + "border:1px solid " + line + ";border-radius:14px;padding:16px 18px;"
+      + "box-shadow:0 10px 40px rgba(0,0,0,.18);font:14px/1.5 Inter,-apple-system,"
+      + "'Segoe UI',Roboto,sans-serif";
+
+    var text = document.createElement("div");
+    text.style.cssText = "color:" + muted + ";margin-bottom:12px";
+    text.innerHTML = "<strong style=\"color:" + ink + "\">Аналитика посещений.</strong> "
+      + "Мы хотим считать, какими разделами Basis пользуются: собственная статистика на наших "
+      + "серверах и Яндекс.Метрика. Метрика поставит cookie и передаст в ООО «Яндекс» данные о "
+      + "вашем браузере и просмотрах. Без этого сайт работает полностью. "
+      + "<a href=\"/privacy/\" style=\"color:#C97A4A\">Подробнее</a>";
+
+    var row = document.createElement("div");
+    row.style.cssText = "display:flex;gap:10px;flex-wrap:wrap";
+
+    function button(label, choice) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = label;
+      b.style.cssText = "flex:1 1 140px;min-height:40px;border-radius:9px;cursor:pointer;"
+        + "font:600 14px/1 Inter,sans-serif;border:1px solid " + line + ";"
+        + "background:" + (dark ? "#241F19" : "#F7F5F0") + ";color:" + ink;
+      b.onclick = function () { decide(choice); };
+      return b;
+    }
+    row.appendChild(button("Принять", "accept"));
+    row.appendChild(button("Отклонить", "reject"));
+
+    el.appendChild(text);
+    el.appendChild(row);
+    (document.body || document.documentElement).appendChild(el);
+    bannerEl = el;
+  }
+
   window.__basisAnalytics = {
     pageView: pageView, action: action, click: click, endView: endView,
     anonId: anonId, sessionId: sessionId, allowed: allowed,
+    // «Настройки аналитики» в подвале зовут это, чтобы переспросить и передумать.
+    openConsent: function () { closeBanner(); showBanner(); },
+    consent: consentState,
   };
 
-  // Первый просмотр — сразу: на статических страницах больше некому его отправить.
-  pageView();
+  /* Старт. Согласие есть — считаем и грузим счётчик. Решения нет — спрашиваем.
+     Отказ — молчим до тех пор, пока человек сам не откроет настройки. */
+  if (allowed()) {
+    if (typeof window.__basisLoadMetrika === "function") window.__basisLoadMetrika();
+    pageView();
+  } else if (!consentState()) {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", showBanner);
+    } else {
+      showBanner();
+    }
+  }
 })();

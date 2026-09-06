@@ -107,6 +107,7 @@ import {
 const PortfolioV2 = React.lazy(() => import("./portfolio/PortfolioViews").then((m) => ({ default: m.PortfolioV2 })));
 const StressTestView = React.lazy(() => import("./portfolio/StressTestView"));
 import { AuthModal } from "./account/AccountPanels";
+import ReacceptModal from "./account/ReacceptModal";
 import RegisterNudge from "./account/RegisterNudge";
 import PricingView from "./account/PricingView";
 import ProfileView from "./account/ProfileView";
@@ -1097,6 +1098,9 @@ export default function App() {
   });
   const [token, setToken] = useState(() => localStorage.getItem("basis_token") || null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  // Повторный акцепт: у людей, зарегистрировавшихся до публикации документов
+  // (06.09.2026), записи об акцепте нет вовсе. Спрашиваем один раз за сессию.
+  const [needReaccept, setNeedReaccept] = useState(false);
   // Шторка «Ещё» нижнего мобильного таббара (≤760px) — см. MobileTabBar/
   // MobileMoreSheet выше и app-shell ниже.
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
@@ -1137,6 +1141,27 @@ export default function App() {
   // Первый просмотр отправляет сниппет счётчика в <head> — здесь его повторять НЕЛЬЗЯ,
   // иначе каждая точка входа считалась бы дважды и показатель отказов был бы занижен.
   useEffect(() => { initAnalytics(); logPageView(); }, []);
+
+  // Есть ли у вошедшего запись об акцепте условий. Спрашиваем сервер, а не браузер:
+  // локальная отметка ничего не доказывает и теряется при смене устройства.
+  useEffect(() => {
+    if (!token) { setNeedReaccept(false); return; }
+    let alive = true;
+    (async () => {
+      try {
+        const r = await fetch(`${apiUrl}/api/consents/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!r.ok || !alive) return;
+        const data = await r.json();
+        const already = sessionStorage.getItem("basis_reaccept_snoozed") === "1";
+        if (!data?.offer_accept?.granted && !already) setNeedReaccept(true);
+      } catch {
+        // Сеть недоступна — не мешаем человеку работать.
+      }
+    })();
+    return () => { alive = false; };
+  }, [token]);
 
   // Кнопка «назад» — тоже переход между страницами, и его надо считать: иначе путь
   // пользователя в отчётах обрывается там, где он вернулся, а не там, где ушёл.
@@ -1743,6 +1768,19 @@ export default function App() {
 
       {showAuthModal && (
         <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />
+      )}
+
+      {needReaccept && !showAuthModal && (
+        <ReacceptModal
+          token={token}
+          apiUrl={apiUrl}
+          onDone={(accepted) => {
+            setNeedReaccept(false);
+            // «Позже» — не спрашиваем до следующего захода: запирать человека,
+            // который уже пользуется сервисом, в модальном окне нельзя.
+            if (!accepted) { try { sessionStorage.setItem("basis_reaccept_snoozed", "1"); } catch {} }
+          }}
+        />
       )}
 
       {/* Отложенный тост-приглашение к регистрации (владелец, 2026-08-02) — по

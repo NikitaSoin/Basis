@@ -28,13 +28,15 @@ a:focus-visible{outline:2px solid var(--copper);outline-offset:3px;border-radius
 
 <!-- Метрика: чтобы видеть, как часто и откуда попадают на 404 -->
 <script>window.__BASIS_METRIKA_ID__="111213378";
-(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
-k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-(window,document,"script","https://mc.yandex.ru/metrika/tag.js?id=111213378","ym");
-ym(111213378,"init",{ssr:true,webvisor:true,clickmap:true,accurateTrackBounce:true,trackLinks:true});
+window.__basisLoadMetrika=function(){
+  if(window.__basisMetrikaLoaded)return; window.__basisMetrikaLoaded=1;
+  (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+  m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
+  k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+  (window,document,"script","https://mc.yandex.ru/metrika/tag.js?id=111213378","ym");
+  ym(111213378,"init",{ssr:true,webvisor:true,clickmap:true,accurateTrackBounce:true,trackLinks:true});
+};
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/111213378" style="position:absolute;left:-9999px" alt=""></div></noscript>
 <script>window.__BASIS_API_URL__="https://nikitasoin-basis-a772.twc1.net";</script>
 <script src="/basis-analytics.js" defer></script>
 

@@ -41,3 +41,33 @@ def client(db):
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
+
+# ── Фикстуры доступа ────────────────────────────────────────────────────────────
+# Тесты писались до двух изменений и с июля 2026 падали именно из-за них:
+#   * аудит 2026-07-26 закрыл ручки ЗАПИСИ контента ops-токеном (X-Debug-Token);
+#   * с 2026-08-04 портфели требуют либо вход, либо гостевой токен.
+# Красная сюита хуже отсутствующей: в ней не видно настоящей поломки. Поэтому
+# тесты приведены к реальному контракту, а не контракт ослаблен ради тестов.
+
+
+@pytest.fixture()
+def ops_client(client):
+    """Клиент со служебным токеном — для ручек записи контента (создание компаний,
+    котировок, разборов). Без токена они отвечают 403, и это правильно."""
+    token = (os.getenv("DEBUG_API_TOKEN") or "").strip()
+    if token:
+        client.headers.update({"X-Debug-Token": token})
+    return client
+
+
+@pytest.fixture()
+def user_client(client):
+    """Клиент от имени зарегистрированного пользователя: возвращает (client, user_id).
+    Портфели без входа недоступны, поэтому регистрируем настоящего человека."""
+    import uuid
+    email = f"t-{uuid.uuid4().hex[:10]}@example.com"
+    r = client.post("/api/auth/register", json={"email": email, "password": "secret123"})
+    assert r.status_code == 201, r.text
+    body = r.json()
+    client.headers.update({"Authorization": f"Bearer {body['access_token']}"})
+    return client, body["user"]["id"]
