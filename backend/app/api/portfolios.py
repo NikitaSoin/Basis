@@ -92,6 +92,23 @@ def create_portfolio_endpoint(
     portfolio.guest_token = guest
     portfolio.guest_seen_at = datetime.now(timezone.utc)
     db.commit()
+    # 🔴 Создание портфеля без регистрации — конклюдентный акцепт Оферты (п. 4.1 «б»):
+    # договор с гостем заключается, значит момент акцепта нужно зафиксировать так же,
+    # как у зарегистрированных. Иначе на вопрос «на каких условиях гость пользовался
+    # сервисом» ответить нечем. Сбой записи не мешает создать портфель.
+    try:
+        from app.models.consent import Consent, OFFER_ACCEPT
+        already = db.query(Consent).filter(
+            Consent.guest_token == guest, Consent.kind == OFFER_ACCEPT,
+            Consent.revoked_at.is_(None)).first()
+        if already is None:
+            db.add(Consent(guest_token=guest, kind=OFFER_ACCEPT, version="1.0",
+                           meta={"способ": "создание портфеля без регистрации"}))
+            db.commit()
+    except Exception:  # noqa: BLE001
+        db.rollback()
+        import logging
+        logging.getLogger(__name__).exception("гостевой акцепт оферты не записан")
     db.refresh(portfolio)
     return portfolio
 

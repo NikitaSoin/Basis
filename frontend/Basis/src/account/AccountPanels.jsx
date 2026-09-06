@@ -277,9 +277,15 @@ const AuthModal = ({ onClose, onSuccess }) => {
                     onChange={(e) => setAcceptedOffer(e.target.checked)}
                   />
                   <span>
-                    Принимаю условия <a href="/offer/" target="_blank" rel="noopener">публичной оферты</a>{" "}
-                    и ознакомлен с <a href="/privacy/" target="_blank" rel="noopener">обработкой персональных
-                    данных</a> и <a href="/about-analytics/" target="_blank" rel="noopener">характером аналитики</a>.
+                    {/* Акцепт и ознакомление — разные по смыслу действия, и формулировка их
+                        различает: оферту человек ПРИНИМАЕТ (это договор), с политикой и
+                        документом об аналитике — ЗНАКОМИТСЯ (их не подписывают, они
+                        публикуются). Слитое «принимаю всё» размывает, что именно принято. */}
+                    Принимаю <a href="/offer/" target="_blank" rel="noopener">Публичную оферту</a>{" "}
+                    и подтверждаю, что ознакомился с{" "}
+                    <a href="/privacy/" target="_blank" rel="noopener">Политикой обработки персональных данных</a>{" "}
+                    и документом{" "}
+                    <a href="/about-analytics/" target="_blank" rel="noopener">«Об аналитике Basis»</a>.
                   </span>
                 </label>
               )}
