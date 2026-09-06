@@ -25,6 +25,12 @@ from app.api.assistant import router as assistant_router
 from app.api.stress import router as stress_router
 from app.api.agents import router as agents_router
 from app.api.payments import router as payments_router
+# Мягкий импорт: Timeweb выкатывает файлы неравномерно, и модуль-потребитель
+# может доехать раньше нового модуля — тогда падает ВЕСЬ бэкенд, а не одна фича.
+try:
+    from app.api.consents import router as consents_router
+except Exception:  # noqa: BLE001
+    consents_router = None
 # Мягкий импорт (timeweb-uneven-file-rollout): модуль новый, при неравномерной
 # раскатке файлов его может ещё не быть — бэк не должен падать целиком.
 try:
@@ -2002,6 +2008,8 @@ app.include_router(assistant_router, prefix="/api")
 app.include_router(stress_router, prefix="/api")
 app.include_router(agents_router, prefix="/api")
 app.include_router(payments_router, prefix="/api")
+if consents_router is not None:
+    app.include_router(consents_router, prefix="/api")
 
 
 @app.get("/")

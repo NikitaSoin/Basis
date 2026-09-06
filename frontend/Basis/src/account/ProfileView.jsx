@@ -197,6 +197,23 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
     </section>
   );
 
+  // Оферта и политика обязаны открываться из личного кабинета, а не только из подвала
+  // лендинга: человек ищет их именно здесь — когда решает вопрос про списание, возврат
+  // или свои данные. Ссылки ведут на статические страницы: они работают без приложения.
+  const documentsPanel = (
+    <section className="acct-panel">
+      <h2 className="acct-panel-title">Документы</h2>
+      <ul className="acct-links">
+        <li><a href="/offer/" target="_blank" rel="noopener">Публичная оферта и пользовательское соглашение</a>
+          <span className="acct-links-note">условия услуг, оплата, возврат</span></li>
+        <li><a href="/privacy/" target="_blank" rel="noopener">Политика обработки персональных данных</a>
+          <span className="acct-links-note">какие данные собираем, зачем и на сколько</span></li>
+        <li><a href="/about-analytics/" target="_blank" rel="noopener">Об аналитике Basis</a>
+          <span className="acct-links-note">почему это не индивидуальная инвестиционная рекомендация</span></li>
+      </ul>
+    </section>
+  );
+
   const securityPanel = (
     <section className="acct-panel">
       <h2 className="acct-panel-title">Безопасность</h2>
@@ -320,6 +337,7 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
                 {dataPanel}
                 {tourPanel}
                 {securityPanel}
+                {documentsPanel}
               </div>
               <div className="acct-col">
                 {planDeep}

@@ -276,6 +276,11 @@
 .lp-scope .fnote{font-size:12px;color:var(--ink-3);max-width:56ch;line-height:1.5;}
 .lp-scope .flinks{margin-left:auto;display:flex;gap:18px;font-size:13px;color:var(--ink-2);}
 .lp-scope .flinks a:hover{color:var(--ink);}
+/* Юридические ссылки — отдельной строкой во всю ширину футера: их читают не «заодно»,
+   а когда специально ищут, и прятать их в общий ряд ссылок неправильно. */
+.lp-scope .flinks-legal{flex-basis:100%;margin-left:0;justify-content:flex-start;
+  border-top:1px solid var(--line);padding-top:16px;margin-top:4px;font-size:12.5px;}
+@media (max-width:640px){.lp-scope .flinks-legal{flex-direction:column;gap:9px;}}
 .lp-scope .sec-head{text-align:center;max-width:720px;margin:0 auto;}
 .lp-scope .sec-head .lead{margin-left:auto;margin-right:auto;}
 

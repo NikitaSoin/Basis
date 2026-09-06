@@ -20,7 +20,17 @@ const FOCUSABLE_SELECTOR =
 
 const AuthModal = ({ onClose, onSuccess }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  // Редакция юридических документов, которую человек видит рядом с галочкой. Уходит
+  // на сервер вместе с регистрацией и ложится в запись об акцепте: через год
+  // «принял оферту» без номера редакции не значит ничего.
+  const LEGAL_VERSION = "1.0";
+
   const [mode, setMode] = useState("login"); // "login" | "register"
+  // 🔴 Галочка ТОЛЬКО про оферту. Согласия на обработку персональных данных здесь
+  // нет и быть не должно: почта, портфель и платежи обрабатываются на основании
+  // договора (п. 5 ч. 1 ст. 6 152-ФЗ), а с 01.09.2025 согласие обязано быть
+  // отдельным документом — склейка «оферта + согласие» одной галочкой запрещена.
+  const [acceptedOffer, setAcceptedOffer] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -95,7 +105,9 @@ const AuthModal = ({ onClose, onSuccess }) => {
   };
 
   const doRegister = (withCode) =>
-    post("/api/auth/register", withCode ? { email, password, code: code.trim() } : { email, password });
+    post("/api/auth/register", withCode
+      ? { email, password, code: code.trim(), offer_version: LEGAL_VERSION }
+      : { email, password, offer_version: LEGAL_VERSION });
 
   const requestCode = () => post("/api/auth/register/request-code", { email });
 
@@ -107,6 +119,7 @@ const AuthModal = ({ onClose, onSuccess }) => {
       if (mode === "login") {
         finishAuth(await post("/api/auth/login", { email, password }));
       } else if (regStep === "form") {
+        if (!acceptedOffer) throw new Error("Чтобы создать аккаунт, примите условия оферты");
         // Подтверждение почты — ССЫЛКОЙ после регистрации (2026-08-06), а не
         // кодом до неё: аккаунт создаётся сразу, письмо уходит следом, ссылка
         // бессрочная. Показываем шаг «проверьте почту», токен уже сохранён.
@@ -256,7 +269,24 @@ const AuthModal = ({ onClose, onSuccess }) => {
 
               {error && <p className="auth-error" role="alert">{error}</p>}
 
-              <Button type="submit" variant="primary" loading={loading} className="acct-pill tw-w-full">
+              {mode === "register" && (
+                <label className="auth-accept">
+                  <input
+                    type="checkbox"
+                    checked={acceptedOffer}
+                    onChange={(e) => setAcceptedOffer(e.target.checked)}
+                  />
+                  <span>
+                    Принимаю условия <a href="/offer/" target="_blank" rel="noopener">публичной оферты</a>{" "}
+                    и ознакомлен с <a href="/privacy/" target="_blank" rel="noopener">обработкой персональных
+                    данных</a> и <a href="/about-analytics/" target="_blank" rel="noopener">характером аналитики</a>.
+                  </span>
+                </label>
+              )}
+
+              <Button type="submit" variant="primary" loading={loading}
+                      disabled={mode === "register" && !acceptedOffer}
+                      className="acct-pill tw-w-full">
                 {mode === "login" ? "Войти" : "Создать аккаунт"}
               </Button>
               {mode === "register" && (

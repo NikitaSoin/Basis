@@ -27,6 +27,20 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
     if get_user_by_email(db, data.email):
         raise HTTPException(status_code=409, detail="Email уже зарегистрирован")
     user = create_user(db, data)
+    # 🔴 Акцепт оферты пишем ЗДЕСЬ, в одной операции с созданием аккаунта. Отдельный
+    # запрос с фронта дал бы разрыв «аккаунт создан, подтверждения нет» — и всплыл бы
+    # он ровно в споре. Сбой записи не отменяет регистрацию: человек уже заплатил
+    # вниманием, а мы починим запись из журнала.
+    try:
+        from app.models.consent import Consent, OFFER_ACCEPT
+        db.add(Consent(user_id=user.id, kind=OFFER_ACCEPT,
+                       version=(data.offer_version or "1.0")[:16]))
+        db.commit()
+    except Exception:  # noqa: BLE001
+        db.rollback()
+        import logging
+        logging.getLogger(__name__).exception(
+            "register: не записан акцепт оферты для пользователя id=%s", user.id)
     try:
         from app.services.email_verify import send_verification_link
         send_verification_link(db, user, enforce_limit=False)

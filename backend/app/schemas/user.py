@@ -10,6 +10,10 @@ class UserCreate(BaseModel):
     # SMTP (см. services/email_codes.is_verification_enabled) — без SMTP
     # регистрация работает по-старому, поле игнорируется.
     code: str | None = None
+    # Редакция оферты, которую человек видел рядом с галочкой на форме.
+    # Пишется в consents вместе с созданием аккаунта — иначе возможен разрыв
+    # «аккаунт есть, подтверждения нет», и он всплывёт именно в споре.
+    offer_version: str | None = None
 
 
 class UserLogin(BaseModel):
