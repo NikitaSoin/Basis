@@ -3352,6 +3352,22 @@ async function anLoad(days){
   h+='<h2>Сколько времени проводят (наш лог)</h2>'
     +anTable(d['время_на_платформе'],[['длительность визита','корзина'],['визитов','визитов','n'],
       ['людей','людей','n'],['в среднем, сек','средне_секунд','n']]);
+  h+='<h2>Сколько времени проводят НА СТРАНИЦЕ (наш лог)</h2>'
+    +anTable(d['время_на_страницах'],[['страница','path'],['просмотров','просмотров','n'],
+      ['в среднем, сек','среднее_сек','n'],['медиана, сек','медиана_сек','n'],
+      ['из них на экране, сек','на_экране_сек','n']]);
+  h+='<h2>Куда идут дальше</h2>'
+    +anTable(d['переходы'],[['со страницы','откуда'],['на страницу','куда'],['переходов','переходов','n']]);
+  h+='<h2>С чего начинают и чем заканчивают</h2>'
+    +anTable(d['входные_страницы'],[['страница','страница'],['входов','входов','n'],['выходов','выходов','n']]);
+  h+='<h2>Откуда пришли (наш лог)</h2>'
+    +anTable(d['источники'],[['источник','источник'],['визитов','визитов','n']]);
+  const qd=d['качество_данных']||{};
+  h+='<h2>Можно ли доверять этим числам</h2><div class="cards">'
+    +anCard(qd['событий'],'событий в выборке')+anCard(qd['с_замером_времени'],'с замером времени')
+    +anCard(qd['с_действием'],'с действием человека')
+    +anCard(qd['статических_страниц'],'статических страниц в логе')+'</div>'
+    +'<p class="sub">'+(qd['как_читать']||'')+'</p>';
   h+='<h2>Кто возвращался</h2>'
     +anTable(d['повторные_заходы'],[['сколько раз заходил','сколько_раз'],['людей','людей','n'],
       ['визитов','визитов','n']]);
@@ -3908,6 +3924,31 @@ def assistant_index(rebuild: bool = Query(False, description="пересобра
     return out
 
 
+@router.get("/debug/bots-preview")
+def bots_preview(days: int = Query(3, ge=1, le=30)):
+    """Кого ночной разбор пометил бы роботом и почему. Ничего не меняет.
+    Смотреть, когда наши числа расходятся с Метрикой: здесь видно, кого мы отсеиваем."""
+    from app.db.session import SessionLocal
+    from app.services.analytics_bots import reclassify
+    db = SessionLocal()
+    try:
+        return reclassify(db, days=days, dry_run=True)
+    finally:
+        db.close()
+
+
+@router.post("/debug/bots-reclassify")
+def bots_reclassify(days: int = Query(3, ge=1, le=90)):
+    """Ручной прогон разбора визитов (обычно его делает крон bots_reclassify в 3:50)."""
+    from app.db.session import SessionLocal
+    from app.services.analytics_bots import reclassify
+    db = SessionLocal()
+    try:
+        return reclassify(db, days=days)
+    finally:
+        db.close()
+
+
 @router.get("/debug/retention-preview")
 def retention_preview():
     """ПЛАН очистки по срокам хранения: сколько строк попадает под каждое правило.
@@ -4299,24 +4340,40 @@ def fix_earnings_standard(apply: bool = Query(False)):
 # визиты, где вторая страница открывается за ОДНУ секунду. Пороги подобраны замером на
 # боевых данных (30 дней): «>1 стр ИЛИ 15 с» → 1015 «людей», «>1 стр И 5 с» → 84,
 # «15 с и дольше» → 63, всего в логе 1533.
-_HUMAN_VISIT = "events > 1 AND sec >= 5"
+# 🔴 ЧТО СЧИТАЕТСЯ ЧЕЛОВЕЧЕСКИМ ВИЗИТОМ (пересмотрено 2026-09-06).
+# Было: «открыто больше одной страницы И прошло не меньше 5 секунд». Правило появилось,
+# когда о визите было известно только время между событиями, и оно выбрасывало РЕАЛЬНОГО
+# читателя: человек, открывший одну карточку и читавший её три минуты, давал ровно одно
+# событие и ноль секунд разницы — то есть выглядел как робот. Обратное тоже верно: робот,
+# дёрнувший две страницы за шесть секунд, проходил как человек.
+# Стало: визит человеческий, если выполнено хоть что-то из трёх —
+#   * было ДЕЙСТВИЕ (скролл, клик, клавиша, тап) — робот их не делает;
+#   * суммарно прожито на страницах 15 секунд и больше (теперь мы это измеряем);
+#   * старое правило — как запасное, для строк, записанных до появления замеров.
+# Плюс во всех выборках отсекаются строки с is_bot (строка браузера, navigator.webdriver
+# и ретроспективный разбор визитов в services/analytics_bots.py).
+_HUMAN_VISIT = "(engaged IS TRUE OR dur_sec >= 15 OR (events > 1 AND sec >= 5))"
 
 _BASE_CTE = """
 WITH ev AS (
-  SELECT anon_id, created_at, path, kind,
+  SELECT anon_id, created_at, path, kind, duration_ms, visible_ms, engaged,
          CASE WHEN created_at - lag(created_at) OVER (PARTITION BY anon_id ORDER BY created_at)
                    > interval '30 minutes'
                OR lag(created_at) OVER (PARTITION BY anon_id ORDER BY created_at) IS NULL
               THEN 1 ELSE 0 END AS nv
   FROM user_events
-  WHERE is_bot IS FALSE AND anon_id IS NOT NULL
+  WHERE is_bot IS NOT TRUE AND anon_id IS NOT NULL
     AND created_at >= current_date - CAST(:days AS integer) + 1
 ),
-v AS (SELECT anon_id, created_at, path, kind,
+v AS (SELECT anon_id, created_at, path, kind, duration_ms, visible_ms, engaged,
              sum(nv) OVER (PARTITION BY anon_id ORDER BY created_at) AS vn FROM ev),
 vis AS (SELECT anon_id, vn, date(min(created_at)) AS d,
                EXTRACT(EPOCH FROM (max(created_at) - min(created_at))) AS sec,
-               count(*) AS events
+               count(*) AS events,
+               count(*) FILTER (WHERE kind = 'pageview') AS views,
+               COALESCE(sum(duration_ms), 0) / 1000.0 AS dur_sec,
+               COALESCE(sum(visible_ms), 0) / 1000.0 AS vis_sec,
+               bool_or(engaged) AS engaged
         FROM v GROUP BY anon_id, vn),
 hv AS (SELECT * FROM vis WHERE """ + _HUMAN_VISIT + """)
 """
@@ -4350,13 +4407,16 @@ def analytics_data(days: int = Query(30, ge=1, le=365)):
         o = dict(r) if r else {}
         o["отсеяно_визитов"] = (o.get("визитов_всего", 0) or 0) - (o.get("визитов_людей", 0) or 0)
         o["правило"] = (
-            "Дальше во всех таблицах — только человеческие визиты: открыто больше одной "
-            "страницы И прошло не меньше 5 секунд. Отсев нужен потому, что флаг «робот» по "
-            "названию браузера пропускает ботов — в логе видны визиты, где вторая страница "
-            "открывается за одну секунду. "
-            "С Метрикой эта цифра не совпадёт и не должна: её счётчик стоит и на статических "
-            "страницах и срабатывает до загрузки приложения, поэтому она считает всех, кто "
-            "открыл сайт, а мы — тех, кто в нём работал.")
+            "Человеческим считается визит, где было ДЕЙСТВИЕ (скролл, клик, клавиша, тап) "
+            "либо суммарно прожито 15 секунд и больше. Прежнее правило «больше одной страницы "
+            "и 5 секунд» осталось запасным — для строк, записанных до 06.09.2026, когда время "
+            "на странице ещё не измерялось. Роботы отсеиваются раньше: по названию браузера, "
+            "по флагу автоматизации navigator.webdriver и ретроспективно — по поведению "
+            "визита целиком (обход без единого действия, листание быстрее чтения). "
+            "С 06.09.2026 сбор идёт со ВСЕХ страниц, включая статические карточки облигаций, "
+            "фондов и фьючерсов, — до этого их видела только Метрика, и в этом была основная "
+            "часть расхождения. Данные за более ранние дни по-прежнему покрывают только "
+            "приложение.")
         out["отсев"] = o
 
         # ── время на платформе ──
@@ -4403,6 +4463,98 @@ def analytics_data(days: int = Query(30, ge=1, le=365)):
             WHERE v.kind = 'pageview'
             GROUP BY 1
         """)]
+
+        # ── сколько времени проводят НА КОНКРЕТНОЙ странице ──
+        # Раньше этого вопроса нельзя было задать вовсе: лог знал только момент открытия.
+        # 🔴 Сначала складываем отрезки ОДНОЙ страницы внутри ОДНОГО визита, и только
+        # потом усредняем. Иначе уход на соседнюю вкладку и возврат дробят один просмотр
+        # на несколько коротких замеров (сборщик досылает время при каждом скрытии
+        # вкладки — иначе на мобильных оно теряется совсем), и среднее время на странице
+        # выходит заниженным в разы.
+        out["время_на_страницах"] = [dict(x) for x in q("""
+            , pagetime AS (
+              SELECT v.anon_id, v.vn, v.path,
+                     sum(v.duration_ms) AS dur, sum(v.visible_ms) AS vis
+              FROM v JOIN hv ON hv.anon_id = v.anon_id AND hv.vn = v.vn
+              WHERE v.duration_ms IS NOT NULL
+              GROUP BY 1, 2, 3)
+            SELECT path,
+                   count(*) AS просмотров,
+                   round(CAST(avg(dur) / 1000.0 AS numeric), 1) AS среднее_сек,
+                   round(CAST(percentile_cont(0.5) WITHIN GROUP (ORDER BY dur)
+                              / 1000.0 AS numeric), 1) AS медиана_сек,
+                   round(CAST(avg(vis) / 1000.0 AS numeric), 1) AS на_экране_сек
+            FROM pagetime
+            GROUP BY 1 HAVING count(*) >= 2 ORDER BY 2 DESC LIMIT 40
+        """)]
+
+        # ── куда идут дальше: следующий просмотр внутри того же визита ──
+        out["переходы"] = [dict(x) for x in q("""
+            , seq AS (
+              SELECT v.anon_id, v.vn, v.path,
+                     lead(v.path) OVER (PARTITION BY v.anon_id, v.vn ORDER BY v.created_at) AS next_path
+              FROM v JOIN hv ON hv.anon_id = v.anon_id AND hv.vn = v.vn
+              WHERE v.kind = 'pageview')
+            SELECT path AS откуда, next_path AS куда, count(*) AS переходов
+            FROM seq WHERE next_path IS NOT NULL AND next_path <> path
+            GROUP BY 1, 2 ORDER BY 3 DESC LIMIT 40
+        """)]
+
+        # ── входные и выходные страницы визита ──
+        out["входные_страницы"] = [dict(x) for x in q("""
+            , ord AS (
+              SELECT v.path, v.anon_id, v.vn,
+                     row_number() OVER (PARTITION BY v.anon_id, v.vn ORDER BY v.created_at) AS rn,
+                     row_number() OVER (PARTITION BY v.anon_id, v.vn ORDER BY v.created_at DESC) AS rn_end
+              FROM v JOIN hv ON hv.anon_id = v.anon_id AND hv.vn = v.vn
+              WHERE v.kind = 'pageview')
+            SELECT path AS страница, count(*) FILTER (WHERE rn = 1) AS входов,
+                   count(*) FILTER (WHERE rn_end = 1) AS выходов
+            FROM ord GROUP BY 1 HAVING count(*) FILTER (WHERE rn = 1) > 0
+            ORDER BY 2 DESC LIMIT 25
+        """)]
+
+        # ── откуда пришли: источник первого события визита ──
+        out["источники"] = [dict(x) for x in q("""
+            , first_ev AS (
+              SELECT DISTINCT ON (v.anon_id, v.vn) v.anon_id, v.vn, v.referrer
+              FROM (SELECT ev2.*, sum(ev2.nv) OVER (PARTITION BY ev2.anon_id ORDER BY ev2.created_at) AS vn
+                    FROM (SELECT anon_id, created_at, referrer,
+                                 CASE WHEN created_at - lag(created_at) OVER (PARTITION BY anon_id ORDER BY created_at)
+                                           > interval '30 minutes'
+                                       OR lag(created_at) OVER (PARTITION BY anon_id ORDER BY created_at) IS NULL
+                                      THEN 1 ELSE 0 END AS nv
+                          FROM user_events
+                          WHERE is_bot IS NOT TRUE AND anon_id IS NOT NULL
+                            AND created_at >= current_date - CAST(:days AS integer) + 1) ev2) v
+              ORDER BY v.anon_id, v.vn, v.created_at)
+            SELECT CASE
+                     WHEN referrer IS NULL OR referrer = '' THEN 'прямые заходы и закладки'
+                     WHEN referrer LIKE '%inbasis.ru%' THEN 'внутренний переход'
+                     ELSE substring(referrer from '^https?://([^/]+)') END AS источник,
+                   count(*) AS визитов
+            FROM first_ev f JOIN hv ON hv.anon_id = f.anon_id AND hv.vn = f.vn
+            GROUP BY 1 ORDER BY 2 DESC LIMIT 20
+        """)]
+
+        # ── можно ли доверять числам: доля событий с замером времени ──
+        r = q("""
+            SELECT count(*) AS событий,
+                   count(*) FILTER (WHERE v.duration_ms IS NOT NULL) AS с_замером_времени,
+                   count(*) FILTER (WHERE v.engaged IS TRUE) AS с_действием,
+                   count(DISTINCT v.path) FILTER (WHERE v.path LIKE '/bonds/%%'
+                        OR v.path LIKE '/funds/%%' OR v.path LIKE '/futures/%%') AS статических_страниц
+            FROM v JOIN hv ON hv.anon_id = v.anon_id AND hv.vn = v.vn
+        """).first()
+        qual = dict(r) if r else {}
+        qual["как_читать"] = (
+            "«С замером времени» — доля событий, по которым известно, сколько человек "
+            "провёл на странице. Замеры появились 06.09.2026: за более ранние дни доля "
+            "будет нулевой, и среднее время там считается по старому — как разница между "
+            "событиями. «Статических страниц» — сколько карточек облигаций, фондов и "
+            "фьючерсов попало в лог: до 06.09.2026 их не было вообще, они видны только "
+            "Метрике.")
+        out["качество_данных"] = qual
 
     blocks: dict[str, dict] = {}
     detail: dict[str, dict] = {}

@@ -57,97 +57,42 @@ export function trackEvent(name, params) {
 /** Оставлено для совместимости вызова из App.js: загрузка идёт сниппетом, здесь нечего делать. */
 export function initAnalytics() {}
 
-/* ─── Свой лог событий: то, чего Метрика не умеет ────────────────────────────────────
- * Метрика считает ВИЗИТЫ и не знает, кто их совершил. Она не ответит на вопрос
- * «пользователи с портфелем из пяти и более бумаг чаще открывают корреляции?» — а такие
- * вопросы и двигают продукт. Эти события ложатся в НАШУ базу рядом с users и portfolios,
- * поэтому джойнятся обычным SQL (см. /api/debug/sql-console).
+/* ─── Свой лог событий ──────────────────────────────────────────────────────────────
+ * 🔴 СБОР ПЕРЕЕХАЛ В public/basis-analytics.js (2026-09-06). Здесь остались только
+ * тонкие обёртки, вызывающие его.
  *
- * 🔴 ОТПРАВКА ПАЧКАМИ, А НЕ ПО СОБЫТИЮ. Запрос на каждый клик — это лишняя нагрузка на
- * бэкенд и подтормаживание интерфейса. Копим и шлём раз в несколько секунд, а также при
- * уходе со страницы через sendBeacon: он доставляет данные даже когда вкладку уже
- * закрывают, обычный fetch в этот момент отменяется.
+ * Почему переехал. Пока сбор жил в этом модуле, он работал ТОЛЬКО там, где грузится
+ * приложение. Страницы облигаций, фондов и фьючерсов (их больше трёх с половиной тысяч)
+ * — чистая статика без бандла, и весь поисковый трафик по конкретным выпускам в наш лог
+ * не попадал вовсе, хотя в Метрику попадал: её счётчик стоит во всех каркасах. Отсюда и
+ * бралась основная часть расхождения между «нашими цифрами» и «цифрами Метрики» — мы
+ * сравнивали приложение со всем сайтом.
  *
- * 🔴 БЕЗ ПЕРСОНАЛЬНЫХ ДАННЫХ: анонимный идентификатор устройства из localStorage и
- * идентификатор сессии. Ни почт, ни имён — их и не требуется, а хранить лишнее значит
- * брать на себя обязательства по 152-ФЗ без надобности.
+ * Заодно сборщик умеет то, чего здесь не было: измеряет время на странице и время, когда
+ * вкладка реально видима; держит визит в localStorage с 30-минутным таймаутом, поэтому
+ * перезагрузка и переход на статическую страницу больше не считаются новым визитом;
+ * помечает просмотры, где человек скроллил или кликал.
  */
-const API = process.env.REACT_APP_API_URL || "";
-const KEY_ANON = "basisAnonId";
 
-function anonId() {
-  try {
-    let v = localStorage.getItem(KEY_ANON);
-    if (!v) {
-      v = "a" + Math.random().toString(36).slice(2) + Date.now().toString(36);
-      localStorage.setItem(KEY_ANON, v);
-    }
-    return v;
-  } catch { return null; }
+/** Сборщик появляется асинхронно (defer), поэтому каждый вызов проверяет его наличие. */
+function collector() {
+  return (typeof window !== "undefined" && window.__basisAnalytics) || null;
 }
 
-// Сессия живёт в памяти вкладки: перезагрузка = новая сессия, это и нужно для «как часто
-// заходят».
-const SESSION_ID = "s" + Math.random().toString(36).slice(2) + Date.now().toString(36);
-
-let queue = [];
-let timer = null;
-
-function flush(useBeacon) {
-  if (!queue.length || !API) return;
-  const body = JSON.stringify({ events: queue.slice(0, 20) });
-  queue = [];
-  try {
-    // sendBeacon не умеет слать заголовки — эти события всегда анонимны. Их немного
-    // (только последняя пачка при уходе со страницы), а связать их с человеком всё равно
-    // можно через anon_id: он один и тот же и в анонимных, и в опознанных событиях.
-    if (useBeacon && navigator.sendBeacon) {
-      navigator.sendBeacon(`${API}/api/events`, new Blob([body], { type: "application/json" }));
-      return;
-    }
-    // 🔴 Ключ ИМЕННО "basis_token" — так его кладёт AccountPanels.jsx при входе.
-    // Я угадывал ("token"/"basisToken") и промахнулся: заголовок не уходил, и ВСЕ 682
-    // события записались как анонимные, включая события вошедших пользователей. Запрос
-    // «сколько залогиненных заходило» честно возвращал ноль — данных просто не было.
-    const token = localStorage.getItem("basis_token");
-    fetch(`${API}/api/events`, {
-      method: "POST",
-      headers: Object.assign({ "Content-Type": "application/json" },
-        token ? { Authorization: `Bearer ${token}` } : {}),
-      body,
-      keepalive: true,
-    }).catch(() => { /* аналитика не повод ломать экран */ });
-  } catch { /* молча */ }
+/** Просмотр страницы в собственный лог. Закрывает предыдущий просмотр и досылает его время. */
+export function logPageView() {
+  const c = collector();
+  if (c) c.pageView(window.location.pathname + window.location.search);
 }
-
-function push(kind, name, meta) {
-  try {
-    queue.push({
-      kind, name: name || null,
-      path: window.location.pathname + window.location.search,
-      referrer: document.referrer || null,
-      meta: meta || null,
-      anon_id: anonId(), session_id: SESSION_ID,
-    });
-    if (queue.length >= 10) { flush(false); return; }
-    if (!timer) timer = setTimeout(() => { timer = null; flush(false); }, 4000);
-  } catch { /* молча */ }
-}
-
-/** Просмотр страницы в собственный лог (Метрике он уходит отдельно, см. trackPageView). */
-export function logPageView() { push("pageview", null, null); }
 
 /** Действие пользователя: открыл вкладку, применил фильтр, добавил бумагу. */
-export function logAction(name, meta) { push("action", name, meta); }
+export function logAction(name, meta) {
+  const c = collector();
+  if (c) c.action(name, meta);
+}
 
 /** Клик по заметному элементу. */
-export function logClick(name, meta) { push("click", name, meta); }
-
-// Досылаем накопленное, когда человек уходит: иначе теряется последнее и самое
-// интересное — на чём именно он закрыл вкладку.
-if (typeof window !== "undefined") {
-  window.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") flush(true);
-  });
-  window.addEventListener("pagehide", () => flush(true));
+export function logClick(name, meta) {
+  const c = collector();
+  if (c) c.click(name, meta);
 }

@@ -1458,6 +1458,29 @@ async def _barometer_reviser_job():
         logger.exception("Ошибка ревизора барометров: %s", e)
 
 
+async def _bots_reclassify_job():
+    """Ретроспективный отсев роботов по поведению завершённых визитов.
+
+    Первый слой (строка браузера, navigator.webdriver) ловит честных роботов. Обход с
+    подделанным User-Agent выглядит как Chrome, и отличить его можно только по тому, что
+    он делает: не скроллит, листает быстрее чтения, идёт вширь по разным адресам. Такой
+    разбор возможен, лишь когда визит закончился, — поэтому он ночной, а не в момент
+    записи события. Помечаем, не удаляем: ошибка обратима."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.analytics_bots import reclassify
+        db = SessionLocal()
+        try:
+            return reclassify(db, days=3)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Отсев роботов по поведению: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка отсева роботов: %s", e)
+
+
 async def _retention_job():
     """Удаление данных по истечении сроков хранения (152-ФЗ ч. 7 ст. 5).
 
@@ -1864,6 +1887,8 @@ async def lifespan(app: FastAPI):
     # Ретеншен персональных данных — ежедневно в 4:10 МСК, до дневных задач.
     # Вне блока внешних задач намеренно: обязанность по закону не должна
     # отключаться флагом, которым глушат внешние интеграции.
+    # Отсев роботов — до ретеншена: сначала уточняем, кто робот, потом чистим по срокам.
+    scheduler.add_job(_with_heartbeat("bots_reclassify", _bots_reclassify_job), "cron", hour=3, minute=50, id="bots_reclassify")
     scheduler.add_job(_with_heartbeat("pd_retention", _retention_job), "cron", hour=4, minute=10, id="pd_retention")
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")

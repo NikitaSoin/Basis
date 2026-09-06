@@ -50,6 +50,7 @@ const { execSync } = require("child_process");
 // 2026-07-30 по разделам Обозревателя и классам активов — владелец: «чтобы все
 // остальные блоки на платформе имели свои SEO-страницы».
 const { metrikaSnippet } = require("./metrika");
+const { analyticsSnippet } = require("./basis-analytics-tag");
 
 const LANDINGS = [...require("./seo-landings-content"), ...require("./seo-landings-observer")];
 
@@ -689,7 +690,7 @@ function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, 
 <link rel="icon" type="image/png" sizes="120x120" href="/favicon-120.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
-${metrikaSnippet()}
+${metrikaSnippet()}${analyticsSnippet()}
 <style>${CSS}</style>
 </head>
 <body>

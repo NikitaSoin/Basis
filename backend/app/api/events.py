@@ -92,6 +92,17 @@ class EventIn(BaseModel):
     meta: dict | None = None
     anon_id: str | None = Field(default=None, max_length=64)
     session_id: str | None = Field(default=None, max_length=64)
+    # Время просмотра приходит с УХОДОМ со страницы, а не с её открытием: раньше
+    # его просто неоткуда взять. duration_ms — сколько просмотр прожил, visible_ms —
+    # сколько вкладка была на экране (фоновая вкладка не должна накручивать часы).
+    duration_ms: int | None = Field(default=None, ge=0, le=24 * 3600 * 1000)
+    visible_ms: int | None = Field(default=None, ge=0, le=24 * 3600 * 1000)
+    # Было ли человеческое действие: скролл, клик, клавиша, тап. Признак и качества
+    # визита (отказ), и живости посетителя — headless-обход не скроллит.
+    engaged: bool | None = None
+    # navigator.webdriver — браузер под автоматизацией. Не отпечаток устройства:
+    # один булев флаг, который сам себя объявляет роботом.
+    wd: bool | None = None
 
 
 class EventsIn(BaseModel):
@@ -114,7 +125,9 @@ def collect_events(payload: EventsIn, request: Request,
         записано = 0
         for e in rows:
             kind = (e.kind or "").strip()[:24]
-            if kind not in ("pageview", "click", "action"):
+            # viewend — служебное закрытие просмотра: несёт время на странице и НЕ
+            # считается действием человека (иначе отсев роботов теряет смысл).
+            if kind not in ("pageview", "click", "action", "viewend"):
                 continue                      # неизвестный вид не пишем, чтобы не мусорить
             meta = e.meta if isinstance(e.meta, dict) else None
             if meta and len(str(meta)) > 2000:
@@ -123,9 +136,14 @@ def collect_events(payload: EventsIn, request: Request,
             # постфактум. Саму строку браузера не храним: это отпечаток устройства.
             if bot_reason:
                 meta = {**(meta or {}), "_bot": bot_reason}
+            # Сигнал автоматизации от клиента сильнее строки браузера: подделать
+            # User-Agent просто, а navigator.webdriver сам себя объявляет.
+            reason = bot_reason or ("webdriver" if e.wd else None)
             db.execute(text(
-                "INSERT INTO user_events (user_id, anon_id, session_id, kind, name, path, referrer, meta, is_bot) "
-                "VALUES (:uid, :anon, :sess, :kind, :name, :path, :ref, CAST(:meta AS JSON), :bot)"
+                "INSERT INTO user_events (user_id, anon_id, session_id, kind, name, path, referrer, "
+                "meta, is_bot, bot_reason, duration_ms, visible_ms, engaged) "
+                "VALUES (:uid, :anon, :sess, :kind, :name, :path, :ref, CAST(:meta AS JSON), "
+                ":bot, :reason, :dur, :vis, :eng)"
             ), {
                 "uid": uid,
                 "anon": (e.anon_id or None), "sess": (e.session_id or None),
@@ -133,7 +151,9 @@ def collect_events(payload: EventsIn, request: Request,
                 "path": (e.path or None)[:_MAX_STR] if e.path else None,
                 "ref": (e.referrer or None)[:_MAX_STR] if e.referrer else None,
                 "meta": __import__("json").dumps(meta, ensure_ascii=False) if meta else None,
-                "bot": is_bot,
+                "bot": bool(reason),
+                "reason": reason[:40] if reason else None,
+                "dur": e.duration_ms, "vis": e.visible_ms, "eng": e.engaged,
             })
             записано += 1
         db.commit()

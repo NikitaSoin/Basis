@@ -20,6 +20,7 @@
 "use strict";
 const fs = require("fs");
 const { metrikaSnippet } = require("./metrika");
+const { analyticsSnippet } = require("./basis-analytics-tag");
 const path = require("path");
 
 const BUILD = path.join(__dirname, "..", "build");
@@ -92,7 +93,7 @@ a{color:var(--copper)}.note{font-size:12.5px;color:var(--faint);border-top:1px s
 @media (prefers-reduced-motion:no-preference){#seo-boot .b-bar i{animation:bs 1.1s ease-in-out infinite}}
 @keyframes bs{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
 @media (prefers-color-scheme:dark){#seo-boot{background:#14110E}}
-</style>${css}${metrikaSnippet()}
+</style>${css}${metrikaSnippet()}${analyticsSnippet()}
 </head><body>
 <div id="seo-static">
 <p class="crumbs">${crumbs}</p>

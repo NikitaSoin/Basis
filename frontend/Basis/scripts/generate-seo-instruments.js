@@ -36,6 +36,7 @@
 "use strict";
 const fs = require("fs");
 const { metrikaSnippet } = require("./metrika");
+const { analyticsSnippet } = require("./basis-analytics-tag");
 const path = require("path");
 
 const _DATA_DIR = path.join(__dirname, "data");
@@ -439,7 +440,7 @@ function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, 
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
 <style>${CSS}</style>
-${metrikaSnippet()}
+${metrikaSnippet()}${analyticsSnippet()}
 </head>
 <body>
 <div id="seo-static">
