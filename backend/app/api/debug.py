@@ -3303,6 +3303,18 @@ td.n{text-align:right;font-family:ui-monospace,Menlo,monospace}
   <button id="b30" class="off" onclick="anLoad(30)">Месяц</button>
 </p>
 <div id="anout"><p class="sub">Введите токен и выберите период.</p></div>
+
+<h2 style="margin-top:26px">Хранение данных: что удалится по срокам</h2>
+<p class="sub" style="margin:0 0 10px">Закон не разрешает хранить данные людей дольше, чем
+нужно для дела (152-ФЗ, ч. 7 ст. 5). Ночная уборка удаляет старое по срокам из опубликованной
+Политики. Кнопка ниже ПОКАЗЫВАЕТ план и ничего не удаляет: видно, сколько строк попадает под
+каждое правило и сколько их всего. Пока в настройках приложения нет RETENTION_APPLY=1,
+уборка каждую ночь только считает и пишет в журнал, но не трогает данные.</p>
+<p>
+  <button onclick="retLoad()">Показать, что удалится</button>
+  <button class="off" onclick="botsLoad()">Кого отсеиваем как роботов</button>
+</p>
+<div id="retout"><p class="sub">Введите токен и нажмите кнопку.</p></div>
 <script>
 const $=s=>document.querySelector(s);
 const tok=$('#tok');
@@ -3320,6 +3332,47 @@ function anTable(rows, cols){
   return h+'</table></div>';
 }
 function anCard(v,label){return '<div class="card"><b>'+anNum(v)+'</b><span>'+label+'</span></div>'}
+async function retLoad(){
+  $('#retout').innerHTML='<p class="sub">Считаю…</p>';
+  let d;
+  try{
+    const r=await fetch('/api/debug/retention-preview',{headers:{'X-Debug-Token':tok.value}});
+    d=await r.json();
+    if(!r.ok){$('#retout').innerHTML='<div class="warn">'+(d.detail||'ошибка')+'</div>';return}
+  }catch(e){$('#retout').innerHTML='<div class="warn">Не удалось получить данные: '+e+'</div>';return}
+  const rows=(d.rules||[]).map(r=>({
+    правило:r.rule, таблица:r.table, удалится:r.matched, всего:r.total, состояние:r.status}));
+  let h=anTable(rows,[['что чистим','правило'],['таблица','таблица'],['удалится строк','удалится','n'],
+    ['всего в таблице','всего','n'],['состояние','состояние']]);
+  h+='<p class="sub">«Удалится строк» — сколько записей старше срока прямо сейчас. Если в '
+   +'состоянии написано «ОСТАНОВЛЕНО предохранителем» — правило захватило больше 60% таблицы, '
+   +'и оно НЕ выполнено: почти всегда это ошибка в условии, а не реальное накопление. '
+   +'Ночная уборка сейчас в режиме плана: чтобы она начала удалять, нужно задать '
+   +'RETENTION_APPLY=1 в переменных окружения приложения.</p>';
+  $('#retout').innerHTML=h;
+}
+
+async function botsLoad(){
+  $('#retout').innerHTML='<p class="sub">Считаю…</p>';
+  let d;
+  try{
+    const r=await fetch('/api/debug/bots-preview?days=7',{headers:{'X-Debug-Token':tok.value}});
+    d=await r.json();
+    if(!r.ok){$('#retout').innerHTML='<div class="warn">'+(d.detail||'ошибка')+'</div>';return}
+  }catch(e){$('#retout').innerHTML='<div class="warn">Не удалось получить данные: '+e+'</div>';return}
+  const prich=d['причины']||{};
+  const rows=Object.keys(prich).map(k=>({признаки:k, визитов:prich[k]}));
+  let h='<div class="cards">'+anCard(d['проверено визитов'],'завершённых визитов за 7 дней')
+    +anCard(d['помечено роботами'],'из них похожи на робота')+'</div>';
+  h+=anTable(rows,[['по каким признакам','признаки'],['визитов','визитов','n']]);
+  h+='<p class="sub">Это ПРЕДПРОСМОТР ночного разбора: ничего не меняется. Признаки: '
+   +'«обход» — много разных страниц и ни одного действия; «быстро» — страницы листаются '
+   +'быстрее, чем их можно прочитать; «без-источника» — заход сразу вглубь сайта без перехода '
+   +'откуда-либо. Помечаем роботом только при совпадении двух признаков и больше: по одному '
+   +'встречается и у людей.</p>';
+  $('#retout').innerHTML=h;
+}
+
 async function anLoad(days){
   for(const d of [1,7,30]) $('#b'+d).className = d===days?'':'off';
   $('#anout').innerHTML='<p class="sub">Считаю…</p>';
