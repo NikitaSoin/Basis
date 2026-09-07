@@ -4031,7 +4031,8 @@ def retention_run(force: bool = Query(False, description="снять предо�
 
 
 @router.post("/debug/payments-probe")
-def payments_probe(amount_rub: int = Query(1, ge=1, le=10)):
+def payments_probe(amount_rub: int = Query(1, ge=1, le=10),
+                   receipt: bool = Query(False, description="приложить чек (54-ФЗ)")):
     """Живая проверка связи с эквайрингом: создаёт платёж на рубль и сразу
     спрашивает его статус. Ничего не пишет в нашу базу и никого не подписывает.
 
@@ -4045,10 +4046,25 @@ def payments_probe(amount_rub: int = Query(1, ge=1, le=10)):
         return {"ok": False, "reason": "нет TBANK_TERMINAL_KEY/TBANK_PASSWORD в окружении"}
     order = f"probe-{int(_time.time())}"
     out = {"terminal_demo": tb.is_demo(), "api_url": tb.API_URL, "order_id": order}
+    # 🔴 Чек проверяем ОТДЕЛЬНЫМ флагом. Без него ручка платит «голым» Init и ничего не
+    # говорит о 54-ФЗ — а именно чек ломается первым при переходе на боевой терминал:
+    # если касса к терминалу не подключена, банк отклонит платёж с чеком, а без чека
+    # примет, и разницу видно только здесь.
+    rcpt = None
+    if receipt:
+        rcpt = tb.build_receipt("probe@inbasis.ru", None, "Проверка чека", amount_rub * 100)
+        out["receipt_sent"] = rcpt is not None
+        out["receipt_off_reason"] = None if rcpt else "TBANK_RECEIPT не равен 1 в окружении"
+        if rcpt:
+            out["receipt"] = {"taxation": rcpt.get("Taxation"),
+                              "items": len(rcpt.get("Items") or []),
+                              "vat": (rcpt.get("Items") or [{}])[0].get("Tax")}
     t0 = _time.time()
     try:
         init = tb.init_payment(order_id=order, amount_kopecks=amount_rub * 100,
-                               description="Проверка связи с эквайрингом")
+                               description="Проверка связи с эквайрингом",
+                               customer_email="probe@inbasis.ru" if receipt else None,
+                               receipt=rcpt)
         out["init"] = {"status": init.get("Status"), "payment_id": init.get("PaymentId"),
                        "has_payment_url": bool(init.get("PaymentURL"))}
         state = tb.get_state(str(init.get("PaymentId")))
