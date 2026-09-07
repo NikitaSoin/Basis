@@ -93,6 +93,35 @@ def test_news_macro_extraction(db, monkeypatch):
     assert db.query(MacroDataPoint).filter_by(indicator_code="pmi_composite").count() == 0
 
 
+# 🔴 ГДЕ ТЕПЕРЬ ШОВ ДЛЯ МОКА (07.09.2026). Интерпретатор и «переписчик» ходят к модели
+# НЕ через llm.complete, а через агентский слой app.services.analyst.run (он сам открывает
+# методички и делает несколько шагов). Тесты продолжали подменять llm.complete — подмена
+# просто не срабатывала, и прогон делал НАСТОЯЩИЕ платные вызовы: 12 минут на файл и
+# реальные макро-тексты в ответах вместо заглушек. Мокаем analyst.run.
+
+
+def _fake_analyst(monkeypatch, answer, captured=None):
+    """Подменить агентский слой: он и есть текущая точка входа к модели.
+
+    🔴 Системный текст и ЗАДАНИЕ прокидываем в подставную функцию как есть. Без этого
+    тест не увидит инструкцию доработки (`ask(_fix_instruction(...))`) и не сможет
+    проверить, что критик действительно донёс замечания до переписывания."""
+    from app.services import analyst
+
+    def _run(db, *a, **k):
+        if captured is not None:
+            captured["label"] = k.get("label")
+            captured["shelf"] = k.get("shelf_docs")
+        # `system` и `task` приходят В ТЕХ ЖЕ kwargs — передавать их ещё и позиционно
+        # значит получить «got multiple values for argument». Отдаём позиционно, а из
+        # kwargs эти два ключа убираем.
+        rest = {kk: vv for kk, vv in k.items() if kk not in ("system", "task")}
+        return answer(k.get("system"), k.get("task"), **rest)
+
+    monkeypatch.setattr(analyst, "run", _run)
+    return _run
+
+
 def test_interpreter_generate(db, monkeypatch):
     """G: интерпретатор зовёт Pro reasoning и сохраняет разделы."""
     from app.services import macro_interpreter as ip
@@ -131,10 +160,12 @@ def test_interpreter_generate(db, monkeypatch):
         }}
     monkeypatch.setattr(llm, "complete", fake_complete)
     monkeypatch.setattr(llm, "pro_model", lambda: "deepseek-v4-pro")
+    # Выпуск собирает агентский слой — подменяем его, иначе уходит настоящий запрос.
+    _fake_analyst(monkeypatch, fake_complete, captured)
     row = ip.generate(db)
     assert row.sections["headline"] == "Главный вывод"
-    assert captured["thinking"] is True  # Интерпретатор — РАССУЖДЕНИЕ
-    assert captured["model"] == "deepseek-v4-pro"  # Pro, не Flash
+    assert captured["label"] == "macro_interpreter"   # звали именно интерпретатора
+    assert "macro" in (captured["shelf"] or [])       # с методичкой на полке
     assert ip.get_latest(db).id == row.id
     # гейт отработал и записал вердикт — выпуск не уходит на витрину неотмеченным
     assert row.source_snapshot.get("gate") in ("ok", "warn")
@@ -234,6 +265,7 @@ def test_rewrite_is_kept_only_if_it_improves_logic(db, monkeypatch):
     monkeypatch.setattr(llm, "complete", fake_complete)
     monkeypatch.setattr(llm, "pro_model", lambda: "m")
     monkeypatch.setattr(critic, "review_logic", fake_review)
+    _fake_analyst(monkeypatch, fake_complete)
 
     row = ip.generate(db)
     assert row.sections["headline"] == "Первая версия", "худшая версия не должна публиковаться"
@@ -286,6 +318,7 @@ def test_logic_loop_iterates_until_clean(db, monkeypatch):
     monkeypatch.setattr(llm, "complete", fake_complete)
     monkeypatch.setattr(llm, "pro_model", lambda: "m")
     monkeypatch.setattr(critic, "review_logic", fake_review)
+    _fake_analyst(monkeypatch, fake_complete)
 
     row = ip.generate(db)
     assert row.sections["headline"] == "Версия 3", "цикл обязан дойти до чистой версии"
@@ -337,6 +370,7 @@ def test_logic_loop_stops_at_max_passes(db, monkeypatch):
     monkeypatch.setattr(llm, "complete", fake_complete)
     monkeypatch.setattr(llm, "pro_model", lambda: "m")
     monkeypatch.setattr(critic, "review_logic", fake_review)
+    _fake_analyst(monkeypatch, fake_complete)
 
     row = ip.generate(db)
     assert row.id, "выпуск обязан выйти даже с оставшимися замечаниями"
