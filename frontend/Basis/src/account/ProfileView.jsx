@@ -210,6 +210,11 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
           <span className="acct-links-note">какие данные собираем, зачем и на сколько</span></li>
         <li><a href="/about-analytics/" target="_blank" rel="noopener">Об аналитике Basis</a>
           <span className="acct-links-note">почему это не индивидуальная инвестиционная рекомендация</span></li>
+        {/* 🔴 Единственный канал связи. До 10.09.2026 в интерфейсе не было НИ ОДНОГО
+            контакта: два места говорили «напишите нам», не сообщая куда, формы обращения
+            нет, ручки на бэкенде нет. Владелец ждал писем, которые некому было отправить. */}
+        <li><a href="mailto:info@inbasis.ru">Написать в поддержку: info@inbasis.ru</a>
+          <span className="acct-links-note">оплата, возврат, удаление аккаунта, вопросы по данным</span></li>
       </ul>
     </section>
   );
@@ -246,7 +251,9 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
       <p className="acct-deep-note">
         {isFree
           ? "Рынок, скринер, карточки и портфель — бесплатно. Банковская карта не нужна."
-          : `${user.subscription_expires_at ? `Активен до ${fmtDate(user.subscription_expires_at)}` : "Тариф активен"} · или ${tier.priceRubYear} ₽ за год. Продлить или сменить период — на странице тарифов; по вопросам оплаты и возврата напишите нам.`}
+          : <>{user.subscription_expires_at ? `Активен до ${fmtDate(user.subscription_expires_at)}` : "Тариф активен"} · или {tier.priceRubYear} ₽ за год.
+              Продлить или сменить период — на странице тарифов; по вопросам оплаты и возврата
+              напишите на <a href="mailto:info@inbasis.ru">info@inbasis.ru</a>.</>}
       </p>
       <div className="acct-deep-actions">
         <Button variant="primary" className="acct-pill" onClick={() => onNavigate("pricing")}>

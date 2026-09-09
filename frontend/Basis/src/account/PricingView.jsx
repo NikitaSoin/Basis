@@ -196,7 +196,8 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
                 <b>Платёж не завершён.</b> Банк вернул статус «{payResult.status}»
                 {payResult.error ? `: ${payResult.error}` : ""}. Деньги не списаны —
                 можно попробовать ещё раз или другой картой. Если списание всё же
-                прошло, напишите нам: оно вернётся автоматически.
+                прошло, напишите на <a href="mailto:info@inbasis.ru">info@inbasis.ru</a> —
+                вернём.
               </p>
             )}
           </div>

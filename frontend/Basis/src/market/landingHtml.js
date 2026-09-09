@@ -135,7 +135,7 @@ export const LANDING_BOTTOM = `
     <a class="brand" href="#top"><span class="bm">B</span>Базис</a>
     <p class="fnote">© 2026 Платформа Базис · Не является индивидуальной инвестиционной рекомендацией. Независимый аналитический сервис — не брокер, сделок не исполняет.</p>
     <div class="flinks"><a href="#platform">Экраны платформы</a><a href="#trust-sec">Статусы утверждений</a><a href="#" data-route="companies">Платформа</a></div>
-    <div class="flinks flinks-legal"><a href="/offer/">Публичная оферта</a><a href="/privacy/">Обработка персональных данных</a><a href="/about-analytics/">Об аналитике и ИИ</a><a href="#" onclick="if(window.__basisAnalytics){window.__basisAnalytics.openConsent();}return false;">Настройки аналитики</a></div>
+    <div class="flinks flinks-legal"><a href="/offer/">Публичная оферта</a><a href="/privacy/">Обработка персональных данных</a><a href="/about-analytics/">Об аналитике и ИИ</a><a href="#" onclick="if(window.__basisAnalytics){window.__basisAnalytics.openConsent();}return false;">Настройки аналитики</a><a href="mailto:info@inbasis.ru">info@inbasis.ru</a></div>
   </div>
 </footer>
 
