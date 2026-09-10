@@ -3862,6 +3862,22 @@ function _obsMonthFullRu(monthStr) {
   const { year, monthIdx0 } = _obsIsoMonthParts(monthStr);
   return `${OBS_MONTH_NAMES[monthIdx0] || "—"} ${year || ""}`.trim();
 }
+// Родительный падеж для оборота «с мая 2026» — именительный («с Май 2026»)
+// в связном тексте читается как опечатка.
+const OBS_MONTH_NAMES_GEN = [
+  "января", "февраля", "марта", "апреля", "мая", "июня",
+  "июля", "августа", "сентября", "октября", "ноября", "декабря",
+];
+function _obsMonthFullRuGen(monthStr) {
+  const { year, monthIdx0 } = _obsIsoMonthParts(monthStr);
+  return `${OBS_MONTH_NAMES_GEN[monthIdx0] || "—"} ${year || ""}`.trim();
+}
+function ruPluralMesyats(n) {
+  const n10 = n % 10, n100 = n % 100;
+  if (n10 === 1 && n100 !== 11) return "месяц";
+  if (n10 >= 2 && n10 <= 4 && (n100 < 10 || n100 >= 20)) return "месяца";
+  return "месяцев";
+}
 function _obsMonthShortRu(monthStr) {
   const { year, monthIdx0 } = _obsIsoMonthParts(monthStr);
   return `${TERR_MONTH_ABBR[monthIdx0] || "—"} ${String(year || "").slice(2)}`;
@@ -3975,7 +3991,7 @@ function ObsGeoIsochroneDeltaChart({ months, activeMonth, onSelectMonth }) {
             {hoverEntry.no_data
               ? "данных за этот месяц нет"
               : hoverEntry.delta_km2 == null && Number.isFinite(hoverEntry.delta_since_km2)
-              ? `${hoverEntry.delta_since_km2 > 0 ? "▲" : "▼"} ${Math.abs(hoverEntry.delta_since_km2).toLocaleString("ru-RU")} км² с ${_obsMonthFullRu(hoverEntry.delta_since_month)} (за ${hoverEntry.delta_span_months} мес.)`
+              ? `${hoverEntry.delta_since_km2 > 0 ? "▲" : "▼"} ${Math.abs(hoverEntry.delta_since_km2).toLocaleString("ru-RU")} км² с ${_obsMonthFullRuGen(hoverEntry.delta_since_month)} (за ${hoverEntry.delta_span_months} ${ruPluralMesyats(hoverEntry.delta_span_months)})`
               : hoverEntry.delta_km2 == null
               ? "старт реконструкции — нет предыдущего месяца"
               : hoverEntry.delta_km2 === 0
@@ -4049,7 +4065,7 @@ function ObsGeoIsochroneDeltaChart({ months, activeMonth, onSelectMonth }) {
             m.no_data
               ? "данных за этот месяц нет"
               : isNull && Number.isFinite(m.delta_since_km2)
-              ? `${m.delta_since_km2 > 0 ? "рост" : "отступ"} ${Math.abs(m.delta_since_km2).toLocaleString("ru-RU")} км² с ${_obsMonthFullRu(m.delta_since_month)}, за ${m.delta_span_months} месяцев — месячной дельты нет, в промежутке нет данных`
+              ? `${m.delta_since_km2 > 0 ? "рост" : "отступ"} ${Math.abs(m.delta_since_km2).toLocaleString("ru-RU")} км² с ${_obsMonthFullRuGen(m.delta_since_month)}, за ${m.delta_span_months} ${ruPluralMesyats(m.delta_span_months)} — месячной дельты нет, в промежутке нет данных`
               : isNull ? "старт реконструкции, нет предыдущего месяца" : isZero ? "без изменений" : `${v > 0 ? "рост" : "отступ"} ${Math.abs(v).toLocaleString("ru-RU")} км²`
           }, площадь ${Number.isFinite(m.area_km2) ? `${m.area_km2.toLocaleString("ru-RU")} км²` : "н/д"}${isActive ? ", выбранный месяц" : ""}`;
           return (
@@ -4291,7 +4307,7 @@ function ObsGeomapPopupBody({
             : ". Граница — архивный помесячный срез карт ISW (оценённый контроль территории), не реконструкция."}
           {capture.partial && " Месяц ещё не закончен — прирост неполный."}
           {Number.isFinite(capture.delta_since_km2) && (
-            <> {` С ${_obsMonthFullRu(capture.delta_since_month)} (за ${capture.delta_span_months} мес.) — ${capture.delta_since_km2 > 0 ? "▲" : "▼"} ${Math.abs(capture.delta_since_km2).toLocaleString("ru-RU")} км²; разложить по месяцам нечем — в промежутке нет данных.`}</>
+            <> {` С ${_obsMonthFullRuGen(capture.delta_since_month)} (за ${capture.delta_span_months} ${ruPluralMesyats(capture.delta_span_months)}) — ${capture.delta_since_km2 > 0 ? "▲" : "▼"} ${Math.abs(capture.delta_since_km2).toLocaleString("ru-RU")} км²; разложить по месяцам нечем — в промежутке нет данных.`}</>
           )}
         </p>
       </div>

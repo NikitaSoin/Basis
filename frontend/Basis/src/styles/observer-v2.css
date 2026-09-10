@@ -5280,7 +5280,9 @@ details[open] > summary .obs-inst-chev,
 .obs-geomap-isochart-legend {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;   /* третий пункт («данных за месяц нет») на узком блоке
+                        иначе срезался за краем — переносим, а не обрезаем */
+  gap: 6px 12px;
 }
 /* Легенда — цветной свотч + нейтральный текст (dataviz-конституция: «текст
    никогда не носит цвет данных», identity живёт в маркере/свотче рядом с
