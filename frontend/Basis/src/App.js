@@ -50,6 +50,7 @@ import {
   ExternalLink,
   Clock,
   MoreHorizontal,
+  BookOpen,
 } from "lucide-react";
 import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, KpiTile, usePrefersReducedMotion, ComingSoonView } from "./design/primitives";
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
@@ -118,6 +119,7 @@ import PaymentResultBanner from "./design/PaymentResultBanner";
 import "./styles/compare.css";
 const ScreenerCompareView = React.lazy(() => import("./screener/ScreenerCompareShell"));
 import "./styles/mobile-nav.css";
+import GuideView from "./spravochnik/GuideView";
 import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop, useDesktopSidebarCollapse, DesktopSidebarCollapse, DesktopSidebarHandle } from "./design/MobileSidebarDrawer";
 import useTourEngine from "./tour/useTourEngine";
 import TourOverlay from "./tour/TourOverlay";
@@ -479,7 +481,7 @@ function OverviewView({ token, onSelectCompany }) {
 // парсер ниже, и CTA-ссылки внутри интент-лендингов.
 const TAB_TO_SEO_SLUG = { business: "business", finance: "finance", governance: "dividends", macro: "macro", geo: "geo" };
 
-function buildAppUrl({ company, cardTab, view, obs }) {
+function buildAppUrl({ company, cardTab, view, obs, article }) {
   if (company) {
     const slug = TAB_TO_SEO_SLUG[cardTab];
     return `/company/${String(company).toUpperCase()}/${slug ? slug + "/" : ""}`;
@@ -487,6 +489,11 @@ function buildAppUrl({ company, cardTab, view, obs }) {
   if (view && view !== "landing") {
     const q = new URLSearchParams({ view });
     if (obs) q.set("obs", obs);
+    // Статья справочника — свой адрес, чтобы ссылку на конкретный ответ можно было
+    // переслать. 🔴 Это НЕ /spravochnik/<слаг>/: тот адрес принадлежит пре-рендеренной
+    // статике, которую индексирует поиск, и подменять её приложением нельзя (откат
+    // 31.08.2026, потеря лучшей точки входа). Два адреса с одним текстом — намеренно.
+    if (article) q.set("article", article);
     return `/?${q.toString()}`;
   }
   return "/";
@@ -518,12 +525,23 @@ const OBS_TITLES = {
   ai: "ИИ-обзор рынка — Basis",
 };
 
+// Заголовки статей справочника берём из самого контента: отдельный список разъехался
+// бы с ним при первой же новой статье.
+const GUIDE_TITLES = (() => {
+  try {
+    const map = {};
+    for (const a of require("./spravochnik/content")) map[a.slug] = a.question;
+    return map;
+  } catch { return {}; }
+})();
+
 const VIEW_TITLES = {
   companies: "Рынок: акции, облигации, фонды, фьючерсы — Basis",
   overview: "Обозреватель рынка: новости, макро, отчёты — Basis",
   portfolio: "Портфель: диагностика и риски — Basis",
   screener: "Скринер акций и облигаций — Basis",
   stress: "Стресс-тестирование — Basis",
+  guide: "Справочник: как устроены бизнесы и что означают показатели — Basis",
   ai: "ИИ-помощник — Basis",
   pricing: "Тарифы — Basis",
   landing: "Basis — анализ российского рынка для частного инвестора",
@@ -535,6 +553,10 @@ function syncTitle(state) {
       const t = String(state.company).toUpperCase();
       document.title = `${t}: разбор компании — Basis`;
       return;
+    }
+    if (state.view === "guide" && state.article) {
+      const a = GUIDE_TITLES[state.article];
+      if (a) { document.title = `${a} — Basis`; return; }
     }
     if (state.view === "overview" && state.obs && OBS_TITLES[state.obs]) {
       document.title = OBS_TITLES[state.obs];
@@ -733,6 +755,7 @@ const TOPNAV_ITEMS = [
   { id: "portfolio", label: "Портфель" },
   { id: "stress", label: "Стресс-тестирование" },
   { id: "screener", label: "Скринер" },
+  { id: "guide", label: "Справочник" },
   { id: "ai", label: "Ассистент" },
   { id: "pricing", label: "Тарифы" },
   { id: "profile", label: "Профиль" },
@@ -758,6 +781,7 @@ const MOBILE_TAB_ITEMS = [
 ];
 const MOBILE_MORE_ITEMS = [
   { id: "stress", label: "Стресс-тестирование", icon: Zap },
+  { id: "guide", label: "Справочник", icon: BookOpen },
   { id: "ai", label: "Ассистент", icon: Sparkles },
   { id: "pricing", label: "Тарифы", icon: CreditCard },
   { id: "profile", label: "Профиль", icon: User },
@@ -1044,6 +1068,9 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState("landing");
   const [selectedCompany, setSelectedCompany] = useState(null);
+  // Какая статья справочника открыта (null — список). Живёт в адресе как ?article=,
+  // чтобы ссылкой на конкретный ответ можно было поделиться.
+  const [guideSlug, setGuideSlug] = useState(null);
   const [selectedBond, setSelectedBond] = useState(null);
   const [selectedFuture, setSelectedFuture] = useState(null);
   const [selectedFund, setSelectedFund] = useState(null);
@@ -1127,8 +1154,10 @@ export default function App() {
           return;
         }
         setSelectedCompany(null);
-        const view = (new URLSearchParams(window.location.search).get("view") || "").toLowerCase();
-        const VIEW_TABS = ["companies", "overview", "portfolio", "stress", "screener", "ai", "pricing"];
+        const sp = new URLSearchParams(window.location.search);
+        const view = (sp.get("view") || "").toLowerCase();
+        setGuideSlug(view === "guide" ? (sp.get("article") || null) : null);
+        const VIEW_TABS = ["companies", "overview", "portfolio", "stress", "screener", "guide", "ai", "pricing"];
         setActiveTab(VIEW_TABS.includes(view) ? view : "landing");
       } catch {}
     };
@@ -1333,7 +1362,7 @@ export default function App() {
         try { window.history.replaceState({}, "", "/"); } catch {}
         return;
       }
-      const VIEW_TABS = ["companies", "overview", "portfolio", "stress", "screener", "ai", "pricing"];
+      const VIEW_TABS = ["companies", "overview", "portfolio", "stress", "screener", "guide", "ai", "pricing"];
       // Возврат с формы банка (?payment=success|fail&order=…). Подтверждение
       // «оплата прошла, Max до такого-то» живёт на экране тарифов — ведём туда,
       // даже если в ссылке нет view: ссылки, выданные банку раньше, вели на «/»,
@@ -1352,6 +1381,7 @@ export default function App() {
         // Теперь слаг едет в параметре, и оба пути ведут к одному результату.
         const presetP = (params.get("preset") || "").toLowerCase();
         if (presetP) setForceMarketPreset(presetP);
+        if (viewP === "guide") setGuideSlug(params.get("article") || null);
         if (viewP === "overview") {
           const OBS_SECTIONS = ["news", "economy", "pulse", "maps", "calendar", "reports", "corp-news", "macro", "geo", "institutions", "ai"];
           const obsP = (params.get("obs") || "").toLowerCase();
@@ -1537,6 +1567,15 @@ export default function App() {
     switch (activeTab) {
       case "companies":
         return <CompaniesView onSelectCompany={selectCompany} onSelectIndex={openIndex} onSelectDriver={openDriverChart} forceTab={forceInnerTab} forcePreset={forceMarketPreset} />;
+      case "guide":
+        return (
+          <GuideView
+            initialSlug={guideSlug}
+            onSlugChange={(slug) => { setGuideSlug(slug); syncUrl({ view: "guide", article: slug || undefined }); }}
+            onOpenCompany={(ticker, tab) => { setInitialCardTab(tab || "business"); selectCompany(ticker); }}
+            onOpenScreener={() => navigate("screener")}
+          />
+        );
       case "screener":
         return <ScreenerCompareView onSelectCompany={selectCompany} token={token} onAuthRequired={() => setShowAuthModal(true)} />;
       case "overview":

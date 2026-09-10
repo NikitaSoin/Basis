@@ -27,7 +27,7 @@ export default function LandingNeo({ onNavigate, onOpenCompany, onShowAuth, them
     // остальные — вкладки приложения (имена совпадают с case в renderView App.js).
     // Раньше поддерживались только companies/screener, и CTA новых разделов
     // (обозреватель, портфель, стресс-тест, ассистент) молча никуда не вели.
-    else if (["companies", "screener", "overview", "portfolio", "stress", "ai"].includes(r)) {
+    else if (["companies", "screener", "overview", "portfolio", "stress", "guide", "ai"].includes(r)) {
       onNavigate && onNavigate(r);
     }
   }, [onNavigate, onOpenCompany, onShowAuth]);

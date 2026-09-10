@@ -32,7 +32,12 @@
 "use strict";
 const fs = require("fs");
 const path = require("path");
-const ARTICLES = require("./spravochnik-content");
+// 🔴 КОНТЕНТ ЖИВЁТ В src/, А НЕ В scripts/. Он нужен ДВУМ потребителям: этому
+// генератору (пре-рендер для поиска) и разделу «Справочник» внутри приложения
+// (src/spravochnik/GuideView.jsx). CRA не разрешает импортировать из src файлы,
+// лежащие ВНЕ src, поэтому единственное место, откуда видно обоим, — сам src.
+// Формат намеренно CommonJS: так его read-ит и Node здесь, и webpack там.
+const ARTICLES = require("../src/spravochnik/content");
 const { metrikaSnippet } = require("./metrika");
 const { analyticsSnippet, API_BASE } = require("./basis-analytics-tag");
 
@@ -232,6 +237,10 @@ function articlePage(a) {
 <p class="tagline">Объяснение — суждение аналитиков Basis. Числа в блоке ниже — живые, из расчётной модели платформы.</p>
 ${secs}
 ${peers}
+<h2>Открыть в платформе</h2>
+<p>Тот же ответ есть внутри Basis — там он в разделе «Справочник», рядом с живыми
+разборами компаний, и переходы работают без перезагрузки:
+<a href="/?view=guide&amp;article=${a.slug}">открыть справочник в платформе →</a></p>
 <h2>Что с этим делать дальше</h2>
 <p>Механику вы теперь знаете — дальше её стоит приложить к конкретной бумаге: посмотреть,
 как эти же метрики выглядят у ${esc(a.bridge.nameGen || a.bridge.name)}, и сравнить с другими компаниями

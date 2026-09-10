@@ -364,7 +364,7 @@ function loadGitFileDates() {
 const SPRAVOCHNIK_BY_TICKER = (() => {
   const map = {};
   try {
-    for (const a of require("./spravochnik-content")) {
+    for (const a of require("../src/spravochnik/content")) {
       const tickers = [a.bridge && a.bridge.ticker, ...(a.peers || []).map((p) => p.ticker)];
       for (const t of tickers) if (t && !map[t]) map[t] = { slug: a.slug, question: a.question };
     }
@@ -3228,7 +3228,29 @@ function main() {
   }
   const names = loadNames();
   const assets = loadAppAssets();
-  if (!assets) console.log("⚠️  asset-manifest.json/main.js не найден — страницы без live-приложения (только статика)");
+  // 🔴 НЕТ БАНДЛА — ЭТО ОТКАЗ, А НЕ ПРЕДУПРЕЖДЕНИЕ (11.09.2026). Раньше здесь печаталась
+  // строчка в лог, а сборка шла дальше с кодом 0. Цена: ~8900 пре-рендеренных страниц
+  // уезжают БЕЗ приложения — робот их видит, а человек, кликнув из выдачи, получает
+  // статический текст без платформы. Молча: страницы на месте, счётчики те же, конвейер
+  // зелёный. Поймано на своей же машине, когда параллельная сессия запустила craco build
+  // и вычистила build/ во время работы генератора; на Timeweb так же выглядел бы сбой
+  // порядка шагов в цепочке npm run build.
+  // У нас падение сборки означает «деплой не проходит целиком, на бою остаётся прежняя
+  // версия» (CLAUDE.md) — для этого случая это ровно нужное поведение.
+  // Флаг для осознанного прогона без бандла (быстрая проверка текста без craco build):
+  //   BASIS_ALLOW_NO_BUNDLE=1 node scripts/generate-seo-pages.js
+  if (!assets) {
+    if (process.env.BASIS_ALLOW_NO_BUNDLE === "1") {
+      console.log("⚠️  asset-manifest.json/main.js не найден — страницы без live-приложения "
+        + "(разрешено флагом BASIS_ALLOW_NO_BUNDLE=1)");
+    } else {
+      console.error("🔴 asset-manifest.json/main.js не найден: страницы собрались бы БЕЗ "
+        + "приложения. Обычная причина — генератор запущен без предшествующего craco build "
+        + "или параллельная сборка вычистила build/. Сборка остановлена намеренно: выкатить "
+        + "тысячи страниц без платформы хуже, чем не выкатить ничего.");
+      process.exit(1);
+    }
+  }
   const companies = [];
   const skipped = [];
   for (const ticker of fs.readdirSync(_COMPANIES_DIR).sort()) {

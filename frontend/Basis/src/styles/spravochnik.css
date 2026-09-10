@@ -1,0 +1,113 @@
+/* Раздел «Справочник» внутри платформы (src/spravochnik/GuideView.jsx).
+
+   🔴 ПОЧЕМУ ЗДЕСЬ ЛОКАЛЬНАЯ ПРОЕКЦИЯ --sprv-*, А НЕ ПРЯМО --bs-*.
+   Канон цвета — basis-design-system.css, но его --bs-surface/--bs-ink заданы ТОЛЬКО
+   для светлой темы: тёмного варианта у них нет (в самом файле это оговорено —
+   «тёмная тема не вынесена в отдельный [data-theme] переключатель»). Поймано глазами:
+   в тёмной теме карточка мостика оставалась белой, а заголовки — почти чёрными на
+   тёмном фоне, то есть светлое по тёмному. Так же устроены соседние разделы: у
+   Стресс-теста --st-*, у Портфеля --pf-*. Здесь --sprv-*: в светлой теме это ровно
+   значения канона, в тёмной — темизированные токены платформы из tokens.css. */
+
+:root {
+  --sprv-surface: var(--bs-surface-2);
+  --sprv-ink: var(--bs-ink);
+  --sprv-ink-2: var(--bs-ink-2);
+  --sprv-ink-3: var(--bs-ink-3);
+  --sprv-line: var(--bs-line);
+  --sprv-accent: var(--bs-copper);
+  --sprv-accent-deep: var(--bs-copper-deep);
+  --sprv-accent-soft: var(--bs-copper-soft);
+  --sprv-up: var(--bs-up);
+  --sprv-down: var(--bs-down);
+  --sprv-on-accent: #fff;
+}
+.dark, [data-theme="dark"] {
+  --sprv-surface: var(--bg-elevated);
+  --sprv-ink: var(--text-primary);
+  --sprv-ink-2: var(--text-secondary);
+  --sprv-ink-3: var(--text-tertiary);
+  --sprv-line: var(--border-subtle);
+  --sprv-accent: var(--accent);
+  --sprv-accent-deep: var(--accent-hover);
+  --sprv-accent-soft: var(--accent-soft);
+  --sprv-up: var(--success);
+  --sprv-down: var(--danger);
+  --sprv-on-accent: var(--on-accent);
+}
+
+
+.sprv-index, .sprv-article { max-width: 780px; margin: 0 auto; padding: 8px 4px 60px; }
+
+.sprv-head { display: flex; align-items: center; gap: 10px; color: var(--sprv-accent); }
+.sprv-head h1 { font: 600 30px/1.2 var(--bs-serif); color: var(--sprv-ink); margin: 0; }
+.sprv-lead { color: var(--sprv-ink-2); font-size: 15px; line-height: 1.6; margin: 12px 0 26px; }
+
+.sprv-article h1 { font: 600 32px/1.22 var(--bs-serif); color: var(--sprv-ink); margin: 6px 0 16px; }
+.sprv-article h2 { font: 600 20px/1.3 var(--bs-serif); color: var(--sprv-ink); margin: 30px 0 10px; }
+.sprv-index h2 { font: 600 19px/1.3 var(--bs-serif); color: var(--sprv-ink); margin: 30px 0 12px; }
+.sprv-article p, .sprv-index p { color: var(--sprv-ink-2); font-size: 15px; line-height: 1.65; margin: 0 0 13px; }
+.sprv-article a, .sprv-index a { color: var(--sprv-accent); }
+
+.sprv-back { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0;
+  color: var(--sprv-ink-3); font-size: 13px; cursor: pointer; padding: 6px 0; }
+.sprv-back:hover { color: var(--sprv-accent); }
+
+/* Короткий ответ — первое, что видит человек: он пришёл с вопросом, а не за чтением. */
+.sprv-answer { background: var(--sprv-surface); border: 1px solid var(--sprv-line);
+  border-left: 3px solid var(--sprv-accent); border-radius: var(--bs-radius); padding: 16px 18px; }
+.sprv-answer .lbl { display: block; font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--sprv-ink-3); margin-bottom: 6px; }
+.sprv-answer p { color: var(--sprv-ink); font-size: 16px; margin: 0; }
+.sprv-tagline { font-size: 12.5px; color: var(--sprv-ink-3); margin: 8px 0 22px !important; }
+
+/* Живой блок компании-эталона */
+.sprv-bridge { background: var(--sprv-surface); border: 1px solid var(--sprv-line);
+  border-radius: var(--bs-radius); padding: 17px 19px; margin: 28px 0; }
+.sprv-kicker { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--sprv-ink-3); }
+.sprv-bridge h3 { font: 600 19px/1.3 var(--bs-serif); color: var(--sprv-ink); margin: 7px 0 8px; }
+.sprv-tick { font-size: 13px; color: var(--sprv-ink-3); font-weight: 400; }
+.sprv-why { color: var(--sprv-ink-2); font-size: 14px; line-height: 1.55; margin: 0 0 12px; }
+.sprv-nums { display: flex; flex-wrap: wrap; gap: 22px; padding: 12px 0;
+  border-top: 1px solid var(--sprv-line); border-bottom: 1px solid var(--sprv-line); margin-bottom: 10px; }
+.sprv-num .k { display: block; font-size: 11.5px; color: var(--sprv-ink-3); margin-bottom: 2px; }
+.sprv-num .v { font-size: 19px; font-weight: 600; color: var(--sprv-ink); }
+.sprv-num .v.up { color: var(--sprv-up); }
+.sprv-num .v.down { color: var(--sprv-down); }
+.sprv-epi { font-size: 11.5px; color: var(--sprv-ink-3); margin: 0 0 12px !important; }
+
+.sprv-cta { display: inline-flex; align-items: center; gap: 7px; background: var(--sprv-accent);
+  color: var(--sprv-on-accent); border: 1px solid var(--sprv-accent); border-radius: 9px; padding: 10px 16px;
+  font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--bs-sans); }
+.sprv-cta:hover { background: var(--sprv-accent-deep); border-color: var(--sprv-accent-deep); }
+.sprv-cta.ghost { background: transparent; color: var(--sprv-accent); }
+.sprv-cta.ghost:hover { background: var(--sprv-accent-soft); color: var(--sprv-accent-deep); }
+.sprv-cta:focus-visible, .sprv-chip:focus-visible, .sprv-card:focus-visible, .sprv-back:focus-visible {
+  outline: 2px solid var(--sprv-accent); outline-offset: 2px; }
+.sprv-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+
+.sprv-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.sprv-chip { display: inline-block; text-align: left; background: var(--sprv-surface);
+  border: 1px solid var(--sprv-line); border-radius: 999px; padding: 8px 14px; font-size: 13.5px;
+  color: var(--sprv-ink-2); cursor: pointer; text-decoration: none; font-family: var(--bs-sans); }
+.sprv-chip:hover { border-color: var(--sprv-accent); color: var(--sprv-accent); }
+.sprv-chip b { color: var(--sprv-ink); font-weight: 600; }
+.sprv-chip .note { color: var(--sprv-ink-3); }
+
+.sprv-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+.sprv-card { display: block; text-align: left; background: var(--sprv-surface);
+  border: 1px solid var(--sprv-line); border-radius: var(--bs-radius); padding: 16px 17px;
+  cursor: pointer; font-family: var(--bs-sans); }
+.sprv-card:hover { border-color: var(--sprv-accent); }
+.sprv-card .q { display: block; font: 600 17px/1.3 var(--bs-serif); color: var(--sprv-ink); margin-bottom: 6px; }
+.sprv-card .d { display: block; font-size: 13.5px; line-height: 1.5; color: var(--sprv-ink-2); }
+.sprv-card .to { display: block; margin-top: 9px; font-size: 12px; color: var(--sprv-accent); }
+
+.sprv-note { font-size: 12.5px !important; color: var(--sprv-ink-3) !important;
+  border-top: 1px solid var(--sprv-line); margin-top: 36px !important; padding-top: 14px; }
+
+@media (max-width: 640px) {
+  .sprv-article h1 { font-size: 26px; }
+  .sprv-nums { gap: 16px; }
+  .sprv-actions .sprv-cta { width: 100%; justify-content: center; }
+}
