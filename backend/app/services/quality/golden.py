@@ -198,6 +198,35 @@ SNAPSHOT_MUTATIONS: list[MutationCase] = [
     MutationCase("m.snap_lag", "snap.age_spread", "отстал от соседей по папке на полгода", m_snap_stale),
 ]
 
+def m_tax_gap(card: dict) -> dict:
+    """Чистая прибыль разошлась с «до налога + налог» втрое, знак сохранён."""
+    ist = card.get("income_statement") or {}
+    pt, tx, np_ = ist.get("pre_tax_profit"), ist.get("income_tax"), ist.get("net_profit")
+    if not all(isinstance(x, list) for x in (pt, tx, np_)):
+        return card
+    for i in range(min(len(pt), len(tx), len(np_)) - 1, -1, -1):
+        if all(isinstance(x[i], (int, float)) for x in (pt, tx, np_)) and abs(np_[i]) > 1:
+            np_[i] = np_[i] * 3
+            return card
+    return card
+
+
+def m_flip_net_profit(card: dict) -> dict:
+    """Знак чистой прибыли перевёрнут — ровно подпись дефекта Иркута-2022:
+    величина сходится с расчётом «до налога + налог», а знак нет."""
+    ist = card.get("income_statement") or {}
+    pt, tx, np_ = ist.get("pre_tax_profit"), ist.get("income_tax"), ist.get("net_profit")
+    if not all(isinstance(x, list) for x in (pt, tx, np_)):
+        return card
+    for i in range(min(len(pt), len(tx), len(np_)) - 1, -1, -1):
+        if all(isinstance(x[i], (int, float)) for x in (pt, tx, np_)) and abs(np_[i]) > 1:
+            # ставим ровно расчётную величину с обратным знаком
+            best = min((pt[i] + s * tx[i] for s in (1, -1)), key=lambda c: abs(c - np_[i]))
+            np_[i] = -best
+            return card
+    return card
+
+
 def m_bridge_break(card: dict) -> dict:
     """Отчётная прибыль подтянута из другого источника и больше не сходится
     с мостом нормализации — ровно случай БЛНГ."""
@@ -240,6 +269,10 @@ MUTATIONS: list[MutationCase] = [
     MutationCase("m.stale", "fin.freshness", "отчётность отстала на 3 года", m_stale),
     MutationCase("m.units", "fin.return_units", "рентабельности в долях", m_returns_as_fraction),
     MutationCase("m.prose", "fin.cross_tab", "числа уехали от прозы вкладок на 40%", m_prose_drift),
+    MutationCase("m.tax_sign", "fin.tax_sign",
+                 "чистая прибыль перевёрнута по знаку", m_flip_net_profit),
+    MutationCase("m.tax_gap", "fin.tax_identity",
+                 "чистая прибыль втрое разошлась с налоговой арифметикой", m_tax_gap),
     MutationCase("m.bridge", "fin.adjusted_bridge",
                  "отчётная прибыль перестала сходиться с мостом", m_bridge_break),
 ]

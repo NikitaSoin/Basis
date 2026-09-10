@@ -411,6 +411,135 @@ def _shift_all_series(card: dict, factor: float) -> dict:
     return card
 
 
+_NCI_MARKERS = ("nci", "minority", "noncontrol", "non_controlling", "attributable",
+                "миноритар", "неконтролир")
+
+
+def _has_nci_field(card: dict) -> bool:
+    """Структурный признак неконтролирующих долей — ТОЛЬКО в именах полей.
+
+    🔴 Не искать по тексту всего файла: слово «неконтролирующие» встречается в
+    прозе где угодно, и такой фильтр объявляет законным всё подряд. Проверено
+    сессией «статус обновления данных»: поиск по файлу пометил «может быть
+    законно» все 11 строк со сменой знака — то есть не проверял ничего."""
+    nodes = [card.get("income_statement"), card.get("bank_pnl"),
+             (card.get("balance_sheet") or {}).get("equity")]
+    for node in nodes:
+        if isinstance(node, dict) and any(
+                any(m in str(k).lower() for m in _NCI_MARKERS) for k in node):
+            return True
+    return False
+
+
+def _tax_rows(card: dict):
+    """Годы, расчёт «до налога + налог», расхождение и подпись ошибки знака."""
+    pre_tax = by_year(card, "income_statement", "pre_tax_profit")
+    tax = by_year(card, "income_statement", "income_tax")
+    net = by_year(card, "income_statement", "net_profit")
+    years = sorted(set(pre_tax) & set(tax) & set(net))
+    rows = []
+    for y in years:
+        best = min((pre_tax[y] + sign * tax[y] for sign in (1, -1)),
+                   key=lambda c: abs(c - net[y]))
+        ratio = abs(best - net[y]) / max(abs(net[y]), 1.0)
+        size_match = abs(abs(best) - abs(net[y])) / max(abs(net[y]), 1.0) < 0.10
+        flipped = size_match and (best > 0) != (net[y] > 0) and min(abs(best), abs(net[y])) > 1
+        rows.append((y, ratio, flipped, best, net[y]))
+    return rows
+
+
+# Насколько велика может быть «собственная база» карточки, если законная причина
+# в схеме НЕ отмечена. 🔴 Без этого потолка база впитывает дефект и проверка
+# перестаёт его видеть: у БЛНГ сопоставимых лет всего два, ОБА были битыми,
+# медиана расхождения равнялась самому расхождению — и порог «втрое выше базы»
+# не срабатывал никогда. Ретро-прогон на данных до починки это и показал: без
+# потолка проверка возвращала «ок» по эталонному дефекту, ради которого её и
+# писали. Стабильность ряда не доказывает его правоту.
+_UNEXPLAINED_BASELINE_CAP = 0.10
+
+
+def _tax_anomalies(rows, *, explained: bool = False):
+    """Аномальные годы и база карточки.
+
+    Большая база законна, только если расхождение объяснено СТРУКТУРНО (в схеме
+    есть поле неконтролирующих долей): тогда «прибыль акционеров меньше общей»
+    — это конвенция, и она держится из года в год. Если такого поля нет, база
+    ограничивается потолком, иначе карточка сама себе выписывает индульгенцию.
+    """
+    ratios = sorted(r for _, r, _, _, _ in rows)
+    baseline = ratios[len(ratios) // 2]
+    effective = baseline if explained else min(baseline, _UNEXPLAINED_BASELINE_CAP)
+    return [r for r in rows if r[1] > max(0.25, 3 * effective)], baseline
+
+
+def _c_tax_sign(subject: str, payload: dict) -> Iterable[CheckOutcome]:
+    """Ошибка ЗНАКА чистой прибыли: величина сходится с «до налога + налог»,
+    а знак противоположный. Резкая подпись, законной причины не имеет.
+    Так поймался Иркут-2022: −27 253 расчётных против +27 300 в файле."""
+    card = payload["card"]
+    rows = _tax_rows(card)
+    if len(rows) < 2:
+        yield skip(C_TAX_SIGN, subject, "нет двух лет с прибылью до налога, налогом и чистой")
+        return
+    anomalies, _ = _tax_anomalies(rows, explained=_has_nci_field(card))
+    # 🔴 Наличие доли неконтролирующих здесь НЕ оправдание: она объясняет разницу
+    # в ВЕЛИЧИНЕ (прибыль акционеров меньше общей), но не перевёрнутый знак при
+    # совпадающей величине. Гашение по НКД стоило проверке трёх носителей из
+    # четырёх на мутационном стенде — то есть на большинстве карточек ошибка
+    # знака прошла бы мимо.
+    flips = [a for a in anomalies if a[2]]
+    if flips:
+        y, _, _, best, actual = flips[0]
+        yield fail(C_TAX_SIGN, subject,
+                   f"{y}: прибыль до налога и налог дают {best:,.0f}, а в файле {actual:,.0f} — "
+                   f"величина та же, знак противоположный",
+                   years=[a[0] for a in flips], has_nci_field=_has_nci_field(card))
+    else:
+        yield ok(C_TAX_SIGN, subject, checked_years=len(rows))
+
+
+def _c_tax_identity(subject: str, payload: dict) -> Iterable[CheckOutcome]:
+    """Прибыль до налога + налог = чистая прибыль — чистая арифметика.
+
+    Сильнее сверки с мостом и с прозой: не требует ни суждения, ни разбора
+    текста. Знак налога в файлах непоследователен, поэтому пробуем оба.
+
+    🔴 Расхождение НЕ равно дефекту, и это главное в проверке. Консолидированная
+    отчётность даёт законные причины: прибыль акционеров без неконтролирующих
+    долей и прекращённая деятельность (у Мечела-2020 продажа Эльги даёт +808
+    при убытке до налога −37 625 — и это верно). Сырой прогон даёт 169 строк у
+    72 компаний; публиковать их как находки нельзя, раздутая корзина прячет
+    настоящее. Поэтому:
+      • условность консолидации держится ИЗ ГОДА В ГОД — сравниваем год не с
+        нулём, а с собственной базой карточки (медианой расхождения);
+      • грубо — только резкая подпись ошибки ЗНАКА: величина совпадает (в
+        пределах 10%), а знак противоположен. Так поймался Иркут-2022:
+        −27 253 расчётных против +27 300 в файле;
+      • всё остальное — мягко, с честной оговоркой, что законную причину
+        отличить нечем: поля «прекращённая деятельность» в файлах НЕТ вообще.
+    Найдено сессией «статус обновления данных» на разборе БЛНГ, 11.09.2026."""
+    card = payload["card"]
+    if len(_tax_rows(card)) < 2:
+        yield skip(C_TAX_IDENTITY, subject, "нет двух лет с прибылью до налога, налогом и чистой")
+        return
+
+    rows = _tax_rows(card)
+    anomalies, baseline = _tax_anomalies(rows, explained=_has_nci_field(card))
+    if not anomalies:
+        yield ok(C_TAX_IDENTITY, subject, checked_years=len(rows),
+                 baseline=round(baseline, 3))
+        return
+
+    y, ratio, _, best, actual = max(anomalies, key=lambda a: a[1])
+    yield fail(C_TAX_IDENTITY, subject,
+               f"{y}: расчёт {best:,.0f} против {actual:,.0f} в файле ({ratio:.0%} при базе "
+               f"карточки {baseline:.0%}) — не сходится ни при одном знаке налога. Законные "
+               f"причины (прекращённая деятельность, доля неконтролирующих) в файле не "
+               f"отмечены: такого поля в схеме нет, отличить нечем",
+               kind="unexplained", years=[a[0] for a in anomalies],
+               has_nci_field=_has_nci_field(card))
+
+
 def _c_adjusted_bridge(subject: str, payload: dict) -> Iterable[CheckOutcome]:
     """Отчётная прибыль против МОСТА НОРМАЛИЗАЦИИ в том же файле.
 
@@ -597,6 +726,15 @@ C_FRESHNESS = Check("fin.freshness", "Отчётность не протухла
                     _c_freshness, "Сквозная боль: устаревшие входные данные")
 C_RETURN_UNITS = Check("fin.return_units", "Рентабельности в процентах", Severity.HARD,
                        _c_return_units, "Смешанные единицы roe/roa/ros")
+# Две проверки на одной арифметике, но с РАЗНОЙ тяжестью: ошибка знака законной
+# причины не имеет, а необъяснённый разрыв — вполне (прекращённая деятельность,
+# доля неконтролирующих). Складывать их в одну severity значит либо простить
+# первое, либо наказать за второе.
+C_TAX_SIGN = Check("fin.tax_sign", "Знак чистой прибыли не перевёрнут", Severity.HARD,
+                   _c_tax_sign, "IRKT-2022: величина сходится, знак противоположный")
+C_TAX_IDENTITY = Check("fin.tax_identity", "Прибыль до налога + налог = чистая прибыль",
+                       Severity.SOFT, _c_tax_identity,
+                       "BLNG: одно битое поле при верном остальном файле")
 C_ADJ_BRIDGE = Check("fin.adjusted_bridge", "Отчётная прибыль сходится с мостом нормализации",
                      Severity.HARD, _c_adjusted_bridge,
                      "BLNG: reported +190 млн при мосте, дающем −491 млн")
@@ -605,8 +743,8 @@ C_CROSS_TAB = Check("fin.cross_tab", "Вкладки не противореча
 
 CHECKS: list[Check] = [C_ARITHMETIC, C_PROFIT_VS_REVENUE, C_SOURCE_MATCH,
                        C_SOURCE_ISSUER, C_FRESHNESS, C_RETURN_UNITS,
-                       C_ADJ_BRIDGE, C_CROSS_TAB]
+                       C_TAX_SIGN, C_TAX_IDENTITY, C_ADJ_BRIDGE, C_CROSS_TAB]
 
 # Версия набора: меняется при добавлении/изменении проверок. Прогоны с разными
 # версиями сравнивать НЕЛЬЗЯ — иначе «качество выросло» окажется «проверок стало меньше».
-CHECKS_VERSION = "fin-1.4"  # 1.3: пропуск-норма (банк вне «выручки») не режет покрытие
+CHECKS_VERSION = "fin-1.5"  # 1.3: пропуск-норма (банк вне «выручки») не режет покрытие

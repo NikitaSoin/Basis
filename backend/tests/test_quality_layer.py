@@ -96,3 +96,27 @@ def test_проверки_не_роняют_прогон_на_битом_суб�
     for check in get(pipeline).checks:
         outcomes = check.run("XXXX", junk)
         assert all(o.status in (Status.OK, Status.FAIL, Status.SKIP) for o in outcomes)
+
+
+def test_база_карточки_не_впитывает_дефект():
+    """Регрессия: карточка из двух лет, ОБА битые.
+
+    🔴 Порог «втрое выше собственной базы карточки» без потолка делает дефект
+    невидимым: если испорчены все сопоставимые годы, медиана расхождения равна
+    самому расхождению, и превысить её нельзя. Ровно так проверка возвращала
+    «ок» на данных БЛНГ до починки — на эталонном дефекте, ради которого её и
+    писали. Стабильность ряда не доказывает его правоту.
+    """
+    from app.services.quality.checks_financials import C_TAX_IDENTITY
+    card = {
+        "meta": {"ticker": "TEST", "fiscal_years": [2024, 2025], "unit": "млн"},
+        "income_statement": {
+            "pre_tax_profit": [-1960.381, -8712.371],
+            "income_tax": [-80.561, 1145.816],
+            "net_profit": [189.957, 68.416],      # то, что стояло у БЛНГ до правки
+        },
+    }
+    outcomes = C_TAX_IDENTITY.run("TEST", {"card": card, "extracted": None,
+                                           "today_year": date.today().year})
+    assert any(o.failed for o in outcomes), \
+        "оба года битые — проверка обязана это увидеть, а не принять за норму карточки"
