@@ -200,6 +200,22 @@ function bondIsThin(b) {
  * близнецами по существу, а не за счёт перефразирования. Ни одного сгенерированного текста:
  * врать неоткуда.
  */
+// 🔴 «ЦЕНА ЕСТЬ» И «ЦЕНОЙ МОЖНО ПОЛЬЗОВАТЬСЯ» — РАЗНЫЕ ВЕЩИ (владелец, 11.09.2026:
+// «цена облигации 0,2 процента, что за бред»). Разбор: цена настоящая, MOEX отдаёт по
+// структурной ноте СбКИБ1P286 ровно 0,2% номинала. Но сделок ноль неделями, последняя
+// одна за месяц — это не рынок, а последняя отметка в стакане. Показывать её как
+// «рыночную цену» и считать от неё «цену входа 2,00 ₽» значит выдавать артефакт за факт.
+// Порог: ноль сделок за день ИЛИ оборот меньше 50 000 ₽ (это меньше одного лота многих
+// выпусков — на таком обороте цена случайна). Если поля ещё не приехали (снапшот старее
+// правки), считаем бумагу торгуемой: молча помечать всё подряд «не торгуется» хуже.
+function bondIlliquid(b) {
+  if (!b) return false;
+  if (b.num_trades == null && b.val_today == null) return false;
+  const trades = typeof b.num_trades === "number" ? b.num_trades : 0;
+  const val = typeof b.val_today === "number" ? b.val_today : 0;
+  return trades === 0 || val < 50000;
+}
+
 function bondMathBlock(b, ofzCurve) {
   if (!b || b.is_defaulted) return "";
   const items = [];
@@ -217,7 +233,7 @@ function bondMathBlock(b, ofzCurve) {
   }
 
   // 2. Сколько платит покупатель сегодня — цена плюс накопленный купон.
-  if (priceRub != null) {
+  if (priceRub != null && !bondIlliquid(b)) {
     const nkd = typeof b.accrued_int === "number" ? b.accrued_int : 0;
     items.push(["Цена входа за одну бумагу", `${fmtN(priceRub)} ${curSym(b.currency)}`
       + (nkd ? ` + НКД ${fmtN(nkd)} ${curSym(b.currency)} = <b>${fmtN(priceRub + nkd)} ${curSym(b.currency)}</b>` : "")
@@ -574,7 +590,13 @@ function bondPage(b, ctx, noindex) {
   const floaterNote = b.coupon_type === "floater" ? " — для флоатера ориентир условен: купон меняется вслед за ставкой" :
     b.coupon_type === "linker" ? " — реальная (сверх инфляции): номинал линкера индексируется на ИПЦ" : "";
   const market = kvTable([
-    ["Цена", b.last_price != null ? `${fmtN(b.last_price)}% номинала` : null],
+    ["Цена", b.last_price == null ? null
+      : bondIlliquid(b)
+        ? `${fmtN(b.last_price)}% номинала — но выпуск фактически не торгуется`
+          + `${b.num_trades === 0 ? " (сегодня сделок не было)" : ""}: это последняя отметка, `
+          + "а не рыночная цена, и купить по ней может быть не у кого"
+        : `${fmtN(b.last_price)}% номинала`],
+    ["Сделок за день", b.num_trades != null ? String(b.num_trades) : null],
     [`Доходность ${b.ytm_kind || "к погашению"}`, b.ytm != null
       ? `${fmtPct(b.ytm)} годовых${b.yield_anomaly ? " — аномально высокая: маркер дистресса/неликвида, не «выгоды»" : ""}${b.near_offer ? " — искажена близкой офертой/погашением" : ""}${floaterNote}`
       : "нет данных (не торгуется / неликвид / не рассчитывается)"],

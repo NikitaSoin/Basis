@@ -88,6 +88,9 @@ const BOND_FIELDS = [
   "rating_divergence", "risk_verdict", "arbitrage_note",
   "basis_score", "basis_group", "sector",
   "yield_anomaly", "near_offer", "spread_artifact",
+  // Ликвидность выпуска: без неё страница не может отличить «цена такая» от «цены
+  // фактически нет» — см. bondIlliquid() в generate-seo-instruments.js.
+  "num_trades", "val_today",
 ];
 // Из скринера доклеиваем светофор «доходность vs риск» (тот же движок, что в карточке)
 const SCREENER_FIELDS = { light: "light", vkind: "vkind", premium: "premium_bp", required: "required_bp" };

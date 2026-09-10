@@ -9,10 +9,14 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import PlainTextResponse
+import logging
+
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 FUNDS_DIR = Path(__file__).parent.parent.parent / "funds"
@@ -85,7 +89,17 @@ def get_fund(secid: str, db: Session = Depends(get_db)):
     if not row:
         raise HTTPException(status_code=404, detail="Fund not found")
     fund = _row_to_dict(row)
-    return {"fund": fund, "ter_cost": _ter_in_money(fund.get("ter"))}
+    # Расчётный слой (app/services/fund_metrics.py): доходность, отставание от бенчмарка
+    # и ошибка слежения, комиссия в деньгах против медианы группы, ликвидность. Импорт
+    # мягкий: модуль-потребитель может доехать на Timeweb раньше модуля с функцией, и
+    # тогда ImportError уронил бы карточку целиком ради одного блока.
+    metrics = None
+    try:
+        from app.services.fund_metrics import compute as _fund_metrics
+        metrics = _fund_metrics(db, fund)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("fund_metrics недоступны для %s: %s", secid, e)
+    return {"fund": fund, "ter_cost": _ter_in_money(fund.get("ter")), "метрики": metrics}
 
 
 @router.get("/funds/{secid}/summary", response_class=PlainTextResponse)

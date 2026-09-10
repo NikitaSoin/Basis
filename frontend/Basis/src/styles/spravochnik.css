@@ -111,3 +111,19 @@
   .sprv-nums { gap: 16px; }
   .sprv-actions .sprv-cta { width: 100%; justify-content: center; }
 }
+
+/* Вкладки раздела: три входа — бизнес, термины, статистика (владелец 11.09.2026). */
+.sprv-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 22px;
+  border-bottom: 1px solid var(--sprv-line); padding-bottom: 12px; }
+.sprv-tab { display: inline-flex; align-items: center; gap: 7px; background: transparent;
+  border: 1px solid var(--sprv-line); border-radius: 999px; padding: 8px 14px; cursor: pointer;
+  font-size: 13.5px; color: var(--sprv-ink-2); font-family: var(--bs-sans); }
+.sprv-tab:hover { border-color: var(--sprv-accent); color: var(--sprv-accent); }
+.sprv-tab.is-active { background: var(--sprv-accent); border-color: var(--sprv-accent);
+  color: var(--sprv-on-accent); font-weight: 600; }
+.sprv-tab:focus-visible { outline: 2px solid var(--sprv-accent); outline-offset: 2px; }
+
+/* Значение показателя на карточке экономической статистики. */
+.sprv-macro-val { display: block; font-size: 19px; font-weight: 600; color: var(--sprv-ink);
+  margin: 2px 0 7px; }
+.sprv-macro-date { font-size: 11.5px; font-weight: 400; color: var(--sprv-ink-3); margin-left: 6px; }

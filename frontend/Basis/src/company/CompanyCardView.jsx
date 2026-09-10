@@ -1822,6 +1822,13 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
   const b = data.bond;
   const r = RISK_TIER_BADGE[b.risk_tier] || { tone: "neutral", label: "Нет оценки" };
   const faceRub = b.face_value && b.last_price ? (b.face_value * b.last_price / 100) : null;
+  // 🔴 Выпуск, по которому сегодня не было сделок (или оборот меньше 50 000 ₽), — это не
+  // «дешёвая бумага», а отсутствие рынка: последняя отметка может быть месячной давности.
+  // Владелец поймал на структурной ноте с ценой 0,2% номинала (11.09.2026). Пока поля
+  // ликвидности не приехали (null), считаем бумагу торгуемой — молчаливое «не торгуется»
+  // на всём подряд хуже отсутствия предупреждения.
+  const bIlliquid = (b.num_trades != null || b.val_today != null)
+    && ((b.num_trades || 0) === 0 || (b.val_today || 0) < 50000);
   const horizon = b.offer_date || b.maturity_date;
   const ytmKind = b.ytm_kind || (b.offer_date ? "к оферте" : "к погашению");
   const couponBadge = COUPON_BADGE[b.coupon_type];
@@ -2135,7 +2142,9 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
           {[
             ["Купон", b.coupon_percent != null ? `${fmtNumber(b.coupon_percent, { decimals: 2 })}% годовых` : "—"],
             ["Номинал", b.face_value != null ? `${fmtNumber(b.face_value, { decimals: 0 })} ${b.currency || "₽"}` : "—"],
-            ["Цена", b.last_price != null ? `${fmtNumber(b.last_price, { decimals: 1 })}%${faceRub ? ` ≈ ${fmtNumber(faceRub, { decimals: 0 })} ₽` : ""}` : "—"],
+            ["Цена", b.last_price == null ? "—"
+              : `${fmtNumber(b.last_price, { decimals: 1 })}%${faceRub ? ` ≈ ${fmtNumber(faceRub, { decimals: 0 })} ₽` : ""}`
+                + (bIlliquid ? " · последняя отметка, выпуск не торгуется" : "")],
             ["НКД", b.accrued_int != null ? `${fmtNumber(b.accrued_int, { decimals: 2 })} ₽` : "—"],
             ["Погашение", b.maturity_date || "—"],
             ["Оферта (put/call)", b.offer_date || "нет"],
@@ -2147,7 +2156,16 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
             </div>
           ))}
         </div>
-        {faceRub && b.accrued_int != null && (
+        {bIlliquid && (
+          <div className="ic-callout" style={{ marginTop: 12 }}>
+            <b>Выпуск фактически не торгуется.</b>
+            <span className="tw-text-text-secondary"> Сделок за день{b.num_trades != null ? `: ${b.num_trades}` : " нет"}
+              {b.val_today != null ? `, оборот ${fmtNumber(b.val_today, { decimals: 0 })} ₽` : ""}. Цена выше —
+              последняя отметка в стакане, а не рыночная: купить или продать по ней может быть не у кого,
+              а доходность, посчитанная от такой цены, ничего не значит.</span>
+          </div>
+        )}
+        {faceRub && b.accrued_int != null && !bIlliquid && (
           <div className="ic-callout" style={{ marginTop: 12 }}>
             <b>К оплате за бумагу ≈ {fmtNumber(faceRub + Number(b.accrued_int), { decimals: 0 })} ₽</b>
             <span className="tw-text-text-secondary"> = цена {fmtNumber(b.last_price, { decimals: 1 })}% ({fmtNumber(faceRub, { decimals: 0 })} ₽) + НКД {fmtNumber(b.accrued_int, { decimals: 2 })} ₽.</span>
@@ -2552,8 +2570,8 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
                 {ts.shape === "flat" && <>Кривая почти плоская: заметной стоимости удержания между сериями нет.</>}
               </p>
               <p className="ic-body">
-                {ts.shape === "contango" && <>Держать длинную позицию с переносом на следующую серию стоит денег — примерно {ts.annualized_pct != null ? `${fmtNumber(ts.annualized_pct, { decimals: 1 })}% годовых` : `${fmtNumber(ts.diff_pct, { decimals: 2 })}% за период`}. Для валюты и металлов при высокой ставке это нормальное состояние.</>}
-                {ts.shape === "backwardation" && <>Обычно означает, что актив сейчас в дефиците или дорог «здесь и сейчас»; у акций так бывает перед дивидендом. Перенос длинной позиции при этом даёт выигрыш — около {ts.annualized_pct != null ? `${fmtNumber(ts.annualized_pct, { decimals: 1 })}% годовых` : `${fmtNumber(ts.diff_pct, { decimals: 2 })}% за период`}.</>}
+                {ts.shape === "contango" && <>Держать длинную позицию с переносом на следующую серию стоит денег — примерно {ts.annualized_pct != null ? `${fmtNumber(ts.annualized_pct, { decimals: 1 })}% годовых` : `${fmtNumber(ts.diff_pct, { decimals: 2 })}% за период`}. Для валюты и металлов при высокой ставке это нормальное состояние.{ts.carry_month_rub ? <> В деньгах это примерно <b>{fmtNumber(ts.carry_month_rub, { decimals: 0 })} ₽ за месяц</b> на один контракт — столько стоит просто держать позицию, до всякого движения цены.</> : null}</>}
+                {ts.shape === "backwardation" && <>Обычно означает, что актив сейчас в дефиците или дорог «здесь и сейчас»; у акций так бывает перед дивидендом. Перенос длинной позиции при этом даёт выигрыш — около {ts.annualized_pct != null ? `${fmtNumber(ts.annualized_pct, { decimals: 1 })}% годовых` : `${fmtNumber(ts.diff_pct, { decimals: 2 })}% за период`}.{ts.carry_month_rub ? <> В деньгах — порядка <b>{fmtNumber(Math.abs(ts.carry_month_rub), { decimals: 0 })} ₽ за месяц</b> в вашу пользу на один контракт.</> : null}</>}
                 {ts.shape === "flat" && <>Переносить позицию между сериями почти ничего не стоит.</>}
               </p>
               <div className="ic-strip">
@@ -2711,6 +2729,63 @@ const FundCard = ({ secid, onBack }) => {
           <div className="tw-text-[13px] tw-text-text-secondary">Комиссия этого фонда <b>не публикуется на MOEX</b> — уточните на сайте управляющей компании. В РФ TER биржевых фондов обычно <b>0,5–1% годовых</b>, и именно она — главный фактор отставания фонда от индекса на длинном горизонте. Basis добавляет TER по мере сбора данных по фондам; для сравнения комиссий уже доступны крупнейшие фонды каждого типа.</div>
         </section>
       )}
+
+      {/* 🔴 Кодовый слой (backend/app/services/fund_metrics.py, владелец 11.09.2026:
+          «сделай кодовый слой»). Ручных разборов было 4 на 104 фонда — такое покрытие не
+          живёт. Здесь всё считается от котировок при каждом открытии карточки, поэтому
+          работает для любого фонда, а не для избранных. */}
+      {(() => {
+        const m = data["метрики"];
+        if (!m) return null;
+        const tr = m["слежение"];
+        const ret = m["доходность"];
+        if (!tr && !ret) return null;
+        return (
+          <section className="ic-card">
+            <h3><span>Честно ли фонд делает свою работу</span>
+              <span className="ic-tag ic-tag--est">оценка</span></h3>
+            {ret && ret["значения_проц"] && (
+              <div className="ic-kpi" style={{ marginBottom: 10 }}>
+                {Object.entries(ret["значения_проц"]).map(([k, v]) => (
+                  <Tile key={k} caption={`Доходность за ${k}`}>
+                    <span className={`ic-kpi-num ${v >= 0 ? "ic-up" : "ic-down"}`}>
+                      {v >= 0 ? "+" : ""}{fmtNumber(v, { decimals: 2 })}%
+                    </span>
+                  </Tile>
+                ))}
+              </div>
+            )}
+            {tr && tr["есть"] && (
+              <>
+                <div className="ic-body">
+                  За период {tr["период"]} фонд дал <b>{fmtNumber(tr["фонд_проц"], { decimals: 2 })}%</b>,
+                  его ориентир ({tr["бенчмарк"]}) — <b>{fmtNumber(tr["бенчмарк_проц"], { decimals: 2 })}%</b>.
+                  Разница <b>{tr["отставание_проц"] >= 0 ? "+" : ""}{fmtNumber(tr["отставание_проц"], { decimals: 2 })} п.п.</b>
+                  {tr["отставание_годовых_проц"] != null
+                    ? ` (${tr["отставание_годовых_проц"] >= 0 ? "+" : ""}${fmtNumber(tr["отставание_годовых_проц"], { decimals: 2 })} п.п. в год)`
+                    : ""}.
+                  {tr["ошибка_слежения_годовых_проц"] != null
+                    ? ` Ошибка слежения — ${fmtNumber(tr["ошибка_слежения_годовых_проц"], { decimals: 2 })}% годовых.`
+                    : ""}
+                </div>
+                <div className="ic-note">
+                  Отставание показывает, во что обошлось владение фондом против самого
+                  ориентира: сюда попадает и комиссия, и качество управления. Ошибка
+                  слежения — насколько неровно фонд повторяет ориентир день ото дня.
+                  Расчёт Basis по котировкам: российские УК не обязаны раскрывать этот
+                  показатель. Не рекомендация.
+                </div>
+              </>
+            )}
+            {tr && !tr["есть"] && (
+              <div className="ic-note">
+                Сравнить с ориентиром пока нельзя: {tr["data_flag"]}.
+                {tr["бенчмарк"] ? ` Ориентир для этого типа — ${tr["бенчмарк"]}.` : ""}
+              </div>
+            )}
+          </section>
+        );
+      })()}
 
       {summary && (
         <section className="ic-card"><h3><span>Разбор аналитика</span></h3>

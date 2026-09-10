@@ -1574,6 +1574,15 @@ export default function App() {
             onSlugChange={(slug) => { setGuideSlug(slug); syncUrl({ view: "guide", article: slug || undefined }); }}
             onOpenCompany={(ticker, tab) => { setInitialCardTab(tab || "business"); selectCompany(ticker); }}
             onOpenScreener={() => navigate("screener")}
+            // Показатель открываем НА ЕГО МЕСТЕ в Обозревателе, а не «раздел целиком»:
+            // человек кликнул по инфляции — он должен увидеть её график, а не экран из
+            // полусотни плиток. Тот же механизм, что у страниц /statistika/<слаг>/.
+            onOpenIndicator={(code) => {
+              setForceEconIndicator(code);
+              setForceObsSection("economy");
+              setActiveTab("overview");
+              syncUrl({ view: "overview", obs: "economy" });
+            }}
           />
         );
       case "screener":

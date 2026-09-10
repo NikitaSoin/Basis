@@ -43,7 +43,7 @@ BONDS_URL = ("https://iss.moex.com/iss/engines/stock/markets/bonds/boards/{board
              "?iss.meta=off&iss.only=securities,marketdata"
              "&securities.columns=SECID,SHORTNAME,ISIN,MATDATE,OFFERDATE,COUPONVALUE,COUPONPERCENT,"
              "COUPONPERIOD,FACEVALUE,FACEUNIT,ACCRUEDINT,LOTSIZE,LISTLEVEL,SECTYPE,EMITENT_TITLE"
-             "&marketdata.columns=SECID,LAST,LCURRENTPRICE,YIELD,DURATION")
+             "&marketdata.columns=SECID,LAST,LCURRENTPRICE,YIELD,DURATION,NUMTRADES,VALTODAY")
 ZCYC_URL = "https://iss.moex.com/iss/engines/stock/zcyc.json?iss.meta=off&iss.only=yearyields"
 
 
@@ -56,6 +56,13 @@ def _get(url: str) -> dict:
 def _f(v):
     try:
         return float(v) if v not in (None, "") else None
+    except (ValueError, TypeError):
+        return None
+
+
+def _i(v):
+    try:
+        return int(v) if v not in (None, "") else None
     except (ValueError, TypeError):
         return None
 
@@ -474,12 +481,12 @@ _UPSERT = text("""
         face_value, coupon_percent, coupon_value, coupon_period, maturity_date, offer_date,
         has_amortization, lot_size, listing_level, last_price, ytm, duration_days, accrued_int,
         coupon_type, ytm_kind, is_defaulted, risk_tier, spread_bp, floater_spread_bp, agency_rating,
-        agency_rating_source, updated_at)
+        agency_rating_source, num_trades, val_today, updated_at)
     VALUES (:secid, :isin, :short_name, :issuer_name, :issuer_ticker, :bond_type, :board, :currency,
         :face_value, :coupon_percent, :coupon_value, :coupon_period, :maturity_date, :offer_date,
         :has_amortization, :lot_size, :listing_level, :last_price, :ytm, :duration_days, :accrued_int,
         :coupon_type, :ytm_kind, :is_defaulted, :risk_tier, :spread_bp, :floater_spread_bp, :agency_rating,
-        :agency_rating_source, :updated_at)
+        :agency_rating_source, :num_trades, :val_today, :updated_at)
     ON CONFLICT (secid) DO UPDATE SET
         short_name=EXCLUDED.short_name, issuer_name=EXCLUDED.issuer_name,
         issuer_ticker=EXCLUDED.issuer_ticker, bond_type=EXCLUDED.bond_type,
@@ -490,6 +497,7 @@ _UPSERT = text("""
         lot_size=EXCLUDED.lot_size, listing_level=EXCLUDED.listing_level,
         last_price=EXCLUDED.last_price, ytm=EXCLUDED.ytm, duration_days=EXCLUDED.duration_days,
         accrued_int=EXCLUDED.accrued_int, coupon_type=EXCLUDED.coupon_type, ytm_kind=EXCLUDED.ytm_kind,
+        num_trades=EXCLUDED.num_trades, val_today=EXCLUDED.val_today,
         is_defaulted=EXCLUDED.is_defaulted, risk_tier=EXCLUDED.risk_tier, spread_bp=EXCLUDED.spread_bp,
         floater_spread_bp=EXCLUDED.floater_spread_bp,
         agency_rating=EXCLUDED.agency_rating, agency_rating_source=EXCLUDED.agency_rating_source,
@@ -569,6 +577,14 @@ def upsert_bond(db: Session, rec: dict, curve: list,
         "has_amortization": False, "lot_size": int(s["LOTSIZE"]) if s.get("LOTSIZE") else None,
         "listing_level": int(s["LISTLEVEL"]) if s.get("LISTLEVEL") else None,
         "last_price": _f(m.get("LCURRENTPRICE") or m.get("LAST")), "ytm": ytm,
+        # 🔴 ЛИКВИДНОСТЬ ТЯНЕМ ВМЕСТЕ С ЦЕНОЙ (11.09.2026, владелец: «цена облигации
+        # 0,2 процента, что за бред»). Проверка показала: цена настоящая — MOEX отдаёт
+        # LCURRENTPRICE 0,2% номинала по структурной ноте СбКИБ1P286. Только бумага
+        # НЕ ТОРГУЕТСЯ: ноль сделок неделями, одна сделка за месяц. Мы показывали эту
+        # котировку как «рыночную цену» и считали от неё «цену входа 2,00 ₽» — число
+        # честное по источнику и бессмысленное по существу. Отличить такое можно только
+        # по числу сделок и обороту, а их мы раньше не забирали.
+        "num_trades": _i(m.get("NUMTRADES")), "val_today": _f(m.get("VALTODAY")),
         "duration_days": dur_days, "accrued_int": _f(s.get("ACCRUEDINT")),
         "coupon_type": meta.get("coupon_type"), "ytm_kind": meta.get("ytm_kind"),
         "is_defaulted": is_defaulted,

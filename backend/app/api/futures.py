@@ -204,6 +204,14 @@ def get_future(secid: str, db: Session = Depends(get_db)):
                 "next": {"short_name": nxt["short_name"], "expiration_date": nxt.get("expiration_date"), "settle": nxt["settle_price"]},
                 "diff_pct": round(diff_pct, 2),
                 "annualized_pct": ann,   # «годовая стоимость удержания», оценка
+                # 🔴 ПЕРЕВОДИМ ПРОЦЕНТЫ В РУБЛИ (11.09.2026). «Контанго 7,3% годовых»
+                # ничего не говорит человеку, который вносит ГО в 12 тысяч: непонятно, во
+                # что это обходится ЕМУ. Считаем от номинала контракта (движение и carry
+                # идут с полной стоимости, а не с залога) за месяц удержания — это и есть
+                # цена переноса позиции. Оценка: фактическая стоимость роллирования
+                # зависит от спреда в момент сделки.
+                "carry_month_rub": (round(near["settle_price"] * ann / 100 / 12)
+                                    if ann is not None and near.get("settle_price") else None),
                 "series": [{"short_name": s["short_name"], "expiration_date": s.get("expiration_date"),
                             "settle": s.get("settle_price"), "days_to_expiry": s.get("days_to_expiry")} for s in series],
                 "certainty": "факт (форма) / оценка (годовая)",
