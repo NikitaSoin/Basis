@@ -19,7 +19,9 @@
  * 🔴 ДВА ПРЕДОХРАНИТЕЛЯ, без которых автозапуск опаснее ручного:
  *   1. --soft (режим сборки): сеть недоступна или API ответил ошибкой → печатаем и
  *      выходим с кодом 0, оставляя ПРЕЖНИЕ снапшоты. Деплой не должен падать из-за
- *      того, что бэкенд в этот момент перезапускался.
+ *      того, что бэкенд в этот момент перезапускался. Сюда же — таймаут на каждый
+ *      запрос и общий бюджет на весь шаг: «упасть» шаг внутри сборки умеет безопасно,
+ *      а вот ВИСЕТЬ — нет, повисший запрос останавливает деплой целиком.
  *   2. Пол по объёму: снапшот перезаписывается, только если строк не меньше 70% от
  *      того, что уже лежит. Пустой или обрезанный ответ API иначе молча снёс бы
  *      тысячи страниц — сборка при этом осталась бы зелёной.
@@ -42,11 +44,35 @@ const MIN_KEEP_RATIO = 0.7;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// 🔴 ТАЙМАУТ ОБЯЗАТЕЛЕН, РАЗ ШАГ ВНУТРИ СБОРКИ. Без него зависший запрос вешает не
+// скрипт, а ВЕСЬ деплой: сборка стоит, старая версия остаётся на бою, и понять причину
+// снаружи нельзя — логи билд-окружения Timeweb через прокси отдаются не всегда. Поэтому
+// у каждого запроса свой предел, а у шага целиком — общий дедлайн ниже.
+const REQ_TIMEOUT_MS = 25000;
+const TOTAL_BUDGET_MS = 150000;
+const startedAt = Date.now();
+
 async function getJson(urlPath) {
+  if (Date.now() - startedAt > TOTAL_BUDGET_MS) {
+    throw new Error(`общий бюджет ${Math.round(TOTAL_BUDGET_MS / 1000)} с исчерпан`);
+  }
   const url = API + urlPath;
-  const res = await fetch(url, { headers: { "Accept-Encoding": "gzip" } });
-  if (!res.ok) throw new Error(`${urlPath} → HTTP ${res.status}`);
-  return res.json();
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), REQ_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, {
+      headers: { "Accept-Encoding": "gzip" }, signal: ctl.signal,
+    });
+    if (!res.ok) throw new Error(`${urlPath} → HTTP ${res.status}`);
+    return await res.json();
+  } catch (e) {
+    if (e && e.name === "AbortError") {
+      throw new Error(`${urlPath} → нет ответа за ${REQ_TIMEOUT_MS / 1000} с`);
+    }
+    throw e;
+  } finally {
+    clearTimeout(t);
+  }
 }
 
 // Поля облигации, которые реально нужны страницам (чуть худеем снапшот: id/board
