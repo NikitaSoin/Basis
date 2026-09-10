@@ -184,7 +184,8 @@ def _c_profit_vs_revenue(subject: str, payload: dict) -> Iterable[CheckOutcome]:
     извлечении (модель отдала млрд там, где карточка в млн)."""
     card = payload["card"]
     if card.get("bank_pnl") or card.get("bank_balance"):
-        yield skip(C_PROFIT_VS_REVENUE, subject, "банк: строка «выручка» иная по смыслу")
+        yield skip(C_PROFIT_VS_REVENUE, subject, "банк: строка «выручка» иная по смыслу",
+                   by_design=True)
         return
     rev = by_year(card, "income_statement", "revenue")
     npr = by_year(card, "income_statement", "net_profit")
@@ -499,4 +500,4 @@ CHECKS: list[Check] = [C_ARITHMETIC, C_PROFIT_VS_REVENUE, C_SOURCE_MATCH,
 
 # Версия набора: меняется при добавлении/изменении проверок. Прогоны с разными
 # версиями сравнивать НЕЛЬЗЯ — иначе «качество выросло» окажется «проверок стало меньше».
-CHECKS_VERSION = "fin-1.2"  # 1.2: сверка стыков по payload + само-проба «сравнила ли она что-нибудь»
+CHECKS_VERSION = "fin-1.3"  # 1.3: пропуск-норма (банк вне «выручки») не режет покрытие

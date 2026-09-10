@@ -145,7 +145,8 @@ def _c_has_timestamp(subject: str, payload: dict) -> Iterable[CheckOutcome]:
     if subject in IMMUTABLE_ARTIFACTS:
         yield skip(C_HAS_TIMESTAMP, subject,
                    "реестр адресов, а не снимок данных: отметка времени по смыслу не нужна "
-                   "(и не помещается — плоская структура, ключи верхнего уровня суть записи)")
+                   "(и не помещается — плоская структура, ключи верхнего уровня суть записи)",
+                   by_design=True)
         return
     if fetched_at(doc) is None:
         yield fail(C_HAS_TIMESTAMP, subject,
@@ -159,7 +160,7 @@ def _c_freshness(subject: str, payload: dict) -> Iterable[CheckOutcome]:
     if subject in IMMUTABLE_ARTIFACTS:
         yield skip(C_SNAP_FRESHNESS, subject,
                    "реестр адресов: его назначение — НЕ меняться, старая запись здесь "
-                   "признак исправной работы")
+                   "признак исправной работы", by_design=True)
         return
     stamp = fetched_at(doc)
     if stamp is None:
@@ -220,13 +221,24 @@ def _c_age_spread(subject: str, payload: dict) -> Iterable[CheckOutcome]:
     ловит. Половина папки свежая, половина месячной давности → сломан не
     источник, а шаг обновления."""
     if subject in IMMUTABLE_ARTIFACTS:
-        yield skip(C_AGE_SPREAD, subject, "реестр адресов, в когорту не входит")
+        yield skip(C_AGE_SPREAD, subject, "реестр адресов, в когорту не входит", by_design=True)
         return
     stamp = fetched_at(payload["doc"])
     if stamp is None:
         yield skip(C_AGE_SPREAD, subject, "нет отметки времени (см. snap.has_timestamp)")
         return
-    others = sorted(cohort_ages(exclude={subject}).values())
+    # Когорта — файлы с ТЕМ ЖЕ ритмом обновления (одинаковый порог свежести), а
+    # не весь каталог: в scripts/data лежат и биржевые срезы, и справочники, и
+    # реестры, и медиана по каталогу смешала бы разные ритмы. Каталог целиком —
+    # запасной вариант, когда своя группа слишком мала (предупреждение сессии
+    # «SEO: свежесть», 11.09.2026).
+    ages = cohort_ages(exclude={subject})
+    limit = MAX_AGE_DAYS.get(subject, DEFAULT_MAX_AGE_DAYS)
+    same_rhythm = {n: a for n, a in ages.items()
+                   if MAX_AGE_DAYS.get(n, DEFAULT_MAX_AGE_DAYS) == limit}
+    basis = "группе того же ритма" if len(same_rhythm) >= MIN_COHORT else "папке"
+    pool = same_rhythm if len(same_rhythm) >= MIN_COHORT else ages
+    others = sorted(pool.values())
     if len(others) < MIN_COHORT:
         yield skip(C_AGE_SPREAD, subject, f"соседей с отметкой времени всего {len(others)}")
         return
@@ -234,11 +246,11 @@ def _c_age_spread(subject: str, payload: dict) -> Iterable[CheckOutcome]:
     age = (datetime.now(timezone.utc) - stamp).days
     if age - median > MAX_SPREAD_DAYS:
         yield fail(C_AGE_SPREAD, subject,
-                   f"отстал от соседей по папке: {age} дн. против медианных {median} дн. "
+                   f"отстал от соседей по {basis}: {age} дн. против медианных {median} дн. "
                    f"— похоже, сломан шаг обновления, а не источник",
-                   age_days=age, median_days=median, cohort=len(others))
+                   age_days=age, median_days=median, cohort=len(others), basis=basis)
     else:
-        yield ok(C_AGE_SPREAD, subject, age_days=age, median_days=median)
+        yield ok(C_AGE_SPREAD, subject, age_days=age, median_days=median, basis=basis)
 
 
 C_HAS_TIMESTAMP = Check("snap.has_timestamp", "У снапшота есть отметка времени", Severity.HARD,
@@ -258,7 +270,7 @@ C_AGE_SPREAD = Check("snap.age_spread", "Снапшот не отстал от �
 
 CHECKS: list[Check] = [C_HAS_TIMESTAMP, C_SNAP_FRESHNESS, C_AGE_SPREAD,
                        C_NOT_EMPTY, C_DECLARED_COUNT]
-CHECKS_VERSION = "snap-1.1"  # 1.1: реестр адресов вне свежести, разброс по папке
+CHECKS_VERSION = "snap-1.2"  # 1.2: пропуск-норма не режет покрытие; когорта по ритму обновления
 
 
 def subjects() -> list[str]:

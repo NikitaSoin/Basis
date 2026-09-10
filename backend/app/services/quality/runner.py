@@ -67,7 +67,8 @@ def run(pipeline: str = "financials", *, limit: int | None = None,
 
     subjects = list_subjects(pipeline, limit=limit, only=only)
     stats = {c.check_id: {"title": c.title, "severity": c.severity.value,
-                          "ok": 0, "fail": 0, "skip": 0} for c in checks}
+                          "ok": 0, "fail": 0, "skip": 0, "skip_by_design": 0}
+             for c in checks}
     hard_hit: set[str] = set()
     soft_hit: set[str] = set()
     unreadable = 0
@@ -82,6 +83,8 @@ def run(pipeline: str = "financials", *, limit: int | None = None,
             for outcome in check.run(subject, payload):
                 res.outcomes.append(outcome)
                 stats[check.check_id][outcome.status.value] += 1
+                if outcome.skipped_by_design:
+                    stats[check.check_id]["skip_by_design"] += 1
                 if outcome.status is Status.FAIL:
                     (hard_hit if check.severity is Severity.HARD else soft_hit).add(subject)
 
@@ -94,7 +97,12 @@ def run(pipeline: str = "financials", *, limit: int | None = None,
     for check in checks:
         s = stats[check.check_id]
         ran = s["ok"] + s["fail"]
-        s["coverage"] = round(ran / len(subjects), 4)
+        # 🔴 Субъекты, законно выведенные из охвата, из знаменателя исключаются:
+        # иначе покрытие штрафует за правильное устройство системы. Слепые же
+        # пропуски («проверять было нечем») остаются в знаменателе и режут его.
+        in_scope = max(len(subjects) - s["skip_by_design"], 1)
+        s["coverage"] = round(ran / in_scope, 4)
+        s["in_scope"] = in_scope
         s["fail_rate"] = round(s["fail"] / ran, 4) if ran else None
         covered_total += s["coverage"]
     res.per_check = stats

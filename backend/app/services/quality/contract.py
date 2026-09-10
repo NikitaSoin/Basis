@@ -19,7 +19,7 @@ from typing import Any, Callable, Iterable
 class Status(str, Enum):
     OK = "ok"        # проверка отработала, дефекта нет
     FAIL = "fail"    # проверка отработала, дефект есть
-    SKIP = "skip"    # проверять было нечего (нет данных) — НЕ считается за «ок»
+    SKIP = "skip"    # проверка не выносила вердикта — НЕ считается за «ок»
 
 
 class Severity(str, Enum):
@@ -39,6 +39,11 @@ class CheckOutcome:
     @property
     def failed(self) -> bool:
         return self.status is Status.FAIL
+
+    @property
+    def skipped_by_design(self) -> bool:
+        """Пропуск-норма (субъект законно вне охвата), а не пропуск-слепота."""
+        return self.status is Status.SKIP and bool(self.evidence.get("by_design"))
 
     def as_dict(self) -> dict[str, Any]:
         return {"check_id": self.check_id, "subject": self.subject,
@@ -74,5 +79,20 @@ def fail(check: Check, subject: str, message: str, **evidence) -> CheckOutcome:
     return CheckOutcome(check.check_id, subject, Status.FAIL, check.severity, message, evidence)
 
 
-def skip(check: Check, subject: str, message: str = "нет данных", **evidence) -> CheckOutcome:
-    return CheckOutcome(check.check_id, subject, Status.SKIP, check.severity, message, evidence)
+def skip(check: Check, subject: str, message: str = "нет данных", *,
+         by_design: bool = False, **evidence) -> CheckOutcome:
+    """Пропуск. 🔴 У пропуска ДВЕ РАЗНЫЕ природы, и путать их нельзя:
+
+    by_design=False — «проверять было НЕЧЕМ»: данных нет, формат не распознан,
+        проза без чисел. Это слепая зона, её надо чинить, и она обязана снижать
+        покрытие — иначе прогон отчитается зелёным о пустоте.
+    by_design=True  — «проверять по смыслу НЕ НУЖНО»: субъект законно вне охвата
+        (реестр адресов не обязан быть свежим, у банка нет строки «выручка»).
+        Это норма, её надо объяснять, и покрытие она снижать не должна —
+        иначе показатель штрафует за правильное устройство системы.
+
+    Различение появилось 11.09.2026 в разборе с сессией «SEO: свежесть»:
+    report-slugs.json попал в находки как «протухший», хотя его назначение —
+    ровно НЕ меняться."""
+    return CheckOutcome(check.check_id, subject, Status.SKIP, check.severity, message,
+                        {**evidence, "by_design": by_design} if by_design else evidence)
