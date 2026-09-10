@@ -193,6 +193,9 @@ SNAPSHOT_MUTATIONS: list[MutationCase] = [
     MutationCase("m.snap_nostamp", "snap.has_timestamp", "отметка времени пропала", m_snap_no_stamp),
     MutationCase("m.snap_empty", "snap.not_empty", "источник вернул ноль записей", m_snap_empty),
     MutationCase("m.snap_count", "snap.declared_count", "объявлено на 25 записей больше", m_snap_count_drift),
+    # та же поломка, но спрашиваем с другой проверки: заметит ли она отставание
+    # от СОСЕДЕЙ по папке, а не превышение собственного порога
+    MutationCase("m.snap_lag", "snap.age_spread", "отстал от соседей по папке на полгода", m_snap_stale),
 ]
 
 def m_prose_drift(card: dict) -> dict:

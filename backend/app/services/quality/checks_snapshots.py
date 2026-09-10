@@ -19,6 +19,8 @@ from typing import Any, Iterable
 
 from app.services.quality.contract import Check, CheckOutcome, Severity, fail, ok, skip
 
+_COHORT: dict[str, int] | None = None
+
 ROOT = Path(__file__).resolve().parents[4]
 SNAPSHOT_DIR = ROOT / "frontend" / "Basis" / "scripts" / "data"
 
@@ -55,6 +57,23 @@ MIN_ROWS: dict[str, int] = {
     "news-snapshot.json": 20, "earnings-snapshot.json": 20,
 }
 DEFAULT_MIN_ROWS = 1
+
+# 🔴 Артефакты, которым свежесть по смыслу НЕ нужна. report-slugs.json — не
+# снимок данных, а РЕЕСТР АДРЕСОВ («TICKER|дата|тип» → слаг страницы разбора):
+# его назначение ровно в том, чтобы не меняться, иначе проиндексированные
+# страницы начнут переезжать. Старая запись здесь — признак исправной работы,
+# а не протухания. Отдельно: структура плоская, ключи верхнего уровня — сами
+# записи реестра, поэтому дописать туда «fetched_at» нельзя: потребитель обойдёт
+# Object.entries и примет отметку за ещё один занятый слаг.
+# (Разобрано с сессией «SEO: свежесть», 11.09.2026.)
+IMMUTABLE_ARTIFACTS = {"report-slugs.json"}
+
+# Насколько субъект может отстать от МЕДИАНЫ по папке, прежде чем это станет
+# находкой. Наблюдение той же сессии: у bonds/funds/futures/spot возраст был
+# 45 дней, а у соседних файлов — сутки. Разброс внутри папки говорит, что сломан
+# не источник, а шаг обновления, — и виден даже там, где абсолютный порог высок.
+MAX_SPREAD_DAYS = 14
+MIN_COHORT = 3
 
 
 def snapshot_files() -> list[str]:
@@ -99,6 +118,22 @@ def row_count(doc: Any) -> int | None:
 
 # ─────────────────────────── проверки ───────────────────────────
 
+def cohort_ages(exclude: set[str] | None = None) -> dict[str, int]:
+    """Возраст в днях по всем снапшотам папки, у которых есть отметка времени."""
+    global _COHORT
+    if _COHORT is None:
+        ages: dict[str, int] = {}
+        now = datetime.now(timezone.utc)
+        for name in snapshot_files():
+            if name in IMMUTABLE_ARTIFACTS:
+                continue
+            stamp = fetched_at(load_snapshot(name))
+            if stamp is not None:
+                ages[name] = (now - stamp).days
+        _COHORT = ages
+    return {k: v for k, v in _COHORT.items() if not exclude or k not in exclude}
+
+
 def _c_has_timestamp(subject: str, payload: dict) -> Iterable[CheckOutcome]:
     """🔴 Отсутствие отметки времени — НАХОДКА, а не «нечего проверять».
     Артефакт без возраста нельзя признать ни свежим, ни протухшим; именно в этой
@@ -106,6 +141,11 @@ def _c_has_timestamp(subject: str, payload: dict) -> Iterable[CheckOutcome]:
     doc = payload["doc"]
     if doc is None:
         yield fail(C_HAS_TIMESTAMP, subject, "файл не читается как JSON")
+        return
+    if subject in IMMUTABLE_ARTIFACTS:
+        yield skip(C_HAS_TIMESTAMP, subject,
+                   "реестр адресов, а не снимок данных: отметка времени по смыслу не нужна "
+                   "(и не помещается — плоская структура, ключи верхнего уровня суть записи)")
         return
     if fetched_at(doc) is None:
         yield fail(C_HAS_TIMESTAMP, subject,
@@ -116,6 +156,11 @@ def _c_has_timestamp(subject: str, payload: dict) -> Iterable[CheckOutcome]:
 
 def _c_freshness(subject: str, payload: dict) -> Iterable[CheckOutcome]:
     doc, today = payload["doc"], payload["today"]
+    if subject in IMMUTABLE_ARTIFACTS:
+        yield skip(C_SNAP_FRESHNESS, subject,
+                   "реестр адресов: его назначение — НЕ меняться, старая запись здесь "
+                   "признак исправной работы")
+        return
     stamp = fetched_at(doc)
     if stamp is None:
         yield skip(C_SNAP_FRESHNESS, subject, "нет отметки времени (см. snap.has_timestamp)")
@@ -168,6 +213,34 @@ def _c_declared_count(subject: str, payload: dict) -> Iterable[CheckOutcome]:
         yield ok(C_DECLARED_COUNT, subject, count=actual)
 
 
+def _c_age_spread(subject: str, payload: dict) -> Iterable[CheckOutcome]:
+    """Отставание от соседей по папке.
+
+    Абсолютный порог не ловит случай, когда у файла он законно высок; разброс —
+    ловит. Половина папки свежая, половина месячной давности → сломан не
+    источник, а шаг обновления."""
+    if subject in IMMUTABLE_ARTIFACTS:
+        yield skip(C_AGE_SPREAD, subject, "реестр адресов, в когорту не входит")
+        return
+    stamp = fetched_at(payload["doc"])
+    if stamp is None:
+        yield skip(C_AGE_SPREAD, subject, "нет отметки времени (см. snap.has_timestamp)")
+        return
+    others = sorted(cohort_ages(exclude={subject}).values())
+    if len(others) < MIN_COHORT:
+        yield skip(C_AGE_SPREAD, subject, f"соседей с отметкой времени всего {len(others)}")
+        return
+    median = others[len(others) // 2]
+    age = (datetime.now(timezone.utc) - stamp).days
+    if age - median > MAX_SPREAD_DAYS:
+        yield fail(C_AGE_SPREAD, subject,
+                   f"отстал от соседей по папке: {age} дн. против медианных {median} дн. "
+                   f"— похоже, сломан шаг обновления, а не источник",
+                   age_days=age, median_days=median, cohort=len(others))
+    else:
+        yield ok(C_AGE_SPREAD, subject, age_days=age, median_days=median)
+
+
 C_HAS_TIMESTAMP = Check("snap.has_timestamp", "У снапшота есть отметка времени", Severity.HARD,
                         _c_has_timestamp,
                         "Слепая зона: без fetched_at возраст данных не измерить")
@@ -179,8 +252,13 @@ C_NOT_EMPTY = Check("snap.not_empty", "Снапшот наполнен", Severit
 C_DECLARED_COUNT = Check("snap.declared_count", "Объявленное count совпадает с файлом", Severity.SOFT,
                          _c_declared_count, "Лог считал массив, а не файл — расхождение на 25 записей")
 
-CHECKS: list[Check] = [C_HAS_TIMESTAMP, C_SNAP_FRESHNESS, C_NOT_EMPTY, C_DECLARED_COUNT]
-CHECKS_VERSION = "snap-1.0"
+C_AGE_SPREAD = Check("snap.age_spread", "Снапшот не отстал от соседей", Severity.HARD,
+                     _c_age_spread,
+                     "45 дней у части файлов при сутках у соседних — сломан шаг обновления")
+
+CHECKS: list[Check] = [C_HAS_TIMESTAMP, C_SNAP_FRESHNESS, C_AGE_SPREAD,
+                       C_NOT_EMPTY, C_DECLARED_COUNT]
+CHECKS_VERSION = "snap-1.1"  # 1.1: реестр адресов вне свежести, разброс по папке
 
 
 def subjects() -> list[str]:

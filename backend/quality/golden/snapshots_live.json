@@ -1,8 +1,10 @@
 {
   "_описание": "Живые кейсы пайплайна снапшотов: реальные файлы с вручную подтверждённым вердиктом.",
   "cases": [
-    {"case_id": "l.slugs.nostamp", "ticker": "report-slugs.json", "check_id": "snap.has_timestamp", "expect": "fail",
-     "why": "файл — плоский словарь без meta и fetched_at: возраст данных измерить нечем, это слепая зона, а не «нет данных»"},
+    {"case_id": "l.slugs.exempt", "ticker": "report-slugs.json", "check_id": "snap.has_timestamp", "expect": "skip",
+     "why": "РЕЕСТР АДРЕСОВ, а не снимок данных: назначение файла — не меняться, иначе проиндексированные страницы разборов переезжают; отметку времени туда и не вписать — структура плоская, ключи верхнего уровня суть записи, и «fetched_at» потребитель примет за занятый слаг (разобрано с сессией «SEO: свежесть»)"},
+    {"case_id": "l.slugs.rows", "ticker": "report-slugs.json", "check_id": "snap.not_empty", "expect": "ok",
+     "why": "наполненность реестра проверять и нужно, и можно — в отличие от возраста"},
     {"case_id": "l.bonds.stamp", "ticker": "bonds-snapshot.json", "check_id": "snap.has_timestamp", "expect": "ok",
      "why": "fetched_at лежит в корне файла — тот формат, который пишет fetch-seo-snapshots.js"},
     {"case_id": "l.bonds.rows", "ticker": "bonds-snapshot.json", "check_id": "snap.not_empty", "expect": "ok",
