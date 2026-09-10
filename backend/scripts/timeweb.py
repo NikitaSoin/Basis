@@ -23,8 +23,18 @@ from __future__ import annotations
 import json
 import os
 import sys
+import ssl
 import urllib.error
 import urllib.request
+
+# Корневые сертификаты: у python.org-сборки Python на маке своего хранилища нет,
+# и запрос к api.timeweb.cloud падает на CERTIFICATE_VERIFY_FAILED — то есть
+# инструмент диагностики сам становится недоступен ровно тогда, когда нужен.
+try:
+    import certifi
+    _SSL_CTX = ssl.create_default_context(cafile=certifi.where())
+except Exception:            # certifi нет — работаем на системном хранилище
+    _SSL_CTX = None
 
 API = "https://api.timeweb.cloud/api/v1"
 
@@ -53,7 +63,7 @@ def call(path: str, method: str = "GET", body: dict | None = None, quiet: bool =
         "Content-Type": "application/json",
     })
     try:
-        with urllib.request.urlopen(req, timeout=60) as r:
+        with urllib.request.urlopen(req, timeout=60, context=_SSL_CTX) as r:
             raw = r.read().decode("utf-8", "replace")
             try:
                 return json.loads(raw)
