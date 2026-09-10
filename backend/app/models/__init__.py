@@ -16,6 +16,7 @@ from app.models.agent_addendum import AgentAddendum
 from app.models.chronicle import ChronicleEntry
 from app.models.source_pool import DiscoveredSource
 from app.models.payment import Payment
+from app.models.quality_run import QualityRun, QualityFinding
 
 __all__ = [
     "GeoBlock", "ObserverReport",
@@ -34,4 +35,6 @@ __all__ = [
     "ChronicleEntry",
     "DiscoveredSource",
     "Payment",
+    "QualityRun",
+    "QualityFinding",
 ]
