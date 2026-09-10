@@ -108,6 +108,45 @@ _TIMELINE_PATH = os.path.join(
 # тёзки — в 50-100+ км.
 _MAX_FRONT_DISTANCE_KM = 25.0
 
+# Города, которые нельзя закрасить «за компанию» (config/geo_svo_cities.json).
+# Владелец (2026-09-11): «город Орехов не взят (вроде)», а на карте он был
+# красным. Разбор: заявление МО РФ о взятии Новопавловки Запорожской области
+# приехало из ленты с координатами 47.5677/35.7849 — это центр ОРЕХОВА (0,5 км),
+# буфер 3 км + морфологическое смыкание закрасили город целиком. Ни один
+# источник Орехова не заявлял, ISW его контроль не подтверждает.
+_CITIES_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))), "config", "geo_svo_cities.json")
+
+
+def _load_protected_cities() -> tuple[list[dict], float]:
+    """[{name, aliases, lat, lon}], радиус защиты в км. Пустой список — если
+    файла нет: защита вторична, синк линии обязан работать и без неё."""
+    try:
+        with open(_CITIES_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+        return data.get("cities", []), float(data.get("radius_km", 3.0))
+    except Exception:  # noqa: BLE001
+        logger.warning("Защищённые города не прочитаны — правило пропущено", exc_info=True)
+        return [], 3.0
+
+
+def _city_name_matches(claim_name: str, city: dict) -> bool:
+    """Заявлен ли ИМЕННО этот город. Сравнение по нормализованному имени и
+    алиасам — «Купянск-Узловой» не должен считаться заявкой на «Купянск».
+
+    Имя в наших источниках часто несёт второй вариант в скобках («Красноармейск
+    (Покровск)», «Артёмовск (Бахмут)») — считаем заявкой оба, иначе законный
+    оверрайд владельца отвергался бы как ошибка геокодинга."""
+    def norm(x: str) -> str:
+        return (x or "").strip().lower().replace("ё", "е").replace("'", "").replace("’", "")
+
+    raw = (claim_name or "").replace("(", "|").replace(")", "|")
+    variants = {norm(part) for part in raw.split("|") if norm(part)}
+    if not variants:
+        return False
+    known = {norm(city.get("name"))} | {norm(a) for a in city.get("aliases", [])}
+    return bool(variants & known)
+
 
 def _load_oblast_shapes() -> list[tuple[str, object]]:
     """(первое слово name_ru, shapely-геометрия) по регионам статической карты —
@@ -227,6 +266,31 @@ def absorb_candidates(ukraine_boundary=None, db=None, control_mass=None) -> list
             kept.append(o)
         out = kept
 
+    # Правило 1б: координата села в черте ЧУЖОГО города — это ошибка привязки,
+    # а не взятие города. Боевой случай (2026-09-11): «Новопавловка Запорожской
+    # области» из сводки МО РФ получила координаты центра ОРЕХОВА, и город
+    # закрасился взятым. Проверка по имени, а не по расстоянию до фронта:
+    # деревня-тёзка у самого города физически возможна, но тогда её собственная
+    # координата не совпадает с центром города с точностью до полукилометра.
+    cities, city_radius_km = _load_protected_cities()
+    if cities:
+        kept = []
+        for o in out:
+            hit = None
+            for c in cities:
+                d_km = Point(o["lon"], o["lat"]).distance(Point(c["lon"], c["lat"])) * _KM_PER_DEG_LAT
+                if d_km <= city_radius_km and not _city_name_matches(o.get("name"), c):
+                    hit = (c, d_km)
+                    break
+            if hit is not None:
+                logger.warning("absorb_candidates: ОТКЛОНЁН «%s» — координата (%.4f, %.4f) в %.1f км "
+                               "от центра города «%s», который никто не заявлял взятым "
+                               "(ошибка геокодинга заявления)",
+                               o["name"], o["lat"], o["lon"], hit[1], hit[0]["name"])
+                continue
+            kept.append(o)
+        out = kept
+
     # Правило 2: пункт может быть «взят», только если он РЯДОМ С ФРОНТОМ —
     # не дальше _MAX_FRONT_DISTANCE_KM от фактической массы ISW-контроля.
     if control_mass is not None and not control_mass.is_empty:
@@ -305,6 +369,24 @@ def _absorb_overrides(ru_mass, overrides: list[dict]):
                       .buffer(-_ABSORB_CLOSE_DEG, join_style=1))
     local = unary_union([Point(o["lon"], o["lat"]).buffer(_ABSORB_LOCAL_DEG) for o in overrides])
     addition = closed.difference(combined).intersection(local)
+
+    # Смыкание идёт дугой в десятки километров и по дороге накрывает города,
+    # которых никто не заявлял: так Орехов оказался красным из-за соседних сёл
+    # (владелец, 2026-09-11). Вырезаем из ДОБАВЛЕНИЯ окрестности защищённых
+    # городов, кроме тех, что заявлены по имени сами. Из массы ISW и из кругов
+    # самих кандидатов не вырезаем ничего: если ISW считает город взятым — он
+    # взят, наша осторожность не может спорить с источником.
+    cities, city_radius_km = _load_protected_cities()
+    if cities and not addition.is_empty:
+        claimed_names = [o.get("name") for o in overrides]
+        shields = [
+            _point_buffer_km(c["lat"], c["lon"], city_radius_km)
+            for c in cities
+            if not any(_city_name_matches(n, c) for n in claimed_names)
+        ]
+        if shields:
+            addition = addition.difference(unary_union(shields))
+
     return unary_union([combined, addition]).buffer(0)
 
 
