@@ -513,8 +513,8 @@ def get_run_rate_endpoint(ticker: str, db: Session = Depends(get_db)):
     Не прогноз аналитика и НЕ ещё одна справедливая цена (единственная цена
     карточки — BFV): закрытая часть года × историческая сезонная доля → годовой
     итог → P/E, P/B, дивиденд к живой цене. Считается на каждый запрос.
-    Тело всегда со `status`; не ok (year_closed / loss / no_seasonality / stale /
-    no_interim) — фронт просто не рисует блок."""
+    Тело всегда со `status`; не ok (year_closed / loss / no_seasonality /
+    unreliable_seasonality / stale / no_interim) — фронт просто не рисует блок."""
     from app.services.run_rate import get_run_rate
     return JSONResponse(content=get_run_rate(db, _safe(ticker).upper()))
 

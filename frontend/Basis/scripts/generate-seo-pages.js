@@ -355,6 +355,23 @@ function loadGitFileDates() {
   } catch { return null; }
 }
 
+// Обратная связка со «Справочником»: статья «на чём зарабатывает X» объясняет отраслевую
+// механику, страница компании показывает, как эта механика выглядит у конкретной бумаги.
+// Ссылка нужна в обе стороны: справочник ведёт в карточку (там живой блок с ценой), а
+// карточка — обратно в объяснение, если человек пришёл на неё, не зная отрасли. Пара
+// «эталон + похожие» берётся из самого контента справочника, чтобы список не разъехался
+// с ним при добавлении статей: источник правды один — scripts/spravochnik-content.js.
+const SPRAVOCHNIK_BY_TICKER = (() => {
+  const map = {};
+  try {
+    for (const a of require("./spravochnik-content")) {
+      const tickers = [a.bridge && a.bridge.ticker, ...(a.peers || []).map((p) => p.ticker)];
+      for (const t of tickers) if (t && !map[t]) map[t] = { slug: a.slug, question: a.question };
+    }
+  } catch { /* справочника нет — карточки просто останутся без обратной ссылки */ }
+  return map;
+})();
+
 const COMPANY_SRC_FILES = ["financials.json", "governance.json", "business_model.md", "macro_summary.md", "geo_summary.md"];
 // max(дата последнего изменения) по файлам-источникам страниц компании → YYYY-MM-DD | null.
 function companyLastmod(ticker, gitDates) {
@@ -979,7 +996,13 @@ const TAB_PAGES = [
     // поиск уходила треть разбора. Страницы выглядели «тонкими» (250–530 слов) при том,
     // что содержания у нас больше, чем у конкурентов в топе — просто оно не доезжало
     // до робота. Это и есть главная причина, почему сайт стоял на девятой странице.
-    content: (c) => mdExcerpt(c.businessMd, 12000),
+    content: (c) => {
+      const body = mdExcerpt(c.businessMd, 12000);
+      const g = SPRAVOCHNIK_BY_TICKER[c.ticker];
+      if (!body || !g) return body;
+      return `${body}\n<p class="sub">Как устроен этот тип бизнеса вообще — в справочнике: `
+        + `<a href="/spravochnik/${g.slug}/">${escapeHtml(g.question)}</a>.</p>`;
+    },
   },
   {
     slug: "finance", appTab: "finance", label: "Финансы и оценка",

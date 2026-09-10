@@ -517,7 +517,8 @@ function main() {
   // добавляется ОДИН адрес вместо трёх, а новые карты подхватываются автоматически —
   // не придётся вспоминать, что при добавлении раздела надо идти в панель руками.
   {
-    const maps = ["sitemap.xml", "sitemap-instruments.xml", "sitemap-indicators.xml"]
+    const maps = ["sitemap.xml", "sitemap-instruments.xml", "sitemap-indicators.xml",
+      "sitemap-spravochnik.xml"]
       .filter((f) => fs.existsSync(path.join(BUILD, f)));
     fs.writeFileSync(path.join(BUILD, "sitemap-index.xml"),
       `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`

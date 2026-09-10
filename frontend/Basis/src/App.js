@@ -1632,6 +1632,7 @@ export default function App() {
           </p>
           <ul style={{ lineHeight: 2, paddingLeft: 18, margin: 0 }}>
             <li><a href="/company/">Каталог компаний</a> — разборы по тикеру</li>
+            <li><a href="/spravochnik/">Справочник</a> — как устроены бизнесы и что означают показатели</li>
             <li><a href="/pokazateli/">Показатели и термины</a> — что означают цифры</li>
             <li><a href="/skrining-aktsiy/">Скрининг акций</a> и <a href="/skrining-obligatsiy/">облигаций</a></li>
             <li><a href="/obzor-rynka/">Обзор рынка</a>, <a href="/novosti-fondovogo-rynka/">новости</a></li>
