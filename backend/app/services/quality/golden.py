@@ -18,11 +18,13 @@ from __future__ import annotations
 import copy
 import json
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 from typing import Any, Callable
 
-from app.services.quality.checks_financials import CHECKS, COMPANIES
+from app.services.quality.checks_financials import COMPANIES
 from app.services.quality.contract import Check, Status
+from app.services.quality.pipelines import get as get_pipeline
 
 GOLDEN_DIR = Path(__file__).resolve().parents[4] / "backend" / "quality" / "golden"
 
@@ -139,6 +141,78 @@ def m_returns_as_fraction(card: dict) -> dict:
     return card
 
 
+# ── мутации пайплайна «снапшоты» ──
+
+def m_snap_stale(doc: dict) -> dict:
+    """Снапшот протух: отметка времени уехала на полгода назад."""
+    from datetime import datetime, timedelta, timezone
+    stamp = (datetime.now(timezone.utc) - timedelta(days=180)).isoformat().replace("+00:00", "Z")
+    if "fetched_at" in doc:
+        doc["fetched_at"] = stamp
+    else:
+        doc.setdefault("meta", {})["fetched_at"] = stamp
+    return doc
+
+
+def m_snap_no_stamp(doc: dict) -> dict:
+    """Отметка времени пропала — возраст измерить нечем."""
+    doc.pop("fetched_at", None)
+    doc.pop("generated_at", None)
+    meta = doc.get("meta")
+    if isinstance(meta, dict):
+        meta.pop("fetched_at", None)
+        meta.pop("generated_at", None)
+    return doc
+
+
+def m_snap_empty(doc: dict) -> dict:
+    """Источник ответил кодом 200 и пустотой."""
+    for key in ("rows", "series", "indices", "items"):
+        if key in doc:
+            doc[key] = [] if isinstance(doc[key], list) else {}
+    return doc
+
+
+def m_snap_count_drift(doc: dict) -> dict:
+    """Объявлено больше записей, чем лежит в файле."""
+    actual = None
+    for key in ("rows", "series", "indices", "items"):
+        if isinstance(doc.get(key), (list, dict)):
+            actual = len(doc[key])
+            break
+    if actual is not None:
+        if "count" in doc:
+            doc["count"] = actual + 25
+        else:
+            doc.setdefault("meta", {})["count"] = actual + 25
+    return doc
+
+
+SNAPSHOT_MUTATIONS: list[MutationCase] = [
+    MutationCase("m.snap_stale", "snap.freshness", "отметка времени на полгода назад", m_snap_stale),
+    MutationCase("m.snap_nostamp", "snap.has_timestamp", "отметка времени пропала", m_snap_no_stamp),
+    MutationCase("m.snap_empty", "snap.not_empty", "источник вернул ноль записей", m_snap_empty),
+    MutationCase("m.snap_count", "snap.declared_count", "объявлено на 25 записей больше", m_snap_count_drift),
+]
+
+def m_prose_drift(card: dict) -> dict:
+    """Числа карточки уехали от прозы вкладок на 40% — ровно тот стык, на
+    котором платформа ломается чаще всего."""
+    # Двигаем ВСЕ числовые ряды отчётных блоков, а не три избранных: у банка нет
+    # «выручки», у кого-то проза опирается на другие строки — узкая мутация
+    # молчала на SBER и GMKN, и виноват был стенд, а не проверка.
+    for group in ("income_statement", "balance_sheet", "cash_flow", "bank_pnl",
+                  "bank_balance", "bank_metrics"):
+        node = card.get(group)
+        if not isinstance(node, dict):
+            continue
+        for key, series in node.items():
+            if key.endswith("_note") or not isinstance(series, list):
+                continue
+            node[key] = [v * 1.4 if isinstance(v, (int, float)) and not isinstance(v, bool)
+                         else v for v in series]
+    return card
+
 MUTATIONS: list[MutationCase] = [
     MutationCase("m.balance", "fin.arithmetic", "капитал +2% валюты баланса — не сходится", m_balance),
     MutationCase("m.scale", "fin.arithmetic", "активы ×1000 — разъехались единицы", m_scale_x1000),
@@ -148,57 +222,77 @@ MUTATIONS: list[MutationCase] = [
     MutationCase("m.alien", "fin.source_issuer", "документ чужого эмитента в источниках", m_alien_source),
     MutationCase("m.stale", "fin.freshness", "отчётность отстала на 3 года", m_stale),
     MutationCase("m.units", "fin.return_units", "рентабельности в долях", m_returns_as_fraction),
+    MutationCase("m.prose", "fin.cross_tab", "числа уехали от прозы вкладок на 40%", m_prose_drift),
 ]
 
 
-def load_live_cases() -> list[LiveCase]:
-    p = GOLDEN_DIR / "financials_live.json"
+MUTATIONS_BY_PIPELINE: dict[str, list[MutationCase]] = {
+    "financials": MUTATIONS,
+    "snapshots": SNAPSHOT_MUTATIONS,
+}
+
+
+def load_live_cases(pipeline: str) -> list[LiveCase]:
+    p = GOLDEN_DIR / f"{pipeline}_live.json"
     if not p.exists():
         return []
     raw = json.loads(p.read_text())
     return [LiveCase(**c) for c in raw.get("cases", [])]
 
 
-def load_base_tickers() -> list[str]:
-    """Тикеры-носители мутаций: заведомо чистые карточки, по одной на мутацию мало —
-    берём несколько, чтобы результат не зависел от особенностей одной компании."""
-    p = GOLDEN_DIR / "financials_base.json"
+def load_base_subjects(pipeline: str) -> list[str]:
+    """Носители мутаций: заведомо чистые субъекты. Одного мало — берём несколько,
+    чтобы результат не зависел от особенностей одного файла или компании."""
+    p = GOLDEN_DIR / f"{pipeline}_base.json"
     if p.exists():
-        return json.loads(p.read_text()).get("tickers", [])
+        raw = json.loads(p.read_text())
+        return raw.get("tickers") or raw.get("subjects") or []
     return []
 
 
-def _check_by_id(check_id: str) -> Check | None:
-    return next((c for c in CHECKS if c.check_id == check_id), None)
+def _check_by_id(pipeline: str, check_id: str) -> Check | None:
+    return next((c for c in get_pipeline(pipeline).checks if c.check_id == check_id), None)
 
 
-def _payload_for(ticker: str, card: dict, today_year: int) -> dict:
-    from app.services.quality.checks_financials import _load_extracted
-    return {"card": card, "extracted": _load_extracted(ticker), "today_year": today_year}
+def _payload_for(pipeline: str, subject: str, mutated: Any, today: date) -> dict:
+    """Готовый payload, где ПОДМЕНЁН основной документ субъекта: карточка для
+    финансов, файл снапшота для снапшотов. Остальное берётся у пайплайна."""
+    base = get_pipeline(pipeline).payload(subject, today) or {}
+    key = "card" if pipeline == "financials" else "doc"
+    return {**base, key: mutated}
 
 
-def run_golden(today_year: int) -> dict[str, Any]:
-    """Прогон эталонного набора. Возвращает сводку и список провалов."""
+def _load_subject_doc(pipeline: str, subject: str) -> Any:
+    if pipeline == "financials":
+        path = COMPANIES / subject / "financials.json"
+        return json.loads(path.read_text()) if path.exists() else None
+    from app.services.quality.checks_snapshots import load_snapshot
+    return load_snapshot(subject)
+
+
+def run_golden(pipeline: str = "financials", today_year: int | None = None) -> dict[str, Any]:
+    """Прогон эталонного набора пайплайна. Возвращает сводку и список провалов."""
+    from datetime import date as _date
+    today = _date(today_year, _date.today().month, _date.today().day) if today_year else _date.today()
     results: list[dict[str, Any]] = []
-    bases = load_base_tickers()
+    bases = load_base_subjects(pipeline)
 
-    for case in MUTATIONS:
-        check = _check_by_id(case.check_id)
+    for case in MUTATIONS_BY_PIPELINE.get(pipeline, []):
+        check = _check_by_id(pipeline, case.check_id)
         if check is None:
             results.append({"case": case.case_id, "kind": "mutation", "passed": False,
                             "detail": f"проверки {case.check_id} нет в наборе"})
             continue
         detected_on, silent_on, unusable = [], [], {}
         for ticker in bases:
-            path = COMPANIES / ticker / "financials.json"
-            if not path.exists():
-                unusable[ticker] = "нет карточки"
+            clean = _load_subject_doc(pipeline, ticker)
+            if clean is None:
+                unusable[ticker] = "субъект не читается"
                 continue
-            clean = json.loads(path.read_text())
             # 1. на чистой карточке проверка обязана молчать — иначе носитель негоден.
             #    SKIP тоже негоден: проверке нечего смотреть у этой компании
             #    (напр. «выручка против прибыли» у банка), и мутация ничего не докажет.
-            before = check.run(ticker, _payload_for(ticker, copy.deepcopy(clean), today_year))
+            before = check.run(ticker, _payload_for(pipeline, ticker, copy.deepcopy(clean), today))
             if any(o.status is Status.FAIL for o in before):
                 unusable[ticker] = "уже красная до мутации"
                 continue
@@ -207,7 +301,7 @@ def run_golden(today_year: int) -> dict[str, Any]:
                 continue
             # 2. на испорченной — обязана сработать
             broken = case.mutate(copy.deepcopy(clean))
-            after = check.run(ticker, _payload_for(ticker, broken, today_year))
+            after = check.run(ticker, _payload_for(pipeline, ticker, broken, today))
             (detected_on if any(o.status is Status.FAIL for o in after) else silent_on).append(ticker)
         usable = len(detected_on) + len(silent_on)
         results.append({
@@ -221,15 +315,14 @@ def run_golden(today_year: int) -> dict[str, Any]:
             "usable": usable,
         })
 
-    for case in load_live_cases():
-        check = _check_by_id(case.check_id)
-        path = COMPANIES / case.ticker / "financials.json"
-        if check is None or not path.exists():
+    for case in load_live_cases(pipeline):
+        check = _check_by_id(pipeline, case.check_id)
+        doc = _load_subject_doc(pipeline, case.ticker)
+        if check is None or doc is None:
             results.append({"case": case.case_id, "kind": "live", "passed": False,
-                            "detail": "нет проверки или карточки"})
+                            "detail": "нет проверки или субъекта"})
             continue
-        card = json.loads(path.read_text())
-        outcomes = check.run(case.ticker, _payload_for(case.ticker, card, today_year))
+        outcomes = check.run(case.ticker, _payload_for(pipeline, case.ticker, doc, today))
         got = "fail" if any(o.status is Status.FAIL for o in outcomes) else (
             "skip" if all(o.status is Status.SKIP for o in outcomes) else "ok")
         results.append({"case": case.case_id, "kind": "live", "check_id": case.check_id,

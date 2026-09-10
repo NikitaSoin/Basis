@@ -17,9 +17,8 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from app.services.quality.checks_financials import (CHECKS, CHECKS_VERSION, COMPANIES,
-                                                    _load_extracted)
 from app.services.quality.contract import Check, CheckOutcome, Severity, Status
+from app.services.quality.pipelines import get as get_pipeline
 
 COVERAGE_FLOOR = 0.5
 
@@ -48,50 +47,43 @@ class RunResult:
                 "golden": {k: v for k, v in (self.golden or {}).items() if k != "results"}}
 
 
-def list_subjects(limit: int | None = None, only: list[str] | None = None) -> list[str]:
-    tickers = sorted(p.parent.name for p in COMPANIES.glob("*/financials.json"))
+def list_subjects(pipeline: str = "financials", limit: int | None = None,
+                  only: list[str] | None = None) -> list[str]:
+    items = get_pipeline(pipeline).subjects()
     if only:
-        want = {t.upper() for t in only}
-        tickers = [t for t in tickers if t in want]
-    return tickers[:limit] if limit else tickers
-
-
-def _payload(ticker: str, today_year: int) -> dict | None:
-    path = COMPANIES / ticker / "financials.json"
-    try:
-        card = json.loads(path.read_text())
-    except Exception:
-        return None
-    return {"card": card, "extracted": _load_extracted(ticker), "today_year": today_year}
+        want = {o.upper() for o in only}
+        items = [i for i in items if i.upper() in want]
+    return items[:limit] if limit else items
 
 
 def run(pipeline: str = "financials", *, limit: int | None = None,
         only: list[str] | None = None, checks: list[Check] | None = None,
         today: date | None = None) -> RunResult:
-    checks = checks or CHECKS
+    pl = get_pipeline(pipeline)
+    checks = checks or pl.checks
     today = today or date.today()
-    res = RunResult(pipeline=pipeline, checks_version=CHECKS_VERSION,
+    res = RunResult(pipeline=pipeline, checks_version=pl.checks_version,
                     started_at=datetime.now(timezone.utc))
 
-    subjects = list_subjects(limit=limit, only=only)
+    subjects = list_subjects(pipeline, limit=limit, only=only)
     stats = {c.check_id: {"title": c.title, "severity": c.severity.value,
                           "ok": 0, "fail": 0, "skip": 0} for c in checks}
     hard_hit: set[str] = set()
     soft_hit: set[str] = set()
     unreadable = 0
 
-    for ticker in subjects:
-        payload = _payload(ticker, today.year)
+    for subject in subjects:
+        payload = pl.payload(subject, today)
         if payload is None:
             unreadable += 1
-            hard_hit.add(ticker)
+            hard_hit.add(subject)
             continue
         for check in checks:
-            for outcome in check.run(ticker, payload):
+            for outcome in check.run(subject, payload):
                 res.outcomes.append(outcome)
                 stats[check.check_id][outcome.status.value] += 1
                 if outcome.status is Status.FAIL:
-                    (hard_hit if check.severity is Severity.HARD else soft_hit).add(ticker)
+                    (hard_hit if check.severity is Severity.HARD else soft_hit).add(subject)
 
     res.subjects = len(subjects)
     if not subjects:
@@ -110,7 +102,7 @@ def run(pipeline: str = "financials", *, limit: int | None = None,
     res.score = 1 - len(hard_hit) / len(subjects)
     res.soft_rate = len(soft_hit - hard_hit) / len(subjects)
     if unreadable:
-        res.per_check["_unreadable_cards"] = {"count": unreadable}
+        res.per_check["_unreadable_subjects"] = {"count": unreadable}
 
     if res.coverage < COVERAGE_FLOOR:
         res.valid = False

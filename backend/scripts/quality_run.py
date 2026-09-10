@@ -44,9 +44,9 @@ def print_run(res) -> None:
         fr = "—" if s["fail_rate"] is None else f"{s['fail_rate']:.1%}"
         print(f"{check_id:24} {s['ok']:5} {s['fail']:5} {s['skip']:5} "
               f"{s['coverage']:8.1%} {fr:>11}")
-    unread = res.per_check.get("_unreadable_cards")
+    unread = res.per_check.get("_unreadable_subjects")
     if unread:
-        print(f"{'нечитаемые карточки':24} {unread['count']:5}")
+        print(f"{'нечитаемые субъекты':24} {unread['count']:5}")
     print(f"\n  ПОКРЫТИЕ  {res.coverage:.1%}   (доля субъектов, где проверки реально отработали)")
     if res.valid:
         print(f"  КАЧЕСТВО  {res.score:.1%}   (карточек без грубых находок)")
@@ -57,8 +57,10 @@ def print_run(res) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--pipeline", default="financials")
-    ap.add_argument("--ticker", action="append", help="ограничить прогон тикерами")
+    ap.add_argument("--pipeline", default="financials",
+                    help="financials | snapshots (см. app/services/quality/pipelines.py)")
+    ap.add_argument("--all-pipelines", action="store_true", help="прогнать все пайплайны подряд")
+    ap.add_argument("--ticker", action="append", help="ограничить прогон субъектами (тикер/имя файла)")
     ap.add_argument("--limit", type=int)
     ap.add_argument("--golden-only", action="store_true", help="только эталонный набор")
     ap.add_argument("--no-golden", action="store_true")
@@ -71,9 +73,20 @@ def main() -> int:
     if args.history:
         return show_history(args.pipeline)
 
+    if args.all_pipelines:
+        from app.services.quality.pipelines import PIPELINES
+        worst = 0
+        for name in PIPELINES:
+            args.pipeline = name
+            worst = max(worst, run_one(args))
+        return worst
+    return run_one(args)
+
+
+def run_one(args) -> int:
     g = None
     if not args.no_golden:
-        g = golden_mod.run_golden(date.today().year)
+        g = golden_mod.run_golden(args.pipeline, date.today().year)
         print_golden(g)
     if args.golden_only:
         return 0 if g and not g["failed"] else 1

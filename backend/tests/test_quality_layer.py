@@ -5,73 +5,94 @@
 проверил ноль; маппер при смене схемы стал молча отдавать None). Поэтому у
 измерения есть собственный пол, ниже которого тест падает.
 
-БД не требуется: тесты читают карточки с диска.
+БД не требуется: тесты читают карточки и снапшоты с диска.
 """
 from datetime import date
 
 import pytest
 
 from app.services.quality import golden, runner
-from app.services.quality.checks_financials import CHECKS, CHECKS_VERSION
 from app.services.quality.contract import Status
+from app.services.quality.pipelines import PIPELINES, get
 
-SAMPLE = ["LKOH", "SBER", "GMKN", "MTSS", "PHOR", "MGNT", "NVTK", "CHMF"]
+PIPELINE_NAMES = sorted(PIPELINES)
+SAMPLES = {
+    "financials": ["LKOH", "SBER", "GMKN", "MTSS", "PHOR", "MGNT", "NVTK", "CHMF"],
+    "snapshots": None,          # снапшотов мало — гоняем все
+}
 
 
 @pytest.fixture(scope="module")
-def sample_run():
-    return runner.run("financials", only=SAMPLE)
+def runs():
+    return {name: runner.run(name, only=SAMPLES.get(name)) for name in PIPELINE_NAMES}
 
 
-def test_эталонный_набор_проходит_целиком():
+@pytest.mark.parametrize("pipeline", PIPELINE_NAMES)
+def test_эталонный_набор_проходит_целиком(pipeline):
     """Мутационные кейсы доказывают, что детекторы живы. Провал = проверка
     перестала ловить дефект, который заведомо есть."""
-    result = golden.run_golden(date.today().year)
-    assert result["total"] >= 8, "эталонный набор подозрительно мал"
+    result = golden.run_golden(pipeline)
+    assert result["total"] >= 4, f"{pipeline}: эталонный набор подозрительно мал"
     assert not result["failed"], "\n".join(
         f"{r['case']}: {r['detail']}" for r in result["failed"])
 
 
-def test_у_каждой_мутации_есть_годный_носитель():
+@pytest.mark.parametrize("pipeline", PIPELINE_NAMES)
+def test_у_каждой_мутации_есть_годный_носитель(pipeline):
     """Кейс, у которого не осталось ни одной пригодной компании, ничего не
     доказывает — но выглядит зелёным. Такой «проход» не считается."""
-    result = golden.run_golden(date.today().year)
-    for r in result["results"]:
+    for r in golden.run_golden(pipeline)["results"]:
         if r.get("kind") == "mutation":
             assert r.get("usable", 0) > 0, f"{r['case']}: не осталось годных носителей"
 
 
-def test_покрытие_не_ниже_пола(sample_run):
-    assert sample_run.valid, sample_run.invalid_reason
-    assert sample_run.coverage >= runner.COVERAGE_FLOOR
+@pytest.mark.parametrize("pipeline", PIPELINE_NAMES)
+def test_у_каждой_проверки_есть_мутационный_кейс(pipeline):
+    """Проверка без искусственной поломки за спиной недоказуема: непонятно,
+    ловит она что-нибудь или просто всегда возвращает «ок»."""
+    covered = {c.check_id for c in golden.MUTATIONS_BY_PIPELINE.get(pipeline, [])}
+    for check in get(pipeline).checks:
+        assert check.check_id in covered, f"{check.check_id} нечем доказать"
 
 
-def test_каждая_проверка_хоть_где_то_отработала(sample_run):
+@pytest.mark.parametrize("pipeline", PIPELINE_NAMES)
+def test_покрытие_не_ниже_пола(pipeline, runs):
+    res = runs[pipeline]
+    assert res.valid, res.invalid_reason
+    assert res.coverage >= runner.COVERAGE_FLOOR
+
+
+@pytest.mark.parametrize("pipeline", PIPELINE_NAMES)
+def test_каждая_проверка_хоть_где_то_отработала(pipeline, runs):
     """Проверка, которая на всей выборке только пропускает, — мёртвая."""
-    for check in CHECKS:
-        stats = sample_run.per_check[check.check_id]
+    res = runs[pipeline]
+    for check in get(pipeline).checks:
+        stats = res.per_check[check.check_id]
         assert stats["ok"] + stats["fail"] > 0, (
-            f"{check.check_id} не отработала ни на одной компании выборки")
+            f"{check.check_id} не отработала ни на одном субъекте выборки")
 
 
-def test_skip_не_считается_за_ок(sample_run):
+@pytest.mark.parametrize("pipeline", PIPELINE_NAMES)
+def test_версия_набора_проставлена(pipeline, runs):
+    assert runs[pipeline].checks_version == get(pipeline).checks_version
+    assert get(pipeline).checks_version, "без версии набора прогоны нельзя сравнивать"
+
+
+def test_skip_не_считается_за_ок(runs):
     """Ключевое свойство контракта: у «нечего проверять» отдельный статус."""
-    statuses = {o.status for o in sample_run.outcomes}
-    assert Status.SKIP in statuses, "в выборке нет ни одного skip — проверьте, не схлопнулись ли статусы"
-    for outcome in sample_run.outcomes:
+    outcomes = [o for res in runs.values() for o in res.outcomes]
+    assert any(o.status is Status.SKIP for o in outcomes), "нет ни одного skip — не схлопнулись ли статусы"
+    for outcome in outcomes:
         if outcome.status is Status.SKIP:
             assert not outcome.failed
             assert outcome.message, "skip обязан объяснять, почему проверять было нечего"
 
 
-def test_версия_набора_проставлена(sample_run):
-    assert sample_run.checks_version == CHECKS_VERSION
-    assert CHECKS_VERSION, "без версии набора прогоны нельзя сравнивать между собой"
-
-
-def test_проверки_не_роняют_прогон_на_битой_карточке():
+@pytest.mark.parametrize("pipeline", PIPELINE_NAMES)
+def test_проверки_не_роняют_прогон_на_битом_субъекте(pipeline):
     """Упавшая проверка обязана превратиться в skip, а не убить прогон."""
-    for check in CHECKS:
-        outcomes = check.run("XXXX", {"card": {"meta": "не словарь"}, "extracted": None,
-                                      "today_year": date.today().year})
+    junk = {"card": {"meta": "не словарь"}, "doc": {"meta": "не словарь"},
+            "extracted": None, "today_year": date.today().year, "today": date.today()}
+    for check in get(pipeline).checks:
+        outcomes = check.run("XXXX", junk)
         assert all(o.status in (Status.OK, Status.FAIL, Status.SKIP) for o in outcomes)

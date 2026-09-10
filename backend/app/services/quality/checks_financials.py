@@ -394,20 +394,71 @@ def _c_return_units(subject: str, payload: dict) -> Iterable[CheckOutcome]:
         yield ok(C_RETURN_UNITS, subject, checked=checked)
 
 
+def _shift_all_series(card: dict, factor: float) -> dict:
+    """Копия карточки, где все числовые ряды отчётных блоков умножены на factor.
+    Нужна для само-пробы сверки: см. _c_cross_tab."""
+    for group in ("income_statement", "balance_sheet", "cash_flow", "bank_pnl",
+                  "bank_balance", "bank_metrics"):
+        node = card.get(group)
+        if not isinstance(node, dict):
+            continue
+        for key, series in node.items():
+            if key.endswith("_note") or not isinstance(series, list):
+                continue
+            node[key] = [v * factor if isinstance(v, (int, float)) and not isinstance(v, bool)
+                         else v for v in series]
+    return card
+
+
 def _c_cross_tab(subject: str, payload: dict) -> Iterable[CheckOutcome]:
-    """Стыки: числа в прозе вкладок против financials.json. Системный вывод аудита
-    платформы — ломается не аналитика, а согласованность между вкладками.
+    """Стыки: числа в прозе вкладок против financials.json. Системный вывод
+    аудита платформы — ломается не аналитика, а согласованность между вкладками.
+
+    🔴 Сверяем карточку ИЗ PAYLOAD, а не с диска. Первая версия звала
+    audit_company(tdir), который сам читает файл, — и мутационный стенд не мог
+    её проверить в принципе: испорченная в памяти карточка до проверки просто
+    не доезжала. Проверка, которую нечем доказать, ничем не лучше отсутствующей.
 
     🔴 audit_company возвращает пустой список И когда всё чисто, И когда сверять
-    было нечего (нет прозы). Наличие материала проверяем САМИ — иначе получим
-    ровно тот «ревизор успешно проверил ноль», от которого весь этот слой."""
+    было нечего (нет прозы). Наличие материала проверяем САМИ."""
+    card = payload["card"]
     tdir = COMPANIES / subject
     prose = [f for f in ("business_model.md", "financials_summary.md") if (tdir / f).exists()]
-    if not (tdir / "financials.json").exists() or not prose:
-        yield skip(C_CROSS_TAB, subject, "нет прозы вкладок для сверки", prose=prose)
+    if not prose:
+        yield skip(C_CROSS_TAB, subject, "нет прозы вкладок для сверки")
         return
-    findings = _legacy_cross_tab().audit_company(tdir, with_warn=False) or []
+    ct = _legacy_cross_tab()
+    years, facts = ct.load_facts(card)
+    if not years:
+        yield skip(C_CROSS_TAB, subject, "в карточке нет годов для сверки")
+        return
+    meta = card.get("meta") or {}
+    findings = []
+    for fname in prose:
+        findings += ct.check_tables((tdir / fname).read_text(), years, facts, fname,
+                                    (meta.get("currency") or "RUB").upper(),
+                                    meta.get("reporting_standard") or "")
     hard = [f for f in findings if f.get("severity") in ("MISMATCH", "ERROR")]
+
+    # 🔴 Само-проба: «ноль расхождений» бывает двух видов — «всё сошлось» и
+    # «сверять было нечего» (проза без таблиц с числами, как у ГМК). Второе
+    # выглядит зелёным и молчит. Отличаем их так: подсовываем заведомо сдвинутые
+    # числа — если и на них тишина, значит проверка не сравнила НИЧЕГО.
+    if not hard:
+        probe = _shift_all_series(json.loads(json.dumps(card)), 1.37)
+        probe_years, probe_facts = ct.load_facts(probe)
+        probe_findings = []
+        for fname in prose:
+            probe_findings += ct.check_tables((tdir / fname).read_text(), probe_years,
+                                              probe_facts, fname,
+                                              (meta.get("currency") or "RUB").upper(),
+                                              meta.get("reporting_standard") or "")
+        if not any(f.get("severity") == "MISMATCH" for f in probe_findings):
+            yield skip(C_CROSS_TAB, subject,
+                       "в прозе нет чисел, сопоставимых с financials.json "
+                       "(сдвиг всех рядов на 37% тоже не даёт расхождений)")
+            return
+
     if hard:
         f = hard[0]
         yield fail(C_CROSS_TAB, subject,
@@ -448,4 +499,4 @@ CHECKS: list[Check] = [C_ARITHMETIC, C_PROFIT_VS_REVENUE, C_SOURCE_MATCH,
 
 # Версия набора: меняется при добавлении/изменении проверок. Прогоны с разными
 # версиями сравнивать НЕЛЬЗЯ — иначе «качество выросло» окажется «проверок стало меньше».
-CHECKS_VERSION = "fin-1.1"  # 1.1: единицы в сверке с первичкой, чужой эмитент, profit→soft
+CHECKS_VERSION = "fin-1.2"  # 1.2: сверка стыков по payload + само-проба «сравнила ли она что-нибудь»
