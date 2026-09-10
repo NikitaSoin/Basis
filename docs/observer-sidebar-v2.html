@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basis · Обозреватель — Сайдбар v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --surface:#F7F5F0; --surface-2:#FFFFFF; --surface-3:#EFEAE0; --ink:#161510; --ink-2:#5C574A; --ink-3:#8C8672;
+  --deep:#12131A; --deep-2:#1B1C26; --deep-3:#24252F; --deep-line:#33343F; --deep-ink:#EDEBE3; --deep-ink2:#9B9AA8; --deep-ink3:#6C6B78;
+  --copper:#C97A4A; --copper-soft:#F0DDCC; --copper-deep:#8A4A26; --copper-glow:rgba(201,122,74,.35);
+  --up:#3E8464; --down:#B8503F; --line:#DCD5C2; --line-2:#CFC6AC;
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'IBM Plex Mono',monospace;
+  --radius:12px; --ease:cubic-bezier(.25,.7,.4,1);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{font-family:var(--sans); background:var(--surface); color:var(--ink); font-size:14.5px; line-height:1.55;}
+.mono{font-family:var(--mono); font-variant-numeric:tabular-nums; letter-spacing:-.01em;}
+.serif{font-family:var(--serif);}
+a{color:inherit;}
+@media(prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important;}}
+
+/* ===== ГЛОБАЛЬНАЯ ШАПКА САЙТА — над сайдбаром и рабочей областью ===== */
+.global-bar{display:flex; align-items:center; justify-content:space-between; padding:0 28px; height:62px; background:var(--surface-2); border-bottom:1px solid var(--line); position:relative; z-index:70;}
+.gb-brand{display:flex; align-items:center; gap:10px;}
+.gb-brand .mark{width:26px; height:26px; border-radius:7px; background:var(--copper); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;}
+.gb-brand .name{font-family:var(--serif); font-weight:600; font-size:18px; color:var(--ink);}
+.gb-nav{display:flex; gap:4px;}
+.gb-nav a{font-size:13.5px; font-weight:600; color:var(--ink-2); padding:8px 15px; border-radius:99px; transition:background .15s, color .15s;}
+.gb-nav a:hover{background:var(--surface-3);}
+.gb-nav a.active{background:var(--copper); color:#fff;}
+.gb-right{display:flex; align-items:center; gap:12px;}
+
+/* ===== SIDEBAR: сплошной тёмный фон — контраст гарантирован, глубина = тонкая декоративная полоса ===== */
+.sidebar{position:fixed; left:0; top:62px; bottom:0; width:268px; background:var(--deep); display:flex; flex-direction:column; z-index:50; overflow-y:auto; border-right:1px solid var(--deep-line);}
+.depth-strip{position:absolute; left:0; top:0; bottom:0; width:4px; background:linear-gradient(180deg,var(--surface-2),var(--copper) 40%,var(--deep-2) 75%,var(--deep));}
+
+.sb-eyebrow{padding:22px 24px 14px 30px; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--deep-ink3);}
+
+.sb-zone{padding:4px 14px 20px 18px;}
+.sb-zone-label{font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:8px 12px 8px; color:var(--deep-ink3);}
+
+.sb-item{display:flex; align-items:center; gap:12px; padding:11px 13px; border-radius:9px; cursor:pointer; font-size:14px; font-weight:600; color:var(--deep-ink2); transition:background .16s var(--ease), color .16s var(--ease); position:relative;}
+.sb-item:hover{background:var(--deep-2); color:var(--deep-ink);}
+.sb-item.active{background:var(--copper); color:#fff; box-shadow:0 4px 14px -4px var(--copper-glow);}
+.sb-item .ic{width:18px; text-align:center; font-size:14.5px;}
+
+.sb-foot{margin-top:auto; padding:20px 24px 26px 30px; font-size:11.5px; color:var(--deep-ink3); line-height:1.55; border-top:1px solid var(--deep-line);}
+
+/* ===== MAIN: постоянная светлая рабочая поверхность — читается везде одинаково ===== */
+.main{margin-left:268px; min-height:100vh;}
+.topbar{display:flex; justify-content:space-between; align-items:center; padding:18px 36px; border-bottom:1px solid var(--line); background:var(--surface-2);}
+.search{display:flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:99px; padding:9px 17px; font-size:13px; color:var(--ink-3); min-width:250px;}
+.topright{display:flex; align-items:center; gap:14px;}
+.portfolio-toggle{border:1px solid var(--line); border-radius:99px; padding:9px 17px; font-size:13px; font-weight:600; color:var(--ink-2); cursor:pointer; transition:border-color .15s;}
+.portfolio-toggle:hover{border-color:var(--line-2);}
+.theme-btn{width:34px; height:34px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; cursor:pointer;}
+
+.panel{display:none; padding:32px 36px 80px; animation:panelIn .22s var(--ease);}
+.panel.active{display:block;}
+@keyframes panelIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+.sec-head{display:flex; align-items:baseline; gap:13px; margin-bottom:26px;}
+.sec-head .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--copper-deep); background:var(--copper-soft); padding:4px 11px; border-radius:6px;}
+.sec-head h2{font-family:var(--serif); font-size:27px; font-weight:600;}
+
+.tag-fact{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:4px 9px; border-radius:6px; background:var(--surface-3); color:var(--ink-2);}
+.tag-judgment{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:4px 9px; border-radius:6px; background:var(--copper-soft); color:var(--copper-deep);}
+.tag-judgment::before{content:'◆'; font-size:8px;}
+
+.card{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); transition:box-shadow .18s;}
+
+/* callout-плашка (На что влияет / Интерпретация Basis) — ПОТЕРЯЛОСЬ ПРИ РЕФАКТОРИНГЕ, это чинит гигантскую нестилизованную иконку */
+.callout{display:flex; gap:10px; align-items:flex-start; background:var(--copper-soft); border-radius:10px; padding:14px 16px;}
+.callout svg{flex:none; width:16px; height:16px; color:var(--copper-deep); margin-top:2px;}
+.callout p{color:var(--ink-2); font-size:13.5px; line-height:1.55;}
+.callout b{color:var(--ink);}
+
+/* premium dark card — переиспользуемый акцентный компонент для интерпретации, НЕ фон всей страницы */
+.deep-card{background:var(--deep-2); border:1px solid var(--deep-line); border-radius:var(--radius); color:var(--deep-ink); padding:26px 28px;}
+.deep-card .deep-eyebrow{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--deep-ink3); margin-bottom:12px;}
+.deep-card h3{font-family:var(--serif); font-size:20px; font-weight:600; margin-bottom:12px;}
+.deep-card p{color:var(--deep-ink2); font-size:13.5px; line-height:1.7;}
+.deep-chip-sector{background:rgba(201,122,74,.22); color:var(--copper); font-size:11.5px; font-weight:600; padding:5px 12px; border-radius:99px;}
+.deep-chip-ticker{background:var(--deep-3); border:1px solid var(--deep-line); color:var(--deep-ink); font-family:var(--mono); font-size:11px; font-weight:600; padding:4px 10px; border-radius:6px;}
+
+/* hero rate block */
+.hero-rate{padding:28px 30px; margin-bottom:26px;}
+.hero-topline{display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:20px;}
+.hero-num{font-family:var(--serif); font-family:var(--mono); font-size:56px; font-weight:600; letter-spacing:-.01em;}
+.hero-note{border-left:3px solid var(--copper); padding-left:18px; max-width:340px; font-size:13.5px; color:var(--ink-2); line-height:1.65;}
+
+/* legend + annotated chart */
+.legend{display:flex; gap:22px; font-size:12px; color:var(--ink-2); margin-bottom:12px; flex-wrap:wrap;}
+.legend span{display:flex; align-items:center; gap:6px;}
+.legend i{width:15px; height:3px; display:inline-block; border-radius:2px;}
+.chart-wrap{position:relative;}
+.chart-wrap svg{width:100%; height:auto; cursor:crosshair; touch-action:none;}
+.chart-tooltip{position:absolute; background:var(--deep-2); border:1px solid var(--deep-line); border-radius:9px; padding:10px 13px; pointer-events:none; opacity:0; transition:opacity .1s; z-index:20; min-width:150px; box-shadow:0 8px 20px -6px rgba(0,0,0,.25);}
+.chart-tooltip, .chart-tooltip *{color:var(--deep-ink) !important;}
+
+/* ===== кастомный dropdown — заменяет нативный <select>, чтобы открытый список тоже был в дизайн-системе ===== */
+.custom-dd{position:relative; display:inline-block;}
+.dd-trigger{display:inline-flex; align-items:center; gap:8px; background:var(--surface-3); border:1px solid var(--line); padding:8px 14px; border-radius:9px; font-family:var(--sans); font-size:12.5px; font-weight:600; color:var(--ink); cursor:pointer; transition:border-color .15s;}
+.dd-trigger:hover{border-color:var(--line-2);}
+.dd-trigger .dd-arrow{font-size:10px; color:var(--ink-3); transition:transform .15s;}
+.custom-dd.open .dd-trigger .dd-arrow{transform:rotate(180deg);}
+.dd-panel{position:absolute; top:calc(100% + 6px); left:0; min-width:220px; max-height:280px; overflow-y:auto; background:var(--surface-2); border:1px solid var(--line); border-radius:11px; box-shadow:0 14px 32px -10px rgba(0,0,0,.22); z-index:50; padding:6px; display:none;}
+.custom-dd.open .dd-panel{display:block;}
+.dd-option{padding:9px 12px; border-radius:7px; font-size:13px; color:var(--ink-2); cursor:pointer; transition:background .12s;}
+.dd-option:hover{background:var(--surface-3);}
+.dd-option.selected{background:var(--copper-soft); color:var(--copper-deep); font-weight:600;}
+
+/* indicator tiles */
+.grid8{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;}
+.grid8 .tile{background:var(--surface-2); padding:20px 20px 16px; transition:background .15s; cursor:pointer;}
+.grid8 .tile:hover{background:var(--surface-3);}
+.grid8 .tile:hover .tile-link{color:var(--copper-deep);}
+.tile-lbl{font-size:12px; font-weight:600; color:var(--ink-2); margin-bottom:9px;}
+.tile-val{font-family:var(--mono); font-size:27px; font-weight:600;}
+.tile-delta{font-size:11px; font-weight:700; margin-top:7px;}
+.tile-date{font-size:10.5px; color:var(--ink-3); margin-top:6px;}
+.tile-link{font-size:11.5px; font-weight:600; color:var(--copper); margin-top:8px;}
+.d-bad{color:var(--down);} .d-good{color:var(--up);} .d-neutral{color:var(--ink-3);}
+
+/* segmented toggle — независимые кнопки, заливка не может наехать на соседа (не sliding-thumb) */
+.seg-toggle{display:inline-flex; background:var(--surface-3); border-radius:99px; padding:4px; gap:2px;}
+.seg-opt{padding:9px 20px; font-size:13px; font-weight:700; color:var(--ink-2); cursor:pointer; border-radius:99px; white-space:nowrap; transition:background .16s var(--ease), color .16s var(--ease);}
+.seg-opt.on{background:var(--copper); color:#fff; box-shadow:0 3px 10px -2px var(--copper-glow);}
+.seg-opt:not(.on):hover{background:rgba(0,0,0,.045);}
+
+/* heatmap */
+.hm-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:6px;}
+.hm-tile{border-radius:10px; padding:16px 17px; color:#fff; cursor:pointer; transition:transform .14s var(--ease), box-shadow .14s var(--ease);}
+.hm-tile:hover{transform:translateY(-3px); box-shadow:0 10px 22px -8px rgba(0,0,0,.35);}
+.hm-t{font-weight:700; font-size:14px;} .hm-v{font-family:var(--mono); font-size:12.5px; opacity:.92; margin-top:5px;}
+
+/* сектор-плитки обзора всего рынка + хлебная крошка drill-down */
+.sector-map-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+.sector-map-tile{border-radius:12px; padding:18px 20px; color:#fff; cursor:pointer; transition:transform .14s var(--ease), box-shadow .14s var(--ease);}
+.sector-map-tile:hover{transform:translateY(-3px); box-shadow:0 12px 26px -10px rgba(0,0,0,.35);}
+.smt-name{font-weight:700; font-size:15px; margin-bottom:4px;}
+.smt-count{font-size:11.5px; opacity:.85; margin-bottom:10px;}
+.smt-avg{font-family:var(--mono); font-size:20px; font-weight:700;}
+.smt-split{font-size:11px; opacity:.85; margin-top:4px;}
+.map-breadcrumb{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-2); margin-bottom:16px; cursor:pointer;}
+.map-breadcrumb b{color:var(--ink); font-weight:700;}
+
+/* ===== сетка календаря (месяц) ===== */
+.cal-nav{display:flex; align-items:center; gap:14px; margin-bottom:16px;}
+.cal-nav button{background:var(--surface-2); border:1px solid var(--line); border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:15px; color:var(--ink-2);}
+.cal-nav .cal-month-label{font-family:var(--serif); font-size:17px; font-weight:600; min-width:170px; text-align:center;}
+.cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+.cal-weekday{background:var(--surface-3); padding:8px; text-align:center; font-size:11px; font-weight:700; color:var(--ink-3); text-transform:uppercase;}
+.cal-day{background:var(--surface-2); min-height:88px; padding:7px; cursor:pointer; transition:background .12s;}
+.cal-day:hover{background:var(--surface-3);}
+.cal-day.other-month{background:var(--surface); color:var(--ink-3);}
+.cal-day.today{box-shadow:inset 0 0 0 2px var(--copper);}
+.cal-day.selected{background:var(--copper-soft);}
+.cal-day-num{font-family:var(--mono); font-size:12px; font-weight:600; margin-bottom:5px;}
+.cal-pill{font-size:9.5px; font-weight:700; color:#fff; border-radius:4px; padding:2px 5px; margin-bottom:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.cal-more{font-size:9.5px; color:var(--ink-3); font-weight:600;}
+.cal-legend{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; font-size:12px; color:var(--ink-2);}
+.cal-legend span{display:flex; align-items:center; gap:6px;}
+.cal-legend i{width:9px; height:9px; border-radius:3px; display:inline-block;}
+.cal-day-detail{margin-top:18px;}
+
+/* timeline with connecting line */
+.tl-wrap{position:relative; padding-left:28px;}
+.tl-line{position:absolute; left:5px; top:6px; bottom:6px; width:2px; background:var(--line-2);}
+.tl-item{position:relative; padding-bottom:26px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-dot{position:absolute; left:-28px; top:3px; width:11px; height:11px; border-radius:50%; border:3px solid var(--surface);}
+.tl-date{font-family:var(--mono); font-size:12px; color:var(--ink-2); font-weight:600; margin-bottom:4px;}
+.tl-title{font-weight:600; font-size:15px; margin-bottom:4px;}
+.tl-sub{font-size:13px; color:var(--ink-2);}
+
+/* reports */
+.rep-row{display:grid; grid-template-columns:80px 1fr 90px; gap:16px; padding:14px 4px; border-bottom:1px solid var(--line); align-items:center; transition:background .12s; border-radius:6px;}
+.rep-row:hover{background:var(--surface-3);}
+.rep-row:last-child{border-bottom:none;}
+
+.ai-plan{border:1.5px solid var(--line); border-radius:11px; padding:16px 18px; cursor:pointer; transition:border-color .15s, background .15s;}
+.ai-plan.on{border-color:var(--copper); background:var(--copper-soft);}
+.ai-hist-card{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:14px 17px; display:flex; align-items:center; gap:14px; transition:box-shadow .15s, border-color .15s; cursor:pointer;}
+.ai-hist-card:hover{box-shadow:0 4px 14px -6px rgba(0,0,0,.12); border-color:var(--line-2);}
+.ai-hist-card.selected{border-color:var(--copper); background:var(--copper-soft);}
+.ai-hist-icon{width:34px; height:34px; border-radius:9px; background:var(--surface-3); display:flex; align-items:center; justify-content:center; font-size:16px; flex:none;}
+
+/* ===== карточки отчётов: метрик-чипы с цветом по направлению, разворот с категориями ===== */
+.rep-card{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; margin-bottom:10px;}
+.rep-card-head{display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;}
+.rep-ticker-big{font-family:var(--mono); font-weight:700; font-size:16px;}
+.rep-period-small{font-size:11.5px; color:var(--ink-3);}
+.rep-metrics{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;}
+.rep-metric{display:flex; flex-direction:column; gap:2px; background:var(--surface-3); border-radius:8px; padding:7px 12px;}
+.rep-metric .rm-lbl{font-size:10px; color:var(--ink-3); font-weight:600;}
+.rep-metric .rm-val{font-family:var(--mono); font-size:13.5px; font-weight:700;}
+.rep-verdict{font-size:13.5px; color:var(--ink-2); margin-bottom:8px;}
+.rep-detail{display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--line);}
+.rep-detail.open{display:block;}
+.rep-snapshot{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+.rep-section{margin-bottom:14px;}
+.rep-section-title{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px;}
+.rep-bullet{font-size:13px; line-height:1.6; padding:8px 12px; border-radius:8px; margin-bottom:6px;}
+.rep-bullet.positive{background:var(--up-soft); color:#1D5E3D;}
+.rep-bullet.risk{background:var(--down-soft); color:#8A2E22;}
+.rep-bullet.judgment{background:var(--copper-soft); color:var(--copper-deep);}
+.rep-conclusion{font-size:13.5px; color:var(--ink-2); line-height:1.65; background:var(--surface-3); padding:14px 16px; border-radius:9px;}
+.tag-estimate{background:var(--estimate-soft, #E5EEFB); color:var(--estimate, #1F5FC4);}
+:root{--estimate:#1F5FC4; --estimate-soft:#E5EEFB;}
+
+/* .pill — использовался по файлу, но НЕ БЫЛ ОБЪЯВЛЕН (отсюда прямоугольная кнопка вместо овальной) */
+.pill{border-radius:999px; display:inline-flex; align-items:center; gap:6px; transition:box-shadow .15s, opacity .15s;}
+.pill:hover{box-shadow:0 6px 16px -6px rgba(0,0,0,.18);}
+
+/* ===== новые компоненты: чипы-цифры, сектор-плитки, сценарии, сворачиваемые статьи ===== */
+.chip-stat{display:inline-flex; flex-direction:column; gap:2px; background:var(--surface-3); border-radius:9px; padding:9px 14px;}
+
+/* filterbar/chip — ПОЛНОСТЬЮ ОТСУТСТВОВАЛИ в этом файле, отсюда рендер голым текстом */
+.filterbar{display:flex; gap:8px; flex-wrap:wrap;}
+.chip{padding:8px 16px; border-radius:999px; border:1px solid var(--line); background:var(--surface-2); color:var(--ink-2); font-size:13px; font-weight:600; cursor:pointer; transition:background .15s, border-color .15s, color .15s;}
+.chip:hover{border-color:var(--line-2);}
+.chip.active{background:var(--copper); border-color:var(--copper); color:#fff;}
+.chip-stat .cs-lbl{font-size:10.5px; color:var(--ink-3); font-weight:600;}
+.chip-stat .cs-val{font-family:var(--mono); font-size:15px; font-weight:700;}
+
+.wind-tag{display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:3px 8px; border-radius:6px;}
+.wind-up{background:var(--up-soft, #E4F3EA); color:var(--up);}
+.wind-down{background:var(--down-soft, #FBEAEA); color:var(--down);}
+.wind-neutral{background:var(--surface-3); color:var(--ink-3);}
+:root{--up-soft:#E4F3EA; --down-soft:#FBEAEA;}
+
+.sector-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+.sector-tile{background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:14px 15px;}
+.sector-tile .st-name{font-weight:700; font-size:13.5px; margin-bottom:6px;}
+.sector-tile .st-note{font-size:12px; color:var(--ink-2); line-height:1.5;}
+
+.scenario-row{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+.scenario-card{border-radius:12px; padding:20px 20px; border:1px solid var(--line);}
+.scenario-card.base{background:var(--surface-2);}
+.scenario-card.bull{background:var(--up-soft); border-color:transparent;}
+.scenario-card.bear{background:var(--down-soft); border-color:transparent;}
+.scenario-card .sc-title{font-weight:700; font-size:15px; margin-bottom:4px;}
+.scenario-card .sc-prob{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; opacity:.75; margin-bottom:12px;}
+.scenario-card .sc-num{font-family:var(--mono); font-size:13.5px; font-weight:600; margin-bottom:10px; line-height:1.5;}
+.scenario-card .sc-trig{font-size:12px; color:var(--ink-2); line-height:1.6;}
+.scenario-card .sc-trig b{display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-3); margin-bottom:4px; font-weight:700;}
+
+.article-card{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; margin-bottom:12px;}
+.article-card .ac-head{display:flex; align-items:center; gap:9px; font-size:12px; color:var(--ink-3); margin-bottom:10px;}
+.article-card .ac-title{font-weight:600; font-size:16px; margin-bottom:10px;}
+.article-card .ac-chips{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
+.article-card .ac-takeaway{font-size:13.5px; color:var(--ink-2); line-height:1.6; margin-bottom:12px;}
+.ac-toggle{font-size:12.5px; font-weight:700; color:var(--copper-deep); cursor:pointer; display:inline-flex; align-items:center; gap:5px;}
+.ac-full{display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--line);}
+.ac-full.open{display:block;}
+.ac-full p{font-size:13.5px; color:var(--ink-2); line-height:1.7; margin-bottom:10px;}
+.ac-full ul{padding-left:18px; color:var(--ink-2); font-size:13px; line-height:1.6; display:flex; flex-direction:column; gap:5px; margin-bottom:12px;}
+
+.synth-section{margin-bottom:26px;}
+.synth-head{font-family:var(--serif); font-size:16.5px; font-weight:600; margin-bottom:10px;}
+.synth-lead{font-size:13.5px; color:var(--ink-2); line-height:1.65; margin-bottom:12px;}
+.synth-chips{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
+</style>
+</head>
+<body>
+
+<div class="global-bar">
+  <div class="gb-brand"><span class="mark">B</span><span class="name">Basis</span></div>
+  <div class="gb-nav">
+    <a href="#">Рынок</a><a href="#" class="active">Обозреватель</a><a href="#">Портфель</a><a href="#">Скрининг</a><a href="#">Тарифы</a><a href="#">Профиль</a>
+  </div>
+  <div class="gb-right">
+    <div class="search">🔍 Поиск компании, тикера…</div>
+    <div class="theme-btn">🌙</div>
+  </div>
+</div>
+
+<div class="sidebar">
+  <div class="depth-strip"></div>
+  <div class="sb-eyebrow">Обозреватель</div>
+
+  <div class="sb-zone">
+    <div class="sb-zone-label">Данные</div>
+    <div class="sb-item active" data-panel="news"><span class="ic">📰</span>Лента новостей</div>
+    <div class="sb-item" data-panel="economy"><span class="ic">📈</span>Экономическая статистика</div>
+  </div>
+
+  <div class="sb-zone">
+    <div class="sb-zone-label">Рынок</div>
+    <div class="sb-item" data-panel="maps"><span class="ic">🗺️</span>Карта рынка</div>
+    <div class="sb-item" data-panel="calendar"><span class="ic">📅</span>Календарь событий</div>
+    <div class="sb-item" data-panel="reports"><span class="ic">📄</span>Отчёты</div>
+  </div>
+
+  <div class="sb-zone">
+    <div class="sb-zone-label">Разбор</div>
+    <div class="sb-item" data-panel="macroarticles"><span class="ic">🏦</span>Макроэкономика</div>
+    <div class="sb-item" data-panel="geo"><span class="ic">🌐</span>Геополитика</div>
+    <div class="sb-item" data-panel="institutions"><span class="ic">⚖️</span>Институциональная среда</div>
+    <div class="sb-item" data-panel="ai"><span class="ic">✨</span>ИИ-обзор и анализ</div>
+  </div>
+
+  <div class="sb-foot">Basis не брокер и не даёт рекомендаций «купить/продать».</div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div style="font-size:13px; color:var(--ink-3);">Контекстное понимание рыночного фона</div>
+    <div class="portfolio-toggle">💼 Только мой портфель</div>
+  </div>
+
+  <!-- ===================== ЛЕНТА ===================== -->
+  <div class="panel active" id="panel-news">
+    <div class="sec-head"><span class="eyebrow">Данные</span><h2>Лента новостей</h2></div>
+
+    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:18px;">
+      <div class="filterbar" id="newsImportanceToggle">
+        <div class="chip active" onclick="setNewsImportance(this,'all')">Все</div>
+        <div class="chip" onclick="setNewsImportance(this,'important')">Важное</div>
+      </div>
+      <div style="width:1px; height:20px; background:var(--line-2);"></div>
+      <div class="filterbar" id="newsTopicFilters">
+        <div class="chip active" onclick="setNewsTopic(this,'all')">Все</div>
+        <div class="chip" onclick="setNewsTopic(this,'business')">Бизнес</div>
+        <div class="chip" onclick="setNewsTopic(this,'macro')">Макроэкономика</div>
+        <div class="chip" onclick="setNewsTopic(this,'politics')">Политика</div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; max-width:900px;" id="newsList">
+      <div class="card news-card" data-important="true" data-topic="business" style="padding:20px 22px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:11px; font-size:12.5px; color:var(--ink-3);">
+          <span><b style="color:var(--ink-2);">Коммерсантъ</b> · <span class="mono">01.07 16:21</span> · Бизнес</span>
+          <span class="tag-judgment">важное</span>
+        </div>
+        <div style="font-weight:600; font-size:16.5px; margin-bottom:7px;">«Полюс» выплатит дивиденды за первый квартал</div>
+        <p style="color:var(--ink-2); font-size:13.5px;">29,05 руб. на акцию, всего 28 млрд руб. (30% EBITDA).</p>
+        <div style="margin-top:11px; background:var(--copper-soft); color:var(--copper-deep); padding:10px 15px; border-radius:9px; font-size:13px;">↳ поддерживает котировки PLZL</div>
+      </div>
+      <div class="card news-card" data-important="true" data-topic="macro" style="padding:20px 22px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:11px; font-size:12.5px; color:var(--ink-3);">
+          <span><b style="color:var(--ink-2);">Коммерсантъ</b> · <span class="mono">01.07 16:33</span> · Рынки</span>
+          <span class="tag-judgment">важное</span>
+        </div>
+        <div style="font-weight:600; font-size:16.5px;">Индекс гособлигаций Мосбиржи упал ниже 113 пунктов</div>
+        <p style="color:var(--ink-2); font-size:13.5px; margin-top:6px;">RGBI <span style="color:var(--down); font-weight:700;">−0,9%</span> до 112,89 — впервые за девять месяцев.</p>
+      </div>
+      <div class="card news-card" data-important="false" data-topic="politics" style="padding:20px 22px;">
+        <div style="font-size:12.5px; color:var(--ink-3); margin-bottom:7px;"><b style="color:var(--ink-2);">Коммерсантъ</b> · <span class="mono">01.07 16:40</span> · Геополитика</div>
+        <div style="font-weight:600; font-size:16.5px;">Трамп прокомментировал возможное возобновление операции против Ирана</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== МАКРО ===================== -->
+  <div class="panel" id="panel-economy">
+    <div class="sec-head"><span class="eyebrow">Данные</span><h2>Экономическая статистика · Россия</h2></div>
+
+    <div class="card hero-rate">
+      <div class="hero-topline">
+        <div>
+          <div style="font-size:12.5px; font-weight:600; color:var(--ink-2); margin-bottom:8px;">Ключевая ставка ЦБ</div>
+          <div class="hero-num">14,25<span style="font-size:.4em;">%</span></div>
+          <div style="font-size:12.5px; color:var(--ink-3); margin-top:6px;" class="mono">на 19.06.2026 · след. заседание 24.07.2026</div>
+        </div>
+        <div class="hero-note">Банк России оценит целесообразность снижения на ближайших заседаниях в зависимости от устойчивости замедления инфляции.<br><br><span class="tag-judgment">суждение Basis</span></div>
+      </div>
+
+      <div style="margin-top:26px;">
+        <div class="legend">
+          <span><i style="background:var(--copper);"></i>Ключевая ставка</span>
+          <span><i style="background:#7A8CA8;"></i>Инфляция г/г</span>
+          <span><i style="background:#D9A441;"></i>Инфл. ожидания</span>
+        </div>
+        <div class="chart-wrap">
+          <svg id="heroChart" viewBox="0 0 1000 240"></svg>
+          <div id="heroTip" class="chart-tooltip"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid8" style="margin-bottom:14px;">
+      <div class="tile" onclick="openDetail('inflation')"><div class="tile-lbl">Инфляция г/г</div><div class="tile-val">5,31%</div><div class="tile-delta d-bad">▲ давит на ставку</div><div class="tile-date mono">2026-05-31</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('inflation')"><div class="tile-lbl">Недельная инфляция</div><div class="tile-val">0,23%</div><div class="tile-delta d-bad">▲ 0,03</div><div class="tile-date mono">2026-06-08</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('expect')"><div class="tile-lbl">Инфл. ожидания</div><div class="tile-val">12,5%</div><div class="tile-delta d-bad">незаякорено</div><div class="tile-date mono">2026-06-30</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('usd_rub')"><div class="tile-lbl">USD/RUB</div><div class="tile-val">77,93</div><div class="tile-delta d-good">▼ 0,34</div><div class="tile-date mono">2026-07-03</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('cny_rub')"><div class="tile-lbl">CNY/RUB</div><div class="tile-val">11,47</div><div class="tile-delta d-good">▼ 0,01</div><div class="tile-date mono">2026-07-03</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('eur_rub')"><div class="tile-lbl">EUR/RUB</div><div class="tile-val">88,71</div><div class="tile-delta d-good">▼ 0,47</div><div class="tile-date mono">2026-07-03</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('gdp')"><div class="tile-lbl">ВВП реальный г/г</div><div class="tile-val">0,95%</div><div class="tile-delta d-good">слабый рост</div><div class="tile-date mono">2025-10-01</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('unemp')"><div class="tile-lbl">Безработица</div><div class="tile-val">2,2%</div><div class="tile-delta d-bad">перегрет рынок труда</div><div class="tile-date mono">2026-04-30</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('hh_index')"><div class="tile-lbl">hh-индекс</div><div class="tile-val">9,8</div><div class="tile-delta d-bad">▲ 0,2</div><div class="tile-date mono">2026-03-28</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('pmi')"><div class="tile-lbl">PMI композитный</div><div class="tile-val">50,3</div><div class="tile-delta d-neutral">на грани</div><div class="tile-date mono">2026-06-30</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('ppi')"><div class="tile-lbl">ИЦП</div><div class="tile-val">−5,2%</div><div class="tile-delta d-good">дезинфл. фон</div><div class="tile-date mono">2026-03-31</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('urals')"><div class="tile-lbl">Нефть Urals</div><div class="tile-val">$94</div><div class="tile-delta d-good">▲ 36,8</div><div class="tile-date mono">2026-03-28</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('budget')"><div class="tile-lbl">Баланс бюджета</div><div class="tile-val">−1,6%</div><div class="tile-delta d-neutral">%ВВП</div><div class="tile-date mono">2026-03-28</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('govspend')"><div class="tile-lbl">Рост госрасходов</div><div class="tile-val">4,2%</div><div class="tile-delta d-neutral">фискальный импульс</div><div class="tile-date mono">2026-03-28</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('m2')"><div class="tile-lbl">Денежная масса M2</div><div class="tile-val">2,5%</div><div class="tile-delta d-bad">▲ 3,8</div><div class="tile-date mono">2026-03-28</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('real_wage')"><div class="tile-lbl">Реальная зарплата</div><div class="tile-val">2,4%</div><div class="tile-delta d-good">г/г</div><div class="tile-date mono">2026-03-28</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('credit_econ')"><div class="tile-lbl">Кредит экономике</div><div class="tile-val">7,5%</div><div class="tile-delta d-neutral">г/г</div><div class="tile-date mono">2026-03-28</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('credit_org')"><div class="tile-lbl">Кредиты организациям</div><div class="tile-val">8,8%</div><div class="tile-delta d-good">▼ 0,4</div><div class="tile-date mono">2026-03-28</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('credit_pop')"><div class="tile-lbl">Кредиты населению</div><div class="tile-val">3,9%</div><div class="tile-delta d-bad">▲ 1,1</div><div class="tile-date mono">2026-03-28</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('cn_rate')"><div class="tile-lbl">Ставка НБК (КНР)</div><div class="tile-val">1,64%</div><div class="tile-delta d-good">▼ 0,06</div><div class="tile-date mono">2026-04-01</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('cn_inflation')"><div class="tile-lbl">Инфляция КНР</div><div class="tile-val">−0,07%</div><div class="tile-delta d-bad">дефляция</div><div class="tile-date mono">2025-04-01</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('cn_gdp')"><div class="tile-lbl">ВВП КНР</div><div class="tile-val">3,47%</div><div class="tile-delta d-bad">▼ 1,34</div><div class="tile-date mono">2023-07-01</div><div class="tile-link">📈 График</div></div>
+      <div class="tile" onclick="openDetail('world_gdp')"><div class="tile-lbl">Мировой ВВП</div><div class="tile-val">2,92%</div><div class="tile-delta d-good">▲ 0,02</div><div class="tile-date mono">2025-12-31</div><div class="tile-link">📈 График</div></div>
+    </div>
+    <div style="font-size:11.5px; color:var(--ink-3); margin-bottom:26px;">* «Номинальная зарплата» временно скрыта — в проде обнаружена аномалия формата (101 600%), нужна проверка бэкенда перед показом.</div>
+
+    <div class="card" id="detailChartCard" style="padding:22px 24px; margin-bottom:26px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; flex-wrap:wrap; gap:10px;">
+        <h3 class="serif" id="detailTitle" style="font-size:16.5px; font-weight:600;">Курс CNY/RUB — с наложением</h3>
+        <div style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-2);">
+          Наложить:
+          <div class="custom-dd" id="overlayDropdown">
+            <div class="dd-trigger" onclick="toggleDropdown('overlayDropdown')"><span id="overlayDropdownLabel">Индекс рынка труда hh.ru</span><span class="dd-arrow">▾</span></div>
+            <div class="dd-panel" id="overlayDropdownPanel"></div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:12px; color:var(--ink-3); margin-bottom:14px;">Кликните «График» у любого показателя выше, чтобы посмотреть его здесь и сравнить с другим рядом.</div>
+      <div class="chart-wrap">
+        <svg id="detailChart" viewBox="0 0 900 150"></svg>
+        <div id="detailTip" class="chart-tooltip"></div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:26px 28px;">
+      <h3 class="serif" style="font-size:19px; font-weight:600; margin-bottom:4px;">Прогноз Банка России</h3>
+      <div style="font-size:12px; color:var(--ink-3); margin-bottom:20px;" class="mono">по состоянию на 07.05.2026</div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; min-width:560px;">
+          <thead><tr style="border-bottom:1px solid var(--line);">
+            <th style="text-align:left; padding:10px 12px; font-size:11.5px; color:var(--ink-3); font-weight:700; text-transform:uppercase; letter-spacing:.03em;">Показатель</th>
+            <th style="text-align:left; padding:10px 12px; font-size:11.5px; color:var(--ink-3); font-weight:700;">Факт сейчас</th>
+            <th style="text-align:right; padding:10px 12px; font-size:11.5px; color:var(--ink-3); font-weight:700;">2026</th>
+            <th style="text-align:right; padding:10px 12px; font-size:11.5px; color:var(--ink-3); font-weight:700;">2027</th>
+            <th style="text-align:right; padding:10px 12px; font-size:11.5px; color:var(--ink-3); font-weight:700;">2028</th>
+          </tr></thead>
+          <tbody class="mono">
+            <tr style="border-bottom:1px solid var(--line);">
+              <td style="padding:12px; font-family:var(--sans); font-weight:600;">Инфляция</td>
+              <td style="padding:12px; color:var(--ink-2);">5,31%</td>
+              <td style="padding:12px; text-align:right;"><span class="range-pill">4,5–5,5</span></td>
+              <td style="padding:12px; text-align:right;"><span class="range-pill">4,0</span></td>
+              <td style="padding:12px; text-align:right;"><span class="range-pill">4,0</span></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+              <td style="padding:12px; font-family:var(--sans); font-weight:600;">Ключевая ставка</td>
+              <td style="padding:12px; color:var(--ink-2);">14,25%</td>
+              <td style="padding:12px; text-align:right;"><span class="range-pill">14,0–14,5</span></td>
+              <td style="padding:12px; text-align:right;"><span class="range-pill">8,0–10,0</span></td>
+              <td style="padding:12px; text-align:right;"><span class="range-pill">7,5–8,5</span></td>
+            </tr>
+            <tr>
+              <td style="padding:12px; font-family:var(--sans); font-weight:600;">Рост ВВП</td>
+              <td style="padding:12px; color:var(--ink-2);">0,95%</td>
+              <td style="padding:12px; text-align:right;"><span class="range-pill">0,5–1,5</span></td>
+              <td style="padding:12px; text-align:right;"><span class="range-pill">1,5–2,5</span></td>
+              <td style="padding:12px; text-align:right;"><span class="range-pill">1,5–2,5</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:13px; color:var(--ink-2); margin-top:18px; line-height:1.6;">Инфляция вернётся к 4% в 2027 году — базовый прогноз ЦБ.</p>
+    </div>
+  </div>
+
+  <!-- ===================== МАКРОЭКОНОМИКА (статьи ЦБ/ЦМАКП) ===================== -->
+  <div class="panel" id="panel-macroarticles">
+    <div class="sec-head"><span class="eyebrow">Разбор</span><h2>Макроэкономика</h2></div>
+    <p style="color:var(--ink-2); font-size:13px; max-width:760px; margin-bottom:16px;">«Обзор» — записки ЦБ и ЦМАКП как есть. «Оценка ситуации» — что из этого следует, по мнению Basis.</p>
+
+    <div class="seg-toggle" id="macroModeToggle" style="margin-bottom:18px;">
+      <span class="seg-opt on" onclick="setMacroMode(this,'overview')">Обзор</span>
+      <span class="seg-opt" onclick="setMacroMode(this,'assessment')">Оценка ситуации</span>
+    </div>
+
+    <div id="macro-overview">
+    <div class="filterbar" id="macroFilters" style="padding:0 0 18px;">
+      <div class="chip active" onclick="filterArticles(this,'all')">Все</div><div class="chip" onclick="filterArticles(this,'cmakp')">ЦМАКП</div><div class="chip" onclick="filterArticles(this,'cbr')">Банк России</div>
+    </div>
+
+    <div style="max-width:900px;">
+      <div class="article-card" data-source="cmakp">
+        <div class="ac-head"><b style="color:var(--ink-2);">ЦМАКП</b> · Аналитическая записка · <span class="mono">2026-07-01</span></div>
+        <div class="ac-title">Прогноз социально-экономического развития России на 2026–2029 гг.</div>
+        <div class="ac-chips">
+          <div class="chip-stat"><span class="cs-lbl">Инфляция к 2029</span><span class="cs-val">3,6–4,0%</span></div>
+          <div class="chip-stat"><span class="cs-lbl">Рост ВВП/год</span><span class="cs-val">0,5–2,0%</span></div>
+          <div class="chip-stat"><span class="cs-lbl">USD/RUB к 2029</span><span class="cs-val">101–107</span></div>
+        </div>
+        <div class="ac-takeaway">Снижение инфляции создаёт предпосылки для смягчения ДКП; ослабление рубля выгодно экспортёрам, но увеличит издержки импортозависимых компаний.</div>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Читать разбор целиком ▾</div>
+        <div class="ac-full">
+          <p>Документ содержит прогнозные значения ключевых макроэкономических показателей России на 2026–2029 годы, включая инфляцию, ВВП, инвестиции, потребление, доходы населения, безработицу и курс рубля. Прогнозы представлены в виде диапазонов по месяцам, отражая постепенное замедление инфляции и умеренный рост экономики.</p>
+          <ul>
+            <li>Инфляция снизится с 5,59% (2025) до 3,6–4,0% к 2029 году.</li>
+            <li>Рост ВВП останется низким (0,5–2,0% в год), ограниченный потенциал корпоративных доходов.</li>
+            <li>Инвестиции в основной капитал в 2026 году сократятся на 2,0–3,8%, восстановление с 2027 года.</li>
+            <li>Потребление населения замедлится до 1,5–2,9% в 2026 году.</li>
+            <li>Курс рубля ослабнет до 101–107 руб./долл. к концу 2029 года.</li>
+            <li>Безработица вырастет с 2,2% (2025) до 2,8–3,2% к 2029 году.</li>
+          </ul>
+          <div class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+            <p><b>Интерпретация Basis.</b> Сокращение инвестиций в 2026 г. ударит по строительному сектору и производителям оборудования, замедление потребления — по рознице и услугам. В первую очередь следить за динамикой инфляции и курсом рубля.</p></div>
+          <a href="#" style="font-size:12.5px; color:var(--copper-deep); font-weight:600;">Оригинал ↗</a>
+        </div>
+      </div>
+
+      <div class="article-card" data-source="cbr">
+        <div class="ac-head"><b style="color:var(--ink-2);">Банк России</b> · Инфляционные ожидания и потребнастроения · <span class="mono">2026-06-28</span></div>
+        <div class="ac-title">Инфляционные ожидания и потребительские настроения (июнь 2026)</div>
+        <div class="ac-chips">
+          <div class="chip-stat"><span class="cs-lbl">Ожидаемая инфляция</span><span class="cs-val">12,4%</span></div>
+          <div class="chip-stat"><span class="cs-lbl">Наблюдаемая</span><span class="cs-val">15,0%</span></div>
+          <div class="chip-stat"><span class="cs-lbl">Семьи со сбережениями</span><span class="cs-val">36%</span></div>
+        </div>
+        <div class="ac-takeaway">Ожидаемая инфляция выше цели ЦБ, доля семей со сбережениями упала до минимума с начала 2024 — давление на потребительский сектор.</div>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Читать разбор целиком ▾</div>
+        <div class="ac-full">
+          <p>По данным опроса населения РФ (29 мая — 10 июня 2026), медианная ожидаемая инфляция на год вперёд составила 12,4%, наблюдаемая — 15,0%. Доля семей, имеющих сбережения, снизилась до 36% (с 42% в мае). Оценки инфляции значительно различаются между группами.</p>
+          <ul>
+            <li>Ожидаемая инфляция (12,4%) остаётся выше целевого уровня ЦБ, поддерживает жёсткую ДКП.</li>
+            <li>Снижение доли семей со сбережениями указывает на ухудшение потребительской уверенности.</li>
+            <li>Разрыв в оценках между сберегающими и несберегающими группами сохраняется (2–3 п.п.).</li>
+          </ul>
+          <div class="callout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+            <p><b>Интерпретация Basis.</b> Давление на компании потребсектора растёт, особенно на производителей товаров длительного пользования — домохозяйства могут сокращать необязательные расходы.</p></div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <div id="macro-assessment" class="deep-card" style="max-width:920px; display:none;">
+      <div class="deep-eyebrow">Оценка ситуации · суждение Basis, иллюстративно</div>
+      <h3>Что из этого следует</h3>
+      <p style="margin-bottom:18px;">Записки ЦМАКП и Банка России сходятся в одном: инфляция остаётся выше цели дольше, чем предполагал базовый сценарий в начале года, а снижение доли семей со сбережениями сигнализирует об ослаблении потребительской уверенности раньше, чем это отразится в официальной статистике. Basis считает вероятным, что ЦБ будет действовать консервативнее собственного среднесрочного прогноза — реальное снижение ставки, вероятно, начнётся позже заявленных ориентиров.</p>
+      <div style="border-top:1px solid var(--deep-line); padding-top:16px;">
+        <div style="font-weight:600; font-size:14px; margin-bottom:5px;">Практический вывод</div>
+        <p>Долговые инструменты с фиксированным купоном остаются под давлением дольше базового сценария; сектора, чувствительные к ставке (девелопмент, потребительское кредитование), не стоит переоценивать по скорости восстановления.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== КАРТЫ РЫНКА ===================== -->
+  <div class="panel" id="panel-maps">
+    <div class="sec-head"><span class="eyebrow">Рынок</span><h2>Карта рынка</h2></div>
+    <p style="color:var(--ink-2); font-size:13px; max-width:760px; margin-bottom:18px;">Все бумаги сразу на одной карте — размер плитки отражает капитализацию, цвет — движение цены. Клик по сектору сужает карту до него.</p>
+
+    <div class="seg-toggle" id="assetToggle" style="margin-bottom:18px;">
+      <span class="seg-opt on" onclick="setAssetClass(this,'stocks')">Акции</span>
+      <span class="seg-opt" onclick="setAssetClass(this,'bonds')">Облигации</span>
+      <span class="seg-opt" onclick="setAssetClass(this,'futures')">Фьючерсы</span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:22px; margin-bottom:16px; flex-wrap:wrap;">
+      <div class="seg-toggle" id="mapToggle"><span class="seg-opt on" onclick="setMapMode(this,'heat')">Тепловая</span><span class="seg-opt" onclick="setMapMode(this,'value')">Недооценённость</span></div>
+      <div class="seg-toggle" id="periodToggle"><span class="seg-opt on" onclick="setSeg('periodToggle',this)">Сутки</span><span class="seg-opt" onclick="setSeg('periodToggle',this)">Неделя</span><span class="seg-opt" onclick="setSeg('periodToggle',this)">Месяц</span></div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="mono" style="font-size:11px; color:var(--down);">−2%</span>
+        <div style="width:150px; height:9px; border-radius:5px; background:linear-gradient(90deg,rgb(176,58,46),rgb(216,101,61),rgb(231,145,56),rgb(117,158,71),rgb(46,125,80));"></div>
+        <span class="mono" style="font-size:11px; color:var(--up);">+2%</span>
+      </div>
+    </div>
+
+    <div class="filterbar" id="sectorChips" style="margin-bottom:16px;"></div>
+
+    <div id="mapOverview"></div>
+    <div id="mapAssetStub" style="display:none; padding:60px 20px; text-align:center; color:var(--ink-3); font-size:14px; background:var(--surface-3); border-radius:12px;"></div>
+  </div>
+
+  <!-- ===================== КАЛЕНДАРЬ ===================== -->
+  <div class="panel" id="panel-calendar">
+    <div class="sec-head"><span class="eyebrow">Рынок</span><h2>Календарь событий</h2></div>
+    <p style="color:var(--ink-2); font-size:13px; max-width:760px; margin-bottom:18px;">Предстоящие события: дивиденды, отчётности, собрания СД/ГОСА, макростатистика, IPO/SPO. Оферты, погашения и экспирации — техническое, вынесено отдельно ниже.</p>
+
+    <div style="display:flex; align-items:center; gap:18px; margin-bottom:18px; flex-wrap:wrap;">
+      <div class="seg-toggle" id="calViewToggle">
+        <span class="seg-opt on" onclick="setCalView(this,'list')">Список</span>
+        <span class="seg-opt" onclick="setCalView(this,'grid')">Календарь</span>
+      </div>
+      <div class="filterbar" id="calFilters">
+        <div class="chip active" onclick="filterCalendar(this,'all')">Все</div>
+        <div class="chip" onclick="filterCalendar(this,'dividend')">Дивиденды</div>
+        <div class="chip" onclick="filterCalendar(this,'earnings')">Отчётности</div>
+        <div class="chip" onclick="filterCalendar(this,'board')">СД · ГОСА</div>
+        <div class="chip" onclick="filterCalendar(this,'macro')">Макро</div>
+        <div class="chip" onclick="filterCalendar(this,'ipo')">IPO · SPO</div>
+      </div>
+    </div>
+
+    <!-- ВИД: СПИСОК -->
+    <div id="calListView">
+      <div class="card" style="padding:26px 28px; max-width:820px;">
+        <div class="tl-wrap" id="calTimeline"></div>
+      </div>
+    </div>
+
+    <!-- ВИД: КАЛЕНДАРЬ (сетка месяца) -->
+    <div id="calGridView" style="display:none;">
+      <div class="cal-nav">
+        <button onclick="shiftMonth(-1)">←</button>
+        <div class="cal-month-label" id="calMonthLabel"></div>
+        <button onclick="shiftMonth(1)">→</button>
+      </div>
+      <div class="cal-legend">
+        <span><i style="background:var(--up);"></i>Дивиденды</span>
+        <span><i style="background:var(--copper);"></i>Отчётности</span>
+        <span><i style="background:var(--estimate);"></i>СД · ГОСА</span>
+        <span><i style="background:var(--ink-3);"></i>Макро</span>
+        <span><i style="background:#8A4FBF;"></i>IPO · SPO</span>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-day-detail" id="calDayDetail"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; max-width:960px;" onclick="toggleTechEvents()">
+      <span style="font-weight:600; font-size:14px;"><span id="techToggleArrow">▸</span> Технические события облигаций и фьючерсов — оферты · погашения · экспирации <span class="mono" style="color:var(--ink-3);">(397)</span></span>
+      <span style="color:var(--copper-deep); font-size:13px; font-weight:600;">подробнее</span>
+    </div>
+    <div id="techEventsList" style="display:none; margin-top:10px; max-width:960px;"></div>
+  </div>
+
+  <!-- ===================== ОТЧЁТЫ ===================== -->
+  <div class="panel" id="panel-reports">
+    <div class="sec-head"><span class="eyebrow">Рынок</span><h2>Отчёты</h2></div>
+    <p style="color:var(--ink-2); font-size:13px; max-width:760px; margin-bottom:18px;">Вышедшие отчётности: цифры видно сразу, полный разбор — по клику. Ознакомительно, не ИИР.</p>
+
+    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+      <div class="filterbar" id="repFilters">
+        <div class="chip active" onclick="filterReports(this,'all')">Все</div>
+      </div>
+      <div class="custom-dd" id="sectorDropdown">
+        <div class="dd-trigger" onclick="toggleDropdown('sectorDropdown')"><span id="sectorDropdownLabel">Сектор</span><span class="dd-arrow">▾</span></div>
+        <div class="dd-panel" id="sectorDropdownPanel"></div>
+      </div>
+    </div>
+
+    <!-- 3 ПОЛНЫХ РАЗБОРА — реальный источник, категоризированная структура -->
+    <div class="rep-card" data-important="true" data-profitdir="up" data-sector="Транспорт и логистика">
+      <div class="rep-card-head"><span class="rep-ticker-big">AFLT</span><span class="rep-period-small">Аэрофлот · 1К 2026 · МСФО</span></div>
+      <div class="rep-metrics">
+        <div class="rep-metric"><span class="rm-lbl">Выручка</span><span class="rm-val" style="color:var(--up);">+5,7%</span></div>
+        <div class="rep-metric"><span class="rm-lbl">Скорр. убыток</span><span class="rm-val" style="color:var(--down);">8,8 млрд ₽</span></div>
+        <div class="rep-metric"><span class="rm-lbl">Дивиденды 2025</span><span class="rm-val" style="color:var(--up);">11,1%</span></div>
+      </div>
+      <div class="rep-verdict">Операционно почти восстановились, но сезонно слабый квартал ушёл в скорректированный убыток; главные отчёты — 2К и 3К.</div>
+      <div class="ac-toggle" onclick="toggleArticle(this)">Читать разбор целиком ▾</div>
+      <div class="rep-detail">
+        <div class="rep-snapshot">
+          <div class="rep-metric"><span class="rm-lbl">Капитализация</span><span class="rm-val">189,2 млрд ₽</span></div>
+          <div class="rep-metric"><span class="rm-lbl">P/E TTM</span><span class="rm-val">2,8</span></div>
+          <div class="rep-metric"><span class="rm-lbl">P/B TTM</span><span class="rm-val">3,7</span></div>
+          <div class="rep-metric"><span class="rm-lbl">Чистая прибыль TTM</span><span class="rm-val">68,5 млрд ₽</span></div>
+        </div>
+        <div class="rep-section">
+          <div class="rep-section-title" style="color:#1D5E3D;">Позитив</div>
+          <div class="rep-bullet positive">Пассажирооборот +7% г/г, за 12 месяцев (156,3 млрд пкм) уже выше пика 2019 года.</div>
+          <div class="rep-bullet positive">СД рекомендовал дивиденды 5,29 ₽/акцию за 2025 год — доходность выше 11%, больше прошлогодней.</div>
+        </div>
+        <div class="rep-section">
+          <div class="rep-section-title" style="color:#8A2E22;">Риски</div>
+          <div class="rep-bullet risk">Чистый долг с учётом аренды — 543,5 млрд ₽; нагрузка ощутимая, хоть и комфортная.</div>
+          <div class="rep-bullet risk">Росимущество планирует продать 23,76% доли — риск навеса на free float до объявления цены сделки.</div>
+        </div>
+        <div class="rep-section">
+          <div class="rep-section-title" style="color:var(--copper-deep);">Что это значит</div>
+          <div class="rep-bullet judgment">Первый квартал сезонно слабый — результат ожидаемый, не тревожный сигнал сам по себе. Геополитика не мешает адаптации (маршруты перенаправлены, рейсы в ОАЭ возобновлены с 1 июня).</div>
+        </div>
+        <div class="rep-conclusion"><b>Вывод.</b> Компания почти восстановила операционные показатели до уровня 2019 года. Дальнейшая динамика финансов зависит от снижения ставки и общих экономических условий — 2026 год ожидается непростым для многих отраслей.</div>
+      </div>
+    </div>
+
+    <div class="rep-card" data-important="true" data-profitdir="down" data-sector="IT-сектор">
+      <div class="rep-card-head"><span class="rep-ticker-big">ASTR</span><span class="rep-period-small">Астра · 1К 2026 · МСФО</span></div>
+      <div class="rep-metrics">
+        <div class="rep-metric"><span class="rm-lbl">Выручка</span><span class="rm-val" style="color:var(--down);">−15%</span></div>
+        <div class="rep-metric"><span class="rm-lbl">Опер. результат</span><span class="rm-val" style="color:var(--down);">убыток</span></div>
+        <div class="rep-metric"><span class="rm-lbl">Дивиденды 2025</span><span class="rm-val" style="color:var(--ink-2);">2%</span></div>
+      </div>
+      <div class="rep-verdict">Слабый квартал плюс новость о возможной продаже доли основателем — акции упали почти на 20% с конца мая.</div>
+      <div class="ac-toggle" onclick="toggleArticle(this)">Читать разбор целиком ▾</div>
+      <div class="rep-detail">
+        <div class="rep-snapshot">
+          <div class="rep-metric"><span class="rm-lbl">Капитализация</span><span class="rm-val">48,8 млрд ₽</span></div>
+          <div class="rep-metric"><span class="rm-lbl">P/E TTM</span><span class="rm-val">9,2</span></div>
+          <div class="rep-metric"><span class="rm-lbl">P/B</span><span class="rm-val">4,6</span></div>
+          <div class="rep-metric"><span class="rm-lbl">fwd P/E 2026 (цель компании)</span><span class="rm-val">5,7</span></div>
+        </div>
+        <div class="rep-section">
+          <div class="rep-section-title" style="color:#1D5E3D;">Позитив</div>
+          <div class="rep-bullet positive">Чистый долг сократился до 0,4 млрд ₽; объявлен байбэк до 2% от УК.</div>
+          <div class="rep-bullet positive">Компания подтвердила цель по чистой прибыли 12 млрд ₽ за 2027 год, развивает экосистему «Астра ИИ».</div>
+        </div>
+        <div class="rep-section">
+          <div class="rep-section-title" style="color:#8A2E22;">Риски</div>
+          <div class="rep-bullet risk">Основатель (62,2%→52,1% ранее) ведёт переговоры о продаже ещё 10–15% акций — компания не подтверждает и не опровергает.</div>
+          <div class="rep-bullet risk">Годовая цель компании (12 млрд ₽ к 2027) уже переносилась однажды — два года назад тот же ориентир давался на 2025 год.</div>
+        </div>
+        <div class="rep-section">
+          <div class="rep-section-title" style="color:var(--copper-deep);">Что это значит</div>
+          <div class="rep-bullet judgment">Для всего ИТ-сектора показательны именно результаты за 4-й квартал — реальная картина года станет ясна нескоро. Текущее падение — реакция на два фактора сразу (отчёт + новость об инсайдерской продаже), не только на цифры.</div>
+        </div>
+        <div class="rep-conclusion"><b>Вывод.</b> Год ожидается сложным для сектора в целом. Компания сохраняет долгосрочные ориентиры роста, но целевые сроки уже переносились ранее — стоит следить за фактическим исполнением, а не только за анонсами.</div>
+      </div>
+    </div>
+
+    <div class="rep-card" data-important="true" data-profitdir="down" data-sector="Нефть и газ">
+      <div class="rep-card-head"><span class="rep-ticker-big">ROSN</span><span class="rep-period-small">Роснефть · 1К 2026 · МСФО</span></div>
+      <div class="rep-metrics">
+        <div class="rep-metric"><span class="rm-lbl">Выручка</span><span class="rm-val" style="color:var(--down);">−11%</span></div>
+        <div class="rep-metric"><span class="rm-lbl">Чистая прибыль</span><span class="rm-val" style="color:var(--down);">−32%</span></div>
+        <div class="rep-metric"><span class="rm-lbl">Добыча ЖУВ</span><span class="rm-val" style="color:var(--up);">+3%</span></div>
+      </div>
+      <div class="rep-verdict">Рост цен на нефть в марте пока не отразился на результатах — эффект ожидается со 2-го квартала.</div>
+      <div class="ac-toggle" onclick="toggleArticle(this)">Читать разбор целиком ▾</div>
+      <div class="rep-detail">
+        <div class="rep-snapshot">
+          <div class="rep-metric"><span class="rm-lbl">Капитализация</span><span class="rm-val">4 178 млрд ₽</span></div>
+          <div class="rep-metric"><span class="rm-lbl">P/E TTM / fwd 2026</span><span class="rm-val">15,7 / 4,5</span></div>
+          <div class="rep-metric"><span class="rm-lbl">P/B</span><span class="rm-val">0,5</span></div>
+          <div class="rep-metric"><span class="rm-lbl">fwd дивиденд 2026</span><span class="rm-val">11%</span></div>
+        </div>
+        <div class="rep-section">
+          <div class="rep-section-title" style="color:#1D5E3D;">Позитив</div>
+          <div class="rep-bullet positive">Добыча жидких углеводородов выросла на 3% г/г, сбыт стабилен несмотря на удары по инфраструктуре.</div>
+        </div>
+        <div class="rep-section">
+          <div class="rep-section-title" style="color:#8A2E22;">Риски</div>
+          <div class="rep-bullet risk">Чистый долг вырос до 3 915 млрд ₽ (ND/EBITDA 1,7) — рост в рублях несмотря на укрепление рубля.</div>
+          <div class="rep-bullet risk">Дивиденды за 2025 год — всего 13,83 ₽/акцию (доходность ~3,5%), заметно ниже, чем у других компаний сектора.</div>
+        </div>
+        <div class="rep-section">
+          <div class="rep-section-title" style="color:var(--copper-deep);">Что это значит</div>
+          <div class="rep-bullet judgment">Часть прибыли — неденежные факторы (в т.ч. курсовые разницы); скорректированный показатель может быть выше отчётного. Эффект роста цен на нефть в полной мере проявится во 2-м квартале.</div>
+        </div>
+        <div class="rep-conclusion"><b>Вывод.</b> Рост capex и соблюдение дивидендной политики (50% прибыли по МСФО) объясняют рост долга. При сохранении высоких цен на нефть до конца года годовая прибыль может быть выше уровня 1-го квартала в разы.</div>
+      </div>
+    </div>
+
+    <!-- КОМПАКТНЫЕ КАРТОЧКИ — из ленты продакшена, метрики проверены вручную -->
+    <div id="repCompactList"></div>
+  </div>
+
+  <!-- ===================== ГЕОПОЛИТИКА ===================== -->
+  <div class="panel" id="panel-geo">
+    <div class="sec-head"><span class="eyebrow">Разбор</span><h2>Геополитика</h2></div>
+    <p style="color:var(--ink-2); font-size:13px; max-width:760px; margin-bottom:18px;">«Обзор» — что произошло (факты). «Оценка ситуации» — прогноз Basis: куда идёт регион и что это значит для российского рынка.</p>
+
+    <div class="filterbar" id="geoRegionFilters" style="margin-bottom:16px;">
+      <div class="chip active" onclick="setGeoRegion(this,'svo')">СВО</div>
+      <div class="chip" onclick="setGeoRegion(this,'me')">Ближний Восток</div>
+      <div class="chip" onclick="setGeoRegion(this,'apac')">АТР</div>
+    </div>
+    <div class="seg-toggle" id="geoModeToggle" style="margin-bottom:20px;">
+      <span class="seg-opt on" onclick="setGeoMode(this,'overview')">Обзор</span>
+      <span class="seg-opt" onclick="setGeoMode(this,'assessment')">Оценка ситуации</span>
+    </div>
+
+    <!-- РЕГИОН: СВО -->
+    <div id="geo-svo">
+      <div id="geo-svo-overview" class="deep-card" style="max-width:920px;">
+        <div class="deep-eyebrow">Обзор · факты</div>
+        <h3>СВО / российская повестка</h3>
+        <p style="margin-bottom:18px;">Военная операция продолжается с акцентом на топливную инфраструктуру. Экономический вектор России смещается в Азию, требуя перестройки логистических цепочек.</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <span class="deep-chip-sector">Финансы</span><span class="deep-chip-sector">Нефть и газ</span><span class="deep-chip-sector">Логистика</span>
+          <span class="deep-chip-ticker">SBER</span><span class="deep-chip-ticker">GAZP</span><span class="deep-chip-ticker">MOEX</span>
+        </div>
+      </div>
+      <div id="geo-svo-assessment" class="deep-card" style="max-width:920px; display:none;">
+        <div class="deep-eyebrow">Оценка ситуации · суждение Basis, иллюстративно</div>
+        <h3>Куда идёт ситуация и что это значит для рынка</h3>
+        <p style="margin-bottom:18px;">Признаков скорой деэскалации нет: интенсивность ударов по инфраструктуре сохраняется, переговорный трек не даёт быстрых результатов. Базовый сценарий — сохранение текущего режима санкций на горизонте 6–12 месяцев, риск ужесточения выше вероятности смягчения.</p>
+        <div style="border-top:1px solid var(--deep-line); padding-top:16px;">
+          <div style="font-weight:600; font-size:14px; margin-bottom:5px;">Первыми затронуты</div>
+          <p>Экспортёры с логистикой через Европу (переориентация на Азию — рост издержек), финансовый сектор (санкционный риск), нефтегаз (дисконты на экспорт).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- РЕГИОН: Ближний Восток -->
+    <div id="geo-me" style="display:none;">
+      <div id="geo-me-overview" class="deep-card" style="max-width:920px;">
+        <div class="deep-eyebrow">Обзор · факты</div>
+        <h3>Ближний Восток</h3>
+        <p style="margin-bottom:18px;">Напряжённость вокруг Ормузского пролива сохраняется, точечные удары по инфраструктуре в регионе продолжаются. Мировые цены на нефть реагируют повышенной волатильностью.</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <span class="deep-chip-sector">Нефть и газ</span><span class="deep-chip-sector">Транспорт</span>
+          <span class="deep-chip-ticker">ROSN</span><span class="deep-chip-ticker">LKOH</span><span class="deep-chip-ticker">NVTK</span>
+        </div>
+      </div>
+      <div id="geo-me-assessment" class="deep-card" style="max-width:920px; display:none;">
+        <div class="deep-eyebrow">Оценка ситуации · суждение Basis, иллюстративно</div>
+        <h3>Куда идёт ситуация и что это значит для рынка</h3>
+        <p style="margin-bottom:18px;">Риск полного закрытия Ормузского пролива низкий, но не нулевой — это хвостовой риск с высоким влиянием на цены нефти при реализации. Базовый сценарий — сохранение локальной напряжённости без полномасштабной эскалации на горизонте нескольких месяцев.</p>
+        <div style="border-top:1px solid var(--deep-line); padding-top:16px;">
+          <div style="font-weight:600; font-size:14px; margin-bottom:5px;">Первыми затронуты</div>
+          <p>Российские нефтегазовые экспортёры — выгодоприобретатели при росте мировых цен на нефть; транспортные и страховые издержки в регионе растут для всех участников.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- РЕГИОН: АТР -->
+    <div id="geo-apac" style="display:none;">
+      <div id="geo-apac-overview" class="deep-card" style="max-width:920px;">
+        <div class="deep-eyebrow">Обзор · факты</div>
+        <h3>Азиатско-Тихоокеанский регион</h3>
+        <p style="margin-bottom:18px;">Торговое напряжение между США и Китаем сохраняется, Россия продолжает наращивать долю экспорта в Азию на фоне переориентации логистики. Спрос со стороны Китая остаётся ключевым фактором для сырьевых рынков.</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <span class="deep-chip-sector">Металлургия</span><span class="deep-chip-sector">Нефть и газ</span><span class="deep-chip-sector">Логистика</span>
+          <span class="deep-chip-ticker">NVTK</span><span class="deep-chip-ticker">GMKN</span><span class="deep-chip-ticker">NLMK</span>
+        </div>
+      </div>
+      <div id="geo-apac-assessment" class="deep-card" style="max-width:920px; display:none;">
+        <div class="deep-eyebrow">Оценка ситуации · суждение Basis, иллюстративно</div>
+        <h3>Куда идёт ситуация и что это значит для рынка</h3>
+        <p style="margin-bottom:18px;">Углубление торговой переориентации на Азию — структурный, не временный тренд. Зависимость от спроса Китая растёт, что повышает чувствительность российских сырьевых экспортёров к китайскому экономическому циклу.</p>
+        <div style="border-top:1px solid var(--deep-line); padding-top:16px;">
+          <div style="font-weight:600; font-size:14px; margin-bottom:5px;">Первыми затронуты</div>
+          <p>Металлурги и нефтегаз с экспортом в Азию — выигрывают от роста доли, но приобретают новую зависимость от китайского спроса и цен.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ИНСТИТУЦИОНАЛЬНАЯ СРЕДА ===================== -->
+  <div class="panel" id="panel-institutions">
+    <div class="sec-head"><span class="eyebrow">Разбор</span><h2>Институциональная среда</h2></div>
+    <p style="color:var(--ink-2); font-size:13px; max-width:760px; margin-bottom:20px;">Не события, а «правила игры»: защита прав собственности, независимость судов, экстрактивность vs инклюзивность институтов (Норт, Аджемоглу и Робинсон, Коуз) — и что это значит для риск-премии инвестора.</p>
+
+    <div class="seg-toggle" id="instModeToggle" style="margin-bottom:20px;">
+      <span class="seg-opt on" onclick="setInstMode(this,'overview')">Обзор</span>
+      <span class="seg-opt" onclick="setInstMode(this,'assessment')">Оценка ситуации</span>
+    </div>
+
+    <div id="inst-overview" class="deep-card" style="max-width:920px;">
+      <div class="deep-eyebrow">Обзор · факты</div>
+      <h3>Наблюдаемое состояние институтов</h3>
+      <p style="margin-bottom:18px;">Индикаторы качества институтов (Worldwide Governance Indicators Всемирного банка — верховенство права, контроль коррупции, качество регулирования) фиксируют структурно низкие позиции России в международных сопоставлениях на протяжении последних лет. Формальный Кодекс корпоративного управления ЦБ РФ действует и задаёт стандарт де-юре (независимые директора, раскрытие, защита миноритариев), но правоприменение неоднородно между компаниями.</p>
+      <div style="border-top:1px solid var(--deep-line); padding-top:16px;">
+        <div style="font-weight:600; font-size:14px; margin-bottom:5px;">Ключевое различие де-юре / де-факто</div>
+        <p>Формальные права (в законе, в кодексе) — это не то же самое, что фактическая защищённость. Наблюдаемые прецеденты (принудительная редомициляция, ограничения на выход нерезидентов, случаи деприватизации отдельных активов) показывают, что фактическая защита прав собственности может расходиться с формальной.</p>
+      </div>
+    </div>
+
+    <div id="inst-assessment" class="deep-card" style="max-width:920px; display:none;">
+      <div class="deep-eyebrow">Оценка ситуации · суждение Basis, иллюстративно</div>
+      <h3>Куда движется траектория и что это значит для инвестора</h3>
+      <p style="margin-bottom:18px;">По рамке Аджемоглу и Робинсона («Почему одни страны богатые, а другие бедные») ключевой вопрос — институты становятся более <b>экстрактивными</b> (концентрация ренты у узкого круга, слабая защита прав широкого круга участников) или более <b>инклюзивными</b> (широкое участие, защищённые права, конкуренция). Наблюдаемая с 2022 года динамика — рост роли государства в перераспределении активов, точечные прецеденты пересмотра прав собственности — смещает баланс в сторону экстрактивности на среднесрочном горизонте. Это не оценочное суждение о какой-либо позиции, а факторная модель для риск-премии.</p>
+      <div style="border-top:1px solid var(--deep-line); padding-top:16px;">
+        <div style="font-weight:600; font-size:14px; margin-bottom:5px;">Что это значит для разных компаний</div>
+        <p>Компании с широким free float, диверсифицированной экспортной выручкой и низкой зависимостью от госзаказа — менее подвержены институциональному риску. Компании с высокой концентрацией у контролирующего акционера, историей related-party операций или стратегической значимостью для государства — несут более высокую институциональную премию к ставке дисконтирования. Это тот же принцип, что уже заложен в методологию оценки корпоративного управления по каждой компании (override-правила при деприватизации/squeeze-out) — здесь он на уровне странового фона, а не отдельного эмитента.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ИИ-ОБЗОР ===================== -->
+  <div class="panel" id="panel-ai">
+    <div class="sec-head" style="justify-content:space-between;"><div style="display:flex; align-items:baseline; gap:13px;"><span class="eyebrow">Разбор</span><h2>ИИ-обзор и анализ</h2></div><a onclick="openHistoryPage()" style="font-size:13px; font-weight:600; color:var(--copper-deep); cursor:pointer; display:flex; align-items:center; gap:6px;">📋 История отчётов →</a></div>
+    <p style="color:var(--ink-2); font-size:13px; max-width:760px; margin-bottom:22px; margin-top:-14px;">Настройте глубину и тему — от короткой сводки по портфелю до макроэкономического разбора со сценариями.</p>
+
+    <div style="display:flex; flex-wrap:wrap; align-items:flex-end; gap:26px; margin-bottom:22px;">
+      <div>
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-3); margin-bottom:8px;">Глубина</div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:460px;">
+          <div class="ai-plan on" data-depth="express"><div style="font-weight:700; font-size:14px;">Экспресс</div><div class="mono" style="font-size:11px; color:var(--ink-3); margin-top:4px;">±2 дня</div></div>
+          <div class="ai-plan" data-depth="detailed"><div style="font-weight:700; font-size:14px;">Подробный</div><div class="mono" style="font-size:11px; color:var(--ink-3); margin-top:4px;">±7 дней</div></div>
+          <div class="ai-plan" data-depth="deep"><div style="font-weight:700; font-size:14px;">Глубокий</div><div class="mono" style="font-size:11px; color:var(--ink-3); margin-top:4px;">±30 дней</div></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-3); margin-bottom:8px;">Тема</div>
+        <div class="seg-toggle" id="topicToggle">
+          <span class="seg-opt" data-topic="biz" onclick="setTopic(this,'biz')">Бизнес</span>
+          <span class="seg-opt on" data-topic="macro" onclick="setTopic(this,'macro')">Макроэкономика</span>
+          <span class="seg-opt" data-topic="geo" onclick="setTopic(this,'geo')">Геополитика</span>
+          <span class="seg-opt" data-topic="institutions" onclick="setTopic(this,'institutions')">Институты</span>
+          <span class="seg-opt" data-topic="mixed" onclick="setTopic(this,'mixed')">Смешанный</span>
+        </div>
+      </div>
+      <div style="margin-left:auto;">
+        <div style="font-size:11px; margin-bottom:8px; visibility:hidden;">·</div>
+        <div class="pill" style="background:var(--copper); color:#fff; padding:12px 26px; font-size:14px; font-weight:700; cursor:pointer;" onclick="generateReport()">✨ Сгенерировать отчёт</div>
+      </div>
+    </div>
+
+    <p style="font-style:italic; color:var(--ink-3); font-size:12.5px; margin-bottom:22px;">Это аналитическая интерпретация Basis (оценка, не факт и не рекомендация «купить/продать»).</p>
+
+    <!-- ТЕМА: Бизнес (краткая, иллюстративная — меньше глубины, чем Макроэкономика) -->
+    <div id="topic-biz" style="display:none;">
+      <div class="deep-card" style="max-width:920px;">
+        <div class="deep-eyebrow">По портфелю</div>
+        <h3>Что происходит с вашими бумагами</h3>
+        <p>Вышли сильные отчёты у промышленных бумаг портфеля (прибыль растёт двузначными темпами), при этом долговой рынок слабеет — сигнал, что рынок закладывает более жёсткую траекторию ставки, чем базовый сценарий. Стоит проверить дюрацию облигационной части портфеля.</p>
+      </div>
+    </div>
+
+    <!-- ТЕМА: Макроэкономика (полный контент, перенесён из бывшего Синтеза) -->
+    <div id="topic-macro">
+      <div class="synth-section">
+        <div class="synth-head">Текущая картина</div>
+        <div class="synth-chips">
+          <div class="chip-stat"><span class="cs-lbl">ВВП г/г</span><span class="cs-val">0,95%</span></div>
+          <div class="chip-stat"><span class="cs-lbl">Загрузка мощностей</span><span class="cs-val">69%</span></div>
+          <div class="chip-stat"><span class="cs-lbl">Инфляция г/г</span><span class="cs-val">5,31%</span></div>
+          <div class="chip-stat"><span class="cs-lbl">Инфл. ожидания</span><span class="cs-val">12,4%</span></div>
+        </div>
+        <div class="synth-lead">Рост замедляется при повышенном инфляционном давлении: инвестиционная активность снижается, спрос частично восстанавливается за счёт импорта на крепком рубле.</div>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full"><p>Рынок труда остаётся жёстким (безработица 2,2%, hh-индекс 9,8), но напряжение постепенно ослабляется. Цены производителей снижаются (ИЦП −5,2% г/г), создавая дезинфляционный фон. Бюджет сводится с дефицитом 1,6% ВВП. Внешний фон: рост ВВП США ускорился до 2,6%, в еврозоне — стагнация, Китай демонстрирует устойчивость при слабом внутреннем спросе.</p></div>
+      </div>
+
+      <div class="synth-section">
+        <div class="synth-head">Ставка: ближайшее решение и траектория</div>
+        <div class="synth-chips">
+          <div class="chip-stat"><span class="cs-lbl">Заседание 24.07</span><span class="cs-val">ожид. 14,25%</span></div>
+          <div class="chip-stat"><span class="cs-lbl">Прогноз ЦБ · сер. 2027</span><span class="cs-val">8–10%</span></div>
+          <div class="chip-stat"><span class="cs-lbl">Прогноз Basis · 12 мес</span><span class="cs-val">12–13%</span></div>
+        </div>
+        <div class="synth-lead">Фактические данные пока не дают однозначных оснований для смягчения: недельная инфляция и ожидания остаются высокими, но снижение загрузки мощностей снимает аргумент о перегреве.</div>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full"><p>На горизонте 3–6 месяцев вероятно удержание ставки около 14% с первым снижением не ранее сентября–октября при условии замедления инфляции до 4,5–5,0%. Базовый прогноз Basis: на 12-месячном горизонте ставка опустится до 12–13% при медленном снижении инфляции и слабом росте.</p></div>
+      </div>
+
+      <div class="synth-section">
+        <div class="synth-head">Рынок и сектора</div>
+        <div class="sector-grid">
+          <div class="sector-tile"><div class="st-name">Финансы</div><span class="wind-tag wind-neutral">неоднозначно</span><div class="st-note" style="margin-top:6px;">Высокая маржа от ставки 14,5%, но замедление кредитования ограничивает рост.</div></div>
+          <div class="sector-tile"><div class="st-name">IT-сектор</div><span class="wind-tag wind-up">попутный</span><div class="st-note" style="margin-top:6px;">Господдержка и импортозамещение — спрос устойчив независимо от ставки.</div></div>
+          <div class="sector-tile"><div class="st-name">Нефть и газ</div><span class="wind-tag wind-down">встречный</span><div class="st-note" style="margin-top:6px;">Крепкий рубль снижает рублёвую выручку, дорогая Urals частично компенсирует.</div></div>
+          <div class="sector-tile"><div class="st-name">Потребсектор</div><span class="wind-tag wind-down">встречный</span><div class="st-note" style="margin-top:6px;">Слабый рост реальных доходов + высокая инфляция смещают спрос в товары первой необходимости.</div></div>
+          <div class="sector-tile"><div class="st-name">Девелопмент</div><span class="wind-tag wind-down">встречный</span><div class="st-note" style="margin-top:6px;">Жёсткая ДКП и заградительные ипотечные ставки, спрос смещается на дешёвое жильё.</div></div>
+          <div class="sector-tile"><div class="st-name">Машиностроение</div><span class="wind-tag wind-neutral">неоднозначно</span><div class="st-note" style="margin-top:6px;">Дорогие кредиты давят, господдержка ОПК частично смягчает.</div></div>
+          <div class="sector-tile"><div class="st-name">Металлургия</div><span class="wind-tag wind-neutral">неоднозначно</span><div class="st-note" style="margin-top:6px;">Крепкий рубль снижает экспортную выручку, рост цен на медь может поддержать.</div></div>
+          <div class="sector-tile"><div class="st-name">Химия</div><span class="wind-tag wind-down">встречный</span><div class="st-note" style="margin-top:6px;">Крепкий рубль и слабый внешний спрос; импортозамещение частично снижает давление.</div></div>
+          <div class="sector-tile"><div class="st-name">Электроэнергетика</div><span class="wind-tag wind-neutral">нейтрально</span><div class="st-note" style="margin-top:6px;">Спрос стабилен, тарифы регулируются.</div></div>
+          <div class="sector-tile"><div class="st-name">Транспорт и логистика</div><span class="wind-tag wind-down">встречный</span><div class="st-note" style="margin-top:6px;">Замедление экономики давит, рост импорта частично поддерживает грузопотоки.</div></div>
+          <div class="sector-tile"><div class="st-name">Здравоохранение</div><span class="wind-tag wind-up">попутный</span><div class="st-note" style="margin-top:6px;">Финансирование стабильно, жёсткий бюджет может ограничивать рост.</div></div>
+          <div class="sector-tile"><div class="st-name">Телеком</div><span class="wind-tag wind-neutral">нейтрально</span><div class="st-note" style="margin-top:6px;">Базовый спрос устойчив, инвестиции в сети сдерживаются высокими ставками.</div></div>
+        </div>
+      </div>
+
+      <div class="synth-section" style="margin-bottom:6px;">
+        <div class="synth-head">Сценарии</div>
+        <div class="scenario-row">
+          <div class="scenario-card base">
+            <div class="sc-title">Базовый</div>
+            <div class="sc-prob">вероятность: высокая</div>
+            <div class="sc-num">Инфляция → ~5,0% к концу 2026<br>Ставка на 14,5% до сентября, затем −1–2 п.п./год</div>
+            <div class="sc-trig"><b>Триггеры</b>Стабилизация инфляционных ожиданий, отсутствие внешних шоков, крепкий рубль, слабый внутренний спрос.</div>
+          </div>
+          <div class="scenario-card bull">
+            <div class="sc-title">Бычий</div>
+            <div class="sc-prob">вероятность: умеренная</div>
+            <div class="sc-num">Инфляция → 4,5% к концу года<br>Ставка снижена уже в июле–августе, к концу года 12–13%</div>
+            <div class="sc-trig"><b>Триггеры</b>Ожидания ниже 10%, разрешение конфликта на Ближнем Востоке, нефть выше $100, ослабление рубля.</div>
+          </div>
+          <div class="scenario-card bear">
+            <div class="sc-title">Медвежий</div>
+            <div class="sc-prob">вероятность: низкая, но риски значимы</div>
+            <div class="sc-num">Инфляция ускоряется выше 6%<br>Ставка может подняться до 16–17%</div>
+            <div class="sc-trig"><b>Триггеры</b>Закрытие Ормузского пролива, резкое ослабление рубля выше 90, инфляционные ожидания выше 15%.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ТЕМА: Геополитика (краткая, иллюстративная) -->
+    <div id="topic-geo" style="display:none;">
+      <div class="deep-card" style="max-width:920px;">
+        <div class="deep-eyebrow">Геополитический фон</div>
+        <h3>Как это связано с вашим портфелем</h3>
+        <p>Санкционное давление на финансовый и промышленный секторы сохраняется, экономический вектор смещается в Азию. Бумаги с экспортной выручкой в Азию чувствуют себя устойчивее тех, что зависят от европейских рынков сбыта.</p>
+      </div>
+    </div>
+
+    <!-- ТЕМА: Смешанный (синтез бизнеса+макро+гео вместе, краткая, иллюстративная) -->
+    <div id="topic-mixed" style="display:none;">
+      <div class="deep-card" style="max-width:920px;">
+        <div class="deep-eyebrow">Смешанный разбор · бизнес + макро + геополитика</div>
+        <h3>Как всё связано вместе</h3>
+        <p>Отчёты у промышленных бумаг портфеля вышли сильными на фоне удержания ставки 14,25% — но геополитическое давление на экспорт в Европу и смещение торговли в Азию требуют пересмотра ожиданий по выручке экспортёров. Комбинация «крепкая ставка + санкционный фон» — ключевой узел для решений в этом квартале.</p>
+      </div>
+    </div>
+
+    <div id="topic-institutions" style="display:none;">
+      <div class="deep-card" style="max-width:920px;">
+        <div class="deep-eyebrow">Институты · факторная модель риск-премии</div>
+        <h3>Что значит институциональный фон для портфеля</h3>
+        <p>Смещение баланса в сторону более экстрактивных институтов (см. вкладку «Институциональная среда») повышает институциональную премию для компаний с высокой концентрацией у контролирующего акционера или зависимостью от госзаказа. Для широко торгуемых экспортёров с диверсифицированной выручкой эффект слабее.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ИСТОРИЯ ОТЧЁТОВ (отдельная страница) ===================== -->
+  <div class="panel" id="panel-history">
+    <a onclick="closeHistoryPage()" style="font-size:13px; font-weight:600; color:var(--ink-2); cursor:pointer; display:inline-flex; align-items:center; gap:6px; margin-bottom:18px;">← Назад к Обзору и анализу</a>
+    <div class="sec-head"><span class="eyebrow">Разбор</span><h2>История отчётов</h2></div>
+    <p style="color:var(--ink-2); font-size:13px; max-width:760px; margin-bottom:20px;">Все сгенерированные отчёты. Клик по отчёту открывает его тему и глубину в «ИИ-обзор и анализ».</p>
+
+    <div class="filterbar" id="histFilters" style="padding:0 0 18px;">
+      <div class="chip active" onclick="filterHistory(this,'all')">Все</div>
+      <div class="chip" onclick="filterHistory(this,'biz')">Бизнес</div>
+      <div class="chip" onclick="filterHistory(this,'macro')">Макроэкономика</div>
+      <div class="chip" onclick="filterHistory(this,'geo')">Геополитика</div>
+      <div class="chip" onclick="filterHistory(this,'mixed')">Смешанный</div>
+    </div>
+
+    <div id="aiHistList" style="display:flex; flex-direction:column; gap:10px; max-width:920px;">
+      <div class="ai-hist-card" data-topic="macro" data-depth="deep" onclick="openHistoryReport(this)"><div class="ai-hist-icon">🏦</div><div style="flex:1;"><div style="font-weight:600; font-size:14px;">Обзор — Макроэкономика</div><div class="mono" style="font-size:11.5px; color:var(--ink-3); margin-top:2px;">2026-06-23 21:55</div></div><span class="tag-judgment">Глубокий</span></div>
+      <div class="ai-hist-card" data-topic="biz" data-depth="express" onclick="openHistoryReport(this)"><div class="ai-hist-icon">💼</div><div style="flex:1;"><div style="font-weight:600; font-size:14px;">Обзор — Бизнес</div><div class="mono" style="font-size:11.5px; color:var(--ink-3); margin-top:2px;">2026-06-18 19:09</div></div><span class="tag-fact">Экспресс</span></div>
+      <div class="ai-hist-card" data-topic="geo" data-depth="detailed" onclick="openHistoryReport(this)"><div class="ai-hist-icon">🌐</div><div style="flex:1;"><div style="font-weight:600; font-size:14px;">Обзор — Геополитика</div><div class="mono" style="font-size:11.5px; color:var(--ink-3); margin-top:2px;">2026-06-10 09:20</div></div><span class="tag-estimate">Подробный</span></div>
+      <div class="ai-hist-card" data-topic="macro" data-depth="express" onclick="openHistoryReport(this)"><div class="ai-hist-icon">🏦</div><div style="flex:1;"><div style="font-weight:600; font-size:14px;">Обзор — Макроэкономика</div><div class="mono" style="font-size:11.5px; color:var(--ink-3); margin-top:2px;">2026-06-02 08:05</div></div><span class="tag-fact">Экспресс</span></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+document.querySelectorAll('.sb-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    document.querySelectorAll('.sb-item').forEach(x=>x.classList.remove('active'));
+    item.classList.add('active');
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    const p = document.getElementById('panel-'+item.dataset.panel);
+    p.classList.add('active');
+    p.style.animation='none'; p.offsetHeight; p.style.animation='';
+  });
+});
+function setSeg(id, el){
+  document.getElementById(id).querySelectorAll('.seg-opt').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on');
+}
+function setTopic(el, topic){
+  document.getElementById('topicToggle').querySelectorAll('.seg-opt').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on');
+  ['biz','macro','geo','institutions','mixed'].forEach(t=>{
+    document.getElementById('topic-'+t).style.display = (t===topic) ? '' : 'none';
+  });
+}
+const TOPIC_META = {
+  biz:   {icon:'💼', label:'Бизнес'},
+  macro: {icon:'🏦', label:'Макроэкономика'},
+  geo:   {icon:'🌐', label:'Геополитика'},
+  institutions: {icon:'⚖️', label:'Институты'},
+  mixed: {icon:'🧩', label:'Смешанный'}
+};
+const DEPTH_META = {
+  express:  {label:'Экспресс',  tag:'tag-fact'},
+  detailed: {label:'Подробный', tag:'tag-estimate'},
+  deep:     {label:'Глубокий',  tag:'tag-judgment'}
+};
+function generateReport(){
+  const now = new Date();
+  const stamp = now.toLocaleDateString('ru-RU') + ', ' + now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+  const topicKey = document.querySelector('#topicToggle .seg-opt.on').dataset.topic;
+  const depthKey = document.querySelector('#panel-ai .ai-plan.on').dataset.depth;
+  const t = TOPIC_META[topicKey], d = DEPTH_META[depthKey];
+  const card = document.createElement('div');
+  card.className = 'ai-hist-card';
+  card.dataset.topic = topicKey; card.dataset.depth = depthKey;
+  card.onclick = function(){ openHistoryReport(card); };
+  card.innerHTML = `<div class="ai-hist-icon">${t.icon}</div><div style="flex:1;"><div style="font-weight:600; font-size:14px;">Обзор — ${t.label}</div><div class="mono" style="font-size:11.5px; color:var(--ink-3); margin-top:2px;">${stamp}</div></div><span class="${d.tag}">${d.label}</span>`;
+  document.getElementById('aiHistList').prepend(card);
+  openHistoryReport(card);
+}
+function openHistoryReport(cardEl){
+  const topicKey = cardEl.dataset.topic, depthKey = cardEl.dataset.depth;
+  document.querySelectorAll('.ai-hist-card').forEach(c=>c.classList.remove('selected'));
+  cardEl.classList.add('selected');
+  const topicOpt = document.querySelector('#topicToggle .seg-opt[data-topic="'+topicKey+'"]');
+  setTopic(topicOpt, topicKey);
+  document.querySelectorAll('#panel-ai .ai-plan').forEach(p=>p.classList.toggle('on', p.dataset.depth===depthKey));
+  showPanel('ai');
+}
+function showPanel(name){
+  document.querySelectorAll('.sb-item').forEach(x=>x.classList.toggle('active', x.dataset.panel===name));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+function openHistoryPage(){
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  document.getElementById('panel-history').classList.add('active');
+}
+function closeHistoryPage(){
+  showPanel('ai');
+}
+function filterHistory(btn, topic){
+  document.querySelectorAll('#histFilters .chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#aiHistList .ai-hist-card').forEach(card=>{
+    card.style.display = (topic==='all' || card.dataset.topic===topic) ? '' : 'none';
+  });
+}
+document.querySelectorAll('.ai-plan').forEach(p=>{
+  p.addEventListener('click',()=>{
+    p.parentElement.querySelectorAll('.ai-plan').forEach(x=>x.classList.remove('on'));
+    p.classList.add('on');
+  });
+});
+function toggleArticle(el){
+  if(!el.dataset.label) el.dataset.label = el.textContent;
+  const full = el.nextElementSibling;
+  const open = full.classList.toggle('open');
+  el.textContent = open ? 'Свернуть ▴' : el.dataset.label;
+}
+
+/* ===== фильтр статей Макроэкономики (Все/ЦМАКП/Банк России) ===== */
+function filterArticles(btn, source){
+  document.querySelectorAll('#macroFilters .chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#panel-macroarticles .article-card').forEach(card=>{
+    card.style.display = (source==='all' || card.dataset.source===source) ? '' : 'none';
+  });
+}
+
+/* ===== переиспользуемый движок линейных графиков: оси, сетка, hover-тултип (мышь и тач) ===== */
+const MAP_SECTORS = {
+  "Нефть и газ": [["ROSN",-1.4,85.6],["LKOH",-0.4,61.0],["NVTK",-0.1,71.0],["GAZP",-0.4,68.9],["SIBN",1.0,27.9],["TATN",-2.8,87.1],["SNGS",-0.7,32.1],["SNGSP",-0.0,3.8],["BANE",-2.2,19.4],["TATNP",-2.2,3.3],["VJGZ",-3.9,13.9],["MFGS",-0.8,21.6],["YAKG",-1.0,8.7],["BANEP",-1.6,4.8],["JNOS",-2.7,25.5],["RNFT",-3.7,22.7],["EUTR",-4.1,14.0],["KRKN",1.0,23.9],["VJGZP",-3.1,10.3],["MFGSP",-1.2,3.1],["JNOSP",0.4,10.3],["CHGZ",1.4,26.8],["KRKNP",6.6,6.1]],
+  "Финансы": [["SBER",-0.2,66.2],["VTBR",-1.5,98.3],["DOMRF",-0.2,17.1],["MOEX",0.9,63.7],["SBERP",-0.3,3.9],["CBOM",2.6,30.9],["SVCB",-0.3,24.3],["BSPB",-0.3,29.8],["AFKS",-1.3,27.7],["RGSS",-1.6,22.5],["LEAS",-0.0,34.3],["USBN",-0.4,18.2],["AVAN",-1.6,22.9],["RENI",-1.0,30.4],["MBNK",-0.2,24.7],["SFIN",-0.1,31.3],["BTBR",0.9,23.6],["SPBE",-0.6,27.0],["ZAYM",-0.3,9.2],["RUSI",-3.3,14.2],["PRMB",1.1,15.8],["MGKL",-9.9,10.2],["RDRB",3.5,14.3],["CARM",2.4,10.7],["ARSA",3.0,15.5],["BSPBP",-1.4,8.7],["KUZB",0.4,17.9]],
+  "Металлургия": [["PLZL",-0.9,74.8],["GMKN",0.3,68.4],["CHMF",-2.9,70.7],["RUAL",-1.9,33.3],["NLMK",-1.8,85.9],["VSMO",-0.7,24.4],["ENPG",0.8,12.6],["MAGN",-2.4,89.2],["ALRS",0.8,66.5],["UGLD",-0.7,18.2],["RASP",-0.8,11.9],["TRMK",-2.3,25.3],["SGZH",0.2,23.0],["SELG",1.5,26.5],["UKUZ",-1.0,30.8],["MTLR",-3.1,29.0],["CHMK",-1.9,14.2],["BRZL",-3.0,8.9],["BLNG",-1.0,16.5],["ROLO",0.8,15.2],["KOGK",3.8,13.7],["MTLRP",-4.7,11.5],["IGST",1.6,31.7],["PRFN",-0.2,16.5],["UNKL",-0.7,25.7],["IGSTP",-1.8,6.6]],
+  "IT-сектор": [["YDEX",-2.6,96.6],["OZON",-3.5,20.4],["HEAD",-1.4,15.2],["VKCO",0.3,14.7],["POSI",-3.7,23.2],["CNRU",0.6,15.1],["ASTR",-2.3,23.8],["SOFL",0.1,32.2],["BAZA",-0.6,18.8],["DATA",-3.0,13.9],["DIAS",-0.6,34.9],["IVAT",-1.5,21.8]],
+  "Машиностроение": [["IRKT",-0.8,10.5],["UWGN",-0.1,9.3],["ELMT",-0.9,11.0],["KMAZ",0.9,24.9],["RKKE",4.3,29.4],["MSTT",0.4,19.4],["VSYD",-1.5,9.7],["PAZA",3.3,18.3],["ZILL",-1.6,34.9],["URKZ",-1.5,22.3],["LMBZ",-0.9,34.2],["SVAV",-1.2,31.2],["CHKZ",3.4,8.3],["GAZA",-3.3,27.5],["NAUK",3.8,26.4],["EELT",-1.4,22.5],["KMEZ",2.8,15.2],["ZVEZ",-1.5,25.3],["NKSH",-0.9,11.0],["NFAZ",-1.8,19.7],["KRKOP",2.4,7.1],["TUZA",-2.5,33.8],["GAZAP",0.1,10.9],["DZRD",0.5,15.1],["DZRDP",-0.6,7.5]],
+  "Химия": [["PHOR",-1.5,67.1],["AKRN",0.7,32.6],["KZOS",0.2,31.5],["NKNC",0.1,16.1],["KAZT",-1.6,25.3],["NKNCP",-0.9,8.5],["HIMCP",-1.0,4.4],["KZOSP",0.4,9.9],["KAZTP",-1.9,7.9],["VLHZ",-2.2,29.0]],
+  "Электроэнергетика": [["IRAO",-1.9,22.3],["HYDR",-3.5,8.0],["LSNG",0.7,16.8],["FEES",-0.5,8.5],["MSRS",-11.4,33.1],["MSNG",-1.5,31.7],["UPRO",-1.1,30.5],["MRKP",-3.7,5.8],["MRKY",0.2,9.6],["MRKU",-1.1,31.7],["TNSE",0.4,33.6],["MRKV",-1.8,10.3],["MRKS",-1.5,21.1],["MRKK",-0.4,9.9],["LSNGP",-1.1,9.8],["OGKB",-2.2,28.7],["MRKC",-0.3,11.5],["DVEC",-2.2,20.8],["RTSB",-1.7,22.8],["TGKA",-3.1,15.2],["PMSB",0.7,31.6],["KBSB",-3.4,19.4],["KRSB",0.9,13.7],["NNSB",-3.4,22.6],["MRKZ",-0.8,27.7],["ELFV",-0.3,13.4],["YRSB",-4.4,16.4],["SAGO",1.2,34.9],["RZSB",-1.2,25.5],["LPSB",-1.0,19.8],["SLEN",-0.5,22.0],["TGKB",-1.2,11.3],["MISB",-2.5,14.1],["PMSBP",-0.8,6.0],["TGKN",-1.4,23.9],["VGSB",3.5,14.2],["KRSBP",-0.8,5.0],["STSB",-18.0,9.9],["YKEN",0.3,25.0],["TORS",9.2,14.2],["VRSBP",2.7,11.1],["TASB",-0.3,31.2],["ASSB",-3.1,9.9],["KLSB",-3.5,14.4],["MRSB",1.4,26.1],["NNSBP",0.2,4.9],["STSBP",-16.6,4.2],["VGSBP",1.5,11.4],["MAGE",-5.9,23.4],["SAGOP",0.9,7.3],["YRSBP",1.8,10.1],["SAREP",2.7,10.3],["MISBP",1.7,4.7],["TORSP",-1.2,3.9],["YKENP",2.5,6.9],["MAGEP",-2.4,6.8],["TASBP",-1.8,7.2],["KCHEP",-2.6,9.6],["TGKBP",-0.5,9.1]],
+  "Потребительский сектор": [["X5",-1.1,99.4],["LENT",0.8,10.7],["MGNT",-1.3,76.1],["GCHE",-0.8,17.2],["RAGR",-0.8,31.3],["APTK",-2.1,14.7],["VSEH",-1.9,13.1],["BELU",0.5,20.1],["AQUA",-1.4,19.4],["ABRD",-0.5,15.5],["HNFG",1.5,14.7],["MVID",-2.9,32.9],["KROT",0.5,20.0],["WUSH",-1.6,31.3],["KLVZ",1.1,22.9],["ROST",-1.4,9.4],["KROTP",-0.5,12.0],["SVET",-2.9,30.6],["SVETP",-0.7,11.7],["OKEY",-0.9,33.0]],
+  "Транспорт и логистика": [["TRNFP",-4.8,10.6],["FLOT",-0.7,12.5],["FESH",9.1,21.1],["NMTP",-0.9,4.9],["AFLT",-1.6,18.8],["UTAR",0.4,9.6],["NKHP",-1.6,6.4],["DELI",-4.1,34.6],["RTGZ",3.6,15.2],["GTRK",-5.0,29.2]],
+  "Телеком": [["MTSS",-1.4,78.2],["RTKM",-0.1,19.4],["MGTS",5.3,33.8],["MGTSP",-0.1,12.0],["TTLK",2.8,23.0],["RTKMP",0.1,9.5],["NSVZ",-0.5,12.2],["CNTL",0.3,16.0],["BISVP",-1.8,11.7],["CNTLP",-0.9,8.2]],
+  "Девелопмент": [["PIKK",0.3,22.6],["KFBA",0.3,28.2],["LSRG",-0.5,9.5],["APRI",-1.5,23.8],["SMLT",-0.3,21.6],["ETLN",0.7,31.0],["GLRX",-3.1,12.3]],
+  "Здравоохранение": [["MDMG",-1.3,33.9],["PRMD",-0.8,10.2],["GEMC",2.1,13.0],["OZPH",-1.7,24.1],["ABIO",-2.0,26.2],["GEMA",-0.4,14.4],["GECO",1.1,11.2],["DIOD",-0.8,32.0],["LIFE",-4.1,14.6]],
+  "Прочее": [["WTCM",1.4,24.1],["RBCM",-2.4,24.7],["WTCMP",0.3,6.8],["LVHK",-0.9,23.8]],
+};
+let currentMapMode = 'heat';
+let currentSectorFilter = null;
+
+// Цветовая шкала — насыщение наступает БЫСТРЕЕ (не на ±8%, а на ±2.5%), оранжевый посередине
+function pctToColor(pct){
+  const clamped = Math.max(-2, Math.min(2, pct));
+  const stops = [
+    [-2,    [176, 58, 46]],    // насыщенный красный
+    [-0.5,  [216, 101, 61]],   // красно-оранжевый
+    [-0.12, [229, 128, 54]],   // оранжевый с наклоном в красный
+    [0,     [231, 145, 56]],   // чистый оранжевый — только в самой узкой точке у нуля
+    [0.12,  [188, 158, 58]],   // оранжевый с наклоном в зелёный
+    [0.5,   [117, 158, 71]],   // зелёно-оранжевый
+    [2,     [46, 125, 80]]     // насыщенный зелёный
+  ];
+  for(let i=0;i<stops.length-1;i++){
+    const [p1,c1] = stops[i], [p2,c2] = stops[i+1];
+    if(clamped>=p1 && clamped<=p2){
+      const t = (clamped-p1)/(p2-p1);
+      const rgb = c1.map((c,j)=>Math.round(c + (c2[j]-c)*t));
+      return `rgb(${rgb.join(',')})`;
+    }
+  }
+  return 'rgb(231,145,56)';
+}
+function valuationForTicker(ticker, pct){
+  // ИЛЛЮСТРАТИВНО: недооценённость не равна реальной модели fair value, заглушка для демонстрации паттерна
+  return Math.round((-pct*0.8 + (ticker.length%5-2)*1.3)*10)/10;
+}
+
+// ===== SQUARIFIED TREEMAP — настоящий алгоритм укладки, не сетка одинаковых плиток =====
+// items: [{key, weight, ...}] -> возвращает те же items с добавленными {x,y,w,h} в пикселях
+function squarify(items, x, y, w, h){
+  if(items.length === 0) return [];
+  if(items.length === 1){ items[0].x=x; items[0].y=y; items[0].w=w; items[0].h=h; return items; }
+  const total = items.reduce((s,i)=>s+i.weight,0);
+  const scale = (w*h)/total;
+  let row = [], rest = items.slice();
+  function worstRatio(row, length){
+    const sum = row.reduce((s,i)=>s+i.weight*scale,0);
+    let max=-Infinity, min=Infinity;
+    row.forEach(i=>{ const a=i.weight*scale; if(a>max)max=a; if(a<min)min=a; });
+    return Math.max((length*length*max)/(sum*sum), (sum*sum)/(length*length*min));
+  }
+  let cx=x, cy=y, cw=w, ch=h;
+  while(rest.length){
+    const length = cw < ch ? cw : ch;
+    const testRow = row.concat([rest[0]]);
+    if(row.length===0 || worstRatio(testRow,length) <= worstRatio(row,length)){
+      row = testRow; rest = rest.slice(1);
+    } else {
+      layoutRow(row, cx, cy, cw, ch, scale);
+      const rowArea = row.reduce((s,i)=>s+i.weight*scale,0);
+      if(cw < ch){ cy += rowArea/cw; ch -= rowArea/cw; } else { cx += rowArea/ch; cw -= rowArea/ch; }
+      row = [];
+    }
+  }
+  if(row.length) layoutRow(row, cx, cy, cw, ch, scale);
+  return items;
+}
+function layoutRow(row, x, y, w, h, scale){
+  const rowArea = row.reduce((s,i)=>s+i.weight*scale,0);
+  if(w < h){
+    const rowH = rowArea / w;
+    let cx = x;
+    row.forEach(item=>{
+      const itemW = (item.weight*scale)/rowH;
+      item.x=cx; item.y=y; item.w=itemW; item.h=rowH;
+      cx += itemW;
+    });
+  } else {
+    const rowW = rowArea / h;
+    let cy = y;
+    row.forEach(item=>{
+      const itemH = (item.weight*scale)/rowW;
+      item.x=x; item.y=cy; item.w=rowW; item.h=itemH;
+      cy += itemH;
+    });
+  }
+}
+
+// Подтягивает верхние границы БЛИЗКИХ по высоте секторов к одной линии (не переписывает алгоритм —
+// просто убирает пиксельную погрешность squarify между соседними по факту секторами)
+function snapSectorRows(items){
+  const THRESHOLD = 14;
+  const sorted = items.slice().sort((a,b)=>a.y-b.y);
+  const groups = [];
+  sorted.forEach(item=>{
+    let group = groups.find(g=>Math.abs(g[0].y-item.y) < THRESHOLD);
+    if(!group){ group = []; groups.push(group); }
+    group.push(item);
+  });
+  groups.forEach(group=>{
+    const minY = Math.min(...group.map(i=>i.y));
+    group.forEach(item=>{
+      item.h = (item.y+item.h) - minY;
+      item.y = minY;
+    });
+  });
+}
+
+function renderMapOverview(){
+  const wrap = document.getElementById('mapOverview');
+  const W = 1160, HEAD = 26, GAP = 3;
+  const sectorNames = currentSectorFilter ? [currentSectorFilter] : Object.keys(MAP_SECTORS);
+
+  // вес сектора = сумма корней весов тикеров (сжатие, чтобы Электроэнергетика не съела карту количеством бумаг)
+  const sectorItems = sectorNames.map(name=>{
+    const tickers = MAP_SECTORS[name];
+    const weight = tickers.reduce((s,t)=>s+Math.sqrt(t[2]),0);
+    return {key:name, weight, tickers};
+  });
+  const totalH = currentSectorFilter ? 480 : 900;
+  squarify(sectorItems, 0, 0, W, totalH);
+  snapSectorRows(sectorItems);
+
+  let svg = `<svg viewBox="0 0 ${W} ${totalH}" style="width:100%; height:auto; display:block;">`;
+  sectorItems.forEach(sec=>{
+    const innerY = sec.y + HEAD, innerH = Math.max(sec.h - HEAD, 10);
+    const tickerItems = sec.tickers.map(([t,pct,w])=>({key:t, weight:Math.sqrt(w), ticker:t, pct}));
+    squarify(tickerItems, sec.x+GAP, innerY+GAP, Math.max(sec.w-GAP*2,1), Math.max(innerH-GAP*2,1));
+    svg += `<rect x="${sec.x}" y="${sec.y}" width="${sec.w}" height="${HEAD}" fill="var(--deep-2)"/>`;
+    svg += `<text x="${sec.x+8}" y="${sec.y+17}" font-family="Inter" font-size="11.5" font-weight="700" fill="#fff" style="text-transform:uppercase; letter-spacing:.03em;">${sec.key} · ${sec.tickers.length}</text>`;
+    tickerItems.forEach(it=>{
+      const v = currentMapMode==='heat' ? it.pct : valuationForTicker(it.ticker,it.pct);
+      const fontBig = it.w>55 && it.h>40;
+      svg += `<g style="cursor:pointer;" onclick="filterToSector('${sec.key}')">`;
+      svg += `<rect x="${it.x}" y="${it.y}" width="${Math.max(it.w-1,1)}" height="${Math.max(it.h-1,1)}" fill="${pctToColor(v)}" stroke="var(--surface)" stroke-width="1"/>`;
+      if(it.w>26 && it.h>18){
+        svg += `<text x="${it.x+it.w/2}" y="${it.y+it.h/2-(fontBig?4:0)}" text-anchor="middle" font-family="Inter" font-size="${fontBig?15:10.5}" font-weight="700" fill="#fff">${it.ticker}</text>`;
+        if(it.h>28) svg += `<text x="${it.x+it.w/2}" y="${it.y+it.h/2+(fontBig?18:11)}" text-anchor="middle" font-family="IBM Plex Mono" font-size="${fontBig?12.5:9}" fill="rgba(255,255,255,.92)">${v>=0?'+':''}${v.toFixed(2)}%</text>`;
+      }
+      svg += `</g>`;
+    });
+  });
+  svg += '</svg>';
+  wrap.innerHTML = svg;
+}
+// ===== КАЛЕНДАРЬ: единый источник данных для списка И сетки месяца =====
+const TYPE_META = {
+  macro:    {label:'Макро',       color:'var(--ink-3)'},
+  dividend: {label:'Дивиденды',   color:'var(--up)'},
+  earnings: {label:'Отчётность',  color:'var(--copper)'},
+  board:    {label:'СД · ГОСА',   color:'var(--estimate)'},
+  ipo:      {label:'IPO · SPO',   color:'#8A4FBF'}
+};
+// Реальные: 3 макро-события из прода. Дивиденды/отчётности/СД-ГОСА/IPO — ИЛЛЮСТРАТИВНЫЕ примеры
+// (в текущей схеме бэкенда этих типов данных ещё нет — см. пояснение в ответе).
+const CALENDAR_EVENTS = [
+  {date:'2026-07-03', type:'earnings', title:'MGKL: операционные результаты за 6М 2026', short:'MGKL: отчётность', sub:''},
+  {date:'2026-07-12', type:'macro', title:'Инфляция (ИПЦ) за месяц — публикация Росстата', short:'Инфляция (ИПЦ)', sub:'ожидается (оценка даты)'},
+  {date:'2026-07-15', type:'dividend', title:'PLZL: последний день для покупки под дивиденд', short:'PLZL: див. отсечка', sub:'иллюстративно · 29,05 ₽/акцию'},
+  {date:'2026-07-18', type:'board', title:'SBER: заседание совета директоров', short:'SBER: СД', sub:'иллюстративно · повестка не раскрыта'},
+  {date:'2026-07-24', time:'13:30', type:'macro', title:'Заседание ЦБ РФ по ключевой ставке', short:'Заседание ЦБ', sub:'ожидается · решение ~13:30, пресс-конференция ~15:00 МСК'},
+  {date:'2026-07-29', type:'earnings', title:'SBER: отчётность по МСФО за 1П 2026', short:'SBER: отчётность', sub:'иллюстративно · ожидаемая дата'},
+  {date:'2026-08-05', type:'ipo', title:'Ожидаемое SPO на MOEX', short:'SPO на MOEX', sub:'иллюстративно · компания не раскрыта'},
+  {date:'2026-08-12', type:'macro', title:'Инфляция (ИПЦ) за месяц — публикация Росстата', short:'Инфляция (ИПЦ)', sub:'ожидается (оценка даты)'},
+  {date:'2026-08-20', type:'board', title:'GAZP: годовое общее собрание акционеров', short:'GAZP: ГОСА', sub:'иллюстративно · дата предварительная'}
+];
+const TECH_EVENTS = [
+  {date:'2026-07-04', type:'Погашение', title:'ЭлемЛиз1Р5: погашение', sub:'фикс. купон · YTM ~0%'},
+  {date:'2026-07-06', type:'Погашение', title:'СберИОС349: погашение', sub:'фикс. купон · YTM ~0% · AAA'},
+  {date:'2026-07-07', type:'Погашение', title:'ПрактЛК1Р1: погашение', sub:'фикс. купон · YTM ~23.14% · A'},
+  {date:'2026-07-07', type:'Оферта', title:'ВОСТКОЙЛ-1: оферта (пут)', sub:'фикс. купон · B-'},
+  {date:'2026-07-08', type:'Погашение', title:'МТС 1P-11: погашение', sub:'фикс. купон · YTM ~0% · AAA'},
+  {date:'2026-07-08', type:'Оферта', title:'РЖД-32 обл: оферта (пут)', sub:'фикс. купон · YTM ~182.22% (индикативно) · AAA'}
+];
+let currentCalFilter = 'all';
+let calGridDate = new Date(2026,6,1); // июль 2026
+let calSelectedDate = null;
+
+function formatDateRu(iso){
+  const [y,m,d] = iso.split('-');
+  return `${d}.${m}.${y}`;
+}
+function renderCalTimeline(){
+  const wrap = document.getElementById('calTimeline');
+  const filtered = CALENDAR_EVENTS.filter(e=>currentCalFilter==='all'||e.type===currentCalFilter)
+    .slice().sort((a,b)=>a.date.localeCompare(b.date));
+  wrap.innerHTML = '<div class="tl-line"></div>' + filtered.map(e=>{
+    const meta = TYPE_META[e.type];
+    return `<div class="tl-item"><div class="tl-dot" style="background:${meta.color};"></div><div class="tl-date">${formatDateRu(e.date)}${e.time?' · '+e.time:''}</div><div class="tl-title">${e.title}</div>${e.sub?`<div class="tl-sub">${e.sub}</div>`:''}</div>`;
+  }).join('');
+}
+function filterCalendar(btn, type){
+  document.querySelectorAll('#calFilters .chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  currentCalFilter = type;
+  renderCalTimeline();
+  renderCalGrid();
+}
+function setCalView(el, view){
+  document.getElementById('calViewToggle').querySelectorAll('.seg-opt').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('calListView').style.display = view==='list' ? '' : 'none';
+  document.getElementById('calGridView').style.display = view==='grid' ? '' : 'none';
+  if(view==='grid') renderCalGrid();
+}
+function shiftMonth(delta){
+  calGridDate.setMonth(calGridDate.getMonth()+delta);
+  calSelectedDate = null;
+  renderCalGrid();
+}
+function renderCalGrid(){
+  const grid = document.getElementById('calGrid');
+  const label = document.getElementById('calMonthLabel');
+  const year = calGridDate.getFullYear(), month = calGridDate.getMonth();
+  const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  label.textContent = `${monthNames[month]} ${year}`;
+
+  const filtered = CALENDAR_EVENTS.filter(e=>currentCalFilter==='all'||e.type===currentCalFilter);
+  const byDate = {};
+  filtered.forEach(e=>{ (byDate[e.date] = byDate[e.date]||[]).push(e); });
+
+  const firstDay = new Date(year, month, 1);
+  const startOffset = (firstDay.getDay()+6)%7; // Пн=0
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+  let html = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d=>`<div class="cal-weekday">${d}</div>`).join('');
+  const todayIso = '2026-07-04'; // текущая дата продукта
+
+  for(let i=0;i<startOffset;i++){
+    const dayNum = daysInPrevMonth-startOffset+i+1;
+    html += `<div class="cal-day other-month"><div class="cal-day-num">${dayNum}</div></div>`;
+  }
+  for(let d=1; d<=daysInMonth; d++){
+    const iso = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const events = byDate[iso] || [];
+    const isToday = iso===todayIso, isSel = iso===calSelectedDate;
+    let pills = events.slice(0,2).map(e=>`<div class="cal-pill" style="background:${TYPE_META[e.type].color};">${e.short}</div>`).join('');
+    if(events.length>2) pills += `<div class="cal-more">+${events.length-2} ещё</div>`;
+    html += `<div class="cal-day ${isToday?'today':''} ${isSel?'selected':''}" onclick="selectCalDay('${iso}')"><div class="cal-day-num">${d}</div>${pills}</div>`;
+  }
+  const totalCells = startOffset+daysInMonth;
+  const trailing = (7 - (totalCells%7))%7;
+  for(let i=1;i<=trailing;i++) html += `<div class="cal-day other-month"><div class="cal-day-num">${i}</div></div>`;
+
+  grid.innerHTML = html;
+  renderCalDayDetail();
+}
+function selectCalDay(iso){
+  calSelectedDate = calSelectedDate===iso ? null : iso;
+  renderCalGrid();
+}
+function renderCalDayDetail(){
+  const wrap = document.getElementById('calDayDetail');
+  if(!calSelectedDate){ wrap.innerHTML = ''; return; }
+  const events = CALENDAR_EVENTS.filter(e=>e.date===calSelectedDate && (currentCalFilter==='all'||e.type===currentCalFilter));
+  if(events.length===0){ wrap.innerHTML = `<p style="color:var(--ink-3); font-size:13px;">На ${formatDateRu(calSelectedDate)} событий нет.</p>`; return; }
+  wrap.innerHTML = `<h3 class="serif" style="font-size:16px; font-weight:600; margin-bottom:10px;">${formatDateRu(calSelectedDate)}</h3>` +
+    events.map(e=>`<div class="card" style="padding:14px 16px; margin-bottom:8px;"><span style="display:inline-flex; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; padding:3px 9px; border-radius:6px; background:${TYPE_META[e.type].color}; color:#fff;">${TYPE_META[e.type].label}</span><div style="font-weight:600; font-size:14px; margin-top:8px;">${e.title}</div>${e.sub?`<div style="font-size:12.5px; color:var(--ink-2); margin-top:4px;">${e.sub}</div>`:''}</div>`).join('');
+}
+function toggleTechEvents(){
+  const list = document.getElementById('techEventsList');
+  const open = list.style.display !== 'none';
+  list.style.display = open ? 'none' : '';
+  document.getElementById('techToggleArrow').textContent = open ? '▸' : '▾';
+  if(!open && !list.dataset.rendered){
+    list.innerHTML = TECH_EVENTS.map(e=>`<div class="rep-row" style="grid-template-columns:100px 1fr;"><span class="mono" style="font-size:12px; color:var(--ink-3);">${formatDateRu(e.date)}</span><div><span class="tag-fact">${e.type}</span> <b style="font-size:13.5px;">${e.title}</b><div style="font-size:12px; color:var(--ink-3); margin-top:2px;">${e.sub}</div></div></div>`).join('') +
+      `<div style="font-size:12px; color:var(--ink-3); margin-top:10px;">Показаны примеры из 397 технических событий. Полный список — по запросу к бэкенду.</div>`;
+    list.dataset.rendered = '1';
+  }
+}
+
+// ===== ГЕОПОЛИТИКА: регион × режим (Обзор / Оценка ситуации) =====
+let currentGeoRegion = 'svo';
+let currentGeoMode = 'overview';
+function setGeoRegion(el, region){
+  document.getElementById('geoRegionFilters').querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('geo-'+currentGeoRegion).style.display = 'none';
+  currentGeoRegion = region;
+  document.getElementById('geo-'+region).style.display = '';
+  updateGeoModeVisibility();
+}
+function setGeoMode(el, mode){
+  document.getElementById('geoModeToggle').querySelectorAll('.seg-opt').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on');
+  currentGeoMode = mode;
+  updateGeoModeVisibility();
+}
+function updateGeoModeVisibility(){
+  ['overview','assessment'].forEach(m=>{
+    document.getElementById('geo-'+currentGeoRegion+'-'+m).style.display = (m===currentGeoMode) ? '' : 'none';
+  });
+}
+
+// ===== ЛЕНТА НОВОСТЕЙ: важность × тема, фильтры работают одновременно =====
+let currentNewsImportance = 'all';
+let currentNewsTopic = 'all';
+function setNewsImportance(el, val){
+  document.getElementById('newsImportanceToggle').querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  currentNewsImportance = val;
+  applyNewsFilters();
+}
+function setNewsTopic(el, val){
+  document.getElementById('newsTopicFilters').querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  currentNewsTopic = val;
+  applyNewsFilters();
+}
+function applyNewsFilters(){
+  document.querySelectorAll('#newsList .news-card').forEach(card=>{
+    const okImportance = currentNewsImportance==='all' || card.dataset.important==='true';
+    const okTopic = currentNewsTopic==='all' || card.dataset.topic===currentNewsTopic;
+    card.style.display = (okImportance && okTopic) ? '' : 'none';
+  });
+}
+
+// ===== ИНСТИТУЦИОНАЛЬНАЯ СРЕДА: Обзор / Оценка ситуации =====
+function setInstMode(el, mode){
+  document.getElementById('instModeToggle').querySelectorAll('.seg-opt').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('inst-overview').style.display = mode==='overview' ? '' : 'none';
+  document.getElementById('inst-assessment').style.display = mode==='assessment' ? '' : 'none';
+}
+
+// ===== МАКРОЭКОНОМИКА: Обзор (записки) / Оценка ситуации (суждение Basis) =====
+function setMacroMode(el, mode){
+  document.getElementById('macroModeToggle').querySelectorAll('.seg-opt').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('macro-overview').style.display = mode==='overview' ? '' : 'none';
+  document.getElementById('macro-assessment').style.display = mode==='assessment' ? '' : 'none';
+}
+
+// ===== ОТЧЁТЫ: компактные карточки — метрики проверены вручную против исходных предложений =====
+const REPORTS_COMPACT = [
+  {ticker:'PMSB',  period:'2025 · МСФО', sector:'Электроэнергетика', rev:'+12,2%', ebitda:null, profit:'−10,2%', verdict:'Выручка +12,2%, чистая прибыль −10,2%, чистый долг отрицательный', important:false, profitDir:'down'},
+  {ticker:'MRKC',  period:'2025 · МСФО', sector:'Электроэнергетика', rev:'+10,7%', ebitda:'+26,4%', profit:'+76,8%', verdict:'Россети Центр: сильный год по всем метрикам', important:true, profitDir:'up'},
+  {ticker:'BANE',  period:'2025 · МСФО', sector:'Нефть и газ', rev:'−12,9%', ebitda:'−19,2%', profit:'−53,0%', verdict:'Снижение цен и объёмов ударило по всем метрикам', important:true, profitDir:'down'},
+  {ticker:'UNAC',  period:'2025 · МСФО', sector:'Машиностроение', rev:'+40,8%', ebitda:'+903,8%', profit:'+161,2%', verdict:'ОАК: резкий рост по всем метрикам', important:true, profitDir:'up'},
+  {ticker:'UGLD',  period:'2025 · МСФО', sector:'Металлургия', rev:'+43%', ebitda:'+27%', profit:'+81%', verdict:'Сильный год по выручке, EBITDA и прибыли', important:true, profitDir:'up'},
+  {ticker:'SVET',  period:'2025 · РСБУ', sector:'Потребительский сектор', rev:'−46%', ebitda:null, profit:'−96%', verdict:'Резкое падение выручки и почти обнуление прибыли', important:true, profitDir:'down'},
+  {ticker:'RAGR',  period:'2025 · МСФО', sector:'Потребительский сектор', rev:'+16,6%', ebitda:'−8,7%', profit:'−51,5%', verdict:'Русагро: выручка растёт, но рост расходов давит на прибыль', important:true, profitDir:'down'},
+  {ticker:'OZPH',  period:'2025 · МСФО', sector:'Здравоохранение', rev:'+23,6%', ebitda:'+39,7%', profit:'+33,8%', verdict:'Уверенный рост по всем метрикам', important:true, profitDir:'up'},
+  {ticker:'MGTSP', period:'2025 · МСФО', sector:'Телеком', rev:'+8,5%', ebitda:'+7,1%', profit:'+17,1%', verdict:'МГТС: стабильный умеренный рост', important:false, profitDir:'up'},
+  {ticker:'BTBR',  period:'2025 · МСФО', sector:'Финансы', rev:'+10,8%', ebitda:'+5,9%', profit:'+5,6%', verdict:'Умеренный рост по всем метрикам', important:false, profitDir:'up'},
+  {ticker:'BELU',  period:'2025 · МСФО', sector:'Потребительский сектор', rev:'+10,2%', ebitda:'+13,6%', profit:'+12,3%', verdict:'Абрау-Дюрсо группа: стабильный рост, долг/EBITDA 0,9x', important:false, profitDir:'up'},
+  {ticker:'NMTP',  period:'2024 · МСФО', sector:'Транспорт и логистика', rev:'+5,4%', ebitda:'+11,5%', profit:'+25,1%', verdict:'Рост по всем метрикам в 2024 году', important:false, profitDir:'up'},
+  {ticker:'MRKP',  period:'2025 · МСФО', sector:'Электроэнергетика', rev:'+15,7%', ebitda:'+24,8%', profit:'+43,9%', verdict:'Россети Центр и Приволжье: сильный год', important:true, profitDir:'up'},
+  {ticker:'RTKM',  period:'2025 · МСФО', sector:'Телеком', rev:'+11,9%', ebitda:'+9,5%', profit:'−25,5%', verdict:'Ростелеком: выручка и EBITDA растут, прибыль давит рост расходов', important:false, profitDir:'down'},
+  {ticker:'TGKB',  period:'2025 · МСФО', sector:'Электроэнергетика', rev:'+14,6%', ebitda:'−96,4%', profit:'×3', verdict:'EBITDA рухнула, но чистая прибыль выросла в 3 раза — расхождение требует проверки причин', important:true, profitDir:'up'},
+  {ticker:'ALRS',  period:'2025 · МСФО', sector:'Металлургия', rev:'−1,7%', ebitda:'−26,5%', profit:'+71,2%', verdict:'Прибыль выросла за счёт низкой базы и курсовых разниц, не операционно', important:true, profitDir:'up'},
+  {ticker:'RBCM',  period:'2022 · МСФО', sector:'Прочее', rev:'+32,8%', ebitda:'−98,5%', profit:'−58,3%', verdict:'⚠ данные за 2022 год — требуется проверка актуальности', important:true, profitDir:'down'}
+];
+let currentRepFilter = 'all';
+let currentRepSector = null;
+function renderCompactReports(){
+  const wrap = document.getElementById('repCompactList');
+  const filtered = REPORTS_COMPACT.filter(r=> !currentRepSector || r.sector===currentRepSector);
+  wrap.innerHTML = filtered.map(r=>{
+    const metrics = [['Выручка',r.rev],['EBITDA',r.ebitda],['Чистая прибыль',r.profit]]
+      .filter(([_,v])=>v)
+      .map(([lbl,v])=>`<div class="rep-metric"><span class="rm-lbl">${lbl}</span><span class="rm-val" style="color:${v.includes('−')||v.includes('-')?'var(--down)':'var(--up)'};">${v}</span></div>`).join('');
+    return `<div class="rep-card">
+      <div class="rep-card-head"><span class="rep-ticker-big">${r.ticker}</span><span class="rep-period-small">${r.period} · ${r.sector}</span>${r.important?'<span class="tag-judgment" style="margin-left:auto;">важно</span>':'<span class="tag-fact" style="margin-left:auto;">средне</span>'}</div>
+      <div class="rep-metrics">${metrics}</div>
+      <div class="rep-verdict">${r.verdict}</div>
+    </div>`;
+  }).join('');
+}
+function filterReports(btn, val){
+  document.querySelectorAll('#repFilters .chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  currentRepFilter = val;
+  currentRepSector = null;
+  document.getElementById('sectorDropdownLabel').textContent = 'Сектор';
+  document.querySelectorAll('#sectorDropdownPanel .dd-option').forEach(o=>o.classList.remove('selected'));
+  renderCompactReports();
+  document.querySelectorAll('#panel-reports > .rep-card').forEach(card=>{ card.style.display = ''; });
+}
+function selectSectorOption(sector){
+  currentRepSector = sector;
+  document.getElementById('sectorDropdownLabel').textContent = sector || 'Сектор';
+  document.getElementById('sectorDropdown').classList.remove('open');
+  document.querySelectorAll('#sectorDropdownPanel .dd-option').forEach(o=>o.classList.toggle('selected', o.dataset.sector===sector));
+  document.querySelectorAll('#repFilters .chip').forEach(c=>c.classList.remove('active'));
+  renderCompactReports();
+  document.querySelectorAll('#panel-reports > .rep-card').forEach(card=>{
+    card.style.display = (!sector || card.dataset.sector===sector) ? '' : 'none';
+  });
+}
+function initSectorDropdown(){
+  const sectors = [...new Set(REPORTS_COMPACT.map(r=>r.sector))].sort();
+  const staticSectors = ['Транспорт и логистика','IT-сектор','Нефть и газ'];
+  const allSectors = [...new Set([...sectors, ...staticSectors])].sort();
+  const panel = document.getElementById('sectorDropdownPanel');
+  panel.innerHTML = allSectors.map(s=>`<div class="dd-option" data-sector="${s}" onclick="selectSectorOption('${s}')">${s}</div>`).join('');
+}
+
+function filterToSector(name){
+  currentSectorFilter = (currentSectorFilter===name) ? null : name;
+  renderSectorChips();
+  renderMapOverview();
+}
+function renderSectorChips(){
+  const wrap = document.getElementById('sectorChips');
+  let html = `<div class="chip ${!currentSectorFilter?'active':''}" onclick="filterToSector(null)">Все секторы</div>`;
+  Object.keys(MAP_SECTORS).forEach(name=>{
+    html += `<div class="chip ${currentSectorFilter===name?'active':''}" onclick="filterToSector('${name}')">${name}</div>`;
+  });
+  wrap.innerHTML = html;
+}
+function setMapMode(el, mode){
+  document.getElementById('mapToggle').querySelectorAll('.seg-opt').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on');
+  currentMapMode = mode;
+  renderMapOverview();
+}
+function setAssetClass(el, cls){
+  document.getElementById('assetToggle').querySelectorAll('.seg-opt').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on');
+  const stub = document.getElementById('mapAssetStub');
+  if(cls==='stocks'){
+    stub.style.display='none';
+    document.getElementById('mapOverview').style.display='';
+    document.getElementById('sectorChips').style.display='';
+  } else {
+    stub.style.display='';
+    stub.textContent = cls==='bonds' ? 'Карта облигаций — данные скоро.' : 'Карта фьючерсов — данные скоро.';
+    document.getElementById('mapOverview').style.display='none';
+    document.getElementById('sectorChips').style.display='none';
+  }
+}
+
+const SERIES_DATA = {
+  rate:      {label:'Ключевая ставка ЦБ', color:'var(--copper)', unit:'%', pts:[16,15.5,13,10,8.5,7.5,8,9.5,12,20,17,16,15,14,13.5,14.5,17,19,21,20,19.5,18,16.5,15.5,14.8,14.25]},
+  inflation: {label:'Инфляция г/г',       color:'#7A8CA8',       unit:'%', pts:[11.5,10,8,7,6,5.5,6.5,8,11,14,13,11,9,7.5,6.8,7.2,9,10.5,12,11,9.5,8,6.8,6,5.6,5.31]},
+  expect:    {label:'Инфл. ожидания',     color:'#D9A441',       unit:'%', pts:[13,12.5,11.5,10.8,10,9.5,10,10.8,11.5,12.8,12.5,12,11.5,11,10.8,11.2,11.8,12.3,12.8,13,12.9,12.7,12.6,12.5,12.4,12.5]},
+  usd_rub:   {label:'USD/RUB',            color:'var(--copper)', unit:'',  pts:[70,72,75,80,90,95,88,82,78,75,72,70,68,73,80,90,96,92,85,80,78,79,78.5,78,78.1,77.93]},
+  cny_rub:   {label:'CNY/RUB',            color:'var(--copper)', unit:'',  pts:[9.6,9.8,10.2,10.8,11.5,12,11.7,11.3,11,10.8,10.5,10.2,10,10.6,11.2,11.8,12.1,11.9,11.6,11.4,11.5,11.5,11.48,11.47,11.47,11.47]},
+  hh_index:  {label:'Индекс рынка труда hh.ru', color:'#7A8CA8', unit:'',  pts:[8.4,8.7,7.6,6.5,5.9,5.6,5.4,5.5,5.8,6.3,6.9,7.4,7.9,8.2,8.5,8.7,8.9,9.1,9.3,9.4,9.5,9.6,9.7,9.7,9.75,9.8]},
+  pmi:       {label:'PMI композитный',    color:'#7A8CA8',       unit:'',  pts:[52,53,51,49,48,49,51,53,54,52,50,49,50,51,52,53,52,51,50,50.5,51,50.8,50.5,50.4,50.35,50.3]},
+  urals:     {label:'Нефть Urals',        color:'#7A8CA8',       unit:'$', pts:[58,60,55,50,48,52,60,68,72,65,58,55,60,65,70,75,80,85,90,88,85,90,92,93,93.5,94]},
+  unemp:     {label:'Безработица',        color:'#7A8CA8',       unit:'%', pts:[3.2,3.1,3,2.9,2.8,2.7,2.6,2.5,2.4,2.4,2.3,2.3,2.2,2.2,2.2,2.2,2.2,2.2,2.2,2.2,2.2,2.2,2.2,2.2,2.2,2.2]},
+  eur_rub:   {label:'EUR/RUB',            color:'var(--copper)', unit:'',  pts:[85,88,92,96,100,97,93,90,87,85,83,86,90,95,99,102,98,94,90,88,89,89.5,89,88.9,88.8,88.71]},
+  gdp:       {label:'ВВП реальный г/г',   color:'#7A8CA8',       unit:'%', pts:[1.4,1.3,1.1,0.9,0.7,0.6,0.8,1.0,1.3,1.5,1.4,1.2,1.0,0.8,0.7,0.9,1.1,1.3,1.4,1.3,1.1,1.0,0.98,0.96,0.95,0.95]},
+  ppi:       {label:'Индекс цен производителей', color:'#7A8CA8', unit:'%', pts:[2,1,-1,-3,-5,-6,-4,-2,0,2,3,1,-1,-3,-5,-6,-5,-4,-5,-5.5,-5.3,-5.1,-5.2,-5.2,-5.2,-5.2]},
+  budget:    {label:'Баланс бюджета',     color:'#7A8CA8',       unit:'%', pts:[0.2,0,-0.5,-1,-1.5,-2,-1.8,-1.5,-1,-0.5,0,-0.3,-0.8,-1.3,-1.8,-2.2,-2,-1.8,-1.6,-1.5,-1.6,-1.6,-1.6,-1.6,-1.6,-1.6]},
+  govspend:  {label:'Рост госрасходов',   color:'#7A8CA8',       unit:'%', pts:[3,3.5,4,4.5,5,5.5,5,4.5,4,3.8,3.6,3.8,4,4.2,4.5,4.8,4.5,4.3,4.2,4.2,4.2,4.2,4.2,4.2,4.2,4.2]},
+  m2:        {label:'Денежная масса M2',  color:'#7A8CA8',       unit:'%', pts:[4,3.8,3.5,3,2.5,2,2.5,3,3.5,4,3.8,3.5,3,2.5,2.2,2.5,3,3.5,3,2.8,2.6,2.5,2.5,2.5,2.5,2.5]},
+  real_wage: {label:'Реальная зарплата',  color:'#7A8CA8',       unit:'%', pts:[3.5,3.2,3,2.8,2.5,2.2,2.5,2.8,3,3.2,3,2.8,2.5,2.2,2,2.2,2.5,2.8,2.6,2.5,2.4,2.4,2.4,2.4,2.4,2.4]},
+  credit_org:{label:'Кредиты организациям', color:'#7A8CA8',     unit:'%', pts:[12,11.5,11,10.5,10,9.5,10,10.5,11,11.5,11,10.5,10,9.5,9,9.2,9.5,9.8,9.5,9.2,9,8.9,8.85,8.8,8.8,8.8]},
+  credit_pop:{label:'Кредиты населению',  color:'#7A8CA8',       unit:'%', pts:[8,7.5,7,6.5,6,5.5,5,4.8,4.5,4.2,4,4.2,4.5,4.2,4,3.8,3.6,3.8,4,3.95,3.9,3.9,3.9,3.9,3.9,3.9]},
+  credit_econ:{label:'Кредит экономике',  color:'#7A8CA8',       unit:'%', pts:[10,9.5,9,8.5,8,7.8,8,8.3,8.6,8.8,8.5,8.2,8,7.8,7.5,7.3,7.4,7.5,7.6,7.5,7.5,7.5,7.5,7.5,7.5,7.5]},
+  cn_rate:   {label:'Ставка НБК (КНР)',   color:'#7A8CA8',       unit:'%', pts:[2.2,2.1,2,1.95,1.9,1.85,1.8,1.78,1.75,1.72,1.7,1.68,1.66,1.65,1.64,1.7,1.75,1.72,1.68,1.65,1.64,1.64,1.64,1.64,1.64,1.64]},
+  cn_inflation:{label:'Инфляция КНР',     color:'#7A8CA8',       unit:'%', pts:[0.5,0.3,0.1,0,-0.1,-0.2,0,0.2,0.3,0.1,-0.1,-0.2,-0.3,-0.2,-0.1,0,0.1,0,-0.05,-0.1,-0.08,-0.07,-0.07,-0.07,-0.07,-0.07]},
+  cn_gdp:    {label:'ВВП КНР',            color:'#7A8CA8',       unit:'%', pts:[5.5,5.3,5,4.8,4.6,4.5,4.7,4.9,5,4.8,4.6,4.4,4.2,4,3.9,3.8,3.9,4,3.9,3.7,3.5,3.5,3.48,3.47,3.47,3.47]},
+  world_gdp: {label:'Мировой ВВП',        color:'#7A8CA8',       unit:'%', pts:[3.2,3.1,3,2.95,2.9,2.85,2.9,2.95,3,2.98,2.95,2.9,2.88,2.85,2.83,2.85,2.88,2.9,2.92,2.93,2.92,2.92,2.92,2.92,2.92,2.92]}
+};
+function genDates(n){
+  const out=[]; const start=new Date(2024,1,1);
+  for(let i=0;i<n;i++){ const d=new Date(start); d.setMonth(start.getMonth()+i); out.push(d.toLocaleDateString('ru-RU',{month:'2-digit',year:'2-digit'})); }
+  return out;
+}
+function renderLineChart(svgId, tipId, seriesKeys, opts){
+  const svg = document.getElementById(svgId);
+  const tip = document.getElementById(tipId);
+  if(!svg) return;
+  const W = opts && opts.w || 1000, H = opts && opts.h || 240;
+  const padL=52, padR=14, padT=16, padB=26;
+  const plotW=W-padL-padR, plotH=H-padT-padB;
+  const seriesList = seriesKeys.map(k=>({key:k, ...SERIES_DATA[k]}));
+  const n = seriesList[0].pts.length;
+  const dates = genDates(n);
+  let vmin=Infinity, vmax=-Infinity;
+  seriesList.forEach(s=>s.pts.forEach(v=>{ if(v<vmin)vmin=v; if(v>vmax)vmax=v; }));
+  const pad=(vmax-vmin)*0.12 || 1; vmin-=pad; vmax+=pad;
+  const xAt = i => padL + i*(plotW/(n-1));
+  const yAt = v => padT + plotH - ((v-vmin)/(vmax-vmin))*plotH;
+
+  let svgHtml = '';
+  const gridN = 4;
+  for(let g=0; g<=gridN; g++){
+    const v = vmin + (vmax-vmin)*g/gridN;
+    const y = yAt(v);
+    svgHtml += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="var(--line)" stroke-width="1" ${g===0?'':'stroke-dasharray="2,6"'}/>`;
+    svgHtml += `<text x="${padL-8}" y="${y+4}" text-anchor="end" font-family="IBM Plex Mono" font-size="10.5" fill="var(--ink-3)">${v.toFixed(1)}${seriesList[0].unit}</text>`;
+  }
+  const xTickEvery = Math.ceil(n/6);
+  for(let i=0;i<n;i+=xTickEvery){
+    svgHtml += `<text x="${xAt(i)}" y="${H-8}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--ink-3)">${dates[i]}</text>`;
+  }
+  seriesList.forEach(s=>{
+    const pts = s.pts.map((v,i)=>`${xAt(i)},${yAt(v)}`).join(' ');
+    svgHtml += `<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  });
+  svgHtml += `<line id="${svgId}-guide" x1="0" y1="${padT}" x2="0" y2="${H-padB}" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="3,3" opacity="0"/>`;
+  seriesList.forEach(s=>{
+    svgHtml += `<circle id="${svgId}-dot-${s.key}" r="4.5" fill="${s.color}" stroke="var(--surface-2)" stroke-width="2" opacity="0"/>`;
+  });
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = svgHtml;
+
+  function onMove(ev){
+    const rect = svg.getBoundingClientRect();
+    const clientX = ev.touches ? ev.touches[0].clientX : ev.clientX;
+    const px = (clientX - rect.left) / rect.width * W;
+    let i = Math.round((px - padL) / (plotW/(n-1)));
+    i = Math.max(0, Math.min(n-1, i));
+    const gx = xAt(i);
+    document.getElementById(svgId+'-guide').setAttribute('x1', gx);
+    document.getElementById(svgId+'-guide').setAttribute('x2', gx);
+    document.getElementById(svgId+'-guide').setAttribute('opacity', 1);
+    let tipHtml = `<div style="font-family:var(--mono); font-size:11px; color:var(--ink-3); margin-bottom:6px;">${dates[i]}</div>`;
+    seriesList.forEach(s=>{
+      const v = s.pts[i];
+      document.getElementById(svgId+'-dot-'+s.key).setAttribute('cx', gx);
+      document.getElementById(svgId+'-dot-'+s.key).setAttribute('cy', yAt(v));
+      document.getElementById(svgId+'-dot-'+s.key).setAttribute('opacity', 1);
+      tipHtml += `<div style="display:flex; align-items:center; gap:6px; font-size:12.5px; margin-top:3px;"><span style="width:8px;height:8px;border-radius:50%;background:${s.color};display:inline-block;"></span>${s.label} <b style="margin-left:auto; font-family:var(--mono);">${v.toFixed(2)}${s.unit}</b></div>`;
+    });
+    if(tip){
+      tip.innerHTML = tipHtml;
+      tip.style.opacity = 1;
+      const svgPxX = rect.left + (gx/W)*rect.width;
+      let left = svgPxX - rect.left + 14;
+      if(left + 180 > rect.width) left = svgPxX - rect.left - 190;
+      tip.style.left = left+'px';
+      tip.style.top = '8px';
+    }
+  }
+  function onLeave(){
+    document.getElementById(svgId+'-guide').setAttribute('opacity', 0);
+    seriesList.forEach(s=>document.getElementById(svgId+'-dot-'+s.key).setAttribute('opacity', 0));
+    if(tip) tip.style.opacity = 0;
+  }
+  svg.onpointermove = onMove;
+  svg.onpointerleave = onLeave;
+}
+
+/* ===== кастомный dropdown: универсальные open/close + click-outside-to-close ===== */
+function toggleDropdown(id){
+  const dd = document.getElementById(id);
+  const wasOpen = dd.classList.contains('open');
+  document.querySelectorAll('.custom-dd.open').forEach(x=>x.classList.remove('open'));
+  if(!wasOpen) dd.classList.add('open');
+}
+document.addEventListener('click', function(ev){
+  document.querySelectorAll('.custom-dd.open').forEach(dd=>{
+    if(!dd.contains(ev.target)) dd.classList.remove('open');
+  });
+});
+
+/* ===== клик по показателю → плавный скролл к общему детальному графику + смена основного ряда ===== */
+let currentPrimaryKey = 'cny_rub';
+let currentOverlayKey = 'hh_index';
+function openDetail(key){
+  const target = document.getElementById('detailChartCard');
+  target.scrollIntoView({behavior:'smooth', block:'center'});
+  currentPrimaryKey = key;
+  document.getElementById('detailTitle').textContent = SERIES_DATA[key].label + ' — с наложением';
+  if(currentOverlayKey === key){
+    currentOverlayKey = Object.keys(SERIES_DATA).find(k=>k!==key);
+    document.getElementById('overlayDropdownLabel').textContent = SERIES_DATA[currentOverlayKey].label;
+  }
+  renderLineChart('detailChart','detailTip',[key, currentOverlayKey]);
+}
+function selectOverlayOption(key){
+  currentOverlayKey = key;
+  document.getElementById('overlayDropdownLabel').textContent = SERIES_DATA[key].label;
+  document.getElementById('overlayDropdown').classList.remove('open');
+  document.querySelectorAll('#overlayDropdownPanel .dd-option').forEach(o=>o.classList.toggle('selected', o.dataset.key===key));
+  renderLineChart('detailChart','detailTip',[currentPrimaryKey, currentOverlayKey]);
+}
+window.addEventListener('DOMContentLoaded', function(){
+  const panel = document.getElementById('overlayDropdownPanel');
+  Object.keys(SERIES_DATA).forEach(k=>{
+    const opt = document.createElement('div');
+    opt.className = 'dd-option' + (k==='hh_index' ? ' selected' : '');
+    opt.dataset.key = k;
+    opt.textContent = SERIES_DATA[k].label;
+    opt.onclick = ()=>selectOverlayOption(k);
+    panel.appendChild(opt);
+  });
+  renderLineChart('heroChart','heroTip',['rate','inflation','expect'], {w:1000,h:240});
+  renderLineChart('detailChart','detailTip',[currentPrimaryKey,'hh_index'], {w:900,h:150});
+  renderMapOverview();
+  renderSectorChips();
+  renderCalTimeline();
+  renderCompactReports();
+  initSectorDropdown();
+});
+</script>
+</body>
+</html>

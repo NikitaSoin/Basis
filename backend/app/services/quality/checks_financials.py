@@ -575,6 +575,93 @@ def _c_tax_identity(subject: str, payload: dict) -> Iterable[CheckOutcome]:
                has_nci_field=_has_nci_field(card))
 
 
+_STD_RE = re.compile(r"МСФО|IFRS|РСБУ|RAS\b")
+
+
+def _standards_named(subject: str, card: dict) -> set[str]:
+    """Какие системы учёта названы самой карточкой — в meta и в шапке разбора."""
+    def norm(x: str) -> str:
+        return "МСФО" if x.upper() in ("МСФО", "IFRS") else "РСБУ"
+    found = {norm(x) for x in _STD_RE.findall(str((card.get("meta") or {}).get("reporting_standard") or ""))}
+    summary = COMPANIES / subject / "financials_summary.md"
+    if summary.exists():
+        found |= {norm(x) for x in _STD_RE.findall(summary.read_text()[:800])}
+    return found
+
+
+def _mixed_standard_years(subject: str, card: dict) -> list[int]:
+    """Годы, где отчётный и нормализованный ряды расходятся так, что мостом это
+    НЕ объясняется, при условии что карточка называет две системы учёта.
+
+    Два слабых сигнала дают один сильный: «упомянуты два стандарта» встречается
+    часто и само по себе ничего не значит (компания могла просто пояснить, что
+    МСФО не публикует); «мост не объясняет расхождение» тоже бывает по другим
+    причинам. Вместе — характерная подпись «в таблице один учёт, в тексте другой».
+    🔴 Проверено, что БЛНГ этой парой НЕ ловится: там расхождение объясняет мост."""
+    if len(_standards_named(subject, card)) < 2:
+        return []
+    reported = by_year(card, "income_statement", "net_profit")
+    adjusted = by_year(card, "adjusted", "net_profit_adj")
+    adds: dict[int, float] = {}
+    for item in ((card.get("adjusted") or {}).get("bridge") or []):
+        if not isinstance(item, dict) or not item.get("added_back") or item.get("fcf_line"):
+            continue
+        text = str(item.get("item") or "").lower()
+        if any(w in text for w in ("capex", "капзатрат", "капитальн", "fcf", "денежн", "оборотн")):
+            continue
+        year = item.get("year")
+        amount = item.get("amount_net_back_mln")
+        if not isinstance(amount, (int, float)):
+            amount = item.get("amount")
+        if isinstance(year, int) and isinstance(amount, (int, float)):
+            adds[year] = adds.get(year, 0.0) + float(amount)
+    out = []
+    for y in sorted(set(reported) & set(adjusted)):
+        a, b = reported[y], adjusted[y]
+        gap = abs(a - b) / max(abs(a), abs(b), 1)
+        flip = (a > 0) != (b > 0) and min(abs(a), abs(b)) > 1
+        if gap <= 0.5 and not flip:
+            continue
+        if abs((a + adds.get(y, 0.0)) - b) <= max(abs(b) * 0.05, 1.0):
+            continue                      # объяснено мостом — это нормализация
+        out.append(y)
+    return out
+
+
+def _c_mixed_standards(subject: str, payload: dict) -> Iterable[CheckOutcome]:
+    """Одна карточка, две системы учёта.
+
+    У ЦНТЛ таблица идёт по РСБУ (сверено построчно с формой 2 из ГИР БО ФНС —
+    выручка 1 190 646 тыс, прибыль от продаж 45 273 тыс, чистая −364 545 тыс,
+    до рубля), а проза написана по МСФО-инфографике (операционная −465 млн, ЧП
+    −355 млн). Числа НЕ противоречат — противоречат стандарты, и читатель видит
+    на одной карточке две правды без предупреждения.
+
+    Поэтому вердикт помечается RECONCILED: чинить нечего, обе стороны верны;
+    работа — выбрать один учёт и пересчитать производные."""
+    card = payload["card"]
+    standards = _standards_named(subject, card)
+    if len(standards) < 2:
+        yield skip(C_MIXED_STANDARDS, subject,
+                   f"карточка называет один стандарт ({', '.join(standards) or 'не указан'})",
+                   by_design=True)
+        return
+    years = _mixed_standard_years(subject, card)
+    if years:
+        rep = by_year(card, "income_statement", "net_profit")
+        adj = by_year(card, "adjusted", "net_profit_adj")
+        y = years[-1]
+        yield fail(C_MIXED_STANDARDS, subject,
+                   resolution=Resolution.RECONCILED,
+                   message=f"названы {' и '.join(sorted(standards))}, и ряды расходятся не по "
+                           f"нормализации: {y} — отчётная {rep[y]:,.0f} против нормализованной "
+                           f"{adj[y]:,.0f}. Похоже, таблица по одному учёту, текст по другому; "
+                           f"числа могут быть верны оба, свести их надо в один стандарт",
+                   years=years, standards=sorted(standards))
+    else:
+        yield ok(C_MIXED_STANDARDS, subject, standards=sorted(standards))
+
+
 def _c_adjusted_bridge(subject: str, payload: dict) -> Iterable[CheckOutcome]:
     """Отчётная прибыль против МОСТА НОРМАЛИЗАЦИИ в том же файле.
 
@@ -729,13 +816,19 @@ def _c_cross_tab(subject: str, payload: dict) -> Iterable[CheckOutcome]:
         # кратный дефект терялся в списке рядом с ней.
         hard.sort(key=lambda f: f.get("diff_pct") or 0, reverse=True)
         f = hard[0]
+        mixed = _mixed_standard_years(subject, card)
         yield fail(C_CROSS_TAB, subject,
+                   # Если карточка несёт два учёта, расхождение прозы с таблицей
+                   # ОБЪЯСНЕНО: чинить числа не надо, надо свести стандарты.
+                   # Иначе находка висела бы открытой вечно (довод сессии
+                   # «статус обновления данных» на разборе ЦНТЛ).
                    # 🔴 Проза карточки почти всегда производна от financials.json:
                    # она пересказывает число, а не свидетельствует о нём. Поэтому
                    # расхождение доказывает дрейф, но не говорит, какая сторона
                    # права (довод сессии «статус обновления данных»).
-                   resolution=Resolution.UNRESOLVED,
-                   message=f"{len(hard)} расхождений прозы с financials.json; худшее — "
+                   resolution=(Resolution.RECONCILED if mixed else Resolution.UNRESOLVED),
+                   message=("две системы учёта в одной карточке; " if mixed else "")
+                           + f"{len(hard)} расхождений прозы с financials.json; худшее — "
                    f"{f.get('file')} {f.get('year') or ''} {f.get('metric')}: "
                    f"разница {f.get('diff_pct')}% (в тексте «{f.get('in_text')}», "
                    f"в данных {f.get('fact_bln')} млрд)",
@@ -771,6 +864,9 @@ C_RETURN_UNITS = Check("fin.return_units", "Рентабельности в пр
 # причины не имеет, а необъяснённый разрыв — вполне (прекращённая деятельность,
 # доля неконтролирующих). Складывать их в одну severity значит либо простить
 # первое, либо наказать за второе.
+C_MIXED_STANDARDS = Check("fin.mixed_standards", "Карточка ведёт один учёт, а не два",
+                          Severity.HARD, _c_mixed_standards,
+                          "ЦНТЛ: таблица по РСБУ, проза по МСФО — обе стороны верны")
 C_TAX_SIGN = Check("fin.tax_sign", "Знак чистой прибыли не перевёрнут", Severity.HARD,
                    _c_tax_sign, "IRKT-2022: величина сходится, знак противоположный")
 C_TAX_IDENTITY = Check("fin.tax_identity", "Прибыль до налога + налог = чистая прибыль",
@@ -784,8 +880,9 @@ C_CROSS_TAB = Check("fin.cross_tab", "Вкладки не противореча
 
 CHECKS: list[Check] = [C_ARITHMETIC, C_PROFIT_VS_REVENUE, C_SOURCE_MATCH,
                        C_SOURCE_ISSUER, C_FRESHNESS, C_RETURN_UNITS,
-                       C_TAX_SIGN, C_TAX_IDENTITY, C_ADJ_BRIDGE, C_CROSS_TAB]
+                       C_TAX_SIGN, C_TAX_IDENTITY, C_ADJ_BRIDGE, C_MIXED_STANDARDS,
+                       C_CROSS_TAB]
 
 # Версия набора: меняется при добавлении/изменении проверок. Прогоны с разными
 # версиями сравнивать НЕЛЬЗЯ — иначе «качество выросло» окажется «проверок стало меньше».
-CHECKS_VERSION = "fin-1.6"  # 1.6: установлена ли виновная сторона  # 1.3: пропуск-норма (банк вне «выручки») не режет покрытие
+CHECKS_VERSION = "fin-1.7"  # 1.6: установлена ли виновная сторона  # 1.3: пропуск-норма (банк вне «выручки») не режет покрытие

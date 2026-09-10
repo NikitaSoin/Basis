@@ -17,7 +17,10 @@ from app.services.quality.pipelines import PIPELINES, get
 
 PIPELINE_NAMES = sorted(PIPELINES)
 SAMPLES = {
-    "financials": ["LKOH", "SBER", "GMKN", "MTSS", "PHOR", "MGNT", "NVTK", "CHMF"],
+    # ASSB/CHMK — карточки, называющие два стандарта учёта: без них
+    # fin.mixed_standards на всей выборке только пропускает и выглядит мёртвой.
+    "financials": ["LKOH", "SBER", "GMKN", "MTSS", "PHOR", "MGNT", "NVTK", "CHMF",
+                   "ASSB", "CHMK"],
     "snapshots": None,          # снапшотов мало — гоняем все
 }
 

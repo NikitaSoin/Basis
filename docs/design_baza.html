@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basis · Обозреватель — Слоистая линза</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===================== ТОКЕНЫ: «Слоистая линза» ===================== */
+:root{
+  /* глубина: чем ближе к 4, тем темнее/плотнее */
+  --l1-bg:#F7F5F0; --l1-surface:#FFFFFF; --l1-ink:#161510; --l1-ink2:#5C574A;
+  --l2-bg:#E9E4D6; --l2-surface:#F4F0E6; --l2-ink:#161510; --l2-ink2:#5C574A;
+  --l3-bg:#2B2E3A; --l3-surface:#343849; --l3-ink:#EFEDE6; --l3-ink2:#9B9BAE;
+  --l4-bg:#12131A; --l4-surface:#1B1C26; --l4-ink:#EFEDE6; --l4-ink2:#83839A;
+
+  --copper:#C97A4A; --copper-soft:#F0DDCC; --copper-deep:#E0925E;
+  --up:#3E8464; --down:#B8503F; --line-light:#DCD5C2; --line-dark:#3A3D4C;
+
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'IBM Plex Mono',monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--sans); background:var(--l1-bg); color:var(--l1-ink); overflow-x:hidden;}
+.mono{font-family:var(--mono); font-variant-numeric:tabular-nums; letter-spacing:-.01em;}
+.serif{font-family:var(--serif);}
+a{color:inherit; text-decoration:none;}
+
+/* ===================== ШКАЛА ГЛУБИНЫ — сигнатурный элемент/навигация ===================== */
+.depth-rail{position:fixed; left:0; top:0; bottom:0; width:86px; z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; pointer-events:none;}
+.depth-track{position:relative; width:2px; height:62vh; background:linear-gradient(180deg,var(--l1-ink2),var(--copper) 35%,var(--l3-ink2) 70%,var(--l4-ink2)); opacity:.35; pointer-events:none;}
+.depth-node{position:absolute; left:50%; transform:translate(-50%,-50%); width:13px; height:13px; border-radius:50%; background:var(--l1-surface); border:2px solid var(--l1-ink2); cursor:pointer; pointer-events:all; transition:.3s var(--ease);}
+.depth-node.active{background:var(--copper); border-color:var(--copper); width:17px; height:17px; box-shadow:0 0 0 6px rgba(201,122,74,.18);}
+.depth-label{position:absolute; left:24px; top:50%; transform:translateY(-50%); white-space:nowrap; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--l1-ink2); opacity:0; transition:opacity .25s;}
+.depth-node:hover .depth-label, .depth-node.active .depth-label{opacity:1;}
+.depth-index{position:fixed; left:34px; top:28px; font-family:var(--mono); font-size:11px; color:var(--l1-ink2); z-index:101; writing-mode:vertical-rl; letter-spacing:.1em;}
+
+/* ===================== TOPBAR минимал ===================== */
+.topbar{position:fixed; top:0; left:86px; right:0; z-index:90; display:flex; justify-content:space-between; align-items:center; padding:22px 40px; mix-blend-mode:difference; color:#fff; pointer-events:none;}
+.topbar *{pointer-events:all;}
+.brand{font-family:var(--serif); font-weight:600; font-size:19px;}
+.topbar-links{display:flex; gap:26px; font-size:13px; font-weight:600;}
+
+/* ===================== LAYER SECTIONS ===================== */
+.layer{min-height:100vh; position:relative; padding:140px 40px 100px 150px; transition:background .6s var(--ease);}
+.layer-1{background:var(--l1-bg); color:var(--l1-ink);}
+.layer-2{background:var(--l2-bg); color:var(--l2-ink);}
+.layer-3{background:var(--l3-bg); color:var(--l3-ink);}
+.layer-4{background:var(--l4-bg); color:var(--l4-ink);}
+
+.layer-eyebrow{display:flex; align-items:center; gap:12px; font-family:var(--mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:18px; opacity:.65;}
+.layer-eyebrow .n{color:var(--copper); font-weight:700;}
+.layer-title{font-family:var(--serif); font-weight:600; font-size:clamp(34px,4.4vw,58px); line-height:1.04; max-width:820px; margin-bottom:16px;}
+.layer-sub{font-size:16px; max-width:640px; opacity:.72; line-height:1.6; margin-bottom:56px;}
+.layer-2 .layer-sub, .layer-1 .layer-sub{color:var(--l1-ink2);}
+.layer-3 .layer-sub, .layer-4 .layer-sub{color:var(--l3-ink2);}
+
+/* fade-in on scroll */
+.reveal{opacity:0; transform:translateY(22px); transition:opacity .7s var(--ease), transform .7s var(--ease);}
+.reveal.in{opacity:1; transform:translateY(0);}
+
+@media(max-width:860px){
+  .depth-rail{width:0;} .depth-index{display:none;}
+  .layer{padding:120px 20px 80px 24px;}
+  .topbar{left:0; padding:16px 20px;}
+}
+</style>
+</head>
+<body>
+
+<div class="depth-index">SCROLL TO DIVE</div>
+<div class="depth-rail">
+  <div class="depth-track">
+    <div class="depth-node active" data-layer="1" style="top:0%;"><span class="depth-label">Мир</span></div>
+    <div class="depth-node" data-layer="2" style="top:33%;"><span class="depth-label">Рынок</span></div>
+    <div class="depth-node" data-layer="3" style="top:66%;"><span class="depth-label">События</span></div>
+    <div class="depth-node" data-layer="4" style="top:100%;"><span class="depth-label">Смысл</span></div>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="brand">Basis</div>
+  <div class="topbar-links"><a href="#">Рынок</a><a href="#">Обозреватель</a><a href="#">Портфель</a><a href="#">Скрининг</a><a href="#">Профиль</a></div>
+</div>
+
+<!-- ================================================================ -->
+<!-- LAYER 1 — МИР / МАКРО ============================================ -->
+<!-- ================================================================ -->
+<section class="layer layer-1" id="layer-1">
+  <div class="layer-eyebrow"><span class="n">01 / 04</span> · Слой поверхности</div>
+  <h1 class="layer-title reveal">Мир, в котором<br>сегодня торгуется рынок.</h1>
+  <p class="layer-sub reveal">Ставка, инфляция, курсы, глобальный фон — то, что задаёт гравитацию для всего, что ниже. Погружайтесь: каждый следующий слой — интерпретация этого.</p>
+
+  <!-- HERO: ключевая ставка, крупно, как единственный настоящий герой экрана -->
+  <div class="reveal" style="display:grid; grid-template-columns:1.1fr 1fr; gap:64px; align-items:end; margin-bottom:80px;">
+    <div>
+      <div style="font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--l1-ink2); margin-bottom:10px;">Ключевая ставка Банка России</div>
+      <div style="display:flex; align-items:baseline; gap:18px; flex-wrap:wrap;">
+        <span class="serif mono" style="font-size:clamp(72px,9vw,132px); font-weight:600; line-height:.9; letter-spacing:-.02em;">14,25<span style="font-size:.4em; font-weight:500;">%</span></span>
+      </div>
+      <div style="display:flex; gap:22px; margin-top:18px; font-size:13.5px; color:var(--l1-ink2);">
+        <span>на <b class="mono">19.06.2026</b></span>
+        <span>·</span>
+        <span>след. заседание <b class="mono">24.07.2026</b></span>
+      </div>
+    </div>
+    <div style="border-left:2px solid var(--copper); padding-left:26px;">
+      <p style="font-size:15.5px; line-height:1.65; color:var(--l1-ink2);">Банк России оценит целесообразность снижения на ближайших заседаниях в зависимости от устойчивости замедления инфляции и рисков со стороны внутренних и внешних условий.</p>
+      <div style="margin-top:16px; display:inline-flex; align-items:center; gap:8px; background:var(--copper-soft); color:#8A4A26; padding:6px 14px; border-radius:99px; font-size:12px; font-weight:700;">◆ суждение Basis — не факт</div>
+    </div>
+  </div>
+
+  <!-- график: area-визуализация вместо голых линий, с легендой и аннотацией -->
+  <div class="reveal" style="margin-bottom:90px;">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+      <h3 class="serif" style="font-size:22px; font-weight:600;">Ставка против инфляции — три года</h3>
+      <div style="display:flex; gap:22px; font-size:12.5px; color:var(--l1-ink2);">
+        <span style="display:flex; align-items:center; gap:6px;"><i style="width:16px;height:3px;background:var(--copper);display:inline-block;border-radius:2px;"></i>Ключевая ставка</span>
+        <span style="display:flex; align-items:center; gap:6px;"><i style="width:16px;height:3px;background:#7A8CA8;display:inline-block;border-radius:2px;"></i>Инфляция г/г</span>
+      </div>
+    </div>
+    <svg viewBox="0 0 1200 340" style="width:100%; height:auto;">
+      <defs>
+        <linearGradient id="rateFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--copper)" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="var(--copper)" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <line x1="0" y1="300" x2="1200" y2="300" stroke="var(--line-light)" stroke-width="1"/>
+      <line x1="0" y1="180" x2="1200" y2="180" stroke="var(--line-light)" stroke-width="1" stroke-dasharray="2,6"/>
+      <line x1="0" y1="60" x2="1200" y2="60" stroke="var(--line-light)" stroke-width="1" stroke-dasharray="2,6"/>
+      <text x="1195" y="304" text-anchor="end" font-family="IBM Plex Mono" font-size="12" fill="var(--l1-ink2)">11,6%</text>
+      <text x="1195" y="184" font-family="IBM Plex Mono" text-anchor="end" font-size="12" fill="var(--l1-ink2)">17,0%</text>
+      <text x="1195" y="64" font-family="IBM Plex Mono" text-anchor="end" font-size="12" fill="var(--l1-ink2)">22,5%</text>
+
+      <path d="M0,220 L100,235 L200,60 L320,50 L420,220 L560,280 L680,160 L800,95 L920,80 L1040,120 L1200,145 L1200,300 L0,300 Z" fill="url(#rateFill)"/>
+      <polyline points="0,220 100,235 200,60 320,50 420,220 560,280 680,160 800,95 920,80 1040,120 1200,145" fill="none" stroke="var(--copper)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+      <polyline points="0,200 100,225 200,260 320,250 420,170 560,60 680,190 800,235 920,225 1040,215 1200,210" fill="none" stroke="#7A8CA8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+
+      <circle cx="200" cy="60" r="5" fill="var(--copper)"/>
+      <text x="212" y="42" font-family="Inter" font-size="12.5" font-weight="700" fill="var(--l1-ink)">пик 21,0% · окт 2024</text>
+      <circle cx="1200" cy="145" r="5" fill="var(--copper)" stroke="var(--l1-bg)" stroke-width="3"/>
+      <text x="1050" y="130" font-family="Inter" font-size="12.5" font-weight="700" fill="var(--copper)">сейчас 14,25%</text>
+    </svg>
+    <div class="mono" style="display:flex; justify-content:space-between; margin-top:8px; font-size:11.5px; color:var(--l1-ink2);"><span>2023</span><span>2024</span><span>2025</span><span>2026</span></div>
+  </div>
+
+  <!-- индикаторы: карточки с новой иерархией — крупная цифра, маленький смысловой ярлык дельты -->
+  <h3 class="serif reveal" style="font-size:22px; font-weight:600; margin-bottom:22px;">Показатели фона</h3>
+  <div class="reveal" style="display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line-light); border:1px solid var(--line-light); margin-bottom:70px;">
+
+    <div style="background:var(--l1-surface); padding:26px 24px;">
+      <div style="font-size:12.5px; font-weight:600; color:var(--l1-ink2); margin-bottom:10px;">Инфляция г/г</div>
+      <div class="serif mono" style="font-size:34px; font-weight:600;">5,31%</div>
+      <div style="display:inline-flex; align-items:center; gap:5px; margin-top:8px; font-size:11.5px; font-weight:700; color:var(--down);">▲ давит на ставку</div>
+    </div>
+    <div style="background:var(--l1-surface); padding:26px 24px;">
+      <div style="font-size:12.5px; font-weight:600; color:var(--l1-ink2); margin-bottom:10px;">Инфл. ожидания</div>
+      <div class="serif mono" style="font-size:34px; font-weight:600;">12,5%</div>
+      <div style="display:inline-flex; align-items:center; gap:5px; margin-top:8px; font-size:11.5px; font-weight:700; color:var(--down);">◆ незаякорено</div>
+    </div>
+    <div style="background:var(--l1-surface); padding:26px 24px;">
+      <div style="font-size:12.5px; font-weight:600; color:var(--l1-ink2); margin-bottom:10px;">ВВП, реальный г/г</div>
+      <div class="serif mono" style="font-size:34px; font-weight:600;">0,95%</div>
+      <div style="display:inline-flex; align-items:center; gap:5px; margin-top:8px; font-size:11.5px; font-weight:700; color:var(--up);">▲ слабый рост</div>
+    </div>
+    <div style="background:var(--l1-surface); padding:26px 24px;">
+      <div style="font-size:12.5px; font-weight:600; color:var(--l1-ink2); margin-bottom:10px;">USD / RUB</div>
+      <div class="serif mono" style="font-size:34px; font-weight:600;">78,27</div>
+      <div style="display:inline-flex; align-items:center; gap:5px; margin-top:8px; font-size:11.5px; font-weight:700; color:var(--l1-ink2);">стабильно</div>
+    </div>
+    <div style="background:var(--l1-surface); padding:26px 24px;">
+      <div style="font-size:12.5px; font-weight:600; color:var(--l1-ink2); margin-bottom:10px;">Нефть Urals</div>
+      <div class="serif mono" style="font-size:34px; font-weight:600;">$94</div>
+      <div style="display:inline-flex; align-items:center; gap:5px; margin-top:8px; font-size:11.5px; font-weight:700; color:var(--up);">▲ поддержка бюджета</div>
+    </div>
+    <div style="background:var(--l1-surface); padding:26px 24px;">
+      <div style="font-size:12.5px; font-weight:600; color:var(--l1-ink2); margin-bottom:10px;">PMI композитный</div>
+      <div class="serif mono" style="font-size:34px; font-weight:600;">50,3</div>
+      <div style="display:inline-flex; align-items:center; gap:5px; margin-top:8px; font-size:11.5px; font-weight:700; color:var(--l1-ink2);">на грани роста</div>
+    </div>
+    <div style="background:var(--l1-surface); padding:26px 24px;">
+      <div style="font-size:12.5px; font-weight:600; color:var(--l1-ink2); margin-bottom:10px;">Безработица</div>
+      <div class="serif mono" style="font-size:34px; font-weight:600;">2,2%</div>
+      <div style="display:inline-flex; align-items:center; gap:5px; margin-top:8px; font-size:11.5px; font-weight:700; color:var(--down);">перегрет рынок труда</div>
+    </div>
+    <div style="background:var(--l1-surface); padding:26px 24px; display:flex; flex-direction:column; justify-content:center;">
+      <div style="font-size:12.5px; font-weight:600; color:var(--l1-ink2); margin-bottom:6px;">Мировой ВВП</div>
+      <div class="serif mono" style="font-size:34px; font-weight:600;">2,92%</div>
+    </div>
+  </div>
+
+  <!-- прогноз ЦБ — переосмыслен как горизонтальные диапазонные полосы, не таблица -->
+  <div class="reveal" style="max-width:900px;">
+    <h3 class="serif" style="font-size:22px; font-weight:600; margin-bottom:6px;">Среднесрочный прогноз Банка России</h3>
+    <div style="font-size:12.5px; color:var(--l1-ink2); margin-bottom:26px;" class="mono">по состоянию на 07.05.2026</div>
+
+    <div style="display:flex; flex-direction:column; gap:22px;">
+      <div>
+        <div style="display:flex; justify-content:space-between; font-size:13.5px; font-weight:600; margin-bottom:8px;"><span>Ключевая ставка</span><span class="mono" style="color:var(--l1-ink2);">сейчас 14,25%</span></div>
+        <div style="position:relative; height:34px; background:var(--l2-bg); border-radius:6px;">
+          <div style="position:absolute; left:0%; width:100%; top:0; bottom:0; display:flex; align-items:center;">
+            <div style="position:absolute; left:57%; width:5%; top:4px; bottom:4px; background:var(--copper); border-radius:4px;" title="2026: 14,0–14,5"></div>
+            <div style="position:absolute; left:30%; width:8%; top:4px; bottom:4px; background:var(--copper); opacity:.55; border-radius:4px;" title="2027: 8,0–10,0"></div>
+            <div style="position:absolute; left:26%; width:4%; top:4px; bottom:4px; background:var(--copper); opacity:.35; border-radius:4px;" title="2028: 7,5–8,5"></div>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--l1-ink2); margin-top:5px;" class="mono"><span>0%</span><span>2026 → 2027 → 2028</span><span>22%</span></div>
+      </div>
+      <div>
+        <div style="display:flex; justify-content:space-between; font-size:13.5px; font-weight:600; margin-bottom:8px;"><span>Инфляция</span><span class="mono" style="color:var(--l1-ink2);">сейчас 5,31%</span></div>
+        <div style="position:relative; height:34px; background:var(--l2-bg); border-radius:6px;">
+          <div style="position:absolute; left:20%; width:7%; top:4px; bottom:4px; background:#7A8CA8; border-radius:4px;"></div>
+          <div style="position:absolute; left:16%; width:3%; top:4px; bottom:4px; background:#7A8CA8; opacity:.5; border-radius:4px;"></div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:13.5px; color:var(--l1-ink2); margin-top:22px; line-height:1.6; max-width:680px;">Проинфляционные риски со стороны внешних условий и бюджетной политики предполагают осторожное снижение ставки. Инфляция вернётся к 4% в 2027 году.</p>
+  </div>
+</section>
+<!-- ================================================================ -->
+<!-- LAYER 2 — РЫНОК ================================================== -->
+<!-- ================================================================ -->
+<section class="layer layer-2" id="layer-2">
+  <div class="layer-eyebrow"><span class="n">02 / 04</span> · Погружение первое</div>
+  <h1 class="layer-title reveal">Рынок сжимается<br>до секторов и бумаг.</h1>
+  <p class="layer-sub reveal">Тот же макро-фон, но теперь видно, кто и как на него реагирует. Размер и вес плитки — капитализация; тепло — движение цены.</p>
+
+  <div class="reveal" style="display:flex; align-items:center; gap:18px; margin-bottom:36px; flex-wrap:wrap;">
+    <div style="display:flex; background:var(--l2-surface); border-radius:99px; padding:4px;">
+      <span style="padding:9px 20px; border-radius:99px; background:var(--copper); color:#fff; font-size:13px; font-weight:700;">Тепловая</span>
+      <span style="padding:9px 20px; border-radius:99px; color:var(--l2-ink2); font-size:13px; font-weight:700;">Недооценённость</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--l2-ink2);">
+      <span class="mono">−8%</span>
+      <div style="width:160px; height:8px; border-radius:4px; background:linear-gradient(90deg,#B8503F,#E8C8C0,var(--l2-bg),#BFDFCF,#3E8464);"></div>
+      <span class="mono">+8%</span>
+    </div>
+  </div>
+
+  <!-- treemap-подобная органичная сетка вместо равномерных плиток -->
+  <div class="reveal" style="margin-bottom:56px;">
+    <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--l2-ink2); margin-bottom:12px;">Нефть и газ · 23 бумаги</div>
+    <div style="display:grid; grid-template-columns:2fr 1.4fr 1fr 1fr; grid-template-rows:100px 70px; gap:4px;">
+      <div style="grid-row:span 2; background:#B8503F; border-radius:10px; padding:16px; display:flex; flex-direction:column; justify-content:space-between; color:#fff;"><span style="font-weight:700; font-size:16px;">ROSN</span><span class="mono" style="font-size:14px;">−5,5%</span></div>
+      <div style="background:#C36251; border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between; color:#fff;"><span style="font-weight:700; font-size:14px;">LKOH</span><span class="mono" style="font-size:12.5px;">−5,7%</span></div>
+      <div style="background:#CE7565; border-radius:10px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; color:#fff;"><span style="font-weight:700; font-size:13px;">NVTK</span><span class="mono" style="font-size:11.5px;">−4,5%</span></div>
+      <div style="background:#9C3020; border-radius:10px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; color:#fff;"><span style="font-weight:700; font-size:13px;">MFGS</span><span class="mono" style="font-size:11.5px;">−8,0%</span></div>
+      <div style="background:#D68E80; border-radius:10px; padding:10px; display:flex; flex-direction:column; justify-content:space-between; color:#fff;"><span style="font-weight:700; font-size:12px;">GAZP</span><span class="mono" style="font-size:11px;">−3,8%</span></div>
+      <div style="background:#3E8464; border-radius:10px; padding:10px; display:flex; flex-direction:column; justify-content:space-between; color:#fff;"><span style="font-weight:700; font-size:12px;">JNOSP</span><span class="mono" style="font-size:11px;">+0,4%</span></div>
+      <div style="background:#C86F5F; border-radius:10px; padding:10px; display:flex; flex-direction:column; justify-content:space-between; color:#fff;"><span style="font-weight:700; font-size:12px;">TATN</span><span class="mono" style="font-size:11px;">−5,6%</span></div>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--l2-ink2); margin-bottom:12px;">Финансы · 28 бумаг</div>
+    <div style="display:grid; grid-template-columns:1.8fr 1.2fr 1fr 1fr 1fr; gap:4px; grid-template-rows:90px;">
+      <div style="background:#D8A79E; border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;"><span style="font-weight:700; font-size:14px;">SBER</span><span class="mono" style="font-size:12.5px;">−1,6%</span></div>
+      <div style="background:#C36251; border-radius:10px; padding:12px; color:#fff; display:flex; flex-direction:column; justify-content:space-between;"><span style="font-weight:700; font-size:13px;">T</span><span class="mono" style="font-size:11.5px;">−4,4%</span></div>
+      <div style="background:#CE7565; border-radius:10px; padding:10px; color:#fff; display:flex; flex-direction:column; justify-content:space-between;"><span style="font-weight:700; font-size:12px;">VTBR</span><span class="mono" style="font-size:11px;">−2,9%</span></div>
+      <div style="background:#9C3020; border-radius:10px; padding:10px; color:#fff; display:flex; flex-direction:column; justify-content:space-between;"><span style="font-weight:700; font-size:12px;">SPBE</span><span class="mono" style="font-size:11px;">−5,9%</span></div>
+      <div style="background:#5FA57E; border-radius:10px; padding:10px; color:#fff; display:flex; flex-direction:column; justify-content:space-between;"><span style="font-weight:700; font-size:12px;">BTBR</span><span class="mono" style="font-size:11px;">+1,1%</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- LAYER 3 — СОБЫТИЯ (объединяет: Лента / Календарь / Отчёты) ======= -->
+<!-- ================================================================ -->
+<section class="layer layer-3" id="layer-3">
+  <div class="layer-eyebrow"><span class="n">03 / 04</span> · Погружение второе</div>
+  <h1 class="layer-title reveal">Что случилось —<br>и что случится.</h1>
+  <p class="layer-sub reveal">Новости, отчётности и календарь — раньше три отдельных вкладки, но по сути один и тот же вопрос: какое событие и когда. Единая хронология, отфильтруй по типу.</p>
+
+  <div class="reveal" style="display:flex; gap:8px; margin-bottom:44px; flex-wrap:wrap;">
+    <span style="padding:9px 18px; border-radius:99px; background:var(--copper); color:#fff; font-size:13px; font-weight:700;">Всё</span>
+    <span style="padding:9px 18px; border-radius:99px; background:var(--l3-surface); color:var(--l3-ink2); font-size:13px; font-weight:700;">Новости</span>
+    <span style="padding:9px 18px; border-radius:99px; background:var(--l3-surface); color:var(--l3-ink2); font-size:13px; font-weight:700;">Отчётности</span>
+    <span style="padding:9px 18px; border-radius:99px; background:var(--l3-surface); color:var(--l3-ink2); font-size:13px; font-weight:700;">Дивиденды</span>
+    <span style="padding:9px 18px; border-radius:99px; background:var(--l3-surface); color:var(--l3-ink2); font-size:13px; font-weight:700;">Макрособытия</span>
+  </div>
+
+  <!-- вертикальная хронология вместо трёх раздельных списков -->
+  <div class="reveal" style="max-width:880px; position:relative; padding-left:32px;">
+    <div style="position:absolute; left:5px; top:8px; bottom:8px; width:2px; background:var(--line-dark);"></div>
+
+    <div style="position:relative; padding-bottom:34px;">
+      <div style="position:absolute; left:-32px; top:4px; width:12px; height:12px; border-radius:50%; background:var(--copper); border:3px solid var(--l3-bg);"></div>
+      <div style="font-size:12px; color:var(--l3-ink2); font-weight:600; margin-bottom:6px;" class="mono">24.07.2026 · 13:30 · заседание ЦБ</div>
+      <div style="font-weight:600; font-size:16px; margin-bottom:4px;">Решение по ключевой ставке</div>
+      <div style="font-size:13.5px; color:var(--l3-ink2);">Ожидается. Пресс-конференция ~15:00 МСК.</div>
+    </div>
+
+    <div style="position:relative; padding-bottom:34px;">
+      <div style="position:absolute; left:-32px; top:4px; width:10px; height:10px; border-radius:50%; background:var(--l3-ink2); border:3px solid var(--l3-bg);"></div>
+      <div style="font-size:12px; color:var(--l3-ink2); font-weight:600; margin-bottom:6px;" class="mono">01.07.2026 · 16:21 · Коммерсантъ</div>
+      <div style="font-weight:600; font-size:16px; margin-bottom:4px;">«Полюс» выплатит дивиденды за первый квартал</div>
+      <div style="font-size:13.5px; color:var(--l3-ink2); margin-bottom:8px;">29,05 руб. на акцию, всего 28 млрд руб. (30% EBITDA).</div>
+      <div style="display:inline-flex; gap:8px; align-items:center; background:rgba(201,122,74,.14); color:var(--copper-deep); padding:8px 14px; border-radius:8px; font-size:13px;">↳ поддерживает котировки PLZL</div>
+    </div>
+
+    <div style="position:relative; padding-bottom:34px;">
+      <div style="position:absolute; left:-32px; top:4px; width:10px; height:10px; border-radius:50%; background:var(--up); border:3px solid var(--l3-bg);"></div>
+      <div style="font-size:12px; color:var(--l3-ink2); font-weight:600; margin-bottom:6px;" class="mono">30.06.2026 · отчётность 2025 МСФО</div>
+      <div style="font-weight:600; font-size:16px; margin-bottom:4px;">UNAC (ОАК): сильный отчёт</div>
+      <div style="font-size:13.5px; color:var(--l3-ink2);">Выручка <b style="color:var(--up);">+40,8%</b>, EBITDA <b style="color:var(--up);">+903,8%</b>, чистая прибыль <b style="color:var(--up);">+161,2%</b></div>
+    </div>
+
+    <div style="position:relative;">
+      <div style="position:absolute; left:-32px; top:4px; width:10px; height:10px; border-radius:50%; background:var(--l3-ink2); border:3px solid var(--l3-bg);"></div>
+      <div style="font-size:12px; color:var(--l3-ink2); font-weight:600; margin-bottom:6px;" class="mono">01.07.2026 · 16:33 · Коммерсантъ</div>
+      <div style="font-weight:600; font-size:16px; margin-bottom:4px;">Индекс гособлигаций Мосбиржи упал ниже 113 пунктов</div>
+      <div style="font-size:13.5px; color:var(--l3-ink2);">RGBI −0,9% до 112,89 — впервые за девять месяцев.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- LAYER 4 — СМЫСЛ (объединяет: Геополитика / ИИ-обзор) ============= -->
+<!-- ================================================================ -->
+<section class="layer layer-4" id="layer-4">
+  <div class="layer-eyebrow"><span class="n">04 / 04</span> · Дно — интерпретация</div>
+  <h1 class="layer-title reveal">Не факт.<br>Наше прочтение фактов.</h1>
+  <p class="layer-sub reveal">Геополитика и синтез — оба не сообщают новое событие, а связывают всё увиденное выше в объяснение. Здесь громче всего звучит голос Basis — и поэтому здесь строже всего маркировка «это суждение».</p>
+
+  <div class="reveal" style="display:inline-flex; align-items:center; gap:10px; background:rgba(201,122,74,.15); color:var(--copper-deep); padding:10px 18px; border-radius:99px; font-size:12.5px; font-weight:700; margin-bottom:44px;">
+    ◆ Ниже — оценка Basis, не инвестиционная рекомендация
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:2px; background:var(--line-dark); margin-bottom:2px;">
+    <div style="background:var(--l4-surface); padding:34px;">
+      <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--l4-ink2); margin-bottom:14px;">Геополитический канал</div>
+      <h3 class="serif" style="font-size:24px; font-weight:600; margin-bottom:14px;">СВО / российская повестка</h3>
+      <p style="font-size:14.5px; color:var(--l4-ink2); line-height:1.7; margin-bottom:20px;">Военная операция продолжается с акцентом на топливную инфраструктуру. Экономический вектор России смещается в Азию, требуя перестройки логистических цепочек.</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px;">
+        <span style="background:rgba(201,122,74,.16); color:var(--copper-deep); font-size:12px; font-weight:600; padding:6px 13px; border-radius:99px;">Финансы</span>
+        <span style="background:rgba(201,122,74,.16); color:var(--copper-deep); font-size:12px; font-weight:600; padding:6px 13px; border-radius:99px;">Нефть и газ</span>
+        <span style="background:rgba(201,122,74,.16); color:var(--copper-deep); font-size:12px; font-weight:600; padding:6px 13px; border-radius:99px;">Логистика</span>
+      </div>
+      <div style="border-top:1px solid var(--line-dark); padding-top:16px;">
+        <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--l4-ink2); margin-bottom:10px;">Канал влияния</div>
+        <div style="font-size:14px; font-weight:600; color:var(--l4-ink); margin-bottom:4px;">Риск-премия и оценка</div>
+        <p style="font-size:13.5px; color:var(--l4-ink2); line-height:1.6;">Усиление геополитической неопределённости повышает волатильность и страновую премию.</p>
+      </div>
+    </div>
+
+    <div style="background:var(--l4-surface); padding:34px;">
+      <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--l4-ink2); margin-bottom:14px;">Синтез Basis · глубокий, ±30 дней</div>
+      <h3 class="serif" style="font-size:24px; font-weight:600; margin-bottom:14px;">Что важно из увиденного выше</h3>
+      <p style="font-size:14.5px; color:var(--l4-ink2); line-height:1.7; margin-bottom:16px;">Ставка удержана на <b class="mono" style="color:var(--l4-ink);">14,25%</b>, инфляционные ожидания остаются незаякоренными. На этом фоне вышли сильные отчёты у промышленных бумаг (<b class="mono" style="color:var(--l4-ink);">UNAC +161%</b> прибыли), при этом долговой рынок слабеет (<b class="mono" style="color:var(--l4-ink);">RGBI</b> ниже 113 п.) — сигнал ожиданий более жёсткой траектории ставки, чем базовый сценарий.</p>
+      <div style="display:flex; gap:10px; margin-top:24px;">
+        <div style="flex:1; background:var(--l4-bg); border-radius:10px; padding:16px; text-align:center;"><div style="font-size:11px; color:var(--l4-ink2); font-weight:700; text-transform:uppercase;">Экспресс</div><div style="font-size:12px; color:var(--l4-ink2); margin-top:4px;">±2 дня</div></div>
+        <div style="flex:1; background:rgba(201,122,74,.18); border:1px solid var(--copper); border-radius:10px; padding:16px; text-align:center;"><div style="font-size:11px; color:var(--copper-deep); font-weight:700; text-transform:uppercase;">Глубокий</div><div style="font-size:12px; color:var(--copper-deep); margin-top:4px;">±30 дней</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="reveal" style="text-align:center; padding:70px 0 20px; color:var(--l4-ink2); font-size:13px;">
+    Basis не брокер и не даёт рекомендаций «купить/продать» — только контекст для вашего решения.
+  </div>
+</section>
+
+<script>
+// scroll-reveal
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// depth rail: активный узел по текущему слою + клик = скролл
+const layers=[...document.querySelectorAll('.layer')];
+const nodes=[...document.querySelectorAll('.depth-node')];
+nodes.forEach(n=>n.addEventListener('click',()=>{
+  document.getElementById('layer-'+n.dataset.layer).scrollIntoView({behavior:'smooth'});
+}));
+const layerIO=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const idx=layers.indexOf(e.target)+1;
+      nodes.forEach(n=>n.classList.toggle('active', n.dataset.layer==idx));
+      document.querySelector('.topbar').style.setProperty('--tb','1');
+    }
+  });
+},{threshold:.5});
+layers.forEach(l=>layerIO.observe(l));
+</script>
+</body>
+</html>

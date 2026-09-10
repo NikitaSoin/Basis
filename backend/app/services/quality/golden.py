@@ -227,6 +227,20 @@ def m_flip_net_profit(card: dict) -> dict:
     return card
 
 
+def m_mixed_standards(card: dict) -> dict:
+    """Карточка начинает нести два учёта: в meta названы оба стандарта, а
+    нормализованный ряд уходит от отчётного не по нормализации."""
+    meta = card.setdefault("meta", {})
+    meta["reporting_standard"] = "РСБУ (ГИР БО ФНС) + МСФО"
+    adj = card.setdefault("adjusted", {})
+    reported = (card.get("income_statement") or {}).get("net_profit")
+    if isinstance(reported, list):
+        adj["net_profit_adj"] = [(-v * 1.8 if isinstance(v, (int, float)) and not isinstance(v, bool)
+                                  else v) for v in reported]
+        adj["bridge"] = []                 # мост объяснить это уже не может
+    return card
+
+
 def m_bridge_break(card: dict) -> dict:
     """Отчётная прибыль подтянута из другого источника и больше не сходится
     с мостом нормализации — ровно случай БЛНГ."""
@@ -273,6 +287,8 @@ MUTATIONS: list[MutationCase] = [
                  "чистая прибыль перевёрнута по знаку", m_flip_net_profit),
     MutationCase("m.tax_gap", "fin.tax_identity",
                  "чистая прибыль втрое разошлась с налоговой арифметикой", m_tax_gap),
+    MutationCase("m.standards", "fin.mixed_standards",
+                 "нормализованный ряд уведён в другой учёт", m_mixed_standards),
     MutationCase("m.bridge", "fin.adjusted_bridge",
                  "отчётная прибыль перестала сходиться с мостом", m_bridge_break),
 ]

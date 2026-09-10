@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ECE8DD;font-family:'Inter',system-ui,sans-serif;color:#161510;-webkit-font-smoothing:antialiased;}
+a{color:#8A4A26;text-decoration:none;}
+a:hover{color:#C97A4A;text-decoration:underline;}
+input::placeholder{color:#8C8672;}
+</style>
+</helmet>
+<section style="padding:56px 64px;display:flex;flex-direction:column;gap:44px;">
+
+  <div style="display:flex;flex-direction:column;gap:6px;">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8A4A26;">Вход · Регистрация · Профиль</div>
+    <div style="font-family:'Fraunces',Georgia,serif;font-size:30px;font-weight:600;">Четыре варианта — <a href="#1a">1a</a> / <a href="#1b">1b</a> вход, <a href="#1c">1c</a> / <a href="#1d">1d</a> профиль</div>
+    <div style="font-size:13.5px;color:#5C574A;">Переключатели, вкладки и тумблеры кликабельны.</div>
+  </div>
+
+  <div style="display:flex;gap:56px;align-items:flex-start;flex-wrap:wrap;">
+
+    <!-- ============ 1a: AUTH — SPLIT ============ -->
+    <div id="1a" style="display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <a href="#1a" style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;background:#F0DDCC;color:#8A4A26;padding:4px 10px;border-radius:6px;">1a</a>
+        <div style="font-size:13px;font-weight:600;color:#5C574A;">Вход и регистрация — сплит с брендинг-панелью</div>
+      </div>
+      <div data-screen-label="1a Вход — сплит" style="width:1280px;height:840px;background:#F7F5F0;border:1px solid #DCD5C2;border-radius:12px;overflow:hidden;box-shadow:0 24px 60px -28px rgba(22,21,16,.35);display:grid;grid-template-columns:500px 1fr;">
+        <div style="background:#12131A;color:#EDEBE3;padding:52px 56px;display:flex;flex-direction:column;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:28px;height:28px;border-radius:8px;background:#C97A4A;display:flex;align-items:center;justify-content:center;color:#12131A;font-size:11px;">◆</div>
+            <div style="font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:600;">{{ productName }}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:20px;">
+            <div style="font-family:'Fraunces',Georgia,serif;font-size:36px;font-weight:600;line-height:1.25;">Факты, оценки и суждения — раздельно.</div>
+            <div style="font-size:14.5px;line-height:1.7;color:#9B9AA8;">Аналитическая платформа, которая явно различает данность, модель и интерпретацию.</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <span style="font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:4px 9px;border-radius:6px;background:#24252F;color:#9B9AA8;">Факт</span>
+              <span style="font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:4px 9px;border-radius:6px;background:rgba(31,95,196,.2);color:#7FA8E8;">Оценка</span>
+              <span style="font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:4px 9px;border-radius:6px;background:rgba(201,122,74,.22);color:#C97A4A;">◆ Суждение</span>
+            </div>
+          </div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6C6B78;">© 2026 {{ productName }}</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;padding:48px;">
+          <div style="width:400px;display:flex;flex-direction:column;gap:24px;">
+            <div style="display:inline-flex;background:#EFEAE0;border-radius:99px;padding:4px;gap:2px;align-self:center;">
+              <div onClick="{{ setALogin }}" style="padding:9px 26px;font-size:13px;font-weight:700;border-radius:99px;cursor:pointer;white-space:nowrap;transition:background .16s,color .16s;background:{{ aLoginBg }};color:{{ aLoginCol }};box-shadow:{{ aLoginSh }};">Вход</div>
+              <div onClick="{{ setASign }}" style="padding:9px 26px;font-size:13px;font-weight:700;border-radius:99px;cursor:pointer;white-space:nowrap;transition:background .16s,color .16s;background:{{ aSignBg }};color:{{ aSignCol }};box-shadow:{{ aSignSh }};">Регистрация</div>
+            </div>
+            <sc-if value="{{ isLoginA }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:22px;">
+                <div style="text-align:center;display:flex;flex-direction:column;gap:6px;">
+                  <div style="font-family:'Fraunces',Georgia,serif;font-size:26px;font-weight:600;">С возвращением</div>
+                  <div style="font-size:13.5px;color:#5C574A;">Войдите, чтобы продолжить работу</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;background:#EFEAE0;border-radius:10px;padding:4px;gap:2px;">
+                  <div onClick="{{ setAEmail }}" style="padding:8px;text-align:center;font-size:12.5px;font-weight:700;border-radius:8px;cursor:pointer;transition:background .16s,color .16s;background:{{ aEmailBg }};color:{{ aEmailCol }};">Email</div>
+                  <div onClick="{{ setAPhone }}" style="padding:8px;text-align:center;font-size:12.5px;font-weight:700;border-radius:8px;cursor:pointer;transition:background .16s,color .16s;background:{{ aPhoneBg }};color:{{ aPhoneCol }};">Телефон</div>
+                </div>
+                <sc-if value="{{ isEmailA }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;flex-direction:column;gap:16px;">
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                      <label style="font-size:12px;font-weight:600;color:#5C574A;">Email</label>
+                      <input type="email" placeholder="anna@example.com" style="width:100%;background:#FFFFFF;border:1px solid #DCD5C2;border-radius:9px;padding:12px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;box-shadow:0 0 0 3px rgba(201,122,74,.15);">
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                        <label style="font-size:12px;font-weight:600;color:#5C574A;">Пароль</label>
+                        <a href="#1a" style="font-size:12px;font-weight:600;">Забыли пароль?</a>
+                      </div>
+                      <input type="password" placeholder="••••••••" style="width:100%;background:#FFFFFF;border:1px solid #DCD5C2;border-radius:9px;padding:12px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;box-shadow:0 0 0 3px rgba(201,122,74,.15);">
+                    </div>
+                    <button style="background:#C97A4A;color:#FFFFFF;border:none;border-radius:999px;padding:13px;font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:14px;width:100%;cursor:pointer;transition:box-shadow .15s;" style-hover="box-shadow:0 6px 16px -6px rgba(201,122,74,.6);">Войти</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ isPhoneA }}">
+                  <div style="display:flex;flex-direction:column;gap:16px;">
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                      <label style="font-size:12px;font-weight:600;color:#5C574A;">Номер телефона</label>
+                      <input type="tel" placeholder="+7 900 000-00-00" style="width:100%;background:#FFFFFF;border:1px solid #DCD5C2;border-radius:9px;padding:12px 14px;font-family:'IBM Plex Mono',monospace;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;box-shadow:0 0 0 3px rgba(201,122,74,.15);">
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:flex-start;background:#F0DDCC;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#5C574A;line-height:1.5;">Отправим SMS с кодом подтверждения. Пароль не нужен.</div>
+                    <button style="background:#C97A4A;color:#FFFFFF;border:none;border-radius:999px;padding:13px;font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:14px;width:100%;cursor:pointer;transition:box-shadow .15s;" style-hover="box-shadow:0 6px 16px -6px rgba(201,122,74,.6);">Получить код</button>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
+            <sc-if value="{{ isSignupA }}">
+              <div style="display:flex;flex-direction:column;gap:22px;">
+                <div style="text-align:center;display:flex;flex-direction:column;gap:6px;">
+                  <div style="font-family:'Fraunces',Georgia,serif;font-size:26px;font-weight:600;">Создайте аккаунт</div>
+                  <div style="font-size:13.5px;color:#5C574A;">Бесплатно, банковская карта не нужна</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <label style="font-size:12px;font-weight:600;color:#5C574A;">Имя</label>
+                    <input type="text" placeholder="Анна" style="width:100%;background:#FFFFFF;border:1px solid #DCD5C2;border-radius:9px;padding:12px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;box-shadow:0 0 0 3px rgba(201,122,74,.15);">
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <label style="font-size:12px;font-weight:600;color:#5C574A;">Email</label>
+                    <input type="email" placeholder="anna@example.com" style="width:100%;background:#FFFFFF;border:1px solid #DCD5C2;border-radius:9px;padding:12px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;box-shadow:0 0 0 3px rgba(201,122,74,.15);">
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <label style="font-size:12px;font-weight:600;color:#5C574A;">Пароль</label>
+                    <input type="password" placeholder="Минимум 8 символов" style="width:100%;background:#FFFFFF;border:1px solid #DCD5C2;border-radius:9px;padding:12px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;box-shadow:0 0 0 3px rgba(201,122,74,.15);">
+                    <div style="font-size:11.5px;color:#8C8672;">Не короче 8 символов, хотя бы одна цифра</div>
+                  </div>
+                  <button style="background:#C97A4A;color:#FFFFFF;border:none;border-radius:999px;padding:13px;font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:14px;width:100%;cursor:pointer;transition:box-shadow .15s;" style-hover="box-shadow:0 6px 16px -6px rgba(201,122,74,.6);">Создать аккаунт</button>
+                  <div style="font-size:11.5px;color:#8C8672;text-align:center;line-height:1.5;">Регистрируясь, вы принимаете <a href="#1a">условия сервиса</a> и <a href="#1a">политику конфиденциальности</a>.</div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 1b: AUTH — CENTERED ============ -->
+    <div id="1b" style="display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <a href="#1b" style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;background:#F0DDCC;color:#8A4A26;padding:4px 10px;border-radius:6px;">1b</a>
+        <div style="font-size:13px;font-weight:600;color:#5C574A;">Вход и регистрация — по центру, вкладки с подчёркиванием</div>
+      </div>
+      <div data-screen-label="1b Вход — по центру" style="width:1280px;height:840px;background:#F7F5F0;border:1px solid #DCD5C2;border-radius:12px;overflow:hidden;box-shadow:0 24px 60px -28px rgba(22,21,16,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;position:relative;">
+        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:#C97A4A;"></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:30px;height:30px;border-radius:9px;background:#C97A4A;display:flex;align-items:center;justify-content:center;color:#F7F5F0;font-size:12px;">◆</div>
+          <div style="font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:600;">{{ productName }}</div>
+        </div>
+        <div style="width:440px;background:#FFFFFF;border:1px solid #DCD5C2;border-radius:16px;padding:34px 40px 38px;display:flex;flex-direction:column;gap:24px;box-shadow:0 14px 32px -14px rgba(22,21,16,.15);">
+          <div style="display:flex;gap:26px;border-bottom:1px solid #DCD5C2;">
+            <div onClick="{{ setBLogin }}" style="padding:6px 2px 12px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:-1px;transition:color .15s;color:{{ bLoginCol }};border-bottom:2px solid {{ bLoginLine }};">Вход</div>
+            <div onClick="{{ setBSign }}" style="padding:6px 2px 12px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:-1px;transition:color .15s;color:{{ bSignCol }};border-bottom:2px solid {{ bSignLine }};">Регистрация</div>
+          </div>
+          <sc-if value="{{ isLoginB }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:18px;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;background:#EFEAE0;border-radius:10px;padding:4px;gap:2px;">
+                <div onClick="{{ setBEmail }}" style="padding:8px;text-align:center;font-size:12.5px;font-weight:700;border-radius:8px;cursor:pointer;transition:background .16s,color .16s;background:{{ bEmailBg }};color:{{ bEmailCol }};">Email</div>
+                <div onClick="{{ setBPhone }}" style="padding:8px;text-align:center;font-size:12.5px;font-weight:700;border-radius:8px;cursor:pointer;transition:background .16s,color .16s;background:{{ bPhoneBg }};color:{{ bPhoneCol }};">Телефон</div>
+              </div>
+              <sc-if value="{{ isEmailB }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <label style="font-size:12px;font-weight:600;color:#5C574A;">Email</label>
+                    <input type="email" placeholder="anna@example.com" style="width:100%;background:#FFFFFF;border:1px solid #DCD5C2;border-radius:9px;padding:12px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;box-shadow:0 0 0 3px rgba(201,122,74,.15);">
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                      <label style="font-size:12px;font-weight:600;color:#5C574A;">Пароль</label>
+                      <a href="#1b" style="font-size:12px;font-weight:600;">Забыли пароль?</a>
+                    </div>
+                    <input type="password" placeholder="••••••••" style="width:100%;background:#FFFFFF;border:1px solid #DCD5C2;border-radius:9px;padding:12px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;box-shadow:0 0 0 3px rgba(201,122,74,.15);">
+                  </div>
+                  <button style="background:#C97A4A;color:#FFFFFF;border:none;border-radius:999px;padding:13px;font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:14px;width:100%;cursor:pointer;transition:box-shadow .15s;" style-hover="box-shadow:0 6px 16px -6px rgba(201,122,74,.6);">Войти</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ isPhoneB }}">
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <label style="font-size:12px;font-weight:600;color:#5C574A;">Номер телефона</label>
+                    <input type="tel" placeholder="+7 900 000-00-00" style="width:100%;background:#FFFFFF;border:1px solid #DCD5C2;border-radius:9px;padding:12px 14px;font-family:'IBM Plex Mono',monospace;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;box-shadow:0 0 0 3px rgba(201,122,74,.15);">
+                  </div>
+                  <div style="background:#F0DDCC;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#5C574A;line-height:1.5;">Отправим SMS с кодом подтверждения. Пароль не нужен.</div>
+                  <button style="background:#C97A4A;color:#FFFFFF;border:none;border-radius:999px;padding:13px;font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:14px;width:100%;cursor:pointer;transition:box-shadow .15s;" style-hover="box-shadow:0 6px 16px -6px rgba(201,122,74,.6);">Получить код</button>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isSignupB }}">
+            <div style="display:flex;flex-direction:column;gap:16px;">
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <label style="font-size:12px;font-weight:600;color:#5C574A;">Имя</label>
+                <input type="text" placeholder="Анна" style="width:100%;background:#FFFFFF;border:1px solid #DCD5C2;border-radius:9px;padding:12px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;box-shadow:0 0 0 3px rgba(201,122,74,.15);">
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <label style="font-size:12px;font-weight:600;color:#5C574A;">Email</label>
+                <input type="email" placeholder="anna@example.com" style="width:100%;background:#FFFFFF;border:1px solid #DCD5C2;border-radius:9px;padding:12px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;box-shadow:0 0 0 3px rgba(201,122,74,.15);">
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <label style="font-size:12px;font-weight:600;color:#5C574A;">Пароль</label>
+                <input type="password" placeholder="Минимум 8 символов" style="width:100%;background:#FFFFFF;border:1px solid #DCD5C2;border-radius:9px;padding:12px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;box-shadow:0 0 0 3px rgba(201,122,74,.15);">
+              </div>
+              <button style="background:#C97A4A;color:#FFFFFF;border:none;border-radius:999px;padding:13px;font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:14px;width:100%;cursor:pointer;transition:box-shadow .15s;" style-hover="box-shadow:0 6px 16px -6px rgba(201,122,74,.6);">Создать аккаунт</button>
+              <div style="font-size:11.5px;color:#8C8672;text-align:center;line-height:1.5;">Регистрируясь, вы принимаете <a href="#1b">условия сервиса</a> и <a href="#1b">политику конфиденциальности</a>.</div>
+            </div>
+          </sc-if>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8C8672;">© 2026 {{ productName }} · <a href="#1b">Политика конфиденциальности</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:56px;align-items:flex-start;flex-wrap:wrap;">
+
+    <!-- ============ 1c: PROFILE — SIDEBAR ============ -->
+    <div id="1c" style="display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <a href="#1c" style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;background:#F0DDCC;color:#8A4A26;padding:4px 10px;border-radius:6px;">1c</a>
+        <div style="font-size:13px;font-weight:600;color:#5C574A;">Профиль — боковая навигация, все разделы на одной странице</div>
+      </div>
+      <div data-screen-label="1c Профиль — сайдбар" style="width:1440px;background:#F7F5F0;border:1px solid #DCD5C2;border-radius:12px;overflow:hidden;box-shadow:0 24px 60px -28px rgba(22,21,16,.35);">
+        <div style="background:#FFFFFF;border-bottom:1px solid #DCD5C2;height:64px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:36px;">
+            <div style="display:flex;align-items:center;gap:9px;">
+              <div style="width:24px;height:24px;border-radius:7px;background:#C97A4A;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-size:9px;">◆</div>
+              <div style="font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;">{{ productName }}</div>
+            </div>
+            <div style="display:flex;gap:26px;font-size:13.5px;font-weight:600;color:#5C574A;">
+              <span>Обзор</span><span>Скринер</span><span>Портфель</span><span>Разборы</span>
+            </div>
+          </div>
+          <div style="width:34px;height:34px;border-radius:50%;background:#F0DDCC;color:#8A4A26;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;">АК</div>
+        </div>
+        <div style="padding:36px 40px 48px;display:flex;flex-direction:column;gap:26px;">
+          <div style="font-family:'Fraunces',Georgia,serif;font-size:28px;font-weight:600;">Профиль и настройки</div>
+          <div style="display:grid;grid-template-columns:250px 1fr;gap:32px;align-items:start;">
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="padding:10px 14px;border-radius:9px;font-size:13.5px;font-weight:700;background:#F0DDCC;color:#8A4A26;cursor:pointer;">Личные данные</div>
+              <div style="padding:10px 14px;border-radius:9px;font-size:13.5px;font-weight:600;color:#5C574A;cursor:pointer;" style-hover="background:#EFEAE0;">Безопасность</div>
+              <div style="padding:10px 14px;border-radius:9px;font-size:13.5px;font-weight:600;color:#5C574A;cursor:pointer;" style-hover="background:#EFEAE0;">Уведомления</div>
+              <div style="padding:10px 14px;border-radius:9px;font-size:13.5px;font-weight:600;color:#5C574A;cursor:pointer;" style-hover="background:#EFEAE0;">Подписка и оплата</div>
+              <div style="padding:10px 14px;border-radius:9px;font-size:13.5px;font-weight:600;color:#5C574A;cursor:pointer;" style-hover="background:#EFEAE0;">Активность</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:24px;">
+
+              <div style="background:#FFFFFF;border:1px solid #DCD5C2;border-radius:12px;padding:26px 28px;display:flex;flex-direction:column;gap:24px;">
+                <div style="font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;">Личные данные</div>
+                <div style="display:flex;align-items:center;gap:18px;">
+                  <div style="width:72px;height:72px;border-radius:50%;background:#F0DDCC;color:#8A4A26;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:600;">АК</div>
+                  <div style="display:flex;flex-direction:column;gap:3px;flex:1;">
+                    <div style="font-size:15px;font-weight:700;">Анна Ковалёва</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8C8672;">В {{ productName }} с марта 2025</div>
+                  </div>
+                  <button style="background:transparent;border:1px solid #DCD5C2;border-radius:999px;padding:9px 18px;font-family:'Inter',system-ui,sans-serif;font-size:12.5px;font-weight:700;color:#161510;cursor:pointer;transition:border-color .15s;" style-hover="border-color:#C97A4A;">Изменить фото</button>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <label style="font-size:12px;font-weight:600;color:#5C574A;">Имя</label>
+                    <input type="text" value="Анна" style="width:100%;background:#F7F5F0;border:1px solid #DCD5C2;border-radius:9px;padding:11px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;background:#FFFFFF;">
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <label style="font-size:12px;font-weight:600;color:#5C574A;">Фамилия</label>
+                    <input type="text" value="Ковалёва" style="width:100%;background:#F7F5F0;border:1px solid #DCD5C2;border-radius:9px;padding:11px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;background:#FFFFFF;">
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                      <label style="font-size:12px;font-weight:600;color:#5C574A;">Email</label>
+                      <span style="font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:#E4F3EA;color:#3E8464;">Подтверждён</span>
+                    </div>
+                    <input type="email" value="anna.kovaleva@gmail.com" style="width:100%;background:#F7F5F0;border:1px solid #DCD5C2;border-radius:9px;padding:11px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;background:#FFFFFF;">
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                      <label style="font-size:12px;font-weight:600;color:#5C574A;">Телефон</label>
+                      <span style="font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:#E4F3EA;color:#3E8464;">Подтверждён</span>
+                    </div>
+                    <input type="tel" value="+7 921 384-56-70" style="width:100%;background:#F7F5F0;border:1px solid #DCD5C2;border-radius:9px;padding:11px 14px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;background:#FFFFFF;">
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;">
+                  <button style="background:#C97A4A;color:#FFFFFF;border:none;border-radius:999px;padding:11px 24px;font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:box-shadow .15s;" style-hover="box-shadow:0 6px 16px -6px rgba(201,122,74,.6);">Сохранить изменения</button>
+                </div>
+              </div>
+
+              <div style="background:#FFFFFF;border:1px solid #DCD5C2;border-radius:12px;padding:26px 28px;display:flex;flex-direction:column;gap:0;">
+                <div style="font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;padding-bottom:18px;">Безопасность</div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid #DCD5C2;">
+                  <div style="display:flex;flex-direction:column;gap:3px;">
+                    <div style="font-size:14px;font-weight:700;">Пароль</div>
+                    <div style="font-size:12.5px;color:#8C8672;">Изменён 2 июля 2026</div>
+                  </div>
+                  <button style="background:transparent;border:1px solid #DCD5C2;border-radius:999px;padding:9px 18px;font-family:'Inter',system-ui,sans-serif;font-size:12.5px;font-weight:700;color:#161510;cursor:pointer;transition:border-color .15s;" style-hover="border-color:#C97A4A;">Изменить</button>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid #DCD5C2;">
+                  <div style="display:flex;flex-direction:column;gap:3px;">
+                    <div style="font-size:14px;font-weight:700;">Двухфакторная аутентификация</div>
+                    <div style="font-size:12.5px;color:#8C8672;">Код из SMS при каждом входе</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:12px;">
+                    <span style="font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:{{ tfaBg }};color:{{ tfaCol }};">{{ tfaText }}</span>
+                    <div onClick="{{ flipTwofa }}" style="width:44px;height:26px;border-radius:99px;position:relative;cursor:pointer;transition:background .18s;background:{{ twofaBg }};">
+                      <div style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .18s;left:{{ twofaLeft }};"></div>
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0 0;border-top:1px solid #DCD5C2;">
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <div style="font-size:14px;font-weight:700;">Активные сессии</div>
+                    <div style="display:flex;flex-direction:column;gap:3px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8C8672;">
+                      <span>MacBook Pro · Санкт-Петербург — <span style="color:#3E8464;">сейчас</span></span>
+                      <span>iPhone 15 · Санкт-Петербург — 12 июля</span>
+                    </div>
+                  </div>
+                  <a href="#1c" style="font-size:12.5px;font-weight:700;">Завершить все</a>
+                </div>
+              </div>
+
+              <div style="background:#FFFFFF;border:1px solid #DCD5C2;border-radius:12px;padding:26px 28px;display:flex;flex-direction:column;">
+                <div style="font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;padding-bottom:18px;">Уведомления</div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid #DCD5C2;">
+                  <div style="display:flex;flex-direction:column;gap:2px;">
+                    <div style="font-size:14px;font-weight:700;">Еженедельный дайджест</div>
+                    <div style="font-size:12.5px;color:#8C8672;">Итоги недели по вашим спискам</div>
+                  </div>
+                  <div onClick="{{ flipDigest }}" style="width:44px;height:26px;border-radius:99px;position:relative;cursor:pointer;transition:background .18s;background:{{ tgDigestBg }};">
+                    <div style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .18s;left:{{ tgDigestLeft }};"></div>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid #DCD5C2;">
+                  <div style="display:flex;flex-direction:column;gap:2px;">
+                    <div style="font-size:14px;font-weight:700;">Изменения в портфеле</div>
+                    <div style="font-size:12.5px;color:#8C8672;">Существенные движения бумаг</div>
+                  </div>
+                  <div onClick="{{ flipPortfolio }}" style="width:44px;height:26px;border-radius:99px;position:relative;cursor:pointer;transition:background .18s;background:{{ tgPortfolioBg }};">
+                    <div style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .18s;left:{{ tgPortfolioLeft }};"></div>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid #DCD5C2;">
+                  <div style="display:flex;flex-direction:column;gap:2px;">
+                    <div style="font-size:14px;font-weight:700;">Новые разборы</div>
+                    <div style="font-size:12.5px;color:#8C8672;">Когда выходит разбор компании из избранного</div>
+                  </div>
+                  <div onClick="{{ flipReports }}" style="width:44px;height:26px;border-radius:99px;position:relative;cursor:pointer;transition:background .18s;background:{{ tgReportsBg }};">
+                    <div style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .18s;left:{{ tgReportsLeft }};"></div>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0 0;border-top:1px solid #DCD5C2;">
+                  <div style="display:flex;flex-direction:column;gap:2px;">
+                    <div style="font-size:14px;font-weight:700;">Новости продукта</div>
+                    <div style="font-size:12.5px;color:#8C8672;">Обновления и новые функции</div>
+                  </div>
+                  <div onClick="{{ flipNews }}" style="width:44px;height:26px;border-radius:99px;position:relative;cursor:pointer;transition:background .18s;background:{{ tgNewsBg }};">
+                    <div style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .18s;left:{{ tgNewsLeft }};"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="background:#1B1C26;border:1px solid #33343F;border-radius:12px;padding:26px 28px;color:#EDEBE3;display:flex;flex-direction:column;gap:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#6C6B78;">Подписка и оплата</div>
+                  <span style="background:rgba(201,122,74,.22);color:#C97A4A;font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:99px;">Текущий план</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                  <div style="font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:600;">{{ productName }} {{ planName }}</div>
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:700;">1 490 ₽ <span style="font-size:12px;font-weight:400;color:#9B9AA8;">/ мес</span></div>
+                </div>
+                <div style="font-size:13.5px;color:#9B9AA8;line-height:1.7;">Следующее списание — 10 августа 2026. Полный доступ к разборам, скринеру и экспорту данных.</div>
+                <div style="display:flex;justify-content:space-between;align-items:center;background:#24252F;border:1px solid #33343F;border-radius:9px;padding:13px 16px;">
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;">VISA •••• 4242 · 09/27</div>
+                  <a href="#1c" style="font-size:12.5px;font-weight:700;color:#C97A4A;">Изменить карту</a>
+                </div>
+                <div style="display:flex;gap:12px;">
+                  <button style="background:#C97A4A;color:#FFFFFF;border:none;border-radius:999px;padding:11px 22px;font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:box-shadow .15s;" style-hover="box-shadow:0 6px 16px -6px rgba(201,122,74,.6);">Изменить план</button>
+                  <button style="background:transparent;color:#9B9AA8;border:1px solid #33343F;border-radius:999px;padding:11px 22px;font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:border-color .15s;" style-hover="border-color:#6C6B78;">Отменить подписку</button>
+                </div>
+              </div>
+
+              <div style="background:#FFFFFF;border:1px solid #DCD5C2;border-radius:12px;padding:26px 28px;display:flex;flex-direction:column;">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:18px;">
+                  <div style="font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;">Активность</div>
+                  <a href="#1c" style="font-size:12.5px;font-weight:700;">Вся история</a>
+                </div>
+                <div style="display:grid;grid-template-columns:130px 1fr auto;gap:10px 18px;align-items:center;padding:12px 0;border-top:1px solid #DCD5C2;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8C8672;">14.07.2026</span>
+                  <span style="font-size:13.5px;">Экспорт отчёта «Полюс: разбор Q2»</span>
+                  <span style="font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:#EFEAE0;color:#8C8672;">Отчёт</span>
+                </div>
+                <div style="display:grid;grid-template-columns:130px 1fr auto;gap:10px 18px;align-items:center;padding:12px 0;border-top:1px solid #DCD5C2;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8C8672;">10.07.2026</span>
+                  <span style="font-size:13.5px;">Оплата подписки — 1 490 ₽</span>
+                  <span style="font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:#E4F3EA;color:#3E8464;">Оплата</span>
+                </div>
+                <div style="display:grid;grid-template-columns:130px 1fr auto;gap:10px 18px;align-items:center;padding:12px 0;border-top:1px solid #DCD5C2;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8C8672;">02.07.2026</span>
+                  <span style="font-size:13.5px;">Изменён пароль</span>
+                  <span style="font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:#FBEAEA;color:#B8503F;">Безопасность</span>
+                </div>
+                <div style="display:grid;grid-template-columns:130px 1fr auto;gap:10px 18px;align-items:center;padding:12px 0 0;border-top:1px solid #DCD5C2;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8C8672;">28.06.2026</span>
+                  <span style="font-size:13.5px;">Создан скринер «Дивидендные»</span>
+                  <span style="font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:#EFEAE0;color:#8C8672;">Скринер</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 1d: PROFILE — BANNER + TABS ============ -->
+    <div id="1d" style="display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <a href="#1d" style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;background:#F0DDCC;color:#8A4A26;padding:4px 10px;border-radius:6px;">1d</a>
+        <div style="font-size:13px;font-weight:600;color:#5C574A;">Профиль — баннер с вкладками, две колонки</div>
+      </div>
+      <div data-screen-label="1d Профиль — баннер" style="width:1440px;background:#F7F5F0;border:1px solid #DCD5C2;border-radius:12px;overflow:hidden;box-shadow:0 24px 60px -28px rgba(22,21,16,.35);">
+        <div style="background:#FFFFFF;border-bottom:1px solid #DCD5C2;padding:36px 48px 0;display:flex;flex-direction:column;gap:24px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;align-items:center;gap:20px;">
+              <div style="width:84px;height:84px;border-radius:50%;background:#F0DDCC;color:#8A4A26;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',Georgia,serif;font-size:28px;font-weight:600;">АК</div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <div style="font-family:'Fraunces',Georgia,serif;font-size:29px;font-weight:600;">Анна Ковалёва</div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#8C8672;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fb9a95959ad590948d9a979e8d9abb9c969a9297d5989496">[email&#160;protected]</a></span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:#F0DDCC;color:#8A4A26;padding:3px 9px;border-radius:6px;">{{ planName }}</span>
+                </div>
+              </div>
+            </div>
+            <button style="background:transparent;border:1px solid #DCD5C2;border-radius:999px;padding:10px 20px;font-family:'Inter',system-ui,sans-serif;font-size:13px;font-weight:700;color:#161510;cursor:pointer;transition:border-color .15s;" style-hover="border-color:#C97A4A;">Редактировать профиль</button>
+          </div>
+          <div style="display:flex;gap:8px;padding-bottom:16px;">
+            <div style="padding:8px 16px;border-radius:999px;border:1px solid #C97A4A;background:#C97A4A;color:#FFFFFF;font-size:13px;font-weight:600;cursor:pointer;">Обзор</div>
+            <div style="padding:8px 16px;border-radius:999px;border:1px solid #DCD5C2;background:#FFFFFF;color:#5C574A;font-size:13px;font-weight:600;cursor:pointer;" style-hover="border-color:#CFC6AC;">Безопасность</div>
+            <div style="padding:8px 16px;border-radius:999px;border:1px solid #DCD5C2;background:#FFFFFF;color:#5C574A;font-size:13px;font-weight:600;cursor:pointer;" style-hover="border-color:#CFC6AC;">Уведомления</div>
+            <div style="padding:8px 16px;border-radius:999px;border:1px solid #DCD5C2;background:#FFFFFF;color:#5C574A;font-size:13px;font-weight:600;cursor:pointer;" style-hover="border-color:#CFC6AC;">Подписка</div>
+            <div style="padding:8px 16px;border-radius:999px;border:1px solid #DCD5C2;background:#FFFFFF;color:#5C574A;font-size:13px;font-weight:600;cursor:pointer;" style-hover="border-color:#CFC6AC;">Активность</div>
+          </div>
+        </div>
+        <div style="padding:32px 48px 44px;display:grid;grid-template-columns:1.25fr 1fr;gap:24px;align-items:start;">
+          <div style="display:flex;flex-direction:column;gap:24px;">
+            <div style="background:#FFFFFF;border:1px solid #DCD5C2;border-radius:12px;padding:26px 28px;display:flex;flex-direction:column;gap:20px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                <div style="font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;">Личные данные</div>
+                <span style="font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:#E4F3EA;color:#3E8464;">Email и телефон подтверждены</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  <label style="font-size:12px;font-weight:600;color:#5C574A;">Имя</label>
+                  <input type="text" value="Анна" style="width:100%;background:#F7F5F0;border:1px solid #DCD5C2;border-radius:9px;padding:11px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;background:#FFFFFF;">
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  <label style="font-size:12px;font-weight:600;color:#5C574A;">Фамилия</label>
+                  <input type="text" value="Ковалёва" style="width:100%;background:#F7F5F0;border:1px solid #DCD5C2;border-radius:9px;padding:11px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;background:#FFFFFF;">
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  <label style="font-size:12px;font-weight:600;color:#5C574A;">Email</label>
+                  <input type="email" value="anna.kovaleva@gmail.com" style="width:100%;background:#F7F5F0;border:1px solid #DCD5C2;border-radius:9px;padding:11px 14px;font-family:'Inter',system-ui,sans-serif;font-size:14px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;background:#FFFFFF;">
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  <label style="font-size:12px;font-weight:600;color:#5C574A;">Телефон</label>
+                  <input type="tel" value="+7 921 384-56-70" style="width:100%;background:#F7F5F0;border:1px solid #DCD5C2;border-radius:9px;padding:11px 14px;font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#161510;outline:none;" style-focus="border-color:#C97A4A;background:#FFFFFF;">
+                </div>
+              </div>
+              <div style="display:flex;justify-content:flex-end;">
+                <button style="background:#C97A4A;color:#FFFFFF;border:none;border-radius:999px;padding:11px 24px;font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:box-shadow .15s;" style-hover="box-shadow:0 6px 16px -6px rgba(201,122,74,.6);">Сохранить</button>
+              </div>
+            </div>
+            <div style="background:#FFFFFF;border:1px solid #DCD5C2;border-radius:12px;padding:26px 28px;display:flex;flex-direction:column;">
+              <div style="font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;padding-bottom:18px;">Безопасность</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid #DCD5C2;">
+                <div style="display:flex;flex-direction:column;gap:3px;">
+                  <div style="font-size:14px;font-weight:700;">Пароль</div>
+                  <div style="font-size:12.5px;color:#8C8672;">Изменён 2 июля 2026</div>
+                </div>
+                <button style="background:transparent;border:1px solid #DCD5C2;border-radius:999px;padding:9px 18px;font-family:'Inter',system-ui,sans-serif;font-size:12.5px;font-weight:700;color:#161510;cursor:pointer;transition:border-color .15s;" style-hover="border-color:#C97A4A;">Изменить</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0 0;border-top:1px solid #DCD5C2;">
+                <div style="display:flex;flex-direction:column;gap:3px;">
+                  <div style="font-size:14px;font-weight:700;">Двухфакторная аутентификация</div>
+                  <div style="font-size:12.5px;color:#8C8672;">Код из SMS при каждом входе</div>
+                </div>
+                <div onClick="{{ flipTwofa }}" style="width:44px;height:26px;border-radius:99px;position:relative;cursor:pointer;transition:background .18s;background:{{ twofaBg }};">
+                  <div style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .18s;left:{{ twofaLeft }};"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:24px;">
+            <div style="background:#1B1C26;border:1px solid #33343F;border-radius:12px;padding:26px 28px;color:#EDEBE3;display:flex;flex-direction:column;gap:16px;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#6C6B78;">Подписка</div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                <div style="font-family:'Fraunces',Georgia,serif;font-size:21px;font-weight:600;">{{ productName }} {{ planName }}</div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700;">1 490 ₽<span style="font-size:11px;font-weight:400;color:#9B9AA8;">/мес</span></div>
+              </div>
+              <div style="font-size:13px;color:#9B9AA8;line-height:1.6;">Следующее списание — 10 августа 2026 · VISA •••• 4242</div>
+              <button style="background:#C97A4A;color:#FFFFFF;border:none;border-radius:999px;padding:11px 22px;font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:13px;cursor:pointer;align-self:flex-start;transition:box-shadow .15s;" style-hover="box-shadow:0 6px 16px -6px rgba(201,122,74,.6);">Управлять подпиской</button>
+            </div>
+            <div style="background:#FFFFFF;border:1px solid #DCD5C2;border-radius:12px;padding:26px 28px;display:flex;flex-direction:column;">
+              <div style="font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;padding-bottom:16px;">Уведомления</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-top:1px solid #DCD5C2;">
+                <div style="font-size:13.5px;font-weight:600;">Еженедельный дайджест</div>
+                <div onClick="{{ flipDigest }}" style="width:44px;height:26px;border-radius:99px;position:relative;cursor:pointer;transition:background .18s;background:{{ tgDigestBg }};">
+                  <div style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .18s;left:{{ tgDigestLeft }};"></div>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-top:1px solid #DCD5C2;">
+                <div style="font-size:13.5px;font-weight:600;">Новые разборы</div>
+                <div onClick="{{ flipReports }}" style="width:44px;height:26px;border-radius:99px;position:relative;cursor:pointer;transition:background .18s;background:{{ tgReportsBg }};">
+                  <div style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .18s;left:{{ tgReportsLeft }};"></div>
+                </div>
+              </div>
+              <div style="padding:13px 0 0;border-top:1px solid #DCD5C2;">
+                <a href="#1d" style="font-size:12.5px;font-weight:700;">Все настройки уведомлений</a>
+              </div>
+            </div>
+            <div style="background:#FFFFFF;border:1px solid #DCD5C2;border-radius:12px;padding:26px 28px;display:flex;flex-direction:column;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:14px;">
+                <div style="font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;">Активность</div>
+                <a href="#1d" style="font-size:12.5px;font-weight:700;">Вся история</a>
+              </div>
+              <div style="display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-top:1px solid #DCD5C2;">
+                <span style="font-size:13px;">Экспорт отчёта «Полюс: разбор Q2»</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8C8672;white-space:nowrap;">14.07</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-top:1px solid #DCD5C2;">
+                <span style="font-size:13px;">Оплата подписки — 1 490 ₽</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8C8672;white-space:nowrap;">10.07</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;gap:14px;padding:11px 0 0;border-top:1px solid #DCD5C2;">
+                <span style="font-size:13px;">Изменён пароль</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8C8672;white-space:nowrap;">02.07</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/x-dc" data-dc-script data-props="{&quot;productName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Basis&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Бренд&quot;},&quot;planName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Pro&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Бренд&quot;},&quot;defaultTab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Вход&quot;,&quot;Регистрация&quot;],&quot;default&quot;:&quot;Вход&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Поведение&quot;}}">
+class Component extends DCLogic {
+  state = { tabA: null, methodA: 'email', tabB: null, methodB: 'email', twofa: false, tg: { digest: true, portfolio: true, reports: true, news: false } };
+
+  seg(on) {
+    return on
+      ? { bg: '#C97A4A', col: '#FFFFFF', sh: '0 3px 10px -2px rgba(201,122,74,.35)' }
+      : { bg: 'transparent', col: '#5C574A', sh: 'none' };
+  }
+  tab(on) {
+    return on ? { col: '#161510', line: '#C97A4A' } : { col: '#8C8672', line: 'transparent' };
+  }
+  tgl(on) {
+    return { bg: on ? '#C97A4A' : '#DCD5C2', left: on ? '21px' : '3px' };
+  }
+  flip(k) {
+    return () => this.setState(st => ({ tg: Object.assign({}, st.tg, { [k]: !st.tg[k] }) }));
+  }
+
+  renderVals() {
+    const s = this.state;
+    const defTab = this.props.defaultTab === 'Регистрация' ? 'signup' : 'login';
+    const tabA = s.tabA || defTab;
+    const tabB = s.tabB || defTab;
+
+    const aL = this.seg(tabA === 'login'), aS = this.seg(tabA === 'signup');
+    const aE = this.seg(s.methodA === 'email'), aP = this.seg(s.methodA === 'phone');
+    const bL = this.tab(tabB === 'login'), bS = this.tab(tabB === 'signup');
+    const bE = this.seg(s.methodB === 'email'), bP = this.seg(s.methodB === 'phone');
+    const t2 = this.tgl(s.twofa);
+    const d = this.tgl(s.tg.digest), p = this.tgl(s.tg.portfolio), r = this.tgl(s.tg.reports), n = this.tgl(s.tg.news);
+
+    return {
+      productName: this.props.productName ?? 'Basis',
+      planName: this.props.planName ?? 'Pro',
+
+      isLoginA: tabA === 'login', isSignupA: tabA === 'signup',
+      isEmailA: s.methodA === 'email', isPhoneA: s.methodA === 'phone',
+      aLoginBg: aL.bg, aLoginCol: aL.col, aLoginSh: aL.sh,
+      aSignBg: aS.bg, aSignCol: aS.col, aSignSh: aS.sh,
+      aEmailBg: aE.bg, aEmailCol: aE.col, aPhoneBg: aP.bg, aPhoneCol: aP.col,
+      setALogin: () => this.setState({ tabA: 'login' }),
+      setASign: () => this.setState({ tabA: 'signup' }),
+      setAEmail: () => this.setState({ methodA: 'email' }),
+      setAPhone: () => this.setState({ methodA: 'phone' }),
+
+      isLoginB: tabB === 'login', isSignupB: tabB === 'signup',
+      isEmailB: s.methodB === 'email', isPhoneB: s.methodB === 'phone',
+      bLoginCol: bL.col, bLoginLine: bL.line, bSignCol: bS.col, bSignLine: bS.line,
+      bEmailBg: bE.bg, bEmailCol: bE.col, bPhoneBg: bP.bg, bPhoneCol: bP.col,
+      setBLogin: () => this.setState({ tabB: 'login' }),
+      setBSign: () => this.setState({ tabB: 'signup' }),
+      setBEmail: () => this.setState({ methodB: 'email' }),
+      setBPhone: () => this.setState({ methodB: 'phone' }),
+
+      twofaBg: t2.bg, twofaLeft: t2.left,
+      flipTwofa: () => this.setState(st => ({ twofa: !st.twofa })),
+      tfaText: s.twofa ? 'Включена' : 'Выключена',
+      tfaBg: s.twofa ? '#E4F3EA' : '#EFEAE0',
+      tfaCol: s.twofa ? '#3E8464' : '#8C8672',
+
+      tgDigestBg: d.bg, tgDigestLeft: d.left, flipDigest: this.flip('digest'),
+      tgPortfolioBg: p.bg, tgPortfolioLeft: p.left, flipPortfolio: this.flip('portfolio'),
+      tgReportsBg: r.bg, tgReportsLeft: r.left, flipReports: this.flip('reports'),
+      tgNewsBg: n.bg, tgNewsLeft: n.left, flipNews: this.flip('news')
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basis · Аналитика портфеля</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --surface:#F7F5F0; --surface-2:#FFFFFF; --surface-3:#EFEAE0;
+  --ink:#161510; --ink-2:#5C574A; --ink-3:#8C8672;
+  --line:#DCD5C2; --line-2:#CFC6AC;
+  --deep:#12131A; --deep-2:#1B1C26; --deep-3:#24252F; --deep-line:#33343F;
+  --deep-ink:#EDEBE3; --deep-ink2:#9B9AA8; --deep-ink3:#6C6B78;
+  --copper:#C97A4A; --copper-soft:#F0DDCC; --copper-deep:#8A4A26; --copper-glow:rgba(201,122,74,.35);
+  --up:#3E8464; --up-soft:#E4F3EA; --down:#B8503F; --down-soft:#FBEAEA;
+  --estimate:#1F5FC4; --estimate-soft:#E5EEFB;
+  --tan:#E9E4D6; --tan-surface:#F4F0E6; --slate:#2B2E3A; --slate-2:#343849; --slate-ink:#EFEDE6; --slate-ink2:#9B9BAE; --line-dark:#3A3D4C;
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'IBM Plex Mono',monospace;
+  --radius:12px; --ease:cubic-bezier(.25,.7,.4,1);
+}
+*{box-sizing:border-box;}
+body{font-family:var(--sans); background:var(--tan); color:var(--ink); font-size:14.5px; line-height:1.55;}
+.mono{font-family:var(--mono); font-variant-numeric:tabular-nums; letter-spacing:-.01em;}
+.serif{font-family:var(--serif);}
+a{color:inherit;}
+@media(prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important;}}
+.d-bad{color:var(--down);} .d-good{color:var(--up);} .d-neutral{color:var(--ink-3);}
+
+/* эпистемические теги */
+.tag-fact{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:4px 9px; border-radius:6px; background:var(--surface-3); color:var(--ink-2);}
+.tag-estimate{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:4px 9px; border-radius:6px; background:var(--estimate-soft); color:var(--estimate);}
+.tag-judgment{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:4px 9px; border-radius:6px; background:var(--copper-soft); color:var(--copper-deep);}
+.tag-judgment::before{content:'◆'; font-size:8px;}
+
+.sec-head{display:flex; align-items:baseline; gap:13px; margin-bottom:22px;}
+.sec-head .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--copper-deep); background:var(--copper-soft); padding:4px 11px; border-radius:6px;}
+.sec-head h2{font-family:var(--serif); font-size:27px; font-weight:600;}
+
+.card{background:var(--tan-surface); border:1px solid var(--line); border-radius:var(--radius); transition:box-shadow .18s, border-color .18s;}
+.card:hover{box-shadow:0 10px 26px -14px rgba(0,0,0,.22); border-color:var(--line-2);}
+.deep-card{background:var(--tan-surface); border:1px solid var(--line); border-radius:var(--radius); color:var(--ink); padding:24px 26px;}
+.deep-card .deep-eyebrow{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); margin-bottom:12px;}
+.deep-card h3{font-family:var(--serif); font-size:19px; font-weight:600; margin-bottom:10px;}
+.deep-card p{color:var(--ink-2); font-size:13.5px; line-height:1.7;}
+
+.callout{display:flex; gap:10px; align-items:flex-start; background:var(--copper-soft); border-radius:10px; padding:14px 16px;}
+.callout svg{flex:none; width:16px; height:16px; color:var(--copper-deep); margin-top:2px;}
+.callout p{color:var(--ink-2); font-size:13.5px; line-height:1.55;}
+.callout b{color:var(--ink);}
+
+.chip-stat{display:inline-flex; flex-direction:column; gap:2px; background:var(--surface-3); border-radius:9px; padding:9px 14px;}
+.chip-stat .cs-lbl{font-size:10.5px; color:var(--ink-3); font-weight:600;}
+.chip-stat .cs-val{font-family:var(--mono); font-size:15px; font-weight:700;}
+
+.pill{border-radius:999px; display:inline-flex; align-items:center; gap:6px; transition:box-shadow .15s, opacity .15s;}
+.pill:hover{box-shadow:0 6px 16px -6px rgba(0,0,0,.18);}
+
+.filterbar{display:flex; gap:8px; flex-wrap:wrap;}
+.chip{padding:8px 16px; border-radius:999px; border:1px solid var(--line); background:var(--surface-2); color:var(--ink-2); font-size:13px; font-weight:600; cursor:pointer; transition:background .15s, border-color .15s, color .15s;}
+.chip:hover{border-color:var(--line-2);}
+.chip.active{background:var(--copper); border-color:var(--copper); color:#fff;}
+
+.seg-toggle{display:inline-flex; background:var(--surface-3); border-radius:99px; padding:4px; gap:2px;}
+.seg-opt{padding:9px 20px; font-size:13px; font-weight:700; color:var(--ink-2); cursor:pointer; border-radius:99px; white-space:nowrap; transition:background .16s var(--ease), color .16s var(--ease);}
+.seg-opt.on{background:var(--copper); color:#fff; box-shadow:0 3px 10px -2px var(--copper-glow);}
+.seg-opt:not(.on):hover{background:rgba(0,0,0,.045);}
+
+.custom-dd{position:relative; display:inline-block;}
+.dd-trigger{display:inline-flex; align-items:center; gap:8px; background:var(--surface-3); border:1px solid var(--line); padding:8px 14px; border-radius:9px; font-family:var(--sans); font-size:12.5px; font-weight:600; color:var(--ink); cursor:pointer; transition:border-color .15s;}
+.dd-trigger:hover{border-color:var(--line-2);}
+.dd-trigger .dd-arrow{font-size:10px; color:var(--ink-3); transition:transform .15s;}
+.custom-dd.open .dd-trigger .dd-arrow{transform:rotate(180deg);}
+.dd-panel{position:absolute; top:calc(100% + 6px); left:0; min-width:220px; max-height:280px; overflow-y:auto; background:var(--surface-2); border:1px solid var(--line); border-radius:11px; box-shadow:0 14px 32px -10px rgba(0,0,0,.22); z-index:50; padding:6px; display:none;}
+.custom-dd.open .dd-panel{display:block;}
+.dd-option{padding:9px 12px; border-radius:7px; font-size:13px; color:var(--ink-2); cursor:pointer; transition:background .12s;}
+.dd-option:hover{background:var(--surface-3);}
+.dd-option.selected{background:var(--copper-soft); color:var(--copper-deep); font-weight:600;}
+
+.ac-toggle{font-size:12.5px; font-weight:700; color:var(--copper-deep); cursor:pointer; display:inline-flex; align-items:center; gap:5px;}
+.ac-full p{font-size:13.5px; color:var(--ink-2); line-height:1.7; margin-bottom:10px;}
+
+/* ===== ГЛОБАЛЬНАЯ ШАПКА ===== */
+.global-bar{display:flex; align-items:center; justify-content:space-between; padding:0 28px; height:62px; background:var(--tan); border-bottom:1px solid var(--line); position:fixed; top:0; left:0; right:0; z-index:100;}
+.gb-brand{display:flex; align-items:center; gap:10px;}
+.gb-brand .mark{width:26px; height:26px; border-radius:7px; background:var(--copper); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;}
+.gb-brand .name{font-family:var(--serif); font-weight:600; font-size:18px; color:var(--ink);}
+.gb-nav{display:flex; gap:4px;}
+.gb-nav a{font-size:13.5px; font-weight:600; color:var(--ink-2); padding:8px 15px; border-radius:99px; transition:background .15s, color .15s;}
+.gb-nav a:hover{background:var(--surface-3);}
+.gb-nav a.active{background:var(--copper); color:#fff;}
+.gb-right{display:flex; align-items:center; gap:12px;}
+.search{display:flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:99px; padding:9px 17px; font-size:13px; color:var(--ink-3); min-width:220px;}
+.theme-btn{width:34px; height:34px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; cursor:pointer;}
+
+/* ===== SIDEBAR ===== */
+.sidebar{position:fixed; left:0; top:62px; bottom:0; width:268px; background:var(--slate); display:flex; flex-direction:column; z-index:50; overflow-y:auto; border-right:1px solid var(--line-dark);}
+.depth-strip{position:absolute; left:0; top:0; bottom:0; width:4px; background:linear-gradient(180deg,var(--surface-2),var(--copper) 40%,var(--slate-2) 75%,var(--slate));}
+.sb-eyebrow{padding:22px 24px 14px 30px; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--slate-ink2);}
+.sb-zone{padding:4px 14px 20px 18px;}
+.sb-zone-label{font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:8px 12px 8px; color:var(--slate-ink2);}
+.sb-item{display:flex; align-items:center; gap:12px; padding:11px 13px; border-radius:9px; cursor:pointer; font-size:14px; font-weight:600; color:var(--slate-ink2); transition:background .16s var(--ease), color .16s var(--ease); position:relative;}
+.sb-item:hover{background:var(--slate-2); color:var(--slate-ink);}
+.sb-item.active{background:var(--copper); color:#fff; box-shadow:0 4px 14px -4px var(--copper-glow);}
+.sb-item .ic{width:18px; text-align:center; font-size:14.5px;}
+.sb-foot{margin-top:auto; padding:20px 24px 26px 30px; font-size:11.5px; color:var(--slate-ink2); line-height:1.55; border-top:1px solid var(--line-dark);}
+
+.main{margin-left:268px; margin-top:62px; min-height:100vh;}
+.topbar{display:flex; justify-content:space-between; align-items:center; padding:16px 36px; border-bottom:1px solid var(--line); background:var(--tan); flex-wrap:nowrap; gap:16px;}
+.topbar > div:first-child{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.topbar > div:last-child{flex:none;}
+.panel{display:none; padding:18px 36px 80px; animation:panelIn .22s var(--ease);}
+.panel.active{display:block;}
+@keyframes panelIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+/* ===== KPI-строка (постоянная шапка портфеля) ===== */
+.kpi-row{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; margin-bottom:26px;}
+.kpi-tile{background:var(--surface-2); padding:18px 20px;}
+.kpi-lbl{font-size:11.5px; font-weight:600; color:var(--ink-2); margin-bottom:8px;}
+.kpi-val{font-family:var(--mono); font-size:24px; font-weight:700;}
+.kpi-sub{font-size:11px; margin-top:5px; font-weight:600;}
+
+/* ===== таблица позиций ===== */
+.pos-table{width:100%; border-collapse:collapse;}
+.pos-table th{text-align:right; padding:10px 14px; font-size:11px; color:var(--ink-3); font-weight:700; text-transform:uppercase; letter-spacing:.03em; border-bottom:1px solid var(--line);}
+.pos-table th:first-child, .pos-table td:first-child{text-align:left;}
+.pos-table td{padding:14px; text-align:right; border-bottom:1px solid var(--line); font-family:var(--mono); font-size:13.5px;}
+.pos-table tr:last-child td{border-bottom:none;}
+.pos-table tr.pos-row{cursor:pointer; transition:background .12s;}
+.pos-table tr.pos-row:hover{background:var(--surface-3);}
+.pos-asset{display:flex; align-items:center; gap:10px; font-family:var(--sans);}
+.pos-logo{width:34px; height:34px; border-radius:9px; background:var(--surface-3); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-weight:700; font-size:11px; cursor:pointer; transition:transform .12s, box-shadow .12s; flex:none;}
+.pos-logo:hover{transform:scale(1.08); box-shadow:0 4px 12px -4px rgba(0,0,0,.25);}
+.pos-name{display:flex; flex-direction:column;}
+.pos-name b{font-family:var(--sans); font-size:13.5px;}
+.pos-name span{font-size:11.5px; color:var(--ink-3); font-weight:400;}
+
+/* панель редактирования позиции */
+/* панель редактирования позиции — стили см. ниже, у секции «индекс качества» (анимированная версия) */
+.edit-row{display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;}
+.edit-field{display:flex; flex-direction:column; gap:5px;}
+.edit-field label{font-size:11px; font-weight:600; color:var(--ink-3);}
+.edit-field input{font-family:var(--mono); font-size:14px; padding:9px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface-2); width:120px;}
+.edit-btn{padding:10px 20px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; border:none;}
+.edit-btn.buy{background:var(--up); color:#fff;}
+.edit-btn.sell{background:var(--down); color:#fff;}
+.edit-btn.save{background:var(--copper); color:#fff;}
+
+/* ===== индекс качества ===== */
+.qi-hero{display:flex; gap:28px; align-items:center; margin-bottom:22px; flex-wrap:wrap;}
+.qi-score{font-family:var(--mono); font-size:56px; font-weight:700; color:var(--copper);}
+.qi-sub-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+.qi-sub-card{background:var(--tan-surface); border:1px solid var(--line); border-radius:11px; padding:16px 18px;}
+.qi-sub-card .qi-sub-name{font-size:12.5px; font-weight:700; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;}
+.qi-sub-card .qi-sub-val{font-family:var(--mono); font-size:26px; font-weight:700; margin-bottom:8px;}
+.qi-bar-track{height:6px; background:var(--surface-3); border-radius:3px; overflow:hidden; margin-bottom:10px;}
+.qi-bar-fill{height:100%; border-radius:3px;}
+.qi-component{display:flex; justify-content:space-between; font-size:12px; color:var(--ink-2); padding:4px 0;}
+.qi-comp-bar{height:4px; background:var(--surface-3); border-radius:2px; overflow:hidden; margin:1px 0 9px;}
+.qi-comp-fill{height:100%; border-radius:2px;}
+.anim-bar{transition:width 1s cubic-bezier(.25,.7,.4,1);}
+.anim-donut{transition:stroke-dasharray 1.1s cubic-bezier(.25,.7,.4,1);}
+
+/* ===== плавное появление блоков при скролле/открытии вкладки (взято из референса «Обозреватель») ===== */
+.reveal{opacity:0; transform:translateY(16px); transition:opacity .55s var(--ease), transform .55s var(--ease);}
+.reveal.in{opacity:1; transform:translateY(0);}
+
+/* ===== крупные полосы индекса качества (как в старой версии) ===== */
+.qi-bigbars{display:flex; flex-direction:column; gap:18px; margin-bottom:24px;}
+.qi-bigbar-row{display:grid; grid-template-columns:160px 1fr 90px; align-items:center; gap:18px;}
+.qi-bigbar-label{font-size:14.5px; color:var(--ink); line-height:1.3;}
+.qi-bigbar-track{height:12px; background:var(--surface-3); border-radius:6px; overflow:hidden;}
+.qi-bigbar-fill{height:100%; border-radius:6px;}
+.qi-bigbar-val{font-family:var(--mono); font-size:15px; font-weight:700; text-align:right;}
+.qi-bigbar-val span{font-size:12px; font-weight:600; color:var(--ink-3);}
+
+/* ===== матрица корреляций — диагональ (self-corr = 1.00) визуально нейтральна ===== */
+.corr-cell{transition:background-color .6s ease, color .6s ease;}
+.corr-cell.corr-diag{background:var(--surface-3) !important; color:var(--ink-3) !important; font-weight:400; border:1px dashed var(--line-2);}
+
+/* ===== значок-подсказка «i» рядом с названием метрики ===== */
+.info-ic{display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border-radius:50%; border:1px solid var(--ink-3); color:var(--ink-3); font-size:9.5px; font-style:normal; font-weight:700; cursor:pointer; transition:background .15s, color .15s, border-color .15s;}
+.info-ic:hover{background:var(--copper); border-color:var(--copper); color:#fff;}
+.th-ic-row{display:flex; justify-content:flex-end; margin-bottom:4px;}
+.pos-table th.mlink{cursor:pointer;}
+.pos-table th.mlink .th-label{transition:color .15s;}
+.pos-table th.mlink:hover .th-label{color:var(--copper-deep); text-decoration:underline dotted;}
+
+/* ===== плавные раскрытия вместо мгновенного display ===== */
+.ac-full{display:block; max-height:0; overflow:hidden; opacity:0; margin-top:0; padding-top:0; border-top:1px solid transparent; transition:max-height .4s var(--ease), opacity .3s ease, margin-top .4s var(--ease), padding-top .4s var(--ease), border-color .4s ease;}
+.ac-full.open{max-height:1200px; opacity:1; margin-top:14px; padding-top:14px; border-top-color:var(--line);}
+.edit-panel{display:block; max-height:0; overflow:hidden; opacity:0; background:var(--surface-3); padding:0 20px; border-radius:0 0 var(--radius) var(--radius); transition:max-height .4s var(--ease), opacity .3s ease, padding .4s var(--ease);}
+.edit-panel.open{max-height:900px; opacity:1; padding:18px 20px;}
+
+/* ===== матрица корреляций ===== */
+.corr-table{border-collapse:collapse;}
+.corr-table th, .corr-table td{padding:12px 18px; text-align:center; font-family:var(--mono); font-size:13.5px; font-weight:600;}
+.corr-table th{font-family:var(--sans); font-size:12px; color:var(--ink-2); font-weight:700;}
+.corr-table tbody th:first-child{width:64px;}
+.corr-table th.corr-corner{width:64px; padding:0;}
+
+/* ===== стресс-тест ===== */
+.stress-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
+.stress-card{border:1.5px solid var(--line); border-radius:12px; padding:18px; cursor:pointer; transition:border-color .15s, background .15s;}
+.stress-card.on{border-color:var(--copper); background:var(--copper-soft);}
+.stress-card.custom{border-style:dashed;}
+.stress-name{font-weight:700; font-size:14px; margin-bottom:4px;}
+.stress-mech{font-size:11.5px; color:var(--ink-3);}
+
+/* ===== график сравнения: легенда и обёртка (ранее не было стилей) ===== */
+.legend{display:flex; gap:16px; flex-wrap:wrap; margin:10px 0 14px;}
+.legend span{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-2);}
+.legend i{width:12px; height:12px; border-radius:3px; display:inline-block; font-style:normal;}
+.legend .legend-remove{cursor:pointer; color:var(--ink-3); font-weight:700; margin-left:1px;}
+.legend .legend-remove:hover{color:var(--down);}
+.chart-wrap{position:relative; width:100%;}
+.chart-wrap svg{width:100%; height:auto; display:block;}
+.chart-tooltip{position:absolute; display:none; background:var(--deep-2); color:var(--deep-ink); font-size:12px; padding:6px 10px; border-radius:7px; pointer-events:none; white-space:nowrap;}
+
+/* ===== карточки метрик — иконка, цветной акцент по типу, формула отдельным блоком ===== */
+.metric-card{position:relative; padding:20px 22px 20px 26px; overflow:hidden; scroll-margin-top:24px;}
+.metric-card::before{content:''; position:absolute; left:0; top:0; bottom:0; width:4px;}
+.metric-card.t-fact::before{background:var(--ink-3);}
+.metric-card.t-estimate::before{background:var(--estimate);}
+.metric-card.t-judgment::before{background:var(--copper);}
+.metric-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.metric-icon{font-size:18px; line-height:1;}
+.metric-title{font-size:14.5px; font-weight:700; flex:1;}
+.metric-lede{font-size:13px; color:var(--ink-2);}
+.metric-block{display:flex; gap:10px; margin-bottom:11px; align-items:flex-start;}
+.metric-block .mb-ic{font-size:14px; margin-top:2px; flex:none;}
+.metric-block p{margin:0; font-size:13.5px; color:var(--ink-2); line-height:1.7;}
+.metric-formula{background:var(--surface-3); border-radius:9px; padding:11px 15px;}
+.metric-formula .mf-lbl{font-size:10.5px; font-weight:700; text-transform:uppercase; color:var(--ink-3); letter-spacing:.05em; display:block; margin-bottom:5px;}
+.metric-formula code{font-family:var(--mono); font-size:12px; color:var(--ink); line-height:1.6;}
+.metric-card.flash{animation:metricFlash 1.2s var(--ease);}
+@keyframes metricFlash{0%{box-shadow:0 0 0 3px var(--copper-glow);} 70%{box-shadow:0 0 0 3px var(--copper-glow);} 100%{box-shadow:0 0 0 0 transparent;}}
+
+/* ===== факторный профиль (диверг. шкала −/+) ===== */
+.fx-row{display:grid; grid-template-columns:150px 1fr 64px; align-items:center; gap:14px; padding:10px 0; border-bottom:1px solid var(--line);}
+.fx-row:last-child{border-bottom:none;}
+.fx-name{font-size:13px; font-weight:700;}
+.fx-track{position:relative; height:8px; background:var(--surface-3); border-radius:4px;}
+.fx-track::before{content:''; position:absolute; left:50%; top:-3px; bottom:-3px; width:1px; background:var(--line-2);}
+.fx-fill{position:absolute; top:0; bottom:0; border-radius:4px;}
+.fx-fill.neg{right:50%; background:var(--down);}
+.fx-fill.pos{left:50%; background:var(--up);}
+.fx-val{font-family:var(--mono); font-size:12.5px; font-weight:700; text-align:right;}
+
+/* ===== значок "скоро" ===== */
+.badge-soon{display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:3px 9px; border-radius:999px; background:var(--surface-3); color:var(--ink-3); border:1px dashed var(--line-2);}
+.soon-card{opacity:.72;}
+</style>
+</head>
+<body>
+
+<div class="global-bar">
+  <div class="gb-brand"><span class="mark">B</span><span class="name">Basis</span></div>
+  <div class="gb-nav">
+    <a href="#">Рынок</a><a href="#">Обозреватель</a><a href="#" class="active">Портфель</a><a href="#">Скрининг</a><a href="#">Тарифы</a><a href="#">Профиль</a>
+  </div>
+  <div class="gb-right">
+    <div class="search">🔍 Поиск компании, тикера…</div>
+    <div class="theme-btn">🌙</div>
+  </div>
+</div>
+
+<div class="sidebar">
+  <div class="depth-strip"></div>
+  <div class="sb-eyebrow">Аналитика портфеля</div>
+
+  <div class="sb-zone">
+    <div class="sb-zone-label">Обзор</div>
+    <div class="sb-item active" data-panel="composition"><span class="ic">📊</span>Состав</div>
+  </div>
+
+  <div class="sb-zone">
+    <div class="sb-zone-label">Доходность и риск</div>
+    <div class="sb-item" data-panel="compare"><span class="ic">⚖️</span>Сравнение</div>
+    <div class="sb-item" data-panel="returns"><span class="ic">💰</span>Доходность и оценка</div>
+    <div class="sb-item" data-panel="risk"><span class="ic">⚠️</span>Риск</div>
+    <div class="sb-item" data-panel="correlation"><span class="ic">🔗</span>Матрица корреляций</div>
+  </div>
+
+  <div class="sb-zone">
+    <div class="sb-zone-label">Разбор</div>
+    <div class="sb-item" data-panel="quality"><span class="ic">🎯</span>Индекс качества</div>
+    <div class="sb-item" data-panel="ai-diagnosis"><span class="ic">🩺</span>ИИ-Диагноз</div>
+    <div class="sb-item" data-panel="stress"><span class="ic">🌪️</span>Стресс-тест</div>
+  </div>
+
+  <div class="sb-foot">Basis не брокер и не даёт рекомендаций «купить/продать».</div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div style="font-size:13px; color:var(--ink-3);">Полная картина по портфелю — состав, риск, сравнение и разбор</div>
+    <div style="display:flex; gap:10px;">
+      <div class="custom-dd" id="portfolioDropdown">
+        <div class="dd-trigger" onclick="toggleDropdown('portfolioDropdown')"><span id="portfolioDropdownLabel">Мой портфель</span><span class="dd-arrow">▾</span></div>
+        <div class="dd-panel"><div class="dd-option selected">Мой портфель</div><div class="dd-option">+ Новый портфель</div></div>
+      </div>
+      <div class="pill" style="background:var(--copper); color:#fff; padding:10px 20px; font-size:13px; font-weight:700; cursor:pointer;">+ Добавить портфель</div>
+    </div>
+  </div>
+
+  <!-- PANELS -->
+  <!-- ===================== СОСТАВ ===================== -->
+  <div class="panel active" id="panel-composition">
+    <div class="sec-head"><span class="eyebrow">Обзор</span><h2>Состав портфеля</h2></div>
+
+    <div class="card reveal" style="padding:32px 36px; margin-bottom:26px; display:grid; grid-template-columns:1.15fr 1fr; gap:44px; align-items:end;">
+      <div>
+        <div style="font-size:12.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); margin-bottom:10px;">Стоимость портфеля</div>
+        <div class="serif mono" style="font-size:clamp(38px,5.2vw,62px); font-weight:600; line-height:.95; letter-spacing:-.01em;">1 125 868<span style="font-size:.4em; font-weight:500; color:var(--ink-3);"> ₽</span></div>
+        <div style="display:flex; gap:14px; align-items:center; margin-top:14px; font-size:13.5px; flex-wrap:wrap;">
+          <span class="d-bad" style="font-weight:700; display:inline-flex; align-items:center; gap:5px;">▼ 86 142 ₽ · −7,1%</span>
+          <span style="color:var(--ink-3);">за всё время владения, без учёта дивидендов</span>
+        </div>
+      </div>
+      <div style="border-left:2px solid var(--copper); padding-left:26px;">
+        <div style="display:flex; gap:28px; flex-wrap:wrap;">
+          <div><div class="kpi-lbl">Див. доходность</div><div class="kpi-val" style="font-size:24px;">8,3%</div></div>
+          <div style="cursor:pointer;" onclick="switchPanel('quality')"><div class="kpi-lbl">Индекс качества</div><div class="kpi-val" style="font-size:24px; color:var(--copper);">59<span style="font-size:14px; color:var(--ink-3);">/100</span></div></div>
+        </div>
+        <p style="font-size:12.5px; color:var(--ink-3); margin-top:14px; line-height:1.6;">Ниже среднего — сильнее всего тянет вниз диверсификация. Разбор по компонентам → <b style="color:var(--copper-deep); cursor:pointer;" onclick="switchPanel('quality')">Индекс качества</b>.</p>
+      </div>
+    </div>
+
+    <!-- ТАБЛИЦА ПОЗИЦИЙ — клик по строке разворачивает редактирование, клик по логотипу переходит в карточку -->
+    <div class="card reveal" style="padding:24px 26px; margin-bottom:26px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 class="serif" style="font-size:19px; font-weight:600;">Состав портфеля</h3>
+        <div class="pill" style="background:var(--surface-3); border:1px solid var(--line); padding:9px 18px; font-size:13px; font-weight:600; cursor:pointer;">+ Добавить позицию</div>
+      </div>
+      <table class="pos-table">
+        <thead><tr><th>Актив</th><th>Кол-во</th><th>Средняя</th><th>Текущая</th><th>Стоимость</th><th>Доля</th><th>Результат</th><th></th></tr></thead>
+        <tbody>
+          <tr class="pos-row" onclick="toggleEditRow('SBER')">
+            <td><div class="pos-asset"><div class="pos-logo" onclick="event.stopPropagation(); goToCompany('SBER')">SBER</div><div class="pos-name"><b>Сбербанк</b><span>SBER</span></div></div></td>
+            <td>1 500</td><td>303,5 ₽</td>
+            <td><span class="pnl-dot" data-pnl="-1.02" style="display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:7px;"></span>300,4 ₽</td>
+            <td>450 615 ₽</td>
+            <td><div style="display:flex; flex-direction:column; gap:4px; align-items:flex-end;"><span>40,0%</span><div style="width:56px; height:4px; background:var(--surface-3); border-radius:2px; overflow:hidden;"><div class="anim-bar" style="width:40%; height:100%; background:var(--copper);"></div></div></div></td>
+            <td class="d-bad">−4 665 ₽<br><span style="font-size:11.5px;">−1,0%</span></td>
+            <td><span onclick="event.stopPropagation(); toggleEditRow('SBER')" style="cursor:pointer; font-size:15px;" title="Изменить позицию">✏️</span></td>
+          </tr>
+          <tr><td colspan="8" style="padding:0;">
+            <div class="edit-panel" id="edit-SBER">
+              <div class="seg-toggle" style="margin-bottom:16px;">
+                <div class="seg-opt on" onclick="setEditMode('SBER','trade',this)">Совершить сделку</div>
+                <div class="seg-opt" onclick="setEditMode('SBER','fix',this)">Исправить позицию</div>
+              </div>
+              <div id="SBER-mode-trade">
+                <div class="edit-row">
+                  <div class="edit-field"><label>Количество</label><input type="text" placeholder="напр. 100"></div>
+                  <div class="edit-field"><label>Цена сделки, ₽</label><input type="text" placeholder="напр. 300.40"></div>
+                  <div class="edit-field"><label>Дата сделки</label><input type="text" placeholder="2026-07-05"></div>
+                  <div class="edit-field"><label>Комиссия, ₽</label><input type="text" placeholder="0"></div>
+                  <div class="edit-btn buy">Купить</div>
+                  <div class="edit-btn sell">Продать</div>
+                </div>
+                <p style="font-size:11.5px; color:var(--ink-3); margin-top:10px;">Это новая сделка, а не редактирование позиции целиком — количество и цена не подставлены заранее. После сделки количество, средняя цена и все метрики портфеля пересчитаются автоматически.</p>
+              </div>
+              <div id="SBER-mode-fix" style="display:none;">
+                <div class="edit-row">
+                  <div class="edit-field"><label>Количество (исправить)</label><input type="text" value="1500"></div>
+                  <div class="edit-field"><label>Средняя цена, ₽ (исправить)</label><input type="text" value="303.50"></div>
+                  <div class="edit-btn save">Сохранить исправление</div>
+                </div>
+                <p style="font-size:11.5px; color:var(--ink-3); margin-top:10px;">Это не сделка — прямая правка данных позиции (например, опечатка при вводе количества или средней цены). Историю сделок и реализованный результат не меняет.</p>
+              </div>
+              <div style="display:flex; gap:18px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid var(--line);">
+                <div class="chip-stat"><span class="cs-lbl">Реализовано</span><span class="cs-val d-neutral">0 ₽</span></div>
+                <div class="chip-stat"><span class="cs-lbl">Не реализовано</span><span class="cs-val d-bad">−4 665 ₽</span></div>
+                <div class="chip-stat"><span class="cs-lbl">Дивиденды получено</span><span class="cs-val d-good">+18 750 ₽</span></div>
+                <div class="chip-stat"><span class="cs-lbl">Комиссии уплачено</span><span class="cs-val d-neutral">−135 ₽</span></div>
+              </div>
+              <p style="font-size:11px; color:var(--ink-3); margin-top:8px;">Позиция не закрывалась — реализованного результата нет, только бумажный (нереализованный). Дивиденды считаются по факту выплат на дату отсечки, пока бумага была в портфеле.</p>
+            </div>
+          </td></tr>
+          <tr class="pos-row" onclick="toggleEditRow('T')">
+            <td><div class="pos-asset"><div class="pos-logo" onclick="event.stopPropagation(); goToCompany('T')">T</div><div class="pos-name"><b>Т-Технологии</b><span>T</span></div></div></td>
+            <td>1 330</td><td>281,0 ₽</td>
+            <td><span class="pnl-dot" data-pnl="-10.64" style="display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:7px;"></span>251,1 ₽</td>
+            <td>334 016 ₽</td>
+            <td><div style="display:flex; flex-direction:column; gap:4px; align-items:flex-end;"><span>29,7%</span><div style="width:56px; height:4px; background:var(--surface-3); border-radius:2px; overflow:hidden;"><div class="anim-bar" style="width:29.7%; height:100%; background:var(--copper);"></div></div></div></td>
+            <td class="d-bad">−39 714 ₽<br><span style="font-size:11.5px;">−10,6%</span></td>
+            <td><span onclick="event.stopPropagation(); toggleEditRow('T')" style="cursor:pointer; font-size:15px;" title="Изменить позицию">✏️</span></td>
+          </tr>
+          <tr><td colspan="8" style="padding:0;">
+            <div class="edit-panel" id="edit-T">
+              <div class="seg-toggle" style="margin-bottom:16px;">
+                <div class="seg-opt on" onclick="setEditMode('T','trade',this)">Совершить сделку</div>
+                <div class="seg-opt" onclick="setEditMode('T','fix',this)">Исправить позицию</div>
+              </div>
+              <div id="T-mode-trade">
+                <div class="edit-row">
+                  <div class="edit-field"><label>Количество</label><input type="text" placeholder="напр. 100"></div>
+                  <div class="edit-field"><label>Цена сделки, ₽</label><input type="text" placeholder="напр. 251.10"></div>
+                  <div class="edit-field"><label>Дата сделки</label><input type="text" placeholder="2026-07-05"></div>
+                  <div class="edit-field"><label>Комиссия, ₽</label><input type="text" placeholder="0"></div>
+                  <div class="edit-btn buy">Купить</div>
+                  <div class="edit-btn sell">Продать</div>
+                </div>
+                <p style="font-size:11.5px; color:var(--ink-3); margin-top:10px;">Это новая сделка, а не редактирование позиции целиком — количество и цена не подставлены заранее.</p>
+              </div>
+              <div id="T-mode-fix" style="display:none;">
+                <div class="edit-row">
+                  <div class="edit-field"><label>Количество (исправить)</label><input type="text" value="1330"></div>
+                  <div class="edit-field"><label>Средняя цена, ₽ (исправить)</label><input type="text" value="281.00"></div>
+                  <div class="edit-btn save">Сохранить исправление</div>
+                </div>
+                <p style="font-size:11.5px; color:var(--ink-3); margin-top:10px;">Это не сделка — прямая правка данных позиции. Историю сделок и реализованный результат не меняет.</p>
+              </div>
+              <div style="display:flex; gap:18px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid var(--line);">
+                <div class="chip-stat"><span class="cs-lbl">Реализовано</span><span class="cs-val d-neutral">0 ₽</span></div>
+                <div class="chip-stat"><span class="cs-lbl">Не реализовано</span><span class="cs-val d-bad">−39 714 ₽</span></div>
+                <div class="chip-stat"><span class="cs-lbl">Дивиденды получено</span><span class="cs-val d-good">+9 310 ₽</span></div>
+                <div class="chip-stat"><span class="cs-lbl">Комиссии уплачено</span><span class="cs-val d-neutral">−98 ₽</span></div>
+              </div>
+            </div>
+          </td></tr>
+          <tr class="pos-row" onclick="toggleEditRow('YDEX')">
+            <td><div class="pos-asset"><div class="pos-logo" onclick="event.stopPropagation(); goToCompany('YDEX')">YDEX</div><div class="pos-name"><b>Яндекс</b><span>YDEX</span></div></div></td>
+            <td>100</td><td>3 830,0 ₽</td>
+            <td><span class="pnl-dot" data-pnl="-10.93" style="display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:7px;"></span>3 411,5 ₽</td>
+            <td>341 150 ₽</td>
+            <td><div style="display:flex; flex-direction:column; gap:4px; align-items:flex-end;"><span>30,3%</span><div style="width:56px; height:4px; background:var(--surface-3); border-radius:2px; overflow:hidden;"><div class="anim-bar" style="width:30.3%; height:100%; background:var(--copper);"></div></div></div></td>
+            <td class="d-bad">−41 850 ₽<br><span style="font-size:11.5px;">−10,9%</span></td>
+            <td><span onclick="event.stopPropagation(); toggleEditRow('YDEX')" style="cursor:pointer; font-size:15px;" title="Изменить позицию">✏️</span></td>
+          </tr>
+          <tr><td colspan="8" style="padding:0;">
+            <div class="edit-panel" id="edit-YDEX">
+              <div class="seg-toggle" style="margin-bottom:16px;">
+                <div class="seg-opt on" onclick="setEditMode('YDEX','trade',this)">Совершить сделку</div>
+                <div class="seg-opt" onclick="setEditMode('YDEX','fix',this)">Исправить позицию</div>
+              </div>
+              <div id="YDEX-mode-trade">
+                <div class="edit-row">
+                  <div class="edit-field"><label>Количество</label><input type="text" placeholder="напр. 10"></div>
+                  <div class="edit-field"><label>Цена сделки, ₽</label><input type="text" placeholder="напр. 3411.50"></div>
+                  <div class="edit-field"><label>Дата сделки</label><input type="text" placeholder="2026-07-05"></div>
+                  <div class="edit-field"><label>Комиссия, ₽</label><input type="text" placeholder="0"></div>
+                  <div class="edit-btn buy">Купить</div>
+                  <div class="edit-btn sell">Продать</div>
+                </div>
+                <p style="font-size:11.5px; color:var(--ink-3); margin-top:10px;">Это новая сделка, а не редактирование позиции целиком — количество и цена не подставлены заранее.</p>
+              </div>
+              <div id="YDEX-mode-fix" style="display:none;">
+                <div class="edit-row">
+                  <div class="edit-field"><label>Количество (исправить)</label><input type="text" value="100"></div>
+                  <div class="edit-field"><label>Средняя цена, ₽ (исправить)</label><input type="text" value="3830.00"></div>
+                  <div class="edit-btn save">Сохранить исправление</div>
+                </div>
+                <p style="font-size:11.5px; color:var(--ink-3); margin-top:10px;">Это не сделка — прямая правка данных позиции. Историю сделок и реализованный результат не меняет.</p>
+              </div>
+              <div style="display:flex; gap:18px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid var(--line);">
+                <div class="chip-stat"><span class="cs-lbl">Реализовано</span><span class="cs-val d-neutral">0 ₽</span></div>
+                <div class="chip-stat"><span class="cs-lbl">Не реализовано</span><span class="cs-val d-bad">−41 850 ₽</span></div>
+                <div class="chip-stat"><span class="cs-lbl">Дивиденды получено</span><span class="cs-val d-neutral">0 ₽</span></div>
+                <div class="chip-stat"><span class="cs-lbl">Комиссии уплачено</span><span class="cs-val d-neutral">−171 ₽</span></div>
+              </div>
+              <p style="font-size:11px; color:var(--ink-3); margin-top:8px;">Яндекс дивиденды не платит за этот период — 0 ₽ здесь факт, не пропуск данных.</p>
+            </div>
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+      <div class="card reveal" style="padding:22px 24px;">
+        <h3 class="serif" style="font-size:16px; font-weight:600; margin-bottom:16px;">Распределение по секторам</h3>
+        <div style="display:flex; align-items:center; gap:26px;">
+          <svg viewBox="0 0 120 120" style="width:130px; height:130px; flex:none;">
+            <circle cx="60" cy="60" r="45" fill="none" stroke="var(--surface-3)" stroke-width="16"/>
+            <circle class="anim-donut" cx="60" cy="60" r="45" fill="none" stroke="var(--copper)" stroke-width="16" stroke-dasharray="197.9 84.8" stroke-dashoffset="0" data-len="197.9" data-gap="84.8" transform="rotate(-90 60 60)"/>
+            <circle class="anim-donut" cx="60" cy="60" r="45" fill="none" stroke="var(--estimate)" stroke-width="16" stroke-dasharray="84.8 197.9" stroke-dashoffset="-197.9" data-len="84.8" data-gap="197.9" transform="rotate(-90 60 60)"/>
+          </svg>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div>
+              <div style="display:flex; align-items:center; gap:7px; font-size:14px; font-weight:700;"><i style="width:9px;height:9px;border-radius:50%;background:var(--copper);display:inline-block;"></i>Финансы <span class="mono" style="font-weight:700; margin-left:2px;">70%</span></div>
+              <div class="mono" style="font-size:12px; color:var(--ink-3); margin-left:16px;">784 894 ₽</div>
+            </div>
+            <div>
+              <div style="display:flex; align-items:center; gap:7px; font-size:14px; font-weight:700;"><i style="width:9px;height:9px;border-radius:50%;background:var(--estimate);display:inline-block;"></i>IT-сектор <span class="mono" style="font-weight:700; margin-left:2px;">30%</span></div>
+              <div class="mono" style="font-size:12px; color:var(--ink-3); margin-left:16px;">341 100 ₽</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card reveal" style="padding:22px 24px;">
+        <h3 class="serif" style="font-size:16px; font-weight:600; margin-bottom:16px;">Классы активов</h3>
+        <div style="display:flex; align-items:center; gap:26px; margin-bottom:16px;">
+          <svg viewBox="0 0 120 120" style="width:130px; height:130px; flex:none;">
+            <circle cx="60" cy="60" r="45" fill="none" stroke="var(--surface-3)" stroke-width="16"/>
+            <circle class="anim-donut" cx="60" cy="60" r="45" fill="none" stroke="var(--up)" stroke-width="16" stroke-dasharray="282.7 0" stroke-dashoffset="0" data-len="282.7" data-gap="0" transform="rotate(-90 60 60)"/>
+            <text x="60" y="67" text-anchor="middle" font-family="IBM Plex Mono" font-size="24" font-weight="700" fill="var(--ink)">100%</text>
+          </svg>
+          <div>
+            <div style="font-weight:700; font-size:15px; margin-bottom:5px;">Акции</div>
+            <div class="mono" style="font-size:13px; color:var(--ink-3);">1 125 868 ₽</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <div style="flex:1; border:1.5px dashed var(--line-2); border-radius:8px; padding:10px; text-align:center;"><div style="font-size:11.5px; font-weight:600; color:var(--ink-3); margin-bottom:6px;">Облигации</div><span class="badge-soon">Скоро</span></div>
+          <div style="flex:1; border:1.5px dashed var(--line-2); border-radius:8px; padding:10px; text-align:center;"><div style="font-size:11.5px; font-weight:600; color:var(--ink-3); margin-bottom:6px;">Фонды</div><span class="badge-soon">Скоро</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card reveal" style="padding:22px 24px; margin-top:20px;">
+      <h3 class="serif" style="font-size:16px; font-weight:600; margin-bottom:16px;">Концентрация</h3>
+      <div style="display:grid; grid-template-columns:1.2fr 1fr 1.3fr; gap:28px; align-items:center;">
+        <div style="display:flex; align-items:center; gap:22px;">
+          <svg viewBox="0 0 120 120" style="width:120px; height:120px; flex:none;">
+            <circle cx="60" cy="60" r="45" fill="none" stroke="var(--surface-3)" stroke-width="16"/>
+            <circle class="anim-donut" cx="60" cy="60" r="45" fill="none" stroke="var(--copper)" stroke-width="16" stroke-dasharray="113.1 169.6" stroke-dashoffset="0" data-len="113.1" data-gap="169.6" transform="rotate(-90 60 60)"/>
+            <circle class="anim-donut" cx="60" cy="60" r="45" fill="none" stroke="var(--copper-deep)" stroke-width="16" stroke-dasharray="84.0 198.7" stroke-dashoffset="-113.1" data-len="84.0" data-gap="198.7" transform="rotate(-90 60 60)"/>
+            <circle class="anim-donut" cx="60" cy="60" r="45" fill="none" stroke="var(--estimate)" stroke-width="16" stroke-dasharray="85.7 197.0" stroke-dashoffset="-197.1" data-len="85.7" data-gap="197.0" transform="rotate(-90 60 60)"/>
+          </svg>
+          <div style="display:flex; flex-direction:column; gap:8px; font-size:13px;">
+            <span style="display:flex; align-items:center; gap:7px; font-weight:600;"><i style="width:9px;height:9px;border-radius:50%;background:var(--copper);display:inline-block;"></i>SBER <span class="mono">40,0%</span></span>
+            <span style="display:flex; align-items:center; gap:7px; font-weight:600;"><i style="width:9px;height:9px;border-radius:50%;background:var(--copper-deep);display:inline-block;"></i>T <span class="mono">29,7%</span></span>
+            <span style="display:flex; align-items:center; gap:7px; font-weight:600;"><i style="width:9px;height:9px;border-radius:50%;background:var(--estimate);display:inline-block;"></i>YDEX <span class="mono">30,3%</span></span>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div class="chip-stat"><span class="cs-lbl">Крупнейшая позиция (SBER)</span><span class="cs-val d-bad">40,0%</span></div>
+          <div class="chip-stat"><span class="cs-lbl">Топ-3 позиции</span><span class="cs-val d-bad">100,0%</span></div>
+        </div>
+        <div class="callout" style="margin:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+          <p style="font-size:12.5px;">Высокая концентрация: одна позиция держит 40% портфеля, три позиции — весь портфель целиком.</p></div>
+      </div>
+    </div>
+
+    <!-- БЛИЖАЙШИЕ ВЫПЛАТЫ — портфельный срез дивидендного календаря (перенесено из «Итог») -->
+    <div class="card reveal" style="padding:24px 26px; margin-top:22px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;"><h3 class="serif" style="font-size:18px; font-weight:600;">Ближайшие выплаты</h3><span class="tag-fact">факт (объявленные)</span></div>
+      <table class="pos-table">
+        <thead><tr><th>Актив</th><th>Купить до</th><th>Отсечка</th><th>Див./акция</th><th>Ожидаемая сумма</th><th>Доходность</th></tr></thead>
+        <tbody>
+          <tr><td><b>Сбербанк</b> <span class="mono" style="color:var(--ink-3);">SBER</span></td><td>2026-07-13</td><td>2026-07-14</td><td>37,55 ₽</td><td class="d-good">+56 325 ₽</td><td>12,5%</td></tr>
+          <tr><td><b>Т-Технологии</b> <span class="mono" style="color:var(--ink-3);">T</span></td><td>2026-08-03</td><td>2026-08-04</td><td>14,82 ₽</td><td class="d-good">+19 711 ₽</td><td>5,9%</td></tr>
+          <tr style="font-weight:700;"><td colspan="4">Итого ожидается</td><td class="d-good">+76 036 ₽</td><td></td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:11.5px; color:var(--ink-3); margin-top:12px;">Яндекс не показан — дивидендов не платит за этот период (факт, не пропуск). Показаны только выплаты, уже объявленные советом директоров с датой и суммой — это ограничение источника данных (для необъявленных будущих выплат подтверждённой даты/суммы просто не существует), а не недоработка расчёта.</p>
+    </div>
+  </div>
+
+  <!-- ===================== ИНДЕКС КАЧЕСТВА (перенесено из «Состав») ===================== -->
+  <div class="panel" id="panel-quality">
+    <div class="sec-head"><span class="eyebrow">Разбор</span><h2>Индекс качества портфеля</h2></div>
+    <p style="color:var(--ink-2); font-size:13px; max-width:760px; margin-bottom:20px;">Один сжатый балл, объясняющий, из чего он состоит. Раньше жил на вкладке «Состав» — перенесён сюда, к остальному аналитическому разбору.</p>
+    <div class="card reveal" style="padding:24px 26px; margin-bottom:26px;">
+      <div class="qi-hero">
+        <div class="qi-score">59<span style="font-size:24px; color:var(--ink-3);">/100</span></div>
+        <p style="color:var(--ink-2); font-size:13.5px; max-width:420px;">Общий балл — взвешенное среднее: 35% Диверсификация + 35% Доходность к риску + 30% Устойчивость к рынку. Сильнее всего тянет вниз — <b>«Диверсификация»</b> (18/100).</p>
+      </div>
+
+      <div class="qi-bigbars">
+        <div class="qi-bigbar-row">
+          <div class="qi-bigbar-label">Диверсификация</div>
+          <div class="qi-bigbar-track"><div class="qi-bigbar-fill anim-bar" style="width:18%; background:var(--down);"></div></div>
+          <div class="qi-bigbar-val" style="color:var(--down);">18<span>/100</span></div>
+        </div>
+        <div class="qi-bigbar-row">
+          <div class="qi-bigbar-label">Доходность к риску</div>
+          <div class="qi-bigbar-track"><div class="qi-bigbar-fill anim-bar" style="width:87%; background:var(--up);"></div></div>
+          <div class="qi-bigbar-val" style="color:var(--up);">87<span>/100</span></div>
+        </div>
+        <div class="qi-bigbar-row">
+          <div class="qi-bigbar-label">Устойчивость к рынку</div>
+          <div class="qi-bigbar-track"><div class="qi-bigbar-fill anim-bar" style="width:73%; background:var(--up);"></div></div>
+          <div class="qi-bigbar-val" style="color:var(--up);">73<span>/100</span></div>
+        </div>
+      </div>
+      <p style="font-size:11.5px; color:var(--ink-3); margin:-10px 0 22px;">Из чего складывается каждая полоса и почему — подробная раскладка по компонентам ниже.</p>
+
+      <div class="qi-sub-grid">
+        <div class="qi-sub-card reveal">
+          <div class="qi-sub-name">Диверсификация <span class="tag-fact">факт</span></div>
+          <div class="qi-sub-val" style="color:var(--down);">18</div>
+          <div class="qi-bar-track"><div class="qi-bar-fill anim-bar" style="width:18%; background:var(--down);"></div></div>
+          <div class="qi-component"><span>Эфф. число позиций</span><span class="mono">2,9</span></div>
+          <div class="qi-comp-bar"><div class="qi-comp-fill anim-bar" style="width:21%; background:var(--down);"></div></div>
+          <div class="qi-component"><span>Число секторов</span><span class="mono">2</span></div>
+          <div class="qi-comp-bar"><div class="qi-comp-fill anim-bar" style="width:20%; background:var(--down);"></div></div>
+          <div class="qi-component"><span>Средняя корреляция</span><span class="mono">0,81</span></div>
+          <div class="qi-comp-bar"><div class="qi-comp-fill anim-bar" style="width:19%; background:var(--down);"></div></div>
+          <p style="font-size:12px; color:var(--ink-2); margin-top:10px; line-height:1.5;">Портфель завязан на узкий набор/сектор — просадки приходят одновременно.</p>
+        </div>
+        <div class="qi-sub-card reveal">
+          <div class="qi-sub-name">Доходность к риску <span class="tag-judgment">суждение</span></div>
+          <div class="qi-sub-val" style="color:var(--up);">87</div>
+          <div class="qi-bar-track"><div class="qi-bar-fill anim-bar" style="width:87%; background:var(--up);"></div></div>
+          <div class="qi-component"><span>Альфа (к рынку) — единственная в балле</span><span class="mono">+4,5%</span></div>
+          <div class="qi-comp-bar"><div class="qi-comp-fill anim-bar" style="width:87.5%; background:var(--up);"></div></div>
+          <div class="qi-component"><span>Шарп <span style="color:var(--ink-3);">· контекст, не в балле</span></span><span class="mono">−0,06</span></div>
+          <div class="qi-component"><span>Сортино <span style="color:var(--ink-3);">· контекст, не в балле</span></span><span class="mono">−0,10</span></div>
+          <p style="font-size:12px; color:var(--ink-2); margin-top:10px; line-height:1.5;">Обгоняет рынок за свой уровень риска — риск отрабатывает с запасом.</p>
+        </div>
+        <div class="qi-sub-card reveal">
+          <div class="qi-sub-name">Устойчивость к рынку <span class="tag-estimate">оценка</span></div>
+          <div class="qi-sub-val" style="color:var(--up);">73</div>
+          <div class="qi-bar-track"><div class="qi-bar-fill anim-bar" style="width:73%; background:var(--up);"></div></div>
+          <div class="qi-component"><span>Волатильность</span><span class="mono">24,2%</span></div>
+          <div class="qi-comp-bar"><div class="qi-comp-fill anim-bar" style="width:69%; background:var(--copper);"></div></div>
+          <div class="qi-component"><span>Бета</span><span class="mono">0,77</span></div>
+          <div class="qi-comp-bar"><div class="qi-comp-fill anim-bar" style="width:79%; background:var(--up);"></div></div>
+          <div class="qi-component"><span>VaR 95% (дневной)</span><span class="mono">2,2%</span></div>
+          <div class="qi-comp-bar"><div class="qi-comp-fill anim-bar" style="width:72%; background:var(--up);"></div></div>
+          <p style="font-size:12px; color:var(--ink-2); margin-top:10px; line-height:1.5;">Спокойнее рынка — умеренные колебания, невысокая чувствительность.</p>
+        </div>
+      </div>
+      <p style="font-size:11px; color:var(--ink-3); margin-top:10px;">Мини-шкалы у компонентов — их индивидуальный балл по тем же порогам «лучше/хуже», что и у субиндекса (например, для Устойчивости: волатильность 15–45%, бета 0,6–1,4, VaR 1,5–4%). У Шарпа и Сортино шкалы намеренно нет — по методике они показываются как контекст и не входят в балл.</p>
+      <div class="callout" style="margin-top:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+        <p>Устойчивость к макро- и геополитическим шокам сюда пока не входит в <b>балл</b> — портфель ещё не связан с макро/гео-профилями компаний. Индекс — наш подход к оценке, не объективная истина: пороги и веса объяснены в методике. Иллюстративный факторный профиль (без влияния на балл) — во вкладке «ИИ-Диагноз».</p></div>
+    </div>
+  </div>
+
+  <!-- ===================== ИТОГ ===================== -->
+  <div class="panel" id="panel-compare">
+    <div class="sec-head"><span class="eyebrow">Доходность и риск</span><h2>Сравнение</h2></div>
+    <p style="color:var(--ink-2); font-size:13px; max-width:760px; margin-bottom:20px;">Как портфель вёл себя на фоне рынка — и любых ориентиров, которые вы захотите сравнить: другая бумага, другой ваш портфель или собственная формула.</p>
+
+    <div class="card reveal" style="padding:24px 26px; margin-bottom:22px;">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px; margin-bottom:6px;">
+        <h3 class="serif" style="font-size:18px; font-weight:600;">Если бы держали этот портфель 1,66 года</h3>
+        <div style="display:flex; gap:16px; font-size:13px;">
+          <span>Портфель: <b class="mono d-good">+22,6%</b></span>
+          <span>MCFTR: <b class="mono d-bad">−1,2%</b></span>
+          <span>Разница: <b class="mono d-good">+23,7%</b></span>
+        </div>
+      </div>
+      <div class="legend" id="benchLegend"></div>
+      <div class="chart-wrap"><svg id="benchChart" viewBox="0 0 1000 220"></svg><div id="benchTip" class="chart-tooltip"></div></div>
+      <p style="font-size:12px; color:var(--ink-3); margin-top:8px;">Базовые кривые — полная доходность (портфель с дивидендами против индекса полной доходности MCFTR); IMOEX — ценовой, для справки. Период ограничен историей T. Веса позиций зафиксированы текущими долями (приближение). Сводка «Портфель/MCFTR/Разница» выше всегда считается от этих двух базовых кривых, даже если ниже добавлены другие сравнения.</p>
+
+      <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--line);">
+        <div class="pill" onclick="toggleCompareBuilder()" style="background:var(--surface-3); border:1px solid var(--line); padding:9px 18px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex;">+ Добавить сравнение</div>
+
+        <div id="compareBuilder" style="display:none; margin-top:18px;">
+          <div class="seg-toggle" id="compareModeToggle" style="margin-bottom:16px;">
+            <div class="seg-opt on" onclick="setCompareMode('asset',this)">Актив</div>
+            <div class="seg-opt" onclick="setCompareMode('portfolio',this)">Другой портфель</div>
+            <div class="seg-opt" onclick="setCompareMode('custom',this)">Свой конструктор</div>
+          </div>
+
+          <!-- Режим: сравнить с отдельным активом -->
+          <div id="compare-mode-asset">
+            <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end;">
+              <div class="custom-dd" id="ddCompareAsset">
+                <div class="dd-trigger" onclick="toggleDropdown('ddCompareAsset')"><span>Сбербанк · SBER</span><span class="dd-arrow">▾</span></div>
+                <div class="dd-panel">
+                  <div class="dd-option selected">Сбербанк · SBER</div>
+                  <div class="dd-option">Т-Технологии · T</div>
+                  <div class="dd-option">Яндекс · YDEX</div>
+                  <div class="dd-option">Газпром · GAZP</div>
+                  <div class="dd-option">ЛУКОЙЛ · LKOH</div>
+                </div>
+              </div>
+              <div class="seg-toggle">
+                <div class="seg-opt on">Полная доходность</div>
+                <div class="seg-opt">Только цена</div>
+              </div>
+              <div class="edit-btn save" onclick="addComparisonLine('sber_tr')">Добавить</div>
+            </div>
+            <p style="font-size:11.5px; color:var(--ink-3); margin-top:10px;">Любой тикер с рынка — не только из вашего портфеля.</p>
+          </div>
+
+          <!-- Режим: сравнить с другим своим портфелем -->
+          <div id="compare-mode-portfolio" style="display:none;">
+            <div style="display:flex; gap:14px; align-items:flex-end;">
+              <div class="custom-dd" id="ddComparePortfolio">
+                <div class="dd-trigger" onclick="toggleDropdown('ddComparePortfolio')"><span>Второй портфель</span><span class="dd-arrow">▾</span></div>
+                <div class="dd-panel">
+                  <div class="dd-option selected">Второй портфель</div>
+                  <div class="dd-option">+ Новый портфель</div>
+                </div>
+              </div>
+              <div class="edit-btn save" onclick="addComparisonLine('portfolio2')">Добавить</div>
+            </div>
+            <p style="font-size:11.5px; color:var(--ink-3); margin-top:10px;">Сравнение доступно между всеми вашими портфелями в Basis.</p>
+          </div>
+
+          <!-- Режим: свой конструктор (например, сектор ÷ инструмент) -->
+          <div id="compare-mode-custom" style="display:none;">
+            <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+              <div class="edit-field">
+                <label>Числитель</label>
+                <div class="custom-dd" id="ddCustomNum">
+                  <div class="dd-trigger" onclick="toggleDropdown('ddCustomNum')"><span>Нефть и газ (сектор)</span><span class="dd-arrow">▾</span></div>
+                  <div class="dd-panel">
+                    <div class="dd-option selected">Нефть и газ (сектор)</div>
+                    <div class="dd-option">Финансы (сектор)</div>
+                    <div class="dd-option">IT-сектор</div>
+                    <div class="dd-option">Металлургия (сектор)</div>
+                    <div class="dd-option">Свой список тикеров…</div>
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:20px; color:var(--ink-3); padding-bottom:11px;">÷</div>
+              <div class="edit-field">
+                <label>Знаменатель</label>
+                <div class="custom-dd" id="ddCustomDenom">
+                  <div class="dd-trigger" onclick="toggleDropdown('ddCustomDenom')"><span>LQDT (money market)</span><span class="dd-arrow">▾</span></div>
+                  <div class="dd-panel">
+                    <div class="dd-option selected">LQDT (money market)</div>
+                    <div class="dd-option">MCFTR</div>
+                    <div class="dd-option">IMOEX</div>
+                    <div class="dd-option">USD/RUB</div>
+                  </div>
+                </div>
+              </div>
+              <div class="edit-btn save" onclick="addComparisonLine('oil_lqdt')">Построить</div>
+            </div>
+            <p style="font-size:11.5px; color:var(--ink-3); margin-top:10px;">Любая пара «корзина/сектор/бумага ÷ другой инструмент» — например, «нефтяные компании ÷ фонд денежного рынка» отвечает на вопрос «обгоняет ли сектор безрисковую парковку денег». Результат — линия на том же графике, в тех же % изменения.</p>
+          </div>
+
+          <p style="font-size:11px; color:var(--ink-3); margin-top:14px; padding-top:12px; border-top:1px dashed var(--line);">В этом мокапе конструктор всегда добавляет одну заранее подготовленную иллюстративную линию на выбранный режим — реальный расчёт по произвольному тикеру/сектору/формуле считается на бэкенде.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ДОХОДНОСТЬ И ОЦЕНКА ===================== -->
+  <div class="panel" id="panel-returns">
+    <div class="sec-head"><span class="eyebrow">Доходность и риск</span><h2>Доходность и оценка</h2></div>
+    <div class="card reveal" style="padding:24px 26px; margin-bottom:22px; overflow-x:auto;">
+      <table class="pos-table" style="min-width:720px;">
+        <thead><tr><th>Актив</th><th class="mlink" onclick="scrollToMetric('return')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">Доходность</span></th><th>Вклад в доходность</th><th class="mlink" onclick="scrollToMetric('capm')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">CAPM (модель)</span></th><th class="mlink" onclick="scrollToMetric('divyield')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">Див. дох.</span></th><th class="mlink" onclick="scrollToMetric('pe_now')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">P/E тек.</span></th><th class="mlink" onclick="scrollToMetric('pe_hist')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">P/E ист.</span></th><th class="mlink" onclick="scrollToMetric('earnings_yield')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">Дох. прибыли</span></th></tr></thead>
+        <tbody>
+          <tr><td><b>Сбербанк</b> <span class="mono" style="color:var(--ink-3);">SBER</span></td><td class="d-good">+18,3% <span style="font-size:11px; color:var(--ink-3);">за 3г</span></td><td class="d-good">+7,3 п.п.</td><td>+8,6%</td><td>12,5%</td><td>4,0×</td><td>4,5×</td><td>25,0%</td></tr>
+          <tr><td><b>Т-Технологии</b> <span class="mono" style="color:var(--ink-3);">T</span></td><td class="d-good">+16,1% <span style="font-size:11px; color:var(--ink-3);">за 1,5г</span></td><td class="d-good">+4,8 п.п.</td><td>+10,0%</td><td>5,9%</td><td>3,8×</td><td>—</td><td>26,3%</td></tr>
+          <tr><td><b>Яндекс</b> <span class="mono" style="color:var(--ink-3);">YDEX</span></td><td class="d-bad">−0,2% <span style="font-size:11px; color:var(--ink-3);">за 1,9г</span></td><td class="d-bad">−0,1 п.п.</td><td>+5,1%</td><td>5,1%</td><td>16,9×</td><td>35,6×</td><td>5,9%</td></tr>
+          <tr style="font-weight:700;"><td>Портфель</td><td class="d-good">+12,0%</td><td class="d-good">=12,0 п.п.</td><td>+7,6%</td><td>8,3%</td><td>7,9×</td><td>17,9×</td><td>12,7%</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:11.5px; color:var(--ink-3); margin-top:12px;">Строка «Портфель» — средневзвешенное по долям; P/E ист. — по 2 из 3 (у остальных метрика не рассчитана). «Вклад в доходность» = доля в портфеле × доходность бумаги — отвечает на вопрос «кто сделал результат портфеля» (SBER дал больше половины итога, хотя весит 40%, а не 60%).
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; max-width:900px;">
+      <div class="card metric-card t-fact reveal" id="metric-return">
+        <div class="metric-head"><span class="metric-icon">📈</span><span class="metric-title">Доходность (полная, за период)</span><span class="tag-fact">факт</span></div>
+        <p class="metric-lede">За 1,66 г портфель в среднем давал 12,0% в год с учётом дивидендов — то, что реально получил бы держатель, не прогноз.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Сколько в среднем за год приносила бумага с учётом и роста цены, и дивидендов — за тот период, что она торгуется. Это факт прошлого, не обещание будущего.</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> Доходность прошлого — самый ненадёжный ориентир на будущее из всех метрик (она почти случайна год к году). Смотрите её вместе с риском: высокая доходность, добытая высоким риском, — не то же самое, что спокойный стабильный рост.</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>Доходность = (Итоговая стоимость с дивидендами / Начальная стоимость)^(1/число лет) − 1</code><p style="font-size:11.5px; color:var(--ink-3); margin:8px 0 0;">Среднегодовой темп (CAGR), а не простое среднее — честнее отражает реально накопленный результат.</p></div>
+        </div>
+      </div>
+
+      <div class="card metric-card t-judgment reveal" id="metric-capm">
+        <div class="metric-head"><span class="metric-icon">🧮</span><span class="metric-title">CAPM (модельная ожидаемая доходность)</span><span class="tag-judgment">суждение</span></div>
+        <p class="metric-lede">Модель даёт +7,6% — ниже доходности ОФЗ, потому что рынок акций в этом периоде отставал от безрисковой ставки.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Оценка доходности, которую бумага «должна» приносить за свой уровень рыночного риска — по классической финансовой модели. Не факт и не прогноз, а ориентир.</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> CAPM чувствителен к допущению о доходности рынка. Используйте как один из ориентиров рядом с фактической доходностью. Когда фактическая доходность сильно выше CAPM — бумага дала больше «положенного» за риск (см. Альфа в «Риске»).</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>Ожидаемая доходность = Rf + β × (Rm − Rf)</code><p style="font-size:11.5px; color:var(--ink-3); margin:8px 0 0;">Rf — ОФЗ ~1 год, Rm — доходность MCFTR, β — чувствительность к рынку.</p></div>
+        </div>
+      </div>
+
+      <div class="card metric-card t-fact reveal" id="metric-divyield">
+        <div class="metric-head"><span class="metric-icon">💵</span><span class="metric-title">Дивидендная доходность</span><span class="tag-fact">факт</span></div>
+        <p class="metric-lede">8,3% — высокая дивдоходность, заметная часть отдачи приходит деньгами, типично для банков и нефтегаза.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Сколько дивидендов компания выплачивает за год относительно текущей цены акции.</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> Дивиденды на российском рынке — часто половина всей доходности. Но высокая дивдоходность бывает и тревожным сигналом — если выросла из-за падения цены, а не роста выплат. Сверяйтесь с устойчивостью выплат в карточке компании.</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>Дивдоходность = Дивиденды за год на акцию / Текущая цена акции</code></div>
+        </div>
+      </div>
+
+      <div class="card metric-card t-fact reveal" id="metric-pe_now">
+        <div class="metric-head"><span class="metric-icon">🏷️</span><span class="metric-title">P/E текущий</span><span class="tag-fact">факт</span></div>
+        <p class="metric-lede">Во сколько раз цена акции выше её годовой прибыли на акцию — по последним фактическим показателям.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Отношение цены акции к прибыли на акцию за последние 12 месяцев (LTM) — сколько лет при текущей прибыли компания «окупает» свою цену.</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> Низкий P/E не всегда «дёшево» — может отражать риски или падающую прибыль; высокий не всегда «дорого» — может отражать ожидания роста. Сравнивайте P/E внутри сектора, не между отраслями: у банков и IT разные нормы.</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>P/E = Цена акции / Прибыль на акцию (за последние 12 мес.)</code></div>
+        </div>
+      </div>
+
+      <div class="card metric-card t-fact reveal" id="metric-pe_hist">
+        <div class="metric-head"><span class="metric-icon">🕰️</span><span class="metric-title">P/E исторический</span><span class="tag-fact">факт</span></div>
+        <p class="metric-lede">Тот же P/E, но по среднеисторической прибыли — сглаживает разовые провалы и всплески.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Тот же показатель, но прибыль на акцию берётся не за последний год, а усреднённая за несколько лет — сглаживает влияние разовых списаний или временных всплесков.</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> Полезен, когда текущая прибыль искажена разовым событием. Большое расхождение между P/E тек. и P/E ист. — сигнал заглянуть в детали прибыли компании, а не просто сравнить два числа.</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>P/E ист. = Цена акции / Средняя прибыль на акцию за N лет</code></div>
+        </div>
+      </div>
+
+      <div class="card metric-card t-fact reveal" id="metric-earnings_yield">
+        <div class="metric-head"><span class="metric-icon">🔁</span><span class="metric-title">Доходность прибыли</span><span class="tag-fact">факт</span></div>
+        <p class="metric-lede">Обратная величина P/E — сколько прибыли компания генерирует на каждый вложенный в цену рубль.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Прибыль на акцию, делённая на цену — по сути перевёрнутый P/E, выраженный в процентах.</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> Удобно сравнивать напрямую со ставками (ОФЗ, депозит). Если доходность прибыли ниже безрисковой ставки — рынок платит премию за рост или качество компании, а не за её текущий денежный поток.</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>Доходность прибыли = Прибыль на акцию / Цена акции = 1 / P/E</code></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== РИСК ===================== -->
+  <div class="panel" id="panel-risk">
+    <div class="sec-head"><span class="eyebrow">Доходность и риск</span><h2>Риск</h2></div>
+    <div class="card reveal" style="padding:24px 26px; margin-bottom:22px; overflow-x:auto;">
+      <table class="pos-table" style="min-width:820px;">
+        <thead><tr><th>Актив</th><th class="mlink" onclick="scrollToMetric('vol')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">Волатильность</span></th><th class="mlink" onclick="scrollToMetric('var95')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">VaR 95%</span></th><th class="mlink" onclick="scrollToMetric('maxdd')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">Макс. просадка</span></th><th class="mlink" onclick="scrollToMetric('downvol')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">Нисх. вол.</span></th><th class="mlink" onclick="scrollToMetric('beta')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">Beta</span></th><th class="mlink" onclick="scrollToMetric('rsq')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">R²</span></th><th class="mlink" onclick="scrollToMetric('sharpe')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">Шарп</span></th><th class="mlink" onclick="scrollToMetric('alpha')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">α</span></th><th class="mlink" onclick="scrollToMetric('sortino')"><div class="th-ic-row"><span class="info-ic">i</span></div><span class="th-label">Сортино</span></th><th>Вклад в риск</th></tr></thead>
+        <tbody>
+          <tr><td><b>Сбербанк</b> <span class="mono" style="color:var(--ink-3);">SBER</span></td><td>21,3%</td><td class="d-bad">−1,9%</td><td class="d-bad">−34,2%</td><td>14,3%</td><td>0,56 <sup>ᴹ</sup></td><td>0,43</td><td>0,22</td><td class="d-good">+9,7%</td><td>0,38</td><td>33%</td></tr>
+          <tr><td><b>Т-Технологии</b> <span class="mono" style="color:var(--ink-3);">T</span></td><td>27,6%</td><td class="d-bad">−2,5%</td><td class="d-bad">−41,7%</td><td>17,3%</td><td>0,80 <sup>ᴹ</sup></td><td>0,11</td><td>0,09</td><td class="d-good">+6,1%</td><td>0,19</td><td>33%</td></tr>
+          <tr><td><b>Яндекс</b> <span class="mono" style="color:var(--ink-3);">YDEX</span></td><td>29,2%</td><td class="d-bad">−2,9%</td><td class="d-bad">−52,3%</td><td>16,8%</td><td>1,00 <sup>ᴹ</sup></td><td>0,32</td><td class="d-bad">−0,47</td><td class="d-bad">−5,3%</td><td class="d-bad">−0,77</td><td>34%</td></tr>
+          <tr style="font-weight:700;"><td>Портфель</td><td>24,2%</td><td class="d-bad">−2,3%</td><td class="d-bad">−37,9%</td><td>14,5%</td><td>0,77</td><td>0,45</td><td class="d-bad">−0,06</td><td class="d-good">+4,5%</td><td class="d-bad">−0,10</td><td>100%</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:11.5px; color:var(--ink-3); margin-top:12px;">Окно риск-метрик — 3 года дневных данных. Beta: <sup>ᴹ</sup> — данные Мосбиржи, <sup>Б</sup> — расчёт Basis. Безрисковая ставка: ОФЗ ~1г 13,6% на 2026-06-26. Рынок (MCFTR, 3г): 5,8%; премия: −7,8%. «Вклад в риск» — доля бумаги в общей волатильности портфеля (не в стоимости!) — сумма даёт 100%.</p>
+      <div class="callout" style="margin-top:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+        <p><b>Скрытая деталь.</b> SBER — 40% стоимости портфеля, но только 33% его риска: более спокойная бумага, чем YDEX (30% стоимости, но 34% риска). Деньги и риск распределены не одинаково — это и есть разница между «долей» и «вкладом в риск».</p></div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; max-width:900px;">
+      <div class="card metric-card t-fact reveal" id="metric-vol">
+        <div class="metric-head"><span class="metric-icon">〰️</span><span class="metric-title">Волатильность</span><span class="tag-fact">факт</span></div>
+        <p class="metric-lede">24,2% в год — обычная для российских акций волатильность.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Насколько сильно цена бумаги колеблется в течение года. Чем выше, тем более «дёрганая» бумага.</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> Не «плохо» сама по себе — мера разброса. В портфеле волатильность отдельных бумаг частично гасится, если они не падают одновременно (см. Матрицу корреляций).</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>σ(дневных доходностей) × √252</code></div>
+        </div>
+      </div>
+      <div class="card metric-card t-estimate reveal" id="metric-var95">
+        <div class="metric-head"><span class="metric-icon">🛡️</span><span class="metric-title">VaR 95% (стоимость под риском)</span><span class="tag-estimate">оценка</span></div>
+        <p class="metric-lede">В обычный день (19 из 20) потери не превышают 2,3%.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Оценка «плохого, но не катастрофического дня»: с вероятностью 95% дневной убыток не превысит этой величины.</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> Главное ограничение — VaR молчит про «хвост»: самые редкие и болезненные обвалы выходят за рамки 95%. Не воспринимайте как максимально возможный убыток. Для этого — Стресс-тест.</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>−(5-й перцентиль дневных доходностей), исторический метод</code></div>
+        </div>
+      </div>
+      <div class="card metric-card t-fact reveal" id="metric-maxdd">
+        <div class="metric-head"><span class="metric-icon">📉</span><span class="metric-title">Максимальная просадка</span><span class="tag-fact">факт</span></div>
+        <p class="metric-lede">−37,9% — портфель терял в моменте больше трети стоимости; сейчас YDEX ещё не отыграла свой минимум.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Самое глубокое падение от предыдущего максимума до последующего минимума за всю историю ряда. Отвечает на самый интуитивный вопрос розничного инвестора: «сколько я мог потерять в худший момент и сколько пришлось бы ждать восстановления».</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> В отличие от VaR (типичный плохой день), просадка — это реализованный, самый болезненный сценарий из уже случившихся. Если такая просадка психологически невыносима — это сигнал о несоответствии риска и терпимости к нему, а не повод для паники сейчас.</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>min[(Стоимость_t − Максимум до t) / Максимум до t]</code><p style="font-size:11.5px; color:var(--ink-3); margin:8px 0 0;">Считается из того же дневного ряда стоимости, что и волатильность/VaR — дополнительных данных не требует.</p></div>
+        </div>
+      </div>
+      <div class="card metric-card t-fact reveal" id="metric-downvol">
+        <div class="metric-head"><span class="metric-icon">⬇️</span><span class="metric-title">Нисходящая волатильность</span><span class="tag-fact">факт</span></div>
+        <p class="metric-lede">14,5% у портфеля — заметно ниже полной волатильности (24,2%): большая часть колебаний — не падения.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Как обычная волатильность, но считает только дни падения — не наказывает бумагу за то, что она иногда сильно растёт.</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> Используется в знаменателе Сортино. Если она намного ниже общей волатильности — колебания бумаги в основном вверх, что интуитивно «менее рискованно», чем говорит обычная волатильность.</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>σ(только отрицательные дневные доходности) × √252</code></div>
+        </div>
+      </div>
+      <div class="card metric-card t-fact reveal" id="metric-beta">
+        <div class="metric-head"><span class="metric-icon">🎯</span><span class="metric-title">Бета</span><span class="tag-fact">факт</span></div>
+        <p class="metric-lede">0,77 — спокойнее рынка: может служить стабилизатором в портфеле.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Насколько бумага следует за рынком. Бета 1 — движется заодно с рынком; больше 1 — усиливает движения, меньше 1 — спокойнее.</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> Говорит о рыночном риске, но НЕ о собственной «дёрганости» — для этого волатильность. Смотрите бету в паре с R² — он показывает, насколько ей можно доверять.</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>Ковариация(доходность бумаги, рынка) / Дисперсия(доходность рынка)</code></div>
+        </div>
+      </div>
+      <div class="card metric-card t-fact reveal" id="metric-rsq">
+        <div class="metric-head"><span class="metric-icon">🔗</span><span class="metric-title">R² (коэффициент детерминации)</span><span class="tag-fact">факт</span></div>
+        <p class="metric-lede">0,45 у портфеля — меньше половины его колебаний объясняется движением рынка.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Доля колебаний бумаги, которая объясняется движением индекса — от 0 (никак не связано с рынком) до 1 (полностью следует за рынком).</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> Низкий R² — бета этой бумаги менее надёжна: большая часть её движений вызвана собственными причинами (новости по компании), а не рынком. Не используйте бету бумаги с низким R² как единственный ориентир риска.</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>R² = Ковариация(бумага, рынок)² / (Дисперсия(бумага) × Дисперсия(рынок))</code></div>
+        </div>
+      </div>
+      <div class="card metric-card t-estimate reveal" id="metric-sharpe">
+        <div class="metric-head"><span class="metric-icon">🧭</span><span class="metric-title">Коэффициент Шарпа</span><span class="tag-estimate">оценка</span></div>
+        <p class="metric-lede">−0,06 у портфеля — сейчас риск акций почти не вознаграждается сверх ставки ОФЗ.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Сколько дополнительной доходности сверх безрисковой ставки вы получаете на единицу общего риска.</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> Сравнивайте Шарп между бумагами и портфелями, а не смотрите на абсолютное значение — при высокой ставке ОФЗ Шарп низкий у всего рынка сразу, это не всегда сигнал «плохой бумаги» (подробнее — в Индексе качества).</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>Шарп = (Доходность − Безрисковая ставка) / Волатильность</code></div>
+        </div>
+      </div>
+      <div class="card metric-card t-judgment reveal" id="metric-alpha">
+        <div class="metric-head"><span class="metric-icon">🏆</span><span class="metric-title">Альфа (Jensen's alpha)</span><span class="tag-judgment">суждение</span></div>
+        <p class="metric-lede">+4,5% у портфеля — обыграл рынок с поправкой на свой уровень риска.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Разница между фактической доходностью бумаги и тем, что ей «положено» по модели CAPM за её бету.</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> Положительная альфа за прошлый период не гарантирует её в будущем — читайте как оценку прошлого результата относительно риска, а не как прогноз.</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>Альфа = Доходность − [Rf + β × (Rm − Rf)]</code></div>
+        </div>
+      </div>
+      <div class="card metric-card t-estimate reveal" id="metric-sortino">
+        <div class="metric-head"><span class="metric-icon">🌊</span><span class="metric-title">Коэффициент Сортино</span><span class="tag-estimate">оценка</span></div>
+        <p class="metric-lede">−0,10 у портфеля — как и Шарп, сейчас давит высокая ставка ОФЗ.</p>
+        <div class="ac-toggle" onclick="toggleArticle(this)">Подробнее ▾</div>
+        <div class="ac-full">
+          <div class="metric-block"><span class="mb-ic">💡</span><p><b>Что это.</b> Тот же принцип, что у Шарпа, но в знаменателе — только нисходящая волатильность, а не полная.</p></div>
+          <div class="metric-block"><span class="mb-ic">🎯</span><p><b>Что с этим делать.</b> Более честная мера для бумаг, которые колеблются в основном вверх — Шарп наказал бы их за это, Сортино — нет.</p></div>
+          <div class="metric-formula"><span class="mf-lbl">Формула</span><code>Сортино = (Доходность − Безрисковая ставка) / Нисходящая волатильность</code></div>
+        </div>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:16px; max-width:900px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+      <p>Шарп и Сортино сейчас низкие не только у вас — ставка ОФЗ высокая (13,6%), и в этом окне рынок акций отставал от неё. Это характеристика момента, не обязательно слабость набора бумаг. Подробный разбор — в ИИ-Диагнозе.</p></div>
+  </div>
+
+  <!-- ===================== МАТРИЦА КОРРЕЛЯЦИЙ ===================== -->
+  <div class="panel" id="panel-correlation">
+    <div class="sec-head"><span class="eyebrow">Доходность и риск</span><h2>Матрица корреляций</h2></div>
+    <p style="color:var(--ink-2); font-size:13px; max-width:760px; margin-bottom:20px;">Как активы движутся относительно друг друга (1,0 = синхронно, 0 = независимо, отрицательные значения — движутся в противоположные стороны). Красное — высокая связь (концентрация), зелёное — реальная диверсификация. Рассчитано по дневным доходностям за 3 года.</p>
+
+    <div class="card reveal" style="padding:24px 26px; margin-bottom:20px;">
+      <table class="corr-table" style="margin:0 auto;">
+        <thead><tr><th class="corr-corner"></th><th>SBER</th><th>T</th><th>YDEX</th><th class="corr-corner"></th></tr></thead>
+        <tbody>
+          <tr><th>SBER</th><td class="corr-cell corr-diag" data-corr="1.00">1,00</td><td class="corr-cell" data-corr="0.83">0,83</td><td class="corr-cell" data-corr="0.77">0,77</td><th class="corr-corner"></th></tr>
+          <tr><th>T</th><td class="corr-cell" data-corr="0.83">0,83</td><td class="corr-cell corr-diag" data-corr="1.00">1,00</td><td class="corr-cell" data-corr="0.84">0,84</td><th class="corr-corner"></th></tr>
+          <tr><th>YDEX</th><td class="corr-cell" data-corr="0.77">0,77</td><td class="corr-cell" data-corr="0.84">0,84</td><td class="corr-cell corr-diag" data-corr="1.00">1,00</td><th class="corr-corner"></th></tr>
+        </tbody>
+      </table>
+      <div style="display:flex; align-items:center; justify-content:center; gap:14px; margin-top:20px; flex-wrap:wrap;">
+        <span class="mono" style="font-size:12px; color:var(--ink-2);">−1 · разбавляет риск</span>
+        <div style="width:220px; height:10px; border-radius:5px; background:linear-gradient(90deg,var(--up),var(--surface-3) 50%,var(--down));"></div>
+        <span class="mono" style="font-size:12px; color:var(--ink-2);">+1 · риск не разбавляет</span>
+      </div>
+      <div style="text-align:center; margin-top:8px;"><span style="display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-3);"><i style="width:11px;height:11px;background:var(--surface-3);border:1px dashed var(--line-2);border-radius:3px;display:inline-block;"></i>диагональ — бумага сама с собой, не данные</span></div>
+      <p style="font-size:11px; color:var(--ink-3); margin-top:12px;">Сейчас в портфеле только акции одного рынка — все три пары дают положительную корреляцию. Шкала при этом рассчитана на весь диапазон от −1 до +1: отрицательные значения появятся, если добавить в портфель инструменты другого типа (например, облигации, золото, инструменты в другой валюте).</p>
+    </div>
+
+    <div class="callout" style="margin-bottom:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+      <p><b>Что это значит для диверсификации.</b> Средняя корреляция между бумагами высокая (0,81): портфель склонен падать целиком — диверсификация слабая.</p></div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+      <div class="card reveal" style="padding:18px 20px;">
+        <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--down); margin-bottom:8px;">Где диверсификации нет</div>
+        <div style="font-family:var(--mono); font-size:20px; font-weight:700; margin-bottom:4px;">T ↔ YDEX · 0,84</div>
+        <p style="font-size:13px; color:var(--ink-2);">Самая связанная пара — эти бумаги ходят почти заодно, друг друга не подстраховывают.</p>
+      </div>
+      <div class="card reveal" style="padding:18px 20px;">
+        <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--up); margin-bottom:8px;">Что реально разбавляет риск</div>
+        <div style="font-family:var(--mono); font-size:20px; font-weight:700; margin-bottom:4px;">SBER ↔ YDEX · 0,77</div>
+        <p style="font-size:13px; color:var(--ink-2);">Наименее связанная пара — именно она снижает общий риск портфеля.</p>
+      </div>
+    </div>
+    <p style="font-size:11.5px; color:var(--ink-3); margin-top:16px;">Эта картина учтена в субиндексе «Диверсификация» на вкладке «Состав»: средняя корреляция — одна из его компонент, сейчас балл 18/100.</p>
+  </div>
+
+  <!-- ===================== ИИ-ДИАГНОЗ ===================== -->
+  <div class="panel" id="panel-ai-diagnosis">
+    <div class="sec-head"><span class="eyebrow">Разбор</span><h2>ИИ-Диагноз</h2></div>
+    <p style="color:var(--ink-2); font-size:13px; max-width:760px; margin-bottom:6px;">Не рекомендация «купить/продать» — синтез того, что уже видно в метриках, карточках компаний и новостном фоне.</p>
+    <div class="callout" style="max-width:760px; margin-bottom:22px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+      <p>⚠ В исходном контенте этой вкладки был пункт про «долю экспортёра (Лукойл)» — такой бумаги в портфеле нет (SBER/T/YDEX). Похоже на рассинхронизацию тестовых данных с реальным составом — не переношу этот пункт молча, оставляю как открытый вопрос на бэкенд.</p></div>
+
+    <!-- ИСТОЧНИКИ АНАЛИЗА — явно видно, откуда выводы, это и есть "снижаем неопределённость" -->
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:22px;">
+      <div class="card reveal" style="padding:16px 18px;"><div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--ink-3); margin-bottom:6px;">📊 Метрики портфеля</div><p style="font-size:12.5px; color:var(--ink-2);">Индекс качества, риск-метрики, корреляции — вкладки «Состав», «Риск», «Матрица»</p></div>
+      <div class="card reveal" style="padding:16px 18px;"><div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--ink-3); margin-bottom:6px;">🏢 Карточки компаний</div><p style="font-size:12.5px; color:var(--ink-2);">Фундаментал, governance, дивидендная история по каждой позиции</p></div>
+      <div class="card reveal" style="padding:16px 18px;"><div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--ink-3); margin-bottom:6px;">🌐 Новостной фон</div><p style="font-size:12.5px; color:var(--ink-2);">Обозреватель: макро, геополитика, сектор-специфичные события</p></div>
+    </div>
+
+    <!-- ФАКТОРНЫЙ ПРОФИЛЬ ПОРТФЕЛЯ — агрегация чувствительностей бумаг из карточек компаний, пока НЕ влияет на Индекс качества -->
+    <div class="card reveal" style="padding:24px 26px; margin-bottom:22px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <h3 class="serif" style="font-size:18px; font-weight:600;">Факторный профиль портфеля</h3>
+        <span class="tag-judgment">суждение</span>
+      </div>
+      <p style="font-size:13px; color:var(--ink-2); margin-bottom:16px;">Чувствительности бумаг к макрофакторам (из карточек компаний), взвешенные по доле в портфеле. Отвечает на вопрос «на что портфель делает ставку», которого не было ни в одной вкладке.</p>
+      <div class="fx-row">
+        <div class="fx-name">Ключевая ставка ЦБ</div>
+        <div class="fx-track"><div class="fx-fill neg anim-bar" style="width:41%;"></div></div>
+        <div class="fx-val d-bad">−82%</div>
+      </div>
+      <div class="fx-row">
+        <div class="fx-name">Курс рубля</div>
+        <div class="fx-track"><div class="fx-fill neg anim-bar" style="width:9%;"></div></div>
+        <div class="fx-val d-bad">−18%</div>
+      </div>
+      <p style="font-size:11.5px; color:var(--ink-3); margin-top:12px;">Санкции, инфляция, мировой спрос, ВВП, цены сырья — для этого состава направление смешанное или неочевидное (нет прямых экспортёров/импортёров с выраженным перекосом). Не рисуем как стрелку в одну сторону — это была бы ложная точность.</p>
+      <div class="ac-toggle" onclick="toggleArticle(this)">Какие бумаги формируют экспозицию к ставке ▾</div>
+      <div class="ac-full">
+        <p><b>SBER, T (банки, ~70% портфеля).</b> Эффект двоякий: рост ставки расширяет процентную маржу, но охлаждает кредитование и повышает стоимость фондирования; на практике при резком/быстром росте чистый эффект для оценки банка — отрицательный.</p>
+        <p><b>YDEX (~30% портфеля).</b> Рост ставки повышает ставку дисконтирования будущих прибылей и снижает оценку growth-историй — классический канал для компаний роста.</p>
+        <p style="font-size:12px; color:var(--ink-3);"><b>Ограничение честности.</b> Для YDEX направление и сила взяты из заполненного профиля чувствительности карточки компании. Для SBER/T пока нет отдельно заполненного поля — оценка выше построена по общей секторной логике, а не по карточке конкретной компании. Прежде чем показывать это пользователю как готовую функцию, это стоит сверить с бэкендом (заполнены ли профили чувствительности для всех бумаг портфеля, не только для части).</p>
+      </div>
+      <div class="callout" style="margin-top:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+        <p><b>Куда это ведёт.</b> Тот же профиль может стать движком Стресс-теста: сценарий = сдвиг по этим факторам × экспозиции бумаг — вместо сегодняшних ручных пометок «высокая/умеренная чувствительность» на вкладке «Стресс-тест». Также он и есть недостающий макро/гео-слой для субиндекса «Устойчивость к рынку» на вкладке «Состав» — сейчас профиль только показан, в балл не входит.</p></div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:22px;">
+      <div>
+        <h3 class="serif" style="font-size:17px; font-weight:600; margin-bottom:12px; color:var(--up);">Щит портфеля</h3>
+        <div class="card reveal" style="padding:16px 18px; margin-bottom:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;"><p style="font-size:13.5px;">Высокая ожидаемая дивидендная доходность (~11% годовых) — подушка безопасности вне зависимости от движения цены.</p></div>
+          <span class="tag-fact" style="margin-top:8px; display:inline-flex;">источник: метрики портфеля</span>
+        </div>
+        <div class="card reveal" style="padding:16px 18px; margin-bottom:10px;">
+          <p style="font-size:13.5px;">Яндекс — единственная позиция вне финансового сектора, защищает от стагнации именно банковского цикла, добавляет фактор роста.</p>
+          <span class="tag-fact" style="margin-top:8px; display:inline-flex;">источник: карточка компании YDEX</span>
+        </div>
+      </div>
+      <div>
+        <h3 class="serif" style="font-size:17px; font-weight:600; margin-bottom:12px; color:var(--down);">Уязвимости</h3>
+        <div class="card reveal" style="padding:16px 18px; margin-bottom:10px;">
+          <p style="font-size:13.5px;">Жёсткая концентрация в 3 бумагах — риск отдельного корпоративного события критичен для всего портфеля.</p>
+          <span class="tag-fact" style="margin-top:8px; display:inline-flex;">источник: индекс качества (диверсификация 18/100)</span>
+        </div>
+        <div class="card reveal" style="padding:16px 18px; margin-bottom:10px;">
+          <p style="font-size:13.5px;">70% портфеля — финансовый сектор, зависимый от траектории ключевой ставки ЦБ.</p>
+          <span class="tag-fact" style="margin-top:8px; display:inline-flex;">источник: секторное распределение + макрообзор</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="deep-card reveal" style="max-width:920px;">
+      <div class="deep-eyebrow">Резюме · суждение Basis, иллюстративно</div>
+      <h3>Что видно из совокупности данных</h3>
+      <p style="margin-bottom:16px;">Портфель — концентрированная ставка на три российские голубые фишки с перекосом в финансовый сектор и дивидендную историю. Хорошо держит инфляционный сценарий за счёт дивдоходности, но слабо диверсифицирован (одна из трёх бумаг — вне финансового сектора) и уязвим к сценарию жёсткой ДКП.</p>
+      <div style="border-top:1px solid var(--line); padding-top:14px;">
+        <div style="font-weight:600; font-size:14px; margin-bottom:8px;">О чём стоило бы подумать — не рекомендация, варианты для рассмотрения</div>
+        <p>Если приоритет — снизить синхронность просадок: секторы вне Финансов/IT слабо представлены в портфеле сейчас. Если приоритет — сохранить текущую ставку на сектор: стоит смотреть на устойчивость выплат SBER к сценарию повышения ставки (см. Стресс-тест).</p>
+      </div>
+    </div>
+
+    <!-- МОСТИК ОТ ДИАГНОЗА К РЕШЕНИЮ — пока честная заглушка, не готовый расчёт -->
+    <div class="card soon-card reveal" style="padding:20px 22px; margin-top:16px; max-width:920px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-weight:700; font-size:14px; margin-bottom:4px;">Проверить гипотезу: а если добавить бумагу?</div>
+          <p style="font-size:12.5px; color:var(--ink-2);">Задать тикер и вес — увидеть, как изменятся Индекс качества, диверсификация и стресс-тест до фактической сделки.</p>
+        </div>
+        <span class="badge-soon">Скоро</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== СТРЕСС-ТЕСТ ===================== -->
+  <div class="panel" id="panel-stress">
+    <div class="sec-head"><span class="eyebrow">Разбор</span><h2>Стресс-тест</h2></div>
+    <p style="color:var(--ink-2); font-size:13px; max-width:760px; margin-bottom:20px;">Оценка по текущей структуре портфеля — гипотетический сценарий, не прогноз. Выберите сценарий, чтобы увидеть разбивку по бумагам.</p>
+
+    <div class="stress-grid" style="margin-bottom:22px;">
+      <div class="stress-card on" onclick="selectStress(this,'rate')">
+        <div class="stress-name">Ставка ЦБ +5%</div>
+        <div class="stress-mech">Ключевая ставка резко растёт — давит на оценку акций и стоимость долга</div>
+      </div>
+      <div class="stress-card" onclick="selectStress(this,'black-swan')">
+        <div class="stress-name">Чёрный лебедь</div>
+        <div class="stress-mech">Резкая просадка всего рынка на 20% без конкретной причины</div>
+      </div>
+      <div class="stress-card" onclick="selectStress(this,'oil')">
+        <div class="stress-name">Крах нефти ($40)</div>
+        <div class="stress-mech">Цена нефти падает до $40/барр — давление на экспортёров и бюджет</div>
+      </div>
+      <div class="stress-card custom" onclick="selectStress(this,'custom')">
+        <div class="stress-name">+ Свой сценарий</div>
+        <div class="stress-mech">Задать собственные параметры шока</div>
+      </div>
+    </div>
+    <p style="font-size:11.5px; color:var(--ink-3); margin-bottom:20px; max-width:760px;">Каждый готовый сценарий соответствует одному из факторов в «Факторном профиле портфеля» (вкладка «ИИ-Диагноз»). Разбивка по бумагам ниже пока считается вручную по бете и отраслевым коэффициентам — план: считать её напрямую от факторного профиля, без ручных пометок «высокая/умеренная».</p>
+
+    <div id="stressDetail-rate" class="stress-detail">
+      <div class="card reveal" style="padding:24px 26px; margin-bottom:16px;">
+        <div style="display:flex; gap:30px; flex-wrap:wrap; margin-bottom:18px;">
+          <div><div class="kpi-lbl">Ожидаемое падение портфеля</div><div class="kpi-val d-bad" style="font-size:30px;">−11,8%</div></div>
+          <div><div class="kpi-lbl">Потеря стоимости</div><div class="kpi-val d-bad" style="font-size:30px;">−132 852 ₽</div></div>
+        </div>
+        <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--ink-3); margin-bottom:10px;">Разбивка по бумагам</div>
+        <table class="pos-table">
+          <thead><tr><th>Актив</th><th>Чувствительность</th><th>Оценка падения</th><th>Потеря, ₽</th></tr></thead>
+          <tbody>
+            <tr><td><b>Сбербанк</b> <span class="mono" style="color:var(--ink-3);">SBER</span></td><td>высокая <span style="font-size:11px; color:var(--ink-3);">(длинная дюрация оценки)</span></td><td class="d-bad">−15,2%</td><td class="d-bad">−68 493 ₽</td></tr>
+            <tr><td><b>Т-Технологии</b> <span class="mono" style="color:var(--ink-3);">T</span></td><td>высокая <span style="font-size:11px; color:var(--ink-3);">(банковский блок)</span></td><td class="d-bad">−13,8%</td><td class="d-bad">−46 094 ₽</td></tr>
+            <tr><td><b>Яндекс</b> <span class="mono" style="color:var(--ink-3);">YDEX</span></td><td>умеренная</td><td class="d-bad">−5,4%</td><td class="d-bad">−18 265 ₽</td></tr>
+          </tbody>
+        </table>
+        <div class="callout" style="margin-top:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+          <p><b>Интерпретация платформы.</b> Наиболее чувствителен банковский блок и бумаги с длинной дюрацией оценки. Резкий рост ставки одновременно бьёт по 70% портфеля (Финансы) — та же концентрация, что видна в Индексе качества.</p></div>
+      </div>
+    </div>
+
+    <div id="stressDetail-black-swan" class="stress-detail" style="display:none;">
+      <div class="card reveal" style="padding:24px 26px;">
+        <div style="display:flex; gap:30px; flex-wrap:wrap; margin-bottom:18px;">
+          <div><div class="kpi-lbl">Ожидаемое падение портфеля</div><div class="kpi-val d-bad" style="font-size:30px;">−20,0%</div></div>
+          <div><div class="kpi-lbl">Потеря стоимости</div><div class="kpi-val d-bad" style="font-size:30px;">−225 174 ₽</div></div>
+        </div>
+        <p style="font-size:12.5px; color:var(--ink-3);">При равномерном рыночном шоке разбивка по бумагам близка к их бете — YDEX (бета 1,00) просядет пропорционально сильнее SBER (бета 0,56).</p>
+      </div>
+    </div>
+
+    <div id="stressDetail-oil" class="stress-detail" style="display:none;">
+      <div class="card reveal" style="padding:24px 26px;">
+        <div style="display:flex; gap:30px; flex-wrap:wrap; margin-bottom:18px;">
+          <div><div class="kpi-lbl">Ожидаемое падение портфеля</div><div class="kpi-val d-bad" style="font-size:30px;">−6,5%</div></div>
+          <div><div class="kpi-lbl">Потеря стоимости</div><div class="kpi-val d-bad" style="font-size:30px;">−73 181 ₽</div></div>
+        </div>
+        <p style="font-size:12.5px; color:var(--ink-3);">В портфеле нет прямых нефтегазовых экспортёров — эффект в основном вторичный, через общий рыночный настрой и курс рубля.</p>
+      </div>
+    </div>
+
+    <div id="stressDetail-custom" class="stress-detail" style="display:none;">
+      <div class="card reveal" style="padding:24px 26px;">
+        <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--ink-3); margin-bottom:14px;">Параметры своего сценария</div>
+        <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px;">
+          <div class="edit-field"><label>Ключевая ставка, п.п.</label><input type="text" value="+2" style="width:100px;"></div>
+          <div class="edit-field"><label>Индекс МосБиржи, %</label><input type="text" value="-10" style="width:100px;"></div>
+          <div class="edit-field"><label>Курс USD/RUB, %</label><input type="text" value="+5" style="width:100px;"></div>
+          <div class="edit-btn save" style="align-self:flex-end;" onclick="alert('Пересчёт по заданным параметрам — на бэкенде')">Пересчитать</div>
+        </div>
+        <p style="font-size:12px; color:var(--ink-3);">Задайте собственную комбинацию макро-шоков — платформа применит чувствительности (бета, отраслевые коэффициенты) каждой бумаги к вашему сценарию.</p>
+        <p style="font-size:11px; color:var(--ink-3); margin-top:8px;">Открытый вопрос по реализации: пересчёт здесь — та же лёгкая инфраструктура, что и для обычных сделок, или отдельная, более тяжёлая модель чувствительности? Сейчас кнопка «Пересчитать» — заглушка.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const revealIO = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){ e.target.classList.add('in'); revealIO.unobserve(e.target); }
+  });
+},{threshold:.08});
+function observeReveals(scope){
+  (scope || document).querySelectorAll('.reveal:not(.in)').forEach(el=>revealIO.observe(el));
+}
+function animateBars(scope){
+  const root = scope || document;
+  root.querySelectorAll('.anim-bar').forEach(el=>{
+    const target = el.style.width;
+    if(!target || el.dataset.animated === target) return;
+    el.style.width = '0%';
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        el.style.width = target;
+        el.dataset.animated = target;
+      });
+    });
+  });
+  root.querySelectorAll('.anim-donut').forEach(el=>{
+    const len = parseFloat(el.dataset.len), gap = parseFloat(el.dataset.gap);
+    if(isNaN(len) || el.dataset.animated) return;
+    el.style.strokeDasharray = `0 ${len+gap}`;
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        el.style.strokeDasharray = `${len} ${gap}`;
+        el.dataset.animated = '1';
+      });
+    });
+  });
+}
+function switchPanel(panelKey){
+  document.querySelectorAll('.sb-item').forEach(x=>x.classList.remove('active'));
+  const item = document.querySelector('.sb-item[data-panel="'+panelKey+'"]');
+  if(item) item.classList.add('active');
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  const p = document.getElementById('panel-'+panelKey);
+  if(p){ p.classList.add('active'); animateBars(p); observeReveals(p); }
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('.sb-item').forEach(item=>{
+  item.addEventListener('click',()=>switchPanel(item.dataset.panel));
+});
+function setEditMode(ticker, mode, el){
+  document.querySelectorAll('#edit-'+ticker+' .seg-opt').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById(ticker+'-mode-trade').style.display = mode==='trade' ? '' : 'none';
+  document.getElementById(ticker+'-mode-fix').style.display = mode==='fix' ? '' : 'none';
+}
+function pnlColor(pct){
+  // диверг. градиента: красный (убыток) -> медный (около нуля) -> зелёный (прибыль)
+  const down=[184,80,63], mid=[201,122,74], up=[62,132,100];
+  const clamp = Math.max(-12, Math.min(12, pct));
+  const lerp=(a,b,t)=>a.map((v,i)=>Math.round(v+(b[i]-v)*t));
+  const c = clamp<=0 ? lerp(down,mid,(clamp+12)/12) : lerp(mid,up,clamp/12);
+  return 'rgb('+c[0]+','+c[1]+','+c[2]+')';
+}
+document.querySelectorAll('.pnl-dot').forEach(el=>{
+  const pct = parseFloat(el.dataset.pnl);
+  if(!isNaN(pct)) el.style.background = pnlColor(pct);
+});
+function toggleDropdown(id){
+  const dd = document.getElementById(id);
+  const wasOpen = dd.classList.contains('open');
+  document.querySelectorAll('.custom-dd.open').forEach(x=>x.classList.remove('open'));
+  if(!wasOpen) dd.classList.add('open');
+}
+document.addEventListener('click', function(ev){
+  document.querySelectorAll('.custom-dd.open').forEach(dd=>{
+    if(!dd.contains(ev.target)) dd.classList.remove('open');
+  });
+});
+function scrollToMetric(key){
+  const el = document.getElementById('metric-'+key);
+  if(!el) return;
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+  el.classList.remove('flash');
+  void el.offsetWidth;
+  el.classList.add('flash');
+}
+function corrColor(v){
+  // диверг. шкала: зелёный (−1, хорошо разбавляет риск) → нейтральный (0) → красный (+1, риск не разбавляет)
+  const red=[184,80,63], neutral=[239,234,224], green=[62,132,100];
+  const clamp = Math.max(-1, Math.min(1, v));
+  const lerp=(a,b,t)=>a.map((c,i)=>Math.round(c+(b[i]-c)*t));
+  return clamp>=0 ? lerp(neutral,red,clamp) : lerp(neutral,green,-clamp);
+}
+document.querySelectorAll('.corr-cell:not(.corr-diag)').forEach(el=>{
+  const v = parseFloat(el.dataset.corr);
+  if(isNaN(v)) return;
+  const c = corrColor(v);
+  setTimeout(()=>{
+    el.style.background = `rgb(${c[0]},${c[1]},${c[2]})`;
+    el.style.color = Math.abs(v) > 0.42 ? '#fff' : 'var(--ink)';
+  }, 120);
+});
+function toggleArticle(el){
+  if(!el.dataset.label) el.dataset.label = el.textContent;
+  const full = el.nextElementSibling;
+  const open = full.classList.toggle('open');
+  el.textContent = open ? 'Свернуть ▴' : el.dataset.label;
+}
+function goToCompany(ticker){
+  alert('Переход в карточку компании: ' + ticker + ' (раздел «Рынок»)');
+}
+function toggleEditRow(ticker){
+  document.querySelectorAll('.edit-panel').forEach(p=>{ if(p.id!=='edit-'+ticker) p.classList.remove('open'); });
+  document.getElementById('edit-'+ticker).classList.toggle('open');
+}
+function selectStress(el, key){
+  document.querySelectorAll('.stress-card').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  document.querySelectorAll('.stress-detail').forEach(d=>d.style.display='none');
+  document.getElementById('stressDetail-'+key).style.display='';
+}
+const seriesLib = {
+  portfolio:  {label:'Портфель', color:'var(--copper)', removable:false, data:[0,4,9,15,8,3,10,18,12,20,16,22,19,24,21,22.6]},
+  mcftr:      {label:'MCFTR (с дивидендами)', color:'#7A8CA8', removable:false, data:[0,2,4,1,-3,-5,-2,1,-4,-6,-3,-1,-4,-2,-3,-1.2]},
+  imoex:      {label:'IMOEX (ценовой)', color:'var(--ink-3)', removable:false, data:[0,1,2,-1,-4,-6,-4,-2,-5,-7,-5,-3,-5,-4,-4,-3.5]},
+  sber_tr:    {label:'Сбербанк (полная доходность)', color:'#1F5FC4', removable:true, data:[0,3,7,10,6,4,9,14,10,17,15,19,17,21,19,20.1]},
+  portfolio2: {label:'Второй портфель', color:'#8A4A26', removable:true, data:[0,1,3,2,0,-2,1,3,1,4,2,5,3,6,4,5.4]},
+  oil_lqdt:   {label:'Нефть и газ ÷ LQDT', color:'#B8503F', removable:true, data:[0,-1,-3,-4,-6,-7,-5,-8,-9,-8,-10,-8,-9,-11,-10,-11.4]}
+};
+let activeSeries = ['portfolio','mcftr','imoex'];
+
+function renderLegend(){
+  const el = document.getElementById('benchLegend');
+  if(!el) return;
+  el.innerHTML = activeSeries.map(key=>{
+    const s = seriesLib[key];
+    const remove = s.removable ? ` <span class="legend-remove" onclick="removeComparisonLine(\'${key}\')" title="Убрать из сравнения">×</span>` : '';
+    return `<span><i style="background:${s.color};"></i>${s.label}${remove}</span>`;
+  }).join('');
+}
+function addComparisonLine(key){
+  if(!activeSeries.includes(key)) activeSeries.push(key);
+  renderBenchChart();
+}
+function removeComparisonLine(key){
+  activeSeries = activeSeries.filter(k=>k!==key);
+  renderBenchChart();
+}
+function toggleCompareBuilder(){
+  const el = document.getElementById('compareBuilder');
+  if(el) el.style.display = (el.style.display==='none' || !el.style.display) ? 'block' : 'none';
+}
+function setCompareMode(mode, el){
+  document.querySelectorAll('#compareModeToggle .seg-opt').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('compare-mode-asset').style.display = mode==='asset' ? '' : 'none';
+  document.getElementById('compare-mode-portfolio').style.display = mode==='portfolio' ? '' : 'none';
+  document.getElementById('compare-mode-custom').style.display = mode==='custom' ? '' : 'none';
+}
+function renderBenchChart(){
+  const svg = document.getElementById('benchChart');
+  if(!svg) return;
+  const W=1000,H=220,padL=50,padR=14,padT=14,padB=24;
+  const plotW=W-padL-padR, plotH=H-padT-padB;
+  const activeData = activeSeries.map(k=>seriesLib[k].data);
+  const n = activeData[0].length;
+  const flat = activeData.flat();
+  const vmin=Math.min(...flat)-3, vmax=Math.max(...flat)+3;
+  const xAt=i=>padL+i*(plotW/(n-1)), yAt=v=>padT+plotH-((v-vmin)/(vmax-vmin))*plotH;
+  let s = `<defs><linearGradient id="portfolioFill" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="var(--copper)" stop-opacity="0.26"/>
+    <stop offset="100%" stop-color="var(--copper)" stop-opacity="0"/>
+  </linearGradient></defs>`;
+  [0,vmin+(vmax-vmin)/2,vmax].forEach(v=>{
+    const y=yAt(v);
+    s+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="var(--line)" stroke-width="1" stroke-dasharray="2,6"/>`;
+    s+=`<text x="${padL-8}" y="${y+4}" text-anchor="end" font-family="IBM Plex Mono" font-size="10.5" fill="var(--ink-3)">${v.toFixed(0)}%</text>`;
+  });
+  if(activeSeries.includes('portfolio')){
+    const d = seriesLib.portfolio.data;
+    const pts = d.map((v,i)=>`${xAt(i)},${yAt(v)}`).join(' ');
+    const baseY = padT+plotH;
+    s += `<polygon points="${xAt(0)},${baseY} ${pts} ${xAt(n-1)},${baseY}" fill="url(#portfolioFill)"/>`;
+  }
+  activeSeries.forEach(key=>{
+    const d = seriesLib[key].data;
+    s+=`<polyline points="${d.map((v,i)=>`${xAt(i)},${yAt(v)}`).join(' ')}" fill="none" stroke="${seriesLib[key].color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  });
+  if(activeSeries.includes('portfolio')){
+    const d = seriesLib.portfolio.data;
+    const lastV = d[d.length-1];
+    const cx = xAt(n-1), cy = yAt(lastV);
+    s += `<circle cx="${cx}" cy="${cy}" r="4.5" fill="var(--copper)" stroke="var(--tan-surface)" stroke-width="2.5"/>`;
+    const sign = lastV>=0 ? '+' : '';
+    const labelX = Math.max(cx-120, padL);
+    s += `<text x="${labelX}" y="${Math.max(cy-12,16)}" font-family="Inter" font-size="12.5" font-weight="700" fill="var(--copper-deep)">сейчас ${sign}${lastV.toFixed(1)}%</text>`;
+  }
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.innerHTML=s;
+  renderLegend();
+}
+window.addEventListener('DOMContentLoaded', function(){
+  renderBenchChart();
+  animateBars(document.querySelector('.panel.active'));
+  observeReveals(document.querySelector('.panel.active'));
+});
+</script>
+</body>
+</html>

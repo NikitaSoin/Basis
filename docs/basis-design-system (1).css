@@ -1,0 +1,219 @@
+/* ============================================================================
+   BASIS DESIGN SYSTEM — переносимый визуальный слой
+   ============================================================================
+   Что это: только внешний вид (шрифты, цвета, отступы, кнопки, чипы, теги,
+   карточки, dropdown). НЕ содержит разметки конкретных страниц/разделов —
+   это универсальный набор, применимый к любой странице платформы.
+
+   Как подключить:
+   1. Загрузить шрифты (см. FONTS ниже) — либо через Google Fonts <link>,
+      либо self-host, если так принято на платформе по требованиям
+      приватности/производительности.
+   2. Подключить этот файл ПОСЛЕ текущих стилей сайта, чтобы токены
+      могли переопределить старые (или подключить раньше и повысить
+      специфичность — зависит от текущей архитектуры CSS сайта).
+   3. ПЕРЕД подключением проверить пересечение имён CSS-переменных
+      с уже существующими на платформе (--surface, --line и т.п.) —
+      если такие есть, переименовать здесь во избежание конфликта.
+   4. HTML-разметку менять НЕ нужно для базовых элементов — если на сайте
+      уже используются классы вроде .card/.chip с другим значением,
+      нужно решить: заменить их использование на классы отсюда, или
+      переименовать классы в этом файле под другой префикс (например
+      .bs-card, .bs-chip), чтобы не конфликтовать со старыми стилями.
+
+   Тёмная тема: сейчас не вынесена в отдельный [data-theme] переключатель —
+   тёмные поверхности (--deep-*) используются как отдельная палитра для
+   конкретных компонентов (deep-card), а не как альтернативная тема всего
+   сайта. Если на платформе уже есть светлая/тёмная тема с другой логikой,
+   это нужно свести отдельно — не выведено автоматически.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   FONTS — подключить перед этим файлом:
+   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+--------------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------------
+   ТОКЕНЫ — единый источник правды для цвета/шрифта/радиуса/тени
+--------------------------------------------------------------------------- */
+:root{
+  /* поверхности и текст (светлая тема) */
+  --surface:#F7F5F0; --surface-2:#FFFFFF; --surface-3:#EFEAE0;
+  --ink:#161510; --ink-2:#5C574A; --ink-3:#8C8672;
+  --line:#DCD5C2; --line-2:#CFC6AC;
+
+  /* тёмные поверхности — для акцентных карточек интерпретации/сайдбара, не альтернативная тема */
+  --deep:#12131A; --deep-2:#1B1C26; --deep-3:#24252F; --deep-line:#33343F;
+  --deep-ink:#EDEBE3; --deep-ink2:#9B9AA8; --deep-ink3:#6C6B78;
+
+  /* акцентный цвет платформы */
+  --copper:#C97A4A; --copper-soft:#F0DDCC; --copper-deep:#8A4A26;
+  --copper-glow:rgba(201,122,74,.35);
+
+  /* направление изменения (рост/падение) — используется везде, где есть % или дельта */
+  --up:#3E8464; --up-soft:#E4F3EA;
+  --down:#B8503F; --down-soft:#FBEAEA;
+
+  /* эпистемический уровень "оценка" (между фактом и суждением) */
+  --estimate:#1F5FC4; --estimate-soft:#E5EEFB;
+
+  /* типографика */
+  --serif:'Fraunces',Georgia,serif;      /* заголовки */
+  --sans:'Inter',system-ui,sans-serif;   /* интерфейс, текст */
+  --mono:'IBM Plex Mono',monospace;      /* числа, тикеры, даты */
+
+  /* геометрия и движение */
+  --radius:12px;
+  --ease:cubic-bezier(.25,.7,.4,1);
+}
+
+/* ---------------------------------------------------------------------------
+   RESET / БАЗОВАЯ ТИПОГРАФИКА
+--------------------------------------------------------------------------- */
+*{box-sizing:border-box;}
+body{font-family:var(--sans); background:var(--surface); color:var(--ink); font-size:14.5px; line-height:1.55;}
+.mono{font-family:var(--mono); font-variant-numeric:tabular-nums; letter-spacing:-.01em;}
+.serif{font-family:var(--serif);}
+a{color:inherit;}
+@media(prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important;}}
+
+/* цвет по направлению — использовать на любой цифре с ростом/падением */
+.d-bad{color:var(--down);} .d-good{color:var(--up);} .d-neutral{color:var(--ink-3);}
+
+/* ---------------------------------------------------------------------------
+   ЭПИСТЕМИЧЕСКИЕ ТЕГИ — факт / оценка / суждение
+   Продуктовый принцип Basis: явно различать данность, модель и интерпретацию.
+   Использовать на каждом выводе/числе, где уместно.
+--------------------------------------------------------------------------- */
+.tag-fact{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:4px 9px; border-radius:6px; background:var(--surface-3); color:var(--ink-2);}
+.tag-estimate{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:4px 9px; border-radius:6px; background:var(--estimate-soft); color:var(--estimate);}
+.tag-judgment{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:4px 9px; border-radius:6px; background:var(--copper-soft); color:var(--copper-deep);}
+.tag-judgment::before{content:'◆'; font-size:8px;}
+
+/* тег направления сектора/фактора (попутный/встречный/нейтрально) */
+.wind-tag{display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:3px 8px; border-radius:6px;}
+.wind-up{background:var(--up-soft); color:var(--up);}
+.wind-down{background:var(--down-soft); color:var(--down);}
+.wind-neutral{background:var(--surface-3); color:var(--ink-3);}
+
+/* ---------------------------------------------------------------------------
+   ЗАГОЛОВОК СЕКЦИИ — метка раздела ("Данные"/"Рынок"/"Разбор") + заголовок
+--------------------------------------------------------------------------- */
+.sec-head{display:flex; align-items:baseline; gap:13px; margin-bottom:26px;}
+.sec-head .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--copper-deep); background:var(--copper-soft); padding:4px 11px; border-radius:6px;}
+.sec-head h2{font-family:var(--serif); font-size:27px; font-weight:600;}
+
+/* ---------------------------------------------------------------------------
+   КАРТОЧКИ
+--------------------------------------------------------------------------- */
+.card{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); transition:box-shadow .18s;}
+
+/* акцентная тёмная карточка — для интерпретации/суждений, НЕ фон всей страницы */
+.deep-card{background:var(--deep-2); border:1px solid var(--deep-line); border-radius:var(--radius); color:var(--deep-ink); padding:26px 28px;}
+.deep-card .deep-eyebrow{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--deep-ink3); margin-bottom:12px;}
+.deep-card h3{font-family:var(--serif); font-size:20px; font-weight:600; margin-bottom:12px;}
+.deep-card p{color:var(--deep-ink2); font-size:13.5px; line-height:1.7;}
+.deep-chip-sector{background:rgba(201,122,74,.22); color:var(--copper); font-size:11.5px; font-weight:600; padding:5px 12px; border-radius:99px;}
+.deep-chip-ticker{background:var(--deep-3); border:1px solid var(--deep-line); color:var(--deep-ink); font-family:var(--mono); font-size:11px; font-weight:600; padding:4px 10px; border-radius:6px;}
+
+/* callout-плашка — короткая врезка "На что влияет" / "Интерпретация Basis" */
+.callout{display:flex; gap:10px; align-items:flex-start; background:var(--copper-soft); border-radius:10px; padding:14px 16px;}
+.callout svg{flex:none; width:16px; height:16px; color:var(--copper-deep); margin-top:2px;}
+.callout p{color:var(--ink-2); font-size:13.5px; line-height:1.55;}
+.callout b{color:var(--ink);}
+
+/* маленький чип-цифра (метрика с подписью) */
+.chip-stat{display:inline-flex; flex-direction:column; gap:2px; background:var(--surface-3); border-radius:9px; padding:9px 14px;}
+.chip-stat .cs-lbl{font-size:10.5px; color:var(--ink-3); font-weight:600;}
+.chip-stat .cs-val{font-family:var(--mono); font-size:15px; font-weight:700;}
+
+/* выбираемая карточка-опция (например, выбор глубины отчёта) */
+.ai-plan{border:1.5px solid var(--line); border-radius:11px; padding:16px 18px; cursor:pointer; transition:border-color .15s, background .15s;}
+.ai-plan.on{border-color:var(--copper); background:var(--copper-soft);}
+
+/* ---------------------------------------------------------------------------
+   КНОПКИ
+--------------------------------------------------------------------------- */
+/* овальная кнопка-пилюля (использовать для CTA) */
+.pill{border-radius:999px; display:inline-flex; align-items:center; gap:6px; transition:box-shadow .15s, opacity .15s;}
+.pill:hover{box-shadow:0 6px 16px -6px rgba(0,0,0,.18);}
+
+/* ---------------------------------------------------------------------------
+   ФИЛЬТРЫ И ПЕРЕКЛЮЧАТЕЛИ
+--------------------------------------------------------------------------- */
+/* набор фильтр-чипов (Все / категория 1 / категория 2 ...) — множественные видимые опции */
+.filterbar{display:flex; gap:8px; flex-wrap:wrap;}
+.chip{padding:8px 16px; border-radius:999px; border:1px solid var(--line); background:var(--surface-2); color:var(--ink-2); font-size:13px; font-weight:600; cursor:pointer; transition:background .15s, border-color .15s, color .15s;}
+.chip:hover{border-color:var(--line-2);}
+.chip.active{background:var(--copper); border-color:var(--copper); color:#fff;}
+
+/* сегментированный переключатель (2-4 взаимоисключающих режима) — независимые кнопки,
+   НЕ sliding-thumb: заливка активной ограничена её собственным контентом, наехать не может */
+.seg-toggle{display:inline-flex; background:var(--surface-3); border-radius:99px; padding:4px; gap:2px;}
+.seg-opt{padding:9px 20px; font-size:13px; font-weight:700; color:var(--ink-2); cursor:pointer; border-radius:99px; white-space:nowrap; transition:background .16s var(--ease), color .16s var(--ease);}
+.seg-opt.on{background:var(--copper); color:#fff; box-shadow:0 3px 10px -2px var(--copper-glow);}
+.seg-opt:not(.on):hover{background:rgba(0,0,0,.045);}
+
+/* ---------------------------------------------------------------------------
+   КАСТОМНЫЙ DROPDOWN — заменяет нативный <select>, чтобы открытый список
+   тоже был в дизайн-системе (нативный select нельзя стилизовать в открытом
+   состоянии — это системный UI браузера/ОС).
+   Требует небольшой JS-логики (открытие/закрытие/click-outside) — см. пример
+   в конце файла.
+--------------------------------------------------------------------------- */
+.custom-dd{position:relative; display:inline-block;}
+.dd-trigger{display:inline-flex; align-items:center; gap:8px; background:var(--surface-3); border:1px solid var(--line); padding:8px 14px; border-radius:9px; font-family:var(--sans); font-size:12.5px; font-weight:600; color:var(--ink); cursor:pointer; transition:border-color .15s;}
+.dd-trigger:hover{border-color:var(--line-2);}
+.dd-trigger .dd-arrow{font-size:10px; color:var(--ink-3); transition:transform .15s;}
+.custom-dd.open .dd-trigger .dd-arrow{transform:rotate(180deg);}
+.dd-panel{position:absolute; top:calc(100% + 6px); left:0; min-width:220px; max-height:280px; overflow-y:auto; background:var(--surface-2); border:1px solid var(--line); border-radius:11px; box-shadow:0 14px 32px -10px rgba(0,0,0,.22); z-index:50; padding:6px; display:none;}
+.custom-dd.open .dd-panel{display:block;}
+.dd-option{padding:9px 12px; border-radius:7px; font-size:13px; color:var(--ink-2); cursor:pointer; transition:background .12s;}
+.dd-option:hover{background:var(--surface-3);}
+.dd-option.selected{background:var(--copper-soft); color:var(--copper-deep); font-weight:600;}
+
+/* ---------------------------------------------------------------------------
+   ГРАФИК: обёртка + тултип при наведении
+--------------------------------------------------------------------------- */
+.chart-wrap{position:relative;}
+.chart-wrap svg{width:100%; height:auto; cursor:crosshair; touch-action:none;}
+.chart-tooltip{position:absolute; background:var(--deep-2); border:1px solid var(--deep-line); border-radius:9px; padding:10px 13px; pointer-events:none; opacity:0; transition:opacity .1s; z-index:20; min-width:150px; box-shadow:0 8px 20px -6px rgba(0,0,0,.25);}
+.chart-tooltip, .chart-tooltip *{color:var(--deep-ink) !important;}
+.legend{display:flex; gap:22px; font-size:12px; color:var(--ink-2); margin-bottom:12px; flex-wrap:wrap;}
+.legend span{display:flex; align-items:center; gap:6px;}
+.legend i{width:15px; height:3px; display:inline-block; border-radius:2px;}
+
+/* ---------------------------------------------------------------------------
+   СВОРАЧИВАЕМЫЙ БЛОК (раскрытие "читать целиком / подробнее")
+   Продуктовый принцип: структура/вывод — видно сразу, полный текст — по клику.
+--------------------------------------------------------------------------- */
+.ac-toggle{font-size:12.5px; font-weight:700; color:var(--copper-deep); cursor:pointer; display:inline-flex; align-items:center; gap:5px;}
+.ac-full{display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--line);}
+.ac-full.open{display:block;}
+.ac-full p{font-size:13.5px; color:var(--ink-2); line-height:1.7; margin-bottom:10px;}
+.ac-full ul{padding-left:18px; color:var(--ink-2); font-size:13px; line-height:1.6; display:flex; flex-direction:column; gap:5px; margin-bottom:12px;}
+
+/* ---------------------------------------------------------------------------
+   МИНИМАЛЬНЫЙ JS ДЛЯ КОМПОНЕНТОВ ВЫШЕ (dropdown open/close, сворачивание)
+   Скопировать как есть — логика универсальна, не зависит от конкретной страницы.
+   ---------------------------------------------------------------------------
+
+   function toggleDropdown(id){
+     const dd = document.getElementById(id);
+     const wasOpen = dd.classList.contains('open');
+     document.querySelectorAll('.custom-dd.open').forEach(x=>x.classList.remove('open'));
+     if(!wasOpen) dd.classList.add('open');
+   }
+   document.addEventListener('click', function(ev){
+     document.querySelectorAll('.custom-dd.open').forEach(dd=>{
+       if(!dd.contains(ev.target)) dd.classList.remove('open');
+     });
+   });
+
+   function toggleCollapsible(el){
+     if(!el.dataset.label) el.dataset.label = el.textContent;
+     const full = el.nextElementSibling;
+     const open = full.classList.toggle('open');
+     el.textContent = open ? 'Свернуть ▴' : el.dataset.label;
+   }
+--------------------------------------------------------------------------- */
