@@ -1184,9 +1184,14 @@ def market_geo_map_svo_history(db: Session = Depends(get_db)):
     растёт естественно. Пусто до накопления первых записей — фронт должен
     прятать ползунок при пустом/однодневном списке."""
     from app.models.geo import GeoFrontlineSnapshot
-    rows = (db.query(GeoFrontlineSnapshot.snapshot_date, GeoFrontlineSnapshot.as_of)
+    rows = (db.query(GeoFrontlineSnapshot.snapshot_date, GeoFrontlineSnapshot.as_of,
+                     GeoFrontlineSnapshot.isw_area_km2)
             .filter_by(theater="svo").order_by(GeoFrontlineSnapshot.snapshot_date.asc()).all())
-    return {"dates": [{"date": d, "as_of": a} for d, a in rows]}
+    # isw_area_km2 отдаём наружу не для UI, а чтобы «мост» помесячного ряда был
+    # ПРОВЕРЯЕМ с бою: месяцы, до которых архив ISW ещё не дошёл, строятся именно
+    # из этой колонки, и её тихая пустота (pure_isw_area=None) обнаружилась бы
+    # только через месяц — дырой в графике вместо закрытого месяца.
+    return {"dates": [{"date": d, "as_of": a, "isw_area_km2": area} for d, a, area in rows]}
 
 
 @router.get("/market/geo-map/svo/history/{date}")
