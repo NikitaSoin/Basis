@@ -7,9 +7,22 @@
  * и коммитятся в repo как JSON-снапшоты (scripts/data/*-snapshot.json). Генератор
  * generate-seo-instruments.js читает ТОЛЬКО эти файлы — сборка от сети не зависит.
  *
- * ОБНОВЛЕНИЕ: запускать вручную/сессией перед пересборкой, когда данные пора
- * освежить (страницы явно показывают «данные на DD.MM.YYYY» из меты снапшота).
+ * ОБНОВЛЕНИЕ: шаг входит в `npm run build` с флагом --soft, поэтому снапшоты
+ * освежаются при каждом деплое сами. Руками — той же командой без флага:
  *   node scripts/fetch-seo-snapshots.js
+ *
+ * 🔴 ПОЧЕМУ ЭТО ПОПАЛО В СБОРКУ (найдено 2026-09-11): снапшоты bonds/funds/futures/spot
+ * последний раз снимали 30.07.2026, и все ~3900 страниц выпусков, фьючерсов и фондов
+ * шесть недель писали в сниппете «Данные на 30.07.2026» с устаревшими доходностью и ГО.
+ * Ручной шаг забывается — значит он не должен быть ручным.
+ *
+ * 🔴 ДВА ПРЕДОХРАНИТЕЛЯ, без которых автозапуск опаснее ручного:
+ *   1. --soft (режим сборки): сеть недоступна или API ответил ошибкой → печатаем и
+ *      выходим с кодом 0, оставляя ПРЕЖНИЕ снапшоты. Деплой не должен падать из-за
+ *      того, что бэкенд в этот момент перезапускался.
+ *   2. Пол по объёму: снапшот перезаписывается, только если строк не меньше 70% от
+ *      того, что уже лежит. Пустой или обрезанный ответ API иначе молча снёс бы
+ *      тысячи страниц — сборка при этом осталась бы зелёной.
  *
  * ВЕЖЛИВОСТЬ: ровно 5 GET-запросов списков (bonds, screener/bonds, funds, futures,
  * spot) с паузами — НИКАКИХ пер-бумажных запросов (3263 облигации приходят одним
@@ -22,6 +35,10 @@ const path = require("path");
 const API = process.env.BASIS_API || "https://nikitasoin-basis-a772.twc1.net";
 const DATA_DIR = path.join(__dirname, "data");
 const PAUSE_MS = 2500;
+// Режим сборки: не валить деплой из-за недоступного API (см. предохранитель 1 выше).
+const SOFT = process.argv.includes("--soft");
+// Доля от прежнего размера, ниже которой запись считается подозрительной (предохранитель 2).
+const MIN_KEEP_RATIO = 0.7;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -50,6 +67,17 @@ const BOND_FIELDS = [
 const SCREENER_FIELDS = { light: "light", vkind: "vkind", premium: "premium_bp", required: "required_bp" };
 
 function writeSnapshot(name, rows, extra) {
+  const p0 = path.join(DATA_DIR, `${name}-snapshot.json`);
+  // Пол по объёму: сравниваем с тем, что уже лежит. Меньше 70% прежнего — не пишем.
+  try {
+    const prev = JSON.parse(fs.readFileSync(p0, "utf8"));
+    const had = Array.isArray(prev.rows) ? prev.rows.length : (prev.count || 0);
+    if (had && rows.length < had * MIN_KEEP_RATIO) {
+      console.error(`${name}: ПРОПУСК — пришло ${rows.length} строк против ${had} прежних `
+        + `(меньше ${Math.round(MIN_KEEP_RATIO * 100)}%). Старый снапшот сохранён.`);
+      return false;
+    }
+  } catch { /* прежнего файла нет — пишем как есть */ }
   const out = {
     fetched_at: new Date().toISOString(),
     source: API,
@@ -60,6 +88,7 @@ function writeSnapshot(name, rows, extra) {
   const p = path.join(DATA_DIR, `${name}-snapshot.json`);
   fs.writeFileSync(p, JSON.stringify(out), "utf8");
   console.log(`${name}: ${rows.length} строк → ${p} (${Math.round(fs.statSync(p).size / 1024)} КБ)`);
+  return true;
 }
 
 async function main() {
@@ -102,4 +131,12 @@ async function main() {
   console.log("Готово. Снапшоты закоммитить вместе с генерацией.");
 }
 
-main().catch((e) => { console.error("Ошибка снапшота:", e.message); process.exit(1); });
+main().catch((e) => {
+  console.error("Ошибка снапшота:", e.message);
+  if (SOFT) {
+    console.error("Режим --soft: сборка продолжается на прежних снапшотах "
+      + "(страницы останутся с предыдущей датой данных, но не исчезнут).");
+    process.exit(0);
+  }
+  process.exit(1);
+});
