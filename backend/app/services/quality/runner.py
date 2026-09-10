@@ -17,7 +17,7 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from app.services.quality.contract import Check, CheckOutcome, Severity, Status
+from app.services.quality.contract import Check, CheckOutcome, Resolution, Severity, Status
 from app.services.quality.pipelines import get as get_pipeline
 
 COVERAGE_FLOOR = 0.5
@@ -34,6 +34,7 @@ class RunResult:
     soft_rate: float = 0.0
     valid: bool = True
     invalid_reason: str = ""
+    unresolved: int = 0
     per_check: dict[str, dict[str, Any]] = field(default_factory=dict)
     outcomes: list[CheckOutcome] = field(default_factory=list)
     golden: dict[str, Any] | None = None
@@ -43,6 +44,7 @@ class RunResult:
                 "subjects": self.subjects, "coverage": round(self.coverage, 4),
                 "score": round(self.score, 4), "soft_rate": round(self.soft_rate, 4),
                 "valid": self.valid, "invalid_reason": self.invalid_reason,
+                "unresolved": self.unresolved,
                 "per_check": self.per_check,
                 "golden": {k: v for k, v in (self.golden or {}).items() if k != "results"}}
 
@@ -71,6 +73,7 @@ def run(pipeline: str = "financials", *, limit: int | None = None,
              for c in checks}
     hard_hit: set[str] = set()
     soft_hit: set[str] = set()
+    unresolved: set[str] = set()
     unreadable = 0
 
     for subject in subjects:
@@ -87,6 +90,8 @@ def run(pipeline: str = "financials", *, limit: int | None = None,
                     stats[check.check_id]["skip_by_design"] += 1
                 if outcome.status is Status.FAIL:
                     (hard_hit if check.severity is Severity.HARD else soft_hit).add(subject)
+                    if outcome.resolution is Resolution.UNRESOLVED:
+                        unresolved.add(subject)
 
     res.subjects = len(subjects)
     if not subjects:
@@ -109,6 +114,10 @@ def run(pipeline: str = "financials", *, limit: int | None = None,
     res.coverage = covered_total / len(checks)
     res.score = 1 - len(hard_hit) / len(subjects)
     res.soft_rate = len(soft_hit - hard_hit) / len(subjects)
+    # 🔴 Отдельная строка, а не подмножество: у этих находок противоречие
+    # доказано, но чинить их правкой НЕЛЬЗЯ — нужен первоисточник. Смешивать их
+    # с «известно, что править» значит либо звать добытчика зря, либо угадывать.
+    res.unresolved = len(unresolved)
     if unreadable:
         res.per_check["_unreadable_subjects"] = {"count": unreadable}
 

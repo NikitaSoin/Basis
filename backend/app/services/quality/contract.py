@@ -27,6 +27,28 @@ class Severity(str, Enum):
     SOFT = "soft"    # подозрительно, требует глаз: расхождение с источником, свежесть
 
 
+class Resolution(str, Enum):
+    """Установлена ли ВИНОВНАЯ СТОРОНА противоречия.
+
+    🔴 Третье измерение находки, помимо «есть дефект» и «насколько тяжёлый».
+    От него зависит, что делать дальше, а это разные работы:
+
+    LOCATED    — известно, какое поле неверно: остальной файл или внешний
+                 источник согласованно указывают на одно значение. Чинится
+                 правкой. Так было с БЛНГ: мост, рентабельности и проза считали
+                 от −2041, а в поле стояло +190.
+    UNRESOLVED — противоречие доказано, виновная сторона НЕ установлена.
+                 Требует первоисточника, а не рассуждения. Так с Иркутом-2022:
+                 «перевёрнут знак чистой прибыли» и «перевёрнут знак прибыли до
+                 налога» арифметически неразличимы, а выручка засекречена по ГОЗ.
+
+    Различение подсказано сессией «статус обновления данных» (11.09.2026):
+    правка по неразличимой гипотезе — это угадывание с высокой ценой ошибки.
+    """
+    LOCATED = "located"
+    UNRESOLVED = "unresolved"
+
+
 @dataclass(frozen=True)
 class CheckOutcome:
     check_id: str            # стабильный id: 'fin.balance_identity'
@@ -35,6 +57,7 @@ class CheckOutcome:
     severity: Severity = Severity.SOFT
     message: str = ""
     evidence: dict[str, Any] = field(default_factory=dict)
+    resolution: Resolution | None = None
 
     @property
     def failed(self) -> bool:
@@ -48,7 +71,8 @@ class CheckOutcome:
     def as_dict(self) -> dict[str, Any]:
         return {"check_id": self.check_id, "subject": self.subject,
                 "status": self.status.value, "severity": self.severity.value,
-                "message": self.message, "evidence": self.evidence}
+                "message": self.message, "evidence": self.evidence,
+                "resolution": self.resolution.value if self.resolution else None}
 
 
 @dataclass(frozen=True)
@@ -75,8 +99,10 @@ def ok(check: Check, subject: str, message: str = "", **evidence) -> CheckOutcom
     return CheckOutcome(check.check_id, subject, Status.OK, check.severity, message, evidence)
 
 
-def fail(check: Check, subject: str, message: str, **evidence) -> CheckOutcome:
-    return CheckOutcome(check.check_id, subject, Status.FAIL, check.severity, message, evidence)
+def fail(check: Check, subject: str, message: str, *,
+         resolution: Resolution | None = None, **evidence) -> CheckOutcome:
+    return CheckOutcome(check.check_id, subject, Status.FAIL, check.severity, message,
+                        evidence, resolution)
 
 
 def skip(check: Check, subject: str, message: str = "нет данных", *,

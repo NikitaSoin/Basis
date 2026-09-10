@@ -16,7 +16,8 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from app.services import units
-from app.services.quality.contract import Check, CheckOutcome, Severity, fail, ok, skip
+from app.services.quality.contract import (Check, CheckOutcome, Resolution, Severity,
+                                           fail, ok, skip)
 
 _REGISTRY: dict[str, set[str]] | None = None
 
@@ -253,7 +254,8 @@ def _c_source_match(subject: str, payload: dict) -> Iterable[CheckOutcome]:
             for power in (1e-9, 1e-6, 1e-3, 1e3, 1e6, 1e9):
                 if abs(median / power - 1) < 0.05:
                     yield fail(C_SOURCE_MATCH, subject,
-                               f"первичка записана в единицах, отличных от объявленных: "
+                               resolution=Resolution.LOCATED,   # виновник назван: meta первички
+                               message=f"первичка записана в единицах, отличных от объявленных: "
                                f"расхождение ×{power:,.0f} на {len(diffs)} из {compared} строк "
                                f"(meta первички говорит «{(ext.get('meta') or {}).get('unit')}»)",
                                kind="unit_mismatch", factor=power,
@@ -263,7 +265,9 @@ def _c_source_match(subject: str, payload: dict) -> Iterable[CheckOutcome]:
     if diffs:
         line, y, av, bv, pct = max(diffs, key=lambda d: abs(d[4]))
         yield fail(C_SOURCE_MATCH, subject,
-                   f"расходится с первичкой в {len(diffs)} из {compared} сверок; худшее — "
+                   # арбитр есть: первичный отчёт эмитента
+                   resolution=Resolution.LOCATED,
+                   message=f"расходится с первичкой в {len(diffs)} из {compared} сверок; худшее — "
                    f"{line} за {y}: карточка {av:,.0f} против {bv:,.0f} в отчёте ({pct:+.0f}%)",
                    compared=compared, diffs=len(diffs),
                    worst=[line, y, av, bv])
@@ -472,6 +476,25 @@ def _tax_anomalies(rows, *, explained: bool = False):
     return [r for r in rows if r[1] > max(0.25, 3 * effective)], baseline
 
 
+def _roe_corroborates(card: dict, year: int, computed: float) -> bool | None:
+    """Согласна ли рентабельность капитала со ЗНАКОМ расчётной прибыли.
+
+    🔴 Единственный НЕЗАВИСИМЫЙ свидетель внутри файла. Проза таким свидетелем не
+    является: она пересказывает то же поле и по построению производна от него —
+    ссылаться на неё всё равно что ссылаться на само поле (довод сессии «статус
+    обновления данных»). А `returns.roe` считается отдельно и у БЛНГ был −18,3
+    при +190 в поле, то есть считался от ПРАВИЛЬНОГО числа.
+
+    True — подтверждает расчёт (виновник — само поле прибыли);
+    False — подтверждает файл (противоречие где-то ещё);
+    None — свидетеля нет."""
+    roe = by_year(card, "returns", "roe")
+    value = roe.get(year)
+    if value is None or abs(value) < 1e-9:
+        return None
+    return (value > 0) == (computed > 0)
+
+
 def _c_tax_sign(subject: str, payload: dict) -> Iterable[CheckOutcome]:
     """Ошибка ЗНАКА чистой прибыли: величина сходится с «до налога + налог»,
     а знак противоположный. Резкая подпись, законной причины не имеет.
@@ -490,9 +513,20 @@ def _c_tax_sign(subject: str, payload: dict) -> Iterable[CheckOutcome]:
     flips = [a for a in anomalies if a[2]]
     if flips:
         y, _, _, best, actual = flips[0]
+        witness = _roe_corroborates(card, y, best)
+        if witness is True:
+            tail = ("; рентабельность капитала за тот же год посчитана от расчётной "
+                    "величины — значит неверно само поле прибыли")
+            resolution = Resolution.LOCATED
+        else:
+            tail = ("; независимого свидетеля нет — «перевёрнут знак прибыли» и «перевёрнут "
+                    "знак прибыли до налога» арифметически неразличимы. Нужен первичный "
+                    "отчёт, а не правка по догадке")
+            resolution = Resolution.UNRESOLVED
         yield fail(C_TAX_SIGN, subject,
                    f"{y}: прибыль до налога и налог дают {best:,.0f}, а в файле {actual:,.0f} — "
-                   f"величина та же, знак противоположный",
+                   f"величина та же, знак противоположный{tail}",
+                   resolution=resolution,
                    years=[a[0] for a in flips], has_nci_field=_has_nci_field(card))
     else:
         yield ok(C_TAX_SIGN, subject, checked_years=len(rows))
@@ -532,7 +566,8 @@ def _c_tax_identity(subject: str, payload: dict) -> Iterable[CheckOutcome]:
 
     y, ratio, _, best, actual = max(anomalies, key=lambda a: a[1])
     yield fail(C_TAX_IDENTITY, subject,
-               f"{y}: расчёт {best:,.0f} против {actual:,.0f} в файле ({ratio:.0%} при базе "
+               resolution=Resolution.UNRESOLVED,
+               message=f"{y}: расчёт {best:,.0f} против {actual:,.0f} в файле ({ratio:.0%} при базе "
                f"карточки {baseline:.0%}) — не сходится ни при одном знаке налога. Законные "
                f"причины (прекращённая деятельность, доля неконтролирующих) в файле не "
                f"отмечены: такого поля в схеме нет, отличить нечем",
@@ -627,7 +662,8 @@ def _c_adjusted_bridge(subject: str, payload: dict) -> Iterable[CheckOutcome]:
         y, rep, add, exp, act, gap, flip = max(broken, key=lambda b: b[5])
         why = "знак не совпадает" if flip else f"разрыв {gap:.0%}"
         yield fail(C_ADJ_BRIDGE, subject,
-                   f"{y}: отчётная прибыль {rep:,.0f} + добавки моста {add:+,.0f} = {exp:,.0f}, "
+                   resolution=Resolution.UNRESOLVED,
+                   message=f"{y}: отчётная прибыль {rep:,.0f} + добавки моста {add:+,.0f} = {exp:,.0f}, "
                    f"а нормализованная в файле {act:,.0f} ({why}) — противоречие внутри файла",
                    years=[b[0] for b in broken], checked_years=len(years),
                    sign_flip=any(b[6] for b in broken))
@@ -694,7 +730,12 @@ def _c_cross_tab(subject: str, payload: dict) -> Iterable[CheckOutcome]:
         hard.sort(key=lambda f: f.get("diff_pct") or 0, reverse=True)
         f = hard[0]
         yield fail(C_CROSS_TAB, subject,
-                   f"{len(hard)} расхождений прозы с financials.json; худшее — "
+                   # 🔴 Проза карточки почти всегда производна от financials.json:
+                   # она пересказывает число, а не свидетельствует о нём. Поэтому
+                   # расхождение доказывает дрейф, но не говорит, какая сторона
+                   # права (довод сессии «статус обновления данных»).
+                   resolution=Resolution.UNRESOLVED,
+                   message=f"{len(hard)} расхождений прозы с financials.json; худшее — "
                    f"{f.get('file')} {f.get('year') or ''} {f.get('metric')}: "
                    f"разница {f.get('diff_pct')}% (в тексте «{f.get('in_text')}», "
                    f"в данных {f.get('fact_bln')} млрд)",
@@ -747,4 +788,4 @@ CHECKS: list[Check] = [C_ARITHMETIC, C_PROFIT_VS_REVENUE, C_SOURCE_MATCH,
 
 # Версия набора: меняется при добавлении/изменении проверок. Прогоны с разными
 # версиями сравнивать НЕЛЬЗЯ — иначе «качество выросло» окажется «проверок стало меньше».
-CHECKS_VERSION = "fin-1.5"  # 1.3: пропуск-норма (банк вне «выручки») не режет покрытие
+CHECKS_VERSION = "fin-1.6"  # 1.6: установлена ли виновная сторона  # 1.3: пропуск-норма (банк вне «выручки») не режет покрытие

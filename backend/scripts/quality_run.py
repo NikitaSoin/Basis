@@ -51,6 +51,9 @@ def print_run(res) -> None:
     if res.valid:
         print(f"  КАЧЕСТВО  {res.score:.1%}   (карточек без грубых находок)")
         print(f"  МЯГКИЕ    {res.soft_rate:.1%}   (ещё столько — с замечаниями)")
+        if res.unresolved:
+            print(f"  🔴 из них {res.unresolved} — противоречие доказано, ВИНОВНАЯ СТОРОНА НЕ "
+                  f"УСТАНОВЛЕНА:\n     чинить правкой нельзя, нужен первичный отчёт")
     else:
         print(f"  🔴 ПРОГОН НЕДЕЙСТВИТЕЛЕН: {res.invalid_reason}")
 
@@ -99,7 +102,9 @@ def run_one(args) -> int:
         print("\nНАХОДКИ:")
         for o in res.outcomes:
             if o.status is Status.FAIL:
-                print(f"  [{o.severity.value}] {o.subject:7} {o.check_id:24} {o.message}")
+                mark = {"located": "→чинить", "unresolved": "→первичка"}.get(
+                    o.resolution.value if o.resolution else "", "")
+                print(f"  [{o.severity.value}] {mark:9} {o.subject:7} {o.check_id:24} {o.message}")
 
     path = runner.write_artifact(res, ARTIFACTS)
     print(f"\nартефакт: {path.relative_to(ROOT.parent)}")
