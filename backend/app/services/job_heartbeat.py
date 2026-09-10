@@ -34,11 +34,19 @@ EXPECTED_INTERVAL_SEC: dict[str, int] = {
     "macro_verification": 60 * 3600,     # «ОТК данных» — ежедневно 18:30
     "earnings_digest": 60 * 3600,
     "report_watch": 60 * 3600,
-    "geopolitics": 60 * 3600,
     "calendar_refresh": 60 * 3600,
-    "agent_pilot": 60 * 3600,
     "history_catchup": 60 * 3600,
 }
+
+# СНЯТЫЕ С РАСПИСАНИЯ джобы. Их строки остались в job_heartbeats (таблица переживает
+# деплой), а ожидаемый интервал заставлял сторожа вечно показывать по ним "stale" —
+# и /api/debug/jobs-health месяцами отдавал ok:false при полностью здоровых кронах.
+# Сторож, который кричит всегда, не сторож: настоящий сбой в этом шуме не виден.
+# Здесь они перечислены явно, чтобы было видно, что это решение, а не забывчивость:
+#   geopolitics — заменён barometer_daily (ежедневная пересборка гео-барометра),
+#                 add_job закомментирован в main.py;
+#   agent_pilot — пилот macro_addendum, из расписания убран, функция оставлена.
+RETIRED_JOBS: set[str] = {"geopolitics", "agent_pilot"}
 
 
 def _write(job_id: str, ok: bool, err_text: str | None) -> None:
@@ -93,7 +101,9 @@ def jobs_health() -> dict:
         job_id, last_success, last_error, err_text, runs, errors = r
         expected = EXPECTED_INTERVAL_SEC.get(job_id)
         age = (now - last_success).total_seconds() if last_success else None
-        if last_success is None:
+        if job_id in RETIRED_JOBS:
+            verdict = "retired"          # снят с расписания — не сбой, см. RETIRED_JOBS
+        elif last_success is None:
             verdict = "failing" if last_error else "never_ran"
         elif expected and age is not None and age > expected:
             verdict = "stale"

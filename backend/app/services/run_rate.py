@@ -205,6 +205,18 @@ def get_run_rate(db: Session, ticker: str) -> dict:
     fin = _load(cdir / "financials.json")
     if not fin:
         return {"status": "no_company"}
+    # Авто-довесок свежих квартальных/полугодовых периодов из БД — ТОТ ЖЕ слой,
+    # что домешивается в /financials (interim_overlay.merge_into). Без него блок
+    # считал по последнему периоду ФАЙЛА и расходился с таблицей «Финансы» на той
+    # же карточке: MTSS 2026-09-11 — в таблице 1П2026 (выручка 414,7 млрд, приехала
+    # автоматически), а прикидка шла от 1кв2026 (201,3 млрд). Один и тот же экран
+    # называл разные «последние» периоды — ровно та болезнь стыков, ради которой
+    # оверлей и делался. Мягко: сбой обогащения не должен ронять блок.
+    try:
+        from app.services import interim_overlay
+        interim_overlay.merge_into(db, ticker, fin)
+    except Exception:  # noqa: BLE001
+        logger.exception("run_rate: interim_overlay.merge_into не отработал для %s", ticker)
     # число акций тут выводится из мультипликатора снапшота (см. _implied_shares),
     # поэтому капитализацию сперва приводим к ЭМИТЕНТУ по всем классам — иначе у
     # TRNFP/VTBR прикидка наследует заниженный P/B и рисует P/E ~1
