@@ -5395,7 +5395,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
                     сам график. Текст не сокращён — только убран из потока чтения. */}
                 <InfoTip
                   label="Как считается история линии фронта"
-                  text={"Относится только к очагу СВО. История — по архивным картам ISW (Institute for the Study of War): на каждый месяц берётся реальный срез оценённого контроля территории на ту дату, включая обратные движения — уход из-под Киева весной 2022, Харьковскую область и правобережье Херсона осенью 2022. Положение «сегодня» (крайнее правое): линия живая, с поправками по свежим данным МО РФ/Рыбаря; при этом площади и дельты считаются по единой методике чистого ISW для всех месяцев — иначе в последнюю дельту попадала бы разница методик (~2 тыс. км²), а не движение фронта. За февраль 2025 и июнь 2026 архивного среза у ISW нет — показан предыдущий месяц."}
+                  text={"Относится только к очагу СВО. История — по архивным картам ISW (Institute for the Study of War): на каждый месяц берётся реальный срез оценённого контроля территории на ту дату, включая обратные движения — уход из-под Киева весной 2022, Харьковскую область и правобережье Херсона осенью 2022. Положение «сегодня» (крайнее правое): линия живая, с поправками по свежим данным МО РФ/Рыбаря; при этом площади и дельты считаются по единой методике чистого ISW для всех месяцев — иначе в последнюю дельту попадала бы разница методик (~2 тыс. км²), а не движение фронта. Месяцы, за которые среза у ISW нет (февраль 2025, июнь 2026 и те, до которых архив ISW ещё не дошёл), показаны границей предыдущего месяца и помечены как «данных нет»: площадь за них мы не знаем и месячный прирост не считаем — он не приписывается соседнему месяцу."}
                 />
               </div>
             </div>
@@ -5420,15 +5420,31 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
             <span className="obs-geomap-timeslider-count">
               <strong>{capturedCount}</strong> {ruPluralPunkt(capturedCount)} взято к этой дате
             </span>
-            {Number.isFinite(activeMonthSnapshot?.area_km2) && (
+            {/* У месяца без среза ISW площади нет — раньше блок просто исчезал,
+                и было непонятно, что случилось. Говорим прямо. А величину,
+                набранную ЧЕРЕЗ такой пропуск, подписываем «за N мес.», иначе
+                она читается как месячная. */}
+            {activeMonthSnapshot?.no_data ? (
+              <span className="obs-geomap-timeslider-area">за этот месяц данных ISW нет</span>
+            ) : Number.isFinite(activeMonthSnapshot?.area_km2) && (
               <span className="obs-geomap-timeslider-area">
                 <strong>{activeMonthSnapshot.area_km2.toLocaleString("ru-RU")} км²</strong>
                 {Number.isFinite(activeMonthSnapshot.delta_km2) && activeMonthSnapshot.delta_km2 !== 0 && (
-                  <span className={`obs-geomap-timeslider-delta${activeMonthSnapshot.delta_km2 > 0 ? " obs-geomap-timeslider-delta--up" : " obs-geomap-timeslider-delta--down"}`}>
-                    {activeMonthSnapshot.delta_km2 > 0 ? "▲" : "▼"} {Math.abs(activeMonthSnapshot.delta_km2).toLocaleString("ru-RU")}
-                  </span>
+                  <>
+                    <span className={`obs-geomap-timeslider-delta${activeMonthSnapshot.delta_km2 > 0 ? " obs-geomap-timeslider-delta--up" : " obs-geomap-timeslider-delta--down"}`}>
+                      {activeMonthSnapshot.delta_km2 > 0 ? "▲" : "▼"} {Math.abs(activeMonthSnapshot.delta_km2).toLocaleString("ru-RU")}
+                    </span>
+                    <span>{activeMonthSnapshot.partial ? " за неполный месяц" : " за месяц"}</span>
+                  </>
                 )}
-                <span> за месяц</span>
+                {Number.isFinite(activeMonthSnapshot.delta_since_km2) && (
+                  <>
+                    <span className={`obs-geomap-timeslider-delta${activeMonthSnapshot.delta_since_km2 > 0 ? " obs-geomap-timeslider-delta--up" : " obs-geomap-timeslider-delta--down"}`}>
+                      {activeMonthSnapshot.delta_since_km2 > 0 ? "▲" : "▼"} {Math.abs(activeMonthSnapshot.delta_since_km2).toLocaleString("ru-RU")}
+                    </span>
+                    <span>{` за ${activeMonthSnapshot.delta_span_months} ${ruPluralMesyats(activeMonthSnapshot.delta_span_months)} (с ${_obsMonthFullRuGen(activeMonthSnapshot.delta_since_month)})`}</span>
+                  </>
+                )}
               </span>
             )}
             {showCrimeaToggle && (
