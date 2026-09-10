@@ -198,6 +198,20 @@ SNAPSHOT_MUTATIONS: list[MutationCase] = [
     MutationCase("m.snap_lag", "snap.age_spread", "отстал от соседей по папке на полгода", m_snap_stale),
 ]
 
+def m_bridge_break(card: dict) -> dict:
+    """Отчётная прибыль подтянута из другого источника и больше не сходится
+    с мостом нормализации — ровно случай БЛНГ."""
+    node = (card.get("income_statement") or {}).get("net_profit")
+    years = (card.get("meta") or {}).get("fiscal_years") or []
+    bridge = (card.get("adjusted") or {}).get("bridge") or []
+    touched = {b.get("year") for b in bridge if isinstance(b, dict) and b.get("added_back")}
+    if isinstance(node, list):
+        for i, y in enumerate(years):
+            if y in touched and isinstance(node[i], (int, float)):
+                node[i] = node[i] + max(abs(node[i]) * 3, 5000)
+    return card
+
+
 def m_prose_drift(card: dict) -> dict:
     """Числа карточки уехали от прозы вкладок на 40% — ровно тот стык, на
     котором платформа ломается чаще всего."""
@@ -226,6 +240,8 @@ MUTATIONS: list[MutationCase] = [
     MutationCase("m.stale", "fin.freshness", "отчётность отстала на 3 года", m_stale),
     MutationCase("m.units", "fin.return_units", "рентабельности в долях", m_returns_as_fraction),
     MutationCase("m.prose", "fin.cross_tab", "числа уехали от прозы вкладок на 40%", m_prose_drift),
+    MutationCase("m.bridge", "fin.adjusted_bridge",
+                 "отчётная прибыль перестала сходиться с мостом", m_bridge_break),
 ]
 
 

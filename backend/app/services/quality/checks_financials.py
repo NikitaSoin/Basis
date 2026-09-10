@@ -411,6 +411,102 @@ def _shift_all_series(card: dict, factor: float) -> dict:
     return card
 
 
+def _c_adjusted_bridge(subject: str, payload: dict) -> Iterable[CheckOutcome]:
+    """Отчётная прибыль против МОСТА НОРМАЛИЗАЦИИ в том же файле.
+
+    Мост перечисляет разовые статьи, которые прибавляются к отчётной прибыли,
+    чтобы получить нормализованную: reported + Σ добавок = adjusted. Если
+    равенство не сходится, битым может быть любой из трёх, но противоречие
+    внутри одного файла есть точно.
+
+    Ловит случай, до которого не добирается сверка с прозой: у БЛНГ отчётная
+    прибыль 2024 стоит +190 млн, а мост (доля в убытке ММК-Уголь −2066 млн,
+    добавка +1549,8) даёт нормализованную −491,2 — то есть отчётный ряд не
+    может быть верным. Проверка чисто файловая: ни БД, ни разбора текста.
+    Найдено сессией «статус обновления данных», 11.09.2026."""
+    card = payload["card"]
+    adj = card.get("adjusted") or {}
+    bridge = adj.get("bridge")
+    npa = by_year({**card, "adjusted": adj}, "adjusted", "net_profit_adj")
+    reported = by_year(card, "income_statement", "net_profit")
+    if not isinstance(bridge, list) or not bridge or not npa or not reported:
+        yield skip(C_ADJ_BRIDGE, subject, "нет моста нормализации или нормализованной прибыли")
+        return
+    # 🔴 Сумма добавки лежит под ДВУМЯ разными именами: у большинства карточек
+    # это `amount`, у части — пара `amount_gross_mln`/`amount_net_back_mln`
+    # (нетто после налога). Один смысл под двумя именами — сам по себе изъян
+    # контракта данных; проверка обязана понимать оба, иначе молча пропустит
+    # половину карточек (первая версия так и делала: 202 карточки с мостом,
+    # проверка отработала на единицах).
+    add_by_year: dict[int, float] = {}
+    for item in bridge:
+        if not isinstance(item, dict) or not item.get("added_back"):
+            continue
+        # 🔴 Мост несёт статьи для РАЗНЫХ величин: часть нормализует прибыль,
+        # часть — денежный поток (capex, оборотный капитал). Суммировать их
+        # вместе нельзя. У ЛУКОЙЛа именно это давало ложную находку: с одной
+        # прибыльной статьёй равенство сходится ТОЧНО (−1 064 269 + 1 157 269 =
+        # 93 000), а вместе с capex-статьёй — нет. Явный признак (`fcf_line`)
+        # проставлен лишь у двух статей из 1064, поэтому дополняем разбором
+        # формулировки — и честно помним, что это эвристика.
+        if item.get("fcf_line"):
+            continue
+        text = str(item.get("item") or "").lower()
+        if any(w in text for w in ("capex", "капзатрат", "капитальн", "fcf",
+                                   "денежн", "оборотн")):
+            continue
+        year = item.get("year")
+        amount = item.get("amount_net_back_mln")
+        if not isinstance(amount, (int, float)):
+            amount = item.get("amount")
+        if isinstance(year, int) and isinstance(amount, (int, float)):
+            add_by_year[year] = add_by_year.get(year, 0.0) + float(amount)
+    years = sorted(set(add_by_year) & set(npa) & set(reported))
+    if not years:
+        yield skip(C_ADJ_BRIDGE, subject, "мост не пересекается по годам с рядами прибыли")
+        return
+    # Срабатываем не на любом расхождении: мост — конструкция с суждением
+    # (налоговый эффект, частичный зачёт), и мелкий зазор законен. Дефект — это
+    # РАЗНЫЙ ЗНАК (нормализация не может превратить прибыль в убыток простым
+    # прибавлением) либо разрыв больше четверти величины.
+    broken, minor = [], []
+    for y in years:
+        expected = reported[y] + add_by_year[y]
+        actual = npa[y]
+        gap = abs(expected - actual) / max(abs(actual), 1.0)
+        sign_flip = (expected > 0) != (actual > 0) and min(abs(expected), abs(actual)) > 1
+        (broken if (sign_flip or gap > 0.25) else minor).append(
+            (y, reported[y], add_by_year[y], expected, actual, gap, sign_flip))
+    # Отдельный диагноз: статья моста записана в других единицах, чем ряды
+    # карточки (у Ленты карточка в млрд, а добавка — 950, то есть млн). Чинится
+    # это не пересчётом прибыли, а исправлением статьи, поэтому и называть надо
+    # иначе — иначе диагноз теряется в общей куче «не сходится».
+    if broken:
+        scale_off = [b for b in broken
+                     if abs(b[2]) > 0 and abs(b[1]) > 0
+                     and 300 < abs(b[2]) / max(abs(b[1]), 1e-9) < 3000]
+        if len(scale_off) == len(broken):
+            y, rep, add = scale_off[0][0], scale_off[0][1], scale_off[0][2]
+            yield fail(C_ADJ_BRIDGE, subject,
+                       f"{y}: добавка моста {add:+,.0f} примерно в тысячу раз крупнее самой "
+                       f"прибыли {rep:,.0f} — статья записана в других единицах, чем ряды "
+                       f"карточки (карточка в «{(card.get('meta') or {}).get('unit')}»)",
+                       kind="unit_mismatch", years=[b[0] for b in broken])
+            return
+
+    if broken:
+        y, rep, add, exp, act, gap, flip = max(broken, key=lambda b: b[5])
+        why = "знак не совпадает" if flip else f"разрыв {gap:.0%}"
+        yield fail(C_ADJ_BRIDGE, subject,
+                   f"{y}: отчётная прибыль {rep:,.0f} + добавки моста {add:+,.0f} = {exp:,.0f}, "
+                   f"а нормализованная в файле {act:,.0f} ({why}) — противоречие внутри файла",
+                   years=[b[0] for b in broken], checked_years=len(years),
+                   sign_flip=any(b[6] for b in broken))
+    else:
+        yield ok(C_ADJ_BRIDGE, subject, checked_years=len(years),
+                 minor_gaps=len(minor))
+
+
 def _c_cross_tab(subject: str, payload: dict) -> Iterable[CheckOutcome]:
     """Стыки: числа в прозе вкладок против financials.json. Системный вывод
     аудита платформы — ломается не аналитика, а согласованность между вкладками.
@@ -461,12 +557,21 @@ def _c_cross_tab(subject: str, payload: dict) -> Iterable[CheckOutcome]:
             return
 
     if hard:
+        # 🔴 Сортируем по diff_pct и печатаем именно его. Легаси-скрипт считает
+        # расхождение УЖЕ с учётом кратностей (×1, ×1000, ×0.001), а печать
+        # «в тексте 457 против 0.48 в данных» смешивала млн с млрд и делала
+        # мелочь (5,5%) похожей на ошибку на порядок — из-за чего настоящий
+        # кратный дефект терялся в списке рядом с ней.
+        hard.sort(key=lambda f: f.get("diff_pct") or 0, reverse=True)
         f = hard[0]
         yield fail(C_CROSS_TAB, subject,
-                   f"{len(hard)} расхождений прозы с financials.json; напр. {f.get('file')} "
-                   f"{f.get('year') or ''} {f.get('metric')}: в тексте {f.get('in_text')} "
-                   f"против {f.get('fact_bln')} в данных",
-                   mismatches=len(hard), files=prose)
+                   f"{len(hard)} расхождений прозы с financials.json; худшее — "
+                   f"{f.get('file')} {f.get('year') or ''} {f.get('metric')}: "
+                   f"разница {f.get('diff_pct')}% (в тексте «{f.get('in_text')}», "
+                   f"в данных {f.get('fact_bln')} млрд)",
+                   mismatches=len(hard), files=prose,
+                   worst_pct=f.get("diff_pct"),
+                   all_pct=sorted((x.get("diff_pct") or 0) for x in hard)[::-1][:5])
     else:
         yield ok(C_CROSS_TAB, subject, files=prose, findings=len(findings))
 
@@ -492,12 +597,16 @@ C_FRESHNESS = Check("fin.freshness", "Отчётность не протухла
                     _c_freshness, "Сквозная боль: устаревшие входные данные")
 C_RETURN_UNITS = Check("fin.return_units", "Рентабельности в процентах", Severity.HARD,
                        _c_return_units, "Смешанные единицы roe/roa/ros")
+C_ADJ_BRIDGE = Check("fin.adjusted_bridge", "Отчётная прибыль сходится с мостом нормализации",
+                     Severity.HARD, _c_adjusted_bridge,
+                     "BLNG: reported +190 млн при мосте, дающем −491 млн")
 C_CROSS_TAB = Check("fin.cross_tab", "Вкладки не противоречат числам", Severity.SOFT,
                     _c_cross_tab, "Системный вывод аудита: платформа ломается на стыках")
 
 CHECKS: list[Check] = [C_ARITHMETIC, C_PROFIT_VS_REVENUE, C_SOURCE_MATCH,
-                       C_SOURCE_ISSUER, C_FRESHNESS, C_RETURN_UNITS, C_CROSS_TAB]
+                       C_SOURCE_ISSUER, C_FRESHNESS, C_RETURN_UNITS,
+                       C_ADJ_BRIDGE, C_CROSS_TAB]
 
 # Версия набора: меняется при добавлении/изменении проверок. Прогоны с разными
 # версиями сравнивать НЕЛЬЗЯ — иначе «качество выросло» окажется «проверок стало меньше».
-CHECKS_VERSION = "fin-1.3"  # 1.3: пропуск-норма (банк вне «выручки») не режет покрытие
+CHECKS_VERSION = "fin-1.4"  # 1.3: пропуск-норма (банк вне «выручки») не режет покрытие
