@@ -86,6 +86,14 @@ class GeoFrontlineSnapshot(Base):
     frontline_geojson: Mapped[dict | None] = mapped_column(JSONB)
     control_fill_geojson: Mapped[dict | None] = mapped_column(JSONB)
     as_of: Mapped[str | None] = mapped_column(String(32))
+    # Площадь ЧИСТОЙ ISW-массы на эту дату (км², клип по Украине + заделка дыр) —
+    # та же методика, что у архивных месяцев geo_svo_real_history.json. Нужна,
+    # чтобы помесячный ряд «км²/мес» не рвался, когда архивные таймлапсы ISW
+    # отстают от календаря: закрытый месяц строится из СВОЕГО снапшота, не ждёт
+    # архива. control_fill_geojson для этого негоден — он растёт ещё и от
+    # вливания заявленных взятий МО РФ/Рыбаря (ряд неоднородный, «мост» по нему
+    # дал бы +2653 км² за август против ~150 км²/мес фактического движения ISW).
+    isw_area_km2: Mapped[int | None] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 

@@ -5303,6 +5303,14 @@ details[open] > summary .obs-inst-chev,
 }
 .obs-geomap-isochart-legend-dot--up { background: var(--bs-up); }
 .obs-geomap-isochart-legend-dot--down { background: var(--bs-down); }
+/* Месяц без среза ISW: тот же пунктир, что и на графике (вертикаль в слоте) —
+   легенда обязана повторять начертание, иначе связь не читается. */
+.obs-geomap-isochart-legend-gap {
+  width: 0;
+  height: 9px;
+  border-left: 1px dashed var(--text-tertiary);
+  flex-shrink: 0;
+}
 
 .obs-geomap-isochart { position: relative; }
 .obs-geomap-isochart-svg {

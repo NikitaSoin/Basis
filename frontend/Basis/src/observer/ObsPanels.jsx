@@ -3911,8 +3911,11 @@ function ObsGeoIsochroneDeltaChart({ months, activeMonth, onSelectMonth }) {
 
   if (!n) return null;
 
-  const posMax = Math.max(0, ...months.map((m) => (m.delta_km2 > 0 ? m.delta_km2 : 0)));
-  const negMax = Math.max(0, ...months.map((m) => (m.delta_km2 < 0 ? -m.delta_km2 : 0)));
+  // В максимумы шкалы входит и «дельта через разрыв» (delta_since_km2) —
+  // иначе её штрихованный столбик вылезал бы за пределы области построения.
+  const _barV = (m) => (m.delta_km2 != null ? m.delta_km2 : (m.no_data ? null : m.delta_since_km2 ?? null));
+  const posMax = Math.max(0, ...months.map((m) => (_barV(m) > 0 ? _barV(m) : 0)));
+  const negMax = Math.max(0, ...months.map((m) => (_barV(m) < 0 ? -_barV(m) : 0)));
   const HEADROOM = 1.18;
   const tPos = Math.sqrt(posMax) * HEADROOM;
   const tNeg = Math.sqrt(negMax) * HEADROOM;
@@ -3961,7 +3964,7 @@ function ObsGeoIsochroneDeltaChart({ months, activeMonth, onSelectMonth }) {
             {_obsMonthFullRu(hoverEntry.month)}
           </div>
           <div style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: "13px", fontWeight: 700, color: "var(--text-primary)" }}>
-            {Number.isFinite(hoverEntry.area_km2) ? `${hoverEntry.area_km2.toLocaleString("ru-RU")} км²` : "н/д"}
+            {Number.isFinite(hoverEntry.area_km2) ? `${hoverEntry.area_km2.toLocaleString("ru-RU")} км²` : "площадь н/д"}
           </div>
           <div
             style={{
@@ -3969,11 +3972,15 @@ function ObsGeoIsochroneDeltaChart({ months, activeMonth, onSelectMonth }) {
               color: hoverEntry.delta_km2 == null || hoverEntry.delta_km2 === 0 ? "var(--text-tertiary)" : hoverEntry.delta_km2 > 0 ? "var(--bs-up)" : "var(--bs-down)",
             }}
           >
-            {hoverEntry.delta_km2 == null
+            {hoverEntry.no_data
+              ? "данных за этот месяц нет"
+              : hoverEntry.delta_km2 == null && Number.isFinite(hoverEntry.delta_since_km2)
+              ? `${hoverEntry.delta_since_km2 > 0 ? "▲" : "▼"} ${Math.abs(hoverEntry.delta_since_km2).toLocaleString("ru-RU")} км² с ${_obsMonthFullRu(hoverEntry.delta_since_month)} (за ${hoverEntry.delta_span_months} мес.)`
+              : hoverEntry.delta_km2 == null
               ? "старт реконструкции — нет предыдущего месяца"
               : hoverEntry.delta_km2 === 0
               ? "без изменений за месяц"
-              : `${hoverEntry.delta_km2 > 0 ? "▲" : "▼"} ${Math.abs(hoverEntry.delta_km2).toLocaleString("ru-RU")} км² за месяц`}
+              : `${hoverEntry.delta_km2 > 0 ? "▲" : "▼"} ${Math.abs(hoverEntry.delta_km2).toLocaleString("ru-RU")} км² за месяц${hoverEntry.partial ? " (месяц не закончен)" : ""}`}
           </div>
           {Number.isFinite(hoverEntry.settlements_count) && (
             <div style={{ fontSize: "10.5px", color: "var(--text-tertiary)", marginTop: "4px" }}>
@@ -4014,37 +4021,60 @@ function ObsGeoIsochroneDeltaChart({ months, activeMonth, onSelectMonth }) {
           </text>
         ))}
         {months.map((m, i) => {
+          // Три разных «нет столбика», которые нельзя рисовать одинаково:
+          // (1) месяц без данных ISW — пунктирная вертикаль (дыра в ряду);
+          // (2) месяц, чья величина набрана ЧЕРЕЗ такую дыру (delta_since за
+          //     несколько месяцев) — приглушённый штрихованный столбик, чтобы
+          //     не выдавать многомесячное движение за месячное;
+          // (3) начало ряда / ровно ноль — как было.
           const v = m.delta_km2;
           const isNull = v == null;
           const isZero = v === 0;
+          const isGap = !!m.no_data;
+          const spanV = isNull && !isGap && Number.isFinite(m.delta_since_km2) ? m.delta_since_km2 : null;
           const isActive = i === activeIdx;
           const isHovered = i === hoverIdx;
           const bx = xAt(i) + 1;
           const bw = Math.max(1, slot - 2);
-          const barFill = isNull || isZero ? "var(--border-strong)" : v > 0 ? "var(--bs-up)" : "var(--bs-down)";
+          const barV = isNull ? spanV : v;
+          const barFill = barV == null || barV === 0 ? "var(--border-strong)" : barV > 0 ? "var(--bs-up)" : "var(--bs-down)";
           let barPath = "";
-          if (!isNull && !isZero) {
-            const yv = yFor(v);
-            barPath = v > 0
+          if (barV != null && barV !== 0) {
+            const yv = yFor(barV);
+            barPath = barV > 0
               ? _obsIsoBarPath(bx, yv, bw, zeroY - yv, 2.5, true)
               : _obsIsoBarPath(bx, zeroY, bw, yv - zeroY, 2.5, false);
           }
           const label = `${_obsMonthFullRu(m.month)}: ${
-            isNull ? "старт реконструкции, нет предыдущего месяца" : isZero ? "без изменений" : `${v > 0 ? "рост" : "отступ"} ${Math.abs(v).toLocaleString("ru-RU")} км²`
+            m.no_data
+              ? "данных за этот месяц нет"
+              : isNull && Number.isFinite(m.delta_since_km2)
+              ? `${m.delta_since_km2 > 0 ? "рост" : "отступ"} ${Math.abs(m.delta_since_km2).toLocaleString("ru-RU")} км² с ${_obsMonthFullRu(m.delta_since_month)}, за ${m.delta_span_months} месяцев — месячной дельты нет, в промежутке нет данных`
+              : isNull ? "старт реконструкции, нет предыдущего месяца" : isZero ? "без изменений" : `${v > 0 ? "рост" : "отступ"} ${Math.abs(v).toLocaleString("ru-RU")} км²`
           }, площадь ${Number.isFinite(m.area_km2) ? `${m.area_km2.toLocaleString("ru-RU")} км²` : "н/д"}${isActive ? ", выбранный месяц" : ""}`;
           return (
             <g key={m.month}>
               {isActive && <rect x={xAt(i)} y={padT} width={slot} height={plotH} fill="var(--accent-soft)" aria-hidden="true" />}
               {!isActive && isHovered && <rect x={xAt(i)} y={padT} width={slot} height={plotH} fill="var(--bg-hover)" opacity="0.6" aria-hidden="true" />}
               {isZero && <rect x={bx} y={zeroY - 1} width={bw} height={2} rx="1" fill="var(--border-strong)" aria-hidden="true" pointerEvents="none" />}
-              {isNull && <circle cx={bx + bw / 2} cy={zeroY} r="3" fill="var(--bg-surface)" stroke="var(--text-tertiary)" strokeWidth="1.4" aria-hidden="true" pointerEvents="none" />}
+              {isGap && (
+                <line
+                  x1={bx + bw / 2} x2={bx + bw / 2} y1={padT + 2} y2={padT + plotH - 2}
+                  stroke="var(--text-tertiary)" strokeWidth="1" strokeDasharray="2 3" opacity="0.7"
+                  aria-hidden="true" pointerEvents="none"
+                />
+              )}
+              {isNull && !isGap && spanV == null && (
+                <circle cx={bx + bw / 2} cy={zeroY} r="3" fill="var(--bg-surface)" stroke="var(--text-tertiary)" strokeWidth="1.4" aria-hidden="true" pointerEvents="none" />
+              )}
               {barPath && (
                 <path
                   d={barPath}
                   fill={barFill}
-                  opacity={isActive ? 1 : 0.86}
-                  stroke={isActive ? "var(--accent)" : "none"}
-                  strokeWidth={isActive ? 1.4 : 0}
+                  opacity={spanV != null ? 0.42 : isActive ? 1 : 0.86}
+                  stroke={spanV != null ? barFill : isActive ? "var(--accent)" : "none"}
+                  strokeWidth={spanV != null ? 1 : isActive ? 1.4 : 0}
+                  strokeDasharray={spanV != null ? "3 2" : undefined}
                   className="obs-geomap-isochart-bar"
                   aria-hidden="true"
                   pointerEvents="none"
@@ -4248,9 +4278,21 @@ function ObsGeomapPopupBody({
           {Number.isFinite(capture.delta_km2) && capture.delta_km2 !== 0 && (
             <> ({capture.delta_km2 > 0 ? "▲" : "▼"} {Math.abs(capture.delta_km2).toLocaleString("ru-RU")} за месяц)</>
           )}
-          {capture.history_source === "live"
+          {/* Месяц без данных ISW и месячная дельта, растянутая через такой
+              разрыв, — разные вещи, и обе надо называть вслух: иначе движение
+              пропущенного месяца читается как движение соседнего (владелец,
+              2026-09-11: «данных за август нет, и что-то посчитано за сентябрь»). */}
+          {capture.no_data
+            ? ". За этот месяц данных нет: архивный помесячный срез ISW ещё не опубликован, а своего снапшота площади на конец месяца не сохранилось. Показана граница предыдущего месяца — площадь и прирост не считаем."
+            : capture.history_source === "own_isw_snapshot"
+            ? `. Площадь — из нашего дневного снапшота ISW${capture.area_as_of ? ` на ${_obsDateRu(capture.area_as_of)}` : ""} (архивного среза ISW за этот месяц ещё нет), методика та же, что у архивных месяцев.`
+            : capture.history_source === "live"
             ? ". Текущий месяц: линия — живая, с поправками по данным МО РФ/Рыбаря; площадь и дельта — по единой методике ISW, чтобы месяцы были сопоставимы."
             : ". Граница — архивный помесячный срез карт ISW (оценённый контроль территории), не реконструкция."}
+          {capture.partial && " Месяц ещё не закончен — прирост неполный."}
+          {Number.isFinite(capture.delta_since_km2) && (
+            <> {` С ${_obsMonthFullRu(capture.delta_since_month)} (за ${capture.delta_span_months} мес.) — ${capture.delta_since_km2 > 0 ? "▲" : "▼"} ${Math.abs(capture.delta_since_km2).toLocaleString("ru-RU")} км²; разложить по месяцам нечем — в промежутке нет данных.`}</>
+          )}
         </p>
       </div>
     );
@@ -5394,7 +5436,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
                       пропорциональна, и без него график можно прочесть неверно. */}
                   <InfoTip
                     label="Почему шкала нелинейная"
-                    text={"Шкала по вертикали нелинейная (сжата к краям) — иначе обвалы 2022 года (десятки тысяч км²) и почти статичные месяцы 2023-го (десятки км²) не поместились бы честно на одной оси: либо 2023-й выглядел бы плоской линией, либо 2022-й пришлось бы срезать. Точные цифры — в подсказке при наведении или фокусе на столбец и на шкале слева, а не на глаз по высоте. Данные — архивные помесячные срезы карт ISW; оценка контроля на севере весной 2022 у ISW консервативна (коридоры снабжения, а не сплошные зоны), поэтому провал апреля 2022 (−12,8 тыс. км²) ниже сторонних оценок ухода с севера (20–30 тыс. км²). За февраль 2025 и июнь 2026 архивного среза нет — дельта за них нулевая, изменение попадает в следующий месяц."}
+                    text={"Шкала по вертикали нелинейная (сжата к краям) — иначе обвалы 2022 года (десятки тысяч км²) и почти статичные месяцы 2023-го (десятки км²) не поместились бы честно на одной оси: либо 2023-й выглядел бы плоской линией, либо 2022-й пришлось бы срезать. Точные цифры — в подсказке при наведении или фокусе на столбец и на шкале слева, а не на глаз по высоте. Данные — архивные помесячные срезы карт ISW; оценка контроля на севере весной 2022 у ISW консервативна (коридоры снабжения, а не сплошные зоны), поэтому провал апреля 2022 (−12,8 тыс. км²) ниже сторонних оценок ухода с севера (20–30 тыс. км²). Месяцы, за которые среза ISW нет (февраль 2025, июнь 2026, а с августа 2026 — те, до которых архив ISW ещё не дошёл), помечены пунктиром: площади за них мы не знаем и месячную дельту не считаем. Соседний месяц в таком случае показывает приглушённый штрихованный столбик — это накопленная величина за несколько месяцев, а не месячная."}
                   />
                 </span>
                 <span className="obs-geomap-isochart-legend">
@@ -5406,6 +5448,15 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
                     <span className="obs-geomap-isochart-legend-dot obs-geomap-isochart-legend-dot--down" aria-hidden="true" />
                     отступ
                   </span>
+                  {/* Пунктир = месяц, за который среза ISW нет. Без явной легенды
+                      пустой слот читается как «ничего не происходило», а это
+                      ровно противоположный вывод. */}
+                  {sortedIsochroneMonths.some((m) => m.no_data) && (
+                    <span className="obs-geomap-isochart-legend-item">
+                      <span className="obs-geomap-isochart-legend-gap" aria-hidden="true" />
+                      данных за месяц нет
+                    </span>
+                  )}
                 </span>
               </div>
               <ObsGeoIsochroneDeltaChart

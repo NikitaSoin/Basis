@@ -276,8 +276,52 @@ def _spherical_km2(geom) -> float:
     return total
 
 
+def _next_month(month: str) -> str:
+    y, m = int(month[:4]), int(month[5:7])
+    return f"{y + 1}-01" if m == 12 else f"{y}-{m + 1:02d}"
+
+
+def _months_between(after_month: str, until_month: str) -> list[str]:
+    """Месяцы строго после after_month и строго до until_month."""
+    out, cur = [], _next_month(after_month)
+    while cur < until_month:
+        out.append(cur)
+        cur = _next_month(cur)
+    return out
+
+
+def _own_isw_areas_by_month(db) -> dict[str, tuple[str, int]]:
+    """Свои дневные снапшоты чистой ISW-площади → {месяц: (дата, км²)},
+    по ПОСЛЕДНЕЙ дате месяца, где площадь есть.
+
+    Зачем: архивные таймлапсы ISW выходят с задержкой в месяцы (на 11.09.2026
+    последний архивный месяц — июль). Без этого моста месяцы между архивом и
+    сегодня просто ВЫПАДАЛИ из ряда, а всё их движение молча приписывалось
+    текущему месяцу — владелец (2026-09-11): «данных за август нет, и что-то
+    посчитано за сентябрь». Площадь берём ту же, что у архивных месяцев
+    (чистая ISW-масса), а НЕ площадь нашей заливки: заливка растёт ещё и от
+    вливания заявленных взятий МО РФ/Рыбаря (+2653 км² за август против
+    ~150 км²/мес фактического движения ISW) — это шов методик, не фронт."""
+    if db is None:
+        return {}
+    try:
+        from app.models.geo import GeoFrontlineSnapshot
+        rows = (db.query(GeoFrontlineSnapshot.snapshot_date, GeoFrontlineSnapshot.isw_area_km2)
+                .filter(GeoFrontlineSnapshot.theater == "svo",
+                        GeoFrontlineSnapshot.isw_area_km2.isnot(None))
+                .order_by(GeoFrontlineSnapshot.snapshot_date.asc()).all())
+    except Exception:  # noqa: BLE001 — мост вторичен, ряд обязан собраться и без него
+        logger.warning("Изохрона: свои снапшоты ISW-площади не прочитаны", exc_info=True)
+        return {}
+    by_month: dict[str, tuple[str, int]] = {}
+    for snap_date, area in rows:
+        by_month[snap_date[:7]] = (snap_date, int(area))  # порядок asc → остаётся последняя дата
+    return by_month
+
+
 def _isochrone_from_real_history(control_fill_geojson: dict,
-                                  isw_area_km2: int | None = None) -> dict | None:
+                                  isw_area_km2: int | None = None,
+                                  db=None) -> dict | None:
     """История из РЕАЛЬНЫХ архивных карт ISW (geo_svo_real_history.json):
     каждый месяц — фактический срез оценённого контроля, не реконструкция.
     Правый край (текущий месяц): ГЕОМЕТРИЯ — живая линия текущего пайплайна
@@ -309,7 +353,39 @@ def _isochrone_from_real_history(control_fill_geojson: dict,
     for m in months:
         if m["month"] >= cur_month:
             continue  # текущий месяц добавляем живым ниже
-        entries.append((m["month"], m["month_end"], m.get("area_km2"), m["geometry"], "isw_archive"))
+        # Месяц, чей снапшот взят из ДРУГОГО месяца (у ISW нет таймлапса —
+        # в файле это помечено note «повтор предыдущего снапшота»), своей
+        # площади не имеет. Раньше он выдавал дельту 0, а всё его движение
+        # приписывалось следующему месяцу — та же болезнь, что и с пропуском
+        # августа 2026, только внутри архива. Теперь честно: «данных нет»,
+        # а сосед показывает накопленную величину с пометкой «за N мес.».
+        own_month = m.get("snapshot_date", "")[:7] == m["month"]
+        entries.append((m["month"], m["month_end"],
+                        m.get("area_km2") if own_month else None,
+                        m["geometry"], "isw_archive" if own_month else "no_data"))
+
+    # ---- Мост между концом архива ISW и сегодняшним днём ----------------
+    # Архивные таймлапсы ISW выходят с задержкой в месяцы. Раньше код просто
+    # пропускал всё, что между последним архивным месяцем и текущим, — месяц
+    # исчезал с оси, а его движение приплюсовывалось к дельте текущего месяца
+    # (сентябрь 2026 показывал «+32 км² за месяц», на деле это июль→сентябрь).
+    # Теперь пропущенные месяцы либо строятся из СВОИХ дневных снапшотов
+    # чистой ISW-площади, либо честно остаются в ряду как «данных нет» —
+    # но их движение НИКОГДА не приписывается соседу.
+    last_archive_month = entries[-1][0] if entries else None
+    own_areas = _own_isw_areas_by_month(db)
+    own_dates: dict[str, str] = {}  # месяц → дата снапшота, из которого взята площадь
+    if last_archive_month:
+        for gap_month in _months_between(last_archive_month, cur_month):
+            own = own_areas.get(gap_month)
+            month_end = _month_end(int(gap_month[:4]), int(gap_month[5:7]))
+            if own is not None:
+                entries.append((gap_month, month_end, own[1], entries[-1][3], "own_isw_snapshot"))
+                own_dates[gap_month] = own[0]
+            else:
+                # Геометрия — последняя известная (ползунок не должен прыгать
+                # на пустоту), но площадь/дельта НЕ выдумываются.
+                entries.append((gap_month, month_end, None, entries[-1][3], "no_data"))
 
     live_polys = [shape(f["geometry"]) for f in control_fill_geojson.get("features", [])]
     if live_polys:
@@ -332,30 +408,53 @@ def _isochrone_from_real_history(control_fill_geojson: dict,
     if not entries:
         return None
     features = []
-    prev_area = None
+    prev_area = None       # площадь последнего месяца, где она ИЗВЕСТНА
+    prev_month = None      # какой это был месяц (для честной подписи разрыва)
     for month, month_end, area, geometry, tag in entries:
         n = sum(1 for p in points if _holder_at(p, month_end) == "RF") if points else None
-        features.append({
-            "type": "Feature",
-            "properties": {
-                "month": month, "month_end": month_end,
-                "settlements_count": n,
-                "area_km2": area,
-                "delta_km2": None if (prev_area is None or area is None) else area - prev_area,
-                "history_source": tag,
-            },
-            "geometry": geometry,
-        })
-        prev_area = area if area is not None else prev_area
+        # Дельта — только между СОСЕДНИМИ месяцами. Если между ними разрыв в
+        # данных, месячной дельты не существует: отдаём null (график рисует
+        # «нет данных»), а накопленное движение показываем отдельными полями,
+        # с явным указанием, с какого месяца и за сколько месяцев оно набрано.
+        span = None
+        if prev_month is not None and area is not None:
+            span = 0
+            cur_walk = prev_month
+            while cur_walk < month:
+                cur_walk = _next_month(cur_walk)
+                span += 1
+        props = {
+            "month": month, "month_end": month_end,
+            "settlements_count": n,
+            "area_km2": area,
+            "delta_km2": (area - prev_area) if (span == 1 and area is not None
+                                                and prev_area is not None) else None,
+            "history_source": tag,
+        }
+        if tag == "no_data":
+            props["no_data"] = True
+        if tag == "own_isw_snapshot" and month in own_dates:
+            props["area_as_of"] = own_dates[month]  # снапшот мог быть снят не в последний день месяца
+        if span is not None and span > 1 and prev_area is not None:
+            props["delta_since_km2"] = area - prev_area
+            props["delta_since_month"] = prev_month
+            props["delta_span_months"] = span
+        if month == cur_month and month_end < _month_end(int(month[:4]), int(month[5:7])):
+            props["partial"] = True  # месяц ещё не закончен: дельта неполная по определению
+        features.append({"type": "Feature", "properties": props, "geometry": geometry})
+        if area is not None:
+            prev_area = area
+            prev_month = month
     return {"type": "FeatureCollection", "features": features}
 
 
 def compute_isochrone(control_fill_geojson: dict, ukraine_boundary=None,
-                       isw_area_km2: int | None = None) -> dict | None:
+                       isw_area_km2: int | None = None, db=None) -> dict | None:
     """Помесячная реконструкция линии фронта. Возвращает FeatureCollection —
     ОДИН полигон на месяц, properties {month, month_end, settlements_count,
     area_km2, delta_km2}. None при отсутствии исходных данных (честная
-    деградация, не 500).
+    деградация, не 500). db — сессия БД (необязательна): из неё берётся мост
+    своих снапшотов ISW-площади за месяцы, до которых архив ISW ещё не дошёл.
 
     ukraine_boundary — контур Украины; если передан, ячейки обрезаются по нему,
     а НЕ по сегодняшнему control_fill. Это принципиально: обрезка по
@@ -367,7 +466,7 @@ def compute_isochrone(control_fill_geojson: dict, ukraine_boundary=None,
     реконструкция Вороного ниже — аварийный фолбэк, если файла истории нет."""
     try:
         if os.path.exists(_REAL_HISTORY_PATH):
-            fc = _isochrone_from_real_history(control_fill_geojson, isw_area_km2=isw_area_km2)
+            fc = _isochrone_from_real_history(control_fill_geojson, isw_area_km2=isw_area_km2, db=db)
             if fc is not None:
                 return fc
     except Exception:  # noqa: BLE001 — фолбэк ниже отработает

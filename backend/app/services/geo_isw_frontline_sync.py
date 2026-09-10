@@ -545,26 +545,31 @@ def sync_isw_frontline(db: Session) -> dict:
         row.status = "ok"
         row.error_note = None
 
+        # Площадь ЧИСТОЙ ISW-массы (клип по Украине + заделка дыр) — для ряда
+        # площадей истории по единой методике (см. докстринг
+        # _isochrone_from_real_history: без этого дельта последнего месяца
+        # мерила шов методик, а не движение фронта). Считается ДО изохроны и
+        # вне её try: она же уходит в дневной снапшот, и падение побочной
+        # изохроны не должно оставлять снапшот без площади (раньше это дало бы
+        # ещё и NameError на записи снапшота).
+        try:
+            from app.services.geo_svo_capture_isochrone import (
+                _spherical_km2, _fill_holes_and_drop_islands)
+            pure_isw_area = round(_spherical_km2(_fill_holes_and_drop_islands(
+                isw_mass.intersection(ukraine_boundary).buffer(0))))
+        except Exception:  # noqa: BLE001
+            pure_isw_area = None
+
         # Изохрона «когда взято» — пересчитывается на каждом синке (дёшево,
         # чистая геометрия без сети), т.к. зависит от СВЕЖЕЙ формы
         # control_fill_fc; список дат меняется редко (см. модуль). Честная
         # деградация — при отсутствии исходных данных/сбое просто не
         # обновляем поле, не роняем весь синк линии из-за побочной фичи.
         try:
-            from app.services.geo_svo_capture_isochrone import (
-                compute_isochrone, _spherical_km2, _fill_holes_and_drop_islands)
-            # Площадь ЧИСТОЙ ISW-массы (клип по Украине + заделка дыр) — для
-            # ряда площадей истории по единой методике (см. докстринг
-            # _isochrone_from_real_history: без этого дельта последнего месяца
-            # мерила шов методик, а не движение фронта).
-            try:
-                pure_isw_area = round(_spherical_km2(_fill_holes_and_drop_islands(
-                    isw_mass.intersection(ukraine_boundary).buffer(0))))
-            except Exception:  # noqa: BLE001
-                pure_isw_area = None
+            from app.services.geo_svo_capture_isochrone import compute_isochrone
             row.capture_isochrone_geojson = compute_isochrone(
                 control_fill_fc, ukraine_boundary=ukraine_boundary,
-                isw_area_km2=pure_isw_area)
+                isw_area_km2=pure_isw_area, db=db)
         except Exception as e:  # noqa: BLE001
             logger.warning("Изохрона СВО: пересчёт не удался (не блокирует синк линии): %s", e)
 
@@ -576,6 +581,10 @@ def sync_isw_frontline(db: Session) -> dict:
         snap.frontline_geojson = frontline_fc
         snap.control_fill_geojson = control_fill_fc
         snap.as_of = as_of
+        # Чистая ISW-площадь на сегодня — единая методика с архивными месяцами.
+        # Из неё изохрона строит месяцы, до которых архивный таймлапс ISW ещё не
+        # дошёл (см. модель GeoFrontlineSnapshot и _months_from_own_snapshots).
+        snap.isw_area_km2 = pure_isw_area
 
         db.commit()
         logger.info("ISW-синк линии фронта: %d сегментов линии, %d полигонов заливки, as_of=%s, снапшот=%s",
