@@ -148,6 +148,38 @@ def _city_name_matches(claim_name: str, city: dict) -> bool:
     return bool(variants & known)
 
 
+def _load_ru_border_land(ukraine_boundary=None):
+    """Российские приграничные области из статической карты очага — «плацдарм»,
+    от которого может идти захват. Берём регионы с control == "ru", лежащие ВНЕ
+    контура Украины: так Брянская/Курская/Белгородская/Краснодарский попадают, а
+    Крым, Севастополь и Луганская (они тоже помечены "ru", но находятся внутри
+    Украины и в заливку входят как контроль) — нет.
+
+    Нужно для направленного присоединения: без плацдарма приграничные взятия
+    (Волчанск, Казачья Лопань, Гоптовка) не к чему привязать — наступление там
+    идёт с территории России, а масса контроля внутри Украины далеко."""
+    from shapely.geometry import shape
+    from shapely.ops import unary_union
+    try:
+        with open(_SVO_MAP_PATH, encoding="utf-8") as f:
+            static_map = json.load(f)
+    except Exception:  # noqa: BLE001 — плацдарм вторичен, слой обязан собраться
+        logger.warning("Приграничные регионы РФ не прочитаны", exc_info=True)
+        return None
+    polys = []
+    for feat in static_map["base_map"]["regions_geojson"]["features"]:
+        if (feat["properties"].get("control") or "").strip() != "ru":
+            continue
+        try:
+            g = shape(feat["geometry"]).buffer(0)
+        except Exception:  # noqa: BLE001
+            continue
+        if ukraine_boundary is not None and g.intersection(ukraine_boundary).area > 0.5 * g.area:
+            continue  # регион внутри Украины (Крым, Севастополь, Луганская) — не плацдарм
+        polys.append(g)
+    return unary_union(polys).buffer(0) if polys else None
+
+
 def _load_oblast_shapes() -> list[tuple[str, object]]:
     """(первое слово name_ru, shapely-геометрия) по регионам статической карты —
     для проверки «координата лежит в заявленной области». Сортировка по длине
@@ -327,48 +359,81 @@ def _point_buffer_km(lat: float, lon: float, radius_km: float):
     return Point(lon, lat).buffer(deg)
 
 
-# Радиус морфологического «замыкания» (closing), которым оверрайд-пункты
-# сливаются с основным массивом. ~0.20° ≈ 20 км — заведомо больше максимального
-# реального разрыва между пунктом и краем ISW-полигона (замерено: до 17 км).
+# Параметры прежнего КРУГОВОГО смыкания (closing). Сама механика заменена
+# направленным клином (см. _absorb_overrides, 2026-09-12), но константы
+# оставлены: на них опирается тест, который сравнивает старое поведение с новым
+# и тем доказывает, что фикс действительно что-то меняет.
 _ABSORB_CLOSE_DEG = 0.20
-# В каком радиусе вокруг оверрайд-пункта РАЗРЕШЕНО добавлять территорию. Само
-# closing применяется ко всей массе (иначе не сомкнётся), но принимаем от него
-# только локальные добавления — остальная линия ISW остаётся нетронутой.
 _ABSORB_LOCAL_DEG = 0.50
+# Клин присоединения: ширина у основания = доля от длины клина, но не больше
+# потолка. 0.6 и 12 км подобраны на живых данных сентября-2026: связь с фронтом
+# читается полосой (а не иглой, на которую владелец жаловался 2026-07-25), при
+# этом лишняя площадь против прежнего кругового смыкания меньше на ~1.4 тыс. км².
+_WEDGE_WIDTH_RATIO = 0.6
+_WEDGE_MAX_WIDTH_KM = 12.0
 
 
-def _absorb_overrides(ru_mass, overrides: list[dict]):
-    """Вливает пункты-оверрайды в массив РФ-контроля ЕДИНЫМ ФРОНТОМ.
+def _absorb_overrides(ru_mass, overrides: list[dict], source_mass=None):
+    """Вливает пункты-оверрайды в массив РФ-контроля — НАПРАВЛЕННО, со стороны,
+    откуда шло продвижение.
 
-    Владелец (2026-07-25, после живой проверки): «ты сейчас просто сделал как
-    будто из одного маленького участка фронта был совершен прорыв и город
-    взяли, это некорректно, фронт единый линией продвигался... то что
-    захвачено по данным минобороны или рыбаря — вся область в красный цвет».
+    Владелец (2026-09-12): «ты же отрисовываешь взятые участки фронта /
+    населённые пункты и соединяешь с тем куском фронта, откуда собственно шёл
+    захват; ты не берёшь и полностью со всех сторон присобачиваешь, а откуда
+    пришли исходно, и только если линия фронта продвинулась целиком — тогда
+    целиком и присоединяешь цветом».
 
-    Прошлые две попытки и почему не годились:
+    Поэтому каждый взятый пункт связывается с БЛИЖАЙШЕЙ точкой фронта-источника
+    клином: широкий у основания (там, откуда шли), сходящийся к пункту. Во все
+    остальные стороны от пункта территория НЕ добавляется. Когда рядом взято
+    несколько пунктов, их клинья сливаются сами — получается то самое сплошное
+    продвижение широкой линией, но только там, где оно действительно заявлено.
+
+    Что было раньше и почему заменено:
       1) голый Point.buffer() → изолированный остров в 7-17 км от массива
          (визуально «линия вообще не сдвинулась»);
-      2) буферизованный отрезок-коридор (~2.6 км) → тонкий шип, читается как
-         «прорыв узким клином», хотя фронт двигался широкой линией.
+      2) буферизованный отрезок-коридор (~2.6 км) → тонкий шип;
+      3) морфологическое closing (dilate→erode, радиус ~22 км) → смыкало
+         ШИРОКОЙ дугой во ВСЕ стороны: заодно закрашивало то, чего никто не
+         заявлял (так стал красным Орехов), и спрямляло реальную форму фронта,
+         из-за чего охваты и полукольца на карте исчезали.
 
-    Здесь — морфологическое closing (dilate→erode) радиусом больше разрыва:
-    оно смыкает пункт с массивом ШИРОКОЙ дугой и заодно заполняет клин между
-    ними, давая ту самую «сплошную область», а не шип. Замерено на живых
-    данных: ширина связи 11-25 км против 2.6 км у коридора. Добавления
-    принимаются только рядом с самими пунктами (_ABSORB_LOCAL_DEG), поэтому
-    закруглять реальные изгибы линии ISW в других местах closing не может.
+    source_mass — «откуда мог прийти захват»: сам РФ-контроль ПЛЮС российские
+    приграничные области. Без последних приграничные взятия (Волчанск, Казачья
+    Лопань, Гоптовка) не к чему привязать: наступление там идёт с территории
+    России, а масса контроля внутри Украины далеко, и пункт повисал островом.
     """
     from shapely.geometry import Point
-    from shapely.ops import unary_union
+    from shapely.ops import unary_union, nearest_points
 
     if not overrides:
         return ru_mass
     circles = [_point_buffer_km(o["lat"], o["lon"], o.get("radius_km", 3)) for o in overrides]
     combined = unary_union([ru_mass] + circles).buffer(0)
-    closed = (combined.buffer(_ABSORB_CLOSE_DEG, join_style=1)
-                      .buffer(-_ABSORB_CLOSE_DEG, join_style=1))
-    local = unary_union([Point(o["lon"], o["lat"]).buffer(_ABSORB_LOCAL_DEG) for o in overrides])
-    addition = closed.difference(combined).intersection(local)
+    source = source_mass if source_mass is not None and not source_mass.is_empty else ru_mass
+
+    wedges = []
+    for o in overrides:
+        p = Point(o["lon"], o["lat"])
+        if ru_mass.contains(p):
+            continue  # уже внутри контроля — соединять не с чем
+        try:
+            anchor = nearest_points(source, p)[0]
+        except Exception:  # noqa: BLE001 — один кривой кандидат не рушит слой
+            continue
+        gap_km = p.distance(anchor) * _KM_PER_DEG_LAT
+        if gap_km <= 0.01:
+            continue
+        # Ширина у основания растёт с длиной клина (фронт двигается полосой, а
+        # не иглой), но ограничена сверху: иначе один дальний пункт раздувал бы
+        # присоединение на пол-области.
+        base_km = min(max(o.get("radius_km", 3), _WEDGE_WIDTH_RATIO * gap_km), _WEDGE_MAX_WIDTH_KM)
+        wedges.append(unary_union([
+            _point_buffer_km(anchor.y, anchor.x, base_km),
+            _point_buffer_km(o["lat"], o["lon"], o.get("radius_km", 3)),
+        ]).convex_hull)
+
+    addition = unary_union(wedges).difference(combined) if wedges else combined.difference(combined)
 
     # Смыкание идёт дугой в десятки километров и по дороге накрывает города,
     # которых никто не заявлял: так Орехов оказался красным из-за соседних сёл
@@ -518,13 +583,16 @@ def _smooth_polygon(poly, dist: float = 0.0035):
 
 
 def _compute_frontline(control_fc: dict, ukraine_boundary,
-                        overrides: list[dict] | None = None) -> tuple[dict, dict]:
+                        overrides: list[dict] | None = None,
+                        source_mass=None) -> tuple[dict, dict]:
     """Возвращает (frontline_geojson, control_fill_geojson). overrides — см.
     load_manual_overrides(): пункты, взятие которых подтверждают МО РФ/Рыбарь
     раньше, чем это отразилось в живом слое ISW. Все они вливаются в
-    ru_control ЕДИНЫМ ФРОНТОМ (_absorb_overrides) ДО сглаживания, поэтому
-    получают то же morphological smoothing, что основной полигон, и не торчат
-    ни островом, ни шипом-«прорывом»."""
+    ru_control НАПРАВЛЕННО (_absorb_overrides — клин со стороны, откуда шло
+    продвижение) ДО сглаживания, поэтому получают то же morphological
+    smoothing, что основной полигон, и не торчат ни островом, ни шипом.
+    source_mass — фронт-источник (контроль + российские приграничные области),
+    см. _absorb_overrides."""
     from shapely.geometry import mapping, shape, LineString, MultiLineString
     from shapely.ops import unary_union, linemerge
 
@@ -533,7 +601,8 @@ def _compute_frontline(control_fc: dict, ukraine_boundary,
     if not ru_polys:
         raise ValueError("ISW control layer вернул 0 полигонов — не с чем считать линию")
 
-    ru_control = _absorb_overrides(unary_union(ru_polys).buffer(0), overrides or [])
+    ru_control = _absorb_overrides(unary_union(ru_polys).buffer(0), overrides or [],
+                                    source_mass=source_mass)
     ru_control = _smooth_polygon(ru_control)
     ukraine_boundary = ukraine_boundary.buffer(0)
 
@@ -611,9 +680,16 @@ def sync_isw_frontline(db: Session) -> dict:
         from shapely.ops import unary_union as _uu
         isw_mass = _uu([_shape(f["geometry"]).buffer(0)
                         for f in control_fc.get("features", []) if f.get("geometry")])
-        overrides = absorb_candidates(ukraine_boundary, db=db, control_mass=isw_mass)
+        # Фронт-источник = контроль внутри Украины ПЛЮС российские приграничные
+        # области: захват в приграничье приходит оттуда, и «рядом с фронтом» для
+        # такого пункта считается от границы, а не от далёкой массы внутри
+        # Украины (иначе законные взятия под Волчанском отбрасывались правилом
+        # 25 км и повисали без связи с тем, откуда шло продвижение).
+        ru_border_land = _load_ru_border_land(ukraine_boundary)
+        source_mass = _uu([isw_mass, ru_border_land]) if ru_border_land is not None else isw_mass
+        overrides = absorb_candidates(ukraine_boundary, db=db, control_mass=source_mass)
         frontline_fc, control_fill_fc = _compute_frontline(
-            control_fc, ukraine_boundary, overrides=overrides)
+            control_fc, ukraine_boundary, overrides=overrides, source_mass=source_mass)
         if not frontline_fc["features"]:
             raise ValueError("Пересчитанная линия фронта пуста")
 
