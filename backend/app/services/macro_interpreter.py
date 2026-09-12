@@ -1382,8 +1382,10 @@ def generate(db: Session) -> MacroInterpretation:
         _diag: list[str] = []
         out = analyst.run(
             db, system=system, task=user + ("\n\n" + extra if extra else ""),
-            shelf_docs=["macro", "inst_macro", "macro_sector", "geo_macro",
-                        "inst_env", "geo_inst", "inst_geo"],
+            # macro_base — сам аппарат («сначала диагноз, потом прогноз»),
+            # macro — перевод показателей в вывод для инвестора.
+            shelf_docs=["macro_base", "macro", "inst_macro", "macro_sector",
+                        "geo_macro", "inst_env", "geo_inst", "inst_geo"],
             max_steps=12, budget=200_000, final_max_tokens=16_000,
             final_instruction="Верни JSON вида {\"sections\": {...}} строго по "
                               "формату из твоей роли, плюс methodology_used.",

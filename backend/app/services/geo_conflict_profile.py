@@ -480,8 +480,10 @@ def build_one(db: Session, scope: str, prev: dict | None,
         from app.services import analyst
         fresh = analyst.run(
             db, system=system, task="\n\n".join(user_parts),
-            shelf_docs=["geo_base", "geo_events", "geo", "geo_macro", "geo_inst",
-                        "inst_geo", "inst_env"],
+            # Портрет очага отвечает в том числе «сколько это продлится» —
+            # macro_geo даёт для этого экономическую выносливость сторон.
+            shelf_docs=["geo_base", "geo_events", "geo", "geo_macro", "macro_geo",
+                        "geo_inst", "inst_geo", "inst_env"],
             max_steps=11, budget=170_000, final_max_tokens=14_000,
             notes=_diag,
             final_instruction="Верни JSON строго в формате из твоей роли "

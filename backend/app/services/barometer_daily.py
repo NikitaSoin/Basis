@@ -579,8 +579,11 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
         from app.services import analyst
         fresh = analyst.run(
             db, system=system, task=user,
-            shelf_docs=["geo_base", "geo_events", "geo", "geo_macro", "geo_inst",
-                        "inst_geo", "inst_env", "inst_macro"],
+            # macro_geo — вход в вопрос «надолго ли это»: фискальная способность,
+            # цена курса, точки исчерпания. Барометр оценивает длительность
+            # сценариев, а до сих пор делал это без методики выносливости.
+            shelf_docs=["geo_base", "geo_events", "geo", "geo_macro", "macro_geo",
+                        "geo_inst", "inst_geo", "inst_env", "inst_macro"],
             max_steps=10, budget=180_000, final_max_tokens=20_000,
             final_instruction="Верни JSON строго в формате из твоей роли (ключи "
                               "as_of, subindices, scenario, regions, sector_flags, "
