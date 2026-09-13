@@ -36,7 +36,10 @@ logger = logging.getLogger(__name__)
 
 # Дефолты провайдеров: (base_url, model, env-имя ключа)
 _PROVIDERS = {
-    "deepseek": ("https://api.deepseek.com", "deepseek-v4-flash", "DEEPSEEK_API_KEY"),
+    # 🔴 2026-09-14: DeepSeek переименовал флеш — в /models остались только deepseek-flash
+    # (4.1) и deepseek-v4-pro; старое deepseek-v4-flash пока принимается как псевдоним.
+    # Переопределение без деплоя — LLM_MODEL (флеш) и LLM_MODEL_PRO (про) в панели.
+    "deepseek": ("https://api.deepseek.com", "deepseek-flash", "DEEPSEEK_API_KEY"),
     "openai": ("https://api.openai.com", "gpt-4o-mini", "OPENAI_API_KEY"),
     # claude обрабатывается отдельной веткой через anthropic SDK
     "claude": (None, "claude-haiku-4-5-20251001", "ANTHROPIC_API_KEY"),
