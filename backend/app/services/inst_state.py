@@ -367,16 +367,19 @@ def rebuild(db: Session) -> BarometerVersion | None:
         logger.warning("inst_state: разведка недоступна (%s) — по ленте", e)
 
     task = ("ПРОШЛЫЙ СНИМОК (обнови, не переписывай):\n"
-            + (json.dumps(prev, ensure_ascii=False)[:60_000] if prev else "— нет, это первая сборка: собери снимок с нуля по §12.1 —")
-            + "\n\nДОСЬЕ РАЗВЕДКИ:\n" + (json.dumps(dossier, ensure_ascii=False)[:40_000] if dossier else "— нет —")
+            # 🔴 Лимиты входа ужаты после прогона #51: задание разрослось до 159 тыс.
+            # знаков (прошлый снимок + досье + передачи + вопросы + противоречия),
+            # 23 шага, 934 тыс. токенов — и итоговый JSON обрезался на середине.
+            + (json.dumps(prev, ensure_ascii=False)[:40_000] if prev else "— нет, это первая сборка: собери снимок с нуля по §12.1 —")
+            + "\n\nДОСЬЕ РАЗВЕДКИ:\n" + (json.dumps(dossier, ensure_ascii=False)[:24_000] if dossier else "— нет —")
             + "\n\n" + handoffs.incoming_block("inst_state", inputs["peers"])
             + "\n\nВОПРОСЫ СОСЕДЕЙ К ТЕБЕ (ответить в answers_to_peers, с фактом и источником):\n"
             + (json.dumps(inputs["peer_questions"], ensure_ascii=False) if inputs["peer_questions"] else "— нет —")
             + "\n\n" + _contradictions_block(db)
             + "\n\nСВОДКИ СОСЕДЕЙ КРАТКО и прежняя институциональная сводка как якорь:\n"
             + json.dumps({k: inputs[k] for k in ("geo_edge", "macro_edge", "inst_summary_anchor")}, ensure_ascii=False, default=str)
-            + "\n\nСТАТЬИ ЛЕНТЫ ЗА 14 ДНЕЙ:\n" + json.dumps(inputs["articles"], ensure_ascii=False)
-            + "\n\nЛЕТОПИСЬ (важное за 14 дней):\n" + json.dumps(inputs["chronicle"], ensure_ascii=False)
+            + "\n\nСТАТЬИ ЛЕНТЫ ЗА 14 ДНЕЙ (остальное — search_feed):\n" + json.dumps(inputs["articles"][:30], ensure_ascii=False)[:20_000]
+            + "\n\nЛЕТОПИСЬ (важное за 14 дней):\n" + json.dumps(inputs["chronicle"][:30], ensure_ascii=False)[:14_000]
             + f"\n\nСегодня: {date.today().isoformat()}.")
 
     from app.services import analyst
@@ -388,7 +391,9 @@ def rebuild(db: Session) -> BarometerVersion | None:
             # Методика институтов — 164 раздела и протокол из двадцати шагов:
             # агенту нужно больше ходов, чем макро (первый прогон: 29 вызовов
             # инструментов за 14 шагов). Бюджет 900 тыс. на 20 шагов хватает.
-            max_steps=20, budget=900_000, final_max_tokens=28_000,
+            # Финал снимка с передачами и ответами соседям длиннее 28 тыс. токенов —
+            # #51 обрезался на середине JSON. Бюджет — с запасом на 20 шагов.
+            max_steps=20, budget=1_300_000, final_max_tokens=48_000,
             final_instruction="Верни JSON снимка строго по формату из роли, плюс methodology_used.",
             label="inst_state", notes=diag)
         if fresh is None:
