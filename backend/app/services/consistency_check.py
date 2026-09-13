@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from datetime import date
 
 from sqlalchemy.orm import Session
@@ -78,9 +79,9 @@ def run(db: Session) -> BarometerVersion | None:
                                gate_notes=[f"LLM недоступен: {e}"], trigger_reason="сверка противоречий")
         db.add(row); db.commit(); db.refresh(row)
         return row
-    contradictions = (out or {}).get("contradictions") or []
+    contradictions, pseudo = _drop_pseudo((out or {}).get("contradictions") or [])
     payload = {"as_of": date.today().isoformat(), "contradictions": contradictions,
-               "agreements": (out or {}).get("agreements") or [],
+               "agreements": ((out or {}).get("agreements") or []) + pseudo,
                "missing_handoffs": (out or {}).get("missing_handoffs") or [],
                "sources": {k: v.get("as_of") for k, v in present.items()}}
     row = BarometerVersion(kind=KIND, source="auto", status="published", payload=payload,
@@ -88,6 +89,27 @@ def run(db: Session) -> BarometerVersion | None:
     db.add(row); db.commit(); db.refresh(row)
     logger.info("consistency: противоречий %d, версия #%d", len(contradictions), row.id)
     return row
+
+
+_NUM = re.compile(r"\d+(?:[.,]\d+)?")
+
+
+def _drop_pseudo(items: list[dict]) -> tuple[list[dict], list[str]]:
+    """Убирает «противоречия», где обе стороны называют ОДНО И ТО ЖЕ число.
+
+    🔴 Модель и после запрета в роли записывала в «мелочь» пары вида
+    «дефицит 5 795 млрд ₽ (2,5% ВВП)» против «дефицит 5 795 млрд ₽ (2,5% ВВП) за
+    январь–август» — это согласие. Промпт — пожелание, фильтр — гарантия."""
+    keep, pseudo = [], []
+    for c in items:
+        a = str((c.get("claim_a") or {}).get("text") or ""); b = str((c.get("claim_b") or {}).get("text") or "")
+        na = {n.replace(",", ".") for n in _NUM.findall(a)}; nb = {n.replace(",", ".") for n in _NUM.findall(b)}
+        shared = {n for n in na & nb if len(n) >= 2}
+        if shared and str(c.get("severity")) == "мелочь":
+            pseudo.append(f"согласие, не спор: {c.get('topic')} ({', '.join(sorted(shared))})")
+        else:
+            keep.append(c)
+    return keep, pseudo
 
 
 def contradictions_for(db: Session, kind: str) -> list[dict]:
