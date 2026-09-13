@@ -275,7 +275,7 @@ def pro_model() -> str:
 def complete_messages(messages: list[dict], *, tools: list[dict] | None = None,
                       max_tokens: int = 2048, temperature: float = 0.2,
                       model: str | None = None, thinking: bool = False,
-                      effort: str | None = None) -> dict:
+                      effort: str | None = None, timeout: float | None = None) -> dict:
     """Низкоуровневый вызов для АГЕНТСКОГО ЦИКЛА (function calling): принимает
     ПОЛНУЮ историю messages (system/user/assistant/tool) и опционально tools
     (OpenAI-формат), возвращает message-объект ответа как есть — с content
@@ -312,20 +312,36 @@ def complete_messages(messages: list[dict], *, tools: list[dict] | None = None,
     headers = {"Authorization": f"Bearer {_api_key(provider)}", "Content-Type": "application/json"}
     from app.services.http_util import make_client
 
+    # 🔴 Шаг с рассуждением на effort=max может идти минуты; дефолт 180 с рассчитан на
+    # механические батчи. Аналитический контур передаёт свой таймаут (900 с), иначе
+    # LLMError ×3 — и прогон отклонён «по таймауту», а не по существу.
+    if timeout is None and thinking:
+        timeout = 900.0
     last_err: Exception | None = None
     for attempt in range(_retries() + 1):
         try:
-            with make_client(timeout=_timeout()) as client:
+            with make_client(timeout=_timeout(timeout)) as client:
                 resp = client.post(f"{base_url}/chat/completions", json=payload, headers=headers)
                 resp.raise_for_status()
                 data = resp.json()
-            msg = data["choices"][0]["message"]
+            choice = data["choices"][0]
+            msg = choice["message"]
             usage = data.get("usage") or {}
-            return {"message": msg, "total_tokens": usage.get("total_tokens")}
+            # finish_reason наружу: «length» = ответ ОБРЕЗАН потолком max_tokens.
+            # Без этого обрезанный шаг неотличим от штатного (владелец 2026-09-13:
+            # «важно, чтобы агент не попал на лимит и всё»).
+            return {"message": msg, "total_tokens": usage.get("total_tokens"),
+                    "finish_reason": choice.get("finish_reason"),
+                    "completion_tokens": usage.get("completion_tokens")}
         except (httpx.HTTPError, KeyError, json.JSONDecodeError) as e:
             last_err = e
-            logger.warning("LLM tools(%s) попытка %d/%d не удалась: %s",
-                           provider, attempt + 1, _retries() + 1, type(e).__name__)
+            # 🔴 Тело ответа при HTTP-ошибке — в лог. Иначе «HTTPStatusError» ×3 и
+            # никакой причины: ровно так упал первый прогон на v4-pro.
+            body = ""
+            if isinstance(e, httpx.HTTPStatusError):
+                body = e.response.text[:400].replace("\n", " ")
+            logger.warning("LLM tools(%s) попытка %d/%d не удалась: %s %s",
+                           provider, attempt + 1, _retries() + 1, type(e).__name__, body)
             if attempt < _retries():
                 time.sleep(1.5 * (attempt + 1))
     raise LLMError(f"LLM tools({provider}) недоступен после повторов: {type(last_err).__name__}")

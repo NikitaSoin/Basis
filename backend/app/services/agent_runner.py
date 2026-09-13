@@ -22,6 +22,8 @@ from sqlalchemy.orm import Session
 from app.services.llm import complete_messages, LLMError, _strip_json_fence
 from app.services.agent_tools import execute_tool
 
+_MAX_OUTPUT_TOKENS = 128_000   # лимит вывода DeepSeek в режиме рассуждения при effort=max
+
 logger = logging.getLogger(__name__)
 
 
@@ -67,6 +69,7 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
     tokens_used = 0
     web_calls = 0
     last_call_made = False   # выдали ли уже требование «финал сейчас»
+    truncations = 0          # сколько раз ответ обрезался потолком max_tokens
     retried_final = False    # просили ли переписать неразобранный финал
 
     for step in range(1, max_steps + 1):
@@ -110,6 +113,28 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
                     "stopped_reason": "llm_error"}
         msg = resp["message"]
         tokens_used += resp.get("total_tokens") or 0
+
+        # 🔴 ОБРЕЗКА ПОТОЛКОМ — не результат, а сигнал повторить с бóльшим потолком.
+        # finish_reason == "length": модель не договорила (в режиме рассуждения
+        # размышление и ответ делят max_tokens, и длинный вывод режется ровно там,
+        # где он нужнее всего). Раньше обрезанный финал шёл в парсер, не
+        # разбирался и прогон терялся. Теперь: тот же шаг, потолок ×2, до 128K
+        # (лимит вывода DeepSeek при effort=max); не помогло на 128K — просим
+        # компактный ответ. Владелец 2026-09-13: «попал на лимит и всё — избежать».
+        if resp.get("finish_reason") == "length":
+            truncations += 1
+            trace.append({"step": step, "event": "truncated", "cap": cap,
+                          "completion_tokens": resp.get("completion_tokens")})
+            if cap < _MAX_OUTPUT_TOKENS and truncations <= 3:
+                escalated_cap = min(cap * 2, _MAX_OUTPUT_TOKENS)
+                step_max_tokens = max(step_max_tokens, escalated_cap)
+                final_max_tokens = max(final_max_tokens or 0, escalated_cap)
+                continue
+            messages.append({"role": "user", "content": (
+                "🔴 Твой ответ не поместился даже в максимальный лимит вывода. Сократи: "
+                "короче формулировки, без повторов, без пересказа входных данных — но "
+                "все обязательные поля сохрани. Верни ТОЛЬКО JSON.")})
+            continue
 
         # 🔴 ПОРЯДОК ЭТИХ ДВУХ ПРОВЕРОК ВАЖЕН: сначала смотрим, не пришёл ли ФИНАЛ,
         # и только потом обрываем по бюджету. Было наоборот — и оба первых боевых
@@ -213,8 +238,14 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
         # если ответить не на все (было tool_calls[:4] при полном списке в
         # сообщении), следующий запрос падает 400. Кап оставляем от runaway.
         tool_calls = tool_calls[:4]
-        messages.append({"role": "assistant", "content": msg.get("content") or "",
-                         "tool_calls": tool_calls})
+        # reasoning_content возвращаем в историю: в режиме рассуждения DeepSeek
+        # рекомендует передавать его назад при многошаговых вызовах инструментов —
+        # модель продолжает свою же цепочку мыслей, а не начинает заново.
+        assistant_msg = {"role": "assistant", "content": msg.get("content") or "",
+                         "tool_calls": tool_calls}
+        if msg.get("reasoning_content"):
+            assistant_msg["reasoning_content"] = msg["reasoning_content"]
+        messages.append(assistant_msg)
         for tc in tool_calls:
             fn = (tc.get("function") or {})
             name = fn.get("name") or ""
