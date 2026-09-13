@@ -349,9 +349,13 @@ def rebuild(db: Session) -> BarometerVersion | None:
 
     edges = {"geo_edge": inputs["geo_edge"], "inst_edge": inputs["inst_edge"],
              "data_gaps": inputs.get("data_gaps")}
+    # 🔴 Лимиты входа ужаты после боевого прогона #222: задание 176 тыс. знаков
+    # (прошлая версия + досье + передачи + вопросы + противоречия + замечания),
+    # 21 шаг, 916 тыс. токенов, итоговый JSON обрезался. То же лечение, что у
+    # институтов (#51): вход компактнее, финал длиннее, бюджет с запасом.
     task = ("ПРОШЛАЯ ВЕРСИЯ СОСТОЯНИЯ (обнови, не переписывай):\n"
-            + (json.dumps(prev, ensure_ascii=False)[:60_000] if prev else "— нет, это первая сборка: собери состояние с нуля —")
-            + "\n\nДОСЬЕ РАЗВЕДКИ:\n" + (json.dumps(dossier, ensure_ascii=False)[:40_000] if dossier else "— нет —")
+            + (json.dumps(prev, ensure_ascii=False)[:40_000] if prev else "— нет, это первая сборка: собери состояние с нуля —")
+            + "\n\nДОСЬЕ РАЗВЕДКИ:\n" + (json.dumps(dossier, ensure_ascii=False)[:24_000] if dossier else "— нет —")
             + "\n\n" + handoffs.incoming_block("macro", inputs["peers"])
             + "\n\nВОПРОСЫ СОСЕДЕЙ К ТЕБЕ (ответить в answers_to_peers, с числом и источником):\n"
             + (json.dumps(inputs["peer_questions"], ensure_ascii=False) if inputs["peer_questions"] else "— нет —")
@@ -359,8 +363,8 @@ def rebuild(db: Session) -> BarometerVersion | None:
             + "\n\n" + _critique_block(db)
             + "\n\nСВОДКИ СОСЕДЕЙ КРАТКО (для контекста; контракт выше важнее):\n"
             + json.dumps(edges, ensure_ascii=False, default=str)
-            + "\n\nДАННЫЕ ПЛАТФОРМЫ (единственный источник чисел):\n"
-            + inputs["snapshot_text"]
+            + "\n\nДАННЫЕ ПЛАТФОРМЫ (единственный источник чисел; остальное — search_feed):\n"
+            + inputs["snapshot_text"][:80_000]
             + f"\n\nСегодня: {date.today().isoformat()}.")
 
     from app.services import analyst
@@ -373,7 +377,7 @@ def rebuild(db: Session) -> BarometerVersion | None:
             # Бюджет — защита от зацикливания, не экономия (владелец 2026-09-13:
             # «пусть агент больше прочитает»). Вход ~30 тыс. токенов × до 14
             # шагов — без запаса цикл упрётся в потолок на середине.
-            max_steps=14, budget=900_000, final_max_tokens=24_000,
+            max_steps=16, budget=1_300_000, final_max_tokens=48_000,
             final_instruction="Верни JSON состояния строго по формату из роли, плюс methodology_used.",
             label="macro_state", notes=diag)
         if fresh is None:
