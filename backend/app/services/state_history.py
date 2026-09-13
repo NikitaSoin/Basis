@@ -43,7 +43,10 @@ def for_prompt(db: Session, kind: str, limit: int = 10) -> str:
     events = timeline(db, kind, limit)
     if not events:
         return "ХРОНОЛОГИЯ ПРОШЛЫХ ВЕРСИЙ: — это первая версия —"
-    lines = ["ХРОНОЛОГИЯ ПРОШЛЫХ ВЕРСИЙ (свежие сверху; смотри ТРАЕКТОРИЮ, а не только вчерашний день):"]
+    lines = ["ХРОНОЛОГИЯ ПРОШЛЫХ ВЕРСИЙ — последние " + str(len(events)) + " как ориентир (свежие сверху; "
+             "смотри ТРАЕКТОРИЮ, а не только вчерашний день). 🔴 ПОЛНЫЙ АРХИВ ЗА ЛЮБОЙ ПЕРИОД — "
+             "инструментами list_state_versions / read_state_version: если нужно, как ситуация "
+             "виделась месяц или полгода назад, — открой ту версию."]
     for e in events:
         lines.append(f"• {e['as_of']} (v{e['version_id']}): {e['headline']}")
         if e["regime"]:

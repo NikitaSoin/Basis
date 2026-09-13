@@ -103,7 +103,95 @@ def read_feed_item(db: Session, kind: str, item_id: int) -> dict:
             "source": r[4], "url": r[5]}
 
 
+# ─────────────────────────── память сводок и уроков ───────────────────────────
+# 🔴 Владелец (2026-09-13): «десять строк хронологии — не вариант, нужен доступ ко
+# ВСЕМ прошлым версиям, чтобы агент мог прочитать, как было несколько месяцев
+# назад». Хронология в задании остаётся ориентиром; полный архив — инструментами.
+
+_STATE_KINDS = ("macro", "inst_state", "geo", "inst")
+
+
+def list_state_versions(db: Session, kind: str, *, date_from: str | None = None,
+                        date_to: str | None = None, limit: int = 60) -> dict:
+    if kind not in _STATE_KINDS:
+        return {"error": f"kind должен быть одним из {_STATE_KINDS}"}
+    from app.models.geo import BarometerVersion
+    q = (db.query(BarometerVersion)
+         .filter(BarometerVersion.kind == kind, BarometerVersion.status == "published"))
+    if date_from:
+        q = q.filter(BarometerVersion.created_at >= date_from)
+    if date_to:
+        q = q.filter(BarometerVersion.created_at <= date_to + " 23:59:59")
+    rows = q.order_by(BarometerVersion.created_at.desc()).limit(max(1, min(int(limit or 60), 400))).all()
+    out = []
+    for v in rows:
+        p = v.payload or {}
+        out.append({"version_id": v.id, "as_of": p.get("as_of"),
+                    "created_at": v.created_at.date().isoformat() if v.created_at else None,
+                    "source": v.source, "headline": str(p.get("summary") or "")[:220]})
+    return {"kind": kind, "versions": out, "hint": "полный текст — read_state_version(kind, version_id)"}
+
+
+def read_state_version(db: Session, kind: str, version_id: int | None = None,
+                       as_of: str | None = None, max_chars: int = 60_000) -> dict:
+    if kind not in _STATE_KINDS:
+        return {"error": f"kind должен быть одним из {_STATE_KINDS}"}
+    from app.models.geo import BarometerVersion
+    q = db.query(BarometerVersion).filter(BarometerVersion.kind == kind, BarometerVersion.status == "published")
+    if version_id:
+        row = q.filter(BarometerVersion.id == int(version_id)).first()
+    elif as_of:
+        # ближайшая версия НЕ ПОЗЖЕ указанной даты — «как это виделось тогда»
+        row = q.filter(BarometerVersion.created_at <= as_of + " 23:59:59").order_by(BarometerVersion.created_at.desc()).first()
+    else:
+        return {"error": "укажи version_id или as_of (YYYY-MM-DD)"}
+    if not row:
+        return {"error": "версия не найдена"}
+    import json as _json
+    text_ = _json.dumps(row.payload or {}, ensure_ascii=False, default=str)
+    return {"kind": kind, "version_id": row.id, "as_of": (row.payload or {}).get("as_of"),
+            "created_at": row.created_at.isoformat() if row.created_at else None,
+            "gate_notes": row.gate_notes, "payload": text_[:max_chars],
+            "truncated": len(text_) > max_chars}
+
+
+def read_lessons(db: Session, contour: str | None = None, include_settled: bool = False) -> dict:
+    """Вся база уроков (не только верхние пятнадцать из задания). Методички этим
+    НЕ затрагиваются — уроки живут отдельно, в agent_lessons."""
+    from app.services.lessons import snapshot
+    snap = snapshot(db, contour)
+    items = snap["lessons"] if include_settled else [l for l in snap["lessons"] if l["status"] == "active"]
+    return {"contour": contour, "count": len(items), "lessons": items}
+
+
 FEED_TOOLS_SCHEMA: list[dict] = [
+    {"type": "function", "function": {
+        "name": "list_state_versions",
+        "description": ("Список ВСЕХ прошлых версий сводки (macro — состояние экономики, inst_state — "
+                        "институциональный снимок, geo — сводка геополитики, inst — прежняя месячная "
+                        "сводка институтов) за любой период: id, дата, заголовок. Чтобы посмотреть, "
+                        "как ситуация виделась месяц или полгода назад."),
+        "parameters": {"type": "object", "properties": {
+            "kind": {"type": "string", "enum": list(_STATE_KINDS)},
+            "date_from": {"type": "string", "description": "YYYY-MM-DD"},
+            "date_to": {"type": "string", "description": "YYYY-MM-DD"},
+            "limit": {"type": "integer"}}, "required": ["kind"]}}},
+    {"type": "function", "function": {
+        "name": "read_state_version",
+        "description": ("Полный текст одной прошлой версии сводки: по version_id из list_state_versions "
+                        "или по дате as_of (берётся ближайшая версия не позже даты — «как виделось тогда»)."),
+        "parameters": {"type": "object", "properties": {
+            "kind": {"type": "string", "enum": list(_STATE_KINDS)},
+            "version_id": {"type": "integer"}, "as_of": {"type": "string", "description": "YYYY-MM-DD"}},
+            "required": ["kind"]}}},
+    {"type": "function", "function": {
+        "name": "read_lessons",
+        "description": ("Вся база уроков прошлых проверок (ошибки, которые уже ловили, и как надо): "
+                        "по контуру или целиком, при желании с усвоенными. В задании лежат только "
+                        "самые повторяющиеся — здесь все."),
+        "parameters": {"type": "object", "properties": {
+            "contour": {"type": "string", "enum": ["macro", "inst_state", "geo"]},
+            "include_settled": {"type": "boolean"}}}}},
     {"type": "function", "function": {
         "name": "search_feed",
         "description": ("Поиск по ВСЕМУ входящему потоку платформы за период: новости рынка (news), "
@@ -132,6 +220,13 @@ FEED_TOOLS_SCHEMA: list[dict] = [
 
 def execute(db: Session, name: str, args: dict):
     """Исполнитель для analyst.run(extra_executor=...) и разведчика. None — не наш инструмент."""
+    if name == "list_state_versions":
+        return list_state_versions(db, args.get("kind", ""), date_from=args.get("date_from"),
+                                   date_to=args.get("date_to"), limit=args.get("limit") or 60)
+    if name == "read_state_version":
+        return read_state_version(db, args.get("kind", ""), version_id=args.get("version_id"), as_of=args.get("as_of"))
+    if name == "read_lessons":
+        return read_lessons(db, args.get("contour"), bool(args.get("include_settled")))
     if name == "search_feed":
         return search_feed(db, args.get("query", ""), days=args.get("days") or 30,
                            kinds=args.get("kinds"), limit=args.get("limit") or 12)

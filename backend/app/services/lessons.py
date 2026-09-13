@@ -105,8 +105,9 @@ def for_prompt(db: Session, contour: str, limit: int = PROMPT_LIMIT) -> str:
     rows = active(db, contour, limit)
     if not rows:
         return "УРОКИ ПРОШЛЫХ ПРОВЕРОК: — пока нет —"
-    lines = ["УРОКИ ПРОШЛЫХ ПРОВЕРОК (не повторять; повторяющиеся — первыми; по каждому в "
-             "lessons_applied скажи, как учёл):"]
+    lines = ["УРОКИ ПРОШЛЫХ ПРОВЕРОК — самые повторяющиеся (не повторять; по каждому в "
+             "lessons_applied скажи, как учёл). Вся база уроков — инструментом read_lessons. "
+             "Методичек это не касается: уроки живут отдельно."]
     for r in rows:
         rep = f" — ПОВТОРЯЛОСЬ {r.occurrences}×" if r.occurrences > 1 else ""
         lines.append(f"• [{r.severity}] {r.rule} @ {r.where}{rep}\n    было: «{(r.example or '')[:160]}»\n    надо: {(r.fix or '')[:220]}")

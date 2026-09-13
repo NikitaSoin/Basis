@@ -891,10 +891,31 @@ def market_geo_barometer(db: Session = Depends(get_db)):
 
 
 @router.get("/market/lessons")
-def market_lessons(contour: str | None = None, db: Session = Depends(get_db)):
-    """База уроков агентов: что проверяющий ловил, сколько раз повторялось, что усвоено."""
+def market_lessons(contour: str | None = None, format: str = "json", db: Session = Depends(get_db)):
+    """База уроков агентов: что проверяющий ловил, сколько раз повторялось, что усвоено.
+    Отдельное хранилище (agent_lessons), методички не затрагивает. format=md — как
+    читаемый файл: владелец просил «отдельный файл, куда записываются ошибки и как
+    надо правильно»; сервер в git не пишет, поэтому файл отдаётся отсюда."""
     from app.services.lessons import snapshot
-    return JSONResponse(content=snapshot(db, contour))
+    snap = snapshot(db, contour)
+    if format != "md":
+        return JSONResponse(content=snap)
+    from fastapi.responses import PlainTextResponse
+    titles = {"macro": "Экономика", "inst_state": "Институты", "geo": "Геополитика"}
+    lines = ["# Уроки прошлых проверок", "",
+             "Ошибки, которые проверяющий уже ловил, и как надо. Повторяющиеся — первыми. "
+             "Методички не затрагиваются: это отдельная память.", ""]
+    by: dict[str, list] = {}
+    for l in snap["lessons"]:
+        by.setdefault(l["contour"], []).append(l)
+    for c, items in by.items():
+        lines += [f"## {titles.get(c, c)}", ""]
+        for l in items:
+            mark = "усвоен" if l["status"] == "settled" else f"повторялось {l['occurrences']}×" if l["occurrences"] > 1 else "новый"
+            lines += [f"### [{l['severity']}] {l['rule']} — {mark}",
+                      f"- где: {l['where']}", f"- было: «{l['example']}»", f"- надо: {l['fix']}",
+                      f"- впервые {l['first_seen']}, последний раз {l['last_seen']}", ""]
+    return PlainTextResponse("\n".join(lines), media_type="text/markdown; charset=utf-8")
 
 
 @router.get("/market/critique/{contour}")
