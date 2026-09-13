@@ -1,325 +1,469 @@
 {
-  "_comment": "Источники Направления 7 (Геополитика). РОЛИ: event — событийный слой (вкладка Обзор); analysis — аналитический слой (вкладка Глубокая аналитика). Источники в выдаче НЕ показываются (geo_methodology.md, раздел 7). Состав/юридическую сторону определяет ВЛАДЕЛЕЦ. method: wp_json | rss | html. Парсер устойчив к смене вёрстки: пустой результат → алерт.",
-  "sources": [
-    {
-      "key": "rybar",
-      "role": "event",
-      "method": "wp_json",
-      "url": "https://rybar.ru/wp-json/wp/v2/posts",
-      "params": {
-        "per_page": 30
-      },
-      "regions": [
-        "svo",
-        "middle_east",
-        "atr"
-      ],
-      "enabled": true
-    },
-    {
-      "key": "rybar_middle_east",
-      "role": "event",
-      "method": "wp_json",
-      "url": "https://rybar.ru/wp-json/wp/v2/posts",
-      "params": {
-        "per_page": 20,
-        "tags": "367"
-      },
-      "regions": [
-        "middle_east"
-      ],
-      "enabled": true,
-      "_note": "Тег «Ближний Восток» (id 367) у Рыбаря напрямую — общая свежая лента (per_page=20) почти всегда занята СВО и вытесняет ближневосточные посты, хотя Рыбарь публикует их постоянно. Проверено 2026-07-11."
-    },
-    {
-      "key": "rybar_atr",
-      "role": "event",
-      "method": "wp_json",
-      "url": "https://rybar.ru/wp-json/wp/v2/posts",
-      "params": {
-        "per_page": 20,
-        "tags": "28,155,106,92,99,85"
-      },
-      "regions": [
-        "atr"
-      ],
-      "enabled": true,
-      "_note": "Теги Китай(28)+Тайвань(155)+Юж.Корея(106)+Япония(92)+Индия(99)+АТР(85) у Рыбаря — та же проблема вытеснения общей лентой, что и Ближний Восток."
-    },
-    {
-      "key": "tg_mod_russia",
-      "role": "event",
-      "method": "telegram",
-      "channel": "mod_russia",
-      "limit": 25,
-      "regions": [
-        "svo"
-      ],
-      "enabled": true,
-      "_about": "Минобороны РФ, официальный канал — ПЕРВОИСТОЧНИК заявлений о взятии населённых пунктов. До этого такие заявления попадали в ленту только пересказом (Рыбарь/РИА), из-за чего слой «заявлено, не подтверждено ISW» жил на вторичных упоминаниях. Лимит 25: сводка публикуется дробно, по посту на пункт. relevance_filter: отсеиваем «настроенческие» посты до LLM — канал мешает сводки с бытовыми роликами.",
-      "relevance_filter": true
-    },
-    {
-      "key": "globalaffairs",
-      "role": "both",
-      "method": "rss",
-      "url": "https://globalaffairs.ru/feed/",
-      "regions": [
-        "svo",
-        "middle_east",
-        "atr"
-      ],
-      "enabled": true
-    },
-    {
-      "key": "carnegie",
-      "role": "analysis",
-      "method": "rss",
-      "url": "https://carnegieendowment.org/posts/feed/?lang=ru",
-      "regions": [
-        "svo",
-        "middle_east"
-      ],
-      "enabled": false,
-      "_disabled_reason": "Сайт carnegieendowment.org перешёл на Next.js SPA — RSS удалён отовсюду (проверено 2026-07-11: /posts/feed, /rss/all, /russia-eurasia/rss, /politika/rss, /feed, /ru/rss — все отдают HTML-заглушку 200 вместо XML). Рабочего адреса не нашлось; включить обратно, если Carnegie восстановит фид.",
-      "_note": "RSS Carnegie мёртв (0 статей, сайт перешёл на SPA без RSS) — отключён 2026-07-21; аналитика Карнеги идёт через телеграм-каналы экспертов ниже"
-    },
-    {
-      "key": "rerussia",
-      "role": "analysis",
-      "method": "rss",
-      "url": "https://re-russia.net/feed-ru.xml",
-      "regions": [
-        "svo"
-      ],
-      "enabled": true,
-      "no_pubdate": true,
-      "_note": "RSS-фид и страницы статей не публикуют дату (ни <pubDate>, ни og:article:published_time, ни JSON-LD) — проверено 2026-07-11. Раз статья в текущей ротации фида — она свежая, день неизвестен; geo_digest.py честно ставит дату обнаружения (не выдуманную задним числом), см. no_pubdate."
-    },
-    {
-      "key": "economist_europe",
-      "role": "both",
-      "method": "rss",
-      "url": "https://www.economist.com/europe/rss.xml",
-      "regions": [
-        "svo"
-      ],
-      "enabled": true
-    },
-    {
-      "key": "economist_mea",
-      "role": "both",
-      "method": "rss",
-      "url": "https://www.economist.com/middle-east-and-africa/rss.xml",
-      "regions": [
-        "middle_east"
-      ],
-      "enabled": true
-    },
-    {
-      "key": "economist_china",
-      "role": "both",
-      "method": "rss",
-      "url": "https://www.economist.com/china/rss.xml",
-      "regions": [
-        "atr"
-      ],
-      "enabled": true
-    },
-    {
-      "key": "economist_finance",
-      "role": "analysis",
-      "method": "rss",
-      "url": "https://www.economist.com/finance-and-economics/rss.xml",
-      "regions": [
-        "svo",
-        "middle_east",
-        "atr"
-      ],
-      "enabled": true,
-      "_note": "Западный взгляд на институциональную/макро-ситуацию — замена FT/Bloomberg: у обоих ToS прямо запрещает редистрибуцию без лицензии, у FT ещё и paywall без публичного RSS (проверено 2026-07-11). The Economist отдаёт заголовок+тизер по открытому RSS — этого достаточно для классификации+пересказа."
-    },
-    {
-      "key": "isw",
-      "role": "analysis",
-      "method": "wp_json",
-      "url": "https://www.understandingwar.org/wp-json/wp/v2/posts",
-      "params": {
-        "per_page": 15
-      },
-      "regions": [
-        "svo",
-        "middle_east",
-        "atr"
-      ],
-      "enabled": true,
-      "_note": "Institute for the Study of War — ежедневные Russian Offensive Campaign Assessment / Iran Update / China & Taiwan Update, покрывают все три региона напрямую. Полный текст через wp_json content.rendered (проверено 2026-07-11, отчёты 20-60 тыс. симв.) — пересказ ограничен _TEXT_CHARS как у остальных источников. Карты фронта у ISW лицензированы CC BY (в отличие от Рыбаря) — кандидат для будущей задачи по картинкам."
-    },
-    {
-      "key": "tg_carnegie",
-      "method": "telegram",
-      "channel": "carnegiepolitika",
-      "limit": 12,
-      "_about": "Carnegie Politika — официальный канал издания Carnegie про Россию"
-    },
-    {
-      "key": "tg_baunov",
-      "method": "telegram",
-      "channel": "baunovhaus",
-      "limit": 12,
-      "no_pubdate": false,
-      "_about": "Александр Баунов (Carnegie) — геополитика/Россия"
-    },
-    {
-      "key": "tg_agabuev",
-      "method": "telegram",
-      "channel": "agabuev",
-      "limit": 12,
-      "_about": "Александр Габуев (Carnegie) — внешняя политика/АТР"
-    },
-    {
-      "key": "tg_markettwits",
-      "method": "telegram",
-      "channel": "markettwits",
-      "limit": 15,
-      "_about": "MarketTwits — оперативка по рынку/геополитике"
-    },
-    {
-      "key": "moi_misli_vslukh",
-      "role": "analysis",
-      "method": "telegram",
-      "channel": "moi_misli_vslukh",
-      "regions": [
-        "svo",
-        "middle_east",
-        "atr"
-      ],
-      "enabled": true,
-      "_note": "INTERNAL-ONLY (владелец 2026-07-27, не публиковать): инсайд/внутрянка, low trust; питает барометры/оверлей/сигналы с internal-флагом, из публичного дайджеста скрыт по source_key."
-    },
-    {
-      "key": "insider_best_tg",
-      "role": "analysis",
-      "method": "telegram",
-      "channel": "insider_best_tg",
-      "regions": [
-        "svo",
-        "middle_east",
-        "atr"
-      ],
-      "enabled": true,
-      "_note": "INTERNAL-ONLY + low trust (приукрашивают/привирают, но полезны для рисков/внутрянки)."
-    },
-    {
-      "key": "insider_elites",
-      "role": "analysis",
-      "method": "telegram",
-      "channel": "insider_elites",
-      "regions": [
-        "svo",
-        "middle_east",
-        "atr"
-      ],
-      "enabled": true,
-      "_note": "INTERNAL-ONLY + low trust."
-    },
-    {
-      "key": "ecb",
-      "role": "analysis",
-      "method": "rss",
-      "url": "https://www.ecb.europa.eu/rss/press.xml",
-      "regions": [
-        "svo",
-        "middle_east",
-        "atr"
-      ],
-      "enabled": true,
-      "_note": "ECB пресс-релизы (офиц. RSS, работает из РФ) — мировой макро-фон, target=macro по классификации. Только пересказ."
-    },
-    {
-      "key": "fed",
-      "role": "analysis",
-      "method": "rss",
-      "url": "https://www.federalreserve.gov/feeds/press_all.xml",
-      "regions": [
-        "svo",
-        "middle_east",
-        "atr"
-      ],
-      "enabled": true,
-      "_note": "Fed пресс-релизы (офиц. RSS) — ставка/ДКП США, мировой макро-фон. Только пересказ."
-    },
-    {
-      "key": "thebell",
-      "role": "analysis",
-      "method": "rss",
-      "url": "https://thebell.io/feed",
-      "regions": [
-        "svo",
-        "middle_east",
-        "atr"
-      ],
-      "enabled": true,
-      "_note": "INTERNAL-ONLY (иноагент): питает барометры/оверлей как радар макро/институтов, из публичного дайджеста скрыт по source_key."
-    },
-    {
-      "key": "bis_cb",
-      "role": "analysis",
-      "method": "rss",
-      "url": "https://www.bis.org/doclist/cbspeeches.rss",
-      "regions": [
-        "svo",
-        "middle_east",
-        "atr"
-      ],
-      "enabled": true,
-      "_note": "Выступления и материалы центральных банков мира через BIS — единственный машиночитаемый канал для НБК (у Народного банка Китая своей ленты нет, проверено 2026-08-09). Сюда же попадают ФРС, ЕЦБ, БоЯ."
-    }
-  ],
-  "region_keywords": {
-    "svo": [
-      "украин",
-      "сво",
-      "донба",
-      "фронт",
-      "запорож",
-      "херсон",
-      "купянск",
-      "санкци",
-      "офз",
-      "москв",
-      "киев",
-      "нато",
-      "переговор",
-      "обстрел",
-      "удар по"
-    ],
-    "middle_east": [
-      "израил",
-      "иран",
-      "газ",
-      "ближн",
-      "сири",
-      "ливан",
-      "хути",
-      "красное море",
-      "ормуз",
-      "саудов",
-      "нефт",
-      "опек",
-      "хамас",
-      "хезболл"
-    ],
-    "atr": [
-      "китай",
-      "тайван",
-      "корея",
-      "япони",
-      "южно-китайск",
-      "индия",
-      "атр",
-      "тихоокеан",
-      "юань"
-    ]
+ "_comment": "Источники Направления 7 (Геополитика). РОЛИ: event — событийный слой (вкладка Обзор); analysis — аналитический слой (вкладка Глубокая аналитика). Источники в выдаче НЕ показываются (geo_methodology.md, раздел 7). Состав/юридическую сторону определяет ВЛАДЕЛЕЦ. method: wp_json | rss | html. Парсер устойчив к смене вёрстки: пустой результат → алерт.",
+ "sources": [
+  {
+   "key": "rybar",
+   "role": "event",
+   "method": "wp_json",
+   "url": "https://rybar.ru/wp-json/wp/v2/posts",
+   "params": {
+    "per_page": 30
+   },
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "enabled": true
+  },
+  {
+   "key": "rybar_middle_east",
+   "role": "event",
+   "method": "wp_json",
+   "url": "https://rybar.ru/wp-json/wp/v2/posts",
+   "params": {
+    "per_page": 20,
+    "tags": "367"
+   },
+   "regions": [
+    "middle_east"
+   ],
+   "enabled": true,
+   "_note": "Тег «Ближний Восток» (id 367) у Рыбаря напрямую — общая свежая лента (per_page=20) почти всегда занята СВО и вытесняет ближневосточные посты, хотя Рыбарь публикует их постоянно. Проверено 2026-07-11."
+  },
+  {
+   "key": "rybar_atr",
+   "role": "event",
+   "method": "wp_json",
+   "url": "https://rybar.ru/wp-json/wp/v2/posts",
+   "params": {
+    "per_page": 20,
+    "tags": "28,155,106,92,99,85"
+   },
+   "regions": [
+    "atr"
+   ],
+   "enabled": true,
+   "_note": "Теги Китай(28)+Тайвань(155)+Юж.Корея(106)+Япония(92)+Индия(99)+АТР(85) у Рыбаря — та же проблема вытеснения общей лентой, что и Ближний Восток."
+  },
+  {
+   "key": "tg_mod_russia",
+   "role": "event",
+   "method": "telegram",
+   "channel": "mod_russia",
+   "limit": 25,
+   "regions": [
+    "svo"
+   ],
+   "enabled": true,
+   "_about": "Минобороны РФ, официальный канал — ПЕРВОИСТОЧНИК заявлений о взятии населённых пунктов. До этого такие заявления попадали в ленту только пересказом (Рыбарь/РИА), из-за чего слой «заявлено, не подтверждено ISW» жил на вторичных упоминаниях. Лимит 25: сводка публикуется дробно, по посту на пункт. relevance_filter: отсеиваем «настроенческие» посты до LLM — канал мешает сводки с бытовыми роликами.",
+   "relevance_filter": true
+  },
+  {
+   "key": "globalaffairs",
+   "role": "both",
+   "method": "rss",
+   "url": "https://globalaffairs.ru/feed/",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "enabled": true
+  },
+  {
+   "key": "carnegie",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://carnegieendowment.org/posts/feed/?lang=ru",
+   "regions": [
+    "svo",
+    "middle_east"
+   ],
+   "enabled": false,
+   "_disabled_reason": "Сайт carnegieendowment.org перешёл на Next.js SPA — RSS удалён отовсюду (проверено 2026-07-11: /posts/feed, /rss/all, /russia-eurasia/rss, /politika/rss, /feed, /ru/rss — все отдают HTML-заглушку 200 вместо XML). Рабочего адреса не нашлось; включить обратно, если Carnegie восстановит фид.",
+   "_note": "RSS Carnegie мёртв (0 статей, сайт перешёл на SPA без RSS) — отключён 2026-07-21; аналитика Карнеги идёт через телеграм-каналы экспертов ниже"
+  },
+  {
+   "key": "rerussia",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://re-russia.net/feed-ru.xml",
+   "regions": [
+    "svo"
+   ],
+   "enabled": true,
+   "no_pubdate": true,
+   "_note": "RSS-фид и страницы статей не публикуют дату (ни <pubDate>, ни og:article:published_time, ни JSON-LD) — проверено 2026-07-11. Раз статья в текущей ротации фида — она свежая, день неизвестен; geo_digest.py честно ставит дату обнаружения (не выдуманную задним числом), см. no_pubdate."
+  },
+  {
+   "key": "economist_europe",
+   "role": "both",
+   "method": "rss",
+   "url": "https://www.economist.com/europe/rss.xml",
+   "regions": [
+    "svo"
+   ],
+   "enabled": true
+  },
+  {
+   "key": "economist_mea",
+   "role": "both",
+   "method": "rss",
+   "url": "https://www.economist.com/middle-east-and-africa/rss.xml",
+   "regions": [
+    "middle_east"
+   ],
+   "enabled": true
+  },
+  {
+   "key": "economist_china",
+   "role": "both",
+   "method": "rss",
+   "url": "https://www.economist.com/china/rss.xml",
+   "regions": [
+    "atr"
+   ],
+   "enabled": true
+  },
+  {
+   "key": "economist_finance",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://www.economist.com/finance-and-economics/rss.xml",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "enabled": true,
+   "_note": "Западный взгляд на институциональную/макро-ситуацию — замена FT/Bloomberg: у обоих ToS прямо запрещает редистрибуцию без лицензии, у FT ещё и paywall без публичного RSS (проверено 2026-07-11). The Economist отдаёт заголовок+тизер по открытому RSS — этого достаточно для классификации+пересказа."
+  },
+  {
+   "key": "isw",
+   "role": "analysis",
+   "method": "wp_json",
+   "url": "https://www.understandingwar.org/wp-json/wp/v2/posts",
+   "params": {
+    "per_page": 15
+   },
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "enabled": true,
+   "_note": "Institute for the Study of War — ежедневные Russian Offensive Campaign Assessment / Iran Update / China & Taiwan Update, покрывают все три региона напрямую. Полный текст через wp_json content.rendered (проверено 2026-07-11, отчёты 20-60 тыс. симв.) — пересказ ограничен _TEXT_CHARS как у остальных источников. Карты фронта у ISW лицензированы CC BY (в отличие от Рыбаря) — кандидат для будущей задачи по картинкам."
+  },
+  {
+   "key": "tg_carnegie",
+   "method": "telegram",
+   "channel": "carnegiepolitika",
+   "limit": 12,
+   "_about": "Carnegie Politika — официальный канал издания Carnegie про Россию"
+  },
+  {
+   "key": "tg_baunov",
+   "method": "telegram",
+   "channel": "baunovhaus",
+   "limit": 12,
+   "no_pubdate": false,
+   "_about": "Александр Баунов (Carnegie) — геополитика/Россия"
+  },
+  {
+   "key": "tg_agabuev",
+   "method": "telegram",
+   "channel": "agabuev",
+   "limit": 12,
+   "_about": "Александр Габуев (Carnegie) — внешняя политика/АТР"
+  },
+  {
+   "key": "tg_markettwits",
+   "method": "telegram",
+   "channel": "markettwits",
+   "limit": 15,
+   "_about": "MarketTwits — оперативка по рынку/геополитике"
+  },
+  {
+   "key": "moi_misli_vslukh",
+   "role": "analysis",
+   "method": "telegram",
+   "channel": "moi_misli_vslukh",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "enabled": true,
+   "_note": "INTERNAL-ONLY (владелец 2026-07-27, не публиковать): инсайд/внутрянка, low trust; питает барометры/оверлей/сигналы с internal-флагом, из публичного дайджеста скрыт по source_key."
+  },
+  {
+   "key": "insider_best_tg",
+   "role": "analysis",
+   "method": "telegram",
+   "channel": "insider_best_tg",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "enabled": true,
+   "_note": "INTERNAL-ONLY + low trust (приукрашивают/привирают, но полезны для рисков/внутрянки)."
+  },
+  {
+   "key": "insider_elites",
+   "role": "analysis",
+   "method": "telegram",
+   "channel": "insider_elites",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "enabled": true,
+   "_note": "INTERNAL-ONLY + low trust."
+  },
+  {
+   "key": "ecb",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://www.ecb.europa.eu/rss/press.xml",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "enabled": true,
+   "_note": "ECB пресс-релизы (офиц. RSS, работает из РФ) — мировой макро-фон, target=macro по классификации. Только пересказ."
+  },
+  {
+   "key": "fed",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://www.federalreserve.gov/feeds/press_all.xml",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "enabled": true,
+   "_note": "Fed пресс-релизы (офиц. RSS) — ставка/ДКП США, мировой макро-фон. Только пересказ."
+  },
+  {
+   "key": "thebell",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://thebell.io/feed",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "enabled": true,
+   "_note": "INTERNAL-ONLY (иноагент): питает барометры/оверлей как радар макро/институтов, из публичного дайджеста скрыт по source_key."
+  },
+  {
+   "key": "bis_cb",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://www.bis.org/doclist/cbspeeches.rss",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "enabled": true,
+   "_note": "Выступления и материалы центральных банков мира через BIS — единственный машиночитаемый канал для НБК (у Народного банка Китая своей ленты нет, проверено 2026-08-09). Сюда же попадают ФРС, ЕЦБ, БоЯ."
+  },
+  {
+   "key": "kremlin_acts",
+   "method": "rss",
+   "role": "analysis",
+   "url": "http://kremlin.ru/acts/news/feed",
+   "limit": 20,
+   "enabled": true,
+   "_why": "указы и распоряжения: назначения, отставки, полномочия — опережающие индикаторы §8.2 п.1,3,4"
+  },
+  {
+   "key": "kremlin_events",
+   "method": "rss",
+   "role": "analysis",
+   "url": "http://kremlin.ru/events/all/feed",
+   "limit": 20,
+   "enabled": true,
+   "_why": "заявления и встречи первого лица — сигналы приоритетов; геополитика и институты"
+  },
+  {
+   "key": "government_docs",
+   "method": "rss",
+   "role": "analysis",
+   "url": "http://government.ru/docs/rss/",
+   "limit": 20,
+   "enabled": true,
+   "_why": "постановления и распоряжения правительства: регуляторные исключения, квоты, субсидии — §8.2 п.7"
+  },
+  {
+   "key": "genproc",
+   "method": "rss",
+   "role": "analysis",
+   "url": "https://epp.genproc.gov.ru/web/gprf/rss",
+   "limit": 20,
+   "enabled": true,
+   "_why": "иски об изъятии, деприватизация, надзор — права собственности (ГИ 7.3)"
+  },
+  {
+   "key": "fas",
+   "method": "rss",
+   "role": "analysis",
+   "url": "https://fas.gov.ru/news.rss",
+   "limit": 15,
+   "enabled": true,
+   "_why": "конкуренция, тарифы, барьеры; с ноутбука недоступен, с боя работает"
+  },
+  {
+   "key": "consultant_hotdocs",
+   "method": "rss",
+   "role": "analysis",
+   "url": "https://www.consultant.ru/rss/hotdocs.xml",
+   "limit": 30,
+   "enabled": true,
+   "_why": "новые законы и постановления с реквизитами — серии поправок как дрейф (§8.2 п.6)"
+  },
+  {
+   "key": "garant_news",
+   "method": "rss",
+   "role": "analysis",
+   "url": "https://www.garant.ru/rss/news/",
+   "limit": 15,
+   "enabled": true,
+   "_why": "правовые новости: правоприменение, судебная практика"
+  },
+  {
+   "key": "pravo_ru",
+   "method": "rss",
+   "role": "analysis",
+   "url": "https://pravo.ru/rss/",
+   "limit": 20,
+   "enabled": true,
+   "_why": "судебные решения ВС и арбитража сериями — §8.2 п.6"
+  },
+  {
+   "key": "tg_minjust",
+   "method": "telegram",
+   "channel": "minjustrf",
+   "role": "analysis",
+   "limit": 15,
+   "enabled": true,
+   "_why": "реестр иноагентов, регистрация организаций — доступ к созданию организаций (ГИ 7.3)"
+  },
+  {
+   "key": "tg_vsrf",
+   "method": "telegram",
+   "channel": "vsrf_ru",
+   "role": "analysis",
+   "limit": 15,
+   "enabled": true,
+   "_why": "Верховный суд: прецеденты и обзоры практики"
+  },
+  {
+   "key": "tg_genproc",
+   "method": "telegram",
+   "channel": "genprocrf",
+   "role": "analysis",
+   "limit": 15,
+   "enabled": true,
+   "_why": "дубль к RSS Генпрокуратуры — на случай отказа одного канала"
+  },
+  {
+   "key": "tg_fas",
+   "method": "telegram",
+   "channel": "fasrussia",
+   "role": "analysis",
+   "limit": 15,
+   "enabled": true,
+   "_why": "ФАС в телеграме — резерв к RSS, недоступному с части адресов"
+  },
+  {
+   "key": "cbr_press",
+   "method": "rss",
+   "role": "analysis",
+   "url": "https://www.cbr.ru/rss/RssPress",
+   "limit": 20,
+   "enabled": true,
+   "_why": "пресс-релизы ЦБ: решения по ставке, макропруденциальные меры, комментарии — первоисточник"
+  },
+  {
+   "key": "tg_minfin",
+   "method": "telegram",
+   "channel": "minfin",
+   "role": "analysis",
+   "limit": 15,
+   "enabled": true,
+   "_why": "Минфин: бюджет, размещения ОФЗ, налоговые инициативы (RSS сайта недоступен)"
+  },
+  {
+   "key": "inp_ran",
+   "method": "rss",
+   "role": "analysis",
+   "url": "https://ecfor.ru/feed/",
+   "limit": 10,
+   "enabled": true,
+   "_why": "ИНП РАН: краткосрочный анализ ВВП, прогнозы — внешняя оценка для макро-базы Часть 15"
+  },
+  {
+   "key": "tg_mid",
+   "method": "telegram",
+   "channel": "mid_russia",
+   "role": "analysis",
+   "limit": 15,
+   "enabled": true,
+   "_why": "МИД: официальная позиция, переговорные треки (сайт mid.ru недоступен парсеру)"
   }
+ ],
+ "region_keywords": {
+  "svo": [
+   "украин",
+   "сво",
+   "донба",
+   "фронт",
+   "запорож",
+   "херсон",
+   "купянск",
+   "санкци",
+   "офз",
+   "москв",
+   "киев",
+   "нато",
+   "переговор",
+   "обстрел",
+   "удар по"
+  ],
+  "middle_east": [
+   "израил",
+   "иран",
+   "газ",
+   "ближн",
+   "сири",
+   "ливан",
+   "хути",
+   "красное море",
+   "ормуз",
+   "саудов",
+   "нефт",
+   "опек",
+   "хамас",
+   "хезболл"
+  ],
+  "atr": [
+   "китай",
+   "тайван",
+   "корея",
+   "япони",
+   "южно-китайск",
+   "индия",
+   "атр",
+   "тихоокеан",
+   "юань"
+  ]
+ }
 }

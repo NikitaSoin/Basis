@@ -1,101 +1,107 @@
 {
-  "_comment": "RSS-ленты для Ленты новостей Обозревателя. Адреса меняются — правьте ЗДЕСЬ, не в коде. rubric: economy|investments|politics_world. enabled=false временно отключает источник.",
-  "feeds": [
-    {
-      "source": "interfax",
-      "rubric": "economy",
-      "url": "https://www.interfax.ru/rss.asp",
-      "enabled": true
-    },
-    {
-      "source": "rbc",
-      "rubric": "economy",
-      "url": "https://rssexport.rbc.ru/rbcnews/news/30/full.rss",
-      "enabled": true
-    },
-    {
-      "source": "kommersant",
-      "rubric": "economy",
-      "url": "https://www.kommersant.ru/RSS/section-economics.xml",
-      "enabled": true
-    },
-    {
-      "source": "kommersant",
-      "rubric": "investments",
-      "url": "https://www.kommersant.ru/RSS/section-finance.xml",
-      "enabled": true
-    },
-    {
-      "source": "kommersant",
-      "rubric": "politics_world",
-      "url": "https://www.kommersant.ru/RSS/section-world.xml",
-      "enabled": true
-    },
-    {
-      "source": "angi",
-      "rubric": "oil_gas",
-      "url": "https://www.angi.ru/rss/angi.xml",
-      "enabled": true,
-      "_sector": "нефтегаз"
-    },
-    {
-      "source": "tadviser",
-      "rubric": "it_telecom",
-      "url": "https://www.tadviser.ru/xml/tadviser.xml",
-      "enabled": true,
-      "_sector": "IT/телеком"
-    },
-    {
-      "source": "retail_ru",
-      "rubric": "retail",
-      "url": "https://www.retail.ru/rss/news/",
-      "enabled": true,
-      "_sector": "ритейл"
-    },
-    {
-      "source": "ikar",
-      "rubric": "agro",
-      "url": "https://ikar.ru/rss/all.xml",
-      "enabled": true,
-      "_sector": "агро"
-    },
-    {
-      "source": "sovecon",
-      "rubric": "agro",
-      "url": "https://sovecon.ru/feed/",
-      "enabled": true,
-      "_sector": "агро"
-    },
-    {
-      "source": "frankmedia",
-      "rubric": "banks",
-      "url": "https://frankmedia.ru/feed",
-      "enabled": true,
-      "_sector": "банки/ЦБ"
-    },
-    {
-      "source": "rusmet",
-      "rubric": "metals",
-      "url": "https://rusmet.ru/feed/",
-      "enabled": true,
-      "_sector": "металлургия",
-      "_note": "Владелец 2026-07-28 просил Metal Bulletin (металлургия). Сам Metal Bulletin недоступен: стал платным Fastmarkets, ToS против редистрибуции (категория Bloomberg/FT — не тянем). rusmet.ru — рабочий RU-RSS металлургии (Норникель/Полюс/цветмет/уголь/сталь), питает вкладку «Рынки» металлургических карточек (GMKN/PLZL/MAGN/NLMK/CHMF)."
-    },
-    {
-      "source": "thebell",
-      "rubric": "business",
-      "url": "https://thebell.io/feed",
-      "enabled": true,
-      "_note": "INTERNAL-ONLY (иностранный агент в РФ, владелец 2026-07-27): участвует во входном потоке (сигналы карточек, барометры-радар), из клиентской Ленты скрыт по source в INTERNAL_SOURCE_KEYS."
-    }
-  ],
-  "schedule_msk_hours": [
-    7,
-    13,
-    19,
-    1
-  ],
-  "max_items_per_feed": 60,
-  "dedup_title_similarity": 0.62,
-  "_comment_sector": "Отраслевые фиды (2026-07-27, разведка source-scouting.md): нефтегаз/IT/ритейл/агро/банки — питают вкладку «Рынки» карточек через шину company_signals; importance-фильтр Ленты отсекает шум."
+ "_comment": "RSS-ленты для Ленты новостей Обозревателя. Адреса меняются — правьте ЗДЕСЬ, не в коде. rubric: economy|investments|politics_world. enabled=false временно отключает источник.",
+ "feeds": [
+  {
+   "source": "interfax",
+   "rubric": "economy",
+   "url": "https://www.interfax.ru/rss.asp",
+   "enabled": true
+  },
+  {
+   "source": "rbc",
+   "rubric": "economy",
+   "url": "https://rssexport.rbc.ru/rbcnews/news/30/full.rss",
+   "enabled": true
+  },
+  {
+   "source": "kommersant",
+   "rubric": "economy",
+   "url": "https://www.kommersant.ru/RSS/section-economics.xml",
+   "enabled": true
+  },
+  {
+   "source": "kommersant",
+   "rubric": "investments",
+   "url": "https://www.kommersant.ru/RSS/section-finance.xml",
+   "enabled": true
+  },
+  {
+   "source": "kommersant",
+   "rubric": "politics_world",
+   "url": "https://www.kommersant.ru/RSS/section-world.xml",
+   "enabled": true
+  },
+  {
+   "source": "angi",
+   "rubric": "oil_gas",
+   "url": "https://www.angi.ru/rss/angi.xml",
+   "enabled": true,
+   "_sector": "нефтегаз"
+  },
+  {
+   "source": "tadviser",
+   "rubric": "it_telecom",
+   "url": "https://www.tadviser.ru/xml/tadviser.xml",
+   "enabled": true,
+   "_sector": "IT/телеком"
+  },
+  {
+   "source": "retail_ru",
+   "rubric": "retail",
+   "url": "https://www.retail.ru/rss/news/",
+   "enabled": true,
+   "_sector": "ритейл"
+  },
+  {
+   "source": "ikar",
+   "rubric": "agro",
+   "url": "https://ikar.ru/rss/all.xml",
+   "enabled": true,
+   "_sector": "агро"
+  },
+  {
+   "source": "sovecon",
+   "rubric": "agro",
+   "url": "https://sovecon.ru/feed/",
+   "enabled": true,
+   "_sector": "агро"
+  },
+  {
+   "source": "frankmedia",
+   "rubric": "banks",
+   "url": "https://frankmedia.ru/feed",
+   "enabled": true,
+   "_sector": "банки/ЦБ"
+  },
+  {
+   "source": "rusmet",
+   "rubric": "metals",
+   "url": "https://rusmet.ru/feed/",
+   "enabled": true,
+   "_sector": "металлургия",
+   "_note": "Владелец 2026-07-28 просил Metal Bulletin (металлургия). Сам Metal Bulletin недоступен: стал платным Fastmarkets, ToS против редистрибуции (категория Bloomberg/FT — не тянем). rusmet.ru — рабочий RU-RSS металлургии (Норникель/Полюс/цветмет/уголь/сталь), питает вкладку «Рынки» металлургических карточек (GMKN/PLZL/MAGN/NLMK/CHMF)."
+  },
+  {
+   "source": "thebell",
+   "rubric": "business",
+   "url": "https://thebell.io/feed",
+   "enabled": true,
+   "_note": "INTERNAL-ONLY (иностранный агент в РФ, владелец 2026-07-27): участвует во входном потоке (сигналы карточек, барометры-радар), из клиентской Ленты скрыт по source в INTERNAL_SOURCE_KEYS."
+  },
+  {
+   "source": "vedomosti",
+   "rubric": "economy",
+   "url": "https://www.vedomosti.ru/rss/rubric/economics",
+   "enabled": true
+  }
+ ],
+ "schedule_msk_hours": [
+  7,
+  13,
+  19,
+  1
+ ],
+ "max_items_per_feed": 60,
+ "dedup_title_similarity": 0.62,
+ "_comment_sector": "Отраслевые фиды (2026-07-27, разведка source-scouting.md): нефтегаз/IT/ритейл/агро/банки — питают вкладку «Рынки» карточек через шину company_signals; importance-фильтр Ленты отсекает шум."
 }

@@ -74,9 +74,21 @@ _RULES = (
 )
 
 
+_SELF_RESEARCH = (
+    "\n===== ЕСЛИ НЕ ХВАТАЕТ ДАННЫХ =====\n"
+    "🔴 Не принимай решение при нехватке информации и не заполняй пробел общими "
+    "словами. У тебя есть инструменты доискать самому: search_feed — по всему потоку "
+    "платформы (новости, статьи, летопись, записки, отчёты), web_search и "
+    "fetch_document — во внешнем вебе (первоисточники: сайты ведомств, ЦБ, "
+    "раскрытие, официальные публикации). Порядок: сначала search_feed (наш архив "
+    "уже размечен и датирован), затем веб. Что не нашёл после поиска — так и пиши: "
+    "«искал там-то, не нашёл», в data_flags. Это лучше уверенной догадки.\n"
+)
+
+
 def run(db: Session, *, system: str, task: str, shelf_docs: list[str],
         extra_tools: list[dict] | None = None, extra_executor=None,
-        max_steps: int = 10, budget: int = 160_000,
+        max_steps: int = 10, budget: int = 160_000, web_call_cap: int = 8,
         step_max_tokens: int = 3000, final_max_tokens: int = 20_000,
         final_instruction: str = "", label: str = "analyst",
         notes: list[str] | None = None) -> dict | None:
@@ -94,8 +106,21 @@ def run(db: Session, *, system: str, task: str, shelf_docs: list[str],
     from app.services.agent_runner import run_agent
     from app.services.methodology import METHODOLOGY_TOOLS_SCHEMA, shelf_card
 
-    tools = list(METHODOLOGY_TOOLS_SCHEMA) + list(extra_tools or [])
-    full_system = system + _RULES + shelf_card(shelf_docs)
+    # 🔴 Аналитик ДОИСКИВАЕТ САМ (владелец, 2026-09-13): «если аналитику не хватает
+    # информации, он не должен принимать решение при ограниченной информации».
+    # До этого веб был только у разведчика, а аналитик получал готовое досье и
+    # при нехватке рассуждал с дырой. Теперь у любого аналитика есть веб-поиск и
+    # скачивание документа — те же инструменты, что у разведчика, — плюс поиск
+    # по потоку платформы. Лимит вызовов веба (web_call_cap) — защита от
+    # зацикливания, не экономия.
+    web_tools: list[dict] = []
+    try:
+        from app.services.agent_tools import WEB_TOOLS_SCHEMA
+        web_tools = list(WEB_TOOLS_SCHEMA)
+    except ImportError:  # pragma: no cover
+        pass
+    tools = list(METHODOLOGY_TOOLS_SCHEMA) + list(extra_tools or []) + web_tools
+    full_system = system + _RULES + _SELF_RESEARCH + shelf_card(shelf_docs)
 
     def _exec(_db, name, args):
         from app.services.methodology import execute as _m
@@ -103,7 +128,12 @@ def run(db: Session, *, system: str, task: str, shelf_docs: list[str],
         if got is not None:
             return got
         if extra_executor is not None:
-            return extra_executor(_db, name, args)
+            got = extra_executor(_db, name, args)
+            if got is not None:
+                return got
+        if name in ("web_search", "fetch_document"):
+            from app.services.agent_tools import execute_tool
+            return execute_tool(_db, name, args, "")
         return {"error": "unknown_tool", "note": name}
 
     # Размер входа — в лог и в диагностику ВСЕГДА: у агента каждый шаг отправляет
@@ -119,7 +149,7 @@ def run(db: Session, *, system: str, task: str, shelf_docs: list[str],
         out = run_agent(
             db, system_prompt=full_system, task=task, tools_schema=tools,
             allowed_ticker="", max_steps=max_steps, max_tokens_total=budget,
-            web_call_cap=0 if not extra_tools else 4,
+            web_call_cap=web_call_cap,
             executor=_exec, step_max_tokens=step_max_tokens,
             final_max_tokens=final_max_tokens,
             final_instruction=final_instruction,
