@@ -2044,6 +2044,24 @@ def debug_trigger_evening_pipeline():
         db.close()
 
 
+@router.post("/debug/trigger-probe-questions")
+def debug_trigger_probe_questions(only: str | None = None):
+    """Ручной запуск контрольных вопросов владельца (обычно крон сб 09:30). Долго
+    (7 вопросов × аналитик + экзаменатор ≈ 1–2 ч); прокси ответа не дождётся — смотреть
+    /api/market/probe-questions?format=md. only=id1,id2 — часть вопросов."""
+    from app.db.session import SessionLocal
+    from app.services.probe_questions import run
+    db = SessionLocal()
+    try:
+        row = run(db, only=[x.strip() for x in only.split(",") if x.strip()] if only else None)
+        return {"id": row.id, "status": row.status, "summary": (row.payload or {}).get("summary")}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-probe-questions: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-critic")
 def debug_trigger_critic():
     """Ручной запуск проверяющего по трём сводкам (обычно крон 23:40)."""

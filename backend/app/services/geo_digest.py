@@ -67,6 +67,30 @@ SOURCE_LABELS = {
     # поэтому подпись добавляется В ТОТ ЖЕ коммит, что и источник.
     "ecb": "ЕЦБ", "fed": "ФРС США", "bis_cb": "Центробанки мира (BIS)",
     "cbr": "Банк России", "cmakp": "ЦМАКП",
+    # +47 источников 2026-09-13 (ресёрч по направлениям) и первоисточники пункта 4
+    "tg_mod_russia": "МО РФ", "moi_misli_vslukh": "Мои мысли вслух", "insider_best_tg": "Инсайдер",
+    "insider_elites": "Инсайдер (элиты)", "thebell": "The Bell",
+    "kremlin_acts": "Кремль (документы)", "kremlin_events": "Кремль (события)",
+    "government_docs": "Правительство РФ", "genproc": "Генпрокуратура", "fas": "ФАС",
+    "consultant_hotdocs": "КонсультантПлюс", "garant_news": "Гарант", "pravo_ru": "Право.ру",
+    "tg_minjust": "Минюст", "tg_vsrf": "Верховный суд", "tg_genproc": "Генпрокуратура",
+    "tg_fas": "ФАС", "cbr_press": "Банк России", "tg_minfin": "Минфин", "inp_ran": "ИНП РАН",
+    "tg_mid": "МИД России",
+    "nyt_world": "NYT", "guardian_world": "The Guardian", "ft_world": "FT", "wsj_world": "WSJ",
+    "lemonde_int": "Le Monde", "foreign_affairs": "Foreign Affairs", "foreign_policy": "Foreign Policy",
+    "war_on_the_rocks": "War on the Rocks", "csis": "CSIS", "responsible_statecraft": "Responsible Statecraft",
+    "ukrainska_pravda": "Украинская правда", "eurointegration": "Европейская правда",
+    "aljazeera": "Al Jazeera", "al_monitor": "Al-Monitor", "middle_east_eye": "Middle East Eye",
+    "haaretz": "Haaretz", "jpost": "Jerusalem Post", "tehran_times": "Tehran Times", "irna_en": "IRNA",
+    "daily_sabah": "Daily Sabah",
+    "scmp_china": "SCMP", "global_times": "Global Times", "xinhua_world": "Синьхуа", "sixth_tone": "Sixth Tone",
+    "nikkei_asia": "Nikkei Asia", "japan_times": "Japan Times", "yonhap_en": "Yonhap", "the_diplomat": "The Diplomat",
+    "taipei_times": "Taipei Times", "lowy_interpreter": "Lowy Institute", "straits_times": "Straits Times",
+    "hindustan_times_world": "Hindustan Times", "the_hindu_intl": "The Hindu", "cgtn": "CGTN",
+    "boe": "Банк Англии", "boj": "Банк Японии", "econbrowser": "Econbrowser", "calculated_risk": "Calculated Risk",
+    "ft_markets": "FT Markets", "ft_global_econ": "FT Economy", "eia_today": "EIA",
+    "rapsi": "РАПСИ", "kommersant_politics": "Ъ Политика", "vedomosti_politics": "Ведомости Политика",
+    "regnum": "Регнум", "tass_politics": "ТАСС", "interfax_russia": "Интерфакс",
 }
 
 

@@ -164,6 +164,192 @@ def read_lessons(db: Session, contour: str | None = None, include_settled: bool 
     return {"contour": contour, "count": len(items), "lessons": items}
 
 
+# ─────────────────────── подписи и роли источников ───────────────────────
+# 🔴 Аналитик не видел источник статьи (владелец 2026-09-13: «взвесить источники он не
+# может»). Подпись — человеческая (из geo_digest.SOURCE_LABELS или ключ), роль — из
+# конфига источников: event (событийный) / analysis (аналитический) / both.
+_SOURCE_META: dict[str, tuple[str, str]] | None = None
+
+
+def source_meta() -> dict[str, tuple[str, str]]:
+    global _SOURCE_META
+    if _SOURCE_META is not None:
+        return _SOURCE_META
+    meta: dict[str, tuple[str, str]] = {}
+    try:
+        from app.services.geopolitics import load_config
+        for src in (load_config().get("sources") or []):
+            k = src.get("key")
+            if k:
+                meta[k] = (k.replace("_", " "), str(src.get("role") or "event"))
+    except Exception as e:  # noqa: BLE001
+        logger.warning("source_meta: конфиг источников недоступен (%s)", e)
+    try:
+        from app.services.geo_digest import SOURCE_LABELS
+        for k, label in SOURCE_LABELS.items():
+            meta[k] = (label, meta.get(k, ("", "event"))[1])
+    except Exception:  # noqa: BLE001
+        pass
+    _SOURCE_META = meta
+    return meta
+
+
+def source_label(key: str | None) -> str:
+    if not key:
+        return "источник не указан"
+    return source_meta().get(key, (key.replace("_", " "), "event"))[0]
+
+
+def source_role(key: str | None) -> str:
+    return source_meta().get(key or "", ("", "event"))[1] if key else "event"
+
+
+# ─────────────────────── собранные данные по очагам ───────────────────────
+# 🔴 ЗАЧЕМ (владелец, 2026-09-13): «собранные структурные данные до аналитиков не
+# доходят — удары по объектам, территориальные заявления и линия фронта от ISW
+# собираются дважды в день, но идут только на карту». Аналитику нужен не список
+# точек, а ТЕМП И СТРУКТУРА: сколько ударов в неделю, по каким классам объектов,
+# куда смещается фокус; сколько населённых пунктов сменили статус; как меняется
+# площадь контроля по ISW. Отсюда — недельные агрегаты + короткий хвост событий.
+# Ограничения данных называются прямо (в поле note): значимые удары хранятся 60
+# дней, мелкие — 14, поэтому «мелких стало меньше» за пределами двух недель —
+# артефакт хранения, а не динамика.
+
+_THEATERS = ("svo", "middle_east", "atr")
+_THEATER_RU = {"svo": "СВО", "middle_east": "Ближний Восток", "atr": "АТР"}
+_CONFLICT_NOTE = ("удары — из пересказов ленты (Рыбарь, ISW, МО РФ, зарубежные ленты), значимые "
+                  "хранятся 60 дней, мелкие 14 — сравнивай мелкие только внутри двух недель; "
+                  "контроль территории — заявления источников (ru_control = заявлено взятие, "
+                  "contested = бои / не подтверждено); площадь — чистая оценка ISW, км², только СВО")
+
+
+def _week_start(d) -> str:
+    return (d - timedelta(days=d.weekday())).isoformat()
+
+
+def _norm_target(t: str | None) -> str:
+    t = (t or "").strip().lower()
+    return t[:40] if t else "не указан"
+
+
+def conflict_brief(db: Session, days: int = 56, recent: int = 12, theater: str | None = None) -> dict:
+    """Недельные агрегаты ударов и заявлений о контроле + площадь по ISW, по очагам."""
+    from app.models.geo import (GeoFrontlineSnapshot, GeoFrontlineSync, GeoStrikeEvent,
+                                GeoTerritorialClaim)
+    days = max(7, min(int(days or 56), 180))
+    since = date.today() - timedelta(days=days)
+    theaters = [theater] if theater in _THEATERS else list(_THEATERS)
+    out: dict = {"as_of": date.today().isoformat(), "window_days": days, "note": _CONFLICT_NOTE,
+                 "theaters": {}}
+    for th in theaters:
+        try:
+            rows = (db.query(GeoStrikeEvent)
+                    .filter(GeoStrikeEvent.theater == th, GeoStrikeEvent.event_date >= since)
+                    .order_by(GeoStrikeEvent.event_date.desc()).all())
+        except Exception as e:  # noqa: BLE001
+            db.rollback(); logger.warning("conflict_brief strikes[%s]: %s", th, e); rows = []
+        weeks: dict[str, dict] = {}
+        totals: dict[str, int] = {}
+        for r in rows:
+            if not r.event_date:
+                continue
+            w = weeks.setdefault(_week_start(r.event_date), {"week_start": _week_start(r.event_date),
+                                                              "major": 0, "minor": 0, "by_target": {}})
+            w["major" if r.significance == "major" else "minor"] += 1
+            tt = _norm_target(r.target_type)
+            w["by_target"][tt] = w["by_target"].get(tt, 0) + 1
+            totals[tt] = totals.get(tt, 0) + 1
+        top_targets = sorted(totals.items(), key=lambda kv: -kv[1])[:12]
+        block: dict = {
+            "strikes": {
+                "total": len(rows), "major": sum(1 for r in rows if r.significance == "major"),
+                "weeks": sorted(weeks.values(), key=lambda w: w["week_start"]),
+                "top_targets": [{"target": t, "count": n} for t, n in top_targets],
+                "recent_major": [{"date": r.event_date.isoformat() if r.event_date else None,
+                                  "location": r.location_name, "target_type": r.target_type,
+                                  "label": (r.label or "")[:160], "source": r.source_key}
+                                 for r in rows if r.significance == "major"][:recent],
+            }
+        }
+        if th == "svo":
+            try:
+                claims = (db.query(GeoTerritorialClaim)
+                          .filter(GeoTerritorialClaim.claimed_date >= since)
+                          .order_by(GeoTerritorialClaim.claimed_date.desc()).all())
+            except Exception as e:  # noqa: BLE001
+                db.rollback(); logger.warning("conflict_brief claims: %s", e); claims = []
+            cw: dict[str, dict] = {}
+            for c in claims:
+                if not c.claimed_date:
+                    continue
+                w = cw.setdefault(_week_start(c.claimed_date), {"week_start": _week_start(c.claimed_date),
+                                                                 "ru_control": 0, "contested": 0})
+                w["ru_control" if c.status == "ru_control" else "contested"] += 1
+            block["territorial_claims"] = {
+                "total": len(claims),
+                "ru_control": sum(1 for c in claims if c.status == "ru_control"),
+                "contested": sum(1 for c in claims if c.status != "ru_control"),
+                "weeks": sorted(cw.values(), key=lambda w: w["week_start"]),
+                "recent": [{"date": c.claimed_date.isoformat() if c.claimed_date else None,
+                            "settlement": c.settlement, "oblast": c.oblast, "status": c.status,
+                            "source": c.source_key} for c in claims][:recent],
+            }
+            fl: dict = {}
+            try:
+                sync = db.query(GeoFrontlineSync).filter(GeoFrontlineSync.theater == "svo").first()
+                if sync:
+                    fl.update({"as_of": sync.as_of, "status": sync.status, "source": sync.source})
+                snaps = (db.query(GeoFrontlineSnapshot.snapshot_date, GeoFrontlineSnapshot.isw_area_km2)
+                         .filter(GeoFrontlineSnapshot.theater == "svo",
+                                 GeoFrontlineSnapshot.isw_area_km2.isnot(None))
+                         .order_by(GeoFrontlineSnapshot.snapshot_date.desc()).limit(400).all())
+                if snaps:
+                    latest_d, latest_a = snaps[0]
+                    fl["area_km2_latest"] = latest_a; fl["area_date"] = latest_d
+                    fl["snapshots"] = len(snaps)
+
+                    def _at(back: int):
+                        target = (date.fromisoformat(latest_d) - timedelta(days=back)).isoformat()
+                        older = [s for s in snaps if s[0] <= target]
+                        return older[0] if older else None
+                    for back, key in ((7, "delta_7d_km2"), (30, "delta_30d_km2"), (90, "delta_90d_km2")):
+                        o = _at(back)
+                        fl[key] = (latest_a - o[1]) if o else None
+                        if o:
+                            fl[key + "_from"] = o[0]
+            except Exception as e:  # noqa: BLE001
+                db.rollback(); logger.warning("conflict_brief frontline: %s", e)
+            block["frontline_isw"] = fl or {"note": "снимков линии фронта нет"}
+        out["theaters"][th] = block
+    return out
+
+
+def conflict_data(db: Session, theater: str, days: int = 56, limit: int = 40) -> dict:
+    """Инструмент для агента: агрегаты + более длинный хвост событий по одному очагу."""
+    if theater not in _THEATERS:
+        return {"error": f"theater должен быть одним из {_THEATERS}"}
+    brief = conflict_brief(db, days=days, recent=max(1, min(int(limit or 40), 80)), theater=theater)
+    block = brief["theaters"].get(theater) or {}
+    return {"theater": theater, "theater_ru": _THEATER_RU[theater], "as_of": brief["as_of"],
+            "window_days": brief["window_days"], "note": brief["note"], **block}
+
+
+def conflict_brief_text(db: Session, days: int = 56) -> str:
+    """Компактный блок для ЗАДАНИЯ аналитика (не для инструмента): недельные ряды и
+    верхние классы целей, без длинных хвостов. Пустые данные — сказано прямо."""
+    import json as _json
+    try:
+        b = conflict_brief(db, days=days, recent=8)
+    except Exception as e:  # noqa: BLE001
+        return f"СОБРАННЫЕ ДАННЫЕ ПО ОЧАГАМ: недоступны ({type(e).__name__})"
+    if not any((t.get("strikes") or {}).get("total") for t in b["theaters"].values()):
+        return ("СОБРАННЫЕ ДАННЫЕ ПО ОЧАГАМ (удары, контроль территории, линия фронта): за "
+                f"{days} дней событий не собрано — не делай выводов о темпе ударов, так и напиши.")
+    return ("СОБРАННЫЕ ДАННЫЕ ПО ОЧАГАМ (удары по объектам, заявления о контроле, площадь по ISW) — "
+            f"недельные ряды за {days} дней; подробнее — инструмент conflict_data:\n"
+            + _json.dumps(b, ensure_ascii=False, default=str)[:14_000])
+
+
 FEED_TOOLS_SCHEMA: list[dict] = [
     {"type": "function", "function": {
         "name": "list_state_versions",
@@ -209,6 +395,19 @@ FEED_TOOLS_SCHEMA: list[dict] = [
             "limit": {"type": "integer", "description": "сколько строк, до 30"}},
             "required": ["query"]}}},
     {"type": "function", "function": {
+        "name": "conflict_data",
+        "description": ("СОБРАННЫЕ ДАННЫЕ ПО ОЧАГУ: удары по объектам по неделям и классам целей "
+                        "(НПЗ, склады, аэродромы, энергетика…) с хвостом значимых событий; для СВО ещё "
+                        "заявления о смене контроля населённых пунктов по неделям и площадь контроля по "
+                        "ISW (км², дельты за 7/30/90 дней). Для вопросов «продолжатся ли удары и по "
+                        "каким объектам», «куда движется фронт», «у кого инициатива». Данные — из "
+                        "пересказов ленты и ISW, ограничения названы в note."),
+        "parameters": {"type": "object", "properties": {
+            "theater": {"type": "string", "enum": ["svo", "middle_east", "atr"]},
+            "days": {"type": "integer", "description": "окно, по умолчанию 56, до 180"},
+            "limit": {"type": "integer", "description": "сколько последних событий в хвосте, до 80"}},
+            "required": ["theater"]}}},
+    {"type": "function", "function": {
         "name": "read_feed_item",
         "description": "Полный текст одной записи потока по kind и id из search_feed.",
         "parameters": {"type": "object", "properties": {
@@ -230,6 +429,9 @@ def execute(db: Session, name: str, args: dict):
     if name == "search_feed":
         return search_feed(db, args.get("query", ""), days=args.get("days") or 30,
                            kinds=args.get("kinds"), limit=args.get("limit") or 12)
+    if name == "conflict_data":
+        return conflict_data(db, args.get("theater", ""), days=args.get("days") or 56,
+                             limit=args.get("limit") or 40)
     if name == "read_feed_item":
         return read_feed_item(db, args.get("kind", ""), args.get("id") or 0)
     return None

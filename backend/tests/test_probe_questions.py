@@ -1,0 +1,40 @@
+"""Контрольные вопросы владельца — конфиг, агрегат, чтение (без LLM и БД)."""
+from app.services import probe_questions as pq
+from app.services.situation_overlay import _BLOCKLIST
+
+
+def test_вопросы_загружаются_и_корректны():
+    qs = pq.load_questions()
+    ids = [q["id"] for q in qs]
+    assert len(qs) >= 7 and len(ids) == len(set(ids))
+    assert {q["contour"] for q in qs} <= set(pq.CONTOURS)
+    for q in qs:
+        assert len(q["question"]) > 40
+        assert not _BLOCKLIST.search(q["question"]), q["id"]
+
+
+def test_агрегат_баллов():
+    items = [{"id": "a", "answer": {"answer": "x"}, "judge": {"scores": {k: 4 for k in pq.RUBRIC}}},
+             {"id": "b", "answer": {"answer": "y"}, "judge": {"scores": {k: 2 for k in pq.RUBRIC}}},
+             {"id": "c", "answer": None, "judge": None}]
+    s = pq.aggregate(items)
+    assert s["questions"] == 3 and s["answered"] == 2 and s["judged"] == 2
+    assert s["avg_total"] == 18.0 and s["max_total"] == 30 and s["pct"] == 0.6
+    assert s["per_question"]["c"]["total"] is None
+
+
+def test_чтение_владельцем():
+    items = [{"id": "q1", "contour": "geo", "question": "Что будет?", "notes": [],
+              "answer": {"answer": "Главный вывод. Разбор.", "probabilities": [{"outcome": "сохранится", "p": 0.6, "horizon": "3 мес"}],
+                         "gaps": [{"gap": "нет данных по ущербу"}]},
+              "judge": {"scores": {k: 3 for k in pq.RUBRIC}, "missing": ["интересы сторон"], "wrong": [], "verdict": "обзорно"}}]
+    payload = {"as_of": "2026-09-14", "items": items, "summary": pq.aggregate(items)}
+    md = pq.render_md(payload)
+    assert "Что будет?" in md and "Главный вывод" in md and "интересы сторон" in md and "балл 18" in md
+
+
+def test_системные_задания_собираются():
+    for c in pq.CONTOURS:
+        s = pq._analyst_system(c)
+        assert "МАНДАТ" in s and "answer" in s
+    assert all(k in pq._judge_system() for k in pq.RUBRIC)

@@ -58,7 +58,12 @@ _METHODOLOGY = os.path.join(_REPO, "docs", "geopolitics_methodology.md")
 
 _SCOPES = ("svo", "middle_east", "atr")
 _WINDOW_DAYS = 14        # окно ленты для суточной пересборки
-_MAX_PER_SCOPE = 14      # кап статей на очаг — не раздувать промпт
+# 🔴 Квоты на очаг (владелец 2026-09-13: «14 статей на очаг при 86 источниках — узкое
+# горло; поднять потолок, аналитические источники первыми»). Аналитика и события — раздельные
+# квоты, чтобы свежие события не вытесняли редкие аналитические материалы и наоборот.
+_MAX_ANALYSIS_PER_SCOPE = 12
+_MAX_EVENT_PER_SCOPE = 18
+_MAX_PER_SCOPE = _MAX_ANALYSIS_PER_SCOPE + _MAX_EVENT_PER_SCOPE   # совместимость
 _MIN_ARTICLES_TOTAL = 3  # меньше — не пересобираем (честная деградация)
 
 # 🔴 Здесь были загрузчик методички и сборщик её «ядра» — куски, которые
@@ -84,6 +89,31 @@ def _feed_exec(db, name, args):
     except ImportError:  # pragma: no cover
         return None
 
+def _mandate_prompt() -> str:
+    try:
+        from app.services.handoffs import mandate_block
+        return mandate_block("geo")
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def _situation_gate(fresh: dict) -> list[str]:
+    try:
+        from app.services.handoffs import situation_gate_notes
+        return situation_gate_notes(fresh, "geo")
+    except Exception:  # noqa: BLE001
+        return []
+
+
+def _conflict_brief(db: Session, days: int = 56) -> str:
+    """Собранные данные по очагам (удары, контроль, площадь ISW) — в задание. Мягко."""
+    try:
+        from app.services.feed_tools import conflict_brief_text
+        return conflict_brief_text(db, days=days)
+    except Exception as e:  # noqa: BLE001
+        return f"СОБРАННЫЕ ДАННЫЕ ПО ОЧАГАМ: недоступны ({type(e).__name__})"
+
+
 def gather_articles(db: Session, window_days: int = _WINDOW_DAYS) -> dict:
     """Свежая лента по очагам. Только заголовок+пересказ: статьи уже прошли
     слой классификации geo_digest с редакционными конвенциями."""
@@ -93,13 +123,27 @@ def gather_articles(db: Session, window_days: int = _WINDOW_DAYS) -> dict:
             .filter(GeoDigestArticle.target.in_(_SCOPES),
                     GeoDigestArticle.published_at >= cutoff)
             .order_by(GeoDigestArticle.published_at.desc()).all())
+    try:
+        from app.services.feed_tools import source_label, source_role
+    except ImportError:  # pragma: no cover
+        source_label = lambda k: k or "источник не указан"   # noqa: E731
+        source_role = lambda k: "event"                       # noqa: E731
     for r in rows:
         by_scope.setdefault(r.target, []).append({
             "date": r.published_at.isoformat() if r.published_at else None,
             "title": r.title,
             "summary": (r.summary or "")[:500],
+            # 🔴 источник и роль — для ВЗВЕШИВАНИЯ (позиция, надёжность), в текст
+            # витрины источники по-прежнему не выносятся
+            "source": source_label(r.source_key),
+            "role": "аналитика" if source_role(r.source_key) in ("analysis", "both") else "событие",
         })
-    return {s: v[:_MAX_PER_SCOPE] for s, v in by_scope.items()}
+    out: dict[str, list] = {}
+    for scope, items in by_scope.items():
+        analysis = [a for a in items if a["role"] == "аналитика"][:_MAX_ANALYSIS_PER_SCOPE]
+        events = [a for a in items if a["role"] != "аналитика"][:_MAX_EVENT_PER_SCOPE]
+        out[scope] = sorted(analysis + events, key=lambda a: a["date"] or "", reverse=True)
+    return out
 
 
 _OUTPUT_SPEC = (
@@ -618,6 +662,12 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
         # 🔴 Пункт 3 (владелец 2026-09-13): передачи соседям — контракт полей.
         # Мягкий импорт: модуль новый, Timeweb выкатывает файлы неравномерно.
         + _handoff_prompt()
+        # 🔴 Мандат старшего аналитика (владелец 2026-09-13): что агент ОБЯЗАН понимать
+        # про ситуацию в целом — удары и их перспектива, ход боевых действий, стороны и
+        # их функции полезности, внешние игроки и электоральные циклы. Мягко.
+        + _mandate_prompt()
+        + "\nИсточник и роль у статей ленты даны для взвешивания надёжности и позиции; "
+          "в текст витрины названия источников не выносить.\n"
     )
     dossier_text = ""
     try:
@@ -658,8 +708,9 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
         + "ВЧЕРАШНИЙ БАРОМЕТР (отправная точка; сохраняй значения, если лента не даёт "
         "основания их менять):\n"
         + json.dumps(prev_for_prompt, ensure_ascii=False, indent=1)[:60000]
-        + f"\n\nСВЕЖАЯ ЛЕНТА ПО ОЧАГАМ (за {window_days} дней, {total} статей):\n"
+        + f"\n\nСВЕЖАЯ ЛЕНТА ПО ОЧАГАМ (за {window_days} дней, {total} статей; остальное — search_feed):\n"
         + json.dumps(articles, ensure_ascii=False, indent=1)
+        + "\n\n" + _conflict_brief(db)
         + f"\n\nСЕГОДНЯ: {date.today().isoformat()}"
     )
 
@@ -719,7 +770,7 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
         if not isinstance(r, dict):
             continue
         prev_r = prev_regions.get(rkey) or {}
-        for field in ("barometer", "scenarios", "sector_flags"):
+        for field in ("barometer", "scenarios", "sector_flags", "situation"):
             if not r.get(field) and prev_r.get(field):
                 r[field] = prev_r[field]
                 carried.append(f"{rkey}.{field}: не вернулось — перенесено со вчера")
@@ -731,7 +782,7 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
     _drop_scores(fresh)
 
     fresh, notes = _gate(fresh, prev)
-    notes = carried + notes + _handoff_gate(fresh)
+    notes = carried + notes + _handoff_gate(fresh) + _situation_gate(fresh)
     fresh = _sanitize_sources(fresh)
 
     ok, why = compliance_ok(fresh)

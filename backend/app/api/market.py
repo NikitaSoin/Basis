@@ -974,6 +974,23 @@ def market_macro_state(db: Session = Depends(get_db)):
     return JSONResponse(content=payload)
 
 
+@router.get("/market/probe-questions")
+def market_probe_questions(format: str = "json", db: Session = Depends(get_db)):
+    """Контрольные вопросы владельца — еженедельный экзамен агентской системы
+    (probe_questions.py): ответы старших аналитиков на системные вопросы про текущую
+    ситуацию и оценка экзаменатора по рубрике 0–5 × 6. format=md — читаемый текст для
+    владельца; история баллов — поле history."""
+    from app.services import probe_questions as pq
+    payload = pq.current(db)
+    if payload is None:
+        raise HTTPException(status_code=404, detail="Контрольные вопросы ещё не прогонялись")
+    if format == "md":
+        from fastapi.responses import PlainTextResponse
+        return PlainTextResponse(pq.render_md(payload), media_type="text/markdown; charset=utf-8")
+    payload["history"] = pq.history(db)
+    return JSONResponse(content=payload)
+
+
 @router.get("/market/geo-profile")
 def market_geo_profile(db: Session = Depends(get_db)):
     """«Портрет очага» — медленный слой блока «Оценка ситуации»: стороны и их
@@ -1269,13 +1286,14 @@ def market_geo_map_svo_history(db: Session = Depends(get_db)):
     прятать ползунок при пустом/однодневном списке."""
     from app.models.geo import GeoFrontlineSnapshot
     rows = (db.query(GeoFrontlineSnapshot.snapshot_date, GeoFrontlineSnapshot.as_of,
-                     GeoFrontlineSnapshot.isw_area_km2)
+                     GeoFrontlineSnapshot.isw_area_km2, GeoFrontlineSnapshot.reported_area_km2)
             .filter_by(theater="svo").order_by(GeoFrontlineSnapshot.snapshot_date.asc()).all())
-    # isw_area_km2 отдаём наружу не для UI, а чтобы «мост» помесячного ряда был
-    # ПРОВЕРЯЕМ с бою: месяцы, до которых архив ISW ещё не дошёл, строятся именно
-    # из этой колонки, и её тихая пустота (pure_isw_area=None) обнаружилась бы
+    # isw_area_km2 / reported_area_km2 отдаём наружу не для UI, а чтобы «мост»
+    # помесячного ряда был ПРОВЕРЯЕМ с бою: месяцы, до которых архив ISW ещё не
+    # дошёл, строятся именно из этих колонок, и их тихая пустота обнаружилась бы
     # только через месяц — дырой в графике вместо закрытого месяца.
-    return {"dates": [{"date": d, "as_of": a, "isw_area_km2": area} for d, a, area in rows]}
+    return {"dates": [{"date": d, "as_of": a, "isw_area_km2": area, "reported_area_km2": rep}
+                      for d, a, area, rep in rows]}
 
 
 @router.get("/market/geo-map/svo/history/{date}")

@@ -257,7 +257,7 @@ def test_rewrite_is_kept_only_if_it_improves_logic(db, monkeypatch):
     # критик: у первой версии 2 грубых, у второй — 3 (стало хуже)
     seen = {"n": 0}
 
-    def fake_review(db_, sections):
+    def fake_review(db_, sections, *args, **kwargs):
         seen["n"] += 1
         return {"issues": [{"problem": "p", "severity": "грубая"}],
                 "hard_count": 2 if seen["n"] == 1 else 3}
@@ -309,7 +309,7 @@ def test_logic_loop_iterates_until_clean(db, monkeypatch):
     hard_by_call = [3, 1, 0]
     seen = {"n": 0}
 
-    def fake_review(db_, sections):
+    def fake_review(db_, sections, *args, **kwargs):
         n = seen["n"]
         seen["n"] += 1
         hard = hard_by_call[min(n, len(hard_by_call) - 1)]
@@ -361,7 +361,7 @@ def test_logic_loop_stops_at_max_passes(db, monkeypatch):
     seq = [5, 4, 3, 2]
     seen = {"n": 0}
 
-    def fake_review(db_, sections):
+    def fake_review(db_, sections, *args, **kwargs):
         n = seen["n"]
         seen["n"] += 1
         hard = seq[min(n, len(seq) - 1)]

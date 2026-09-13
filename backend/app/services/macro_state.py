@@ -138,6 +138,66 @@ def _peer_questions(db: Session, me: str) -> list[dict]:
         return []
 
 
+_NEWS_WINDOW_DAYS = 14
+_MACRO_THEMES = {"key_rate", "inflation", "ruble_fx", "oil_prices", "gas_lng", "commodities",
+                 "budget_fiscal", "taxes", "bonds_credit", "labor_demography", "global_macro",
+                 "trade_logistics", "refinery_strikes", "sanctions"}
+
+
+def _articles(db: Session) -> list[dict]:
+    """Статьи дайджеста для экономиста: адресат «macro» (и «business» — отраслевые), 14 дней."""
+    try:
+        from app.models.geo_digest import GeoDigestArticle
+        from datetime import timedelta
+        cutoff = date.today() - timedelta(days=_NEWS_WINDOW_DAYS)
+        rows = (db.query(GeoDigestArticle)
+                .filter(GeoDigestArticle.target.in_(("macro", "business")),
+                        GeoDigestArticle.published_at >= cutoff)
+                .order_by(GeoDigestArticle.published_at.desc()).limit(40).all())
+        try:
+            from app.services.feed_tools import source_label
+        except ImportError:  # pragma: no cover
+            source_label = lambda k: k or "источник не указан"   # noqa: E731
+        return [{"date": a.published_at.isoformat() if a.published_at else None, "title": a.title,
+                 "summary": (a.summary or "")[:400], "source": source_label(a.source_key),
+                 "topic": a.target} for a in rows]
+    except Exception as e:  # noqa: BLE001
+        db.rollback(); logger.warning("macro_state: статьи не собраны (%s)", e)
+        return []
+
+
+def _chronicle(db: Session) -> list[dict]:
+    """Летопись по экономическим темам — важное за 14 дней с интерпретацией."""
+    try:
+        from app.models.chronicle import ChronicleEntry
+        from datetime import timedelta
+        cutoff = datetime.now(timezone.utc) - timedelta(days=_NEWS_WINDOW_DAYS)
+        rows = (db.query(ChronicleEntry).filter(ChronicleEntry.published_at >= cutoff)
+                .order_by(ChronicleEntry.importance.desc(), ChronicleEntry.published_at.desc()).limit(300).all())
+        out = []
+        for r in rows:
+            themes = set(r.themes or []) if isinstance(r.themes, list) else set()
+            if themes & _MACRO_THEMES:
+                out.append({"date": r.published_at.date().isoformat() if r.published_at else None,
+                            "title": r.title, "summary": (r.summary or "")[:300],
+                            "interpretation": (r.interpretation or "")[:300],
+                            "source": r.source_key, "importance": r.importance})
+            if len(out) >= 30:
+                break
+        return out
+    except Exception as e:  # noqa: BLE001
+        db.rollback(); logger.warning("macro_state: летопись не собрана (%s)", e)
+        return []
+
+
+def _conflict_brief(db: Session, days: int = 28) -> str:
+    try:
+        from app.services.feed_tools import conflict_brief_text
+        return conflict_brief_text(db, days=days)
+    except Exception as e:  # noqa: BLE001
+        return f"СОБРАННЫЕ ДАННЫЕ ПО ОЧАГАМ: недоступны ({type(e).__name__})"
+
+
 def gather_inputs(db: Session) -> dict:
     """Тот же типизированный срез, что у интерпретатора, плюс два ребра.
 
@@ -154,6 +214,11 @@ def gather_inputs(db: Session) -> dict:
         "snapshot_text": _snapshot_text(snap),
         "indicators": snap.get("indicators"),          # для проверки «есть ли данные»
         "data_gaps": snap.get("data_gaps"),
+        # 🔴 Новости экономике (владелец 2026-09-13: «экономика новостей на вход не
+        # получает вообще»): статьи дайджеста с адресатом «макро» и записи летописи по
+        # экономическим темам — с источником, для взвешивания.
+        "articles": _articles(db),
+        "chronicle": _chronicle(db),
         "geo_edge": _geo_edge(db),
         "inst_edge": _inst_edge(db),
         "peers": _peer_payloads(db),
@@ -301,6 +366,8 @@ _SYSTEM = (
     + "  " + handoffs.FINAL_FIELDS + "\n"
     + handoffs.prompt_block("macro")
     + handoffs.CHAINS_RULE
+    # 🔴 Мандат старшего аналитика (владелец 2026-09-13). Мягко.
+    + getattr(handoffs, "mandate_block", lambda c: "")("macro")
 )
 
 
@@ -403,6 +470,12 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
             + json.dumps(edges, ensure_ascii=False, default=str)
             + "\n\nДАННЫЕ ПЛАТФОРМЫ (единственный источник чисел; остальное — search_feed):\n"
             + inputs["snapshot_text"][:80_000]
+            + "\n\nСТАТЬИ ЛЕНТЫ ПО ЭКОНОМИКЕ ЗА 14 ДНЕЙ (с источником — для взвешивания; числа отсюда "
+              "не брать без сверки с данными платформы):\n"
+            + (json.dumps(inputs.get("articles") or [], ensure_ascii=False)[:16_000] or "— нет —")
+            + "\n\nЛЕТОПИСЬ ПО ЭКОНОМИЧЕСКИМ ТЕМАМ (важное за 14 дней):\n"
+            + (json.dumps(inputs.get("chronicle") or [], ensure_ascii=False)[:12_000] or "— нет —")
+            + "\n\n" + _conflict_brief(db)
             + f"\n\nСегодня: {date.today().isoformat()}.")
 
     from app.services import analyst
@@ -426,6 +499,7 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
         return _reject(db, parent_id, ["ответ без blocks или diagnosis"])
 
     fresh, notes = _gate(fresh, prev)
+    notes += getattr(handoffs, "situation_gate_notes", lambda *_: [])(fresh, KIND)
     if mode == "final":
         try:
             from app.services.consistency_check import contradictions_for

@@ -99,14 +99,28 @@ def _feed_exec(db, name, args):
     except ImportError:  # pragma: no cover
         return None
 
+def _conflict_brief(db: Session, days: int = 28) -> str:
+    """Собранные данные по очагам — короткое окно: институционалисту нужен темп, не список."""
+    try:
+        from app.services.feed_tools import conflict_brief_text
+        return conflict_brief_text(db, days=days)
+    except Exception as e:  # noqa: BLE001
+        return f"СОБРАННЫЕ ДАННЫЕ ПО ОЧАГАМ: недоступны ({type(e).__name__})"
+
+
 def _articles(db: Session) -> list[dict]:
     from app.models.geo_digest import GeoDigestArticle
     cutoff = date.today() - timedelta(days=_WINDOW_DAYS)      # published_at — Date, не datetime
     rows = (db.query(GeoDigestArticle)
             .filter(GeoDigestArticle.target == "institutions", GeoDigestArticle.published_at >= cutoff)
             .order_by(GeoDigestArticle.published_at.desc()).limit(60).all())
+    try:
+        from app.services.feed_tools import source_label
+    except ImportError:  # pragma: no cover
+        source_label = lambda k: k or "источник не указан"   # noqa: E731
     return [{"id": str(a.id), "date": a.published_at.isoformat() if a.published_at else None,
              "title": a.title, "summary": (a.summary or "")[:500],
+             "source": source_label(a.source_key),        # для взвешивания, не для витрины
              "takeaways": a.key_takeaways} for a in rows]
 
 
@@ -323,6 +337,9 @@ _SYSTEM = (
     + "  " + handoffs.FINAL_FIELDS + "\n"
     + handoffs.prompt_block("inst_state")
     + handoffs.CHAINS_RULE
+    # 🔴 Мандат старшего аналитика (владелец 2026-09-13). Мягко: файл handoffs может
+    # доехать позже.
+    + getattr(handoffs, "mandate_block", lambda c: "")("inst_state")
 )
 
 
@@ -432,6 +449,7 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
             + json.dumps({k: inputs[k] for k in ("geo_edge", "macro_edge", "inst_summary_anchor")}, ensure_ascii=False, default=str)
             + "\n\nСТАТЬИ ЛЕНТЫ ЗА 14 ДНЕЙ (остальное — search_feed):\n" + json.dumps(inputs["articles"][:30], ensure_ascii=False)[:20_000]
             + "\n\nЛЕТОПИСЬ (важное за 14 дней):\n" + json.dumps(inputs["chronicle"][:30], ensure_ascii=False)[:14_000]
+            + "\n\n" + _conflict_brief(db)
             + f"\n\nСегодня: {date.today().isoformat()}.")
 
     from app.services import analyst
@@ -457,6 +475,7 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
         return _reject(db, parent_id, ["ответ без sections или forecast_card"])
 
     fresh, notes = _gate(fresh, prev)
+    notes += getattr(handoffs, "situation_gate_notes", lambda *_: [])(fresh, KIND)
     if mode == "final":
         try:
             from app.services.consistency_check import contradictions_for
