@@ -2028,6 +2028,22 @@ def debug_methodology_status():
     return out
 
 
+@router.post("/debug/trigger-evening-pipeline")
+def debug_trigger_evening_pipeline():
+    """Ручной запуск ВСЕЙ вечерней сборки (крон 21:50). Долго (30–60 мин); прокси
+    ответа не дождётся — смотреть /api/market/* и версии."""
+    from app.db.session import SessionLocal
+    from app.services.evening_pipeline import run
+    db = SessionLocal()
+    try:
+        return run(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-evening-pipeline: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-critic")
 def debug_trigger_critic():
     """Ручной запуск проверяющего по трём сводкам (обычно крон 23:40)."""

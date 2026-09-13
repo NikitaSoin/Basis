@@ -85,9 +85,12 @@ def score(violations: list[dict]) -> dict:
             "clean": counts["критично"] == 0}
 
 
-def review(db: Session, contour: str) -> BarometerVersion | None:
+def review(db: Session, contour: str, stage: str = "final") -> BarometerVersion | None:
+    """stage="draft" — проверяем сегодняшний черновик (замечания попадут в публикацию того же
+    вечера); "final" — опубликованное (реестр качества и уроки)."""
     spec = CONTOURS[contour]
-    state_row = barometer_store.current_row(db, contour)
+    state_row = ((barometer_store.today_draft(db, contour) if stage == "draft" else None)
+                 or barometer_store.current_row(db, contour))
     if not state_row or not state_row.payload:
         logger.warning("critic: нет опубликованной сводки %s", contour)
         return None
@@ -132,7 +135,7 @@ def review(db: Session, contour: str) -> BarometerVersion | None:
         db.add(row); db.commit(); db.refresh(row)
         return row
     violations = [v for v in (out.get("violations") or []) if isinstance(v, dict)]
-    payload = {"as_of": date.today().isoformat(), "contour": contour, "state_version_id": state_row.id,
+    payload = {"as_of": date.today().isoformat(), "contour": contour, "stage": stage, "state_version_id": state_row.id,
                "state_as_of": state_row.payload.get("as_of"), "violations": violations,
                "passed": out.get("passed") or [], "checklist_gaps": out.get("checklist_gaps") or [],
                "checklist_missing_sections": missing, "score": score(violations),
@@ -146,17 +149,20 @@ def review(db: Session, contour: str) -> BarometerVersion | None:
     return row
 
 
-def run_all(db: Session) -> dict:
-    """Проверить все три сводки и записать итог в реестр качества."""
+def run_all(db: Session, stage: str = "final", record: bool = True) -> dict:
+    """stage="draft" — по черновикам (в реестр и уроки НЕ пишем: промежуточная проверка);
+    "final" — по опубликованному: реестр качества + уроки."""
     results: dict[str, dict] = {}
     for contour in CONTOURS:
         try:
-            row = review(db, contour)
+            row = review(db, contour, stage=stage)
             results[contour] = ({"id": row.id, "status": row.status, **((row.payload or {}).get("score") or {})}
                                 if row else {"skipped": "нет сводки"})
         except Exception as e:  # noqa: BLE001
             logger.exception("critic[%s]: %s", contour, e)
             results[contour] = {"error": f"{type(e).__name__}: {e}"}
+    if not record or stage == "draft":
+        return results
     _record_quality(db, results)
     # 🔴 Петля уроков (владелец 2026-09-13): каждое нарушение — в базу «не повторять»,
     # повтор — счётчик, три чистых проверки подряд — «усвоен».

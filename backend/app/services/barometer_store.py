@@ -63,6 +63,25 @@ def current_row(db: Session, kind: str) -> BarometerVersion | None:
     return row
 
 
+def today_draft(db: Session, kind: str) -> BarometerVersion | None:
+    """Черновик сегодняшнего вечера (status=draft, создан сегодня) — для вечерней
+    сборки, где аналитики сначала обмениваются ЧЕРНОВИКАМИ, задают вопросы,
+    сверяются и проверяются, и только потом публикуют (владелец, 2026-09-13)."""
+    from datetime import date as _date
+    row = (db.query(BarometerVersion)
+           .filter(BarometerVersion.kind == kind, BarometerVersion.status == "draft")
+           .order_by(BarometerVersion.created_at.desc()).first())
+    if row is None or not row.created_at or row.created_at.date() != _date.today():
+        return None
+    return row
+
+
+def peer_view(db: Session, kind: str) -> BarometerVersion | None:
+    """Что видит сосед: сегодняшний черновик, если уже есть, иначе последняя
+    опубликованная версия. Витрина (current_row) черновиков НЕ видит."""
+    return today_draft(db, kind) or current_row(db, kind)
+
+
 def last_expert(db: Session, kind: str) -> BarometerVersion | None:
     return (db.query(BarometerVersion)
             .filter(BarometerVersion.kind == kind, BarometerVersion.source == "expert")

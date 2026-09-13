@@ -1520,6 +1520,25 @@ async def _retention_job():
 
 
 
+async def _evening_pipeline_job():
+    """ВЕЧЕРНЯЯ СБОРКА ТРЁХ СВОДОК одним прогоном (владелец 2026-09-13): черновики →
+    опрос → сверка → проверка → доработка → публикация → итог. Заменяет шесть
+    отдельных кронов: порядок гарантирован, публикация только после сведения."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.evening_pipeline import run
+        db = SessionLocal()
+        try:
+            return run(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Вечерняя сборка: %s", (res or {}).get("_summary"))
+    except Exception as e:
+        logger.exception("Ошибка вечерней сборки: %s", e)
+
+
 async def _macro_state_job():
     """ЕЖЕДНЕВНАЯ пересборка СОСТОЯНИЯ ЭКОНОМИКИ (MacroState_t, макро-база §0.1–0.2).
     Пункт 2 плана владельца (2026-09-13): у гео есть барометр с версиями, у макро
@@ -1945,12 +1964,13 @@ async def lifespan(app: FastAPI):
         # scheduler.add_job(_with_heartbeat("geopolitics", _geo_job), "cron", hour=21, minute=0, id="geopolitics")
         scheduler.add_job(_with_heartbeat("situation_overlay", _situation_overlay_job), "cron", hour=21, minute=20, id="situation_overlay")  # оверлей ситуации гео/институты — после geopolitics (тот же дневной digest)
         scheduler.add_job(_with_heartbeat("barometer_reviser", _barometer_reviser_job), "cron", hour=21, minute=40, id="barometer_reviser")  # ревизор ИНСТИТУТОВ (гео ушёл на barometer_daily) — после оверлея (его вердикт = триггер); cooldown 5 дней внутри
-        scheduler.add_job(_with_heartbeat("barometer_daily", _barometer_daily_job), "cron", hour=21, minute=50, id="barometer_daily")
-        scheduler.add_job(_with_heartbeat("macro_state", _macro_state_job), "cron", hour=22, minute=15, id="macro_state")  # СОСТОЯНИЕ ЭКОНОМИКИ (пункт 2, 2026-09-13) — после гео-барометра: его сценарии входят ребром «гео → макро»  # ЕЖЕДНЕВНАЯ полная пересборка гео-барометра DeepSeek (владелец 2026-08-01) — последней в цепочке гео: digest(:10 ежечасно) → geopolitics(21:00) → overlay(21:20) → reviser inst(21:40) → сюда
-        scheduler.add_job(_with_heartbeat("inst_state", _inst_state_job), "cron", hour=22, minute=35, id="inst_state")  # ИНСТИТУЦИОНАЛЬНЫЙ СНИМОК (владелец 2026-09-13) — после макро-состояния
-        scheduler.add_job(_with_heartbeat("cross_review", _cross_review_job), "cron", hour=23, minute=0, id="cross_review")  # ПЕРЕКРЁСТНЫЙ ОПРОС трёх аналитиков (пункт 3) — после всех трёх состояний
-        scheduler.add_job(_with_heartbeat("consistency", _consistency_job), "cron", hour=23, minute=20, id="consistency")  # СВЕРКА ПРОТИВОРЕЧИЙ (пункт 3)
-        scheduler.add_job(_with_heartbeat("critic", _critic_job), "cron", hour=23, minute=40, id="critic")  # ПРОВЕРЯЮЩИЙ по типовым ошибкам (пункт 5)
+        scheduler.add_job(_with_heartbeat("evening_pipeline", _evening_pipeline_job), "cron", hour=21, minute=50, id="evening_pipeline")  # ВЕЧЕРНЯЯ СБОРКА: черновики → опрос → сверка → проверка → доработка → публикация → итог
+        # scheduler.add_job(_with_heartbeat("barometer_daily", _barometer_daily_job), "cron", hour=21, minute=50, id="barometer_daily")  # ← заменено вечерней сборкой 2026-09-13
+        # scheduler.add_job(_with_heartbeat("macro_state", _macro_state_job), "cron", hour=22, minute=15, id="macro_state")  # СОСТОЯНИЕ ЭКОНОМИКИ (пункт 2, 2026-09-13) — после гео-барометра: его сценарии входят ребром «гео → макро»  # ЕЖЕДНЕВНАЯ полная пересборка гео-барометра DeepSeek (владелец 2026-08-01) — последней в цепочке гео: digest(:10 ежечасно) → geopolitics(21:00) → overlay(21:20) → reviser inst(21:40) → сюда  # ← заменено вечерней сборкой 2026-09-13
+        # scheduler.add_job(_with_heartbeat("inst_state", _inst_state_job), "cron", hour=22, minute=35, id="inst_state")  # ИНСТИТУЦИОНАЛЬНЫЙ СНИМОК (владелец 2026-09-13) — после макро-состояния  # ← заменено вечерней сборкой 2026-09-13
+        # scheduler.add_job(_with_heartbeat("cross_review", _cross_review_job), "cron", hour=23, minute=0, id="cross_review")  # ПЕРЕКРЁСТНЫЙ ОПРОС трёх аналитиков (пункт 3) — после всех трёх состояний  # ← заменено вечерней сборкой 2026-09-13
+        # scheduler.add_job(_with_heartbeat("consistency", _consistency_job), "cron", hour=23, minute=20, id="consistency")  # СВЕРКА ПРОТИВОРЕЧИЙ (пункт 3)  # ← заменено вечерней сборкой 2026-09-13
+        # scheduler.add_job(_with_heartbeat("critic", _critic_job), "cron", hour=23, minute=40, id="critic")  # ПРОВЕРЯЮЩИЙ по типовым ошибкам (пункт 5)  # ← заменено вечерней сборкой 2026-09-13
         scheduler.add_job(_with_heartbeat("geo_profile", _geo_profile_job), "cron", day_of_week="sun", hour=22, minute=10, id="geo_profile")  # портрет очагов — НЕДЕЛЬНЫЙ слой (медленные данные: стороны/цели/баланс/связки), воскресенье после суточной цепочки
         scheduler.add_job(_with_heartbeat("sector_data", _sector_data_job), "cron", hour=7, minute=5, id="sector_data")  # отраслевые ряды — ежедневно утром, до всех недельных слоёв
         scheduler.add_job(_with_heartbeat("sector_digest", _sector_digest_job), "cron", hour="8,20", minute=15, id="sector_digest")

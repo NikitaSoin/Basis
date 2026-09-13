@@ -44,7 +44,7 @@ def _digest(kind: str, p: dict) -> dict:
 
 
 def run(db: Session) -> BarometerVersion | None:
-    payloads = {k: (r.payload if (r := barometer_store.current_row(db, k)) and r.payload else None)
+    payloads = {k: (r.payload if (r := barometer_store.peer_view(db, k)) and r.payload else None)
                 for k in _KINDS}
     present = {k: v for k, v in payloads.items() if v}
     if len(present) < 2:
@@ -56,7 +56,10 @@ def run(db: Session) -> BarometerVersion | None:
         "другу: разные числа одного показателя, несовместимые сценарии (один ждёт ставку 14% до "
         "конца года, другой закладывает рост расходов и эмиссию), взаимоисключающие оценки одного "
         "события, несогласованные горизонты, а также где один опирается на передачу от другого, "
-        "которой тот не дал. Не суди, кто прав, и не пиши свою аналитику.\n"
+        "которой тот не дал; а также ОБОРВАННЫЕ ЦЕПОЧКИ: один контур описывает событие, которое по "
+        "методичкам-связкам должно дойти до другого (институты → геополитика → экономика; геополитика → "
+        "экономика → обратно в геополитику), а у того его нет — отметь в missing_chains. Не суди, кто "
+        "прав, и не пиши свою аналитику.\n"
         "🔴 НЕ противоречие (не включать): одна сводка цитирует число другой — это согласие; "
         "сводки датированы разными днями — это свежесть, а не спор (укажи в agreements или "
         "notes); одно и то же число в разной записи (6,29% и 6,3%). Противоречие — только когда "
@@ -65,7 +68,8 @@ def run(db: Session) -> BarometerVersion | None:
         "<macro|inst_state|geo>, \"text\", \"where\"}, \"claim_b\": {\"source\", \"text\", \"where\"}, "
         "\"severity\": <критично|существенно|мелочь>, \"what_to_check\": <что и где проверить, чтобы "
         "снять>} ], \"agreements\": [ <в чём сводки согласны — коротко, 3-5 пунктов> ], "
-        "\"missing_handoffs\": [ <какие передачи по контракту пусты и кому это мешает> ]}\n"
+        "\"missing_handoffs\": [ <какие передачи по контракту пусты и кому это мешает> ], "
+        "\"missing_chains\": [ {\"chain\", \"event\", \"missing_in\": <контур>, \"why_expected\"} ]}\n"
         "Язык — обычные слова и цифры, без эпитетов."
     )
     task = "\n\n".join(f"=== {_TITLE[k].upper()} (от {v.get('as_of')}) ===\n"
@@ -83,6 +87,7 @@ def run(db: Session) -> BarometerVersion | None:
     payload = {"as_of": date.today().isoformat(), "contradictions": contradictions,
                "agreements": ((out or {}).get("agreements") or []) + pseudo,
                "missing_handoffs": (out or {}).get("missing_handoffs") or [],
+               "missing_chains": (out or {}).get("missing_chains") or [],
                "sources": {k: v.get("as_of") for k, v in present.items()}}
     row = BarometerVersion(kind=KIND, source="auto", status="published", payload=payload,
                            trigger_reason="сверка противоречий", model_used=f"{llm.provider_info().get('provider')}:{model}")

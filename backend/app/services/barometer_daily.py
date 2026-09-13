@@ -510,7 +510,9 @@ def _handoff_prompt() -> str:
         from app.services import handoffs
         return ("\n" + handoffs.prompt_block("geo")
                 + "Также верни \"answers_to_peers\" (ответы на вопросы соседей из задания, с фактом "
-                "и источником) и \"questions_to_peers\" (to: macro|inst_state; что тебе не хватило).\n")
+                "и источником), \"questions_to_peers\" (to: macro|inst_state; что тебе не хватило), "
+                "\"contradictions_resolved\", \"critique_resolved\", \"lessons_applied\".\n"
+                + handoffs.CHAINS_RULE)
     except ImportError:  # pragma: no cover
         return ""
 
@@ -518,9 +520,11 @@ def _handoff_prompt() -> str:
 def _handoff_incoming(db: Session) -> str:
     try:
         from app.services import barometer_store, handoffs
-        peers = {k: (r.payload if (r := barometer_store.current_row(db, k)) and r.payload else None)
+        peers = {k: (r.payload if (r := barometer_store.peer_view(db, k)) and r.payload else None)
                  for k in ("macro", "inst_state")}
         block = handoffs.incoming_block("geo", peers)
+        block += "\n\nПОЛНЫЕ ЧЕРНОВИКИ/СВОДКИ СОСЕДЕЙ (для цепочек через два ребра и обратных петель):\n" + "\n".join(
+            f"--- {k} ---\n" + json.dumps(v, ensure_ascii=False, default=str)[:30_000] for k, v in peers.items() if v)
         try:
             from app.services.cross_review import questions_for
             qs = questions_for(db, "geo")
@@ -573,7 +577,7 @@ def compliance_ok(payload: dict) -> tuple[bool, str | None]:
     return (False, f"блоклист: '{m.group(0)}'") if m else (True, None)
 
 
-def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | None:
+def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -> BarometerVersion | None:
     """Суточная полная пересборка гео-барометра. Возвращает строку версии
     (published либо rejected) или None, если пересобирать не из чего."""
     prev_row = barometer_store.current_row(db, "geo")
@@ -639,8 +643,13 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
                       "заново по текущей спецификации, со всеми новыми полями. "
                       "Правило стабильности на смену формы НЕ распространяется.\n\n")
 
+    draft_row = barometer_store.today_draft(db, "geo") if mode == "final" else None
+    draft_txt = (("ТВОЙ ЧЕРНОВИК СЕГОДНЯШНЕГО ВЕЧЕРА (доработай: ответь соседям, сними противоречия, исправь "
+                  "замечания, разбери цепочки — и опубликуй):\n" + json.dumps(draft_row.payload, ensure_ascii=False)[:40_000] + "\n\n")
+                 if draft_row and draft_row.payload else "")
     user = (
         (dossier_text + "\n\n" if dossier_text else "")
+        + draft_txt
         + _handoff_incoming(db) + "\n\n"
         + stale_note
         + "ВЧЕРАШНИЙ БАРОМЕТР (отправная точка; сохраняй значения, если лента не даёт "
@@ -664,8 +673,7 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
             # macro_geo — вход в вопрос «надолго ли это»: фискальная способность,
             # цена курса, точки исчерпания. Барометр оценивает длительность
             # сценариев, а до сих пор делал это без методики выносливости.
-            shelf_docs=["code", "geo_base", "geo_events", "geo", "geo_macro", "macro_geo",
-                        "geo_inst", "inst_geo", "inst_env", "inst_macro"],
+            shelf_docs=__import__("app.services.handoffs", fromlist=["ALL_SHELF"]).ALL_SHELF,   # все методички, включая чужие
             max_steps=10, budget=180_000, final_max_tokens=20_000,
             final_instruction="Верни JSON строго в формате из твоей роли (ключи "
                               "as_of, subindices, scenario, regions, sector_flags, "
@@ -742,10 +750,11 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
     # поэтому прежнюю версию помечать не нужно — она просто перестаёт быть последней
     # и остаётся в истории (barometer_history строит по ней таймлайн ревизий).
     fresh.setdefault("expert_anchor_as_of", meta_anchor)
-    row = BarometerVersion(kind="geo", source="auto", status="published",
+    fresh["stage"] = mode
+    row = BarometerVersion(kind="geo", source="auto", status="draft" if mode == "draft" else "published",
                            payload=fresh, gate_notes=notes or None,
                            parent_id=prev_row.id,
-                           trigger_reason="ежедневная пересборка",
+                           trigger_reason=("черновик вечерней сборки" if mode == "draft" else "ежедневная пересборка"),
                            model_used=f"{llm.provider_info().get('provider')}:{llm.pro_model()}")
     db.add(row); db.commit(); db.refresh(row)
     logger.info("barometer_daily: барометр пересобран (версия #%d, заметок гейта: %d)",

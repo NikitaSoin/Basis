@@ -145,7 +145,7 @@ def gather_inputs(db: Session) -> dict:
         # передачи из соседних контуров: геополитика → институты (ГИ), макро → институты (МИ)
         "geo_edge": _edge(db, "geo", ("scenario", "sector_flags", "watchlist_30d")),
         "macro_edge": _edge(db, "macro", ("diagnosis", "revision_triggers")),
-        "peers": {k: (r.payload if (r := barometer_store.current_row(db, k)) and r.payload else None)
+        "peers": {k: (r.payload if (r := barometer_store.peer_view(db, k)) and r.payload else None)
                   for k in ("geo", "macro")},
         "peer_questions": _peer_questions(db, "inst_state"),
     }
@@ -320,7 +320,9 @@ _SYSTEM = (
     "  \"questions_to_peers\": [ {\"to\": <geo|macro>, \"question\", \"why_it_matters\"} ],\n"
     "  \"shocks_from_geo\", \"inputs_from_macro\", \"methodology_used\": [..], "
     "\"sources\": [..], \"data_flags\": [..]\n}"
+    + "  " + handoffs.FINAL_FIELDS + "\n"
     + handoffs.prompt_block("inst_state")
+    + handoffs.CHAINS_RULE
 )
 
 
@@ -367,7 +369,9 @@ def _history_and_lessons(db: Session) -> str:
         pass
     return "\n\n".join(parts)
 
-def rebuild(db: Session) -> BarometerVersion | None:
+def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
+    """mode="draft" — черновик вечерней сборки (status=draft, витрина не видит);
+    "final" — доработка своего черновика с учётом вопросов, сверки, проверки → публикация."""
     prev_row = barometer_store.current_row(db, KIND)
     prev = prev_row.payload if prev_row and prev_row.payload else None
     parent_id = prev_row.id if prev_row else None
@@ -391,13 +395,21 @@ def rebuild(db: Session) -> BarometerVersion | None:
                   + "\n\nПРОШЛЫЙ СНИМОК (ищи изменения, не пересказ): " + str((prev or {}).get("summary") or "—")[:1500]
                   + "\n\nСТАТЬИ ЛЕНТЫ:\n" + json.dumps(inputs["articles"][:30], ensure_ascii=False)[:12000]
                   + "\n\nЛЕТОПИСЬ:\n" + json.dumps(inputs["chronicle"][:25], ensure_ascii=False)[:8000]),
-            shelf_docs=["code", "inst_env", "geo_inst", "macro_inst", "inst_geo", "inst_macro"],
+            shelf_docs=handoffs.ALL_SHELF,   # все методички, включая чужие (владелец 2026-09-13)
             max_steps=12, web_call_cap=8, trigger_reason="разведка перед институциональным снимком")
     except Exception as e:  # noqa: BLE001
         logger.warning("inst_state: разведка недоступна (%s) — по ленте", e)
 
-    task = ("ПРОШЛЫЙ СНИМОК (обнови, не переписывай):\n"
-            # 🔴 Лимиты входа ужаты после прогона #51: задание разрослось до 159 тыс.
+    draft_row = barometer_store.today_draft(db, KIND) if mode == "final" else None
+    draft = draft_row.payload if draft_row and draft_row.payload else None
+    peers_full = ("\n\nПОЛНЫЕ ЧЕРНОВИКИ СОСЕДЕЙ (для цепочек через два ребра и обратных петель):\n"
+                  + "\n".join(f"--- {k} ---\n" + json.dumps(v, ensure_ascii=False, default=str)[:30_000]
+                              for k, v in inputs["peers"].items() if v)) if mode == "final" else ""
+    task = (("ТВОЙ ЧЕРНОВИК СЕГОДНЯШНЕГО ВЕЧЕРА (доработай: ответь соседям, сними противоречия, исправь "
+             "замечания, разбери цепочки — и опубликуй):\n" + json.dumps(draft, ensure_ascii=False)[:40_000] + "\n\n")
+            if draft else ""
+            + peers_full + "\n\n"
+            + "ПРОШЛЫЙ СНИМОК (обнови, не переписывай):\n"            # 🔴 Лимиты входа ужаты после прогона #51: задание разрослось до 159 тыс.
             # знаков (прошлый снимок + досье + передачи + вопросы + противоречия),
             # 23 шага, 934 тыс. токенов — и итоговый JSON обрезался на середине.
             + (json.dumps(prev, ensure_ascii=False)[:40_000] if prev else "— нет, это первая сборка: собери снимок с нуля по §12.1 —")
@@ -419,7 +431,7 @@ def rebuild(db: Session) -> BarometerVersion | None:
     try:
         fresh = analyst.run(
             db, extra_tools=_feed_schema(), extra_executor=_feed_exec,  system=_SYSTEM, task=task,
-            shelf_docs=["code", "inst_env", "geo_inst", "macro_inst", "inst_geo", "inst_macro"],
+            shelf_docs=handoffs.ALL_SHELF,   # все методички, включая чужие (владелец 2026-09-13)
             # Методика институтов — 164 раздела и протокол из двадцати шагов:
             # агенту нужно больше ходов, чем макро (первый прогон: 29 вызовов
             # инструментов за 14 шагов). Бюджет 900 тыс. на 20 шагов хватает.
@@ -437,6 +449,14 @@ def rebuild(db: Session) -> BarometerVersion | None:
         return _reject(db, parent_id, ["ответ без sections или forecast_card"])
 
     fresh, notes = _gate(fresh, prev)
+    if mode == "final":
+        try:
+            from app.services.consistency_check import contradictions_for
+            from app.services.critic import critique_for
+            notes += handoffs.final_gate_notes(fresh, inputs.get("peer_questions") or [],
+                                               contradictions_for(db, KIND), critique_for(db, KIND))
+        except Exception:  # noqa: BLE001
+            pass
     from app.services.barometer_daily import compliance_ok
     ok, why = compliance_ok(fresh)
     if not ok:
@@ -447,8 +467,10 @@ def rebuild(db: Session) -> BarometerVersion | None:
                             for k in ("geo_edge", "macro_edge", "inst_summary_anchor")}
     fresh["inputs_meta"]["articles"] = len(inputs["articles"]); fresh["inputs_meta"]["chronicle"] = len(inputs["chronicle"])
     fresh["inputs_meta"]["dossier"] = bool(dossier)
-    row = BarometerVersion(kind=KIND, source="auto", status="published", payload=fresh,
-                           gate_notes=notes or None, parent_id=parent_id, trigger_reason=TRIGGER,
+    fresh["stage"] = mode
+    row = BarometerVersion(kind=KIND, source="auto", status="draft" if mode == "draft" else "published",
+                           payload=fresh, gate_notes=notes or None, parent_id=parent_id,
+                           trigger_reason=("черновик вечерней сборки" if mode == "draft" else TRIGGER),
                            model_used=f"{llm.provider_info().get('provider')}:{llm.pro_model()}")
     db.add(row); db.commit(); db.refresh(row)
     logger.info("inst_state: снимок пересобран (версия #%d, заметок гейта: %d)", row.id, len(notes))

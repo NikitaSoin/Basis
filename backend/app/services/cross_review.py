@@ -21,14 +21,15 @@ from sqlalchemy.orm import Session
 
 from app.models.geo import BarometerVersion
 from app.services import barometer_store, handoffs, llm
+from app.services.handoffs import ALL_SHELF
 
 logger = logging.getLogger(__name__)
 
 KIND = "cross_review"
 _ROLE = {
-    "macro": ("макроэкономист", ["code", "macro_base", "geo_macro", "inst_macro"]),
-    "inst_state": ("институциональный аналитик", ["code", "inst_env", "geo_inst", "macro_inst"]),
-    "geo": ("геополитический аналитик", ["code", "geo_base", "macro_geo", "inst_geo"]),
+    "macro": ("макроэкономист", ALL_SHELF),
+    "inst_state": ("институциональный аналитик", ALL_SHELF),
+    "geo": ("геополитический аналитик", ALL_SHELF),
 }
 _TITLE = {"macro": "состояние экономики", "inst_state": "институциональный снимок",
           "geo": "сводка геополитики"}
@@ -36,7 +37,8 @@ MAX_QUESTIONS = 5
 
 
 def _payloads(db: Session) -> dict[str, dict | None]:
-    return {k: (r.payload if (r := barometer_store.current_row(db, k)) and r.payload else None)
+    # вечерняя сборка: опрашиваем ЧЕРНОВИКИ, чтобы ответы попали в публикацию сегодня
+    return {k: (r.payload if (r := barometer_store.peer_view(db, k)) and r.payload else None)
             for k in _ROLE}
 
 
@@ -47,7 +49,9 @@ def _ask(db: Session, reviewer: str, target: str, target_payload: dict) -> list[
               f"ПО СВОЕЙ методичке и задай до {MAX_QUESTIONS} вопросов, без которых ТВОЙ "
               "следующий вывод будет слабее: где нет числа, где утверждение без источника, "
               "где механизм назван, но не показан, где пропущена передача по контракту "
-              "(handoffs) тебе. Не оценивай и не переписывай — спрашивай. Каждый вопрос: "
+              "(handoffs) тебе, и где НЕ ДОСЧИТАНА ЦЕПОЧКА: событие у коллеги через твоё ребро должно "
+              "было дойти до третьего контура или вернуться обратно, а этого нет. Не оценивай и не "
+              "переписывай — спрашивай. Каждый вопрос: "
               "конкретный, с указанием места в сводке, и почему тебе это нужно.\n\n"
               "ФОРМАТ (строго JSON): {\"questions\": [ {\"about\": <поле/раздел сводки>, "
               "\"question\": <вопрос с ожидаемым видом ответа: число, дата, источник>, "

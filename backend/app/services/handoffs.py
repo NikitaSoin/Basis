@@ -180,3 +180,48 @@ def incoming_block(dst_kind: str, sources: dict[str, dict | None]) -> str:
                    + (f"; пустые обязательные поля: {empty}" if empty else "") + ":")
         out.append(json.dumps(block, ensure_ascii=False, default=str)[:12_000])
     return "\n".join(out) + "\n"
+
+
+# ─────────────── вечерняя сборка: цепочки через соседей и отчёт финала ───────────────
+# 🔴 Владелец (2026-09-13): аналитик обязан считывать эффекты длиннее одного ребра
+# (институты → геополитика → экономика) и обратные петли (геополитика → экономика →
+# обратно в геополитику). Для этого в финале ему даны ПОЛНЫЕ черновики соседей и
+# все методички, включая чужие.
+CHAINS_RULE = """
+===== ЦЕПОЧКИ ЧЕРЕЗ СОСЕДЕЙ (обязательно) =====
+Считывай эффекты длиннее одного ребра и обратные петли — для этого тебе даны ПОЛНЫЕ
+черновики обоих соседей и все методички, включая чужие. Примеры: событие в институтах →
+изменило геополитику → дошло до экономики; геополитика → экономика → обратно в
+геополитику (выносливость курса). Открой методички-связки ОБОИХ рёбер цепочки (не
+только своего) и разбери по звеньям. Верни поле "cross_chains": [ {"chain": <контур →
+контур → контур>, "trigger": <событие с датой>, "links": [ {"edge": <ГМ|МГ|ГИ|ИГ|ИМ|МИ>,
+"mechanism", "methodology": <doc:раздел>} ], "effect_on_me": <какой блок/поле и как>,
+"status": <Ф|Д|В|Г>} ]. Нет цепочек — так и напиши, почему.
+"""
+
+FINAL_FIELDS = (
+    '"answers_to_peers": [...] — ответы на ВСЕ вопросы соседей к черновику, с числом и источником; '
+    '"contradictions_resolved": [ {"topic", "action": <снято|объяснено>, "detail"} ] — по каждому '
+    'противоречию сверки; "critique_resolved": [ {"rule", "where", "action": <исправлено|отклонено>, '
+    '"detail"} ] — по каждому замечанию проверяющего; "lessons_applied": [...]; '
+    '"cross_chains": [...] — см. блок ЦЕПОЧКИ'
+)
+
+ALL_SHELF = ["code", "macro_base", "inst_env", "geo_base", "geo_events", "geo", "geo_macro",
+             "macro_geo", "geo_inst", "inst_geo", "inst_macro", "macro_inst", "macro_sector", "macro"]
+
+
+def final_gate_notes(fresh: dict, questions: list, contradictions: list, critique: list) -> list[str]:
+    """Финал вечерней сборки обязан отчитаться по каждому входу: вопросы соседей,
+    противоречия сверки, замечания проверяющего, цепочки. Пустой отчёт при непустом
+    входе — заметка: видно механически, что не доработано."""
+    notes = []
+    if questions and len(fresh.get("answers_to_peers") or []) < len(questions):
+        notes.append(f"answers_to_peers: ответов {len(fresh.get('answers_to_peers') or [])} на {len(questions)} вопросов соседей")
+    if contradictions and len(fresh.get("contradictions_resolved") or []) < len(contradictions):
+        notes.append(f"contradictions_resolved: разобрано {len(fresh.get('contradictions_resolved') or [])} из {len(contradictions)}")
+    if critique and len(fresh.get("critique_resolved") or []) < len(critique):
+        notes.append(f"critique_resolved: отчёт по {len(fresh.get('critique_resolved') or [])} из {len(critique)} замечаний")
+    if not fresh.get("cross_chains"):
+        notes.append("cross_chains: цепочки через соседей не разобраны (или не объяснено, почему их нет)")
+    return notes

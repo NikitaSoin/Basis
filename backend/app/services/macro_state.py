@@ -124,7 +124,7 @@ def edges_for_scout(inputs: dict) -> dict:
 def _peer_payloads(db: Session) -> dict[str, dict | None]:
     out = {}
     for kind in ("geo", "inst_state"):
-        row = barometer_store.current_row(db, kind)
+        row = barometer_store.peer_view(db, kind)   # сегодняшний черновик соседа, иначе опубликованное
         out[kind] = row.payload if row and row.payload else None
     return out
 
@@ -298,7 +298,9 @@ _SYSTEM = (
     "тебе не хватило от соседей для твоего вывода,\n"
     "  \"methodology_used\": [..], \"sources\": [..], \"data_flags\": [..]\n"
     "}"
+    + "  " + handoffs.FINAL_FIELDS + "\n"
     + handoffs.prompt_block("macro")
+    + handoffs.CHAINS_RULE
 )
 
 
@@ -345,7 +347,9 @@ def _history_and_lessons(db: Session) -> str:
         pass
     return "\n\n".join(parts)
 
-def rebuild(db: Session) -> BarometerVersion | None:
+def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
+    """mode="draft" — черновик вечерней сборки (status=draft, витрина не видит);
+    "final" — доработка своего черновика с учётом вопросов, сверки, проверки → публикация."""
     prev_row = _prev_state(db)
     prev = prev_row.payload if prev_row and prev_row.payload else None
     parent_id = prev_row.id if prev_row else None
@@ -370,8 +374,16 @@ def rebuild(db: Session) -> BarometerVersion | None:
     # (прошлая версия + досье + передачи + вопросы + противоречия + замечания),
     # 21 шаг, 916 тыс. токенов, итоговый JSON обрезался. То же лечение, что у
     # институтов (#51): вход компактнее, финал длиннее, бюджет с запасом.
-    task = ("ПРОШЛАЯ ВЕРСИЯ СОСТОЯНИЯ (обнови, не переписывай):\n"
-            + (json.dumps(prev, ensure_ascii=False)[:40_000] if prev else "— нет, это первая сборка: собери состояние с нуля —")
+    draft_row = barometer_store.today_draft(db, KIND) if mode == "final" else None
+    draft = draft_row.payload if draft_row and draft_row.payload else None
+    peers_full = ("\n\nПОЛНЫЕ ЧЕРНОВИКИ СОСЕДЕЙ (для цепочек через два ребра и обратных петель):\n"
+                  + "\n".join(f"--- {k} ---\n" + json.dumps(v, ensure_ascii=False, default=str)[:30_000]
+                              for k, v in inputs["peers"].items() if v)) if mode == "final" else ""
+    task = (("ТВОЙ ЧЕРНОВИК СЕГОДНЯШНЕГО ВЕЧЕРА (доработай: ответь соседям, сними противоречия, исправь "
+             "замечания, разбери цепочки — и опубликуй):\n" + json.dumps(draft, ensure_ascii=False)[:40_000] + "\n\n")
+            if draft else ""
+            + peers_full + "\n\n"
+            + "ПРОШЛАЯ ВЕРСИЯ СОСТОЯНИЯ (обнови, не переписывай):\n"            + (json.dumps(prev, ensure_ascii=False)[:40_000] if prev else "— нет, это первая сборка: собери состояние с нуля —")
             + "\n\nДОСЬЕ РАЗВЕДКИ:\n" + (json.dumps(dossier, ensure_ascii=False)[:24_000] if dossier else "— нет —")
             + "\n\n" + handoffs.incoming_block("macro", inputs["peers"])
             + "\n\nВОПРОСЫ СОСЕДЕЙ К ТЕБЕ (ответить в answers_to_peers, с числом и источником):\n"
@@ -390,8 +402,7 @@ def rebuild(db: Session) -> BarometerVersion | None:
     try:
         fresh = analyst.run(
             db, extra_tools=_feed_schema(), extra_executor=_feed_exec,  system=_SYSTEM, task=task,
-            shelf_docs=["code", "macro_base", "macro", "inst_macro", "macro_inst",
-                        "geo_macro", "macro_sector"],
+            shelf_docs=handoffs.ALL_SHELF,   # все методички, включая чужие (владелец 2026-09-13)
             # Бюджет — защита от зацикливания, не экономия (владелец 2026-09-13:
             # «пусть агент больше прочитает»). Вход ~30 тыс. токенов × до 14
             # шагов — без запаса цикл упрётся в потолок на середине.
@@ -407,6 +418,14 @@ def rebuild(db: Session) -> BarometerVersion | None:
         return _reject(db, parent_id, ["ответ без blocks или diagnosis"])
 
     fresh, notes = _gate(fresh, prev)
+    if mode == "final":
+        try:
+            from app.services.consistency_check import contradictions_for
+            from app.services.critic import critique_for
+            notes += handoffs.final_gate_notes(fresh, inputs.get("peer_questions") or [],
+                                               contradictions_for(db, KIND), critique_for(db, KIND))
+        except Exception:  # noqa: BLE001
+            pass
     from app.services.barometer_daily import compliance_ok
     ok, why = compliance_ok(fresh)
     if not ok:
@@ -417,8 +436,10 @@ def rebuild(db: Session) -> BarometerVersion | None:
                             "inst_edge": {k: inputs["inst_edge"].get(k) for k in ("as_of", "version_id", "error") if k in inputs["inst_edge"]},
                             "indicators": len(inputs.get("indicators") or []),
                             "dossier": bool(dossier)}
-    row = BarometerVersion(kind=KIND, source="auto", status="published", payload=fresh,
-                           gate_notes=notes or None, parent_id=parent_id, trigger_reason=TRIGGER,
+    fresh["stage"] = mode
+    row = BarometerVersion(kind=KIND, source="auto", status="draft" if mode == "draft" else "published",
+                           payload=fresh, gate_notes=notes or None, parent_id=parent_id,
+                           trigger_reason=("черновик вечерней сборки" if mode == "draft" else TRIGGER),
                            model_used=f"{llm.provider_info().get('provider')}:{llm.pro_model()}")
     db.add(row); db.commit(); db.refresh(row)
     logger.info("macro_state: состояние пересобрано (версия #%d, заметок гейта: %d)", row.id, len(notes))
