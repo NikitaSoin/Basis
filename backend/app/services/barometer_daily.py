@@ -67,6 +67,23 @@ _MIN_ARTICLES_TOTAL = 3  # меньше — не пересобираем (че�
 # Не возвращать — из этого росли выбор разделов за агента, распухший промпт
 # и молчаливый сдвиг нумерации при каждой правке методички.
 
+
+def _feed_schema():
+    """Поиск по всему потоку платформы — для аналитика (владелец 2026-09-13). Мягко."""
+    try:
+        from app.services.feed_tools import FEED_TOOLS_SCHEMA
+        return list(FEED_TOOLS_SCHEMA)
+    except ImportError:  # pragma: no cover
+        return []
+
+
+def _feed_exec(db, name, args):
+    try:
+        from app.services.feed_tools import execute
+        return execute(db, name, args)
+    except ImportError:  # pragma: no cover
+        return None
+
 def gather_articles(db: Session, window_days: int = _WINDOW_DAYS) -> dict:
     """Свежая лента по очагам. Только заголовок+пересказ: статьи уже прошли
     слой классификации geo_digest с редакционными конвенциями."""
@@ -578,7 +595,7 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
     try:
         from app.services import analyst
         fresh = analyst.run(
-            db, system=system, task=user,
+            db, extra_tools=_feed_schema(), extra_executor=_feed_exec,  system=system, task=user,
             # macro_geo — вход в вопрос «надолго ли это»: фискальная способность,
             # цена курса, точки исчерпания. Барометр оценивает длительность
             # сценариев, а до сих пор делал это без методики выносливости.

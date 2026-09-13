@@ -70,6 +70,23 @@ MARKS = {"факт", "расчёт", "внешняя оценка", "сужде�
 
 # ─────────────────────────── вход ───────────────────────────
 
+
+def _feed_schema():
+    """Поиск по всему потоку платформы — для аналитика (владелец 2026-09-13). Мягко."""
+    try:
+        from app.services.feed_tools import FEED_TOOLS_SCHEMA
+        return list(FEED_TOOLS_SCHEMA)
+    except ImportError:  # pragma: no cover
+        return []
+
+
+def _feed_exec(db, name, args):
+    try:
+        from app.services.feed_tools import execute
+        return execute(db, name, args)
+    except ImportError:  # pragma: no cover
+        return None
+
 def _prev_state(db: Session) -> BarometerVersion | None:
     return barometer_store.current_row(db, KIND)
 
@@ -292,7 +309,7 @@ def rebuild(db: Session) -> BarometerVersion | None:
     diag: list[str] = []
     try:
         fresh = analyst.run(
-            db, system=_SYSTEM, task=task,
+            db, extra_tools=_feed_schema(), extra_executor=_feed_exec,  system=_SYSTEM, task=task,
             shelf_docs=["code", "macro_base", "macro", "inst_macro", "macro_inst",
                         "geo_macro", "macro_sector"],
             # Бюджет — защита от зацикливания, не экономия (владелец 2026-09-13:

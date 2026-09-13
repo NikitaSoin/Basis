@@ -291,6 +291,23 @@ _OUTPUT_SPEC = (
 )
 
 
+
+def _feed_schema():
+    """Поиск по всему потоку платформы — для аналитика (владелец 2026-09-13). Мягко."""
+    try:
+        from app.services.feed_tools import FEED_TOOLS_SCHEMA
+        return list(FEED_TOOLS_SCHEMA)
+    except ImportError:  # pragma: no cover
+        return []
+
+
+def _feed_exec(db, name, args):
+    try:
+        from app.services.feed_tools import execute
+        return execute(db, name, args)
+    except ImportError:  # pragma: no cover
+        return None
+
 def _methodology() -> str:
     for path in (_METHODOLOGY, _METHODOLOGY_LEGACY):
         try:
@@ -1381,7 +1398,7 @@ def generate(db: Session) -> MacroInterpretation:
         from app.services import analyst
         _diag: list[str] = []
         out = analyst.run(
-            db, system=system, task=user + ("\n\n" + extra if extra else ""),
+            db, extra_tools=_feed_schema(), extra_executor=_feed_exec,  system=system, task=user + ("\n\n" + extra if extra else ""),
             # macro_base — сам аппарат («сначала диагноз, потом прогноз»),
             # macro — перевод показателей в вывод для инвестора.
             shelf_docs=["code", "macro_base", "macro", "inst_macro", "macro_inst",

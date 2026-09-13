@@ -368,6 +368,16 @@ def execute_tool(db: Session, name: str, args: dict, allowed_ticker: str) -> dic
         if got is not None:
             return got
 
+    # поиск по всему потоку платформы — тоже до проверки тикера (владелец 2026-09-13)
+    try:
+        from app.services.feed_tools import execute as _feed_execute
+    except ImportError:  # pragma: no cover
+        _feed_execute = None
+    if _feed_execute is not None:
+        got = _feed_execute(db, name, args)
+        if got is not None:
+            return got
+
     # веб-инструменты — до проверки тикера
     if name == "web_search":
         from app.services.agent_web import web_search

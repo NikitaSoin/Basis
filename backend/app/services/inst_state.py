@@ -82,6 +82,23 @@ _INST_THEME = re.compile(r"институт|закон|суд|назнач|от�
 
 # ─────────────────────────── вход ───────────────────────────
 
+
+def _feed_schema():
+    """Поиск по всему потоку платформы — для аналитика (владелец 2026-09-13). Мягко."""
+    try:
+        from app.services.feed_tools import FEED_TOOLS_SCHEMA
+        return list(FEED_TOOLS_SCHEMA)
+    except ImportError:  # pragma: no cover
+        return []
+
+
+def _feed_exec(db, name, args):
+    try:
+        from app.services.feed_tools import execute
+        return execute(db, name, args)
+    except ImportError:  # pragma: no cover
+        return None
+
 def _articles(db: Session) -> list[dict]:
     from app.models.geo_digest import GeoDigestArticle
     cutoff = date.today() - timedelta(days=_WINDOW_DAYS)      # published_at — Date, не datetime
@@ -331,7 +348,7 @@ def rebuild(db: Session) -> BarometerVersion | None:
     diag: list[str] = []
     try:
         fresh = analyst.run(
-            db, system=_SYSTEM, task=task,
+            db, extra_tools=_feed_schema(), extra_executor=_feed_exec,  system=_SYSTEM, task=task,
             shelf_docs=["code", "inst_env", "geo_inst", "macro_inst", "inst_geo", "inst_macro"],
             # Методика институтов — 164 раздела и протокол из двадцати шагов:
             # агенту нужно больше ходов, чем макро (первый прогон: 29 вызовов

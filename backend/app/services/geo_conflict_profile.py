@@ -243,6 +243,23 @@ _OUTPUT_SPEC = """
 # открывает нужный раздел инструментом (analyst.py), а не получает всё в промпт.
 
 
+
+def _feed_schema():
+    """Поиск по всему потоку платформы — для аналитика (владелец 2026-09-13). Мягко."""
+    try:
+        from app.services.feed_tools import FEED_TOOLS_SCHEMA
+        return list(FEED_TOOLS_SCHEMA)
+    except ImportError:  # pragma: no cover
+        return []
+
+
+def _feed_exec(db, name, args):
+    try:
+        from app.services.feed_tools import execute
+        return execute(db, name, args)
+    except ImportError:  # pragma: no cover
+        return None
+
 def gather_articles(db: Session, scope: str, window_days: int = _WINDOW_DAYS) -> list[dict]:
     """Лента очага за широкое окно. В отличие от барометра берём длинный пересказ:
     из обрезки в 500 символов не видно ни целей сторон, ни ограничений."""
@@ -479,7 +496,7 @@ def build_one(db: Session, scope: str, prev: dict | None,
     try:
         from app.services import analyst
         fresh = analyst.run(
-            db, system=system, task="\n\n".join(user_parts),
+            db, extra_tools=_feed_schema(), extra_executor=_feed_exec,  system=system, task="\n\n".join(user_parts),
             # Портрет очага отвечает в том числе «сколько это продлится» —
             # macro_geo даёт для этого экономическую выносливость сторон.
             shelf_docs=["code", "geo_base", "geo_events", "geo", "geo_macro", "macro_geo",

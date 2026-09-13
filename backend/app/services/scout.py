@@ -155,6 +155,15 @@ def run(db: Session, *, kind: str, system: str, task: str,
     from app.services.methodology import METHODOLOGY_TOOLS_SCHEMA, shelf_card
 
     tools = list(METHODOLOGY_TOOLS_SCHEMA) + list(WEB_TOOLS_SCHEMA)
+    # 🔴 Поиск по ВСЕМУ потоку платформы (владелец, 2026-09-13): до этого разведчик
+    # умел ходить только наружу (веб) и не мог спросить наш же архив — тысячу
+    # новостей и сотни статей дайджеста за две недели. Мягкий импорт: модуль
+    # новый, Timeweb выкатывает файлы неравномерно.
+    try:
+        from app.services.feed_tools import FEED_TOOLS_SCHEMA
+        tools += list(FEED_TOOLS_SCHEMA)
+    except ImportError:  # pragma: no cover
+        logger.warning("scout: feed_tools недоступен — разведка без поиска по потоку")
     try:
         out = run_agent(
             db, system_prompt=system + COMMON_RULES + shelf_card(shelf_docs),
