@@ -134,9 +134,16 @@ def cmd_log(app_id: str, deploy_id: str | None = None):
           "(тогда и логов нет) либо API изменил адрес. Проверь: python3 scripts/timeweb.py deploys <id>")
 
 
-def cmd_deploy(app_id: str):
-    r = call(f"/apps/{app_id}/deploy", method="POST", body={})
-    print("Деплой запущен:", json.dumps(r, ensure_ascii=False)[:300])
+def cmd_deploy(app_id: str, sha: str | None = None):
+    # API Timeweb (с 2026-09) требует commit_sha (40 hex); без аргумента берём текущий
+    # коммит приложения — это и есть «перезапустить то, что стоит».
+    if not sha:
+        app = call(f"/apps/{app_id}").get("app") or {}
+        sha = app.get("commit_sha") or ""
+    if len(sha) != 40:
+        raise SystemExit(f"нужен полный sha (40 hex), получено: {sha!r}")
+    r = call(f"/apps/{app_id}/deploy", method="POST", body={"commit_sha": sha})
+    print("Деплой запущен:", sha[:10], json.dumps(r, ensure_ascii=False)[:300])
 
 
 if __name__ == "__main__":
@@ -144,5 +151,5 @@ if __name__ == "__main__":
     if cmd == "apps": cmd_apps()
     elif cmd == "deploys": cmd_deploys(sys.argv[2])
     elif cmd == "log": cmd_log(sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)
-    elif cmd == "deploy": cmd_deploy(sys.argv[2])
+    elif cmd == "deploy": cmd_deploy(sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)
     else: print(__doc__)
