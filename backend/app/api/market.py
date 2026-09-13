@@ -890,6 +890,19 @@ def market_geo_barometer(db: Session = Depends(get_db)):
     return JSONResponse(content=payload)
 
 
+@router.get("/market/macro-state")
+def market_macro_state(db: Session = Depends(get_db)):
+    """Состояние экономики на дату (MacroState_t, макро-база §0.2): тринадцать
+    блоков с уровнем/трендом/ускорением/механизмом, диагноз режима, сценарный
+    прогноз с пусковыми условиями пересмотра. Версионируется как барометр
+    (barometer_versions, kind="macro"); _meta несёт источник и дату."""
+    from app.services.macro_state import current
+    payload = current(db)
+    if payload is None:
+        raise HTTPException(status_code=404, detail="Состояние экономики ещё не сформировано")
+    return JSONResponse(content=payload)
+
+
 @router.get("/market/geo-profile")
 def market_geo_profile(db: Session = Depends(get_db)):
     """«Портрет очага» — медленный слой блока «Оценка ситуации»: стороны и их

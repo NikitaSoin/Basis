@@ -9,10 +9,13 @@ macro.json (в сжатом виде — факторы+quant без прост�
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+
+logger = logging.getLogger(__name__)
 
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 
@@ -177,9 +180,25 @@ def _get_calendar(db: Session, ticker: str) -> dict:
     return {"events": [{"type": r[0], "date": r[1], "title": r[2], "status": r[3]} for r in rows]}
 
 
-def _get_geo_barometer() -> dict:
-    """Свежий геополитический барометр (очаги СВО/Ближний Восток/АТР + сценарий) —
-    контекст для ревизии макро/гео-блоков."""
+def _get_geo_barometer(db: Session | None = None) -> dict:
+    """Свежий геополитический барометр — контекст для ревизии макро/гео-блоков.
+
+    🔴 Читаем ОПУБЛИКОВАННУЮ версию из БД (barometer_store), а не файл. Найдено
+    2026-09-13: единственное работающее ребро «гео → макро» читало
+    config/geo_barometer.json от 12 июля, тогда как ежедневная пересборка
+    складывает версии в barometer_versions — макроагент два месяца получал
+    барометр двухмесячной давности. Файл остаётся запасным путём."""
+    if db is not None:
+        try:
+            from app.services import barometer_store
+            row = barometer_store.current_row(db, "geo")
+            if row and row.payload:
+                d = row.payload
+                return {"as_of": d.get("as_of"), "version_id": row.id, "source": row.source,
+                        "scenario": d.get("scenario"), "regions": d.get("regions"),
+                        "sector_flags": d.get("sector_flags")}
+        except Exception:  # noqa: BLE001
+            logger.warning("get_geo_barometer: БД недоступна — файл", exc_info=True)
     path = Path(__file__).parent.parent.parent / "config" / "geo_barometer.json"
     if not path.exists():
         return {"error": "no_barometer"}
@@ -187,7 +206,7 @@ def _get_geo_barometer() -> dict:
         d = json.loads(path.read_text(encoding="utf-8"))
     except Exception:  # noqa: BLE001
         return {"error": "unreadable"}
-    return {"as_of": d.get("as_of"), "scenario": d.get("scenario"),
+    return {"as_of": d.get("as_of"), "source": "file", "scenario": d.get("scenario"),
             "regions": d.get("regions"), "sector_flags": d.get("sector_flags")}
 
 
@@ -372,7 +391,7 @@ def execute_tool(db: Session, name: str, args: dict, allowed_ticker: str) -> dic
     if name == "get_calendar":
         return _get_calendar(db, t)
     if name == "get_geo_barometer":
-        return _get_geo_barometer()
+        return _get_geo_barometer(db)
     if name == "query_chronicle":
         return _query_chronicle(db, t, args.get("sectors"), args.get("themes"),
                                 args.get("days", 365), args.get("limit", 10))

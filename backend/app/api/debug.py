@@ -2028,6 +2028,29 @@ def debug_methodology_status():
     return out
 
 
+@router.post("/debug/trigger-macro-state")
+def debug_trigger_macro_state():
+    """Ручной запуск пересборки СОСТОЯНИЯ ЭКОНОМИКИ (обычно крон 22:15).
+    Пункт 2 плана владельца (2026-09-13): макро получает «карту пациента» по
+    образцу гео-барометра — версия на дату в barometer_versions, kind="macro".
+    Возвращает id/status/заметки гейта."""
+    from app.db.session import SessionLocal
+    from app.services.macro_state import rebuild
+    db = SessionLocal()
+    try:
+        row = rebuild(db)
+        if row is None:
+            return {"result": "нет индикаторов — состояние не трогали"}
+        return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes,
+                "as_of": (row.payload or {}).get("as_of"),
+                "summary": (row.payload or {}).get("summary")}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-macro-state: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-barometer-daily")
 def debug_trigger_barometer_daily():
     """Ручной запуск ежедневной пересборки ГЕО-барометра (обычно крон 21:50).
