@@ -140,7 +140,7 @@ def _effective_base_url(provider: str) -> str:
 def _call_openai_compatible(provider: str, system_prompt: str, user_content: str,
                             json_mode: bool, max_tokens: int, temperature: float,
                             thinking: bool, model_override: str | None = None,
-                            timeout_override: float | None = None) -> str:
+                            timeout_override: float | None = None, effort: str | None = None) -> str:
     # Релей через Cloudflare Worker (как ANTHROPIC_PROXY_URL): на этом инстансе egress
     # к api.deepseek.com режется на TLS (TCP проходит, TLS молча в таймаут — подтверждено
     # raw-socket + openssl с внешнего узла проходит). DEEPSEEK_BASE_URL направляет вызов
@@ -164,6 +164,8 @@ def _call_openai_compatible(provider: str, system_prompt: str, user_content: str
     # Параметр специфичен для DeepSeek — другим провайдерам не шлём.
     if provider == "deepseek":
         payload["thinking"] = {"type": "enabled" if thinking else "disabled"}
+        if thinking and effort:
+            payload["reasoning_effort"] = effort
     headers = {"Authorization": f"Bearer {_api_key(provider)}",
                "Content-Type": "application/json"}
     from app.services.http_util import make_client
@@ -212,6 +214,7 @@ def _call_claude(system_prompt: str, user_content: str, json_mode: bool,
 
 def complete(system_prompt: str, user_content: str, *, json_mode: bool = True,
              max_tokens: int = 4096, temperature: float = 0.2, thinking: bool = False,
+             effort: str | None = None,
              model: str | None = None, timeout: float | None = None, retries: int | None = None):
     """Единая точка вызова LLM.
 
@@ -236,7 +239,8 @@ def complete(system_prompt: str, user_content: str, *, json_mode: bool = True,
                 raw = _call_claude(system_prompt, user_content, json_mode, max_tokens, temperature, timeout)
             else:
                 raw = _call_openai_compatible(provider, system_prompt, user_content,
-                                              json_mode, max_tokens, temperature, thinking, model, timeout)
+                                              json_mode, max_tokens, temperature, thinking, model, timeout,
+                                              effort=effort)
             if not json_mode:
                 return raw
             cleaned = _strip_json_fence(raw)
@@ -259,6 +263,9 @@ def complete(system_prompt: str, user_content: str, *, json_mode: bool = True,
     raise LLMError(f"LLM({provider}) недоступен после повторов: {type(last_err).__name__}")
 
 
+ANALYST_EFFORT = "max"   # усилие рассуждения для аналитического контура (владелец)
+
+
 def pro_model() -> str:
     """Имя «думающей» модели DeepSeek (reasoning) для Интерпретатора/интерпретаций.
     Из env LLM_MODEL_PRO или дефолт deepseek-v4-pro."""
@@ -266,7 +273,9 @@ def pro_model() -> str:
 
 
 def complete_messages(messages: list[dict], *, tools: list[dict] | None = None,
-                      max_tokens: int = 2048, temperature: float = 0.2) -> dict:
+                      max_tokens: int = 2048, temperature: float = 0.2,
+                      model: str | None = None, thinking: bool = False,
+                      effort: str | None = None) -> dict:
     """Низкоуровневый вызов для АГЕНТСКОГО ЦИКЛА (function calling): принимает
     ПОЛНУЮ историю messages (system/user/assistant/tool) и опционально tools
     (OpenAI-формат), возвращает message-объект ответа как есть — с content
@@ -281,15 +290,25 @@ def complete_messages(messages: list[dict], *, tools: list[dict] | None = None,
         raise LLMError("complete_messages: claude-провайдер не поддержан (агентский контур — DeepSeek/OpenAI)")
     base_url = _effective_base_url(provider)
     payload: dict = {
-        "model": _model(provider),
+        "model": model or _model(provider),
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
     if tools:
         payload["tools"] = tools
+    # 🔴 Аналитическая работа (владелец, 2026-09-13): самая сильная модель DeepSeek,
+    # режим рассуждения, максимальное усилие. До этого агентский цикл ВСЕГДА шёл на
+    # deepseek-v4-flash с ВЫКЛЮЧЕННЫМ рассуждением — то есть все аналитики, разведчики,
+    # опрос и проверяющий работали на слабой модели без thinking. Механические
+    # конвейеры (дайджест, извлечение чисел) по-прежнему зовут flash без рассуждения —
+    # они передают thinking=False. Документация DeepSeek: thinking.type
+    # enabled/disabled, reasoning_effort none/low/high/max; в режиме рассуждения
+    # temperature игнорируется; лимит вывода 64K, при max — 128K.
     if provider == "deepseek":
-        payload["thinking"] = {"type": "disabled"}
+        payload["thinking"] = {"type": "enabled" if thinking else "disabled"}
+        if thinking and effort:
+            payload["reasoning_effort"] = effort
     headers = {"Authorization": f"Bearer {_api_key(provider)}", "Content-Type": "application/json"}
     from app.services.http_util import make_client
 

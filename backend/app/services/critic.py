@@ -125,7 +125,7 @@ def review(db: Session, contour: str, stage: str = "final") -> BarometerVersion 
     from app.services import analyst
     diag: list[str] = []
     out = analyst.run(db, system=system, task=task, shelf_docs=spec["shelf"], max_steps=6,
-                      budget=400_000, final_max_tokens=10_000, web_call_cap=0,
+                      budget=1_200_000, final_max_tokens=20_000, web_call_cap=0,
                       final_instruction="Верни JSON с violations, passed, checklist_gaps.",
                       label=f"critic_{contour}", notes=diag)
     if not isinstance(out, dict):

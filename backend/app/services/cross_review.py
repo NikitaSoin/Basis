@@ -61,7 +61,7 @@ def _ask(db: Session, reviewer: str, target: str, target_payload: dict) -> list[
             + f"\n\nСегодня: {date.today().isoformat()}.")
     diag: list[str] = []
     out = analyst.run(db, system=system, task=task, shelf_docs=shelf, max_steps=6,
-                      budget=300_000, final_max_tokens=6_000,
+                      budget=900_000, final_max_tokens=12_000,
                       final_instruction="Верни JSON с questions.", label=f"xq_{reviewer}_to_{target}",
                       notes=diag)
     qs = (out or {}).get("questions") or []

@@ -437,7 +437,7 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
             # инструментов за 14 шагов). Бюджет 900 тыс. на 20 шагов хватает.
             # Финал снимка с передачами и ответами соседям длиннее 28 тыс. токенов —
             # #51 обрезался на середине JSON. Бюджет — с запасом на 20 шагов.
-            max_steps=20, budget=1_300_000, final_max_tokens=48_000,
+            max_steps=20, budget=3_000_000, final_max_tokens=64_000,
             final_instruction="Верни JSON снимка строго по формату из роли, плюс methodology_used.",
             label="inst_state", notes=diag)
         if fresh is None:

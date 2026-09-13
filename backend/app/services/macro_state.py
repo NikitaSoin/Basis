@@ -406,7 +406,7 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
             # Бюджет — защита от зацикливания, не экономия (владелец 2026-09-13:
             # «пусть агент больше прочитает»). Вход ~30 тыс. токенов × до 14
             # шагов — без запаса цикл упрётся в потолок на середине.
-            max_steps=16, budget=1_300_000, final_max_tokens=48_000,
+            max_steps=16, budget=3_000_000, final_max_tokens=64_000,
             final_instruction="Верни JSON состояния строго по формату из роли, плюс methodology_used.",
             label="macro_state", notes=diag)
         if fresh is None:

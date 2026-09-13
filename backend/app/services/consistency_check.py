@@ -77,7 +77,8 @@ def run(db: Session) -> BarometerVersion | None:
                        for k, v in present.items()) + f"\n\nСегодня: {date.today().isoformat()}."
     model = llm.pro_model()
     try:
-        out = llm.complete(system, task, json_mode=True, model=model, max_tokens=8_000, temperature=0.1)
+        out = llm.complete(system, task, json_mode=True, model=model, max_tokens=24_000, temperature=0.1,
+                           thinking=True, effort=llm.ANALYST_EFFORT)
     except llm.LLMError as e:
         row = BarometerVersion(kind=KIND, source="auto", status="rejected", payload=None,
                                gate_notes=[f"LLM недоступен: {e}"], trigger_reason="сверка противоречий")

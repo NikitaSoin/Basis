@@ -89,7 +89,7 @@ _SELF_RESEARCH = (
 def run(db: Session, *, system: str, task: str, shelf_docs: list[str],
         extra_tools: list[dict] | None = None, extra_executor=None,
         max_steps: int = 10, budget: int = 160_000, web_call_cap: int = 8,
-        step_max_tokens: int = 3000, final_max_tokens: int = 20_000,
+        step_max_tokens: int = 16_000, final_max_tokens: int = 20_000,
         final_instruction: str = "", label: str = "analyst",
         notes: list[str] | None = None) -> dict | None:
     """Прогнать пишущего аналитика. Возвращает разобранный JSON или None.
@@ -104,6 +104,7 @@ def run(db: Session, *, system: str, task: str, shelf_docs: list[str],
     лечением, и первый же боевой прогон портрета очага упёрся ровно в это.
     """
     from app.services.agent_runner import run_agent
+    from app.services.llm import ANALYST_EFFORT, pro_model
     from app.services.methodology import METHODOLOGY_TOOLS_SCHEMA, shelf_card
 
     # 🔴 Аналитик ДОИСКИВАЕТ САМ (владелец, 2026-09-13): «если аналитику не хватает
@@ -153,6 +154,10 @@ def run(db: Session, *, system: str, task: str, shelf_docs: list[str],
             executor=_exec, step_max_tokens=step_max_tokens,
             final_max_tokens=final_max_tokens,
             final_instruction=final_instruction,
+            # 🔴 Аналитическая работа — самая сильная модель DeepSeek, режим
+            # рассуждения, максимальное усилие (владелец 2026-09-13). Раньше цикл
+            # шёл на flash без рассуждения.
+            model=pro_model(), thinking=True, effort=ANALYST_EFFORT,
         )
     except Exception as e:  # noqa: BLE001
         logger.warning("analyst[%s]: прогон не удался (%s)", label, e)

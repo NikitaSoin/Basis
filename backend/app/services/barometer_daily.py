@@ -674,7 +674,7 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
             # цена курса, точки исчерпания. Барометр оценивает длительность
             # сценариев, а до сих пор делал это без методики выносливости.
             shelf_docs=__import__("app.services.handoffs", fromlist=["ALL_SHELF"]).ALL_SHELF,   # все методички, включая чужие
-            max_steps=10, budget=180_000, final_max_tokens=20_000,
+            max_steps=14, budget=2_500_000, final_max_tokens=48_000,
             final_instruction="Верни JSON строго в формате из твоей роли (ключи "
                               "as_of, subindices, scenario, regions, sector_flags, "
                               "watchlist_30d, summary, methodology_used).",

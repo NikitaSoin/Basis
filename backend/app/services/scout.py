@@ -142,6 +142,16 @@ def _compliance_scrub(obj):
     return walk(obj), hits
 
 
+def _pro():
+    from app.services.llm import pro_model
+    return pro_model()
+
+
+def _effort():
+    from app.services.llm import ANALYST_EFFORT
+    return ANALYST_EFFORT
+
+
 def run(db: Session, *, kind: str, system: str, task: str,
         shelf_docs: list[str], max_steps: int = 12, web_call_cap: int = 5,
         budget: int = 150_000, trigger_reason: str = "разведка перед выпуском",
@@ -169,9 +179,10 @@ def run(db: Session, *, kind: str, system: str, task: str,
             db, system_prompt=system + COMMON_RULES + shelf_card(shelf_docs),
             task=task, tools_schema=tools, allowed_ticker="",
             max_steps=max_steps, max_tokens_total=budget,
-            web_call_cap=web_call_cap, step_max_tokens=3000,
-            final_max_tokens=7000,   # досье объёмное — иначе JSON обрывается
+            web_call_cap=web_call_cap, step_max_tokens=16_000,
+            final_max_tokens=12_000,   # досье объёмное — иначе JSON обрывается
             final_instruction=FORMAT_SPEC,
+            model=_pro(), thinking=True, effort=_effort(),   # владелец 2026-09-13
         )
     except Exception as e:  # noqa: BLE001 — разведка не должна ронять выпуск
         logger.warning("scout[%s]: прогон не удался (%s) — слой пойдёт без досье",

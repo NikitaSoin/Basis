@@ -1404,7 +1404,7 @@ def generate(db: Session) -> MacroInterpretation:
             shelf_docs=["code", "macro_base", "macro", "inst_macro", "macro_inst",
                         "macro_sector", "geo_macro", "inst_env", "geo_inst",
                         "inst_geo"],
-            max_steps=12, budget=200_000, final_max_tokens=16_000,
+            max_steps=12, budget=1_500_000, final_max_tokens=32_000,
             final_instruction="Верни JSON вида {\"sections\": {...}} строго по "
                               "формату из твоей роли, плюс methodology_used.",
             label="macro_interpreter", notes=_diag)

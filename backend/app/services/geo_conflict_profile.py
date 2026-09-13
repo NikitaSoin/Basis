@@ -501,7 +501,7 @@ def build_one(db: Session, scope: str, prev: dict | None,
             # macro_geo даёт для этого экономическую выносливость сторон.
             shelf_docs=["code", "geo_base", "geo_events", "geo", "geo_macro", "macro_geo",
                         "geo_inst", "inst_geo", "inst_env"],
-            max_steps=11, budget=170_000, final_max_tokens=14_000,
+            max_steps=12, budget=1_500_000, final_max_tokens=32_000,
             notes=_diag,
             final_instruction="Верни JSON строго в формате из твоей роли "
                               "(parties, balance, macro_link, institutional_link, "

@@ -41,7 +41,9 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
               allowed_ticker: str = "", max_steps: int = 8, max_tokens_total: int = 40_000,
               web_call_cap: int = 2, executor=None, step_max_tokens: int = 1600,
               final_max_tokens: int = 0, final_instruction: str = "",
-              text_final: bool = False, history: list[dict] | None = None) -> dict:
+              text_final: bool = False, history: list[dict] | None = None,
+              model: str | None = None, thinking: bool = False,
+              effort: str | None = None) -> dict:
     """Возвращает {"result": dict|None, "trace": list, "tokens_used": int,
     "stopped_reason": str}. result=None — агент не дал валидного JSON-финала.
     web_call_cap — сколько раз всего разрешён веб-поиск/открытие документа: после
@@ -100,7 +102,8 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
             # ей не даём места.
             cap = max(step_max_tokens, final_max_tokens or 0)
             resp = complete_messages(messages, tools=step_tools or None,
-                                     max_tokens=cap, temperature=0.2)
+                                     max_tokens=cap, temperature=0.2,
+                                     model=model, thinking=thinking, effort=effort)
         except LLMError as e:
             trace.append({"step": step, "event": "llm_error", "detail": str(e)})
             return {"result": None, "trace": trace, "tokens_used": tokens_used,
