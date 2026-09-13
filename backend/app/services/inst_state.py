@@ -337,6 +337,19 @@ def _contradictions_block(db: Session) -> str:
             "по каждому: снято / объяснено, с числом и источником):\n"
             + (json.dumps(cs, ensure_ascii=False) if cs else "— нет —"))
 
+
+def _critique_block(db: Session) -> str:
+    """Замечания проверяющего к прошлой версии (пункт 5): исправить в этой сборке
+    и отчитаться по каждому в поле critique_resolved (что сделано / почему нет)."""
+    try:
+        from app.services.critic import critique_for
+        vs = critique_for(db, "inst_state")
+    except Exception:  # noqa: BLE001
+        vs = []
+    return ("ЗАМЕЧАНИЯ ПРОВЕРЯЮЩЕГО К ПРОШЛОЙ ВЕРСИИ (исправить; по каждому — строка в "
+            "critique_resolved: что сделано или почему замечание неверно):\n"
+            + (json.dumps(vs, ensure_ascii=False) if vs else "— нет —"))
+
 def rebuild(db: Session) -> BarometerVersion | None:
     prev_row = barometer_store.current_row(db, KIND)
     prev = prev_row.payload if prev_row and prev_row.payload else None
@@ -376,6 +389,7 @@ def rebuild(db: Session) -> BarometerVersion | None:
             + "\n\nВОПРОСЫ СОСЕДЕЙ К ТЕБЕ (ответить в answers_to_peers, с фактом и источником):\n"
             + (json.dumps(inputs["peer_questions"], ensure_ascii=False) if inputs["peer_questions"] else "— нет —")
             + "\n\n" + _contradictions_block(db)
+            + "\n\n" + _critique_block(db)
             + "\n\nСВОДКИ СОСЕДЕЙ КРАТКО и прежняя институциональная сводка как якорь:\n"
             + json.dumps({k: inputs[k] for k in ("geo_edge", "macro_edge", "inst_summary_anchor")}, ensure_ascii=False, default=str)
             + "\n\nСТАТЬИ ЛЕНТЫ ЗА 14 ДНЕЙ (остальное — search_feed):\n" + json.dumps(inputs["articles"][:30], ensure_ascii=False)[:20_000]

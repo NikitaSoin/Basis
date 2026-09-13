@@ -1606,6 +1606,25 @@ async def _consistency_job():
     except Exception as e:
         logger.exception("Ошибка сверки противоречий: %s", e)
 
+
+async def _critic_job():
+    """ПРОВЕРЯЮЩИЙ трёх сводок по «типовым ошибкам» методичек и кодексу (пункт 5,
+    владелец 2026-09-13). После сверки (23:20). Замечания уходят аналитикам в
+    задание на следующую сборку; итог — в реестр качества (pipeline=states)."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.critic import run_all
+        db = SessionLocal()
+        try:
+            return run_all(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Проверка сводок: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка проверки сводок: %s", e)
+
 async def _barometer_daily_job():
     """ЕЖЕДНЕВНАЯ полная пересборка ГЕО-барометра (владелец 2026-08-01: «слой 1
     перестроить так же, как в макроэкономике — ежедневный крон, где DeepSeek всё
@@ -1931,6 +1950,7 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("inst_state", _inst_state_job), "cron", hour=22, minute=35, id="inst_state")  # ИНСТИТУЦИОНАЛЬНЫЙ СНИМОК (владелец 2026-09-13) — после макро-состояния
         scheduler.add_job(_with_heartbeat("cross_review", _cross_review_job), "cron", hour=23, minute=0, id="cross_review")  # ПЕРЕКРЁСТНЫЙ ОПРОС трёх аналитиков (пункт 3) — после всех трёх состояний
         scheduler.add_job(_with_heartbeat("consistency", _consistency_job), "cron", hour=23, minute=20, id="consistency")  # СВЕРКА ПРОТИВОРЕЧИЙ (пункт 3)
+        scheduler.add_job(_with_heartbeat("critic", _critic_job), "cron", hour=23, minute=40, id="critic")  # ПРОВЕРЯЮЩИЙ по типовым ошибкам (пункт 5)
         scheduler.add_job(_with_heartbeat("geo_profile", _geo_profile_job), "cron", day_of_week="sun", hour=22, minute=10, id="geo_profile")  # портрет очагов — НЕДЕЛЬНЫЙ слой (медленные данные: стороны/цели/баланс/связки), воскресенье после суточной цепочки
         scheduler.add_job(_with_heartbeat("sector_data", _sector_data_job), "cron", hour=7, minute=5, id="sector_data")  # отраслевые ряды — ежедневно утром, до всех недельных слоёв
         scheduler.add_job(_with_heartbeat("sector_digest", _sector_digest_job), "cron", hour="8,20", minute=15, id="sector_digest")

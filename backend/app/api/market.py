@@ -890,6 +890,16 @@ def market_geo_barometer(db: Session = Depends(get_db)):
     return JSONResponse(content=payload)
 
 
+@router.get("/market/critique/{contour}")
+def market_critique(contour: str, db: Session = Depends(get_db)):
+    """Замечания проверяющего к последней сводке контура (macro | inst_state | geo)."""
+    from app.services.critic import current
+    payload = current(db, contour)
+    if payload is None:
+        raise HTTPException(status_code=404, detail="Проверка ещё не проводилась")
+    return JSONResponse(content=payload)
+
+
 @router.get("/market/cross-review")
 def market_cross_review(db: Session = Depends(get_db)):
     """Вопросы аналитиков друг другу по итогам перекрёстного чтения сводок."""

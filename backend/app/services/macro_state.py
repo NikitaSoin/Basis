@@ -315,6 +315,19 @@ def _contradictions_block(db: Session) -> str:
             "по каждому: снято / объяснено, с числом и источником):\n"
             + (json.dumps(cs, ensure_ascii=False) if cs else "— нет —"))
 
+
+def _critique_block(db: Session) -> str:
+    """Замечания проверяющего к прошлой версии (пункт 5): исправить в этой сборке
+    и отчитаться по каждому в поле critique_resolved (что сделано / почему нет)."""
+    try:
+        from app.services.critic import critique_for
+        vs = critique_for(db, "macro")
+    except Exception:  # noqa: BLE001
+        vs = []
+    return ("ЗАМЕЧАНИЯ ПРОВЕРЯЮЩЕГО К ПРОШЛОЙ ВЕРСИИ (исправить; по каждому — строка в "
+            "critique_resolved: что сделано или почему замечание неверно):\n"
+            + (json.dumps(vs, ensure_ascii=False) if vs else "— нет —"))
+
 def rebuild(db: Session) -> BarometerVersion | None:
     prev_row = _prev_state(db)
     prev = prev_row.payload if prev_row and prev_row.payload else None
@@ -343,6 +356,7 @@ def rebuild(db: Session) -> BarometerVersion | None:
             + "\n\nВОПРОСЫ СОСЕДЕЙ К ТЕБЕ (ответить в answers_to_peers, с числом и источником):\n"
             + (json.dumps(inputs["peer_questions"], ensure_ascii=False) if inputs["peer_questions"] else "— нет —")
             + "\n\n" + _contradictions_block(db)
+            + "\n\n" + _critique_block(db)
             + "\n\nСВОДКИ СОСЕДЕЙ КРАТКО (для контекста; контракт выше важнее):\n"
             + json.dumps(edges, ensure_ascii=False, default=str)
             + "\n\nДАННЫЕ ПЛАТФОРМЫ (единственный источник чисел):\n"

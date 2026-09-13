@@ -2028,6 +2028,21 @@ def debug_methodology_status():
     return out
 
 
+@router.post("/debug/trigger-critic")
+def debug_trigger_critic():
+    """Ручной запуск проверяющего по трём сводкам (обычно крон 23:40)."""
+    from app.db.session import SessionLocal
+    from app.services.critic import run_all
+    db = SessionLocal()
+    try:
+        return run_all(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-critic: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-cross-review")
 def debug_trigger_cross_review():
     """Ручной запуск перекрёстного опроса трёх аналитиков (обычно крон 23:00)."""

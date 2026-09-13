@@ -534,9 +534,19 @@ def _handoff_incoming(db: Session) -> str:
         return (block + "\n\nВОПРОСЫ СОСЕДЕЙ К ТЕБЕ (ответить в answers_to_peers):\n"
                 + (json.dumps(qs, ensure_ascii=False) if qs else "— нет —")
                 + "\n\nПРОТИВОРЕЧИЯ, ЗАФИКСИРОВАННЫЕ СВЕРКОЙ (снять или объяснить в contradictions_resolved):\n"
-                + (json.dumps(cs, ensure_ascii=False) if cs else "— нет —"))
+                + (json.dumps(cs, ensure_ascii=False) if cs else "— нет —")
+                + "\n\nЗАМЕЧАНИЯ ПРОВЕРЯЮЩЕГО К ПРОШЛОЙ ВЕРСИИ (исправить; отчёт в critique_resolved):\n"
+                + (json.dumps(_critique(db), ensure_ascii=False) if _critique(db) else "— нет —"))
     except ImportError:  # pragma: no cover
         return ""
+
+
+def _critique(db: Session) -> list[dict]:
+    try:
+        from app.services.critic import critique_for
+        return critique_for(db, "geo")
+    except Exception:  # noqa: BLE001
+        return []
 
 
 def _handoff_gate(payload: dict) -> list[str]:
