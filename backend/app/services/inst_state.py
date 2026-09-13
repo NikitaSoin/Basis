@@ -266,7 +266,7 @@ def rebuild(db: Session) -> BarometerVersion | None:
     try:
         from app.services import scout
         dossier = scout.run(
-            db, kind="inst_state_dossier",
+            db, kind="inst_dossier",   # ≤16 символов — ложится в barometer_versions.kind
             system=("Ты — разведчик институционального аналитика Basis. Собери досье: "
                     "новые законы и поправки, назначения и отставки (сериями, не поодиночке), "
                     "судебные решения с прецедентным значением, изъятия и передачи собственности, "
@@ -296,7 +296,10 @@ def rebuild(db: Session) -> BarometerVersion | None:
         fresh = analyst.run(
             db, system=_SYSTEM, task=task,
             shelf_docs=["code", "inst_env", "geo_inst", "macro_inst", "inst_geo", "inst_macro"],
-            max_steps=14, budget=900_000, final_max_tokens=28_000,
+            # Методика институтов — 164 раздела и протокол из двадцати шагов:
+            # агенту нужно больше ходов, чем макро (первый прогон: 29 вызовов
+            # инструментов за 14 шагов). Бюджет 900 тыс. на 20 шагов хватает.
+            max_steps=20, budget=900_000, final_max_tokens=28_000,
             final_instruction="Верни JSON снимка строго по формату из роли, плюс methodology_used.",
             label="inst_state", notes=diag)
         if fresh is None:
