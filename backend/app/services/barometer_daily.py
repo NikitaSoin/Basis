@@ -647,6 +647,9 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
     draft_txt = (("ТВОЙ ЧЕРНОВИК СЕГОДНЯШНЕГО ВЕЧЕРА (доработай: ответь соседям, сними противоречия, исправь "
                   "замечания, разбери цепочки — и опубликуй):\n" + json.dumps(draft_row.payload, ensure_ascii=False)[:40_000] + "\n\n")
                  if draft_row and draft_row.payload else "")
+    if draft_row is not None and draft_row.gate_notes:
+        draft_txt += ("ЗАМЕЧАНИЯ АВТОМАТИЧЕСКОЙ ПРОВЕРКИ К ЧЕРНОВИКУ (исправить в финале, иначе публикация "
+                      "не пройдёт):\n" + json.dumps(draft_row.gate_notes, ensure_ascii=False) + "\n\n")
     user = (
         (dossier_text + "\n\n" if dossier_text else "")
         + draft_txt
@@ -732,6 +735,10 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
     fresh = _sanitize_sources(fresh)
 
     ok, why = compliance_ok(fresh)
+    if not ok and mode == "draft":
+        # черновик не отклоняем (см. inst_state/macro_state) — финал обязан переформулировать
+        notes = notes + [f"КОМПЛАЕНС (черновик): {why} — переформулировать в финале"]
+        ok = True
     if not ok:
         row = BarometerVersion(kind="geo", source="auto", status="rejected",
                                payload=None, gate_notes=(notes + [why]),

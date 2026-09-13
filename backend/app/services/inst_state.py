@@ -405,9 +405,17 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
     peers_full = ("\n\nПОЛНЫЕ ЧЕРНОВИКИ СОСЕДЕЙ (для цепочек через два ребра и обратных петель):\n"
                   + "\n".join(f"--- {k} ---\n" + json.dumps(v, ensure_ascii=False, default=str)[:30_000]
                               for k, v in inputs["peers"].items() if v)) if mode == "final" else ""
-    task = (("ТВОЙ ЧЕРНОВИК СЕГОДНЯШНЕГО ВЕЧЕРА (доработай: ответь соседям, сними противоречия, исправь "
-             "замечания, разбери цепочки — и опубликуй):\n" + json.dumps(draft, ensure_ascii=False)[:40_000] + "\n\n")
-            if draft else ""
+    # 🔴 Раньше здесь был тернарный оператор `X if draft else "" + всё_остальное`:
+    # при наличии черновика задание финала состояло из ОДНОГО черновика — без
+    # соседей, вопросов, противоречий, замечаний и уроков (приоритет `if/else`
+    # ниже, чем у `+`). Нашлось на первом локальном прогоне вечерней сборки.
+    draft_txt = (("ТВОЙ ЧЕРНОВИК СЕГОДНЯШНЕГО ВЕЧЕРА (доработай: ответь соседям, сними противоречия, исправь "
+                  "замечания, разбери цепочки — и опубликуй):\n" + json.dumps(draft, ensure_ascii=False)[:40_000] + "\n\n")
+                 if draft else "")
+    if draft_row is not None and draft_row.gate_notes:
+        draft_txt += ("ЗАМЕЧАНИЯ АВТОМАТИЧЕСКОЙ ПРОВЕРКИ К ЧЕРНОВИКУ (исправить в финале, иначе публикация "
+                      "не пройдёт):\n" + json.dumps(draft_row.gate_notes, ensure_ascii=False) + "\n\n")
+    task = (draft_txt
             + peers_full + "\n\n"
             + "ПРОШЛЫЙ СНИМОК (обнови, не переписывай):\n"            # 🔴 Лимиты входа ужаты после прогона #51: задание разрослось до 159 тыс.
             # знаков (прошлый снимок + досье + передачи + вопросы + противоречия),
@@ -460,7 +468,13 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
     from app.services.barometer_daily import compliance_ok
     ok, why = compliance_ok(fresh)
     if not ok:
-        return _reject(db, parent_id, notes + [why])
+        if mode != "draft":
+            return _reject(db, parent_id, notes + [why])
+        # черновик витрина не видит; отклонить его — значит оставить вечернюю сборку
+        # без этой сводки целиком (так и случилось на первом прогоне: «продать» в
+        # тексте про вынужденную продажу активов). Сохраняем с замечанием — финал обязан
+        # убрать формулировку, там проверка строгая.
+        notes = notes + [f"КОМПЛАЕНС (черновик): {why} — переформулировать в финале"]
 
     fresh.setdefault("as_of", date.today().isoformat())
     fresh["inputs_meta"] = {k: {kk: inputs[k].get(kk) for kk in ("as_of", "version_id", "error") if kk in inputs[k]}
