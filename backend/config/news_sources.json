@@ -93,6 +93,13 @@
    "rubric": "economy",
    "url": "https://www.vedomosti.ru/rss/rubric/economics",
    "enabled": true
+  },
+  {
+   "source": "banki_ru",
+   "rubric": "economy",
+   "url": "https://www.banki.ru/xml/news.rss",
+   "enabled": true,
+   "_why": "Банки.ру: банковский сектор, ставки по вкладам/кредитам (работает только с боя)"
   }
  ],
  "schedule_msk_hours": [

@@ -1,0 +1,722 @@
+{
+ "bbc_world": {
+  "group": "geo_west",
+  "local_n": 22,
+  "local_age": 0,
+  "local_note": "Russia struck train near Poland border shortly aft"
+ },
+ "nyt_world": {
+  "group": "geo_west",
+  "local_n": 55,
+  "local_age": 0,
+  "local_note": "How Iran’s Hard-liners Blew Up the Peace Deal with"
+ },
+ "guardian_world": {
+  "group": "geo_west",
+  "local_n": 45,
+  "local_age": 0,
+  "local_note": "Burial of King Oyo takes place in Uganda as news a"
+ },
+ "ft_world": {
+  "group": "geo_west",
+  "local_n": 25,
+  "local_age": 0,
+  "local_note": "Russia strikes Ukraine train line moments after fo"
+ },
+ "wsj_world": {
+  "group": "geo_west",
+  "local_n": 20,
+  "local_age": 594,
+  "local_note": "Palestinians Stream Back to Northern Gaza on Foot"
+ },
+ "politico_eu": {
+  "group": "geo_west",
+  "local_n": 10,
+  "local_age": 0,
+  "local_note": "Trump calls on Ukraine to halt attacks on Russian "
+ },
+ "foreign_affairs": {
+  "group": "geo_west",
+  "local_n": 20,
+  "local_age": 2,
+  "local_note": "Iran’s Second Front"
+ },
+ "foreign_policy": {
+  "group": "geo_west",
+  "local_n": 25,
+  "local_age": 2,
+  "local_note": "Why AfD Appeals to So Many Germans"
+ },
+ "war_on_the_rocks": {
+  "group": "geo_west",
+  "local_n": 100,
+  "local_age": 2,
+  "local_note": "The War’s Last Generation Is Still Holding America"
+ },
+ "atlantic_council": {
+  "group": "geo_west",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "ecfr": {
+  "group": "geo_west",
+  "local_n": 25,
+  "local_age": 2,
+  "local_note": "Remembering Emma Bonino"
+ },
+ "csis": {
+  "group": "geo_west",
+  "local_n": 10,
+  "local_age": 3846,
+  "local_note": "The Bio-Pharma Industry and Society"
+ },
+ "rand": {
+  "group": "geo_west",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": ""
+ },
+ "chatham_house": {
+  "group": "geo_west",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "iiss": {
+  "group": "geo_west",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "brookings_fp": {
+  "group": "geo_west",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": ""
+ },
+ "responsible_statecraft": {
+  "group": "geo_west",
+  "local_n": 30,
+  "local_age": 1,
+  "local_note": "Will Houthis' rapid advance drag US, Saudi Arabia "
+ },
+ "cfr": {
+  "group": "geo_west",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "dw_world": {
+  "group": "geo_west",
+  "local_n": 12,
+  "local_age": 0,
+  "local_note": "Russians on the Goethe-Institut: 'Hostage to polit"
+ },
+ "lemonde_int": {
+  "group": "geo_west",
+  "local_n": 20,
+  "local_age": 0,
+  "local_note": "France issues discreet apology to lift US block on"
+ },
+ "spiegel_int": {
+  "group": "geo_west",
+  "local_n": 20,
+  "local_age": 10,
+  "local_note": "Fake Jewish Lineage: The Passport Scheme that Expl"
+ },
+ "euractiv": {
+  "group": "geo_west",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "ap_world": {
+  "group": "geo_west",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "reuters_world": {
+  "group": "geo_west",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "kyiv_independent": {
+  "group": "geo_ukraine",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "ukrainska_pravda": {
+  "group": "geo_ukraine",
+  "local_n": 20,
+  "local_age": 0,
+  "local_note": "Зеленський запровадив санкції проти Мендель"
+ },
+ "ukrinform_en": {
+  "group": "geo_ukraine",
+  "local_n": 30,
+  "local_age": 0,
+  "local_note": "Ukraine's air defenses neutralize 310 out of 323 R"
+ },
+ "unian": {
+  "group": "geo_ukraine",
+  "local_n": 100,
+  "local_age": 842,
+  "local_note": "The case of \"contract killing\": International Soci"
+ },
+ "eurointegration": {
+  "group": "geo_ukraine",
+  "local_n": 10,
+  "local_age": 0,
+  "local_note": "Туск попередив про можливість більш серйозних атак"
+ },
+ "nv_ua": {
+  "group": "geo_ukraine",
+  "local_n": 40,
+  "local_age": 0,
+  "local_note": "Зеленский ввел в действие санкции против своей быв"
+ },
+ "kyiv_post": {
+  "group": "geo_ukraine",
+  "local_n": 100,
+  "local_age": 0,
+  "local_note": "Russian Hackers Used Claude AI to Target Ukraine"
+ },
+ "censor_net": {
+  "group": "geo_ukraine",
+  "local_n": 125,
+  "local_age": 0,
+  "local_note": "Trump called on Zelenskyy to stop strikes on oil r"
+ },
+ "aljazeera": {
+  "group": "geo_middle_east",
+  "local_n": 25,
+  "local_age": 0,
+  "local_note": "Ukrainian drone evades Russian helicopter fire to "
+ },
+ "al_monitor": {
+  "group": "geo_middle_east",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "middle_east_eye": {
+  "group": "geo_middle_east",
+  "local_n": 20,
+  "local_age": 0,
+  "local_note": "Houthi media reports Saudi strikes in northern Yem"
+ },
+ "times_of_israel": {
+  "group": "geo_middle_east",
+  "local_n": 13,
+  "local_age": 0,
+  "local_note": "Iran hardliners launched Hormuz attacks in defianc"
+ },
+ "haaretz": {
+  "group": "geo_middle_east",
+  "local_n": 100,
+  "local_age": 0,
+  "local_note": "Director of Gaza War documentary 'NAZA': We intend"
+ },
+ "jpost": {
+  "group": "geo_middle_east",
+  "local_n": 30,
+  "local_age": 454,
+  "local_note": "IDF issues evacuation order for Tehran ahead of st"
+ },
+ "arab_news": {
+  "group": "geo_middle_east",
+  "local_n": 50,
+  "local_age": 0,
+  "local_note": "Trump says US could stay in Iran and keep oil, lik"
+ },
+ "gulf_news": {
+  "group": "geo_middle_east",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "the_national": {
+  "group": "geo_middle_east",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "presstv": {
+  "group": "geo_middle_east",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": ""
+ },
+ "tehran_times": {
+  "group": "geo_middle_east",
+  "local_n": 30,
+  "local_age": 0,
+  "local_note": "International Painting Competition Sorena to focus"
+ },
+ "irna_en": {
+  "group": "geo_middle_east",
+  "local_n": 30,
+  "local_age": 0,
+  "local_note": "US threats not backed by genuine military capabili"
+ },
+ "daily_sabah": {
+  "group": "geo_middle_east",
+  "local_n": 46,
+  "local_age": 0,
+  "local_note": "Israeli strike kills 2 Palestinians in fresh Gaza "
+ },
+ "hurriyet_en": {
+  "group": "geo_middle_east",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": ""
+ },
+ "asharq_alawsat": {
+  "group": "geo_middle_east",
+  "local_n": 300,
+  "local_age": 0,
+  "local_note": "For 3rd Consecutive Time, Turki Alalshikh Tops the"
+ },
+ "mees": {
+  "group": "geo_middle_east",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "scmp_china": {
+  "group": "geo_apac",
+  "local_n": 50,
+  "local_age": 0,
+  "local_note": "For China, H-6N bomber enhances nuclear deterrence"
+ },
+ "global_times": {
+  "group": "geo_apac",
+  "local_n": 50,
+  "local_age": 21,
+  "local_note": "South Africa freedom day memorial gathering reveal"
+ },
+ "xinhua_world": {
+  "group": "geo_apac",
+  "local_n": 20,
+  "local_age": 3154,
+  "local_note": "Palestinians clash with Israeli soldiers after pro"
+ },
+ "caixin": {
+  "group": "geo_apac",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "sixth_tone": {
+  "group": "geo_apac",
+  "local_n": 51,
+  "local_age": 2,
+  "local_note": "Frog Gone: China’s Beloved Traveling Game Is Going"
+ },
+ "nikkei_asia": {
+  "group": "geo_apac",
+  "local_n": 50,
+  "local_age": null,
+  "local_note": "Shake-up at Japan nuclear plant operator after qua"
+ },
+ "japan_times": {
+  "group": "geo_apac",
+  "local_n": 30,
+  "local_age": 0,
+  "local_note": "LDP-backed Genta Koja wins Okinawa gubernatorial e"
+ },
+ "korea_herald": {
+  "group": "geo_apac",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": ""
+ },
+ "yonhap_en": {
+  "group": "geo_apac",
+  "local_n": 100,
+  "local_age": 0,
+  "local_note": "(Asiad) KBO home run leader returns from injury wi"
+ },
+ "the_diplomat": {
+  "group": "geo_apac",
+  "local_n": 96,
+  "local_age": 2,
+  "local_note": "AI, Robotics and the Coming Economic, Military, an"
+ },
+ "taipei_times": {
+  "group": "geo_apac",
+  "local_n": 46,
+  "local_age": -1,
+  "local_note": "More delegations visit Taiwan: MOFA"
+ },
+ "aspi_strategist": {
+  "group": "geo_apac",
+  "local_n": 100,
+  "local_age": 1,
+  "local_note": "After 9/11, we came together. After Bondi, we didn"
+ },
+ "lowy_interpreter": {
+  "group": "geo_apac",
+  "local_n": 50,
+  "local_age": -1,
+  "local_note": "When geopolitics outruns the economics of supply c"
+ },
+ "straits_times": {
+  "group": "geo_apac",
+  "local_n": 42,
+  "local_age": 0,
+  "local_note": "Nepal tunnel survivor finds solace in village home"
+ },
+ "hindustan_times_world": {
+  "group": "geo_apac",
+  "local_n": 100,
+  "local_age": 0,
+  "local_note": "'Put past behind us': Iran, UAE's bonhomie ahead o"
+ },
+ "the_hindu_intl": {
+  "group": "geo_apac",
+  "local_n": 60,
+  "local_age": 0,
+  "local_note": "Putin seeks BRICS grain trade, insurance to fight "
+ },
+ "cn_mofa": {
+  "group": "geo_apac",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": ""
+ },
+ "cgtn": {
+  "group": "geo_apac",
+  "local_n": 50,
+  "local_age": 0,
+  "local_note": "China calls for stronger global counterterrorism c"
+ },
+ "imf_news": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "imf_blog": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "worldbank": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "oecd": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "boe": {
+  "group": "macro",
+  "local_n": 50,
+  "local_age": 3,
+  "local_note": "Announcement of the publication of the Governor's "
+ },
+ "pboc": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "boj": {
+  "group": "macro",
+  "local_n": 43,
+  "local_age": 2,
+  "local_note": "Central Bank Digital Currency Experiments: Progres"
+ },
+ "brookings_econ": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": ""
+ },
+ "piie": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "voxeu": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "econbrowser": {
+  "group": "macro",
+  "local_n": 10,
+  "local_age": 1,
+  "local_note": "Prospects for Oil Prices: Supply Shocks vs. “Deman"
+ },
+ "calculated_risk": {
+  "group": "macro",
+  "local_n": 25,
+  "local_age": 244,
+  "local_note": "This is the End and a New Beginning"
+ },
+ "ft_markets": {
+  "group": "macro",
+  "local_n": 25,
+  "local_age": 0,
+  "local_note": "GE HealthCare in talks over $1bn deal for maker of"
+ },
+ "ft_global_econ": {
+  "group": "macro",
+  "local_n": 25,
+  "local_age": 0,
+  "local_note": "EU-UK reset talks delayed again amid tension over "
+ },
+ "wsj_econ": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "econs_online": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": ""
+ },
+ "frankmedia": {
+  "group": "macro",
+  "local_n": 60,
+  "local_age": 0,
+  "local_note": "Король Петербургской биржи и просто Штиглиц"
+ },
+ "expert_ru": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "hse_dcenter": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "iep_gaidar": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "kommersant_fm": {
+  "group": "macro",
+  "local_n": 105,
+  "local_age": 0,
+  "local_note": "Осень подталкивает к перелетам // Во сколько обойд"
+ },
+ "banki_ru": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": ""
+ },
+ "cbr_dkp": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "cbr_analytics2": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "rbc_econ_topic": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "opec": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "iea": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "eia_today": {
+  "group": "macro",
+  "local_n": 15,
+  "local_age": 3,
+  "local_note": "United States on track for record crude oil produc"
+ },
+ "trading_economics_ru": {
+  "group": "macro",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "zakon_ru": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": ""
+ },
+ "rapsi": {
+  "group": "institutions",
+  "local_n": 12,
+  "local_age": 0,
+  "local_note": "Просветительский марафон \"Знания\" стартовал на пло"
+ },
+ "advgazeta": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "kommersant_politics": {
+  "group": "institutions",
+  "local_n": 27,
+  "local_age": 0,
+  "local_note": "Минобороны отчиталось об ударах по складам и военн"
+ },
+ "rbc_politics": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "vedomosti_politics": {
+  "group": "institutions",
+  "local_n": 200,
+  "local_age": 0,
+  "local_note": "Орбан объявил о планах возобновить политическую бо"
+ },
+ "council_fed": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "ach_gov": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "ConnectTimeout"
+ },
+ "wciom": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "fom": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": ""
+ },
+ "rspp": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "tpprf": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "deloros": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "regnum": {
+  "group": "institutions",
+  "local_n": 189,
+  "local_age": 0,
+  "local_note": "Песков: Киев ударами по гражданским объектам в Рос"
+ },
+ "tass_politics": {
+  "group": "institutions",
+  "local_n": 100,
+  "local_age": 0,
+  "local_note": "Над Калужской областью сбили 10 БПЛА"
+ },
+ "ria_politics": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "interfax_russia": {
+  "group": "institutions",
+  "local_n": 25,
+  "local_age": 0,
+  "local_note": "\"Локомотив\" обыграл ЦСКА в матче КХЛ"
+ },
+ "garant_law_news": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "nalog_news": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "minfin_rss3": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "economy_gov_rss3": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "ConnectTimeout"
+ },
+ "ridl": {
+  "group": "institutions",
+  "local_n": 10,
+  "local_age": 1,
+  "local_note": "The Last Cut Is the Deepest"
+ },
+ "reforum": {
+  "group": "institutions",
+  "local_n": 10,
+  "local_age": 565,
+  "local_note": "Николай Плотников: “Важно не утратить представлени"
+ },
+ "pravo_api": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "HTTPStatusError"
+ },
+ "sozd_api": {
+  "group": "institutions",
+  "local_n": 0,
+  "local_age": null,
+  "local_note": "ConnectTimeout"
+ }
+}

@@ -418,6 +418,584 @@
    "limit": 15,
    "enabled": true,
    "_why": "МИД: официальная позиция, переговорные треки (сайт mid.ru недоступен парсеру)"
+  },
+  {
+   "key": "nyt_world",
+   "role": "event",
+   "method": "rss",
+   "url": "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 8,
+   "enabled": true,
+   "_why": "NYT World: западная картина событий; только записи про РФ/Украину/санкции/нефть/БВ/АТР"
+  },
+  {
+   "key": "guardian_world",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.theguardian.com/world/rss",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 8,
+   "enabled": true,
+   "_why": "Guardian World: то же, британский ракурс"
+  },
+  {
+   "key": "ft_world",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.ft.com/world?format=rss",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 8,
+   "enabled": true,
+   "_why": "FT World: экономический ракурс на геополитику"
+  },
+  {
+   "key": "wsj_world",
+   "role": "event",
+   "method": "rss",
+   "url": "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 8,
+   "enabled": true,
+   "_why": "WSJ World: американский деловой ракурс"
+  },
+  {
+   "key": "lemonde_int",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.lemonde.fr/en/international/rss_full.xml",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 8,
+   "enabled": true,
+   "_why": "Le Monde (англ.): европейский континентальный ракурс"
+  },
+  {
+   "key": "foreign_affairs",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://www.foreignaffairs.com/rss.xml",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "max_items": 4,
+   "enabled": true,
+   "_why": "Foreign Affairs: экспертная аналитика (редкие, длинные тексты)"
+  },
+  {
+   "key": "foreign_policy",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://foreignpolicy.com/feed/",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 5,
+   "enabled": true,
+   "_why": "Foreign Policy: аналитика по санкциям, войне, Китаю"
+  },
+  {
+   "key": "war_on_the_rocks",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://warontherocks.com/feed/",
+   "regions": [
+    "svo",
+    "middle_east"
+   ],
+   "max_items": 4,
+   "enabled": true,
+   "_why": "War on the Rocks: военная аналитика (ход войны, ресурсы сторон)"
+  },
+  {
+   "key": "csis",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://www.csis.org/rss.xml",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 4,
+   "enabled": true,
+   "_why": "CSIS: think-tank, санкции/оборона/Китай"
+  },
+  {
+   "key": "responsible_statecraft",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://responsiblestatecraft.org/feed/",
+   "regions": [
+    "svo",
+    "middle_east",
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 4,
+   "enabled": true,
+   "_why": "Responsible Statecraft: аналитика с позиции сдержанности (переговорные треки)"
+  },
+  {
+   "key": "ukrainska_pravda",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.pravda.com.ua/rss/",
+   "regions": [
+    "svo"
+   ],
+   "max_items": 6,
+   "enabled": true,
+   "_why": "Украинская правда: позиция и требования украинской стороны, переговорные треки, мобилизация. ПЕРЕСКАЗ НЕЙТРАЛЬНЫЙ, топонимы по-русски — правило дайджеста"
+  },
+  {
+   "key": "eurointegration",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.eurointegration.com.ua/rss/",
+   "regions": [
+    "svo"
+   ],
+   "max_items": 4,
+   "enabled": true,
+   "_why": "Европейская правда: евроинтеграция, санкционные пакеты ЕС с украинской стороны"
+  },
+  {
+   "key": "aljazeera",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.aljazeera.com/xml/rss/all.xml",
+   "regions": [
+    "middle_east"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan",
+   "max_items": 6,
+   "enabled": true,
+   "_why": "Al Jazeera: катарский ракурс на БВ"
+  },
+  {
+   "key": "al_monitor",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.al-monitor.com/rss",
+   "regions": [
+    "middle_east"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan",
+   "max_items": 4,
+   "enabled": true,
+   "_why": "Al-Monitor: аналитика по БВ (работает только с боя)"
+  },
+  {
+   "key": "middle_east_eye",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.middleeasteye.net/rss",
+   "regions": [
+    "middle_east"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan",
+   "max_items": 4,
+   "enabled": true,
+   "_why": "Middle East Eye: БВ, Персидский залив"
+  },
+  {
+   "key": "haaretz",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.haaretz.com/srv/haaretz-latest-headlines",
+   "regions": [
+    "middle_east"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan",
+   "max_items": 4,
+   "enabled": true,
+   "_why": "Haaretz: израильский либеральный ракурс"
+  },
+  {
+   "key": "jpost",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.jpost.com/rss/rssfeedsheadlines.aspx",
+   "regions": [
+    "middle_east"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan",
+   "max_items": 4,
+   "enabled": true,
+   "_why": "Jerusalem Post: израильский ракурс, Иран"
+  },
+  {
+   "key": "tehran_times",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.tehrantimes.com/rss",
+   "regions": [
+    "middle_east"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan",
+   "max_items": 3,
+   "enabled": true,
+   "_why": "Tehran Times: официальная иранская позиция (для сверки, не как факт)"
+  },
+  {
+   "key": "irna_en",
+   "role": "event",
+   "method": "rss",
+   "url": "https://en.irna.ir/rss",
+   "regions": [
+    "middle_east"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan",
+   "max_items": 3,
+   "enabled": true,
+   "_why": "IRNA: иранское госагентство (официальная позиция)"
+  },
+  {
+   "key": "daily_sabah",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.dailysabah.com/rssFeed/world",
+   "regions": [
+    "middle_east"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan",
+   "max_items": 3,
+   "enabled": true,
+   "_why": "Daily Sabah: турецкий проправительственный ракурс (Турция — хаб торговли РФ)"
+  },
+  {
+   "key": "scmp_china",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.scmp.com/rss/4/feed",
+   "regions": [
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 5,
+   "enabled": true,
+   "_why": "SCMP China: Китай, торговля, юань"
+  },
+  {
+   "key": "global_times",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.globaltimes.cn/rss/outbrain.xml",
+   "regions": [
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 3,
+   "enabled": true,
+   "_why": "Global Times: официальная позиция КНР (для сверки)"
+  },
+  {
+   "key": "xinhua_world",
+   "role": "event",
+   "method": "rss",
+   "url": "http://www.xinhuanet.com/english/rss/worldrss.xml",
+   "regions": [
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 3,
+   "enabled": true,
+   "_why": "Синьхуа (англ.): госагентство КНР"
+  },
+  {
+   "key": "sixth_tone",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://www.sixthtone.com/rss",
+   "regions": [
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 2,
+   "enabled": true,
+   "_why": "Sixth Tone: китайское общество и экономика изнутри"
+  },
+  {
+   "key": "nikkei_asia",
+   "role": "event",
+   "method": "rss",
+   "url": "https://asia.nikkei.com/rss/feed/nar",
+   "regions": [
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 5,
+   "enabled": true,
+   "_why": "Nikkei Asia: японский деловой ракурс на Азию"
+  },
+  {
+   "key": "japan_times",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.japantimes.co.jp/feed/",
+   "regions": [
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 3,
+   "enabled": true,
+   "_why": "Japan Times: Япония, санкции, Сахалин"
+  },
+  {
+   "key": "yonhap_en",
+   "role": "event",
+   "method": "rss",
+   "url": "https://en.yna.co.kr/RSS/news.xml",
+   "regions": [
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 3,
+   "enabled": true,
+   "_why": "Yonhap: Корея, КНДР"
+  },
+  {
+   "key": "the_diplomat",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://thediplomat.com/feed/",
+   "regions": [
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 4,
+   "enabled": true,
+   "_why": "The Diplomat: аналитика по АТР, Центральной Азии"
+  },
+  {
+   "key": "taipei_times",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.taipeitimes.com/xml/index.rss",
+   "regions": [
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 3,
+   "enabled": true,
+   "_why": "Taipei Times: тайваньский ракурс"
+  },
+  {
+   "key": "lowy_interpreter",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://www.lowyinstitute.org/the-interpreter/rss.xml",
+   "regions": [
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 3,
+   "enabled": true,
+   "_why": "Lowy Institute: австралийский think-tank по АТР"
+  },
+  {
+   "key": "straits_times",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.straitstimes.com/news/asia/rss.xml",
+   "regions": [
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 3,
+   "enabled": true,
+   "_why": "Straits Times Asia: Сингапур, ЮВА"
+  },
+  {
+   "key": "hindustan_times_world",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.hindustantimes.com/feeds/rss/world-news/rssfeed.xml",
+   "regions": [
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 3,
+   "enabled": true,
+   "_why": "Hindustan Times: индийский ракурс (Индия — покупатель нефти РФ)"
+  },
+  {
+   "key": "the_hindu_intl",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.thehindu.com/news/international/feeder/default.rss",
+   "regions": [
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|iran|israel|gaza|hezbollah|houthi|red sea|hormuz|saudi|tehran|lebanon|syria|turkey|erdogan|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 3,
+   "enabled": true,
+   "_why": "The Hindu: индийский ракурс"
+  },
+  {
+   "key": "cgtn",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.cgtn.com/subscribe/rss/section/world.xml",
+   "regions": [
+    "atr"
+   ],
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|china|beijing|xi jinping|taiwan|north korea|pyongyang|japan|yuan|renminbi|india|modi",
+   "max_items": 2,
+   "enabled": true,
+   "_why": "CGTN: госТВ КНР (официальная позиция)"
+  },
+  {
+   "key": "boe",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://www.bankofengland.co.uk/rss/news",
+   "max_items": 3,
+   "enabled": true,
+   "_why": "Банк Англии: решения и речи"
+  },
+  {
+   "key": "boj",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://www.boj.or.jp/en/rss/whatsnew.xml",
+   "max_items": 3,
+   "enabled": true,
+   "_why": "Банк Японии: решения (иена, доходности JGB)"
+  },
+  {
+   "key": "econbrowser",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://econbrowser.com/feed",
+   "max_items": 2,
+   "enabled": true,
+   "_why": "Econbrowser (Дж. Гамильтон): нефть, рецессии, макро США"
+  },
+  {
+   "key": "calculated_risk",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://www.calculatedriskblog.com/feeds/posts/default",
+   "max_items": 2,
+   "enabled": true,
+   "_why": "Calculated Risk: макро США по данным"
+  },
+  {
+   "key": "ft_markets",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.ft.com/markets?format=rss",
+   "keywords": "russia|ukrain|kremlin|putin|moscow|sanction|zelensk|nato|ceasefire|peace talks|ruble|rouble|gazprom|rosneft|black sea|belarus|kyiv|donbas|crimea|opec|crude|oil price|brent|urals|lng|natural gas|pipeline|fed|ecb|rate|inflation|bond|treasur|gold|dollar",
+   "max_items": 4,
+   "enabled": true,
+   "_why": "FT Markets: рынки, ставки, сырьё"
+  },
+  {
+   "key": "ft_global_econ",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.ft.com/global-economy?format=rss",
+   "max_items": 4,
+   "enabled": true,
+   "_why": "FT Global Economy: мировая макроэкономика"
+  },
+  {
+   "key": "eia_today",
+   "role": "analysis",
+   "method": "rss",
+   "url": "https://www.eia.gov/rss/todayinenergy.xml",
+   "max_items": 2,
+   "enabled": true,
+   "_why": "EIA Today in Energy: нефть/газ США по данным"
+  },
+  {
+   "key": "rapsi",
+   "role": "event",
+   "method": "rss",
+   "url": "https://rapsinews.ru/export/rss2/index.xml",
+   "max_items": 8,
+   "enabled": true,
+   "_why": "РАПСИ: судебная практика, иски Генпрокуратуры, деприватизация"
+  },
+  {
+   "key": "kommersant_politics",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.kommersant.ru/RSS/section-politics.xml",
+   "max_items": 6,
+   "enabled": true,
+   "_why": "Коммерсантъ Политика: кадровые решения, законопроекты"
+  },
+  {
+   "key": "vedomosti_politics",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.vedomosti.ru/rss/rubric/politics",
+   "max_items": 6,
+   "enabled": true,
+   "_why": "Ведомости Политика: законопроекты, госполитика в экономике"
+  },
+  {
+   "key": "regnum",
+   "role": "event",
+   "method": "rss",
+   "url": "https://regnum.ru/rss",
+   "keywords": "губернатор|закон|указ|генпрокур|суд|иск|национализ|конфиск|изъят|правительств|минфин|налог|санкци",
+   "max_items": 5,
+   "enabled": true,
+   "_why": "Регнум: регионы, внутренняя политика"
+  },
+  {
+   "key": "tass_politics",
+   "role": "event",
+   "method": "rss",
+   "url": "https://tass.ru/rss/v2.xml?sections=politika",
+   "keywords": "указ|закон|правительств|генпрокур|суд|национализ|изъят|минфин|налог|санкци|переговор|кремл",
+   "max_items": 6,
+   "enabled": true,
+   "_why": "ТАСС Политика: официальные заявления"
+  },
+  {
+   "key": "interfax_russia",
+   "role": "event",
+   "method": "rss",
+   "url": "https://www.interfax.ru/rss.asp?sec=russia",
+   "keywords": "указ|закон|правительств|генпрокур|суд|иск|национализ|изъят|минфин|налог|санкци|цб ",
+   "max_items": 6,
+   "enabled": true,
+   "_why": "Интерфакс Россия: внутренняя политика и право"
   }
  ],
  "region_keywords": {

@@ -1,0 +1,722 @@
+{
+ "bbc_world": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "ReadTimeout: timed out"
+ },
+ "nyt_world": {
+  "prod_ok": true,
+  "prod_n": 55,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "guardian_world": {
+  "prod_ok": true,
+  "prod_n": 45,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "ft_world": {
+  "prod_ok": true,
+  "prod_n": 25,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "wsj_world": {
+  "prod_ok": true,
+  "prod_n": 20,
+  "prod_age": 594,
+  "prod_err": ""
+ },
+ "politico_eu": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "ConnectTimeout: _ssl.c:1064: The handshake operation timed o"
+ },
+ "foreign_affairs": {
+  "prod_ok": true,
+  "prod_n": 20,
+  "prod_age": 2,
+  "prod_err": ""
+ },
+ "foreign_policy": {
+  "prod_ok": true,
+  "prod_n": 25,
+  "prod_age": 2,
+  "prod_err": ""
+ },
+ "war_on_the_rocks": {
+  "prod_ok": true,
+  "prod_n": 100,
+  "prod_age": 2,
+  "prod_err": ""
+ },
+ "atlantic_council": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "ConnectTimeout: _ssl.c:1064: The handshake operation timed o"
+ },
+ "ecfr": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "csis": {
+  "prod_ok": true,
+  "prod_n": 10,
+  "prod_age": 3846,
+  "prod_err": ""
+ },
+ "rand": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "ConnectTimeout: _ssl.c:1064: The handshake operation timed o"
+ },
+ "chatham_house": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "ConnectTimeout: _ssl.c:1064: The handshake operation timed o"
+ },
+ "iiss": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "brookings_fp": {
+  "prod_ok": false,
+  "prod_n": 0,
+  "prod_age": null,
+  "prod_err": ""
+ },
+ "responsible_statecraft": {
+  "prod_ok": true,
+  "prod_n": 30,
+  "prod_age": 1,
+  "prod_err": ""
+ },
+ "cfr": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "dw_world": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "ConnectTimeout: _ssl.c:1064: The handshake operation timed o"
+ },
+ "lemonde_int": {
+  "prod_ok": true,
+  "prod_n": 20,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "spiegel_int": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "ConnectTimeout: _ssl.c:1064: The handshake operation timed o"
+ },
+ "euractiv": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "ap_world": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "reuters_world": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '401 HTTP Forbidden' for url '"
+ },
+ "kyiv_independent": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "ukrainska_pravda": {
+  "prod_ok": true,
+  "prod_n": 20,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "ukrinform_en": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "ConnectTimeout: _ssl.c:1064: The handshake operation timed o"
+ },
+ "unian": {
+  "prod_ok": false,
+  "prod_n": 0,
+  "prod_age": null,
+  "prod_err": "ReadTimeout"
+ },
+ "eurointegration": {
+  "prod_ok": true,
+  "prod_n": 10,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "nv_ua": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "ConnectTimeout: _ssl.c:1064: The handshake operation timed o"
+ },
+ "kyiv_post": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "ConnectTimeout: _ssl.c:1064: The handshake operation timed o"
+ },
+ "censor_net": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "ConnectTimeout: _ssl.c:1064: The handshake operation timed o"
+ },
+ "aljazeera": {
+  "prod_ok": true,
+  "prod_n": 25,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "al_monitor": {
+  "prod_ok": true,
+  "prod_n": 20,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "middle_east_eye": {
+  "prod_ok": true,
+  "prod_n": 20,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "times_of_israel": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "haaretz": {
+  "prod_ok": true,
+  "prod_n": 100,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "jpost": {
+  "prod_ok": true,
+  "prod_n": 30,
+  "prod_age": 454,
+  "prod_err": ""
+ },
+ "arab_news": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "gulf_news": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "the_national": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "presstv": {
+  "prod_ok": false,
+  "prod_n": 0,
+  "prod_age": null,
+  "prod_err": ""
+ },
+ "tehran_times": {
+  "prod_ok": true,
+  "prod_n": 30,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "irna_en": {
+  "prod_ok": true,
+  "prod_n": 30,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "daily_sabah": {
+  "prod_ok": true,
+  "prod_n": 46,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "hurriyet_en": {
+  "prod_ok": false,
+  "prod_n": 0,
+  "prod_age": null,
+  "prod_err": ""
+ },
+ "asharq_alawsat": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "mees": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "scmp_china": {
+  "prod_ok": true,
+  "prod_n": 50,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "global_times": {
+  "prod_ok": true,
+  "prod_n": 50,
+  "prod_age": 21,
+  "prod_err": ""
+ },
+ "xinhua_world": {
+  "prod_ok": true,
+  "prod_n": 20,
+  "prod_age": 3154,
+  "prod_err": ""
+ },
+ "caixin": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "sixth_tone": {
+  "prod_ok": true,
+  "prod_n": 51,
+  "prod_age": 2,
+  "prod_err": ""
+ },
+ "nikkei_asia": {
+  "prod_ok": true,
+  "prod_n": 50,
+  "prod_age": null,
+  "prod_err": ""
+ },
+ "japan_times": {
+  "prod_ok": true,
+  "prod_n": 30,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "korea_herald": {
+  "prod_ok": false,
+  "prod_n": 0,
+  "prod_age": null,
+  "prod_err": ""
+ },
+ "yonhap_en": {
+  "prod_ok": true,
+  "prod_n": 100,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "the_diplomat": {
+  "prod_ok": true,
+  "prod_n": 96,
+  "prod_age": 2,
+  "prod_err": ""
+ },
+ "taipei_times": {
+  "prod_ok": true,
+  "prod_n": 46,
+  "prod_age": -1,
+  "prod_err": ""
+ },
+ "aspi_strategist": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "lowy_interpreter": {
+  "prod_ok": true,
+  "prod_n": 50,
+  "prod_age": -1,
+  "prod_err": ""
+ },
+ "straits_times": {
+  "prod_ok": true,
+  "prod_n": 42,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "hindustan_times_world": {
+  "prod_ok": true,
+  "prod_n": 100,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "the_hindu_intl": {
+  "prod_ok": true,
+  "prod_n": 60,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "cn_mofa": {
+  "prod_ok": false,
+  "prod_n": 0,
+  "prod_age": null,
+  "prod_err": ""
+ },
+ "cgtn": {
+  "prod_ok": true,
+  "prod_n": 50,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "imf_news": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "imf_blog": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "worldbank": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "oecd": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "boe": {
+  "prod_ok": true,
+  "prod_n": 50,
+  "prod_age": 3,
+  "prod_err": ""
+ },
+ "pboc": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "boj": {
+  "prod_ok": true,
+  "prod_n": 43,
+  "prod_age": 2,
+  "prod_err": ""
+ },
+ "brookings_econ": {
+  "prod_ok": false,
+  "prod_n": 0,
+  "prod_age": null,
+  "prod_err": ""
+ },
+ "piie": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "voxeu": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "econbrowser": {
+  "prod_ok": true,
+  "prod_n": 10,
+  "prod_age": 1,
+  "prod_err": ""
+ },
+ "calculated_risk": {
+  "prod_ok": true,
+  "prod_n": 25,
+  "prod_age": 244,
+  "prod_err": ""
+ },
+ "ft_markets": {
+  "prod_ok": true,
+  "prod_n": 25,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "ft_global_econ": {
+  "prod_ok": true,
+  "prod_n": 25,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "wsj_econ": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "econs_online": {
+  "prod_ok": false,
+  "prod_n": 0,
+  "prod_age": null,
+  "prod_err": ""
+ },
+ "frankmedia": {
+  "prod_ok": true,
+  "prod_n": 60,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "expert_ru": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "hse_dcenter": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "iep_gaidar": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "kommersant_fm": {
+  "prod_ok": true,
+  "prod_n": 105,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "banki_ru": {
+  "prod_ok": true,
+  "prod_n": 25,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "cbr_dkp": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "cbr_analytics2": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "rbc_econ_topic": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "opec": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "iea": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "eia_today": {
+  "prod_ok": true,
+  "prod_n": 15,
+  "prod_age": 3,
+  "prod_err": ""
+ },
+ "trading_economics_ru": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '403 Forbidden' for url 'https"
+ },
+ "zakon_ru": {
+  "prod_ok": false,
+  "prod_n": 0,
+  "prod_age": null,
+  "prod_err": ""
+ },
+ "rapsi": {
+  "prod_ok": true,
+  "prod_n": 12,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "advgazeta": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "kommersant_politics": {
+  "prod_ok": true,
+  "prod_n": 27,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "rbc_politics": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "vedomosti_politics": {
+  "prod_ok": true,
+  "prod_n": 200,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "council_fed": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'http:"
+ },
+ "ach_gov": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "wciom": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "fom": {
+  "prod_ok": false,
+  "prod_n": 0,
+  "prod_age": null,
+  "prod_err": ""
+ },
+ "rspp": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "tpprf": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "deloros": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "regnum": {
+  "prod_ok": true,
+  "prod_n": 189,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "tass_politics": {
+  "prod_ok": true,
+  "prod_n": 100,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "ria_politics": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "interfax_russia": {
+  "prod_ok": true,
+  "prod_n": 25,
+  "prod_age": 0,
+  "prod_err": ""
+ },
+ "garant_law_news": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "nalog_news": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ },
+ "minfin_rss3": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Server error '503 Service Temporarily Unava"
+ },
+ "economy_gov_rss3": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "ConnectTimeout: timed out"
+ },
+ "ridl": {
+  "prod_ok": true,
+  "prod_n": 10,
+  "prod_age": 1,
+  "prod_err": ""
+ },
+ "reforum": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "ConnectTimeout: _ssl.c:1064: The handshake operation timed o"
+ },
+ "pravo_api": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '400 Bad Request' for url 'htt"
+ },
+ "sozd_api": {
+  "prod_ok": false,
+  "prod_n": null,
+  "prod_age": null,
+  "prod_err": "HTTPStatusError: Client error '404 Not Found' for url 'https"
+ }
+}

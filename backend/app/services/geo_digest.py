@@ -278,6 +278,31 @@ def _fetch_telegram(src: dict) -> list[dict]:
     return out
 
 
+def _apply_source_filters(src: dict, arts: list[dict]) -> list[dict]:
+    """Фильтры на уровне источника (конфиг, не код).
+
+    keywords — регулярка по заголовку+тексту: широкие мировые ленты (NYT World, Guardian,
+    Al Jazeera, SCMP) отдают сотни записей в день, из которых нам нужны только те, где
+    есть Россия/Украина/санкции/нефть/Иран/Китай и т.п. Без фильтра они выдавили бы
+    профильные источники из потолка _MAX_PER_RUN (берутся 60 самых свежих).
+    max_items — потолок записей с одного источника за прогон, чтобы ни одна лента не
+    занимала весь прогон собой.
+    """
+    kw = src.get("keywords")
+    if kw:
+        try:
+            rx = re.compile(kw, re.IGNORECASE)
+        except re.error:
+            logger.warning("GEO-дайджест: плохая регулярка keywords у %s — фильтр пропущен", src.get("key"))
+            rx = None
+        if rx is not None:
+            arts = [a for a in arts if rx.search((a.get("title") or "") + " " + (a.get("text") or ""))]
+    cap = src.get("max_items")
+    if isinstance(cap, int) and cap > 0 and len(arts) > cap:
+        arts = arts[:cap]
+    return arts
+
+
 def fetch_all(cfg: dict) -> tuple[list[dict], list[str]]:
     arts, blind = [], []
     for src in cfg.get("sources", []):
@@ -288,6 +313,7 @@ def fetch_all(cfg: dict) -> tuple[list[dict], list[str]]:
             got = (_fetch_wp_json(src) if method == "wp_json"
                    else _fetch_telegram(src) if method == "telegram"
                    else _fetch_rss(src))
+            got = _apply_source_filters(src, got)
             if src.get("no_pubdate"):
                 # источник не публикует дату нигде (проверено вручную) — раз статья в
                 # текущей ротации фида, она свежая; день неизвестен, ставим дату
