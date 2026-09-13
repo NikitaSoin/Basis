@@ -890,6 +890,26 @@ def market_geo_barometer(db: Session = Depends(get_db)):
     return JSONResponse(content=payload)
 
 
+@router.get("/market/cross-review")
+def market_cross_review(db: Session = Depends(get_db)):
+    """Вопросы аналитиков друг другу по итогам перекрёстного чтения сводок."""
+    from app.services.cross_review import current
+    payload = current(db)
+    if payload is None:
+        raise HTTPException(status_code=404, detail="Перекрёстный опрос ещё не проводился")
+    return JSONResponse(content=payload)
+
+
+@router.get("/market/consistency")
+def market_consistency(db: Session = Depends(get_db)):
+    """Противоречия между сводками экономики, институтов и геополитики."""
+    from app.services.consistency_check import current
+    payload = current(db)
+    if payload is None:
+        raise HTTPException(status_code=404, detail="Сверка ещё не проводилась")
+    return JSONResponse(content=payload)
+
+
 @router.get("/market/inst-state")
 def market_inst_state(db: Session = Depends(get_db)):
     """Институциональный снимок на дату (методика И §9): тринадцать разделов с

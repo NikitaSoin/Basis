@@ -43,7 +43,7 @@ from datetime import date, datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 
 from app.models.geo import BarometerVersion
-from app.services import barometer_store, llm
+from app.services import barometer_store, handoffs, llm
 
 logger = logging.getLogger(__name__)
 
@@ -145,7 +145,18 @@ def gather_inputs(db: Session) -> dict:
         # передачи из соседних контуров: геополитика → институты (ГИ), макро → институты (МИ)
         "geo_edge": _edge(db, "geo", ("scenario", "sector_flags", "watchlist_30d")),
         "macro_edge": _edge(db, "macro", ("diagnosis", "revision_triggers")),
+        "peers": {k: (r.payload if (r := barometer_store.current_row(db, k)) and r.payload else None)
+                  for k in ("geo", "macro")},
+        "peer_questions": _peer_questions(db, "inst_state"),
     }
+
+
+def _peer_questions(db: Session, me: str) -> list[dict]:
+    try:
+        from app.services.cross_review import questions_for
+        return questions_for(db, me)
+    except Exception:  # noqa: BLE001
+        return []
 
 
 # ─────────────────────────── гейт ───────────────────────────
@@ -236,6 +247,8 @@ def _gate(fresh: dict, prev: dict | None) -> tuple[dict, list[str]]:
     for sig in fresh.get("leading_signals") or []:
         if isinstance(sig, dict) and isinstance(sig.get("observations"), list) and len(sig["observations"]) < 2:
             notes.append(f"leading_signals[{sig.get('type')}]: одно наблюдение — не серия (§8.2)")
+    # контракты передач соседям (пункт 3)
+    notes += handoffs.gate_notes(fresh, "inst_state")
     # язык и цифры (владелец 2026-09-13)
     digits = re.compile(r"\d")
     if len(digits.findall(str(fresh.get("summary") or ""))) < 3:
@@ -301,10 +314,28 @@ _SYSTEM = (
     "  \"forecast_card\": { " + ", ".join(f"\"{f}\"" for f in FORECAST_FIELDS) + " },\n"
     "  \"verdict\": <абзац по эталону §12.2>,\n"
     "  \"summary\": <главное одним абзацем, с датами и фактами>,\n"
+    "  \"handoffs\": {\"to_macro\": {..}, \"to_geo\": {..}} — см. блок ПЕРЕДАЧИ СОСЕДЯМ ниже,\n"
+    "  \"answers_to_peers\": [ {\"from\", \"question\", \"answer\", \"evidence\"} ] — ответы на "
+    "вопросы соседей из задания (обязательно, с фактом и источником),\n"
+    "  \"questions_to_peers\": [ {\"to\": <geo|macro>, \"question\", \"why_it_matters\"} ],\n"
     "  \"shocks_from_geo\", \"inputs_from_macro\", \"methodology_used\": [..], "
     "\"sources\": [..], \"data_flags\": [..]\n}"
+    + handoffs.prompt_block("inst_state")
 )
 
+
+
+def _contradictions_block(db: Session) -> str:
+    """Противоречия, найденные сверкой, в которых участвует эта сводка (пункт 3):
+    обязана либо снять, либо объяснить, почему права она."""
+    try:
+        from app.services.consistency_check import contradictions_for
+        cs = contradictions_for(db, "inst_state")
+    except Exception:  # noqa: BLE001
+        cs = []
+    return ("ПРОТИВОРЕЧИЯ, ЗАФИКСИРОВАННЫЕ СВЕРКОЙ С СОСЕДЯМИ (в поле contradictions_resolved "
+            "по каждому: снято / объяснено, с числом и источником):\n"
+            + (json.dumps(cs, ensure_ascii=False) if cs else "— нет —"))
 
 def rebuild(db: Session) -> BarometerVersion | None:
     prev_row = barometer_store.current_row(db, KIND)
@@ -338,7 +369,11 @@ def rebuild(db: Session) -> BarometerVersion | None:
     task = ("ПРОШЛЫЙ СНИМОК (обнови, не переписывай):\n"
             + (json.dumps(prev, ensure_ascii=False)[:60_000] if prev else "— нет, это первая сборка: собери снимок с нуля по §12.1 —")
             + "\n\nДОСЬЕ РАЗВЕДКИ:\n" + (json.dumps(dossier, ensure_ascii=False)[:40_000] if dossier else "— нет —")
-            + "\n\nПЕРЕДАЧИ ИЗ СОСЕДНИХ КОНТУРОВ (геополитика → институты; макроэкономика → институты; прежняя институциональная сводка как якорь):\n"
+            + "\n\n" + handoffs.incoming_block("inst_state", inputs["peers"])
+            + "\n\nВОПРОСЫ СОСЕДЕЙ К ТЕБЕ (ответить в answers_to_peers, с фактом и источником):\n"
+            + (json.dumps(inputs["peer_questions"], ensure_ascii=False) if inputs["peer_questions"] else "— нет —")
+            + "\n\n" + _contradictions_block(db)
+            + "\n\nСВОДКИ СОСЕДЕЙ КРАТКО и прежняя институциональная сводка как якорь:\n"
             + json.dumps({k: inputs[k] for k in ("geo_edge", "macro_edge", "inst_summary_anchor")}, ensure_ascii=False, default=str)
             + "\n\nСТАТЬИ ЛЕНТЫ ЗА 14 ДНЕЙ:\n" + json.dumps(inputs["articles"], ensure_ascii=False)
             + "\n\nЛЕТОПИСЬ (важное за 14 дней):\n" + json.dumps(inputs["chronicle"], ensure_ascii=False)

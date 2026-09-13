@@ -2028,6 +2028,43 @@ def debug_methodology_status():
     return out
 
 
+@router.post("/debug/trigger-cross-review")
+def debug_trigger_cross_review():
+    """Ручной запуск перекрёстного опроса трёх аналитиков (обычно крон 23:00)."""
+    from app.db.session import SessionLocal
+    from app.services.cross_review import run
+    db = SessionLocal()
+    try:
+        row = run(db)
+        if row is None:
+            return {"result": "сводок меньше двух"}
+        return {"id": row.id, "status": row.status, "questions": (row.payload or {}).get("questions")}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-cross-review: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
+@router.post("/debug/trigger-consistency")
+def debug_trigger_consistency():
+    """Ручной запуск сверки противоречий между сводками (обычно крон 23:20)."""
+    from app.db.session import SessionLocal
+    from app.services.consistency_check import run
+    db = SessionLocal()
+    try:
+        row = run(db)
+        if row is None:
+            return {"result": "сводок меньше двух"}
+        return {"id": row.id, "status": row.status, "contradictions": (row.payload or {}).get("contradictions"),
+                "missing_handoffs": (row.payload or {}).get("missing_handoffs")}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-consistency: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-inst-state")
 def debug_trigger_inst_state():
     """Ручной запуск пересборки ИНСТИТУЦИОНАЛЬНОГО СНИМКА (обычно крон 22:35)."""

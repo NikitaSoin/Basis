@@ -1565,6 +1565,47 @@ async def _inst_state_job():
     except Exception as e:
         logger.exception("Ошибка пересборки институционального снимка: %s", e)
 
+
+async def _cross_review_job():
+    """ПЕРЕКРЁСТНЫЙ ОПРОС трёх аналитиков (пункт 3, владелец 2026-09-13): каждый
+    читает сводку соседа по своей методичке и задаёт вопросы; ответы соседи дают
+    в следующей сборке. После трёх состояний (21:50 / 22:15 / 22:35)."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.cross_review import run
+        db = SessionLocal()
+        try:
+            row = run(db)
+            return None if row is None else {"id": row.id, "status": row.status,
+                                             "вопросов": len((row.payload or {}).get("questions") or [])}
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Перекрёстный опрос: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка перекрёстного опроса: %s", e)
+
+
+async def _consistency_job():
+    """СВЕРКА ПРОТИВОРЕЧИЙ между тремя сводками (пункт 3). Не начальник — проверка:
+    найденное уходит всем трём в задание на следующую сборку."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.consistency_check import run
+        db = SessionLocal()
+        try:
+            row = run(db)
+            return None if row is None else {"id": row.id, "status": row.status,
+                                             "противоречий": len((row.payload or {}).get("contradictions") or [])}
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Сверка противоречий: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка сверки противоречий: %s", e)
+
 async def _barometer_daily_job():
     """ЕЖЕДНЕВНАЯ полная пересборка ГЕО-барометра (владелец 2026-08-01: «слой 1
     перестроить так же, как в макроэкономике — ежедневный крон, где DeepSeek всё
@@ -1888,6 +1929,8 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("barometer_daily", _barometer_daily_job), "cron", hour=21, minute=50, id="barometer_daily")
         scheduler.add_job(_with_heartbeat("macro_state", _macro_state_job), "cron", hour=22, minute=15, id="macro_state")  # СОСТОЯНИЕ ЭКОНОМИКИ (пункт 2, 2026-09-13) — после гео-барометра: его сценарии входят ребром «гео → макро»  # ЕЖЕДНЕВНАЯ полная пересборка гео-барометра DeepSeek (владелец 2026-08-01) — последней в цепочке гео: digest(:10 ежечасно) → geopolitics(21:00) → overlay(21:20) → reviser inst(21:40) → сюда
         scheduler.add_job(_with_heartbeat("inst_state", _inst_state_job), "cron", hour=22, minute=35, id="inst_state")  # ИНСТИТУЦИОНАЛЬНЫЙ СНИМОК (владелец 2026-09-13) — после макро-состояния
+        scheduler.add_job(_with_heartbeat("cross_review", _cross_review_job), "cron", hour=23, minute=0, id="cross_review")  # ПЕРЕКРЁСТНЫЙ ОПРОС трёх аналитиков (пункт 3) — после всех трёх состояний
+        scheduler.add_job(_with_heartbeat("consistency", _consistency_job), "cron", hour=23, minute=20, id="consistency")  # СВЕРКА ПРОТИВОРЕЧИЙ (пункт 3)
         scheduler.add_job(_with_heartbeat("geo_profile", _geo_profile_job), "cron", day_of_week="sun", hour=22, minute=10, id="geo_profile")  # портрет очагов — НЕДЕЛЬНЫЙ слой (медленные данные: стороны/цели/баланс/связки), воскресенье после суточной цепочки
         scheduler.add_job(_with_heartbeat("sector_data", _sector_data_job), "cron", hour=7, minute=5, id="sector_data")  # отраслевые ряды — ежедневно утром, до всех недельных слоёв
         scheduler.add_job(_with_heartbeat("sector_digest", _sector_digest_job), "cron", hour="8,20", minute=15, id="sector_digest")

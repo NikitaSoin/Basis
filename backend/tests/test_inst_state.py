@@ -12,7 +12,11 @@ def _full(level="низкий"):
             "forecast_card": {f: "заполнено" for f in FORECAST_FIELDS},
             "verdict": "Формально права собственности закреплены. " * 12,
             "summary": "В 2026 году 3 закона и 5 назначений.",
-            "leading_signals": [{"type": "кадровые", "observations": ["а", "б"]}]}
+            "leading_signals": [{"type": "кадровые", "observations": ["а", "б"]}],
+            "handoffs": {"to_macro": {"sensitive_credit_share": "40%", "expectations_anchoring": "13,7%",
+                                      "inflation_inaccessible_to_rate": "2 п.п."},
+                         "to_geo": {"ruling_coalition": "x", "leadership_constraints": "y",
+                                    "escalation_beneficiaries": "z"}}}
 
 
 def test_пропавший_раздел_переносится():

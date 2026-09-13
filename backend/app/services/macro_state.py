@@ -39,7 +39,7 @@ from datetime import date, datetime, timezone
 from sqlalchemy.orm import Session
 
 from app.models.geo import BarometerVersion
-from app.services import barometer_store, llm
+from app.services import barometer_store, handoffs, llm
 
 logger = logging.getLogger(__name__)
 
@@ -121,6 +121,23 @@ def edges_for_scout(inputs: dict) -> dict:
     return {"geo_edge": inputs.get("geo_edge"), "inst_edge": inputs.get("inst_edge")}
 
 
+def _peer_payloads(db: Session) -> dict[str, dict | None]:
+    out = {}
+    for kind in ("geo", "inst_state"):
+        row = barometer_store.current_row(db, kind)
+        out[kind] = row.payload if row and row.payload else None
+    return out
+
+
+def _peer_questions(db: Session, me: str) -> list[dict]:
+    """Вопросы соседей ко мне из последней перекрёстной проверки."""
+    try:
+        from app.services.cross_review import questions_for
+        return questions_for(db, me)
+    except Exception:  # noqa: BLE001
+        return []
+
+
 def gather_inputs(db: Session) -> dict:
     """Тот же типизированный срез, что у интерпретатора, плюс два ребра.
 
@@ -139,6 +156,8 @@ def gather_inputs(db: Session) -> dict:
         "data_gaps": snap.get("data_gaps"),
         "geo_edge": _geo_edge(db),
         "inst_edge": _inst_edge(db),
+        "peers": _peer_payloads(db),
+        "peer_questions": _peer_questions(db, "macro"),
     }
 
 
@@ -196,6 +215,8 @@ def _gate(fresh: dict, prev: dict | None) -> tuple[dict, list[str]]:
     # 6. Пусковые условия пересмотра — без них прогноз непроверяем
     if not fresh.get("revision_triggers"):
         notes.append("revision_triggers: пусто — прогноз непроверяем (§15.4)")
+    # 6б. Контракты передач соседям: пустое обязательное поле — заметка (пункт 3)
+    notes += handoffs.gate_notes(fresh, "macro")
     # 7. Цифры и язык (владелец 2026-09-13: «везде конкретные цифры», без эпитетов).
     #    Код не умеет судить о стиле, но умеет считать числа и ловить запрещённые
     #    обороты — этого достаточно, чтобы пустословие не прошло молча.
@@ -270,10 +291,29 @@ _SYSTEM = (
     "  \"indicators_to_watch\": [..], \"shocks_from_geo\": <как учтён гео-барометр>, "
     "\"institutional_params\": <как учтены институты>,\n"
     "  \"summary\": <диагноз одним абзацем, §16.4 — НЕ начинать с числа>,\n"
+    "  \"handoffs\": {\"to_geo\": {..}, \"to_inst\": {..}}  — см. блок ПЕРЕДАЧИ СОСЕДЯМ ниже,\n"
+    "  \"answers_to_peers\": [ {\"from\", \"question\", \"answer\", \"evidence\"} ] — ответы на "
+    "вопросы соседей из задания (если вопросы были — отвечать ОБЯЗАТЕЛЬНО, с числом и источником),\n"
+    "  \"questions_to_peers\": [ {\"to\": <geo|inst_state>, \"question\", \"why_it_matters\"} ] — что "
+    "тебе не хватило от соседей для твоего вывода,\n"
     "  \"methodology_used\": [..], \"sources\": [..], \"data_flags\": [..]\n"
     "}"
+    + handoffs.prompt_block("macro")
 )
 
+
+
+def _contradictions_block(db: Session) -> str:
+    """Противоречия, найденные сверкой, в которых участвует эта сводка (пункт 3):
+    обязана либо снять, либо объяснить, почему права она."""
+    try:
+        from app.services.consistency_check import contradictions_for
+        cs = contradictions_for(db, "macro")
+    except Exception:  # noqa: BLE001
+        cs = []
+    return ("ПРОТИВОРЕЧИЯ, ЗАФИКСИРОВАННЫЕ СВЕРКОЙ С СОСЕДЯМИ (в поле contradictions_resolved "
+            "по каждому: снято / объяснено, с числом и источником):\n"
+            + (json.dumps(cs, ensure_ascii=False) if cs else "— нет —"))
 
 def rebuild(db: Session) -> BarometerVersion | None:
     prev_row = _prev_state(db)
@@ -299,7 +339,11 @@ def rebuild(db: Session) -> BarometerVersion | None:
     task = ("ПРОШЛАЯ ВЕРСИЯ СОСТОЯНИЯ (обнови, не переписывай):\n"
             + (json.dumps(prev, ensure_ascii=False)[:60_000] if prev else "— нет, это первая сборка: собери состояние с нуля —")
             + "\n\nДОСЬЕ РАЗВЕДКИ:\n" + (json.dumps(dossier, ensure_ascii=False)[:40_000] if dossier else "— нет —")
-            + "\n\nРЁБРА КОНТУРОВ (гео → макро: шоки и сценарии; институты → макро):\n"
+            + "\n\n" + handoffs.incoming_block("macro", inputs["peers"])
+            + "\n\nВОПРОСЫ СОСЕДЕЙ К ТЕБЕ (ответить в answers_to_peers, с числом и источником):\n"
+            + (json.dumps(inputs["peer_questions"], ensure_ascii=False) if inputs["peer_questions"] else "— нет —")
+            + "\n\n" + _contradictions_block(db)
+            + "\n\nСВОДКИ СОСЕДЕЙ КРАТКО (для контекста; контракт выше важнее):\n"
             + json.dumps(edges, ensure_ascii=False, default=str)
             + "\n\nДАННЫЕ ПЛАТФОРМЫ (единственный источник чисел):\n"
             + inputs["snapshot_text"]

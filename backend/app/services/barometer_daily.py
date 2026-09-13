@@ -505,6 +505,48 @@ def _gate(fresh: dict, prev: dict) -> tuple[dict, list[str]]:
     return fresh, notes
 
 
+def _handoff_prompt() -> str:
+    try:
+        from app.services import handoffs
+        return ("\n" + handoffs.prompt_block("geo")
+                + "Также верни \"answers_to_peers\" (ответы на вопросы соседей из задания, с фактом "
+                "и источником) и \"questions_to_peers\" (to: macro|inst_state; что тебе не хватило).\n")
+    except ImportError:  # pragma: no cover
+        return ""
+
+
+def _handoff_incoming(db: Session) -> str:
+    try:
+        from app.services import barometer_store, handoffs
+        peers = {k: (r.payload if (r := barometer_store.current_row(db, k)) and r.payload else None)
+                 for k in ("macro", "inst_state")}
+        block = handoffs.incoming_block("geo", peers)
+        try:
+            from app.services.cross_review import questions_for
+            qs = questions_for(db, "geo")
+        except Exception:  # noqa: BLE001
+            qs = []
+        try:
+            from app.services.consistency_check import contradictions_for
+            cs = contradictions_for(db, "geo")
+        except Exception:  # noqa: BLE001
+            cs = []
+        return (block + "\n\nВОПРОСЫ СОСЕДЕЙ К ТЕБЕ (ответить в answers_to_peers):\n"
+                + (json.dumps(qs, ensure_ascii=False) if qs else "— нет —")
+                + "\n\nПРОТИВОРЕЧИЯ, ЗАФИКСИРОВАННЫЕ СВЕРКОЙ (снять или объяснить в contradictions_resolved):\n"
+                + (json.dumps(cs, ensure_ascii=False) if cs else "— нет —"))
+    except ImportError:  # pragma: no cover
+        return ""
+
+
+def _handoff_gate(payload: dict) -> list[str]:
+    try:
+        from app.services import handoffs
+        return handoffs.gate_notes(payload, "geo")
+    except ImportError:  # pragma: no cover
+        return []
+
+
 def compliance_ok(payload: dict) -> tuple[bool, str | None]:
     """Гардрейл закона РФ: детерминированный постфильтр по всему тексту выпуска.
     Промпт — пожелание, этот фильтр — гарантия. Срабатывание → не публикуем."""
@@ -550,6 +592,9 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
         # конфликта, и экономические каналы, и институциональные механизмы. Здесь
         # остаётся только контракт с витриной.
         + _OUTPUT_SPEC
+        # 🔴 Пункт 3 (владелец 2026-09-13): передачи соседям — контракт полей.
+        # Мягкий импорт: модуль новый, Timeweb выкатывает файлы неравномерно.
+        + _handoff_prompt()
     )
     dossier_text = ""
     try:
@@ -577,6 +622,7 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
 
     user = (
         (dossier_text + "\n\n" if dossier_text else "")
+        + _handoff_incoming(db) + "\n\n"
         + stale_note
         + "ВЧЕРАШНИЙ БАРОМЕТР (отправная точка; сохраняй значения, если лента не даёт "
         "основания их менять):\n"
@@ -655,7 +701,7 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
     _drop_scores(fresh)
 
     fresh, notes = _gate(fresh, prev)
-    notes = carried + notes
+    notes = carried + notes + _handoff_gate(fresh)
     fresh = _sanitize_sources(fresh)
 
     ok, why = compliance_ok(fresh)

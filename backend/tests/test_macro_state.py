@@ -18,7 +18,11 @@ def _full(level="высокий"):
                           "main_constraint": "труд"},
             "forecast": {"variables": {"inflation": {"probabilities": {"base": 0.5, "favorable": 0.2, "adverse": 0.4},
                                                      "most_likely": "base", "most_dangerous": "adverse"}}},
-            "revision_triggers": [{"condition": "базовая инфляция выше 8%"}]}
+            "revision_triggers": [{"condition": "базовая инфляция выше 8%"}],
+            "handoffs": {"to_geo": {"fiscal_capacity": "дефицит 2,5% ВВП", "exhaustion_points": ["x"],
+                                    "endurance_horizon_months": "18–24, В"},
+                         "to_inst": {"fiscal_origin": "рента 30%", "crisis_proximity": "далеко",
+                                     "inflation_as_destroyer": "6,3%"}}}
 
 
 def test_пропавший_блок_переносится_с_прошлой_версии():
