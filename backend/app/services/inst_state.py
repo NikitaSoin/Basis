@@ -133,10 +133,43 @@ def gather_inputs(db: Session) -> dict:
 
 # ─────────────────────────── гейт ───────────────────────────
 
+def _index_by_key(items: list, schema: list[tuple[str, str]], notes: list[str]) -> dict:
+    """{ключ схемы: раздел}. Ключ модели сверяется точно, затем по названию.
+
+    🔴 Первый прогон снимка: модель вернула тринадцать разделов под СВОИМИ
+    ключами («А», «Конституционная архитектура»…), точного совпадения не было,
+    и гейт молча заменил одиннадцать из них пустыми заготовками — работа модели
+    выброшена, а в базу ушла пустота с пометкой «нет данных». Теперь чужой ключ
+    сначала пытаемся узнать по названию, и только потом — заготовка."""
+    out: dict = {}
+    titles = {k: t.lower() for k, t in schema}
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        key = str(it.get("key") or "").strip()
+        if key in titles:
+            out[key] = it; continue
+        probe = (key + " " + str(it.get("title") or "")).lower()
+        # отличительное слово — первое после буквы раздела: «Силовой», «Судебный»,
+        # «Частный»; общие слова («контур», «бизнес») в сопоставлении не участвуют
+        def _distinct(t: str) -> str:
+            body = t.split(".", 1)[-1].strip() if "." in t[:3] else t
+            return body.split()[0].lower().rstrip(",")
+        match = next((k for k, t in titles.items()
+                      if t.split(".")[0].strip() == key.upper()          # «А» → «А. …»
+                      or _distinct(t) in probe), None)
+        if match and match not in out:
+            it["key"] = match; out[match] = it
+            notes.append(f"{match}: ключ модели «{key}» узнан по названию")
+        else:
+            notes.append(f"раздел «{key or it.get('title')}» не сопоставлен со схемой — оставлен в extra_sections")
+            out.setdefault("_extra", []).append(it)
+    return out
+
 def _gate(fresh: dict, prev: dict | None) -> tuple[dict, list[str]]:
     notes: list[str] = []
     prev_secs = {s.get("key"): s for s in ((prev or {}).get("sections") or []) if isinstance(s, dict)}
-    have = {s.get("key"): s for s in (fresh.get("sections") or []) if isinstance(s, dict)}
+    have = _index_by_key(fresh.get("sections") or [], SECTIONS, notes)
     rebuilt = []
     for key, title in SECTIONS:
         s = have.get(key)
@@ -161,6 +194,8 @@ def _gate(fresh: dict, prev: dict | None) -> tuple[dict, list[str]]:
             notes.append(f"{key}: уровень изменён без обоснования → откат")
         rebuilt.append(s)
     fresh["sections"] = rebuilt
+    if have.get("_extra"):
+        fresh["extra_sections"] = have["_extra"]
 
     card = fresh.get("forecast_card") or {}
     missing = [f for f in FORECAST_FIELDS if not str(card.get(f) or "").strip()]
@@ -234,7 +269,9 @@ _SYSTEM = (
     "ФОРМАТ (строго JSON): {\n"
     "  \"as_of\": \"YYYY-MM-DD\",\n"
     "  \"regime\": {\"type\", \"subtype\", \"vector\", \"ruling_coalition\", \"status\"},\n"
-    "  \"sections\": [ {\"key\": <из списка тринадцати>, \"title\", \"level\": <словами, с "
+    "  \"sections\": [ {\"key\": <РОВНО один из: " + ", ".join(k for k, _ in SECTIONS) + ">, "
+    "\"title\": <соответственно: " + "; ".join(f"{k} = {t}" for k, t in SECTIONS) + ">, "
+    "\"level\": <словами, с "
     "фактами>, \"trend\": <улучшается|стабильно|деградирует + чем измерено>, "
     "\"impulse\", \"resistance\", \"entrenchment\", \"formal_vs_actual_gap\", "
     "\"status\": <Ф|Д|В|Г>, \"evidence\": [{\"what\", \"date\", \"source\"}], "
