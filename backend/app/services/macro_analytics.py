@@ -54,6 +54,14 @@ def doc_date(url: str) -> date | None:
     показывал бы дату публикации «из будущего», которая ещё не наступила."""
     s = url.lower()
     today = date.today()
+    # YYYY-MM-DD / YYYY_MM_DD (ЦМАКП: PR-OTR_2026-08-27.pdf) — раньше не разбирался,
+    # и свежие обзоры промышленности отбрасывались как «дата неизвестна».
+    m = re.search(r"(20[0-3]\d)[-_](\d{2})[-_](\d{2})(?!\d)", s)
+    if m:
+        try:
+            return min(date(int(m.group(1)), int(m.group(2)), int(m.group(3))), today)
+        except ValueError:
+            pass
     for m in re.finditer(r"(\d{8})", s):  # YYYYMMDD | DDMMYYYY
         for fmt in ("%Y%m%d", "%d%m%Y"):
             try:
@@ -65,7 +73,7 @@ def doc_date(url: str) -> date | None:
     m = re.search(r"(\d{2})(20\d{2})(?!\d)", s)  # MMYYYY: 042026
     if m and 1 <= int(m.group(1)) <= 12:
         return min(date(int(m.group(2)), int(m.group(1)), 28), today)
-    m = re.search(r"(" + "|".join(_MONTHS) + r")[_\-]?(20\d{2})", s)  # may_2026
+    m = re.search(r"(" + "|".join(_MONTHS) + r")[a-zа-я]*[_\-]?(20\d{2})", s)  # may_2026, august_2026
     if m:
         return min(date(int(m.group(2)), _MONTHS[m.group(1)], 28), today)
     m = re.search(r"(?<!\d)(\d{2})-(\d{2})(?!\d)", s)  # YY-MM: 21-08 (вкл. старые 14-02)
@@ -80,9 +88,29 @@ def doc_date(url: str) -> date | None:
     return None
 
 
+def _last_modified(url: str) -> date | None:
+    """Дата из заголовка Last-Modified (HEAD-запрос). Для PDF без даты в имени
+    (ЦМАКП: TT9_2026.pdf, macro69.pdf, infl139.pdf) это единственный честный
+    источник даты: искать «12 мая 2026» в теле PDF бесполезно — page_date()
+    получал бинарник и отбрасывал ВСЕ такие документы, отсюда 0 записок ЦМАКП
+    на бою при живой странице."""
+    try:
+        r = httpx.Client(timeout=15, headers=_HTTP, follow_redirects=True).head(url)
+        lm = r.headers.get("last-modified")
+        if not lm:
+            return None
+        from email.utils import parsedate_to_datetime
+        return min(parsedate_to_datetime(lm).date(), date.today())
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def page_date(url: str) -> date | None:
     """Дата публикации со СТРАНИЦЫ документа (запасной путь, если в URL даты нет):
-    ищем дату в тексте/метаданных. None — если не нашли."""
+    ищем дату в тексте/метаданных. None — если не нашли. Для PDF — по заголовку
+    Last-Modified, в теле бинарника даты нет."""
+    if url.lower().split("?")[0].endswith(".pdf"):
+        return _last_modified(url)
     try:
         r = httpx.Client(timeout=15, headers=_HTTP, follow_redirects=True).get(url)
         if r.status_code != 200:
