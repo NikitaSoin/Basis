@@ -38,3 +38,31 @@ def test_системные_задания_собираются():
         s = pq._analyst_system(c)
         assert "МАНДАТ" in s and "answer" in s
     assert all(k in pq._judge_system() for k in pq.RUBRIC)
+
+
+def test_прогон_сохраняется_по_ходу(db, monkeypatch):
+    """Версия создаётся черновиком сразу и растёт после каждого вопроса; в конце — published."""
+    from app.models.geo import BarometerVersion
+    seen = []
+
+    def fake_ask(db_, q, states_txt, conflict_txt, notes=None):
+        seen.append(q["id"])
+        if len(seen) == 2:
+            raise RuntimeError("модель упала")
+        return {"answer": "Главный вывод. " * 10, "key_judgements": [], "gaps": []}
+
+    def fake_judge(db_, q, answer, notes=None):
+        return {"scores": {k: 4 for k in pq.RUBRIC}, "missing": ["x"], "wrong": [], "verdict": "ок"}
+
+    monkeypatch.setattr(pq, "ask", fake_ask)
+    monkeypatch.setattr(pq, "judge", fake_judge)
+    monkeypatch.setattr(pq, "states_context", lambda db_: "нет сводок")
+    monkeypatch.setattr(pq, "_conflict_text", lambda db_: "нет данных")
+    row = pq.run(db, only=["strikes_outlook", "russia_response", "ukraine_economy"])
+    assert row.status == "published" and len(seen) == 3
+    items = row.payload["items"]
+    assert len(items) == 3 and items[0]["answer"] and items[1]["answer"] is None
+    assert any("упала" in n for n in items[1]["notes"])
+    assert row.payload["summary"]["judged"] == 2 and row.payload["summary"]["avg_total"] == 24.0
+    assert row.payload.get("started_at") and row.payload.get("finished_at")
+    assert db.query(BarometerVersion).filter(BarometerVersion.kind == "probe").count() >= 1

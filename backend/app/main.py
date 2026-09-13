@@ -222,11 +222,14 @@ def _with_heartbeat(job_id: str, fn):
     инкрементально."""
     async def _wrapped():
         from app.services.job_heartbeat import hb_ok, hb_err
+        # 🔴 Запись пульса — INSERT в БД; в потоке цикла событий при заторе Postgres она
+        # вешала ВЕСЬ процесс на pool_timeout (советник 2026-09-14). Только через executor.
+        loop = asyncio.get_event_loop()
         try:
             await fn()
-            hb_ok(job_id)
+            await loop.run_in_executor(None, hb_ok, job_id)
         except Exception as e:  # джоб выбросил наружу (редкость) — тоже фиксируем
-            hb_err(job_id, e)
+            await loop.run_in_executor(None, hb_err, job_id, e)
             raise
     return _wrapped
 
@@ -1876,7 +1879,9 @@ async def _selftest_startup():
     try:
         import httpx
         async with httpx.AsyncClient(timeout=30) as c:
-            for p in ("/api/screener/scored?universe=all", "/api/companies", "/api/market/indices"):
+            # 🔴 /api/screener/scored убран: он запускал ленивый скоринг 262 компаний
+            # (десятки секунд под GIL) ровно в стартовое окно (советник 2026-09-14)
+            for p in ("/api/health", "/api/companies", "/api/market/indices"):
                 t0 = _t.monotonic()
                 try:
                     r = await c.get(f"http://127.0.0.1:8000{p}")
@@ -1890,6 +1895,49 @@ async def _selftest_startup():
 
 
 @asynccontextmanager
+def _ensure_log_timestamps() -> None:
+    """В логе Timeweb нет времени — при разборе инцидента 2026-09-14 это была главная
+    дыра. Ставим формат с asctime на все хендлеры корневого логгера (и заводим один,
+    если их нет). Формат uvicorn-логгеров не трогаем."""
+    try:
+        fmt = logging.Formatter("%(asctime)s %(levelname).5s [%(name)s] %(message)s", "%Y-%m-%d %H:%M:%S")
+        root = logging.getLogger()
+        if not root.handlers:
+            h = logging.StreamHandler()
+            root.addHandler(h)
+        for h in root.handlers:
+            h.setFormatter(fmt)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+async def _startup_chain():
+    """Старт-задачи одна за другой, тяжёлые — с отсрочкой (см. комментарий в lifespan)."""
+    delay = float(os.environ.get("STARTUP_DELAY_SEC", "300"))
+    gap = float(os.environ.get("STARTUP_GAP_SEC", "45"))
+
+    async def _step(name, coro_fn):
+        try:
+            await coro_fn()
+        except Exception as e:  # noqa: BLE001
+            logger.warning("старт-задача %s: %s", name, e)
+
+    for name, fn in (("tinkoff_warmup", _tinkoff_warmup), ("seed_shares", _seed_shares_startup),
+                     ("selftest", _selftest_startup)):
+        await _step(name, fn)
+    logger.info("старт: лёгкие задачи выполнены, тяжёлые — через %.0f с, с паузой %.0f с", delay, gap)
+    await asyncio.sleep(delay)
+    for name, fn in (("barometer_expert_reimport", _barometer_expert_reimport_startup),
+                     ("geo_frontline_sync", _geo_frontline_sync_startup),
+                     ("instrument_history", _instrument_history_startup),
+                     ("asset_data", _asset_data_job),
+                     ("sector_tr_backfill", _sector_tr_backfill_startup),
+                     ("risk_metrics", _risk_metrics_startup)):
+        await _step(name, fn)
+        await asyncio.sleep(gap)
+    logger.info("старт: все старт-задачи выполнены")
+
+
 async def lifespan(app: FastAPI):
     # Под тестами (pytest) НЕ запускаем планировщик и старт-задачи: они ходят в сеть
     # и зовут LLM (ингест/новости/аналитика), что недопустимо в тестовом прогоне.
@@ -1898,7 +1946,14 @@ async def lifespan(app: FastAPI):
         logger.info("Планировщик/старт-задачи отключены (тест/флаг)")
         yield
         return
+    _ensure_log_timestamps()
+    try:
+        from app.services.loop_watchdog import start as _watchdog_start
+        _watchdog_start()   # видеть зависания цикла событий (инцидент 2026-09-14)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Сторож цикла событий не запущен: %s", e)
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
+    app.state.scheduler = scheduler   # разовые задачи из debug-ручек — через планировщик, не HTTP-поток
     scheduler.add_job(_with_heartbeat("quotes_update", _quotes_job), "interval", minutes=5, id="quotes_update")
     # История: раз в день после закрытия торгов (19:30 МСК) докачиваем
     # пропущенные дни и финализируем live-снапшоты официальными свечами.
@@ -1986,7 +2041,7 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("situation_overlay", _situation_overlay_job), "cron", hour=21, minute=20, id="situation_overlay")  # оверлей ситуации гео/институты — после geopolitics (тот же дневной digest)
         scheduler.add_job(_with_heartbeat("barometer_reviser", _barometer_reviser_job), "cron", hour=21, minute=40, id="barometer_reviser")  # ревизор ИНСТИТУТОВ (гео ушёл на barometer_daily) — после оверлея (его вердикт = триггер); cooldown 5 дней внутри
         scheduler.add_job(_with_heartbeat("evening_pipeline", _evening_pipeline_job), "cron", hour=21, minute=50, id="evening_pipeline")  # ВЕЧЕРНЯЯ СБОРКА: черновики → опрос → сверка → проверка → доработка → публикация → итог
-        scheduler.add_job(_with_heartbeat("probe_questions", _probe_questions_job), "cron", day_of_week="sat", hour=9, minute=30, id="probe_questions")  # КОНТРОЛЬНЫЕ ВОПРОСЫ ВЛАДЕЛЬЦА — еженедельный экзамен аналитиков по свежим пятничным сводкам
+        scheduler.add_job(_with_heartbeat("probe_questions", _probe_questions_job), "cron", day_of_week="sun", hour=0, minute=30, id="probe_questions")  # КОНТРОЛЬНЫЕ ВОПРОСЫ ВЛАДЕЛЬЦА — еженедельный экзамен аналитиков; ночью после субботней вечерней сборки, чтобы днём не задевать сайт (инцидент 2026-09-14)
         # scheduler.add_job(_with_heartbeat("barometer_daily", _barometer_daily_job), "cron", hour=21, minute=50, id="barometer_daily")  # ← заменено вечерней сборкой 2026-09-13
         # scheduler.add_job(_with_heartbeat("macro_state", _macro_state_job), "cron", hour=22, minute=15, id="macro_state")  # СОСТОЯНИЕ ЭКОНОМИКИ (пункт 2, 2026-09-13) — после гео-барометра: его сценарии входят ребром «гео → макро»  # ЕЖЕДНЕВНАЯ полная пересборка гео-барометра DeepSeek (владелец 2026-08-01) — последней в цепочке гео: digest(:10 ежечасно) → geopolitics(21:00) → overlay(21:20) → reviser inst(21:40) → сюда  # ← заменено вечерней сборкой 2026-09-13
         # scheduler.add_job(_with_heartbeat("inst_state", _inst_state_job), "cron", hour=22, minute=35, id="inst_state")  # ИНСТИТУЦИОНАЛЬНЫЙ СНИМОК (владелец 2026-09-13) — после макро-состояния  # ← заменено вечерней сборкой 2026-09-13
@@ -2052,16 +2107,15 @@ async def lifespan(app: FastAPI):
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
-    # Лёгкие/локальные старт-задачи (быстро освобождают соединение БД) — всегда.
-    asyncio.create_task(_tinkoff_warmup())
-    asyncio.create_task(_seed_shares_startup())
-    asyncio.create_task(_instrument_history_startup())
-    asyncio.create_task(_sector_tr_backfill_startup())
-    asyncio.create_task(_risk_metrics_startup())
-    asyncio.create_task(_selftest_startup())
-    asyncio.create_task(_geo_frontline_sync_startup())
-    asyncio.create_task(_company_metrics_job())  # файлы приезжают с деплоем — скринер сразу в ногу с карточками
-    asyncio.create_task(_barometer_expert_reimport_startup())  # файл барометра мог обновиться экспертом → освежить якорь в БД
+    # 🔴 СТАРТОВЫЙ ЗАЛП — ПОСЛЕДОВАТЕЛЬНО И С ОТСРОЧКОЙ (советник 2026-09-14). Раньше
+    # здесь стартовали ДЕСЯТЬ задач разом, включая ДВА параллельных полных пересчёта
+    # метрик компаний (_risk_metrics_startup и _company_metrics_job) — на одном ядре с
+    # Postgres это захватывало GIL и морозило процесс: оба инцидента «не отвечает даже
+    # async ping» начались через 2–3 минуты после деплоя. Теперь: лёгкое — сразу и по
+    # очереди; тяжёлое — через STARTUP_DELAY_SEC (по умолчанию 5 минут) с паузами между
+    # задачами; дубль пересчёта метрик убран (остался в _risk_metrics_startup и на кроне
+    # 19:50). Порядок задач прежний по смыслу, изменён только режим запуска.
+    asyncio.create_task(_startup_chain())
 
     # Облигации/фьючерсы/фонды — БЕЗ страховки на рестарт (в отличие от акций
     # выше) молча отставали на T+1..T+N: их крон (asset_data_refresh, 06:00 МСК)
@@ -2075,7 +2129,7 @@ async def lifespan(app: FastAPI):
     # обновляются всегда, облигации (~15-20 мин) — только если старше 22ч.
     # Каждый пропущенный рестартом день пусть теперь ловится здесь, а не ждёт
     # следующего попадания в окно 06:00 МСК.
-    asyncio.create_task(_asset_data_job())
+    # (_asset_data_job — теперь в хвосте _startup_chain, тем же безусловным правилом)
     # _screener_warm НЕ запускаем при старте: расчёт скоринга 262 компаний на 1-CPU
     # инстансе захватывает ядро (GIL) и морозит весь процесс на десятки секунд →
     # health-check Timeweb не отвечает → перезапуск → снова warm → петля, при которой

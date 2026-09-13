@@ -256,8 +256,10 @@ def complete(system_prompt: str, user_content: str, *, json_mode: bool = True,
         except (httpx.HTTPError, json.JSONDecodeError, KeyError, Exception) as e:  # noqa: BLE001
             last_err = e
             # Логируем БЕЗ утечки ключа (httpx не печатает заголовки в str(e)).
-            logger.warning("LLM(%s) попытка %d/%d не удалась: %s",
-                           provider, attempt + 1, _retries(retries) + 1, type(e).__name__)
+            cause = getattr(e, "__cause__", None) or getattr(e, "__context__", None)
+            logger.warning("LLM(%s) попытка %d/%d не удалась: %s | %s | cause=%s",
+                           provider, attempt + 1, _retries(retries) + 1, type(e).__name__,
+                           str(e)[:200], (f"{type(cause).__name__}: {str(cause)[:120]}" if cause else "-"))
             if attempt < _retries(retries):
                 time.sleep(1.5 * (attempt + 1))
     raise LLMError(f"LLM({provider}) недоступен после повторов: {type(last_err).__name__}")
@@ -340,8 +342,12 @@ def complete_messages(messages: list[dict], *, tools: list[dict] | None = None,
             body = ""
             if isinstance(e, httpx.HTTPStatusError):
                 body = e.response.text[:400].replace("\n", " ")
-            logger.warning("LLM tools(%s) попытка %d/%d не удалась: %s %s",
-                           provider, attempt + 1, _retries() + 1, type(e).__name__, body)
+            # 🔴 Причина словами (инцидент 2026-09-14: 21×«ConnectError» и ни одного
+            # errno — не отличить DNS от RST от сети контейнера): str(e) + __cause__.
+            cause = getattr(e, "__cause__", None) or getattr(e, "__context__", None)
+            logger.warning("LLM tools(%s) попытка %d/%d не удалась: %s %s | %s | cause=%s",
+                           provider, attempt + 1, _retries() + 1, type(e).__name__, body,
+                           str(e)[:200], (f"{type(cause).__name__}: {str(cause)[:120]}" if cause else "-"))
             if attempt < _retries():
                 time.sleep(1.5 * (attempt + 1))
     raise LLMError(f"LLM tools({provider}) недоступен после повторов: {type(last_err).__name__}")

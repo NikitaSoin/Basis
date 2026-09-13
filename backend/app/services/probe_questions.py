@@ -232,11 +232,33 @@ def run(db: Session, only: list[str] | None = None) -> BarometerVersion:
         from app.services.barometer_daily import compliance_ok
     except Exception:  # noqa: BLE001
         compliance_ok = lambda _p: (True, None)   # noqa: E731
+    # 🔴 Сохранение ПО ХОДУ (советник 2026-09-14): дневной прогон 14:49 ответил на всё
+    # (пусть и ошибками) и погиб до единственного commit — результат потерян целиком.
+    # Теперь строка версии создаётся сразу как draft и обновляется после каждого
+    # вопроса; published — в конце. Рестарт посередине оставляет черновик с тем, что
+    # успело (виден в истории версий).
+    from sqlalchemy.orm.attributes import flag_modified
     items: list[dict] = []
+    row = BarometerVersion(kind=KIND, source="auto", status="draft",
+                           payload={"as_of": date.today().isoformat(), "checks_version": CHECKS_VERSION,
+                                    "rubric": RUBRIC, "items": [], "summary": aggregate([]),
+                                    "started_at": datetime.now(timezone.utc).isoformat(timespec="seconds")},
+                           trigger_reason="контрольные вопросы владельца",
+                           model_used=f"{llm.provider_info().get('provider')}:{llm.pro_model()}")
+    db.add(row); db.commit(); db.refresh(row)
+
+    def _checkpoint():
+        try:
+            row.payload = {**(row.payload or {}), "items": items, "summary": aggregate(items),
+                           "updated_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+            flag_modified(row, "payload"); db.commit()
+        except Exception as e:  # noqa: BLE001
+            db.rollback(); logger.warning("probe: промежуточное сохранение не удалось (%s)", e)
+
     for q in qs:
         diag: list[str] = []
         item = {"id": q["id"], "contour": q["contour"], "question": q["question"], "answer": None,
-                "judge": None, "notes": diag}
+                "judge": None, "notes": diag, "started_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
         try:
             ans = ask(db, q, states_txt, conflict_txt, notes=diag)
         except Exception as e:  # noqa: BLE001
@@ -255,15 +277,15 @@ def run(db: Session, only: list[str] | None = None) -> BarometerVersion:
                 diag.append(f"экзаменатор упал: {type(e).__name__}: {e}")
         else:
             diag.append("ответа нет")
-        logger.info("probe[%s]: ответ %s, оценка %s", q["id"], bool(item["answer"]),
-                    ((item.get("judge") or {}).get("scores")))
+        item["finished_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        logger.warning("probe[%s]: ответ %s, оценка %s, заметки: %s", q["id"], bool(item["answer"]),
+                       ((item.get("judge") or {}).get("scores")), " | ".join(diag)[:300])
         items.append(item)
-    payload = {"as_of": date.today().isoformat(), "checks_version": CHECKS_VERSION, "rubric": RUBRIC,
-               "items": items, "summary": aggregate(items)}
-    row = BarometerVersion(kind=KIND, source="auto", status="published", payload=payload,
-                           trigger_reason="контрольные вопросы владельца",
-                           model_used=f"{llm.provider_info().get('provider')}:{llm.pro_model()}")
-    db.add(row); db.commit(); db.refresh(row)
+        _checkpoint()
+    payload = {**(row.payload or {}), "items": items, "summary": aggregate(items),
+               "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+    row.payload = payload; row.status = "published"
+    flag_modified(row, "payload"); db.commit(); db.refresh(row)
     _record_quality(db, payload)
     logger.info("probe: версия #%d, %s", row.id, payload["summary"])
     return row

@@ -235,6 +235,9 @@ async def debug_connectivity():
         # Claude напрямую и через CF-Worker — сравнить
         "anthropic_direct (api.anthropic.com)": "https://api.anthropic.com",
         "cf_worker (ANTHROPIC_PROXY_URL)": proxy,
+        # 🔴 Рабочий релей DeepSeek (советник 2026-09-14: connectivity проверял только
+        # ANTHROPIC_PROXY_URL, а ConnectError шёл именно к этому хосту)
+        "deepseek_relay (DEEPSEEK_BASE_URL)": (os.environ.get("DEEPSEEK_BASE_URL") or "").strip() or None,
         # нейтральная зарубежка — общий вердикт «зарубеж режется или нет»
         "google.com": "https://www.google.com",
         "cloudflare 1.1.1.1": "https://1.1.1.1",
@@ -1881,6 +1884,24 @@ def debug_trigger_geo_digest():
         db.close()
 
 
+@router.post("/debug/geo-claims-regeocode")
+def debug_geo_claims_regeocode(dry_run: int = 0):
+    """Перепривязать все заявления о взятии по справочнику населённых пунктов
+    (владелец, 2026-09-14). dry_run=1 — только отчёт, что сдвинулось бы и
+    насколько; без него — записать. Тёзки, которых справочник не развёл, и
+    ненайденные имена перечисляются, но не трогаются."""
+    from app.db.session import SessionLocal
+    from app.services.geo_digest import regeocode_claims
+    db = SessionLocal()
+    try:
+        return regeocode_claims(db, dry_run=bool(dry_run))
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug geo-claims-regeocode: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-geo-frontline-sync")
 def debug_trigger_geo_frontline_sync():
     """Ручной запуск geo_isw_frontline_sync.sync_isw_frontline() синхронно, без
@@ -2045,21 +2066,54 @@ def debug_trigger_evening_pipeline():
 
 
 @router.post("/debug/trigger-probe-questions")
-def debug_trigger_probe_questions(only: str | None = None):
-    """Ручной запуск контрольных вопросов владельца (обычно крон сб 09:30). Долго
-    (7 вопросов × аналитик + экзаменатор ≈ 1–2 ч); прокси ответа не дождётся — смотреть
-    /api/market/probe-questions?format=md. only=id1,id2 — часть вопросов."""
-    from app.db.session import SessionLocal
-    from app.services.probe_questions import run
-    db = SessionLocal()
+async def debug_trigger_probe_questions(request: Request, only: str | None = None):
+    """Ручной запуск контрольных вопросов владельца (обычно крон ночь вс 00:30).
+    🔴 Не в потоке запроса, а как разовая задача планировщика (советник 2026-09-14):
+    HTTP-поток держал анио-токен и сессию БД на час, прокси рвал соединение, результат
+    терялся при рестарте. Возвращается сразу; ход — /api/market/probe-questions (версия
+    растёт по мере ответов), пульс — jobs-health (probe_questions). only=id1,id2."""
+    sched = getattr(request.app.state, "scheduler", None)
+    ids = [x.strip() for x in only.split(",") if x.strip()] if only else None
+    if sched is None:
+        return {"error": "планировщик не запущен (тест/флаг DISABLE_SCHEDULER)"}
+    from datetime import datetime, timedelta
+
+    async def _job():
+        import asyncio as _a
+        from app.db.session import SessionLocal
+        from app.services.probe_questions import run
+        from app.services.job_heartbeat import hb_ok, hb_err
+
+        def _run():
+            db = SessionLocal()
+            try:
+                return run(db, only=ids)
+            finally:
+                db.close()
+        try:
+            row = await _a.get_event_loop().run_in_executor(None, _run)
+            await _a.get_event_loop().run_in_executor(None, hb_ok, "probe_questions")
+            logger.info("Контрольные вопросы (ручной запуск): версия #%s", getattr(row, "id", None))
+        except Exception as e:  # noqa: BLE001
+            logger.exception("Контрольные вопросы (ручной запуск): %s", e)
+            await _a.get_event_loop().run_in_executor(None, hb_err, "probe_questions", e)
+
+    job = sched.add_job(_job, "date", run_date=datetime.now(sched.timezone) + timedelta(seconds=5),
+                        id=f"probe_manual_{int(datetime.now().timestamp())}")
+    return {"scheduled": True, "job_id": job.id, "only": ids,
+            "hint": "ход — GET /api/market/probe-questions; пульс — /api/debug/jobs-health"}
+
+
+@router.get("/debug/watchdog")
+def debug_watchdog():
+    """Сторож цикла событий (loop_watchdog.py): текущий лаг, последние зависания со
+    снимками (RSS, потоки, loadavg, троттлинг cgroup, OOM, сокеты, канарейка DNS/TCP).
+    Стеки потоков при зависании — в stderr (лог Timeweb)."""
     try:
-        row = run(db, only=[x.strip() for x in only.split(",") if x.strip()] if only else None)
-        return {"id": row.id, "status": row.status, "summary": (row.payload or {}).get("summary")}
+        from app.services.loop_watchdog import status
+        return status()
     except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-probe-questions: %s", e)
         return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
 
 
 @router.post("/debug/trigger-critic")
