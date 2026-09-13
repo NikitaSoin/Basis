@@ -890,6 +890,13 @@ def market_geo_barometer(db: Session = Depends(get_db)):
     return JSONResponse(content=payload)
 
 
+@router.get("/market/lessons")
+def market_lessons(contour: str | None = None, db: Session = Depends(get_db)):
+    """База уроков агентов: что проверяющий ловил, сколько раз повторялось, что усвоено."""
+    from app.services.lessons import snapshot
+    return JSONResponse(content=snapshot(db, contour))
+
+
 @router.get("/market/critique/{contour}")
 def market_critique(contour: str, db: Session = Depends(get_db)):
     """Замечания проверяющего к последней сводке контура (macro | inst_state | geo)."""

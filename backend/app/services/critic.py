@@ -108,7 +108,14 @@ def review(db: Session, contour: str) -> BarometerVersion | None:
         "\"fix\"} ], \"passed\": [..], \"checklist_gaps\": [<правила чек-листа, которые нельзя "
         "проверить по этой сводке и почему>], \"methodology_used\": [..]}"
     )
+    try:
+        from app.services.lessons import for_prompt as _lessons
+        lessons_txt = _lessons(db, contour)
+    except Exception:  # noqa: BLE001
+        lessons_txt = ""
     task = ("ЧЕК-ЛИСТ (разделы методичек по номерам):\n" + checklist
+            + "\n\n" + lessons_txt + "\n(если урок из списка нарушен снова — укажи в rule то же правило и место, "
+            "чтобы повтор был учтён)"
             + ("\n\n(не найдены на полке: " + ", ".join(missing) + ")" if missing else "")
             + "\n\nСВОДКА НА ПРОВЕРКУ:\n" + json.dumps(state_row.payload, ensure_ascii=False, default=str)[:80_000]
             + f"\n\nСегодня: {date.today().isoformat()}.")
@@ -151,6 +158,16 @@ def run_all(db: Session) -> dict:
             logger.exception("critic[%s]: %s", contour, e)
             results[contour] = {"error": f"{type(e).__name__}: {e}"}
     _record_quality(db, results)
+    # 🔴 Петля уроков (владелец 2026-09-13): каждое нарушение — в базу «не повторять»,
+    # повтор — счётчик, три чистых проверки подряд — «усвоен».
+    for contour, v in results.items():
+        if "id" in v and v.get("status") == "published":
+            try:
+                from app.services.lessons import harvest
+                row = db.get(BarometerVersion, v["id"])
+                results[contour]["lessons"] = harvest(db, contour, (row.payload or {}).get("violations") or [], review_id=row.id)
+            except Exception as e:  # noqa: BLE001
+                logger.warning("critic[%s]: уроки не собраны (%s)", contour, e)
     return results
 
 

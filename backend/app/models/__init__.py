@@ -17,6 +17,7 @@ from app.models.chronicle import ChronicleEntry
 from app.models.source_pool import DiscoveredSource
 from app.models.payment import Payment
 from app.models.quality_run import QualityRun, QualityFinding
+from app.models.lessons import AgentLesson
 
 __all__ = [
     "GeoBlock", "ObserverReport",
@@ -37,4 +38,5 @@ __all__ = [
     "Payment",
     "QualityRun",
     "QualityFinding",
+    "AgentLesson",
 ]

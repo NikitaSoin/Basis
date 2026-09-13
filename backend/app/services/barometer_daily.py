@@ -536,8 +536,17 @@ def _handoff_incoming(db: Session) -> str:
                 + "\n\nПРОТИВОРЕЧИЯ, ЗАФИКСИРОВАННЫЕ СВЕРКОЙ (снять или объяснить в contradictions_resolved):\n"
                 + (json.dumps(cs, ensure_ascii=False) if cs else "— нет —")
                 + "\n\nЗАМЕЧАНИЯ ПРОВЕРЯЮЩЕГО К ПРОШЛОЙ ВЕРСИИ (исправить; отчёт в critique_resolved):\n"
-                + (json.dumps(_critique(db), ensure_ascii=False) if _critique(db) else "— нет —"))
+                + (json.dumps(_critique(db), ensure_ascii=False) if _critique(db) else "— нет —")
+                + "\n\n" + _lessons(db))
     except ImportError:  # pragma: no cover
+        return ""
+
+
+def _lessons(db: Session) -> str:
+    try:
+        from app.services.lessons import for_prompt
+        return for_prompt(db, "geo")
+    except Exception:  # noqa: BLE001
         return ""
 
 

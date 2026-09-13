@@ -328,6 +328,23 @@ def _critique_block(db: Session) -> str:
             "critique_resolved: что сделано или почему замечание неверно):\n"
             + (json.dumps(vs, ensure_ascii=False) if vs else "— нет —"))
 
+
+def _history_and_lessons(db: Session) -> str:
+    """Хронология прошлых версий (траектория, не только вчера) + уроки прошлых
+    проверок (владелец 2026-09-13). Мягкие импорты."""
+    parts = []
+    try:
+        from app.services.state_history import for_prompt as _hist
+        parts.append(_hist(db, "macro", limit=10))
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        from app.services.lessons import for_prompt as _less
+        parts.append(_less(db, "macro"))
+    except Exception:  # noqa: BLE001
+        pass
+    return "\n\n".join(parts)
+
 def rebuild(db: Session) -> BarometerVersion | None:
     prev_row = _prev_state(db)
     prev = prev_row.payload if prev_row and prev_row.payload else None
@@ -361,6 +378,7 @@ def rebuild(db: Session) -> BarometerVersion | None:
             + (json.dumps(inputs["peer_questions"], ensure_ascii=False) if inputs["peer_questions"] else "— нет —")
             + "\n\n" + _contradictions_block(db)
             + "\n\n" + _critique_block(db)
+            + "\n\n" + _history_and_lessons(db)
             + "\n\nСВОДКИ СОСЕДЕЙ КРАТКО (для контекста; контракт выше важнее):\n"
             + json.dumps(edges, ensure_ascii=False, default=str)
             + "\n\nДАННЫЕ ПЛАТФОРМЫ (единственный источник чисел; остальное — search_feed):\n"
