@@ -260,6 +260,12 @@ def conflict_brief(db: Session, days: int = 56, recent: int = 12, theater: str |
             w["by_target"][tt] = w["by_target"].get(tt, 0) + 1
             totals[tt] = totals.get(tt, 0) + 1
         top_targets = sorted(totals.items(), key=lambda kv: -kv[1])[:12]
+        # внутри недели — шесть самых частых классов, остальное одной строкой:
+        # иначе 8 недель × 3 очага × 15 классов не влезают в блок задания
+        for w in weeks.values():
+            bt = sorted(w["by_target"].items(), key=lambda kv: -kv[1])
+            if len(bt) > 6:
+                w["by_target"] = dict(bt[:6]); w["by_target"]["прочее"] = sum(n for _, n in bt[6:])
         block: dict = {
             "strikes": {
                 "total": len(rows), "major": sum(1 for r in rows if r.significance == "major"),
@@ -347,7 +353,7 @@ def conflict_brief_text(db: Session, days: int = 56) -> str:
                 f"{days} дней событий не собрано — не делай выводов о темпе ударов, так и напиши.")
     return ("СОБРАННЫЕ ДАННЫЕ ПО ОЧАГАМ (удары по объектам, заявления о контроле, площадь по ISW) — "
             f"недельные ряды за {days} дней; подробнее — инструмент conflict_data:\n"
-            + _json.dumps(b, ensure_ascii=False, default=str)[:14_000])
+            + _json.dumps(b, ensure_ascii=False, default=str)[:22_000])
 
 
 FEED_TOOLS_SCHEMA: list[dict] = [
