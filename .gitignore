@@ -50,3 +50,4 @@ AI-agent_paradox/
 # 🔴 Урок build/: не коммитить большое и часто меняющееся — репозиторий это расходный
 # ресурс деплоя.
 backend/quality/runs/
+backend/scripts/.gazetteer_cache/
