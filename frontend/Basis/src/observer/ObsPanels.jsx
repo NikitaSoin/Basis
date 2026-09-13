@@ -3917,6 +3917,29 @@ function _obsIsoPickTicks(maxV) {
   return Array.from(new Set([lo, mid, hi])).sort((a, b) => a - b);
 }
 
+// Текст дельты одного ряда за месяц. prefix "" — ISW (area_km2/delta_km2),
+// "reported_" — по данным МО РФ/Рыбаря (та же заливка, что на карте). Четыре
+// разных «нет столбика» называются вслух, иначе пропуск читается как «ничего
+// не происходило» (владелец, 2026-09-11: «данных за август нет, и что-то
+// посчитано за сентябрь»).
+function _obsSeriesDeltaText(m, prefix) {
+  if (m.no_data) return "данных за этот месяц нет";
+  if (!Number.isFinite(m[`${prefix}area_km2`])) return prefix ? "ряда по МО РФ/Рыбарю за этот месяц нет" : "площадь н/д";
+  const v = m[`${prefix}delta_km2`];
+  const since = m[`${prefix}delta_since_km2`];
+  if (v == null && Number.isFinite(since)) {
+    return `${since > 0 ? "▲" : "▼"} ${Math.abs(since).toLocaleString("ru-RU")} км² с ${_obsMonthFullRuGen(m[`${prefix}delta_since_month`])} (за ${m[`${prefix}delta_span_months`]} ${ruPluralMesyats(m[`${prefix}delta_span_months`])})`;
+  }
+  if (v == null) return "старт ряда — нет предыдущего месяца";
+  if (v === 0) return "без изменений за месяц";
+  return `${v > 0 ? "▲" : "▼"} ${Math.abs(v).toLocaleString("ru-RU")} км² за месяц${m.partial ? " (месяц не закончен)" : ""}`;
+}
+// Есть ли в ряду основной ряд по МО РФ/Рыбарю (старый ответ бэкенда его не
+// отдавал — тогда столбцы, как раньше, по ISW).
+function _obsIsoHasReported(months) {
+  return (months || []).some((m) => Number.isFinite(m.reported_area_km2));
+}
+
 function ObsGeoIsochroneDeltaChart({ months, activeMonth, onSelectMonth }) {
   const [hoverIdx, setHoverIdx] = useState(null);
   const barRefs = useRef([]);
@@ -3927,11 +3950,21 @@ function ObsGeoIsochroneDeltaChart({ months, activeMonth, onSelectMonth }) {
 
   if (!n) return null;
 
+  // ДВА РЯДА (владелец, 2026-09-12: «мы опираемся на данные Минобороны и
+  // Рыбаря, ISW — оценка извне»): столбцы — ОСНОВНОЙ ряд по МО РФ/Рыбарю
+  // (reported_*, та же заливка, что на карте, восстановленная на конец каждого
+  // месяца по датам заявлений), линия с точками — ISW как внешняя сверка.
+  // Расхождение двух рядов и есть сигнал: где заявлено больше, чем подтверждено.
+  const hasReported = _obsIsoHasReported(months);
+  const pfx = hasReported ? "reported_" : "";
   // В максимумы шкалы входит и «дельта через разрыв» (delta_since_km2) —
   // иначе её штрихованный столбик вылезал бы за пределы области построения.
-  const _barV = (m) => (m.delta_km2 != null ? m.delta_km2 : (m.no_data ? null : m.delta_since_km2 ?? null));
-  const posMax = Math.max(0, ...months.map((m) => (_barV(m) > 0 ? _barV(m) : 0)));
-  const negMax = Math.max(0, ...months.map((m) => (_barV(m) < 0 ? -_barV(m) : 0)));
+  const _seriesV = (m, p) => (m[`${p}delta_km2`] != null ? m[`${p}delta_km2`] : (m.no_data ? null : m[`${p}delta_since_km2`] ?? null));
+  const _barV = (m) => _seriesV(m, pfx);
+  const _iswV = (m) => _seriesV(m, "");
+  const allVals = months.flatMap((m) => [_barV(m), hasReported ? _iswV(m) : null]).filter((v) => v != null);
+  const posMax = Math.max(0, ...allVals.filter((v) => v > 0));
+  const negMax = Math.max(0, ...allVals.filter((v) => v < 0).map((v) => -v));
   const HEADROOM = 1.18;
   const tPos = Math.sqrt(posMax) * HEADROOM;
   const tNeg = Math.sqrt(negMax) * HEADROOM;
@@ -3980,24 +4013,29 @@ function ObsGeoIsochroneDeltaChart({ months, activeMonth, onSelectMonth }) {
             {_obsMonthFullRu(hoverEntry.month)}
           </div>
           <div style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: "13px", fontWeight: 700, color: "var(--text-primary)" }}>
-            {Number.isFinite(hoverEntry.area_km2) ? `${hoverEntry.area_km2.toLocaleString("ru-RU")} км²` : "площадь н/д"}
+            {Number.isFinite(hoverEntry[`${pfx}area_km2`]) ? `${hoverEntry[`${pfx}area_km2`].toLocaleString("ru-RU")} км²` : "площадь н/д"}
+            {hasReported && <span style={{ fontSize: "10.5px", fontWeight: 600, color: "var(--text-tertiary)" }}> по МО РФ/Рыбарю</span>}
           </div>
           <div
             style={{
               fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: "12px", fontWeight: 600, marginTop: "2px",
-              color: hoverEntry.delta_km2 == null || hoverEntry.delta_km2 === 0 ? "var(--text-tertiary)" : hoverEntry.delta_km2 > 0 ? "var(--bs-up)" : "var(--bs-down)",
+              color: (() => { const v = hoverEntry[`${pfx}delta_km2`] ?? hoverEntry[`${pfx}delta_since_km2`]; return v == null || v === 0 ? "var(--text-tertiary)" : v > 0 ? "var(--bs-up)" : "var(--bs-down)"; })(),
             }}
           >
-            {hoverEntry.no_data
-              ? "данных за этот месяц нет"
-              : hoverEntry.delta_km2 == null && Number.isFinite(hoverEntry.delta_since_km2)
-              ? `${hoverEntry.delta_since_km2 > 0 ? "▲" : "▼"} ${Math.abs(hoverEntry.delta_since_km2).toLocaleString("ru-RU")} км² с ${_obsMonthFullRuGen(hoverEntry.delta_since_month)} (за ${hoverEntry.delta_span_months} ${ruPluralMesyats(hoverEntry.delta_span_months)})`
-              : hoverEntry.delta_km2 == null
-              ? "старт реконструкции — нет предыдущего месяца"
-              : hoverEntry.delta_km2 === 0
-              ? "без изменений за месяц"
-              : `${hoverEntry.delta_km2 > 0 ? "▲" : "▼"} ${Math.abs(hoverEntry.delta_km2).toLocaleString("ru-RU")} км² за месяц${hoverEntry.partial ? " (месяц не закончен)" : ""}`}
+            {_obsSeriesDeltaText(hoverEntry, pfx)}
           </div>
+          {hasReported && !hoverEntry.no_data && (
+            <div style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: "11px", fontWeight: 600, marginTop: "3px", color: "var(--info)" }}>
+              ISW: {_obsSeriesDeltaText(hoverEntry, "")}
+              {Number.isFinite(hoverEntry.area_km2) && <span style={{ color: "var(--text-tertiary)", fontWeight: 500 }}> · {hoverEntry.area_km2.toLocaleString("ru-RU")} км²</span>}
+            </div>
+          )}
+          {hasReported && Number.isFinite(hoverEntry.reported_over_isw_km2) && hoverEntry.reported_over_isw_km2 > 0 && (
+            <div style={{ fontSize: "10.5px", color: "var(--text-tertiary)", marginTop: "3px" }}>
+              заявлено сверх подтверждённого ISW: {hoverEntry.reported_over_isw_km2.toLocaleString("ru-RU")} км²
+              {Number.isFinite(hoverEntry.reported_points) && hoverEntry.reported_points > 0 ? ` (${hoverEntry.reported_points} ${ruPluralPunkt(hoverEntry.reported_points)})` : ""}
+            </div>
+          )}
           {Number.isFinite(hoverEntry.settlements_count) && (
             <div style={{ fontSize: "10.5px", color: "var(--text-tertiary)", marginTop: "4px" }}>
               {hoverEntry.settlements_count} {ruPluralPunkt(hoverEntry.settlements_count)} под контролем
@@ -4009,7 +4047,9 @@ function ObsGeoIsochroneDeltaChart({ months, activeMonth, onSelectMonth }) {
         viewBox={`0 0 ${viewW} ${viewH}`}
         className="obs-geomap-isochart-svg"
         role="group"
-        aria-label="Изменение площади под контролем России по месяцам, км² в месяц. Реконструкция, стрелками влево/вправо — по месяцам."
+        aria-label={hasReported
+          ? "Изменение площади под контролем России по месяцам, км² в месяц: столбцы — по данным МО РФ и Рыбаря, линия с точками — оценка ISW. Стрелками влево/вправо — по месяцам."
+          : "Изменение площади под контролем России по месяцам, км² в месяц. Реконструкция, стрелками влево/вправо — по месяцам."}
       >
         {[...negTicks.map((v) => -v), 0, ...posTicks].map((v) => {
           const y = yFor(v);
@@ -4043,11 +4083,11 @@ function ObsGeoIsochroneDeltaChart({ months, activeMonth, onSelectMonth }) {
           //     несколько месяцев) — приглушённый штрихованный столбик, чтобы
           //     не выдавать многомесячное движение за месячное;
           // (3) начало ряда / ровно ноль — как было.
-          const v = m.delta_km2;
+          const v = m[`${pfx}delta_km2`];
           const isNull = v == null;
           const isZero = v === 0;
           const isGap = !!m.no_data;
-          const spanV = isNull && !isGap && Number.isFinite(m.delta_since_km2) ? m.delta_since_km2 : null;
+          const spanV = isNull && !isGap && Number.isFinite(m[`${pfx}delta_since_km2`]) ? m[`${pfx}delta_since_km2`] : null;
           const isActive = i === activeIdx;
           const isHovered = i === hoverIdx;
           const bx = xAt(i) + 1;
@@ -4061,13 +4101,15 @@ function ObsGeoIsochroneDeltaChart({ months, activeMonth, onSelectMonth }) {
               ? _obsIsoBarPath(bx, yv, bw, zeroY - yv, 2.5, true)
               : _obsIsoBarPath(bx, zeroY, bw, yv - zeroY, 2.5, false);
           }
-          const label = `${_obsMonthFullRu(m.month)}: ${
+          const label = `${_obsMonthFullRu(m.month)}${hasReported ? " (по данным МО РФ/Рыбаря)" : ""}: ${
             m.no_data
               ? "данных за этот месяц нет"
-              : isNull && Number.isFinite(m.delta_since_km2)
-              ? `${m.delta_since_km2 > 0 ? "рост" : "отступ"} ${Math.abs(m.delta_since_km2).toLocaleString("ru-RU")} км² с ${_obsMonthFullRuGen(m.delta_since_month)}, за ${m.delta_span_months} ${ruPluralMesyats(m.delta_span_months)} — месячной дельты нет, в промежутке нет данных`
+              : isNull && spanV != null
+              ? `${spanV > 0 ? "рост" : "отступ"} ${Math.abs(spanV).toLocaleString("ru-RU")} км² с ${_obsMonthFullRuGen(m[`${pfx}delta_since_month`])}, за ${m[`${pfx}delta_span_months`]} ${ruPluralMesyats(m[`${pfx}delta_span_months`])} — месячной дельты нет, в промежутке нет данных`
               : isNull ? "старт реконструкции, нет предыдущего месяца" : isZero ? "без изменений" : `${v > 0 ? "рост" : "отступ"} ${Math.abs(v).toLocaleString("ru-RU")} км²`
-          }, площадь ${Number.isFinite(m.area_km2) ? `${m.area_km2.toLocaleString("ru-RU")} км²` : "н/д"}${isActive ? ", выбранный месяц" : ""}`;
+          }, площадь ${Number.isFinite(m[`${pfx}area_km2`]) ? `${m[`${pfx}area_km2`].toLocaleString("ru-RU")} км²` : "н/д"}${
+            hasReported && !m.no_data ? `; ISW: ${_obsSeriesDeltaText(m, "")}` : ""
+          }${isActive ? ", выбранный месяц" : ""}`;
           return (
             <g key={m.month}>
               {isActive && <rect x={xAt(i)} y={padT} width={slot} height={plotH} fill="var(--accent-soft)" aria-hidden="true" />}
@@ -4115,6 +4157,38 @@ function ObsGeoIsochroneDeltaChart({ months, activeMonth, onSelectMonth }) {
             </g>
           );
         })}
+        {hasReported && (() => {
+          // ISW — внешняя сверка: ломаная по месяцам с известной МЕСЯЧНОЙ
+          // дельтой ISW, разрыв там, где её нет (месяц без данных). Цвет —
+          // --info: локальное зеркало канонного --bs-estimate в Обозревателе
+          // (тот же тон, что у тега «оценка» в заголовке), в отличие от него
+          // тема-адаптивно — --bs-estimate задан одним значением и в тёмной
+          // теме проваливается по контрасту. Величина,
+          // набранная через разрыв, — полая точка: это не месячное значение.
+          // Рисуется ПОСЛЕ столбцов и hit-областей, чтобы лежать сверху, но не
+          // перехватывать указатель (pointerEvents none) — столбцы остаются
+          // единственной интерактивной сущностью графика.
+          const segs = [];
+          let cur = [];
+          months.forEach((m, i) => {
+            if (m.delta_km2 == null) { if (cur.length) segs.push(cur); cur = []; return; }
+            cur.push(`${(xAt(i) + slot / 2).toFixed(1)},${yFor(m.delta_km2).toFixed(1)}`);
+          });
+          if (cur.length) segs.push(cur);
+          const r = n > 40 ? 1.9 : 2.5;
+          return (
+            <g className="obs-geomap-isochart-isw" aria-hidden="true" pointerEvents="none">
+              {segs.map((pts, k) => pts.length > 1 && (
+                <polyline key={`isw-seg-${k}`} points={pts.join(" ")} fill="none" stroke="var(--info)" strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round" />
+              ))}
+              {months.map((m, i) => (m.delta_km2 != null ? (
+                <circle key={`isw-pt-${m.month}`} cx={xAt(i) + slot / 2} cy={yFor(m.delta_km2)} r={r} fill="var(--info)" stroke="var(--bg-surface)" strokeWidth="0.9" />
+              ) : (!m.no_data && Number.isFinite(m.delta_since_km2) ? (
+                <circle key={`isw-since-${m.month}`} cx={xAt(i) + slot / 2} cy={yFor(m.delta_since_km2)} r={r + 0.3} fill="var(--bg-surface)" stroke="var(--info)" strokeWidth="1.2" strokeDasharray="1.6 1.1" />
+              ) : null)))}
+            </g>
+          );
+        })()}
       </svg>
     </div>
   );
@@ -4290,9 +4364,36 @@ function ObsGeomapPopupBody({
           {Number.isFinite(capture.settlements_count) && (
             <>{capture.settlements_count} {ruPluralPunkt(capture.settlements_count)} под контролем России к этому месяцу</>
           )}
-          {Number.isFinite(capture.area_km2) && <> · <strong style={{ fontFamily: "var(--font-mono)" }}>{capture.area_km2.toLocaleString("ru-RU")} км²</strong></>}
-          {Number.isFinite(capture.delta_km2) && capture.delta_km2 !== 0 && (
-            <> ({capture.delta_km2 > 0 ? "▲" : "▼"} {Math.abs(capture.delta_km2).toLocaleString("ru-RU")} за месяц)</>
+          {/* Основной ряд — по данным МО РФ/Рыбаря (та же заливка, что на
+              карте), ISW — рядом как внешняя сверка. Старый ответ без
+              reported_* показывает только ISW, как раньше. */}
+          {Number.isFinite(capture.reported_area_km2) ? (
+            <>
+              {" · по данным МО РФ/Рыбаря "}
+              <strong style={{ fontFamily: "var(--font-mono)" }}>{capture.reported_area_km2.toLocaleString("ru-RU")} км²</strong>
+              {Number.isFinite(capture.reported_delta_km2) && capture.reported_delta_km2 !== 0 && (
+                <> ({capture.reported_delta_km2 > 0 ? "▲" : "▼"} {Math.abs(capture.reported_delta_km2).toLocaleString("ru-RU")} за месяц)</>
+              )}
+              {Number.isFinite(capture.area_km2) && (
+                <>
+                  {" · по ISW "}
+                  <strong style={{ fontFamily: "var(--font-mono)" }}>{capture.area_km2.toLocaleString("ru-RU")} км²</strong>
+                  {Number.isFinite(capture.delta_km2) && capture.delta_km2 !== 0 && (
+                    <> ({capture.delta_km2 > 0 ? "▲" : "▼"} {Math.abs(capture.delta_km2).toLocaleString("ru-RU")} за месяц)</>
+                  )}
+                </>
+              )}
+              {Number.isFinite(capture.reported_over_isw_km2) && capture.reported_over_isw_km2 > 0 && (
+                <>{`. Заявлено сверх подтверждённого ISW: ${capture.reported_over_isw_km2.toLocaleString("ru-RU")} км²${Number.isFinite(capture.reported_points) && capture.reported_points > 0 ? ` (${capture.reported_points} ${ruPluralPunkt(capture.reported_points)})` : ""}`}</>
+              )}
+            </>
+          ) : (
+            <>
+              {Number.isFinite(capture.area_km2) && <> · <strong style={{ fontFamily: "var(--font-mono)" }}>{capture.area_km2.toLocaleString("ru-RU")} км²</strong></>}
+              {Number.isFinite(capture.delta_km2) && capture.delta_km2 !== 0 && (
+                <> ({capture.delta_km2 > 0 ? "▲" : "▼"} {Math.abs(capture.delta_km2).toLocaleString("ru-RU")} за месяц)</>
+              )}
+            </>
           )}
           {/* Месяц без данных ISW и месячная дельта, растянутая через такой
               разрыв, — разные вещи, и обе надо называть вслух: иначе движение
@@ -4301,13 +4402,18 @@ function ObsGeomapPopupBody({
           {capture.no_data
             ? ". За этот месяц данных нет: архивный помесячный срез ISW ещё не опубликован, а своего снапшота площади на конец месяца не сохранилось. Показана граница предыдущего месяца — площадь и прирост не считаем."
             : capture.history_source === "own_isw_snapshot"
-            ? `. Площадь — из нашего дневного снапшота ISW${capture.area_as_of ? ` на ${_obsDateRu(capture.area_as_of)}` : ""} (архивного среза ISW за этот месяц ещё нет), методика та же, что у архивных месяцев.`
+            ? `. Площади — из нашего дневного снапшота${capture.area_as_of ? ` на ${_obsDateRu(capture.area_as_of)}` : ""} (архивного среза ISW за этот месяц ещё нет), методика та же, что у архивных месяцев.`
             : capture.history_source === "live"
-            ? ". Текущий месяц: линия — живая, с поправками по данным МО РФ/Рыбаря; площадь и дельта — по единой методике ISW, чтобы месяцы были сопоставимы."
+            ? ". Текущий месяц: линия — живая (ISW с поправками по данным МО РФ/Рыбаря); обе площади считаются единой методикой, чтобы месяцы были сопоставимы."
+            : Number.isFinite(capture.reported_area_km2)
+            ? ". Граница — архивный помесячный срез карт ISW плюс пункты, заявленные взятыми МО РФ/Рыбарём не позже этого месяца (пункт входит с месяца заявления)."
             : ". Граница — архивный помесячный срез карт ISW (оценённый контроль территории), не реконструкция."}
           {capture.partial && " Месяц ещё не закончен — прирост неполный."}
+          {Number.isFinite(capture.reported_delta_since_km2) && (
+            <> {` По МО РФ/Рыбарю с ${_obsMonthFullRuGen(capture.reported_delta_since_month)} (за ${capture.reported_delta_span_months} ${ruPluralMesyats(capture.reported_delta_span_months)}) — ${capture.reported_delta_since_km2 > 0 ? "▲" : "▼"} ${Math.abs(capture.reported_delta_since_km2).toLocaleString("ru-RU")} км²; разложить по месяцам нечем — в промежутке нет данных.`}</>
+          )}
           {Number.isFinite(capture.delta_since_km2) && (
-            <> {` С ${_obsMonthFullRuGen(capture.delta_since_month)} (за ${capture.delta_span_months} ${ruPluralMesyats(capture.delta_span_months)}) — ${capture.delta_since_km2 > 0 ? "▲" : "▼"} ${Math.abs(capture.delta_since_km2).toLocaleString("ru-RU")} км²; разложить по месяцам нечем — в промежутке нет данных.`}</>
+            <> {` ${Number.isFinite(capture.reported_delta_since_km2) ? "По ISW" : "С"} ${Number.isFinite(capture.reported_delta_since_km2) ? "с " : ""}${_obsMonthFullRuGen(capture.delta_since_month)} (за ${capture.delta_span_months} ${ruPluralMesyats(capture.delta_span_months)}) — ${capture.delta_since_km2 > 0 ? "▲" : "▼"} ${Math.abs(capture.delta_since_km2).toLocaleString("ru-RU")} км²${Number.isFinite(capture.reported_delta_since_km2) ? "." : "; разложить по месяцам нечем — в промежутке нет данных."}`}</>
           )}
         </p>
       </div>
@@ -4687,6 +4793,9 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
     [svoState]
   );
   const hasIsochrone = sortedIsochroneMonths.length > 0;
+  // Есть ли основной ряд по МО РФ/Рыбарю (reported_*); без него подписи и
+  // легенда остаются прежними, ISW-шными.
+  const isoHasReported = _obsIsoHasReported(sortedIsochroneMonths);
   const earliestCaptureIso = sortedIsochroneMonths.length ? sortedIsochroneMonths[0].month_end : SVO_INVASION_START_ISO;
   const showCrimeaToggle = earliestCaptureIso < SVO_INVASION_START_ISO;
   const sliderEpochMs = geomapIsoToUtcDayMs(earliestCaptureIso);
@@ -5410,12 +5519,12 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
             value={effectiveSliderDayIdx}
             onChange={(e) => selectSliderDayIdx(Number(e.target.value))}
             aria-label="Дата реконструкции линии фронта СВО"
-            aria-valuetext={isHistoric ? `Реконструкция на ${_obsDateRu(sliderDateIso)}` : "Сегодня, точная заливка ISW"}
+            aria-valuetext={isHistoric ? `Реконструкция на ${_obsDateRu(sliderDateIso)}` : "Сегодня, живая линия: ISW с поправками по данным МО РФ и Рыбаря"}
           />
 
           <div className="obs-geomap-timeslider-foot">
             <span className="obs-geomap-timeslider-date">
-              {isHistoric ? <>Реконструкция на <strong>{_obsDateRu(sliderDateIso)}</strong></> : "Сегодня — точная заливка ISW"}
+              {isHistoric ? <>Реконструкция на <strong>{_obsDateRu(sliderDateIso)}</strong></> : "Сегодня — живая линия (ISW + данные МО РФ/Рыбаря)"}
             </span>
             <span className="obs-geomap-timeslider-count">
               <strong>{capturedCount}</strong> {ruPluralPunkt(capturedCount)} взято к этой дате
@@ -5425,28 +5534,51 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
                 набранную ЧЕРЕЗ такой пропуск, подписываем «за N мес.», иначе
                 она читается как месячная. */}
             {activeMonthSnapshot?.no_data ? (
-              <span className="obs-geomap-timeslider-area">за этот месяц данных ISW нет</span>
-            ) : Number.isFinite(activeMonthSnapshot?.area_km2) && (
-              <span className="obs-geomap-timeslider-area">
-                <strong>{activeMonthSnapshot.area_km2.toLocaleString("ru-RU")} км²</strong>
-                {Number.isFinite(activeMonthSnapshot.delta_km2) && activeMonthSnapshot.delta_km2 !== 0 && (
-                  <>
-                    <span className={`obs-geomap-timeslider-delta${activeMonthSnapshot.delta_km2 > 0 ? " obs-geomap-timeslider-delta--up" : " obs-geomap-timeslider-delta--down"}`}>
-                      {activeMonthSnapshot.delta_km2 > 0 ? "▲" : "▼"} {Math.abs(activeMonthSnapshot.delta_km2).toLocaleString("ru-RU")}
+              <span className="obs-geomap-timeslider-area">за этот месяц данных нет</span>
+            ) : (() => {
+              // Основной ряд — по МО РФ/Рыбарю (та же заливка, что на карте);
+              // ISW — короткой припиской как внешняя сверка. Старый ответ без
+              // reported_* показывает ISW, как раньше.
+              const snap = activeMonthSnapshot;
+              const hasRep = Number.isFinite(snap?.reported_area_km2);
+              const p = hasRep ? "reported_" : "";
+              const area = snap?.[`${p}area_km2`];
+              if (!Number.isFinite(area)) return null;
+              const d = snap[`${p}delta_km2`];
+              const ds = snap[`${p}delta_since_km2`];
+              return (
+                <span className="obs-geomap-timeslider-area">
+                  <strong>{area.toLocaleString("ru-RU")} км²</strong>
+                  {Number.isFinite(d) && d !== 0 && (
+                    <>
+                      <span className={`obs-geomap-timeslider-delta${d > 0 ? " obs-geomap-timeslider-delta--up" : " obs-geomap-timeslider-delta--down"}`}>
+                        {d > 0 ? "▲" : "▼"} {Math.abs(d).toLocaleString("ru-RU")}
+                      </span>
+                      <span>{snap.partial ? " за неполный месяц" : " за месяц"}</span>
+                    </>
+                  )}
+                  {Number.isFinite(ds) && (
+                    <>
+                      <span className={`obs-geomap-timeslider-delta${ds > 0 ? " obs-geomap-timeslider-delta--up" : " obs-geomap-timeslider-delta--down"}`}>
+                        {ds > 0 ? "▲" : "▼"} {Math.abs(ds).toLocaleString("ru-RU")}
+                      </span>
+                      <span>{` за ${snap[`${p}delta_span_months`]} ${ruPluralMesyats(snap[`${p}delta_span_months`])} (с ${_obsMonthFullRuGen(snap[`${p}delta_since_month`])})`}</span>
+                    </>
+                  )}
+                  {hasRep && <span className="obs-geomap-timeslider-src">по МО РФ/Рыбарю</span>}
+                  {hasRep && Number.isFinite(snap.area_km2) && (
+                    <span className="obs-geomap-timeslider-isw">
+                      {`· ISW ${snap.area_km2.toLocaleString("ru-RU")} км²`}
+                      {Number.isFinite(snap.delta_km2) && snap.delta_km2 !== 0
+                        ? ` (${snap.delta_km2 > 0 ? "▲" : "▼"} ${Math.abs(snap.delta_km2).toLocaleString("ru-RU")})`
+                        : Number.isFinite(snap.delta_since_km2)
+                        ? ` (${snap.delta_since_km2 > 0 ? "▲" : "▼"} ${Math.abs(snap.delta_since_km2).toLocaleString("ru-RU")} за ${snap.delta_span_months} ${ruPluralMesyats(snap.delta_span_months)})`
+                        : ""}
                     </span>
-                    <span>{activeMonthSnapshot.partial ? " за неполный месяц" : " за месяц"}</span>
-                  </>
-                )}
-                {Number.isFinite(activeMonthSnapshot.delta_since_km2) && (
-                  <>
-                    <span className={`obs-geomap-timeslider-delta${activeMonthSnapshot.delta_since_km2 > 0 ? " obs-geomap-timeslider-delta--up" : " obs-geomap-timeslider-delta--down"}`}>
-                      {activeMonthSnapshot.delta_since_km2 > 0 ? "▲" : "▼"} {Math.abs(activeMonthSnapshot.delta_since_km2).toLocaleString("ru-RU")}
-                    </span>
-                    <span>{` за ${activeMonthSnapshot.delta_span_months} ${ruPluralMesyats(activeMonthSnapshot.delta_span_months)} (с ${_obsMonthFullRuGen(activeMonthSnapshot.delta_since_month)})`}</span>
-                  </>
-                )}
-              </span>
-            )}
+                  )}
+                </span>
+              );
+            })()}
             {showCrimeaToggle && (
               <button
                 type="button"
@@ -5467,19 +5599,29 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
                       Текст сохранён целиком: он объясняет, почему высота столбцов не
                       пропорциональна, и без него график можно прочесть неверно. */}
                   <InfoTip
-                    label="Почему шкала нелинейная"
-                    text={"Шкала по вертикали нелинейная (сжата к краям) — иначе обвалы 2022 года (десятки тысяч км²) и почти статичные месяцы 2023-го (десятки км²) не поместились бы честно на одной оси: либо 2023-й выглядел бы плоской линией, либо 2022-й пришлось бы срезать. Точные цифры — в подсказке при наведении или фокусе на столбец и на шкале слева, а не на глаз по высоте. Данные — архивные помесячные срезы карт ISW; оценка контроля на севере весной 2022 у ISW консервативна (коридоры снабжения, а не сплошные зоны), поэтому провал апреля 2022 (−12,8 тыс. км²) ниже сторонних оценок ухода с севера (20–30 тыс. км²). Месяцы, за которые среза ISW нет (февраль 2025, июнь 2026, а с августа 2026 — те, до которых архив ISW ещё не дошёл), помечены пунктиром: площади за них мы не знаем и месячную дельту не считаем. Соседний месяц в таком случае показывает приглушённый штрихованный столбик — это накопленная величина за несколько месяцев, а не месячная."}
+                    label="Как читать график"
+                    text={(isoHasReported
+                      ? "Столбцы — площадь под контролем России по данным МО РФ и Рыбаря: та же заливка, что на карте, восстановленная на конец каждого месяца (архивный срез ISW плюс пункты, заявленные взятыми не позже этого месяца — пункт входит с месяца заявления, а не с момента попадания в наш список). Линия с точками — оценка ISW, внешняя сверка вне российского контура: по расхождению видно, где заявлено больше, чем подтверждено. "
+                      : "") + "Шкала по вертикали нелинейная (сжата к краям) — иначе обвалы 2022 года (десятки тысяч км²) и почти статичные месяцы 2023-го (десятки км²) не поместились бы честно на одной оси: либо 2023-й выглядел бы плоской линией, либо 2022-й пришлось бы срезать. Точные цифры — в подсказке при наведении или фокусе на столбец и на шкале слева, а не на глаз по высоте. Данные — архивные помесячные срезы карт ISW; оценка контроля на севере весной 2022 у ISW консервативна (коридоры снабжения, а не сплошные зоны), поэтому провал апреля 2022 (−12,8 тыс. км²) ниже сторонних оценок ухода с севера (20–30 тыс. км²). Месяцы, за которые среза ISW нет (февраль 2025, июнь 2026, а с августа 2026 — те, до которых архив ISW ещё не дошёл), помечены пунктиром: площади за них мы не знаем и месячную дельту не считаем. Соседний месяц в таком случае показывает приглушённый штрихованный столбик — это накопленная величина за несколько месяцев, а не месячная."}
                   />
                 </span>
                 <span className="obs-geomap-isochart-legend">
                   <span className="obs-geomap-isochart-legend-item">
                     <span className="obs-geomap-isochart-legend-dot obs-geomap-isochart-legend-dot--up" aria-hidden="true" />
-                    рост площади
+                    {isoHasReported ? "рост (МО РФ/Рыбарь)" : "рост площади"}
                   </span>
                   <span className="obs-geomap-isochart-legend-item">
                     <span className="obs-geomap-isochart-legend-dot obs-geomap-isochart-legend-dot--down" aria-hidden="true" />
                     отступ
                   </span>
+                  {/* ISW — второй ряд, линия с точками: внешняя оценка, по которой
+                      видно, где заявлено больше, чем подтверждено. */}
+                  {isoHasReported && (
+                    <span className="obs-geomap-isochart-legend-item">
+                      <span className="obs-geomap-isochart-legend-isw" aria-hidden="true" />
+                      ISW — внешняя сверка
+                    </span>
+                  )}
                   {/* Пунктир = месяц, за который среза ISW нет. Без явной легенды
                       пустой слот читается как «ничего не происходило», а это
                       ровно противоположный вывод. */}

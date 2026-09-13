@@ -91,13 +91,20 @@ def test_свой_снапшот_закрывает_дыру_настоящей_
 
     class _Rows(list):
         def filter(self, *a, **k): return self
+        def filter_by(self, *a, **k): return self
         def order_by(self, *a, **k): return self
         def all(self): return list(self)
+        def first(self): return None
 
     class _DB:
-        def query(self, *a, **k): return _Rows([(m1_end, 100_260)])
+        """Снапшот-мост: (дата, ISW-площадь, площадь по МО РФ/Рыбарю). Запросы
+        других моделей (пункты ленты, заливка снапшота) — пусто."""
+        def query(self, *a, **k):
+            cols = " ".join(str(x) for x in a)
+            return _Rows([(m1_end, 100_260, 100_900)] if "isw_area_km2" in cols else [])
 
-    res = iso._isochrone_from_real_history(_fc([_sq(35.0, 47.0)]), isw_area_km2=100_400, db=_DB())
+    res = iso._isochrone_from_real_history(_fc([_sq(35.0, 47.0)]), isw_area_km2=100_400,
+                                           reported_area_km2=101_100, db=_DB())
     props = _by_month(res)
 
     bridged = props[archive["m1"]]
@@ -106,10 +113,15 @@ def test_свой_снапшот_закрывает_дыру_настоящей_
     assert bridged["area_km2"] == 100_260
     assert bridged["delta_km2"] == 110  # 100 260 − 100 150, месяц к месяцу
     assert bridged["area_as_of"] == m1_end
+    # Основной ряд (по МО РФ/Рыбарю) мост берёт из той же строки снапшота
+    assert bridged["reported_area_km2"] == 100_900
+    assert bridged["reported_over_isw_km2"] == 640
 
     cur = props[archive["cur"]]
     assert cur["delta_km2"] == 140  # 100 400 − 100 260, теперь сосед известен
     assert "delta_since_km2" not in cur
+    assert cur["reported_area_km2"] == 101_100
+    assert cur["reported_delta_km2"] == 200  # 101 100 − 100 900, тоже месяц к месяцу
 
 
 def test_архивный_месяц_с_чужим_снапшотом_не_выдаёт_нулевую_дельту(tmp_path, monkeypatch):

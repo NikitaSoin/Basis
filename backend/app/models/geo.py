@@ -94,6 +94,13 @@ class GeoFrontlineSnapshot(Base):
     # вливания заявленных взятий МО РФ/Рыбаря (ряд неоднородный, «мост» по нему
     # дал бы +2653 км² за август против ~150 км²/мес фактического движения ISW).
     isw_area_km2: Mapped[int | None] = mapped_column(Integer)
+    # Площадь заливки «по данным МО РФ/Рыбаря» на эту дату (км²): та же
+    # ISW-масса плюс клинья заявленных пунктов, та же методика измерения. Это
+    # ОСНОВНОЙ ряд «км²/мес» (владелец, 2026-09-12: считать темпы по нашей
+    # заливке, ISW — внешняя сверка); разница с isw_area_km2 — сколько
+    # заявлено сверх подтверждённого ISW. Из неё «мост» помесячного ряда берёт
+    # основной ряд за месяцы, до которых архив ISW ещё не дошёл.
+    reported_area_km2: Mapped[int | None] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 

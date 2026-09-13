@@ -200,45 +200,70 @@ def _load_oblast_shapes() -> list[tuple[str, object]]:
     return out
 
 
-def absorb_candidates(ukraine_boundary=None, db=None, control_mass=None) -> list[dict]:
-    """ВСЕ пункты, которые по данным МО РФ/Рыбаря сейчас под контролем РФ, —
-    из трёх источников сразу:
-      1) geo_svo_manual_overrides.json — ручные оверрайды (с явным radius_km);
-      2) geo_svo_control_timeline.json — пункты, чей ПОСЛЕДНИЙ переход = RF
+def _holder_as_of(cand: dict, day_iso: str) -> str | None:
+    """Кто держит пункт на дату: по хронологии переходов (последний переход не
+    позже даты) либо по одиночной дате заявления. None — пункт на эту дату
+    нашими источниками за РФ не числится."""
+    transitions = cand.get("transitions")
+    if transitions:
+        holder = None
+        for when, who in transitions:
+            if when > day_iso:
+                break
+            holder = who
+        return holder
+    claimed = cand.get("date")
+    if claimed is None:
+        # Недатированный ручной оверрайд: считаем действующим всегда. Для живой
+        # заливки это верно, для помесячной реконструкции — нет (пункт «взят» с
+        # первого месяца ряда), поэтому тест требует дат у всех оверрайдов.
+        return "RF"
+    return "RF" if claimed <= day_iso else None
+
+
+def dated_candidates(ukraine_boundary=None, db=None) -> list[dict]:
+    """ВСЕ пункты, которые по данным МО РФ/Рыбаря числятся (или числились) под
+    контролем РФ, — С ДАТАМИ, из четырёх источников:
+      1) geo_svo_manual_overrides.json — ручные оверрайды (radius_km; дата —
+         claimed_date, проставленная в файле по дате заявления МО РФ);
+      2) geo_svo_control_timeline.json — хронология переходов в обе стороны
          (сюда попадает, напр., Волчанск: МО заявляло освобождение в декабре
          2025, а живой слой ISW его не включает);
-      3) geo_svo_claimed_captures.json — заявленные захваты.
+      3) geo_svo_claimed_captures.json — заявленные захваты (claimed_date);
+      4) БД geo_territorial_claims (status=ru_control) — авто-извлечённые из
+         ленты пайплайном geo_digest (claimed_date, фолбэк — дата появления).
 
-    Владелец (2026-07-25): «у тебя немало кружочков с комментариями это под
-    контролем России, но не подтверждено, но линия фронта не проходит через
-    них, как будто под контролем Украины». То есть карта противоречила
-    собственным подписям. Теперь источник один: если наши данные говорят
-    «под РФ» — пункт и в красной зоне, и с кружком «ISW не подтвердил».
+    Даты нужны не только карте «сегодня»: по ним помесячный ряд «км²/мес»
+    восстанавливается НА КОНЕЦ КАЖДОГО МЕСЯЦА как есть (пункт считается взятым
+    с месяца заявления, а не с момента, когда он попал в наш список). Иначе
+    ряд рос от пополнения списка, а не от движения фронта — замерено +2653 км²
+    за август 2026 против ~150 км²/мес по ISW (владелец, 2026-09-12: считать
+    темпы «по нашей» заливке, ISW — внешняя сверка).
 
     Точки ВНЕ контура Украины отбрасываются (Суджа, Юнаковка и прочее
     приграничье РФ): слой описывает контроль внутри Украины, российская
-    территория в него не входит по определению."""
+    территория в него не входит по определению. Дедупликация по координатам
+    здесь НЕ делается — она зависит от даты (см. candidates_as_of)."""
     from shapely.geometry import Point
 
-    seen: set[tuple] = set()
     out: list[dict] = []
 
-    def add(name, oblast, lat, lon, radius_km):
+    def add(name, oblast, lat, lon, radius_km, *, date=None, transitions=None):
         if lat is None or lon is None:
-            return
-        key = (round(lat, 3), round(lon, 3))
-        if key in seen:
             return
         if ukraine_boundary is not None and not ukraine_boundary.contains(Point(lon, lat)):
             return
-        seen.add(key)
-        out.append({"name": name, "oblast": oblast, "lat": lat, "lon": lon,
-                    "radius_km": radius_km})
+        cand = {"name": name, "oblast": oblast, "lat": lat, "lon": lon, "radius_km": radius_km}
+        if transitions:
+            cand["transitions"] = transitions
+        else:
+            cand["date"] = date
+        out.append(cand)
 
     for o in load_manual_overrides():
-        add(o.get("name"), o.get("oblast"), o.get("lat"), o.get("lon"), o.get("radius_km", 3))
+        add(o.get("name"), o.get("oblast"), o.get("lat"), o.get("lon"), o.get("radius_km", 3),
+            date=o.get("claimed_date"))
 
-    today = datetime.now(timezone.utc).date().isoformat()
     for path, reader in ((_TIMELINE_PATH, "timeline"), (_CLAIMED_PATH, "claimed")):
         if not os.path.exists(path):
             continue
@@ -250,15 +275,16 @@ def absorb_candidates(ukraine_boundary=None, db=None, control_mass=None) -> list
             continue
         if reader == "timeline":
             for e in data.get("settlements", []):
-                holder = None
-                for t in sorted(e.get("transitions", []), key=lambda t: t["date"]):
-                    if t["date"] <= today:
-                        holder = t["holder"]
-                if holder == "RF":
-                    add(e.get("name"), e.get("oblast"), e.get("lat"), e.get("lon"), 3)
+                transitions = sorted((t["date"], t["holder"]) for t in e.get("transitions", [])
+                                     if t.get("date") and t.get("holder"))
+                if not transitions:
+                    continue
+                add(e.get("name"), e.get("oblast"), e.get("lat"), e.get("lon"), 3,
+                    transitions=transitions)
         else:
             for p in data.get("points", []):
-                add(p.get("name"), p.get("oblast"), p.get("lat"), p.get("lon"), 3)
+                add(p.get("name"), p.get("oblast"), p.get("lat"), p.get("lon"), 3,
+                    date=p.get("claimed_date"))
 
     # 4-й источник — ЖИВОЙ: territorial_claims, автоматически извлечённые
     # LLM-пайплайном geo_digest из ленты (Рыбарь/МО РФ и др.). Владелец
@@ -271,19 +297,49 @@ def absorb_candidates(ukraine_boundary=None, db=None, control_mass=None) -> list
             for r in (db.query(GeoTerritorialClaim)
                       .filter(GeoTerritorialClaim.status == "ru_control",
                               GeoTerritorialClaim.lat.isnot(None)).all()):
-                add(r.settlement, r.oblast, r.lat, r.lon, 3)
+                when = (r.claimed_date.isoformat() if r.claimed_date
+                        else (r.created_at.date().isoformat() if r.created_at else None))
+                add(r.settlement, r.oblast, r.lat, r.lon, 3, date=when)
         except Exception:  # noqa: BLE001 — живой источник не роняет синк
-            logger.warning("absorb_candidates: territorial_claims из БД не подмешаны", exc_info=True)
+            logger.warning("dated_candidates: territorial_claims из БД не подмешаны", exc_info=True)
+    return out
 
-    # --- ВАЛИДАЦИЯ КАНДИДАТОВ (владелец, 2026-07-26; см. _MAX_FRONT_DISTANCE_KM) ---
+
+def candidates_as_of(cands: list[dict], day_iso: str) -> list[dict]:
+    """Пункты, которые на дату числятся за РФ, без дублей по координатам
+    (первый по порядку источников выигрывает: ручной оверрайд → хронология →
+    заявления → лента). Дедуп ПОСЛЕ отбора по дате: у одной точки в двух
+    источниках могут быть разные даты — берём ту, что уже наступила."""
+    seen: set[tuple] = set()
+    out: list[dict] = []
+    for c in cands:
+        if _holder_as_of(c, day_iso) != "RF":
+            continue
+        key = (round(c["lat"], 3), round(c["lon"], 3))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(c)
+    return out
+
+
+def validate_candidates(out: list[dict], control_mass=None, *, quiet: bool = False) -> list[dict]:
+    """Проверки кандидата на правдоподобие — ОДНИ И ТЕ ЖЕ для живой заливки
+    (absorb_candidates) и для помесячной реконструкции ряда (изохрона): иначе
+    «сегодня» и «конец прошлого месяца» считались бы по разным правилам, и
+    дельта текущего месяца мерила бы разницу правил, а не движение фронта.
+    control_mass — масса, от которой считается «рядом с фронтом» (для прошлых
+    месяцев — архивный срез ISW того месяца плюс приграничные области РФ)."""
     from shapely.geometry import Point
+
+    log = (lambda *a, **k: None) if quiet else logger.warning
 
     # Правило 1: координата обязана лежать в ЗАЯВЛЕННОЙ области — ловит тёзок,
     # геокоженных не туда («Благодатное» не той области и т.п.).
     try:
         oblasts = _load_oblast_shapes()
     except Exception:  # noqa: BLE001
-        logger.warning("absorb_candidates: контуры областей не загрузились — проверка области пропущена")
+        logger.warning("validate_candidates: контуры областей не загрузились — проверка области пропущена")
         oblasts = []
     if oblasts:
         kept = []
@@ -291,9 +347,9 @@ def absorb_candidates(ukraine_boundary=None, db=None, control_mass=None) -> list
             stated = (o.get("oblast") or "").strip()
             region = next((g for w, g in oblasts if w and w in stated), None) if stated else None
             if region is not None and not region.contains(Point(o["lon"], o["lat"])):
-                logger.warning("absorb_candidates: ОТКЛОНЁН «%s» — координата (%.3f, %.3f) не в "
-                               "заявленной области «%s» (вероятно, тёзка при геокодинге)",
-                               o["name"], o["lat"], o["lon"], stated)
+                log("validate_candidates: ОТКЛОНЁН «%s» — координата (%.3f, %.3f) не в "
+                    "заявленной области «%s» (вероятно, тёзка при геокодинге)",
+                    o["name"], o["lat"], o["lon"], stated)
                 continue
             kept.append(o)
         out = kept
@@ -315,10 +371,10 @@ def absorb_candidates(ukraine_boundary=None, db=None, control_mass=None) -> list
                     hit = (c, d_km)
                     break
             if hit is not None:
-                logger.warning("absorb_candidates: ОТКЛОНЁН «%s» — координата (%.4f, %.4f) в %.1f км "
-                               "от центра города «%s», который никто не заявлял взятым "
-                               "(ошибка геокодинга заявления)",
-                               o["name"], o["lat"], o["lon"], hit[1], hit[0]["name"])
+                log("validate_candidates: ОТКЛОНЁН «%s» — координата (%.4f, %.4f) в %.1f км "
+                    "от центра города «%s», который никто не заявлял взятым "
+                    "(ошибка геокодинга заявления)",
+                    o["name"], o["lat"], o["lon"], hit[1], hit[0]["name"])
                 continue
             kept.append(o)
         out = kept
@@ -330,9 +386,9 @@ def absorb_candidates(ukraine_boundary=None, db=None, control_mass=None) -> list
         for o in out:
             d_km = control_mass.distance(Point(o["lon"], o["lat"])) * _KM_PER_DEG_LAT
             if d_km > _MAX_FRONT_DISTANCE_KM:
-                logger.warning("absorb_candidates: ОТКЛОНЁН «%s» (%s) — %.0f км от линии фронта "
-                               "(порог %.0f), взятие в глубине тыла неправдоподобно",
-                               o["name"], o.get("oblast"), d_km, _MAX_FRONT_DISTANCE_KM)
+                log("validate_candidates: ОТКЛОНЁН «%s» (%s) — %.0f км от линии фронта "
+                    "(порог %.0f), взятие в глубине тыла неправдоподобно",
+                    o["name"], o.get("oblast"), d_km, _MAX_FRONT_DISTANCE_KM)
                 continue
             kept.append(o)
         out = kept
@@ -346,11 +402,30 @@ def absorb_candidates(ukraine_boundary=None, db=None, control_mass=None) -> list
         # это как «за июль +7000 км²». Остаются только пункты, которых у ISW
         # ещё НЕТ — ровно те, ради которых оверрайды и существуют.
         inside = [o["name"] for o in out if control_mass.contains(Point(o["lon"], o["lat"]))]
-        if inside:
-            logger.info("absorb_candidates: %d пунктов уже внутри линии ISW — в геометрию не идут (%s%s)",
+        if inside and not quiet:
+            logger.info("validate_candidates: %d пунктов уже внутри линии ISW — в геометрию не идут (%s%s)",
                         len(inside), ", ".join(inside[:8]), "…" if len(inside) > 8 else "")
-            out = [o for o in out if not control_mass.contains(Point(o["lon"], o["lat"]))]
+        out = [o for o in out if not control_mass.contains(Point(o["lon"], o["lat"]))]
     return out
+
+
+def absorb_candidates(ukraine_boundary=None, db=None, control_mass=None) -> list[dict]:
+    """ВСЕ пункты, которые по данным МО РФ/Рыбаря СЕГОДНЯ под контролем РФ и
+    проходят проверки правдоподобия, — для живой заливки карты.
+
+    Владелец (2026-07-25): «у тебя немало кружочков с комментариями это под
+    контролем России, но не подтверждено, но линия фронта не проходит через
+    них, как будто под контролем Украины». То есть карта противоречила
+    собственным подписям. Теперь источник один: если наши данные говорят
+    «под РФ» — пункт и в красной зоне, и с кружком «ISW не подтвердил».
+
+    Состав: dated_candidates (четыре источника с датами) → отбор на сегодня →
+    validate_candidates (область, чужой город, 25 км от фронта, не внутри ISW).
+    Та же цепочка с другой датой даёт заливку на конец любого прошлого месяца
+    (см. geo_svo_capture_isochrone)."""
+    today = datetime.now(timezone.utc).date().isoformat()
+    return validate_candidates(
+        candidates_as_of(dated_candidates(ukraine_boundary, db=db), today), control_mass)
 
 
 def _point_buffer_km(lat: float, lon: float, radius_km: float):
@@ -718,6 +793,19 @@ def sync_isw_frontline(db: Session) -> dict:
         except Exception:  # noqa: BLE001
             pure_isw_area = None
 
+        # Площадь «по данным МО РФ/Рыбаря» — та же ISW-масса ПЛЮС клинья
+        # заявленных пунктов (ровно то, что закрашено на карте), той же
+        # методикой измерения. Это основной ряд «км²/мес» (владелец,
+        # 2026-09-12: темпы считать по нашей заливке, ISW — внешняя сверка);
+        # разница с pure_isw_area = сколько заявлено сверх подтверждённого.
+        try:
+            from app.services.geo_svo_capture_isochrone import reported_addition_km2
+            reported_area = (None if pure_isw_area is None else pure_isw_area + reported_addition_km2(
+                isw_mass, overrides, source_mass, ukraine_boundary)[0])
+        except Exception:  # noqa: BLE001
+            logger.warning("Площадь по данным МО РФ/Рыбаря не посчитана", exc_info=True)
+            reported_area = None
+
         # Изохрона «когда взято» — пересчитывается на каждом синке (дёшево,
         # чистая геометрия без сети), т.к. зависит от СВЕЖЕЙ формы
         # control_fill_fc; список дат меняется редко (см. модуль). Честная
@@ -727,7 +815,8 @@ def sync_isw_frontline(db: Session) -> dict:
             from app.services.geo_svo_capture_isochrone import compute_isochrone
             row.capture_isochrone_geojson = compute_isochrone(
                 control_fill_fc, ukraine_boundary=ukraine_boundary,
-                isw_area_km2=pure_isw_area, db=db)
+                isw_area_km2=pure_isw_area, reported_area_km2=reported_area,
+                reported_points=len(overrides), db=db)
         except Exception as e:  # noqa: BLE001
             logger.warning("Изохрона СВО: пересчёт не удался (не блокирует синк линии): %s", e)
 
@@ -743,6 +832,9 @@ def sync_isw_frontline(db: Session) -> dict:
         # Из неё изохрона строит месяцы, до которых архивный таймлапс ISW ещё не
         # дошёл (см. модель GeoFrontlineSnapshot и _months_from_own_snapshots).
         snap.isw_area_km2 = pure_isw_area
+        # Площадь заливки по данным МО РФ/Рыбаря на сегодня — из неё «мост»
+        # берёт основной ряд за месяцы, до которых архив ISW ещё не дошёл.
+        snap.reported_area_km2 = reported_area
 
         db.commit()
         logger.info("ISW-синк линии фронта: %d сегментов линии, %d полигонов заливки, as_of=%s, снапшот=%s",

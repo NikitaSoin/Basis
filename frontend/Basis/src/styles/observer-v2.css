@@ -5232,6 +5232,14 @@ details[open] > summary .obs-inst-chev,
 }
 .obs-geomap-timeslider-delta--up { color: var(--success); }
 .obs-geomap-timeslider-delta--down { color: var(--danger); }
+/* Источник основного числа и приписка ISW (внешняя сверка) — тише самого
+   числа: --text-tertiary, без цвета данных (цвет — только у дельт). */
+.obs-geomap-timeslider-src,
+.obs-geomap-timeslider-isw {
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
 /* Тот же паттерн/размер, что .obs-geomap-filterbar .obs-chip (padding
    подобран так, чтобы тач-таргет оставался ≥24px, WCAG 2.5.8) — не изобретаем
    ещё более мелкий вариант. */
@@ -5305,6 +5313,29 @@ details[open] > summary .obs-inst-chev,
 }
 .obs-geomap-isochart-legend-dot--up { background: var(--bs-up); }
 .obs-geomap-isochart-legend-dot--down { background: var(--bs-down); }
+/* ISW — второй ряд графика (линия с точками; --info — тема-адаптивное зеркало
+   канонного --bs-estimate, тот же тон, что у .obs-tag-estimate: оценка извне
+   российского контура, не наш факт). Свотч повторяет начертание на графике. */
+.obs-geomap-isochart-legend-isw {
+  position: relative;
+  width: 14px;
+  height: 7px;
+  flex-shrink: 0;
+}
+.obs-geomap-isochart-legend-isw::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 3px;
+  border-top: 1.5px solid var(--info);
+}
+.obs-geomap-isochart-legend-isw::after {
+  content: "";
+  position: absolute;
+  left: 4.5px; top: 1px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--info);
+}
 /* Месяц без среза ISW: тот же пунктир, что и на графике (вертикаль в слоте) —
    легенда обязана повторять начертание, иначе связь не читается. */
 .obs-geomap-isochart-legend-gap {
