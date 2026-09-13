@@ -616,7 +616,7 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS) -> BarometerVersion | 
             # экономику», а «как экономика меняет правила» (рента против налогов,
             # кризис как развилка, мобилизационный режим). Для профиля эмитента
             # это прямой вход в вопрос, куда двинется среда вокруг него.
-            shelf_docs=["inst_env", "geo_inst", "inst_geo", "inst_macro",
+            shelf_docs=["code", "inst_env", "geo_inst", "inst_geo", "inst_macro",
                         "macro_inst", "macro_base", "macro"],
             max_steps=10, budget=170_000, final_max_tokens=18_000,
             final_instruction="Верни JSON строго в формате из твоей роли (ключи "
