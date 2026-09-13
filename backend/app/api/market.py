@@ -890,6 +890,19 @@ def market_geo_barometer(db: Session = Depends(get_db)):
     return JSONResponse(content=payload)
 
 
+@router.get("/market/inst-state")
+def market_inst_state(db: Session = Depends(get_db)):
+    """Институциональный снимок на дату (методика И §9): тринадцать разделов с
+    раздельными уровнем и трендом, файл дрейфа, опережающие сигналы, карточка
+    прогноза §10.9, вердикт по эталону §12.2. Версии — barometer_versions,
+    kind="inst_state"."""
+    from app.services.inst_state import current
+    payload = current(db)
+    if payload is None:
+        raise HTTPException(status_code=404, detail="Институциональный снимок ещё не сформирован")
+    return JSONResponse(content=payload)
+
+
 @router.get("/market/macro-state")
 def market_macro_state(db: Session = Depends(get_db)):
     """Состояние экономики на дату (MacroState_t, макро-база §0.2): тринадцать

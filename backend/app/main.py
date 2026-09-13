@@ -1542,6 +1542,29 @@ async def _macro_state_job():
     except Exception as e:
         logger.exception("Ошибка пересборки макро-состояния: %s", e)
 
+
+async def _inst_state_job():
+    """ЕЖЕДНЕВНАЯ пересборка ИНСТИТУЦИОНАЛЬНОГО СНИМКА (методика И §9, §12).
+    Владелец 2026-09-13: «у институциональной среды нужно, чтобы так же
+    обновлялось». После макро-состояния (22:15): его диагноз входит передачей
+    «макро → институты». Fail-closed внутри rebuild()."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.inst_state import rebuild
+        db = SessionLocal()
+        try:
+            row = rebuild(db)
+            if row is None:
+                return "нет статей и летописи — снимок не трогали"
+            return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes}
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Ежедневная пересборка институционального снимка: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка пересборки институционального снимка: %s", e)
+
 async def _barometer_daily_job():
     """ЕЖЕДНЕВНАЯ полная пересборка ГЕО-барометра (владелец 2026-08-01: «слой 1
     перестроить так же, как в макроэкономике — ежедневный крон, где DeepSeek всё
@@ -1864,6 +1887,7 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("barometer_reviser", _barometer_reviser_job), "cron", hour=21, minute=40, id="barometer_reviser")  # ревизор ИНСТИТУТОВ (гео ушёл на barometer_daily) — после оверлея (его вердикт = триггер); cooldown 5 дней внутри
         scheduler.add_job(_with_heartbeat("barometer_daily", _barometer_daily_job), "cron", hour=21, minute=50, id="barometer_daily")
         scheduler.add_job(_with_heartbeat("macro_state", _macro_state_job), "cron", hour=22, minute=15, id="macro_state")  # СОСТОЯНИЕ ЭКОНОМИКИ (пункт 2, 2026-09-13) — после гео-барометра: его сценарии входят ребром «гео → макро»  # ЕЖЕДНЕВНАЯ полная пересборка гео-барометра DeepSeek (владелец 2026-08-01) — последней в цепочке гео: digest(:10 ежечасно) → geopolitics(21:00) → overlay(21:20) → reviser inst(21:40) → сюда
+        scheduler.add_job(_with_heartbeat("inst_state", _inst_state_job), "cron", hour=22, minute=35, id="inst_state")  # ИНСТИТУЦИОНАЛЬНЫЙ СНИМОК (владелец 2026-09-13) — после макро-состояния
         scheduler.add_job(_with_heartbeat("geo_profile", _geo_profile_job), "cron", day_of_week="sun", hour=22, minute=10, id="geo_profile")  # портрет очагов — НЕДЕЛЬНЫЙ слой (медленные данные: стороны/цели/баланс/связки), воскресенье после суточной цепочки
         scheduler.add_job(_with_heartbeat("sector_data", _sector_data_job), "cron", hour=7, minute=5, id="sector_data")  # отраслевые ряды — ежедневно утром, до всех недельных слоёв
         scheduler.add_job(_with_heartbeat("sector_digest", _sector_digest_job), "cron", hour="8,20", minute=15, id="sector_digest")

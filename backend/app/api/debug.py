@@ -2028,6 +2028,25 @@ def debug_methodology_status():
     return out
 
 
+@router.post("/debug/trigger-inst-state")
+def debug_trigger_inst_state():
+    """Ручной запуск пересборки ИНСТИТУЦИОНАЛЬНОГО СНИМКА (обычно крон 22:35)."""
+    from app.db.session import SessionLocal
+    from app.services.inst_state import rebuild
+    db = SessionLocal()
+    try:
+        row = rebuild(db)
+        if row is None:
+            return {"result": "нет статей и летописи — снимок не трогали"}
+        return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes,
+                "as_of": (row.payload or {}).get("as_of"), "summary": (row.payload or {}).get("summary")}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-inst-state: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-macro-state")
 def debug_trigger_macro_state():
     """Ручной запуск пересборки СОСТОЯНИЯ ЭКОНОМИКИ (обычно крон 22:15).

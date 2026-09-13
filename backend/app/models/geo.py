@@ -203,7 +203,7 @@ class BarometerVersion(Base):
     __tablename__ = "barometer_versions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    kind: Mapped[str] = mapped_column(String(8))       # geo | inst
+    kind: Mapped[str] = mapped_column(String(16))      # geo | inst | macro | inst_state
     source: Mapped[str] = mapped_column(String(8))     # expert | auto
     status: Mapped[str] = mapped_column(String(10))    # published | draft | rejected
     payload: Mapped[dict | None] = mapped_column(JSONB)  # полный документ барометра
