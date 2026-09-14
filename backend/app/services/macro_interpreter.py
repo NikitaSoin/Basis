@@ -1400,7 +1400,7 @@ def generate(db: Session) -> MacroInterpretation:
             db, extra_tools=_feed_schema(), extra_executor=_feed_exec,  system=system, task=user + ("\n\n" + extra if extra else ""),
             # macro_base — сам аппарат («сначала диагноз, потом прогноз»),
             # macro — перевод показателей в вывод для инвестора.
-            shelf_docs=["code", "macro_base", "macro", "inst_macro", "macro_inst",
+            shelf_docs=["code", "macro_base", "inst_macro", "macro_inst",
                         "macro_sector", "geo_macro", "inst_env", "geo_inst",
                         "inst_geo"],
             max_steps=12, budget=1_500_000, final_max_tokens=32_000,
