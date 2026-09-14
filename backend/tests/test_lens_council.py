@@ -75,3 +75,32 @@ def test_экзамен_в_режиме_совета(db, monkeypatch):
     assert row.payload["mode"] == "council" and item["mode"] == "council"
     assert item["answer"]["mode"] == "council" and "geo_base:8.30" in item["answer"]["methodology_used"]
     assert row.payload["summary"]["judged"] == 1
+
+
+def test_маршрут_ступенями_видит_предыдущие(db, monkeypatch):
+    seen: list[tuple[str, bool]] = []
+
+    def fake_lens(db_, doc_id, task, packet, questions=None, prior="", notes=None):
+        if questions:
+            return {"lens": doc_id, "answers": []}
+        seen.append((doc_id, bool(prior)))
+        return {"lens": doc_id, "sees": f"взгляд {doc_id}", "mechanisms": [{"chain": "a → b"}], "blind_spots": "-", "questions_to": []}
+
+    monkeypatch.setattr(lc, "run_lens", fake_lens)
+    monkeypatch.setattr(lc, "synthesize", lambda db_, task, results, replies, packet, notes=None: {"answer": "ок " * 10})
+    monkeypatch.setattr(lc, "build_packet", lambda db_: "ПАЧКА")
+    monkeypatch.setattr(lc, "classify_task", lambda db_, task: {"type": "событие", "entry": "geo", "why": "тест", "how": "тест"})
+    monkeypatch.setattr(lc, "_run_lens_own_session",
+                        lambda doc_id, task, packet, questions=None, prior="": (doc_id, fake_lens(db, doc_id, task, packet, questions, prior), []))
+    out = lc.run_council(db, "Продолжатся ли удары по НПЗ?", mode="route", persist=False)
+    order = [d for d, _ in seen]
+    assert order[:2] == ["geo_events", "geo_base"] and set(order[2:4]) == {"geo_macro", "geo_inst"}
+    assert all(not p for d, p in seen[:2]) and all(p for d, p in seen[2:])   # первая ступень без prior, дальше — с
+    assert out["mode"] == "route" and out["route"]["entry"] == "geo"
+
+
+def test_классификация_эвристикой_без_модели(db, monkeypatch):
+    monkeypatch.setattr(lc.llm, "complete", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("нет сети")))
+    assert lc.classify_task(db, "Как изменится ключевая ставка и инфляция?")["entry"] == "macro"
+    assert lc.classify_task(db, "Чего ждать от переговоров и санкций?")["entry"] == "geo"
+    assert lc.classify_task(db, "Как назначения и иски Генпрокуратуры двигают дрейф институтов?")["entry"] == "inst"

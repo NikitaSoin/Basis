@@ -73,7 +73,8 @@ def _council(db, p):
     lenses = p.get("lenses")
     if isinstance(lenses, str):
         lenses = [x.strip() for x in lenses.split(",") if x.strip()]
-    out = run_council(db, task, lenses=lenses or None, label=str(p.get("label") or "совет:ручной")[:60])
+    out = run_council(db, task, lenses=lenses or None, label=str(p.get("label") or "совет:ручной")[:60],
+                      mode=("route" if str(p.get("mode") or "").lower() == "route" else "all"))
     return {"version_id": out.get("version_id"), "answered": out.get("answered"), "failed": out.get("failed"),
             "seconds": out.get("seconds"), "synthesis": bool(out.get("synthesis"))}
 

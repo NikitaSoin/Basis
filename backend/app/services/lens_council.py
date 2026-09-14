@@ -209,11 +209,14 @@ def _tools() -> tuple[list[dict], callable]:
 # ─────────────────────────── агент-методичка ───────────────────────────
 
 def run_lens(db: Session, doc_id: str, task: str, packet: str, *, questions: list[dict] | None = None,
-             notes: list[str] | None = None) -> dict | None:
+             prior: str = "", notes: list[str] | None = None) -> dict | None:
     """Один агент-методичка на одну задачу. questions — вопросы коллег (второй круг):
-    тогда ответ короче и только по вопросам."""
+    тогда ответ короче и только по вопросам. prior — выводы предыдущих ступеней маршрута
+    (режим «по маршруту», протокол часть 3): агент связки видит разбор базы входа."""
     from app.services.agent_runner import run_agent
     tools, executor = _tools()
+    prior_txt = ("\n\nВЫВОДЫ ПРЕДЫДУЩИХ СТУПЕНЕЙ МАРШРУТА (переводи и проверяй ИХ, не начинай с нуля; "
+                 "если не согласен — скажи, с чем и почему):\n" + prior[:60_000]) if prior else ""
     if questions:
         user = ("ЗАДАЧА СОВЕТА (для контекста):\n" + task
                 + "\n\nВОПРОСЫ КОЛЛЕГ К ТЕБЕ (ответь ТОЛЬКО на них, по своей методичке, с разделами и фактами):\n"
@@ -223,7 +226,7 @@ def run_lens(db: Session, doc_id: str, task: str, packet: str, *, questions: lis
                   "\"answer\": \"<с разделом и фактом>\", \"status\": \"Ф|Д|В|Г\"} ]}")
         max_steps, final_tokens, cap = 4, 6_000, 1
     else:
-        user = ("ЗАДАЧА СОВЕТА:\n" + task + "\n\nПАЧКА ДАННЫХ (одна на всех агентов):\n" + packet
+        user = ("ЗАДАЧА СОВЕТА:\n" + task + "\n\nПАЧКА ДАННЫХ (одна на всех агентов):\n" + packet + prior_txt
                 + "\n\nОтветь по форме из роли. Помни: только через свою методичку; blind_spots обязательны.")
         max_steps, final_tokens, cap = 8, _ANSWER_MAX_TOKENS, 3
     t0 = time.monotonic()
@@ -252,15 +255,67 @@ def run_lens(db: Session, doc_id: str, task: str, packet: str, *, questions: lis
     return res
 
 
-def _run_lens_own_session(doc_id: str, task: str, packet: str, questions=None) -> tuple[str, dict | None, list[str]]:
+def _run_lens_own_session(doc_id: str, task: str, packet: str, questions=None, prior: str = "") -> tuple[str, dict | None, list[str]]:
     """Для параллельной волны: каждому потоку — своя сессия БД."""
     from app.db.session import SessionLocal
     notes: list[str] = []
     db = SessionLocal()
     try:
-        return doc_id, run_lens(db, doc_id, task, packet, questions=questions, notes=notes), notes
+        return doc_id, run_lens(db, doc_id, task, packet, questions=questions, prior=prior, notes=notes), notes
     finally:
         db.close()
+
+
+# ─────────────────────────── маршрут (протокол, часть 3) ───────────────────────────
+# Контур входа → ступени: база входа (и классы событий) → связки по направлению перевода →
+# соседние базы и остальное для проверки. Каждая ступень видит выводы предыдущих.
+ROUTES: dict[str, list[list[str]]] = {
+    "geo": [["geo_events", "geo_base"], ["geo_macro", "geo_inst"],
+            ["macro_base", "inst_env", "macro_geo", "inst_geo", "inst_macro", "macro_inst", "macro", "macro_sector"]],
+    "macro": [["macro_base", "macro"], ["macro_geo", "macro_inst"],
+              ["geo_base", "geo_events", "inst_env", "geo_macro", "inst_macro", "geo_inst", "inst_geo", "macro_sector"]],
+    "inst": [["inst_env"], ["inst_macro", "inst_geo"],
+             ["geo_base", "geo_events", "macro_base", "macro", "geo_macro", "macro_geo", "geo_inst", "macro_inst", "macro_sector"]],
+}
+_TASK_TYPES = ("событие", "регулярный снимок", "вопрос", "сценарий", "профиль")
+_ENTRY_HINTS = {
+    "geo": ("удар", "войн", "фронт", "санкц", "переговор", "нато", "сша", "китай", "иран", "украин", "эскалац", "перемир"),
+    "inst": ("институт", "дрейф", "закон", "суд", "изъят", "национализац", "коалиц", "регулир", "назначен", "прокурат", "собственност"),
+    "macro": ("инфляц", "ставк", "ввп", "бюджет", "курс", "рубл", "кредит", "экономик", "спрос", "безработ", "нефтегазов"),
+}
+
+
+def classify_task(db: Session, task: str) -> dict:
+    """Тип задачи и контур входа (протокол 3.1–3.2). Сначала быстрая модель без рассуждения
+    (дёшево), при сбое — эвристика по словам. Ответ: {"type", "entry", "why", "how"}."""
+    t = (task or "").lower()
+    scores = {k: sum(t.count(w) for w in ws) for k, ws in _ENTRY_HINTS.items()}
+    heuristic = max(scores, key=scores.get) if any(scores.values()) else "geo"
+    try:
+        out = llm.complete(
+            "Ты — маршрутизатор аналитической системы Basis. Определи тип задачи (одно из: "
+            + ", ".join(_TASK_TYPES) + ") и контур входа (geo — геополитическое событие/вопрос; macro — "
+            "экономическое; inst — институциональное: правила, власть, собственность). Верни JSON "
+            "{\"type\": ..., \"entry\": \"geo|macro|inst\", \"why\": \"<одна фраза>\"}.",
+            "ЗАДАЧА:\n" + task[:4000], json_mode=True, max_tokens=300, temperature=0.0, thinking=False)
+        if isinstance(out, dict) and out.get("entry") in ROUTES:
+            return {"type": out.get("type") or "вопрос", "entry": out["entry"], "why": str(out.get("why") or "")[:200], "how": "модель"}
+    except Exception as e:  # noqa: BLE001
+        logger.warning("council classify: %s", e)
+    return {"type": "вопрос", "entry": heuristic, "why": f"по словам: {scores}", "how": "эвристика"}
+
+
+def _prior_text(results: dict[str, dict]) -> str:
+    """Выводы предыдущих ступеней; пусто (не «{}»), если ступеней ещё не было."""
+    if not any(isinstance(v, dict) and v for v in results.values()):
+        return ""
+    compact = {}
+    for k, v in results.items():
+        if not isinstance(v, dict):
+            continue
+        compact[k] = {"sees": v.get("sees"), "mechanisms": [m.get("chain") if isinstance(m, dict) else m for m in (v.get("mechanisms") or [])][:8],
+                      "forecast": v.get("forecast"), "blind_spots": v.get("blind_spots")}
+    return json.dumps(compact, ensure_ascii=False, default=str)
 
 
 # ─────────────────────────── круг вопросов ───────────────────────────
@@ -295,8 +350,18 @@ _SYNTH_SYSTEM = (
     "4. Вероятности не усредняй механически: возьми оценку того агента, чья методичка отвечает за "
     "этот исход, и объясни, почему; таблица слов и чисел — как у агентов.\n"
     "5. Что не видит НИ ОДНА методичка — отдельно, честно.\n"
-    "6. Числа и даты — только из ответов агентов и пачки данных, с источником.\n"
-    "7. Язык — обычный, без жаргона; нейтральный тон, РФ-топонимика, без «купить/продать/рекомендуем».\n\n"
+    "6. Числа и даты — только из ответов агентов и пачки данных, с источником. Каждое несущее число "
+    "в тексте answer сопровождай источником и датой в скобках; в поле sources перечисли источники "
+    "(документ/лента/сводка, дата), на которые опирается вывод.\n"
+    "7. Язык — обычный, без жаргона и терминов без расшифровки; нейтральный тон, РФ-топонимика, "
+    "без «купить/продать/рекомендуем».\n"
+    "8. Статус утверждений — В ТЕКСТЕ answer, не только в полях: у ключевых выводов и чисел ставь "
+    "пометку (факт) / (оценка) / (вывод) / (гипотеза) — читатель должен видеть, где знание, а где суждение.\n"
+    "9. Контрфакт обязателен (кодекс 0.2): что было бы без события — отдельным полем counterfactual и одной "
+    "фразой в тексте; эффект события = разница, а не «до и после».\n"
+    "10. Вероятности должны быть согласованы с признанными пробелами: если ключевой ресурсный или "
+    "информационный пробел назван, уверенность (confidence) не может быть высокой — снизь её и скажи, "
+    "что её поднимет.\n\n"
     "ФОРМА (строго JSON): {\n"
     "  \"answer\": \"<ответ владельцу обычным языком, 600–1200 слов, абзацами: главный вывод → диагноз "
     "→ цепочки → куда движется и что наблюдать → чего не знаем>\",\n"
@@ -309,6 +374,8 @@ _SYNTH_SYSTEM = (
     "\"probabilities\": [ {\"outcome\": \"...\", \"p\": <0..1>, \"horizon\": \"...\", \"owner_lens\": \"<id>\", \"basis\": \"...\"} ], "
     "\"triggers\": [\"...\"]},\n"
     "  \"watch\": [\"<признак — и чей взгляд его требует>\", ...],\n"
+    "  \"counterfactual\": \"<что было бы без события/фактора; в чём именно разница>\",\n"
+    "  \"sources\": [\"<источник, дата — на что опирается вывод>\", ...],\n"
     "  \"unknowns\": [\"<чего не видит ни одна методичка / данных нет>\", ...],\n"
     "  \"lens_coverage\": { \"<id>\": \"использован|тонко|пусто\" }\n"
     "}"
@@ -351,17 +418,35 @@ def synthesize(db: Session, task: str, results: dict[str, dict], replies: dict[s
 # ─────────────────────────── оркестратор ───────────────────────────
 
 def run_council(db: Session, task: str, *, lenses: list[str] | None = None, parallel: int = _PARALLEL,
-                question_round: bool = True, persist: bool = True, label: str = "совет") -> dict:
-    """Вся цепочка: пачка → агенты волнами → круг вопросов → сведение → версия kind=council."""
+                question_round: bool = True, persist: bool = True, label: str = "совет",
+                mode: str = "all") -> dict:
+    """Вся цепочка: пачка → агенты → круг вопросов → сведение → версия kind=council.
+    mode="all" — все агенты одной волной (одинаковый вход); "route" — по маршруту протокола
+    (часть 3): база входа → связки → остальные, каждая ступень видит выводы предыдущих."""
     ids = [x for x in (lenses or LENSES) if x in LENSES] or list(LENSES)
     notes: list[str] = []
     t0 = time.monotonic()
     packet = build_packet(db)
     results: dict[str, dict | None] = {}
-    with ThreadPoolExecutor(max_workers=max(1, min(int(parallel or 1), 6))) as pool:
-        for doc_id, res, n in pool.map(lambda d: _run_lens_own_session(d, task, packet), ids):
-            results[doc_id] = res
-            notes.extend(n)
+    workers = max(1, min(int(parallel or 1), 6))
+    route_info: dict | None = None
+    if mode == "route":
+        route_info = classify_task(db, task)
+        stages = [[x for x in st if x in ids] for st in ROUTES[route_info["entry"]]]
+        stages = [st for st in stages if st]
+        notes.append(f"маршрут: контур входа {route_info['entry']} ({route_info['how']}: {route_info['why']}); "
+                     f"ступени {[len(st) for st in stages]}")
+        for st in stages:
+            prior = _prior_text({k: v for k, v in results.items() if v})
+            with ThreadPoolExecutor(max_workers=workers) as pool:
+                for doc_id, res, n in pool.map(lambda d: _run_lens_own_session(d, task, packet, None, prior), st):
+                    results[doc_id] = res
+                    notes.extend(n)
+    else:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            for doc_id, res, n in pool.map(lambda d: _run_lens_own_session(d, task, packet), ids):
+                results[doc_id] = res
+                notes.extend(n)
     answered = {k: v for k, v in results.items() if v}
     logger.warning("council[%s]: ответили %d из %d агентов", label, len(answered), len(ids))
 
@@ -384,7 +469,7 @@ def run_council(db: Session, task: str, *, lenses: list[str] | None = None, para
     except Exception:  # noqa: BLE001
         pass
     payload = {
-        "as_of": date.today().isoformat(), "task": task, "label": label, "lenses": ids,
+        "as_of": date.today().isoformat(), "task": task, "label": label, "lenses": ids, "mode": mode, "route": route_info,
         "answered": sorted(answered), "failed": sorted(k for k, v in results.items() if not v),
         "lens_answers": answered, "replies": replies, "synthesis": synthesis,
         "compliance_blocked": (None if ok else why),
@@ -419,6 +504,7 @@ def render_md(payload: dict) -> str:
     s = payload.get("synthesis") or {}
     out = [f"# Совет агентов-методичек — {payload.get('as_of')}",
            f"**Задача.** {payload.get('task')}", "",
+           f"Режим: {payload.get('mode', 'all')}" + (f" · маршрут: вход {payload['route'].get('entry')} ({payload['route'].get('why')})" if payload.get("route") else "") + ". "
            f"Ответили {len(payload.get('answered') or [])} из {len(payload.get('lenses') or [])} агентов"
            + (f", не ответили: {', '.join(payload['failed'])}" if payload.get("failed") else "")
            + f"; {payload.get('seconds')} с.", ""]

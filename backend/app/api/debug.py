@@ -2073,12 +2073,12 @@ def debug_trigger_evening_pipeline():
 
 
 @router.post("/debug/council")
-def debug_council(task: str, lenses: str | None = None, label: str | None = None):
+def debug_council(task: str, lenses: str | None = None, label: str | None = None, mode: str = "all"):
     """Совет агентов-методичек на произвольный вопрос (владелец 2026-09-14): каждая
     методичка — отдельный агент с её полным текстом в контексте, круг вопросов между
     ними, сведение сильной моделью. Через очередь воркера; результат —
     GET /api/market/council?format=md. lenses=id1,id2 — часть агентов (по умолчанию все 12)."""
-    params = {"task": task}
+    params = {"task": task, "mode": mode}
     if lenses:
         params["lenses"] = lenses
     if label:

@@ -228,11 +228,12 @@ def aggregate(items: list[dict]) -> dict:
 
 # ─────────────────────────── прогон ───────────────────────────
 
-def council_answer(db: Session, q: dict, notes: list[str] | None = None) -> dict | None:
+def council_answer(db: Session, q: dict, notes: list[str] | None = None, council_mode: str = "all") -> dict | None:
     """Ответ через совет агентов-методичек (владелец 2026-09-14): та же форма ответа, что у одного
-    аналитика, чтобы экзаменатор сравнивал одинаково; сведение — в answer, цепочки — в key_judgements."""
+    аналитика, чтобы экзаменатор сравнивал одинаково; сведение — в answer, цепочки — в key_judgements.
+    council_mode: "all" — все агенты разом; "route" — по маршруту протокола."""
     from app.services.lens_council import run_council
-    payload = run_council(db, q["question"], label=f"экзамен:{q['id']}")
+    payload = run_council(db, q["question"], label=f"экзамен:{q['id']}", mode=council_mode)
     if notes is not None:
         notes.extend(payload.get("notes") or [])
         notes.append(f"совет: версия #{payload.get('version_id')}, ответили {len(payload.get('answered') or [])}, "
@@ -241,9 +242,17 @@ def council_answer(db: Session, q: dict, notes: list[str] | None = None) -> dict
     if not isinstance(s, dict) or not s.get("answer"):
         return None
     used: list[str] = []
+    sources: list[str] = [str(x) for x in (s.get("sources") or []) if x]
     for a in (payload.get("lens_answers") or {}).values():
         if isinstance(a, dict):
             used += [str(x) for x in (a.get("sections_used") or [])][:8]
+            # доказательства агентов — в источники ответа (экзаменатор 14.09: «sources пуст»)
+            for m in (a.get("mechanisms") or []):
+                ev = (m.get("evidence") if isinstance(m, dict) else None)
+                if ev and "данных нет" not in str(ev).lower():
+                    sources.append(f"{a.get('lens')}: {str(ev)[:200]}")
+    seen_src: set[str] = set()
+    sources = [x for x in sources if not (x in seen_src or seen_src.add(x))][:60]
     return {"answer": s.get("answer"),
             "key_judgements": [{"claim": c.get("chain"), "status": c.get("status"),
                                 "evidence": "взгляды: " + ", ".join(c.get("lenses") or [])}
@@ -252,13 +261,16 @@ def council_answer(db: Session, q: dict, notes: list[str] | None = None) -> dict
             "mechanisms": [c.get("chain") for c in (s.get("causal_map") or []) if isinstance(c, dict)],
             "gaps": [{"gap": u, "what_i_did": "совет: не видит ни одна методичка"} for u in (s.get("unknowns") or [])],
             "disagreements": s.get("disagreements") or [],
-            "sources": [], "methodology_used": sorted(set(used))[:60],
-            "council_version_id": payload.get("version_id"), "mode": "council"}
+            "counterfactual": s.get("counterfactual"),
+            "sources": sources, "methodology_used": sorted(set(used))[:60],
+            "council_version_id": payload.get("version_id"), "mode": ("route" if council_mode == "route" else "council")}
 
 
 def run(db: Session, only: list[str] | None = None, mode: str = "single") -> BarometerVersion:
     """mode="single" — один аналитик с полкой (как было); "council" — совет агентов-методичек."""
-    mode = "council" if str(mode or "").lower() == "council" else "single"
+    mode = str(mode or "single").lower()
+    if mode not in ("single", "council", "route"):
+        mode = "single"
     qs = load_questions()
     if only:
         qs = [q for q in qs if q["id"] in set(only)]
@@ -296,7 +308,8 @@ def run(db: Session, only: list[str] | None = None, mode: str = "single") -> Bar
         item = {"id": q["id"], "contour": q["contour"], "question": q["question"], "answer": None, "mode": mode,
                 "judge": None, "notes": diag, "started_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
         try:
-            ans = council_answer(db, q, notes=diag) if mode == "council" else ask(db, q, states_txt, conflict_txt, notes=diag)
+            ans = (council_answer(db, q, notes=diag, council_mode=("route" if mode == "route" else "all"))
+                   if mode in ("council", "route") else ask(db, q, states_txt, conflict_txt, notes=diag))
         except Exception as e:  # noqa: BLE001
             logger.exception("probe[%s]: %s", q["id"], e); ans = None
             diag.append(f"аналитик упал: {type(e).__name__}: {e}")
