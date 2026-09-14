@@ -4687,10 +4687,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
       const regionsFC = activeBaseMap?.regions_geojson || GEOMAP_EMPTY_FC;
       const frontlineFC = (!isSvoRussia && activeBaseMap?.frontline_geojson) || GEOMAP_EMPTY_FC;
       const controlFillFC = (!isSvoRussia && activeBaseMap?.control_fill_geojson) || GEOMAP_EMPTY_FC;
-      // Реки (Днепр) — поверх заливки: по руслу проходит фронт в Херсонской и
-      // Запорожской, а на подложке тайлов река под заливкой не читалась
-      // (владелец, 2026-09-14: «плохо выделена река Днепр»).
-      const riversFC = (!isSvoRussia && activeBaseMap?.rivers_geojson) || GEOMAP_EMPTY_FC;
       const claimedCapturesFC = (!isSvoRussia && activeBaseMap?.claimed_captures_geojson) || GEOMAP_EMPTY_FC;
       const isochroneFC = (!isSvoRussia && activeBaseMap?.capture_isochrone_geojson) || GEOMAP_EMPTY_FC;
       const strikeEventsFC = data.base_map?.strike_events_geojson || GEOMAP_EMPTY_FC;
@@ -4729,7 +4725,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
       out[t.key] = {
         meta: t, data, activeBaseMap,
         controlLegend, controlLegendKeys, hasControlLegend, controlPaintOverrides,
-        regionsFC, frontlineFC, controlFillFC, riversFC, isochroneFC, strikeEventsFC,
+        regionsFC, frontlineFC, controlFillFC, isochroneFC, strikeEventsFC,
         regionsBySlug, waypointsBySlug, events, onMapEvents,
         claimedCapturesList, isochroneList, strikeEventsList,
       };
@@ -4972,16 +4968,10 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
         map.addLayer({ id: `${key}-regions-line`, type: "line", source: `${key}-regions`, paint: { "line-color": "#888", "line-opacity": 0, "line-width": 1.1 } });
         map.addLayer({ id: `${key}-control-fill`, type: "fill", source: `${key}-control-fill`, paint: { "fill-color": colors.ru, "fill-opacity": 0.6 } });
         map.addLayer({ id: `${key}-control-fill-line`, type: "line", source: `${key}-control-fill`, paint: { "line-color": colors.ru, "line-opacity": 0.9, "line-width": 0.8 } });
-        // Днепр поверх заливки: светлая подложка + синяя линия + подпись вдоль русла.
-        // Цвет — токен --info (тема-адаптивный), не хардкод.
-        map.addSource(`${key}-rivers`, { type: "geojson", data: GEOMAP_EMPTY_FC });
-        map.addLayer({ id: `${key}-rivers-casing`, type: "line", source: `${key}-rivers`, layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": colors.bgElevated, "line-opacity": 0.85, "line-width": 5 } });
-        map.addLayer({ id: `${key}-rivers-line`, type: "line", source: `${key}-rivers`, layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": colors.token("info"), "line-width": 2.2 } });
-        map.addLayer({
-          id: `${key}-rivers-label`, type: "symbol", source: `${key}-rivers`,
-          layout: { "symbol-placement": "line", "text-field": ["get", "name_ru"], "text-font": ["Noto Sans Italic"], "text-size": 12, "symbol-spacing": 350, "text-letter-spacing": 0.08 },
-          paint: { "text-color": colors.token("info"), "text-halo-color": colors.bgElevated, "text-halo-width": 1.6 },
-        });
+        // Отдельный слой Днепра (голубая линия + подпись) владелец попросил убрать
+        // (2026-09-14, вечер) — река остаётся только подложкой тайлов. Русло из
+        // base_map.rivers_geojson по-прежнему нужно бэкенду как БАРЬЕР для
+        // присоединения пунктов, на карте не рисуется.
         map.addLayer({
           id: `${key}-capture-isochrone-fill`, type: "fill", source: `${key}-capture-isochrone`,
           layout: { visibility: "none" }, paint: { "fill-color": colors.ru, "fill-opacity": 0.4 },
@@ -5123,7 +5113,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
       map.getSource(`${key}-regions`)?.setData(st.regionsFC);
       map.getSource(`${key}-frontline`)?.setData(st.frontlineFC);
       map.getSource(`${key}-control-fill`)?.setData(st.controlFillFC);
-      map.getSource(`${key}-rivers`)?.setData(st.riversFC);
       map.getSource(`${key}-capture-isochrone`)?.setData(st.isochroneFC);
 
       let fillColor = "#888", fillOpacity = 0, lineOpacity = 0;
@@ -5145,12 +5134,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater, activeTheater = null }) {
       map.setPaintProperty(`${key}-regions-active-line`, "line-color", colors.accent);
       map.setPaintProperty(`${key}-control-fill`, "fill-color", colors.ru);
       map.setPaintProperty(`${key}-control-fill-line`, "line-color", colors.ru);
-      if (map.getLayer(`${key}-rivers-line`)) {
-        map.setPaintProperty(`${key}-rivers-line`, "line-color", colors.token("info"));
-        map.setPaintProperty(`${key}-rivers-casing`, "line-color", colors.bgElevated);
-        map.setPaintProperty(`${key}-rivers-label`, "text-color", colors.token("info"));
-        map.setPaintProperty(`${key}-rivers-label`, "text-halo-color", colors.bgElevated);
-      }
       map.setPaintProperty(`${key}-capture-isochrone-fill`, "fill-color", colors.ru);
       map.setPaintProperty(`${key}-capture-isochrone-line`, "line-color", colors.ru);
       map.setPaintProperty(`${key}-frontline-casing`, "line-color", colors.ru);
