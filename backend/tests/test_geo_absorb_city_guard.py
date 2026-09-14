@@ -229,3 +229,68 @@ def test_цепочка_сёл_опирается_на_уже_присоедин
     # каждое по отдельности — сумма шире, чем цепочка (дальнее тянулось бы к массе широким окном)
     separate = sync._absorb_overrides(isw, [near]).difference(isw).union(sync._absorb_overrides(isw, [far]).difference(isw))
     assert chained.area < separate.area
+
+
+# ---- 2026-09-14, вторая волна: река-барьер, порог у границы, «котлы» ----------
+
+def test_пункт_на_другом_берегу_реки_не_присоединяется_и_крышка_не_переходит_реку():
+    """Владелец: «взятая деревушка севернее Днепра, куда ВС РФ не заходят — ни одна
+    сторона там не форсирует». Река — вертикальная линия lon=35.0; масса контроля
+    восточнее, пункт в 6 км западнее реки."""
+    from shapely.geometry import box, LineString
+    river = LineString([(35.0, 46.0), (35.0, 49.0)])
+    isw = box(35.05, 47.0, 36.0, 48.0)
+    west = {"name": "Заречное", "oblast": "Запорожская область", "lat": 47.5, "lon": 35.0 - 6 / 111.0, "radius_km": 3, "src": "db"}
+    east = {"name": "Береговое", "oblast": "Запорожская область", "lat": 47.5, "lon": 35.05 - 4 / 111.0, "radius_km": 3, "src": "db"}
+    kept = sync.validate_candidates([west, east], isw, barrier=river, quiet=True)
+    assert [c["name"] for c in kept] == ["Береговое"], "пункт за рекой прошёл проверку"
+    # и даже если бы прошёл — крышка не пересекает русло
+    filled = sync._absorb_overrides(isw, [west, east], barrier=river)
+    addition = filled.difference(isw)
+    assert not addition.intersects(river.buffer(0.5 / 111.0)), "заливка легла на русло / другой берег"
+
+
+def test_приграничный_пункт_принимается_только_у_самой_границы():
+    """Порог 25 км от «плацдарма» пропускал тёзок под Харьковом (владелец: «взятый
+    населённый пункт практически рядом с Харьковом»). От территории РФ — 12 км."""
+    from shapely.geometry import box
+    isw = box(37.6, 49.0, 38.0, 49.4)          # масса контроля далеко
+    ru_land = box(36.0, 50.3, 38.0, 51.0)      # плацдарм — Россия севернее lat 50.3
+    near_border = {"name": "Гоптовка", "oblast": "Харьковская область", "lat": 50.3 - 3 / 111.0, "lon": 36.3, "radius_km": 3, "src": "override"}
+    suburb = {"name": "Циркуны", "oblast": "Харьковская область", "lat": 50.3 - 20 / 111.0, "lon": 36.3, "radius_km": 3, "src": "override"}
+    kept = sync.validate_candidates([near_border, suburb], isw, border_mass=ru_land, quiet=True)
+    assert [c["name"] for c in kept] == ["Гоптовка"]
+
+
+def test_котлы_от_смыкания_крышек_заделываются_а_дыры_ISW_остаются():
+    from shapely.geometry import box, Polygon
+    # масса ISW с собственной дырой (реальный очаг) — остаётся
+    isw = Polygon(box(37.0, 48.0, 38.0, 48.5).exterior.coords, [list(box(37.4, 48.2, 37.5, 48.3).exterior.coords)])
+    # два села по бокам незанятого поля перед фронтом — их крышки смыкаются и
+    # оставляют внутри белый «котёл»
+    left = {"name": "Левое", "oblast": "Донецкая область", "lat": 48.5 + 7 / 111.0, "lon": 37.30, "radius_km": 3}
+    right = {"name": "Правое", "oblast": "Донецкая область", "lat": 48.5 + 7 / 111.0, "lon": 37.60, "radius_km": 3}
+    top = {"name": "Верхнее", "oblast": "Донецкая область", "lat": 48.5 + 14 / 111.0, "lon": 37.45, "radius_km": 3}
+    merged = sync._absorb_overrides(isw, [left, right, top])
+    holes_before = sum(len(g.interiors) for g in (merged.geoms if hasattr(merged, "geoms") else [merged]))
+    fixed = sync._fill_new_holes(merged, isw)
+    holes_after = [Polygon(r) for g in (fixed.geoms if hasattr(fixed, "geoms") else [fixed]) for r in g.interiors]
+    assert len(holes_after) == 1, f"ожидалась одна (ISW-шная) дыра, осталось {len(holes_after)} из {holes_before}"
+    assert holes_after[0].intersects(box(37.4, 48.2, 37.5, 48.3)), "заделали дыру самого ISW"
+
+
+def test_цепочка_сёл_от_границы_принимается_а_одиночка_в_тылу_нет():
+    """Волчанск → Белый Колодец → Бакшеевка: каждое следующее село в 6 км от
+    предыдущего, последнее — в 17 км от границы. Цепочка принимается; одиночное
+    село в 17 км от границы без соседей — нет."""
+    from shapely.geometry import box
+    isw = box(37.6, 49.0, 38.0, 49.4)
+    ru_land = box(36.0, 50.3, 38.0, 51.0)
+    chain = [
+        {"name": "Первое", "oblast": "Харьковская область", "lat": 50.3 - 5 / 111.0, "lon": 37.0, "radius_km": 3, "src": "override"},
+        {"name": "Второе", "oblast": "Харьковская область", "lat": 50.3 - 11 / 111.0, "lon": 37.0, "radius_km": 3, "src": "override"},
+        {"name": "Третье", "oblast": "Харьковская область", "lat": 50.3 - 17 / 111.0, "lon": 37.0, "radius_km": 3, "src": "override"},
+    ]
+    lone = {"name": "Одиночка", "oblast": "Харьковская область", "lat": 50.3 - 17 / 111.0, "lon": 37.5, "radius_km": 3, "src": "override"}
+    kept = sync.validate_candidates(chain + [lone], isw, border_mass=ru_land, quiet=True)
+    assert [c["name"] for c in kept] == ["Первое", "Второе", "Третье"]

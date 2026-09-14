@@ -107,6 +107,36 @@ def uk_to_ru_variants(name: str | None) -> list[str]:
     return out
 
 
+# Латиница из англоязычной ленты ISW («Zaporizke», «Novomykolaivka») — обратная
+# украинская романизация (КМУ 2010): многобуквенные сочетания раньше одиночных.
+_LATIN_MULTI = (("shch", "щ"), ("zh", "ж"), ("kh", "х"), ("ts", "ц"), ("ch", "ч"), ("sh", "ш"),
+                ("ya", "я"), ("yu", "ю"), ("ye", "є"), ("yi", "ї"), ("ia", "я"), ("iu", "ю"), ("ie", "є"))
+_LATIN_SINGLE = str.maketrans({"a": "а", "b": "б", "v": "в", "h": "г", "g": "ґ", "d": "д", "e": "е", "z": "з",
+                               "y": "и", "i": "і", "k": "к", "l": "л", "m": "м", "n": "н", "o": "о", "p": "п",
+                               "r": "р", "s": "с", "t": "т", "u": "у", "f": "ф", "c": "к", "w": "в", "x": "кс",
+                               "j": "й", "q": "к"})
+_LATIN_RE = re.compile(r"[A-Za-z]")
+_OBLAST_EN = {"dnipropetrovsk": "днепропетровская", "donetsk": "донецкая", "kharkiv": "харьковская",
+              "zaporizhzhia": "запорожская", "zaporizhia": "запорожская", "kherson": "херсонская",
+              "sumy": "сумская", "luhansk": "луганская", "mykolaiv": "николаевская", "crimea": "крым",
+              "kyiv": "киевская", "chernihiv": "черниговская", "poltava": "полтавская"}
+
+
+def latin_to_uk(name: str | None) -> str:
+    """«Novomykolaivka» → «новомиколаївка»: ключ для индекса украинских написаний."""
+    s = (name or "").strip().lower()
+    if not s or not _LATIN_RE.search(s):
+        return ""
+    s = s.replace("'", "").replace("’", "")
+    for lat, uk in _LATIN_MULTI:
+        s = s.replace(lat, uk)
+    s = s.translate(_LATIN_SINGLE)
+    # «i» после гласной — это «ї» (Novomykolaivka → Новомиколаївка), в начале слова — тоже
+    for v in "аоеуиіяює":
+        s = s.replace(v + "і", v + "ї")
+    return s
+
+
 def oblast_key(text: str | None) -> str | None:
     """«Донецкая область (Покровский район)» / «ДНР» / «Запорожская» → «донецкая» /
     «донецкая» / «запорожская». None — область не названа."""
@@ -115,6 +145,9 @@ def oblast_key(text: str | None) -> str | None:
     t = text.strip().lower().replace("ё", "е")
     if not t:
         return None
+    if _LATIN_RE.search(t):
+        head = t.split("(")[0].split(",")[0].strip().split()[0] if t.strip() else ""
+        return _OBLAST_EN.get(head.strip(".,"), None)
     if t.startswith("днр") or "донецкая народная" in t:
         return "донецкая"
     if t.startswith("лнр") or "луганская народная" in t:
@@ -216,8 +249,9 @@ _FUZZY_HINT_KM = 20.0  # приблизительное совпадение п�
 
 def resolve(name: str | None, oblast: str | None = None, raion: str | None = None,
             near=None, max_km: float = 25.0, hint: tuple[float, float] | None = None,
-            gz: dict | None = None) -> dict:
+            barrier=None, gz: dict | None = None) -> dict:
     """Имя (+ область, + район, + геометрия фронта, + прежняя координата) → координата.
+    barrier — река: тёзка на другом берегу от фронта «рядом с фронтом» не считается.
     near — shapely-геометрия (масса контроля/плацдарм): среди тёзок берём ту,
     что не дальше max_km от неё, если такая ровно одна. hint — координата, с
     которой пункт пришёл (геокодинг статьи): среди оставшихся тёзок берём ту,
@@ -228,12 +262,17 @@ def resolve(name: str | None, oblast: str | None = None, raion: str | None = Non
     ошибочной, поэтому такую тёзку принимаем лишь если её выделяет фронт или
     прежняя координата; иначе status=oblast_mismatch без координаты — точка за
     сотни километров хуже, чем пункт без точки."""
-    from shapely.geometry import Point
+    from shapely.geometry import Point, LineString
+    from shapely.ops import nearest_points
 
     gz = gz or load()
     if gz is None:
         return {"status": "no_gazetteer", "candidates": 0}
     key = normalize(name)
+    if key and _LATIN_RE.search(key):
+        # имя латиницей (лента ISW): переводим в украинское написание — по нему
+        # индекс тоже построен; вариант с русской транслитерацией добавляется ниже
+        key = normalize(latin_to_uk(name))
     if not key:
         return {"status": "not_found", "candidates": 0}
     obl = oblast_key(oblast)
@@ -242,7 +281,17 @@ def resolve(name: str | None, oblast: str | None = None, raion: str | None = Non
     hint_pt = Point(hint[1], hint[0]) if hint and hint[0] is not None and hint[1] is not None else None
 
     def _within(i: int, pt, km: float) -> bool:
-        return pt.distance(Point(items[i]["lon"], items[i]["lat"])) * _KM_PER_DEG <= km
+        p = Point(items[i]["lon"], items[i]["lat"])
+        if pt.distance(p) * _KM_PER_DEG > km:
+            return False
+        if pt is near and barrier is not None and not barrier.is_empty:
+            try:
+                anchor = nearest_points(near, p)[0]
+                if LineString([anchor, p]).intersects(barrier):
+                    return False  # на другом берегу — не «рядом с фронтом»
+            except Exception:  # noqa: BLE001
+                pass
+        return True
 
     def _fuzzy(pool) -> list[int]:
         """Опечатка / иное написание (в т.ч. старое имя по-украински): ближайшие
@@ -310,6 +359,11 @@ def resolve(name: str | None, oblast: str | None = None, raion: str | None = Non
         return near is None or near.is_empty
 
     ids = list(gz["index"].get(key, []))
+    if not ids and _LATIN_RE.search(name or ""):
+        for v in uk_to_ru_variants(key):
+            ids = list(gz["index"].get(v, []))
+            if ids:
+                break
     status = "exact"
     if not ids:
         # без области перебор по всей стране даёт ложные «похожие» имена — ищем

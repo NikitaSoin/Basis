@@ -1137,6 +1137,20 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
                 payload["base_map"]["control_fill_geojson"] = row.control_fill_geojson
             if row.capture_isochrone_geojson:
                 payload["base_map"]["capture_isochrone_geojson"] = row.capture_isochrone_geojson
+        # Реки (Днепр) — отдельным слоем поверх заливки: по руслу проходит фронт в
+        # Херсонской и Запорожской, на подложке тайлов река под заливкой не читалась
+        # (владелец, 2026-09-14). Тот же файл — барьер для присоединения пунктов.
+        rivers_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__)))), "config", "geo_svo_rivers.json")
+        if os.path.exists(rivers_path):
+            try:
+                with open(rivers_path, encoding="utf-8") as f:
+                    rv = _json.load(f)
+                payload["base_map"]["rivers_geojson"] = {"type": "FeatureCollection",
+                                                         "features": rv.get("features", [])}
+                payload["base_map"]["rivers_source"] = rv.get("source")
+            except Exception:  # noqa: BLE001 — слой вторичен
+                pass
 
         # Кружки «взято по данным МО РФ/Рыбаря, но ISW контроль ещё НЕ подтвердил» —
         # единственный оставшийся способ показать расхождение источников (ярус
@@ -1219,24 +1233,26 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
             import logging as _logging
             _logging.getLogger(__name__).warning(
                 "geo-map svo: авто-claims из БД не собраны", exc_info=True)
-        # Правило «взятие только рядом с фронтом» (владелец, 2026-07-26): кружок
-        # дальше 25 км от красной зоны — почти наверняка тёзка при геокодинге
-        # (Вольное/Благодатное есть в нескольких областях), не показываем.
+        # Кружок показываем ТОЛЬКО для пункта, который реально вошёл в заливку
+        # (его кружок — часть красной зоны по построению). Пункт, отклонённый
+        # проверками синка (тёзка, далеко от фронта, за рекой), кружка не получает —
+        # иначе на карте висит «взятая деревушка» там, куда никто не заходил
+        # (владелец, 2026-09-14). Раньше порог был 25 км от заливки — слишком щедро.
         if claimed_features and row is not None and row.control_fill_geojson:
             try:
                 from shapely.geometry import shape as _shp, Point as _pt
                 from shapely.ops import unary_union as _uu
                 _red = _uu([_shp(f["geometry"]) for f in row.control_fill_geojson.get("features", [])])
-                _max_deg = 25.0 / 111.0
+                _tol_deg = 1.0 / 111.0
                 _before = len(claimed_features)
                 claimed_features = [
                     f for f in claimed_features
-                    if _red.distance(_pt(*f["geometry"]["coordinates"])) <= _max_deg
+                    if _red.distance(_pt(*f["geometry"]["coordinates"])) <= _tol_deg
                 ]
                 if len(claimed_features) < _before:
                     import logging as _logging
                     _logging.getLogger(__name__).info(
-                        "geo-map svo: скрыто %d кружков дальше 25 км от фронта (тёзки геокодинга)",
+                        "geo-map svo: скрыто %d кружков вне заливки (отклонены проверками синка)",
                         _before - len(claimed_features))
             except Exception:  # noqa: BLE001 — фильтр не должен ронять карту
                 pass

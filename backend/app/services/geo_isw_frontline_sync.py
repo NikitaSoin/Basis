@@ -116,6 +116,44 @@ _MAX_FRONT_DISTANCE_KM = 25.0
 # источник Орехова не заявлял, ISW его контроль не подтверждает.
 _CITIES_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))), "config", "geo_svo_cities.json")
+# Водные барьеры (Днепр, config/geo_svo_rivers.json): пункт на другом берегу к массе
+# контроля не присоединяется, «крышка» через реку не рисуется (владелец, 2026-09-14:
+# «взятая деревушка севернее Днепра, куда ВС РФ не заходят — ни одна сторона там не
+# форсирует»). Захват через реку возможен только как плацдарм, а его ISW покажет сам.
+_RIVERS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))), "config", "geo_svo_rivers.json")
+_BARRIER_GAP_KM = 1.0   # зазор «крышки» от русла: заливка не должна касаться другого берега
+# Приграничный пункт считается правдоподобным, только если он у самой границы: наступление
+# с территории РФ идёт на километры, а не на десятки (Волчанск 5 км, Казачья Лопань 3 км,
+# Гоптовка 2 км). 25-километровый порог от «плацдарма» пропускал тёзок под Харьковом
+# (владелец, 2026-09-14: «взятый населённый пункт практически рядом с Харьковом»).
+_MAX_BORDER_DISTANCE_KM = 12.0
+# Цепочка от уже принятого пункта: продвижение от границы идёт полосой сёл, каждое
+# следующее в нескольких км от предыдущего.
+_CHAIN_KM = 8.0
+
+
+def load_barriers():
+    """Днепр как shapely-геометрия (MultiLineString) или None, если файла нет —
+    барьер вторичен, синк обязан работать и без него."""
+    try:
+        from shapely.geometry import shape
+        from shapely.ops import unary_union
+        with open(_RIVERS_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+        geoms = [shape(ft["geometry"]) for ft in data.get("features", []) if ft.get("geometry")]
+        return unary_union(geoms) if geoms else None
+    except Exception:  # noqa: BLE001
+        logger.warning("Водные барьеры не прочитаны — правило «через реку» пропущено", exc_info=True)
+        return None
+
+
+def _crosses_barrier(a, b, barrier) -> bool:
+    """Пересекает ли отрезок a→b барьер (реку)."""
+    if barrier is None or barrier.is_empty:
+        return False
+    from shapely.geometry import LineString
+    return LineString([a, b]).intersects(barrier)
 
 
 def _load_protected_cities() -> tuple[list[dict], float]:
@@ -326,27 +364,34 @@ def candidates_as_of(cands: list[dict], day_iso: str) -> list[dict]:
     return out
 
 
-def _gazetteer_resolve(name, oblast, near=None, hint=None) -> dict:
+def _gazetteer_resolve(name, oblast, near=None, hint=None, barrier=None) -> dict:
     """Тонкая обёртка над справочником НП — чтобы тесты подменяли, а отсутствие
     файла не роняло синк."""
     try:
         from app.services.geo_gazetteer import resolve
-        return resolve(name, oblast, near=near, hint=hint)
+        return resolve(name, oblast, near=near, hint=hint, barrier=barrier)
     except Exception:  # noqa: BLE001
         logger.warning("Справочник НП недоступен — правило 0 пропущено", exc_info=True)
         return {"status": "no_gazetteer", "candidates": 0}
 
 
-def validate_candidates(out: list[dict], control_mass=None, *, quiet: bool = False) -> list[dict]:
+def validate_candidates(out: list[dict], control_mass=None, *, border_mass=None, barrier=None,
+                        quiet: bool = False) -> list[dict]:
     """Проверки кандидата на правдоподобие — ОДНИ И ТЕ ЖЕ для живой заливки
     (absorb_candidates) и для помесячной реконструкции ряда (изохрона): иначе
     «сегодня» и «конец прошлого месяца» считались бы по разным правилам, и
     дельта текущего месяца мерила бы разницу правил, а не движение фронта.
-    control_mass — масса, от которой считается «рядом с фронтом» (для прошлых
-    месяцев — архивный срез ISW того месяца плюс приграничные области РФ)."""
+    control_mass — масса контроля ISW, от которой считается «рядом с фронтом»
+    (для прошлых месяцев — архивный срез того месяца); border_mass — приграничные
+    области РФ (для них свой, короткий порог); barrier — реки, через которые
+    присоединение не идёт."""
     from shapely.geometry import Point
+    from shapely.ops import nearest_points, unary_union
 
     log = (lambda *a, **k: None) if quiet else logger.warning
+    near_mass = control_mass
+    if control_mass is not None and border_mass is not None and not border_mass.is_empty:
+        near_mass = unary_union([control_mass, border_mass])
 
     # Правило 0 (владелец, 2026-09-14): координата пункта из ленты/заявлений —
     # по СПРАВОЧНИКУ населённых пунктов (имя + область; при тёзках — район и
@@ -360,7 +405,8 @@ def validate_candidates(out: list[dict], control_mass=None, *, quiet: bool = Fal
         if o.get("src") not in ("claimed", "db"):
             resolved.append(o)
             continue
-        hit = _gazetteer_resolve(o.get("name"), o.get("oblast"), near=control_mass, hint=(o["lat"], o["lon"]))
+        hit = _gazetteer_resolve(o.get("name"), o.get("oblast"), near=near_mass, hint=(o["lat"], o["lon"]),
+                                 barrier=barrier)
         st = hit.get("status")
         if st in ("exact", "near_front", "fuzzy"):
             moved_km = Point(o["lon"], o["lat"]).distance(Point(hit["lon"], hit["lat"])) * _KM_PER_DEG_LAT
@@ -422,17 +468,72 @@ def validate_candidates(out: list[dict], control_mass=None, *, quiet: bool = Fal
         out = kept
 
     # Правило 2: пункт может быть «взят», только если он РЯДОМ С ФРОНТОМ —
-    # не дальше _MAX_FRONT_DISTANCE_KM от фактической массы ISW-контроля.
+    # не дальше _MAX_FRONT_DISTANCE_KM от фактической массы ISW-контроля, либо
+    # (приграничье) не дальше _MAX_BORDER_DISTANCE_KM от территории РФ.
+    # Правило 2б: отрезок к ближайшей точке фронта/границы не пересекает реку
+    # (Днепр) — иначе тёзка на другом берегу «присоединяется» через воду.
     if control_mass is not None and not control_mass.is_empty:
-        kept = []
+        has_border = border_mass is not None and not border_mass.is_empty
+
+        def _anchor_for(o):
+            """(точка опоры, км до неё) — масса ISW в пределах порога, иначе граница
+            РФ в пределах своего порога, иначе None."""
+            p = Point(o["lon"], o["lat"])
+            d_km = control_mass.distance(p) * _KM_PER_DEG_LAT
+            if d_km <= _MAX_FRONT_DISTANCE_KM:
+                return nearest_points(control_mass, p)[0], d_km
+            if has_border:
+                d_b = border_mass.distance(p) * _KM_PER_DEG_LAT
+                if d_b <= _MAX_BORDER_DISTANCE_KM:
+                    return nearest_points(border_mass, p)[0], d_b
+            return None, d_km
+
+        kept, pending = [], []
         for o in out:
-            d_km = control_mass.distance(Point(o["lon"], o["lat"])) * _KM_PER_DEG_LAT
-            if d_km > _MAX_FRONT_DISTANCE_KM:
-                log("validate_candidates: ОТКЛОНЁН «%s» (%s) — %.0f км от линии фронта "
-                    "(порог %.0f), взятие в глубине тыла неправдоподобно",
-                    o["name"], o.get("oblast"), d_km, _MAX_FRONT_DISTANCE_KM)
+            p = Point(o["lon"], o["lat"])
+            try:
+                anchor, d_km = _anchor_for(o)
+            except Exception:  # noqa: BLE001
+                anchor, d_km = None, float("inf")
+            if anchor is None:
+                pending.append(o)
+                continue
+            if _crosses_barrier(anchor, p, barrier):
+                log("validate_candidates: ОТКЛОНЁН «%s» (%s) — на другом берегу реки от фронта "
+                    "(%.0f км), через реку не присоединяем", o["name"], o.get("oblast"), d_km)
                 continue
             kept.append(o)
+
+        # Цепочка: пункт дальше порогов, но в _CHAIN_KM от уже принятого, — тоже
+        # принят (фронт от границы идёт полосой: Волчанск → Белый Колодец →
+        # Бакшеевка). Повторяем, пока цепочка растёт. Через реку не тянемся.
+        changed = True
+        while changed and pending:
+            changed = False
+            still = []
+            for o in pending:
+                p = Point(o["lon"], o["lat"])
+                link = None
+                for k in kept:
+                    q = Point(k["lon"], k["lat"])
+                    if p.distance(q) * _KM_PER_DEG_LAT <= _CHAIN_KM and not _crosses_barrier(q, p, barrier):
+                        link = k
+                        break
+                if link is not None:
+                    kept.append(o)
+                    changed = True
+                else:
+                    still.append(o)
+            pending = still
+        for o in pending:
+            p = Point(o["lon"], o["lat"])
+            d_km = control_mass.distance(p) * _KM_PER_DEG_LAT
+            d_b = border_mass.distance(p) * _KM_PER_DEG_LAT if has_border else float("inf")
+            log("validate_candidates: ОТКЛОНЁН «%s» (%s) — %.0f км от линии фронта (порог %.0f), "
+                "%.0f км от границы РФ (порог %.0f), не в цепочке с принятыми (%.0f км) — взятие "
+                "в глубине тыла неправдоподобно",
+                o["name"], o.get("oblast"), d_km, _MAX_FRONT_DISTANCE_KM,
+                d_b if d_b != float("inf") else -1, _MAX_BORDER_DISTANCE_KM, _CHAIN_KM)
         out = kept
 
         # Правило 3: пункт УЖЕ ВНУТРИ линии ISW → вливать нечего, выкидываем.
@@ -451,7 +552,8 @@ def validate_candidates(out: list[dict], control_mass=None, *, quiet: bool = Fal
     return out
 
 
-def absorb_candidates(ukraine_boundary=None, db=None, control_mass=None) -> list[dict]:
+def absorb_candidates(ukraine_boundary=None, db=None, control_mass=None, *, border_mass=None,
+                      barrier=None) -> list[dict]:
     """ВСЕ пункты, которые по данным МО РФ/Рыбаря СЕГОДНЯ под контролем РФ и
     проходят проверки правдоподобия, — для живой заливки карты.
 
@@ -467,7 +569,8 @@ def absorb_candidates(ukraine_boundary=None, db=None, control_mass=None) -> list
     (см. geo_svo_capture_isochrone)."""
     today = datetime.now(timezone.utc).date().isoformat()
     return validate_candidates(
-        candidates_as_of(dated_candidates(ukraine_boundary, db=db), today), control_mass)
+        candidates_as_of(dated_candidates(ukraine_boundary, db=db), today), control_mass,
+        border_mass=border_mass, barrier=barrier)
 
 
 def _point_buffer_km(lat: float, lon: float, radius_km: float):
@@ -521,7 +624,8 @@ def _wedge_absorb(ru_mass, overrides: list[dict], source_mass=None):
     return unary_union([combined, addition]).buffer(0)
 
 
-def _absorb_overrides(ru_mass, overrides: list[dict], source_mass=None, ukraine_boundary=None):
+def _absorb_overrides(ru_mass, overrides: list[dict], source_mass=None, ukraine_boundary=None,
+                      barrier=None):
     """Вливает пункты-оверрайды в массив РФ-контроля «крышкой»: взятый пункт
     закрывает участок фронта, обращённый к нему, ЦЕЛИКОМ.
 
@@ -614,6 +718,13 @@ def _absorb_overrides(ru_mass, overrides: list[dict], source_mass=None, ukraine_
     addition = unary_union(caps).difference(combined) if caps else combined.difference(combined)
     if ukraine_boundary is not None and not addition.is_empty:
         addition = addition.intersection(ukraine_boundary)
+    if barrier is not None and not barrier.is_empty and not addition.is_empty:
+        # «Крышка» не переходит реку: вырезаем русло с зазором, а куски добавления,
+        # оказавшиеся на другом берегу (без связи с массой), отбрасываем.
+        addition = addition.difference(barrier.buffer(_BARRIER_GAP_KM / _KM_PER_DEG_LAT)).buffer(0)
+        parts = list(addition.geoms) if hasattr(addition, "geoms") else [addition]
+        keep = [g for g in parts if not g.is_empty and (g.intersects(combined) or g.distance(combined) < 1e-6)]
+        addition = unary_union(keep) if keep else addition.difference(addition)
 
     # Крышка идёт по фронту на километры и может накрыть город, которого никто не
     # заявлял: так Орехов оказался красным из-за соседних сёл (владелец,
@@ -635,6 +746,14 @@ def _absorb_overrides(ru_mass, overrides: list[dict], source_mass=None, ukraine_
     if ukraine_boundary is not None:
         # Кружок приграничного села тоже не должен лежать в России.
         result = result.intersection(ukraine_boundary).buffer(0)
+    if barrier is not None and not barrier.is_empty:
+        # То же для кружков самих пунктов: всё НАШЕ (сверх массы ISW) режется по руслу,
+        # а куски, оставшиеся на другом берегу без связи с массой, отбрасываются.
+        ours = result.difference(ru_mass).difference(barrier.buffer(_BARRIER_GAP_KM / _KM_PER_DEG_LAT)).buffer(0)
+        parts = list(ours.geoms) if hasattr(ours, "geoms") else [ours]
+        anchor_mass = source if source is not None else ru_mass
+        keep = [g for g in parts if not g.is_empty and (g.intersects(ru_mass) or g.intersects(anchor_mass))]
+        result = unary_union([ru_mass] + keep).buffer(0)
     return result
 
 
@@ -765,9 +884,28 @@ def _smooth_polygon(poly, dist: float = 0.0035):
     return opened.buffer(0)
 
 
+def _fill_new_holes(geom, isw_mass):
+    """Заделывает «котлы», которых нет в самой массе ISW: замкнутые белые дыры
+    внутри заливки появляются только от нашего присоединения (крышки с двух
+    сторон смыкаются вокруг незанятого поля). Владелец (2026-09-14): «на карте
+    как будто котлы». Дыры самой ISW (реальные очаги) не трогаем."""
+    from shapely.geometry import MultiPolygon, Polygon
+    from shapely.ops import unary_union
+
+    isw_holes = [Polygon(r) for g in (isw_mass.geoms if hasattr(isw_mass, "geoms") else [isw_mass])
+                 if g.geom_type == "Polygon" for r in g.interiors]
+    rebuilt = []
+    for g in (geom.geoms if isinstance(geom, MultiPolygon) else [geom]):
+        if g.geom_type != "Polygon":
+            continue
+        keep = [r for r in g.interiors if any(Polygon(r).intersects(h) for h in isw_holes)]
+        rebuilt.append(Polygon(g.exterior, keep))
+    return unary_union(rebuilt).buffer(0) if rebuilt else geom
+
+
 def _compute_frontline(control_fc: dict, ukraine_boundary,
                         overrides: list[dict] | None = None,
-                        source_mass=None) -> tuple[dict, dict]:
+                        source_mass=None, barrier=None) -> tuple[dict, dict]:
     """Возвращает (frontline_geojson, control_fill_geojson). overrides — см.
     load_manual_overrides(): пункты, взятие которых подтверждают МО РФ/Рыбарь
     раньше, чем это отразилось в живом слое ISW. Все они вливаются в
@@ -786,9 +924,12 @@ def _compute_frontline(control_fc: dict, ukraine_boundary,
         raise ValueError("ISW control layer вернул 0 полигонов — не с чем считать линию")
 
     ukraine_boundary = ukraine_boundary.buffer(0)
-    ru_control = _absorb_overrides(unary_union(ru_polys).buffer(0), overrides or [],
-                                    source_mass=source_mass, ukraine_boundary=ukraine_boundary)
+    isw_mass = unary_union(ru_polys).buffer(0)
+    ru_control = _absorb_overrides(isw_mass, overrides or [], source_mass=source_mass,
+                                    ukraine_boundary=ukraine_boundary, barrier=barrier)
     ru_control = _smooth_polygon(ru_control)
+    # сглаживание могло чуть выйти за границу и оставить «котлы» от смыкания крышек
+    ru_control = _fill_new_holes(ru_control.intersection(ukraine_boundary).buffer(0), isw_mass)
 
     control_fill = _control_fill_geojson(ru_control)
 
@@ -871,9 +1012,11 @@ def sync_isw_frontline(db: Session) -> dict:
         # 25 км и повисали без связи с тем, откуда шло продвижение).
         ru_border_land = _load_ru_border_land(ukraine_boundary)
         source_mass = _uu([isw_mass, ru_border_land]) if ru_border_land is not None else isw_mass
-        overrides = absorb_candidates(ukraine_boundary, db=db, control_mass=source_mass)
+        barrier = load_barriers()
+        overrides = absorb_candidates(ukraine_boundary, db=db, control_mass=isw_mass,
+                                      border_mass=ru_border_land, barrier=barrier)
         frontline_fc, control_fill_fc = _compute_frontline(
-            control_fc, ukraine_boundary, overrides=overrides, source_mass=source_mass)
+            control_fc, ukraine_boundary, overrides=overrides, source_mass=source_mass, barrier=barrier)
         if not frontline_fc["features"]:
             raise ValueError("Пересчитанная линия фронта пуста")
 
@@ -910,7 +1053,7 @@ def sync_isw_frontline(db: Session) -> dict:
         try:
             from app.services.geo_svo_capture_isochrone import reported_addition_km2
             reported_area = (None if pure_isw_area is None else pure_isw_area + reported_addition_km2(
-                isw_mass, overrides, source_mass, ukraine_boundary)[0])
+                isw_mass, overrides, source_mass, ukraine_boundary, barrier=barrier)[0])
         except Exception:  # noqa: BLE001
             logger.warning("Площадь по данным МО РФ/Рыбаря не посчитана", exc_info=True)
             reported_area = None

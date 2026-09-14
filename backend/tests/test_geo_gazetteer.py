@@ -35,6 +35,8 @@ ITEMS = [
     # одно село двумя записями: узел и контур (центр контура в 1,5 км)
     {"id": "n12", "n": "Гоптовка", "u": "Гоптівка", "o": "Харьковская", "t": "village", "lat": 50.30, "lon": 36.20},
     {"id": "w13", "n": "Гоптовка", "u": "Гоптівка", "o": "Харьковская", "t": "village", "lat": 50.31, "lon": 36.21},
+    {"id": 14, "n": "Запорожское", "u": "Запорізьке", "o": "Днепропетровская", "t": "village", "lat": 48.05, "lon": 36.35},
+    {"id": 15, "n": "Запорожское", "u": "Запорізьке", "o": "Днепропетровская", "t": "village", "lat": 47.74, "lon": 34.85},
 ]
 
 
@@ -111,7 +113,7 @@ NOVOPAVLOVKA = (47.45, 36.05)
 
 
 def test_синк_берёт_координату_из_справочника_только_для_ленты_и_заявлений(monkeypatch):
-    def fake_resolve(name, oblast, near=None, hint=None):
+    def fake_resolve(name, oblast, near=None, hint=None, **kw):
         if name == "Новопавловка":
             return {"status": "exact", "lat": NOVOPAVLOVKA[0], "lon": NOVOPAVLOVKA[1],
                     "oblast": "Запорожская", "raion": "Пологовский", "candidates": 1}
@@ -179,3 +181,14 @@ def test_старое_имя_по_украински_в_своей_област�
 def test_узел_и_контур_одного_села_не_тёзки(book):
     hit = gz.resolve("Гоптовка", "Харьковская область", gz=book)
     assert hit["status"] == "exact" and hit["osm_id"] == "n12"
+
+
+def test_латиница_из_ленты_ISW_и_английское_название_области(book):
+    assert gz.latin_to_uk("Novomykolaivka") == "новомиколаївка"
+    assert gz.normalize(gz.latin_to_uk("Zaporizke")) == gz.normalize("Запорізьке")
+    assert gz.oblast_key("Dnipropetrovsk") == "днепропетровская"
+    # «Zaporizke (Dnipropetrovsk)» — две тёзки в области; фронт у левобережной выбирает её
+    front = Point(36.4, 48.0).buffer(0.1)
+    hit = gz.resolve("Zaporizke", "Dnipropetrovsk", near=front, gz=book)
+    assert hit["status"] == "near_front" and hit["osm_id"] == 14
+    assert gz.resolve("Novomykolaivka", "Donetsk", gz=book)["osm_id"] == 6

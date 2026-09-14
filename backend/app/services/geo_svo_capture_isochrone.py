@@ -290,7 +290,7 @@ def _months_between(after_month: str, until_month: str) -> list[str]:
     return out
 
 
-def reported_addition_km2(isw_mass, cands: list[dict], source_mass=None, ukraine_boundary=None):
+def reported_addition_km2(isw_mass, cands: list[dict], source_mass=None, ukraine_boundary=None, barrier=None):
     """Сколько км² пункты «по данным МО РФ/Рыбаря» добавляют СВЕРХ массы ISW —
     и сама объединённая геометрия (для ползунка). Площадь меряется той же
     методикой, что pure_isw_area у синка и area_km2 у архивных месяцев (клип по
@@ -308,7 +308,7 @@ def reported_addition_km2(isw_mass, cands: list[dict], source_mass=None, ukraine
     if not cands:
         return 0, base
     merged = _measure(_absorb_overrides(isw_mass, cands, source_mass=source_mass,
-                                        ukraine_boundary=ukraine_boundary))
+                                        ukraine_boundary=ukraine_boundary, barrier=barrier))
     return round(_spherical_km2(merged) - _spherical_km2(base)), merged
 
 
@@ -430,12 +430,13 @@ def _isochrone_from_real_history(control_fill_geojson: dict,
     # РФ) — один раз на весь ряд; отбор на дату — по месяцам ниже.
     try:
         from app.services.geo_isw_frontline_sync import (
-            dated_candidates, candidates_as_of, validate_candidates, _load_ru_border_land)
+            dated_candidates, candidates_as_of, validate_candidates, _load_ru_border_land, load_barriers)
         cands = dated_candidates(ukraine_boundary, db=db)
         ru_border = _load_ru_border_land(ukraine_boundary) if ukraine_boundary is not None else None
+        barrier = load_barriers()
     except Exception:  # noqa: BLE001 — без заявлений ряд остаётся чисто ISW-шным
         logger.warning("Изохрона: пункты МО РФ/Рыбаря не собраны — ряд только по ISW", exc_info=True)
-        cands, ru_border = [], None
+        cands, ru_border, barrier = [], None, None
         candidates_as_of = validate_candidates = None
 
     def reported_for(isw_geom, month_end: str, isw_area):
@@ -445,9 +446,10 @@ def _isochrone_from_real_history(control_fill_geojson: dict,
         if not cands:
             return isw_area, 0, isw_geom  # заявлений нет вовсе — наш ряд совпадает с ISW
         source = unary_union([isw_geom, ru_border]) if ru_border is not None else isw_geom
-        cs = validate_candidates(candidates_as_of(cands, month_end), source, quiet=True)
+        cs = validate_candidates(candidates_as_of(cands, month_end), isw_geom,
+                                 border_mass=ru_border, barrier=barrier, quiet=True)
         addition, merged = reported_addition_km2(isw_geom, cs, source_mass=source,
-                                                 ukraine_boundary=ukraine_boundary)
+                                                 ukraine_boundary=ukraine_boundary, barrier=barrier)
         return isw_area + addition, len(cs), (merged if cs else isw_geom)
 
     # (month, month_end, isw_area, geometry_geojson, tag, reported_area, reported_points)
