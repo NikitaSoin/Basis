@@ -98,3 +98,26 @@ def test_карточка_полки_не_кричит_о_недоступнос
     card = shelf_card()
     assert "НЕДОСТУПНА" not in card, "полка отдаёт агенту методичку-пустышку"
     assert len(card) < 30_000, "карточка полки распухла — агент получит стену текста"
+
+
+def test_часть_открывается_целиком():
+    """До 2026-09-14 «Часть 8» отдавала 51 знак — обложку без подразделов."""
+    got = read_section("geo_base", "Часть 8")
+    assert not got.get("error") and len(got["текст"]) > 8000
+    assert got["подразделов"] >= 20 and got["вошли"] and "8.1" in {i["раздел"] for i in got["вошли"]}
+    small = read_section("code", "Часть 2")
+    assert not small.get("error") and "Типовые ошибки" in small["название"]
+
+
+def test_буквенный_суффикс_номера_различается():
+    a, b = read_section("geo_base", "8.17"), read_section("geo_base", "8.17а")
+    assert a["раздел"] == "8.17" and b["раздел"] == "8.17а" and len(b["текст"]) > len(a["текст"])
+    ids = [str(i["раздел"]) for i in outline("geo_base")["оглавление"]]
+    assert len(ids) == len(set(ids)), "дубли номеров в оглавлении"
+
+
+def test_карточка_полки_с_названиями_частей():
+    card = shelf_card(["geo_base"])
+    assert "Модуль анализа вооружённого конфликта" in card and "8.1–8.30" in card
+    from app.services.handoffs import ALL_SHELF
+    assert len(shelf_card(ALL_SHELF)) < 30_000

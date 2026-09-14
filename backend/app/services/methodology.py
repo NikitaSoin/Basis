@@ -51,6 +51,12 @@ _DOCS = os.path.join(_REPO, "docs")
 # «обрезано» остаётся как страховка на случай ещё более длинных. Защита от
 # зацикливания — не здесь, а в бюджете и капах цикла (analyst.run / scout.run).
 _MAX_SECTION_CHARS = 40_000
+# 🔴 «Часть N» открывается ЦЕЛИКОМ (обложка + подразделы) до этого предела; остальные
+# подразделы перечисляются с размерами, чтобы агент дочитал по номерам. До 2026-09-14
+# запрос «Часть 8» отдавал 51 знак — заголовок и пустую строку — потому что парсер
+# режет текст по любому заголовку; агент открывал часть, на которую ссылается
+# методичка, и получал пустоту без ошибки (в логах: «macro_base:Часть 2», «geo_inst:Часть 6»).
+_MAX_PART_CHARS = 24_000
 
 
 class MethodologyDoc:
@@ -272,7 +278,10 @@ def _sections(text: str) -> list[tuple[str, str, int, int]]:
         # 🔴 Регистр заголовка частей у методичек разный («ЧАСТЬ 3» и «Часть 3»).
         # Без IGNORECASE часть просто не получала номера и становилась
         # неадресуемой: агент видел её в оглавлении, но открыть по номеру не мог.
-        m = re.match(r"^(\d+\.\d+|ЧАСТЬ\s+\d+)\.?\s*(.*)$", clean, re.IGNORECASE)
+        # 🔴 Буквенный суффикс («8.17а») — часть номера: без него два раздела
+        # сливались в один «8.17», и более важный (3,7 тыс. знаков про
+        # беспилотники) был достижим только поиском по подстроке (ревью 2026-09-14).
+        m = re.match(r"^(\d+\.\d+[а-яa-z]?|ЧАСТЬ\s+\d+)\.?\s*(.*)$", clean, re.IGNORECASE)
         num = m.group(1) if m else ""
         out.append((num, clean, pos, end))
     return out
@@ -328,11 +337,45 @@ def read_section(doc_id: str, section: str) -> dict:
                 "есть": [n or t for n, t, _, _ in secs][:40]}
 
     num, title, pos, end = hit
+    if num and num.lower().startswith("часть"):
+        return _read_part(doc, text, secs, hit)
     body = text[pos:end]
     truncated = len(body) > _MAX_SECTION_CHARS
     return {"методичка": doc.title, "раздел": num or title, "название": title,
             "текст": body[:_MAX_SECTION_CHARS],
             "обрезано": truncated}
+
+
+def _read_part(doc: "MethodologyDoc", text: str, secs: list, hit: tuple) -> dict:
+    """Часть целиком: обложка + подразделы до следующей части, в пределах
+    _MAX_PART_CHARS; что не вошло — списком с номерами и размерами."""
+    num, title, pos, end = hit
+    idx = next(i for i, sec in enumerate(secs) if sec[2] == pos)
+    span_end = len(text)
+    subs: list[tuple[str, str, int, int]] = []
+    for n2, t2, p2, e2 in secs[idx + 1:]:
+        if n2 and n2.lower().startswith("часть"):
+            span_end = p2
+            break
+        subs.append((n2, t2, p2, e2))
+    parts = [text[pos:end]]
+    used = len(parts[0])
+    included, skipped = [], []
+    for n2, t2, p2, e2 in subs:
+        piece = text[p2:e2]
+        if used + len(piece) <= _MAX_PART_CHARS:
+            parts.append(piece); used += len(piece)
+            included.append({"раздел": n2 or t2, "название": t2, "знаков": e2 - p2})
+        else:
+            skipped.append({"раздел": n2 or t2, "название": t2, "знаков": e2 - p2})
+    out = {"методичка": doc.title, "раздел": num, "название": title,
+           "текст": "".join(parts), "подразделов": len(subs),
+           "вошли": included, "обрезано": bool(skipped)}
+    if skipped:
+        out["не_вошли"] = skipped
+        out["подсказка"] = ("часть длиннее лимита: остальные подразделы открой по номеру "
+                           "(read_methodology_section с section=«N.M»)")
+    return out
 
 
 def shelf_card(doc_ids: list[str] | None = None) -> str:
@@ -364,12 +407,40 @@ def shelf_card(doc_ids: list[str] | None = None) -> str:
         if info.get("error"):
             lines.append(f"\n• {doc_id} — {doc.title}: ⚠ НЕДОСТУПНА ({info['error']})")
             continue
-        names = [str(i["раздел"]) for i in info["оглавление"]]
         lines.append(f"\n• id={doc_id} — {doc.title}")
         lines.append(f"  Когда открывать: {doc.when_to_use}")
-        lines.append(f"  Разделы: {', '.join(names)}")
+        lines.extend(_card_sections(info["оглавление"]))
     lines.append("===== КОНЕЦ ПОЛКИ =====\n")
     return "\n".join(lines)
+
+
+def _card_sections(items: list[dict]) -> list[str]:
+    """Строки карточки полки. Голые номера («8.1, 8.2, …») ничего не говорили агенту
+    о содержании (ревью 2026-09-14): теперь части идут С НАЗВАНИЕМ и диапазоном
+    подразделов, а документы без частей — номер + короткое название."""
+    parts: list[tuple[str, str, list[str]]] = []
+    loose: list[str] = []
+    for it in items:
+        num, title = str(it.get("раздел") or ""), str(it.get("название") or "")
+        if num.lower().startswith("часть"):
+            parts.append((num, title, []))
+        elif parts and re.match(r"^\d+\.\d+", num):
+            parts[-1][2].append(num)
+        elif re.match(r"^\d+\.\d+", num):
+            loose.append(f"{num} {title[:40]}")
+        elif not parts and num == title and len(loose) < 25 and not title.lower().startswith(("оглавление", "преамбула")):
+            loose.append(title[:50])
+    out: list[str] = []
+    if len(parts) >= 3:
+        for num, title, subs in parts:
+            rng = (f"{subs[0]}–{subs[-1]} ({len(subs)} шт.)" if len(subs) > 1 else (subs[0] if subs else "без подразделов"))
+            short = title.split(".", 1)[-1].strip() if title.lower().startswith("часть") else title
+            out.append(f"  {num}. {short[:70]} — {rng}")
+        if loose:
+            out.append("  Прочее: " + "; ".join(loose[:8]))
+    else:
+        out.append("  Разделы: " + "; ".join(loose[:40]))
+    return out
 
 
 def core(doc_id: str, sections: list[str], header: str = "") -> str:
