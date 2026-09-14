@@ -327,6 +327,12 @@ def run(db: Session, only: list[str] | None = None, mode: str = "single") -> Bar
         else:
             diag.append("ответа нет")
         item["finished_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        if item.get("answer"):
+            try:
+                from app.services.forecast_journal import record
+                record(db, "probe", {**item["answer"], "as_of": date.today().isoformat(), "id": q["id"]}, row.id)
+            except Exception as e:  # noqa: BLE001
+                logger.warning("forecast_journal(probe): %s", e)
         logger.warning("probe[%s]: ответ %s, оценка %s, заметки: %s", q["id"], bool(item["answer"]),
                        ((item.get("judge") or {}).get("scores")), " | ".join(diag)[:300])
         items.append(item)

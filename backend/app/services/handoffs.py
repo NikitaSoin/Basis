@@ -350,6 +350,88 @@ MANDATE_INST = """
 
 MANDATES = {"geo": MANDATE_GEO, "macro": MANDATE_MACRO, "inst_state": MANDATE_INST}
 
+# ─────────────── геополитический снимок по новым методичкам (Г 12.1 + ИГ Часть 2) ───────────────
+# 🔴 Владелец (2026-09-14): старый формат сводки (13 показателей, S1–S4) — из прежней геосистемы;
+# новые методички требуют снимок по Г 12.1 (четырнадцать блоков) и карты решений по ИГ 2.2–2.6.
+# Поле geo_snapshot добавляется РЯДОМ со старыми полями: потребители старого формата (витрина,
+# карточки, сценарные сдвиги) не трогаются, пока не переедут. Пропавший блок переносится со вчера.
+GEO_SNAPSHOT_BLOCKS: list[tuple[str, str]] = [
+    ("system", "1. Международная система: полярность, центры силы, региональные подсистемы"),
+    ("country_position", "2. Положение страны: ресурсы, зависимости, союзы, уязвимости"),
+    ("regime", "3. Внутренний режим: кто принимает решения и какова цена ошибки"),
+    ("actors", "4. Акторы: кто реально влияет"),
+    ("goals", "5. Цели: что хочет каждая сторона"),
+    ("mental_models", "6. Ментальные модели: как стороны понимают ситуацию"),
+    ("conflict", "7. Текущий конфликт: что происходит объективно"),
+    ("military_balance", "8. Военный баланс: кто чем располагает и как меняется соотношение"),
+    ("time_balance", "9. Временной баланс: на чьей стороне время"),
+    ("negotiation_balance", "10. Переговорный баланс: какие условия соглашения достижимы"),
+    ("scenarios", "11. Сценарии: вероятные траектории с триггерами"),
+    ("risks", "12. Риски: что может неожиданно изменить траекторию"),
+    ("macro_effect", "13. Макроэкономический эффект: торговля, сырьё, капитал, курс, инфляция, бюджет, инвестиции, потенциал"),
+    ("institutional_effect", "14. Институциональный эффект: силовой блок, исполнительная власть, гражданские институты, госприсутствие, собственность, конкуренция, коалиция"),
+]
+GEO_SNAPSHOT_MARKS = ("факт", "оценка", "гипотеза", "сценарий")
+DECISION_MAPS: list[tuple[str, str]] = [
+    ("A_decisions", "A. Архитектура принятия внешнеполитических решений (ИГ 2.2)"),
+    ("B_resources", "B. Ресурсы (ИГ 2.3)"),
+    ("C_interests", "C. Интересы (ИГ 2.4)"),
+    ("D_dependencies", "D. Внешние зависимости (ИГ 2.5)"),
+    ("E_links", "E. Международные связи (ИГ 2.6)"),
+]
+
+GEO_SNAPSHOT_SPEC = (
+    "\n===== ГЕОПОЛИТИЧЕСКИЙ СНИМОК ПО МЕТОДИЧКЕ (Г 12.1 + ИГ Часть 2) — поле geo_snapshot, обязательно =====\n"
+    "Помимо прежних полей верни \"geo_snapshot\": {\"as_of\": <дата>, \"blocks\": [ {\"key\": <ровно один из: "
+    + ", ".join(k for k, _ in GEO_SNAPSHOT_BLOCKS) + ">, \"title\": <соответственно>, "
+    "\"text\": <плотно, с датами и числами, 3–8 предложений>, \"mark\": <" + "|".join(GEO_SNAPSHOT_MARKS) + ">, "
+    "\"delta_vs_prev\": <что изменилось со вчера или «без изменений»>} ] — все четырнадцать блоков, "
+    "\"decision_maps\": { <актор: россия|украина|сша|ес|китай|турция|…>: { "
+    + ", ".join(f"\"{k}\"" for k, _ in DECISION_MAPS) + " } } — карты по ИГ 2.2–2.6 для сторон конфликта и "
+    "ключевых внешних игроков (кто решает, ресурсы, интересы, зависимости, связи; статус Ф/Д/В/Г у утверждений) }.\n"
+    "Названия блоков: " + "; ".join(t for _, t in GEO_SNAPSHOT_BLOCKS) + ".\n"
+    "🔴 Это снимок ПО НОВЫМ методичкам, он не заменяет пока прежние поля витрины (subindices, scenario, regions) — "
+    "заполняй и то и другое; снимок — аналитическое ядро, витрина — потребитель.\n"
+)
+
+
+def geo_snapshot_gate(fresh: dict, prev: dict | None) -> list[str]:
+    """Каркас снимка держит код: четырнадцать блоков, маркировка из списка, пропавший блок — со
+    вчера (как у состояния экономики), отсутствие снимка целиком — заметка, не отклонение."""
+    notes: list[str] = []
+    snap = fresh.get("geo_snapshot")
+    prev_snap = (prev or {}).get("geo_snapshot") if isinstance(prev, dict) else None
+    if not isinstance(snap, dict) or not isinstance(snap.get("blocks"), list):
+        if isinstance(prev_snap, dict):
+            fresh["geo_snapshot"] = dict(prev_snap); fresh["geo_snapshot"]["carried_over"] = True
+            notes.append("geo_snapshot: не вернулся — перенесён со вчера целиком")
+        else:
+            notes.append("geo_snapshot: отсутствует (Г 12.1) — снимок по новым методичкам не собран")
+        return notes
+    have = {b.get("key"): b for b in snap["blocks"] if isinstance(b, dict)}
+    prev_have = {b.get("key"): b for b in ((prev_snap or {}).get("blocks") or []) if isinstance(b, dict)}
+    rebuilt = []
+    for key, title in GEO_SNAPSHOT_BLOCKS:
+        b = have.get(key)
+        if b is None and key in prev_have:
+            b = dict(prev_have[key]); b["carried_over"] = True
+            notes.append(f"geo_snapshot.{key}: блок не вернулся — перенесён со вчера")
+        if b is None:
+            b = {"key": key, "title": title, "text": None, "mark": "гипотеза", "data_flag": "нет данных в этом прогоне"}
+            notes.append(f"geo_snapshot.{key}: блока нет ни сейчас, ни раньше — пустая заготовка")
+        b.setdefault("key", key); b.setdefault("title", title)
+        if b.get("mark") not in GEO_SNAPSHOT_MARKS:
+            b["mark"] = "оценка"; notes.append(f"geo_snapshot.{key}: маркировка не из списка → «оценка»")
+        rebuilt.append(b)
+    snap["blocks"] = rebuilt
+    if not isinstance(snap.get("decision_maps"), dict) or not snap["decision_maps"]:
+        if isinstance(prev_snap, dict) and prev_snap.get("decision_maps"):
+            snap["decision_maps"] = prev_snap["decision_maps"]
+            notes.append("geo_snapshot.decision_maps: не вернулись — перенесены со вчера")
+        else:
+            notes.append("geo_snapshot.decision_maps: пусто (ИГ 2.2–2.6)")
+    return notes
+
 
 def mandate_block(contour: str) -> str:
     """Общий мандат + обязательные вопросы контура — в системное задание аналитика."""

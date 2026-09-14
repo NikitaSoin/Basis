@@ -17,6 +17,7 @@ from app.models.chronicle import ChronicleEntry
 from app.models.source_pool import DiscoveredSource
 from app.models.payment import Payment
 from app.models.quality_run import QualityRun, QualityFinding
+from app.models.forecast_journal import ForecastEntry
 from app.models.lessons import AgentLesson
 
 __all__ = [

@@ -105,6 +105,22 @@ def _mandate_prompt() -> str:
         return ""
 
 
+def _snapshot_spec() -> str:
+    try:
+        from app.services.handoffs import GEO_SNAPSHOT_SPEC
+        return GEO_SNAPSHOT_SPEC
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def _snapshot_gate(fresh: dict, prev: dict) -> list[str]:
+    try:
+        from app.services.handoffs import geo_snapshot_gate
+        return geo_snapshot_gate(fresh, prev)
+    except Exception:  # noqa: BLE001
+        return []
+
+
 def _situation_gate(fresh: dict) -> list[str]:
     try:
         from app.services.handoffs import situation_gate_notes
@@ -675,6 +691,7 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
         # про ситуацию в целом — удары и их перспектива, ход боевых действий, стороны и
         # их функции полезности, внешние игроки и электоральные циклы. Мягко.
         + _mandate_prompt()
+        + _snapshot_spec()
         + "\nИсточник и роль у статей ленты даны для взвешивания надёжности и позиции; "
           "в текст витрины названия источников не выносить.\n"
     )
@@ -737,10 +754,10 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
             # цена курса, точки исчерпания. Барометр оценивает длительность
             # сценариев, а до сих пор делал это без методики выносливости.
             shelf_docs=__import__("app.services.handoffs", fromlist=["ALL_SHELF"]).ALL_SHELF,   # все методички, включая чужие
-            max_steps=14, budget=2_500_000, final_max_tokens=48_000,
+            max_steps=14, budget=2_500_000, final_max_tokens=64_000,
             final_instruction="Верни JSON строго в формате из твоей роли (ключи "
                               "as_of, subindices, scenario, regions, sector_flags, "
-                              "watchlist_30d, summary, methodology_used).",
+                              "watchlist_30d, summary, geo_snapshot, methodology_used).",
             label="barometer_daily", notes=_diag)
         if fresh is None:
             raise llm.LLMError("аналитик не вернул валидный барометр. "
@@ -791,7 +808,7 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
     _drop_scores(fresh)
 
     fresh, notes = _gate(fresh, prev)
-    notes = carried + notes + _handoff_gate(fresh) + _situation_gate(fresh)
+    notes = carried + notes + _handoff_gate(fresh) + _situation_gate(fresh) + _snapshot_gate(fresh, prev)
     fresh = _sanitize_sources(fresh)
 
     ok, why = compliance_ok(fresh)
@@ -826,4 +843,15 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
     db.add(row); db.commit(); db.refresh(row)
     logger.info("barometer_daily: барометр пересобран (версия #%d, заметок гейта: %d)",
                 row.id, len(notes))
+    if mode != "draft":
+        _journal(db, "geo", fresh, row.id)
     return row
+
+
+def _journal(db, source: str, payload: dict, version_id: int) -> None:
+    """Журнал прогнозов (протокол 2.5): запись в момент публикации. Мягко."""
+    try:
+        from app.services.forecast_journal import record
+        record(db, source, payload, version_id)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("forecast_journal(%s): %s", source, e)

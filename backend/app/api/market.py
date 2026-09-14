@@ -979,6 +979,16 @@ def market_macro_state(db: Session = Depends(get_db)):
     return JSONResponse(content=payload)
 
 
+@router.get("/market/forecast-journal")
+def market_forecast_journal(status: str | None = None, source: str | None = None, limit: int = 100,
+                            db: Session = Depends(get_db)):
+    """Журнал прогнозов (протокол владельца 2.5/10.3): что предсказано, с какой вероятностью,
+    когда пересмотреть, что произошло, урок; калибровка по источникам (средняя вероятность
+    против доли сбывшихся)."""
+    from app.services.forecast_journal import listing
+    return JSONResponse(content=listing(db, status=status, source=source, limit=limit))
+
+
 @router.get("/market/council")
 def market_council(format: str = "json", version_id: int | None = None, db: Session = Depends(get_db)):
     """Совет агентов-методичек (lens_council.py): сведение + взгляды каждого агента.

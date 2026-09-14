@@ -64,6 +64,12 @@ def _probe_questions(db, p):
     return run(db, only=only or None, mode=str(p.get("mode") or "single"))
 
 
+def _forecast_review(db, p):
+    """Сверка журнала прогнозов с фактом по наступившим срокам (протокол 10.3)."""
+    from app.services.forecast_journal import review_due
+    return review_due(db, limit=int(p.get("limit") or 40))
+
+
 def _council(db, p):
     """Совет агентов-методичек на произвольный вопрос (владелец 2026-09-14)."""
     from app.services.lens_council import run_council
@@ -199,6 +205,7 @@ def _stress_interpretation(db, p):
 REGISTRY: dict[str, Callable[[Any, dict], Any]] = {
     "probe_questions": _probe_questions,
     "council": _council,
+    "forecast_review": _forecast_review,
     "evening_pipeline": _evening_pipeline,
     "critic": _critic,
     "cross_review": _cross_review,

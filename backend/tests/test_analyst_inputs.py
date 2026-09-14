@@ -53,3 +53,22 @@ def test_мандат_в_системных_заданиях_и_гейт():
     full_svo = {"regions": {"svo": {"situation": {**ok["situation"], "strikes": {"period": "a"},
                                                   "battlefield": {"direction": "b"}}}}}
     assert handoffs.situation_gate_notes(full_svo, "geo") == []
+
+
+def test_геоснимок_по_новым_методичкам_в_задании_и_гейте():
+    from app.services import handoffs as h
+    assert "geo_snapshot" in bd._snapshot_spec() and "military_balance" in bd._snapshot_spec()
+    blocks = [{"key": k, "title": t, "text": "x", "mark": "факт"} for k, t in h.GEO_SNAPSHOT_BLOCKS]
+    fresh = {"geo_snapshot": {"blocks": blocks[:-2] + [{"key": "risks", "text": "y", "mark": "странно"}],
+                              "decision_maps": {"россия": {"A_decisions": "..."}}}}
+    prev = {"geo_snapshot": {"blocks": blocks, "decision_maps": {"россия": {}}}}
+    notes = h.geo_snapshot_gate(fresh, prev)
+    keys = [b["key"] for b in fresh["geo_snapshot"]["blocks"]]
+    assert keys == [k for k, _ in h.GEO_SNAPSHOT_BLOCKS]                      # порядок и полнота держит код
+    assert any("institutional_effect" in n and "со вчера" in n for n in notes)  # пропавший блок перенесён
+    assert next(b for b in fresh["geo_snapshot"]["blocks"] if b["key"] == "risks")["mark"] == "оценка"
+    empty = {}
+    assert h.geo_snapshot_gate(empty, None) and "geo_snapshot" not in empty
+    empty2 = {}
+    h.geo_snapshot_gate(empty2, prev)
+    assert empty2["geo_snapshot"].get("carried_over") is True

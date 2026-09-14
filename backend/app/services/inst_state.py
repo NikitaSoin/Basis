@@ -517,6 +517,12 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
                            model_used=f"{llm.provider_info().get('provider')}:{llm.pro_model()}")
     db.add(row); db.commit(); db.refresh(row)
     logger.info("inst_state: снимок пересобран (версия #%d, заметок гейта: %d)", row.id, len(notes))
+    if mode != "draft":
+        try:
+            from app.services.forecast_journal import record
+            record(db, "inst_state", fresh, row.id)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("forecast_journal(%s): %s", KIND, e)
     return row
 
 

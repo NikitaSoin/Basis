@@ -1633,6 +1633,24 @@ async def _consistency_job():
         logger.exception("Ошибка сверки противоречий: %s", e)
 
 
+async def _forecast_review_job():
+    """ЖУРНАЛ ПРОГНОЗОВ (протокол владельца 2.5/10.3): раз в неделю сверить прогнозы с
+    наступившим сроком с фактами из потока, статусы и уроки — в базу уроков контура."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.forecast_journal import review_due
+        db = SessionLocal()
+        try:
+            return review_due(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Сверка журнала прогнозов: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка сверки журнала прогнозов: %s", e)
+
+
 async def _probe_questions_job():
     """КОНТРОЛЬНЫЕ ВОПРОСЫ ВЛАДЕЛЬЦА (2026-09-13): еженедельный экзамен агентской системы —
     семь системных вопросов про текущую ситуацию, ответы старших аналитиков, оценка
@@ -2029,7 +2047,8 @@ def register_jobs(scheduler) -> None:
         scheduler.add_job(_with_heartbeat("situation_overlay", _situation_overlay_job), "cron", hour=21, minute=20, id="situation_overlay")  # оверлей ситуации гео/институты — после geopolitics (тот же дневной digest)
         scheduler.add_job(_with_heartbeat("barometer_reviser", _barometer_reviser_job), "cron", hour=21, minute=40, id="barometer_reviser")  # ревизор ИНСТИТУТОВ (гео ушёл на barometer_daily) — после оверлея (его вердикт = триггер); cooldown 5 дней внутри
         scheduler.add_job(_with_heartbeat("evening_pipeline", _evening_pipeline_job), "cron", hour=21, minute=50, id="evening_pipeline")  # ВЕЧЕРНЯЯ СБОРКА: черновики → опрос → сверка → проверка → доработка → публикация → итог
-        scheduler.add_job(_with_heartbeat("probe_questions", _probe_questions_job), "cron", day_of_week="sun", hour=0, minute=30, id="probe_questions")  # КОНТРОЛЬНЫЕ ВОПРОСЫ ВЛАДЕЛЬЦА — еженедельный экзамен аналитиков; ночью после субботней вечерней сборки, чтобы днём не задевать сайт (инцидент 2026-09-14)
+        scheduler.add_job(_with_heartbeat("probe_questions", _probe_questions_job), "cron", day_of_week="sun", hour=0, minute=30, id="probe_questions")
+        scheduler.add_job(_with_heartbeat("forecast_review", _forecast_review_job), "cron", day_of_week="sun", hour=3, minute=30, id="forecast_review")  # ЖУРНАЛ ПРОГНОЗОВ — недельная сверка с фактом (протокол владельца 2.5/10.3)  # КОНТРОЛЬНЫЕ ВОПРОСЫ ВЛАДЕЛЬЦА — еженедельный экзамен аналитиков; ночью после субботней вечерней сборки, чтобы днём не задевать сайт (инцидент 2026-09-14)
         # scheduler.add_job(_with_heartbeat("barometer_daily", _barometer_daily_job), "cron", hour=21, minute=50, id="barometer_daily")  # ← заменено вечерней сборкой 2026-09-13
         # scheduler.add_job(_with_heartbeat("macro_state", _macro_state_job), "cron", hour=22, minute=15, id="macro_state")  # СОСТОЯНИЕ ЭКОНОМИКИ (пункт 2, 2026-09-13) — после гео-барометра: его сценарии входят ребром «гео → макро»  # ЕЖЕДНЕВНАЯ полная пересборка гео-барометра DeepSeek (владелец 2026-08-01) — последней в цепочке гео: digest(:10 ежечасно) → geopolitics(21:00) → overlay(21:20) → reviser inst(21:40) → сюда  # ← заменено вечерней сборкой 2026-09-13
         # scheduler.add_job(_with_heartbeat("inst_state", _inst_state_job), "cron", hour=22, minute=35, id="inst_state")  # ИНСТИТУЦИОНАЛЬНЫЙ СНИМОК (владелец 2026-09-13) — после макро-состояния  # ← заменено вечерней сборкой 2026-09-13

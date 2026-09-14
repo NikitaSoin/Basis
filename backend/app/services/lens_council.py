@@ -481,6 +481,11 @@ def run_council(db: Session, task: str, *, lenses: list[str] | None = None, para
                                payload=payload, trigger_reason=label[:120], model_used=payload["model"])
         db.add(row); db.commit(); db.refresh(row)
         payload["version_id"] = row.id
+        try:
+            from app.services.forecast_journal import record
+            record(db, "council", payload, row.id)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("forecast_journal(council): %s", e)
     logger.warning("council[%s]: готово за %.0f с, сведение %s", label, payload["seconds"], "есть" if synthesis else "НЕТ")
     return payload
 
