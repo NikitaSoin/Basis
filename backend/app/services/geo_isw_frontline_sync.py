@@ -248,12 +248,15 @@ def dated_candidates(ukraine_boundary=None, db=None) -> list[dict]:
 
     out: list[dict] = []
 
-    def add(name, oblast, lat, lon, radius_km, *, date=None, transitions=None):
+    def add(name, oblast, lat, lon, radius_km, *, src, date=None, transitions=None):
         if lat is None or lon is None:
             return
         if ukraine_boundary is not None and not ukraine_boundary.contains(Point(lon, lat)):
             return
-        cand = {"name": name, "oblast": oblast, "lat": lat, "lon": lon, "radius_km": radius_km}
+        # src — откуда пункт: override|timeline|claimed|db. Нужен правилу 0
+        # (привязка по справочнику НП): координаты ручных оверрайдов и хронологии
+        # выверены руками, их не трогаем; ленту и заявления — сверяем.
+        cand = {"name": name, "oblast": oblast, "lat": lat, "lon": lon, "radius_km": radius_km, "src": src}
         if transitions:
             cand["transitions"] = transitions
         else:
@@ -262,7 +265,7 @@ def dated_candidates(ukraine_boundary=None, db=None) -> list[dict]:
 
     for o in load_manual_overrides():
         add(o.get("name"), o.get("oblast"), o.get("lat"), o.get("lon"), o.get("radius_km", 3),
-            date=o.get("claimed_date"))
+            src="override", date=o.get("claimed_date"))
 
     for path, reader in ((_TIMELINE_PATH, "timeline"), (_CLAIMED_PATH, "claimed")):
         if not os.path.exists(path):
@@ -280,11 +283,11 @@ def dated_candidates(ukraine_boundary=None, db=None) -> list[dict]:
                 if not transitions:
                     continue
                 add(e.get("name"), e.get("oblast"), e.get("lat"), e.get("lon"), 3,
-                    transitions=transitions)
+                    src="timeline", transitions=transitions)
         else:
             for p in data.get("points", []):
                 add(p.get("name"), p.get("oblast"), p.get("lat"), p.get("lon"), 3,
-                    date=p.get("claimed_date"))
+                    src="claimed", date=p.get("claimed_date"))
 
     # 4-й источник — ЖИВОЙ: territorial_claims, автоматически извлечённые
     # LLM-пайплайном geo_digest из ленты (Рыбарь/МО РФ и др.). Владелец
@@ -299,7 +302,7 @@ def dated_candidates(ukraine_boundary=None, db=None) -> list[dict]:
                               GeoTerritorialClaim.lat.isnot(None)).all()):
                 when = (r.claimed_date.isoformat() if r.claimed_date
                         else (r.created_at.date().isoformat() if r.created_at else None))
-                add(r.settlement, r.oblast, r.lat, r.lon, 3, date=when)
+                add(r.settlement, r.oblast, r.lat, r.lon, 3, src="db", date=when)
         except Exception:  # noqa: BLE001 — живой источник не роняет синк
             logger.warning("dated_candidates: territorial_claims из БД не подмешаны", exc_info=True)
     return out
@@ -323,6 +326,17 @@ def candidates_as_of(cands: list[dict], day_iso: str) -> list[dict]:
     return out
 
 
+def _gazetteer_resolve(name, oblast, near=None, hint=None) -> dict:
+    """Тонкая обёртка над справочником НП — чтобы тесты подменяли, а отсутствие
+    файла не роняло синк."""
+    try:
+        from app.services.geo_gazetteer import resolve
+        return resolve(name, oblast, near=near, hint=hint)
+    except Exception:  # noqa: BLE001
+        logger.warning("Справочник НП недоступен — правило 0 пропущено", exc_info=True)
+        return {"status": "no_gazetteer", "candidates": 0}
+
+
 def validate_candidates(out: list[dict], control_mass=None, *, quiet: bool = False) -> list[dict]:
     """Проверки кандидата на правдоподобие — ОДНИ И ТЕ ЖЕ для живой заливки
     (absorb_candidates) и для помесячной реконструкции ряда (изохрона): иначе
@@ -333,6 +347,34 @@ def validate_candidates(out: list[dict], control_mass=None, *, quiet: bool = Fal
     from shapely.geometry import Point
 
     log = (lambda *a, **k: None) if quiet else logger.warning
+
+    # Правило 0 (владелец, 2026-09-14): координата пункта из ленты/заявлений —
+    # по СПРАВОЧНИКУ населённых пунктов (имя + область; при тёзках — район и
+    # близость к фронту), а не по геокодингу статьи Википедии. Боевые случаи:
+    # «Новопавловка Запорожской» с координатами центра Орехова, «Красный Кут
+    # Донецкой» в Саратовской области. Ручные оверрайды и хронологию не трогаем —
+    # их координаты выверены руками. Не найден в справочнике — оставляем как
+    # пришло, дальше работают прежние правила; тёзки не развести — отклоняем.
+    resolved = []
+    for o in out:
+        if o.get("src") not in ("claimed", "db"):
+            resolved.append(o)
+            continue
+        hit = _gazetteer_resolve(o.get("name"), o.get("oblast"), near=control_mass, hint=(o["lat"], o["lon"]))
+        st = hit.get("status")
+        if st in ("exact", "near_front", "fuzzy"):
+            moved_km = Point(o["lon"], o["lat"]).distance(Point(hit["lon"], hit["lat"])) * _KM_PER_DEG_LAT
+            if moved_km > 0.5 and not quiet:
+                logger.info("validate_candidates: «%s» (%s) привязан по справочнику (%s): сдвиг %.1f км → %s, %s",
+                            o["name"], o.get("oblast") or "—", st, moved_km, hit.get("oblast"), hit.get("raion") or "район н/д")
+            resolved.append({**o, "lat": hit["lat"], "lon": hit["lon"], "geocode": st})
+        elif st in ("ambiguous", "oblast_mismatch"):
+            log("validate_candidates: ОТКЛОНЁН «%s» (%s) — в справочнике %d тёзок (%s), ни область, ни район, "
+                "ни близость к фронту, ни прежняя координата их не разводят",
+                o["name"], o.get("oblast") or "—", hit.get("candidates", 0), st)
+        else:
+            resolved.append(o)  # not_found / no_gazetteer — прежние правила ниже
+    out = resolved
 
     # Правило 1: координата обязана лежать в ЗАЯВЛЕННОЙ области — ловит тёзок,
     # геокоженных не туда («Благодатное» не той области и т.п.).
@@ -435,50 +477,83 @@ def _point_buffer_km(lat: float, lon: float, radius_km: float):
 
 
 # Параметры прежнего КРУГОВОГО смыкания (closing). Сама механика заменена
-# направленным клином (см. _absorb_overrides, 2026-09-12), но константы
-# оставлены: на них опирается тест, который сравнивает старое поведение с новым
-# и тем доказывает, что фикс действительно что-то меняет.
+# (клин 2026-09-12, затем «крышка» 2026-09-14), но константы оставлены: на них
+# опирается тест, который сравнивает старое поведение с новым и тем доказывает,
+# что фикс действительно что-то меняет.
 _ABSORB_CLOSE_DEG = 0.20
 _ABSORB_LOCAL_DEG = 0.50
-# Клин присоединения: ширина у основания = доля от длины клина, но не больше
-# потолка. 0.6 и 12 км подобраны на живых данных сентября-2026: связь с фронтом
-# читается полосой (а не иглой, на которую владелец жаловался 2026-07-25), при
-# этом лишняя площадь против прежнего кругового смыкания меньше на ~1.4 тыс. км².
+# Клин (2026-09-12) — тоже оставлен для теста-сравнения.
 _WEDGE_WIDTH_RATIO = 0.6
 _WEDGE_MAX_WIDTH_KM = 12.0
+# «Крышка» присоединения (2026-09-14): пункт закрывает участок фронта, ОБРАЩЁННЫЙ
+# к нему, целиком. Радиус окна вдоль фронта = доля от зазора до фронта, но не
+# меньше минимума (иначе село в 2 км от границы даёт точку, а не полосу) и не
+# больше потолка (иначе один дальний пункт закрывает пол-области).
+_CAP_RATIO = 1.5
+_CAP_MIN_KM = 6.0
+_CAP_MAX_KM = 18.0
+_CAP_CITY_RATIO = 3.0             # × radius_km ГОРОДА: Константиновка (5 км) смотрит на 15 км фронта
+_CAP_CITY_MIN_RADIUS_KM = 4.0     # сёла (3 км) под это правило не попадают — иначе полосы у границы раздуваются
 
 
-def _absorb_overrides(ru_mass, overrides: list[dict], source_mass=None):
-    """Вливает пункты-оверрайды в массив РФ-контроля — НАПРАВЛЕННО, со стороны,
-    откуда шло продвижение.
+def _wedge_absorb(ru_mass, overrides: list[dict], source_mass=None):
+    """Клин к ближайшей точке фронта (версия 2026-09-12) — оставлена ТОЛЬКО для
+    теста-сравнения со старым поведением; боевая механика — _absorb_overrides."""
+    from shapely.geometry import Point
+    from shapely.ops import unary_union, nearest_points
 
-    Владелец (2026-09-12): «ты же отрисовываешь взятые участки фронта /
-    населённые пункты и соединяешь с тем куском фронта, откуда собственно шёл
-    захват; ты не берёшь и полностью со всех сторон присобачиваешь, а откуда
-    пришли исходно, и только если линия фронта продвинулась целиком — тогда
-    целиком и присоединяешь цветом».
+    circles = [_point_buffer_km(o["lat"], o["lon"], o.get("radius_km", 3)) for o in overrides]
+    combined = unary_union([ru_mass] + circles).buffer(0)
+    source = source_mass if source_mass is not None and not source_mass.is_empty else ru_mass
+    wedges = []
+    for o in overrides:
+        p = Point(o["lon"], o["lat"])
+        if ru_mass.contains(p):
+            continue
+        anchor = nearest_points(source, p)[0]
+        gap_km = p.distance(anchor) * _KM_PER_DEG_LAT
+        if gap_km <= 0.01:
+            continue
+        base_km = min(max(o.get("radius_km", 3), _WEDGE_WIDTH_RATIO * gap_km), _WEDGE_MAX_WIDTH_KM)
+        wedges.append(unary_union([_point_buffer_km(anchor.y, anchor.x, base_km),
+                                   _point_buffer_km(o["lat"], o["lon"], o.get("radius_km", 3))]).convex_hull)
+    addition = unary_union(wedges).difference(combined) if wedges else combined.difference(combined)
+    return unary_union([combined, addition]).buffer(0)
 
-    Поэтому каждый взятый пункт связывается с БЛИЖАЙШЕЙ точкой фронта-источника
-    клином: широкий у основания (там, откуда шли), сходящийся к пункту. Во все
-    остальные стороны от пункта территория НЕ добавляется. Когда рядом взято
-    несколько пунктов, их клинья сливаются сами — получается то самое сплошное
-    продвижение широкой линией, но только там, где оно действительно заявлено.
+
+def _absorb_overrides(ru_mass, overrides: list[dict], source_mass=None, ukraine_boundary=None):
+    """Вливает пункты-оверрайды в массив РФ-контроля «крышкой»: взятый пункт
+    закрывает участок фронта, обращённый к нему, ЦЕЛИКОМ.
+
+    Владелец (2026-09-12): «соединяешь с тем куском фронта, откуда собственно шёл
+    захват... только если линия фронта продвинулась целиком — тогда целиком и
+    присоединяешь цветом». И (2026-09-14) по клину к ближайшей точке: «линия
+    рисуется кругляшками, сосисками, кругляшки заходят на территорию России;
+    восточнее Константиновки точно взято, а не закрашено; рывок в Харьковской
+    выглядит ошибочным».
+
+    Механика на каждый пункт P (в порядке удаления от фронта, ближние первыми):
+      1. зазор = расстояние от P до фронта-источника (контроль + приграничные
+         области РФ + уже присоединённые пункты — цепочка сёл идёт от предыдущего,
+         а не тянется отдельной «сосиской» к далёкой массе);
+      2. окно вдоль фронта радиусом R = clamp(зазор × _CAP_RATIO, min, max);
+      3. «крышка» = выпуклая оболочка (участок границы источника внутри окна ∪
+         кружок пункта) минус источник — закрывается весь карман между фронтом,
+         обращённым к пункту, и самим пунктом (у Константиновки — и восточный
+         тоже, а не только клин к ближайшей точке);
+      4. всё режется по контуру Украины: наступление с российской территории
+         закрашивает только украинскую сторону границы.
 
     Что было раньше и почему заменено:
-      1) голый Point.buffer() → изолированный остров в 7-17 км от массива
-         (визуально «линия вообще не сдвинулась»);
-      2) буферизованный отрезок-коридор (~2.6 км) → тонкий шип;
-      3) морфологическое closing (dilate→erode, радиус ~22 км) → смыкало
-         ШИРОКОЙ дугой во ВСЕ стороны: заодно закрашивало то, чего никто не
-         заявлял (так стал красным Орехов), и спрямляло реальную форму фронта,
-         из-за чего охваты и полукольца на карте исчезали.
-
-    source_mass — «откуда мог прийти захват»: сам РФ-контроль ПЛЮС российские
-    приграничные области. Без последних приграничные взятия (Волчанск, Казачья
-    Лопань, Гоптовка) не к чему привязать: наступление там идёт с территории
-    России, а масса контроля внутри Украины далеко, и пункт повисал островом.
+      1) голый Point.buffer() → изолированный остров в 7-17 км от массива;
+      2) буферизованный отрезок-коридор → тонкий шип;
+      3) морфологическое closing (радиус ~22 км во ВСЕ стороны) → закрашивало
+         незаявленное (Орехов) и спрямляло фронт;
+      4) клин к ближайшей точке (2026-09-12) → карманы рядом не закрывались,
+         база клина на границе наполовину лежала в России, цепочки — «сосиски».
     """
-    from shapely.geometry import Point
+    from shapely import clip_by_rect
+    from shapely.geometry import Point, GeometryCollection
     from shapely.ops import unary_union, nearest_points
 
     if not overrides:
@@ -486,36 +561,65 @@ def _absorb_overrides(ru_mass, overrides: list[dict], source_mass=None):
     circles = [_point_buffer_km(o["lat"], o["lon"], o.get("radius_km", 3)) for o in overrides]
     combined = unary_union([ru_mass] + circles).buffer(0)
     source = source_mass if source_mass is not None and not source_mass.is_empty else ru_mass
+    source_boundary = source.boundary  # один раз: граница массы большая, пунктов десятки
 
-    wedges = []
-    for o in overrides:
+    # Ближние к фронту — первыми: следующие пункты цепочки опираются на уже
+    # присоединённые (added), а не на далёкую массу. Массу с присоединённым не
+    # объединяем на каждом шаге (это дорого: 56 месяцев × десятки пунктов) —
+    # якорь и «обращённый участок» ищем в массе и в присоединённом порознь.
+    def _gap(o):
+        return source.distance(Point(o["lon"], o["lat"]))
+    ordered = sorted((o for o in overrides if not ru_mass.contains(Point(o["lon"], o["lat"]))), key=_gap)
+
+    added = None              # крышки + кружки уже присоединённых пунктов (малая геометрия)
+    caps: list = []
+    for o in ordered:
         p = Point(o["lon"], o["lat"])
-        if ru_mass.contains(p):
-            continue  # уже внутри контроля — соединять не с чем
+        radius_km = o.get("radius_km", 3)
+        circle = _point_buffer_km(o["lat"], o["lon"], radius_km)
         try:
             anchor = nearest_points(source, p)[0]
+            if added is not None and not added.is_empty:
+                a2 = nearest_points(added, p)[0]
+                if p.distance(a2) < p.distance(anchor):
+                    anchor = a2
         except Exception:  # noqa: BLE001 — один кривой кандидат не рушит слой
+            added = unary_union([added, circle]) if added is not None else circle
             continue
         gap_km = p.distance(anchor) * _KM_PER_DEG_LAT
         if gap_km <= 0.01:
+            added = unary_union([added, circle]) if added is not None else circle
             continue
-        # Ширина у основания растёт с длиной клина (фронт двигается полосой, а
-        # не иглой), но ограничена сверху: иначе один дальний пункт раздувал бы
-        # присоединение на пол-области.
-        base_km = min(max(o.get("radius_km", 3), _WEDGE_WIDTH_RATIO * gap_km), _WEDGE_MAX_WIDTH_KM)
-        wedges.append(unary_union([
-            _point_buffer_km(anchor.y, anchor.x, base_km),
-            _point_buffer_km(o["lat"], o["lon"], o.get("radius_km", 3)),
-        ]).convex_hull)
+        # Крупный пункт (город с radius_km 4-5) закрывает и более широкий карман:
+        # у Константиновки масса ISW лежит и на востоке, и на юго-востоке, окно
+        # по одному зазору до неё не доставало (владелец, 2026-09-14: «восточнее
+        # Константиновки точно взято»).
+        city_reach = _CAP_CITY_RATIO * radius_km if radius_km >= _CAP_CITY_MIN_RADIUS_KM else 0.0
+        r_km = min(max(_CAP_MIN_KM, _CAP_RATIO * gap_km, city_reach), _CAP_MAX_KM)
+        r_deg = r_km / _KM_PER_DEG_LAT
+        # окно — квадрат 2R (clip_by_rect в разы быстрее пересечения с кругом)
+        facing_parts = [clip_by_rect(source_boundary, p.x - r_deg, p.y - r_deg, p.x + r_deg, p.y + r_deg)]
+        if added is not None and not added.is_empty:
+            facing_parts.append(clip_by_rect(added.boundary, p.x - r_deg, p.y - r_deg, p.x + r_deg, p.y + r_deg))
+        facing = unary_union([g for g in facing_parts if not g.is_empty])
+        if facing.is_empty:
+            # окно не достаёт до фронта (не должно случаться после правила 25 км)
+            # — хотя бы связать с якорем узкой полосой, а не оставлять остров
+            facing = anchor
+        cap = GeometryCollection([facing, circle]).convex_hull
+        caps.append(cap)
+        piece = unary_union([cap, circle])
+        added = unary_union([added, piece]) if added is not None else piece
 
-    addition = unary_union(wedges).difference(combined) if wedges else combined.difference(combined)
+    addition = unary_union(caps).difference(combined) if caps else combined.difference(combined)
+    if ukraine_boundary is not None and not addition.is_empty:
+        addition = addition.intersection(ukraine_boundary)
 
-    # Смыкание идёт дугой в десятки километров и по дороге накрывает города,
-    # которых никто не заявлял: так Орехов оказался красным из-за соседних сёл
-    # (владелец, 2026-09-11). Вырезаем из ДОБАВЛЕНИЯ окрестности защищённых
-    # городов, кроме тех, что заявлены по имени сами. Из массы ISW и из кругов
-    # самих кандидатов не вырезаем ничего: если ISW считает город взятым — он
-    # взят, наша осторожность не может спорить с источником.
+    # Крышка идёт по фронту на километры и может накрыть город, которого никто не
+    # заявлял: так Орехов оказался красным из-за соседних сёл (владелец,
+    # 2026-09-11). Вырезаем из ДОБАВЛЕНИЯ окрестности защищённых городов, кроме
+    # заявленных по имени. Из массы ISW и из кружков самих кандидатов не
+    # вырезаем ничего: если ISW считает город взятым — он взят.
     cities, city_radius_km = _load_protected_cities()
     if cities and not addition.is_empty:
         claimed_names = [o.get("name") for o in overrides]
@@ -527,7 +631,11 @@ def _absorb_overrides(ru_mass, overrides: list[dict], source_mass=None):
         if shields:
             addition = addition.difference(unary_union(shields))
 
-    return unary_union([combined, addition]).buffer(0)
+    result = unary_union([combined, addition]).buffer(0)
+    if ukraine_boundary is not None:
+        # Кружок приграничного села тоже не должен лежать в России.
+        result = result.intersection(ukraine_boundary).buffer(0)
+    return result
 
 
 def _query_geojson(url: str, params: dict) -> dict:
@@ -663,9 +771,10 @@ def _compute_frontline(control_fc: dict, ukraine_boundary,
     """Возвращает (frontline_geojson, control_fill_geojson). overrides — см.
     load_manual_overrides(): пункты, взятие которых подтверждают МО РФ/Рыбарь
     раньше, чем это отразилось в живом слое ISW. Все они вливаются в
-    ru_control НАПРАВЛЕННО (_absorb_overrides — клин со стороны, откуда шло
-    продвижение) ДО сглаживания, поэтому получают то же morphological
-    smoothing, что основной полигон, и не торчат ни островом, ни шипом.
+    ru_control «крышкой» (_absorb_overrides — пункт закрывает обращённый к нему
+    участок фронта целиком, всё режется по контуру Украины) ДО сглаживания,
+    поэтому получают то же morphological smoothing, что основной полигон, и не
+    торчат ни островом, ни шипом.
     source_mass — фронт-источник (контроль + российские приграничные области),
     см. _absorb_overrides."""
     from shapely.geometry import mapping, shape, LineString, MultiLineString
@@ -676,10 +785,10 @@ def _compute_frontline(control_fc: dict, ukraine_boundary,
     if not ru_polys:
         raise ValueError("ISW control layer вернул 0 полигонов — не с чем считать линию")
 
-    ru_control = _absorb_overrides(unary_union(ru_polys).buffer(0), overrides or [],
-                                    source_mass=source_mass)
-    ru_control = _smooth_polygon(ru_control)
     ukraine_boundary = ukraine_boundary.buffer(0)
+    ru_control = _absorb_overrides(unary_union(ru_polys).buffer(0), overrides or [],
+                                    source_mass=source_mass, ukraine_boundary=ukraine_boundary)
+    ru_control = _smooth_polygon(ru_control)
 
     control_fill = _control_fill_geojson(ru_control)
 

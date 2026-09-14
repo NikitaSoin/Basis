@@ -161,6 +161,11 @@ class GeoTerritorialClaim(Base):
     claimed_date: Mapped[date_type | None] = mapped_column(Date)
     source_key: Mapped[str | None] = mapped_column(String(32))
     source_url: Mapped[str | None] = mapped_column(String(1000))
+    # Откуда координата: gazetteer (справочник НП, точно) | gazetteer_fuzzy
+    # (справочник, иное написание) | wikipedia (запасной геокодер) | NULL (до
+    # 2026-09-14 — Википедия без пометки). Нужно, чтобы на бою видеть, какая
+    # доля точек прошла через справочник, а не гадать по карте.
+    geocode_source: Mapped[str | None] = mapped_column(String(16))
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc))

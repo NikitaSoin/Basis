@@ -624,6 +624,109 @@ def _geocode_place(name: str, oblast: str | None = None) -> tuple[float, float] 
     return result
 
 
+_front_mass_cache: dict = {"at": None, "geom": None}
+
+
+def _front_mass(db: Session | None):
+    """Масса контроля РФ по последнему синку линии фронта — подсказка справочнику
+    при тёзках (из двух «Новосёловок» области берём ту, что у фронта). Кэш на час.
+    Нет синка/ошибка → None, справочник работает без подсказки."""
+    if db is None:
+        return None
+    now = datetime.now(timezone.utc)
+    if _front_mass_cache["at"] and (now - _front_mass_cache["at"]).total_seconds() < 3600:
+        return _front_mass_cache["geom"]
+    geom = None
+    try:
+        from shapely.geometry import shape
+        from shapely.ops import unary_union
+        from app.models.geo import GeoFrontlineSync
+        row = db.query(GeoFrontlineSync).filter_by(theater="svo").first()
+        fc = row.control_fill_geojson if row is not None else None
+        if fc and fc.get("features"):
+            geom = unary_union([shape(f["geometry"]).buffer(0) for f in fc["features"] if f.get("geometry")])
+    except Exception:  # noqa: BLE001
+        logger.debug("geo_digest: масса контроля для справочника не прочитана", exc_info=True)
+    _front_mass_cache.update(at=now, geom=geom)
+    return geom
+
+
+def _geocode_settlement(name: str, oblast: str | None, db: Session | None = None) -> tuple[tuple[float, float] | None, str]:
+    """Координата НАСЕЛЁННОГО ПУНКТА для заявления о взятии: сначала справочник
+    НП (владелец, 2026-09-14 — убирает тёзок и «центр города вместо села»),
+    Википедия — только если имени в справочнике нет. Неоднозначность в
+    справочнике (тёзки, которых не развести) — координаты НЕ выдаём: лучше
+    пункт без точки на карте, чем точка не там. Возвращает (координата, источник):
+    gazetteer | gazetteer_fuzzy | wikipedia | ambiguous | none."""
+    try:
+        from app.services.geo_gazetteer import resolve
+        hit = resolve(name, oblast, near=_front_mass(db))
+    except Exception:  # noqa: BLE001
+        logger.warning("geo_digest: справочник НП недоступен", exc_info=True)
+        hit = {"status": "no_gazetteer"}
+    st = hit.get("status")
+    if st in ("exact", "near_front"):
+        return (hit["lat"], hit["lon"]), "gazetteer"
+    if st == "fuzzy":
+        return (hit["lat"], hit["lon"]), "gazetteer_fuzzy"
+    if st in ("ambiguous", "oblast_mismatch"):
+        logger.info("geo_digest: «%s» (%s) — %d тёзок в справочнике (%s), координату не выдаём",
+                    name, oblast or "—", hit.get("candidates", 0), st)
+        return None, "ambiguous"
+    pt = _geocode_place(name, oblast)
+    return (pt, "wikipedia") if pt else (None, "none")
+
+
+def regeocode_claims(db: Session, dry_run: bool = False, min_move_km: float = 0.3) -> dict:
+    """Перепривязать ВСЕ заявления по справочнику НП (разово после его появления;
+    идемпотентно). Двигаем точку, только если справочник дал однозначный ответ и
+    точка сдвинулась заметно (или её не было); тёзок и ненайденные не трогаем —
+    перечисляем в отчёте."""
+    from app.models.geo import GeoTerritorialClaim
+    rows = db.query(GeoTerritorialClaim).order_by(GeoTerritorialClaim.id.asc()).all()
+    moved, filled, kept, ambiguous, not_found = [], [], 0, [], []
+    for r in rows:
+        try:
+            from app.services.geo_gazetteer import resolve
+            hit = resolve(r.settlement, r.oblast, near=_front_mass(db),
+                          hint=(r.lat, r.lon) if r.lat is not None else None)
+        except Exception:  # noqa: BLE001
+            return {"error": "справочник НП недоступен"}
+        st = hit.get("status")
+        label = f"{r.settlement} ({r.oblast or '—'})"
+        if st in ("exact", "near_front", "fuzzy"):
+            src = "gazetteer_fuzzy" if st == "fuzzy" else "gazetteer"
+            if r.lat is None or r.lon is None:
+                filled.append(label)
+                if not dry_run:
+                    r.lat, r.lon, r.geocode_source = hit["lat"], hit["lon"], src
+                continue
+            d_km = ((r.lat - hit["lat"]) ** 2 + (r.lon - hit["lon"]) ** 2) ** 0.5 * 111.0
+            if d_km >= min_move_km:
+                moved.append({"claim": label, "km": round(d_km, 1), "to": [hit["lat"], hit["lon"]],
+                              "resolved_as": f"{hit.get('name')} — {hit.get('oblast')}, {hit.get('raion') or 'район н/д'}"})
+                if not dry_run:
+                    r.lat, r.lon, r.geocode_source = hit["lat"], hit["lon"], src
+            else:
+                kept += 1
+                if not dry_run and not r.geocode_source:
+                    r.geocode_source = src
+        elif st in ("ambiguous", "oblast_mismatch"):
+            ambiguous.append(f"{label}: {hit.get('candidates')} тёзок"
+                             + (" (нет в названной области)" if st == "oblast_mismatch" else ""))
+        elif st == "no_gazetteer":
+            return {"error": "справочник НП не загружен"}
+        else:
+            not_found.append(label)
+    if not dry_run:
+        db.commit()
+    moved.sort(key=lambda m: -m["km"])
+    return {"checked": len(rows), "moved": len(moved), "filled": len(filled), "kept": kept,
+            "ambiguous": len(ambiguous), "not_found": len(not_found), "dry_run": dry_run,
+            "moved_list": moved[:60], "filled_list": filled[:40],
+            "ambiguous_list": ambiguous[:40], "not_found_list": not_found[:60]}
+
+
 def _persist_strike_events(db: Session, theater: str, events: list, event_date, source_key: str | None,
                             source_url: str | None) -> int:
     """Сохранение ударов с ДЕДУПЛИКАЦИЕЙ: одна и та же атака приходит из
@@ -688,8 +791,9 @@ def _persist_territorial_claims(db: Session, claims: list, claimed_date, source_
         oblast = (cl.get("oblast") or None)
         row = (db.query(GeoTerritorialClaim)
                .filter_by(settlement=settlement, oblast=oblast).first())
-        # область из заявления — главный ключ к развязке тёзок
-        coords = _geocode_place(settlement, oblast)
+        # область из заявления — главный ключ к развязке тёзок; координата — по
+        # справочнику НП, Википедия только как запасной путь
+        coords, geocode_source = _geocode_settlement(settlement, oblast, db)
         if row is None:
             row = GeoTerritorialClaim(settlement=settlement, oblast=oblast)
             db.add(row)
@@ -700,6 +804,7 @@ def _persist_territorial_claims(db: Session, claims: list, claimed_date, source_
         row.source_url = source_url
         if coords:
             row.lat, row.lon = coords
+            row.geocode_source = geocode_source
         try:
             db.commit()
             saved += 1
@@ -723,9 +828,10 @@ def backfill_claim_coords(db: Session, limit: int = 200) -> dict:
             .limit(limit).all())
     fixed, still = 0, []
     for r in rows:
-        pt = _geocode_place(r.settlement, r.oblast)
+        pt, src = _geocode_settlement(r.settlement, r.oblast, db)
         if pt:
             r.lat, r.lon = pt[0], pt[1]
+            r.geocode_source = src
             fixed += 1
         else:
             still.append(f"{r.settlement} ({r.oblast or '—'})")

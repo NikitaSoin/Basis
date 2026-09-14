@@ -4340,6 +4340,20 @@ function ObsGeomapPopupBody({
               ? <a href={claimed.source_url} target="_blank" rel="noreferrer">{claimed.source} ↗</a>
               : <span>{claimed.source}</span>
           )}
+          {/* Откуда координата точки: справочник населённых пунктов (OSM) или
+              статья Википедии. Пишем словами — читателю важно знать, что точка
+              не «примерно где-то там» (владелец, 2026-09-14: тёзок среди сёл много). */}
+          {claimed.geocode_source && (
+            <span>
+              {claimed.geocode_source === "gazetteer"
+                ? "координата — по справочнику населённых пунктов"
+                : claimed.geocode_source === "gazetteer_fuzzy"
+                ? "координата — по справочнику (написание сверено приблизительно)"
+                : claimed.geocode_source === "wikipedia"
+                ? "координата — по статье Википедии"
+                : null}
+            </span>
+          )}
         </div>
       </div>
     );

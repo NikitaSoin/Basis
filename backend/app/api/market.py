@@ -1205,6 +1205,7 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
                         "epistemic": "взято по сообщениям ленты (авто), ISW не подтвердил",
                         "note": rcl.note, "source": rcl.source_key, "source_url": rcl.source_url,
                         "claimed_date": rcl.claimed_date.isoformat() if rcl.claimed_date else None,
+                        "geocode_source": rcl.geocode_source,
                         "in_control_fill": True, "claim_strength": "reported",
                     },
                     "geometry": {"type": "Point", "coordinates": [rcl.lon, rcl.lat]},

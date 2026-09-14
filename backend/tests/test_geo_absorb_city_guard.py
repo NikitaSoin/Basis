@@ -163,3 +163,69 @@ def test_приграничный_пункт_привязывается_к_те�
     # И при этом НЕ дотянуться до далёкой массы внутри Украины — между ними
     # остаётся незакрашенное пространство, то есть форма фронта сохраняется.
     assert not filled.contains(Point(36.95, 49.7))
+
+
+# ---- «крышка» (2026-09-14): карман закрывается целиком, в Россию не заходим ----
+
+def _front_square():
+    """Масса контроля — квадрат lon 37–38, lat 48–48.5; фронт — его северный край lat=48.5."""
+    from shapely.geometry import box
+    return box(37.0, 48.0, 38.0, 48.5)
+
+
+def test_крышка_закрывает_карман_по_всей_ширине_фронта_напротив_пункта():
+    """Владелец (2026-09-14): «восточнее Константиновки точно взято, а не закрашено».
+    Село в 6 км перед прямым фронтом обязано присоединиться ПОЛОСОЙ, а не иглой:
+    заливка касается фронта на ширине, кратной размеру самого села, и закрывает
+    карман по обе стороны от линии «пункт — ближайшая точка»."""
+    isw = _front_square()
+    village = {"name": "Тестовое", "oblast": "Донецкая область", "lat": 48.5 + 6 / 111.0, "lon": 37.5, "radius_km": 3}
+    filled = sync._absorb_overrides(isw, [village])
+    addition = filled.difference(isw)
+    # точки в кармане по обе стороны от прямой к якорю, на 3 км от фронта и 4 км в сторону
+    left = Point(37.5 - 4 / 111.0, 48.5 + 3 / 111.0)
+    right = Point(37.5 + 4 / 111.0, 48.5 + 3 / 111.0)
+    assert addition.contains(left) and addition.contains(right), "карман рядом с пунктом не закрыт"
+    # а за пунктом (дальше от фронта) территория не добавляется
+    behind = Point(37.5, 48.5 + 12 / 111.0)
+    assert not addition.contains(behind), "закрашено ЗА пунктом, куда фронт не доходил"
+    # ширина касания фронта — не игла: пересечение добавления с линией фронта ≥ 8 км
+    from shapely.geometry import LineString
+    touch = addition.buffer(1e-6).intersection(LineString([(37.0, 48.5), (38.0, 48.5)]))
+    assert touch.length * sync._KM_PER_DEG_LAT >= 8.0
+
+
+def test_заливка_не_заходит_на_территорию_России():
+    """Наступление с российской территории: плацдарм — прямоугольник СЕВЕРНЕЕ
+    границы lat=50.3, Украина — южнее. Село в 4 км южнее границы присоединяется к
+    плацдарму, но красным становится ТОЛЬКО украинская сторона (владелец,
+    2026-09-14: «кругляшки заходят на территорию России»)."""
+    from shapely.geometry import box
+    ukraine = box(36.0, 49.0, 38.0, 50.3)
+    ru_land = box(36.0, 50.3, 38.0, 51.0)
+    far_isw = box(37.6, 49.0, 38.0, 49.4)  # масса контроля далеко на юге
+    source = far_isw.union(ru_land)
+    # село в 2 км от границы: его собственный кружок (3 км) без обрезки лёг бы в Россию
+    village = {"name": "Приграничное", "oblast": "Харьковская область", "lat": 50.3 - 2 / 111.0, "lon": 37.0, "radius_km": 3}
+    filled = sync._absorb_overrides(far_isw, [village], source_mass=source, ukraine_boundary=ukraine)
+    addition = filled.difference(far_isw)
+    assert addition.contains(Point(37.0, 50.3 - 1.5 / 111.0)), "село не связано с границей"
+    assert addition.intersection(ru_land).area < 1e-9, "заливка зашла на территорию России"
+    # и без контура Украины кружок/крышка легли бы за границу — контроль, что тест что-то проверяет
+    unclipped = sync._absorb_overrides(far_isw, [village], source_mass=source).difference(far_isw)
+    assert unclipped.intersection(ru_land).area > 0
+
+
+def test_цепочка_сёл_опирается_на_уже_присоединённое_а_не_тянется_к_массе():
+    """Два села по одной линии от фронта: 5 км и 11 км. Дальнее обязано
+    присоединиться к ближнему (полоса продолжается), а не отдельной «сосиской»
+    от самой массы — площадь добавления при цепочке меньше, чем у двух
+    независимых клиньев к массе."""
+    isw = _front_square()
+    near = {"name": "Ближнее", "oblast": "Донецкая область", "lat": 48.5 + 5 / 111.0, "lon": 37.5, "radius_km": 3}
+    far = {"name": "Дальнее", "oblast": "Донецкая область", "lat": 48.5 + 11 / 111.0, "lon": 37.5, "radius_km": 3}
+    chained = sync._absorb_overrides(isw, [near, far]).difference(isw)
+    assert chained.contains(Point(37.5, 48.5 + 8 / 111.0)), "между сёлами разрыв"
+    # каждое по отдельности — сумма шире, чем цепочка (дальнее тянулось бы к массе широким окном)
+    separate = sync._absorb_overrides(isw, [near]).difference(isw).union(sync._absorb_overrides(isw, [far]).difference(isw))
+    assert chained.area < separate.area

@@ -307,7 +307,8 @@ def reported_addition_km2(isw_mass, cands: list[dict], source_mass=None, ukraine
     base = _measure(isw_mass)
     if not cands:
         return 0, base
-    merged = _measure(_absorb_overrides(isw_mass, cands, source_mass=source_mass))
+    merged = _measure(_absorb_overrides(isw_mass, cands, source_mass=source_mass,
+                                        ukraine_boundary=ukraine_boundary))
     return round(_spherical_km2(merged) - _spherical_km2(base)), merged
 
 
