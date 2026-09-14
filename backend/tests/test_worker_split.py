@@ -135,3 +135,21 @@ def test_очередь_на_тестовой_бд(db, monkeypatch):
     rec = jq.list_recent(1)
     assert rec[0]["status"] == "error" and rec[0]["error"] == "RuntimeError: boom"
     assert jq.queue_depth() == {"queued": 0, "running": 0}
+
+
+def test_сторож_зависания_и_отдельный_пул_служебных_операций():
+    """Инцидент 2026-09-14 22:19: пульс и очередь голодали в дефолтном пуле на 5 потоков.
+    Пульс/claim/finish — через CONTROL_POOL; задачи — дефолтный пул WORKER_THREADS; сторож
+    по возрасту пульса."""
+    from app import worker
+    assert worker.stalled(None, 1000.0, 600) is False          # до первого пульса не судим
+    assert worker.stalled(100.0, 699.0, 600) is False
+    assert worker.stalled(100.0, 701.0, 600) is True
+    assert worker.CONTROL_POOL._max_workers == 2
+    assert worker.WORKER_THREADS >= 8
+    src = (BACKEND / "app" / "worker.py").read_text(encoding="utf-8")
+    assert 'run_in_executor(CONTROL_POOL, hb_ok, "worker_alive")' in src
+    assert "run_in_executor(CONTROL_POOL, jq.claim_next)" in src
+    assert "run_in_executor(None, jq.claim_next)" not in src
+    assert "loop.set_default_executor(ThreadPoolExecutor(max_workers=WORKER_THREADS" in src
+    assert "os._exit(3)" in src and "faulthandler.dump_traceback" in src

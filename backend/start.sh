@@ -45,8 +45,8 @@ run_migrations &
 # детектор для AI-субагентов, не рантайм). Запускать вручную при необходимости.
 
 # ── Процесс-воркер фоновых задач ──────────────────────────────────────────────
-# Пул БД делим по ролям: у managed-Postgres max_connections = 25. Веб 5+5, воркер 3+4
-# → не больше 17 соединений на двоих (+ миграции/скрипты).
+# Пул БД делим по ролям: у managed-Postgres max_connections = 25. Веб 5+5, воркер 4+6
+# → не больше 20 соединений на двоих (+ миграции/скрипты).
 WORKER_SPLIT="${WORKER_SPLIT:-1}"
 if [ "$WORKER_SPLIT" = "1" ]; then
   export BASIS_ROLE=web
@@ -54,8 +54,10 @@ if [ "$WORKER_SPLIT" = "1" ]; then
   export DB_MAX_OVERFLOW="${WEB_DB_MAX_OVERFLOW:-5}"
   (
     export BASIS_ROLE=worker
-    export DB_POOL_SIZE="${WORKER_DB_POOL_SIZE:-3}"
-    export DB_MAX_OVERFLOW="${WORKER_DB_MAX_OVERFLOW:-4}"
+    # Воркер держит до 12 сетевых задач разом (WORKER_THREADS), у каждой своя сессия БД:
+    # 3+4 не хватало в вечернюю сборку → 4+6 (с вебом 5+5 итого ≤ 20 из 25).
+    export DB_POOL_SIZE="${WORKER_DB_POOL_SIZE:-4}"
+    export DB_MAX_OVERFLOW="${WORKER_DB_MAX_OVERFLOW:-6}"
     PY="$(command -v python3 || command -v python || echo python3)"
     # nice может отсутствовать в минимальном образе — тогда запускаем без него, но запускаем.
     if command -v nice >/dev/null 2>&1; then NICE="nice -n 10"; else NICE=""; fi
