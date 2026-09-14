@@ -212,7 +212,7 @@ FINAL_FIELDS = (
 )
 
 ALL_SHELF = ["code", "macro_base", "inst_env", "geo_base", "geo_events", "geo_macro",
-             "macro_geo", "geo_inst", "inst_geo", "inst_macro", "macro_inst", "macro_sector", "macro"]
+             "macro_geo", "geo_inst", "inst_geo", "inst_macro", "macro_inst", "macro_sector"]
 
 
 # ─────────────── мандат старшего аналитика (владелец, 2026-09-13) ───────────────
