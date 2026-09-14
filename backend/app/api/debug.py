@@ -2072,14 +2072,31 @@ def debug_trigger_evening_pipeline():
     return _enqueue("evening_pipeline")
 
 
+@router.post("/debug/council")
+def debug_council(task: str, lenses: str | None = None, label: str | None = None):
+    """Совет агентов-методичек на произвольный вопрос (владелец 2026-09-14): каждая
+    методичка — отдельный агент с её полным текстом в контексте, круг вопросов между
+    ними, сведение сильной моделью. Через очередь воркера; результат —
+    GET /api/market/council?format=md. lenses=id1,id2 — часть агентов (по умолчанию все 12)."""
+    params = {"task": task}
+    if lenses:
+        params["lenses"] = lenses
+    if label:
+        params["label"] = label
+    return _enqueue("council", params)
+
+
 @router.post("/debug/trigger-probe-questions")
-def debug_trigger_probe_questions(only: str | None = None):
+def debug_trigger_probe_questions(only: str | None = None, mode: str = "single"):
     """Ручной запуск контрольных вопросов владельца (обычно крон ночь вс 00:30).
     🔴 Исполняет процесс-воркер через очередь (советник 2026-09-14: HTTP-поток и даже
     разовая задача планировщика в веб-процессе вешали сайт). only=id1,id2.
     Ход — /api/market/probe-questions (версия растёт по мере ответов) и
     GET /api/debug/job-requests; пульс — jobs-health (probe_questions)."""
-    return _enqueue("probe_questions", {"only": only} if only else {})
+    params: dict = {"mode": mode}
+    if only:
+        params["only"] = only
+    return _enqueue("probe_questions", params)
 
 
 @router.get("/debug/watchdog")

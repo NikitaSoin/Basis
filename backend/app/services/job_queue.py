@@ -61,7 +61,21 @@ def _probe_questions(db, p):
     only = p.get("only")
     if isinstance(only, str):
         only = [x.strip() for x in only.split(",") if x.strip()]
-    return run(db, only=only or None)
+    return run(db, only=only or None, mode=str(p.get("mode") or "single"))
+
+
+def _council(db, p):
+    """Совет агентов-методичек на произвольный вопрос (владелец 2026-09-14)."""
+    from app.services.lens_council import run_council
+    task = str(p.get("task") or "").strip()
+    if len(task) < 10:
+        return {"error": "нужен параметр task — вопрос совету (не короче 10 знаков)"}
+    lenses = p.get("lenses")
+    if isinstance(lenses, str):
+        lenses = [x.strip() for x in lenses.split(",") if x.strip()]
+    out = run_council(db, task, lenses=lenses or None, label=str(p.get("label") or "совет:ручной")[:60])
+    return {"version_id": out.get("version_id"), "answered": out.get("answered"), "failed": out.get("failed"),
+            "seconds": out.get("seconds"), "synthesis": bool(out.get("synthesis"))}
 
 
 def _evening_pipeline(db, p):
@@ -183,6 +197,7 @@ def _stress_interpretation(db, p):
 
 REGISTRY: dict[str, Callable[[Any, dict], Any]] = {
     "probe_questions": _probe_questions,
+    "council": _council,
     "evening_pipeline": _evening_pipeline,
     "critic": _critic,
     "cross_review": _cross_review,

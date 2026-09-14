@@ -222,7 +222,37 @@ def aggregate(items: list[dict]) -> dict:
 
 # ─────────────────────────── прогон ───────────────────────────
 
-def run(db: Session, only: list[str] | None = None) -> BarometerVersion:
+def council_answer(db: Session, q: dict, notes: list[str] | None = None) -> dict | None:
+    """Ответ через совет агентов-методичек (владелец 2026-09-14): та же форма ответа, что у одного
+    аналитика, чтобы экзаменатор сравнивал одинаково; сведение — в answer, цепочки — в key_judgements."""
+    from app.services.lens_council import run_council
+    payload = run_council(db, q["question"], label=f"экзамен:{q['id']}")
+    if notes is not None:
+        notes.extend(payload.get("notes") or [])
+        notes.append(f"совет: версия #{payload.get('version_id')}, ответили {len(payload.get('answered') or [])}, "
+                     f"{payload.get('seconds')} с")
+    s = payload.get("synthesis")
+    if not isinstance(s, dict) or not s.get("answer"):
+        return None
+    used: list[str] = []
+    for a in (payload.get("lens_answers") or {}).values():
+        if isinstance(a, dict):
+            used += [str(x) for x in (a.get("sections_used") or [])][:8]
+    return {"answer": s.get("answer"),
+            "key_judgements": [{"claim": c.get("chain"), "status": c.get("status"),
+                                "evidence": "взгляды: " + ", ".join(c.get("lenses") or [])}
+                               for c in (s.get("causal_map") or []) if isinstance(c, dict)],
+            "probabilities": ((s.get("forecast") or {}).get("probabilities") or []),
+            "mechanisms": [c.get("chain") for c in (s.get("causal_map") or []) if isinstance(c, dict)],
+            "gaps": [{"gap": u, "what_i_did": "совет: не видит ни одна методичка"} for u in (s.get("unknowns") or [])],
+            "disagreements": s.get("disagreements") or [],
+            "sources": [], "methodology_used": sorted(set(used))[:60],
+            "council_version_id": payload.get("version_id"), "mode": "council"}
+
+
+def run(db: Session, only: list[str] | None = None, mode: str = "single") -> BarometerVersion:
+    """mode="single" — один аналитик с полкой (как было); "council" — совет агентов-методичек."""
+    mode = "council" if str(mode or "").lower() == "council" else "single"
     qs = load_questions()
     if only:
         qs = [q for q in qs if q["id"] in set(only)]
@@ -241,7 +271,7 @@ def run(db: Session, only: list[str] | None = None) -> BarometerVersion:
     items: list[dict] = []
     row = BarometerVersion(kind=KIND, source="auto", status="draft",
                            payload={"as_of": date.today().isoformat(), "checks_version": CHECKS_VERSION,
-                                    "rubric": RUBRIC, "items": [], "summary": aggregate([]),
+                                    "mode": mode, "rubric": RUBRIC, "items": [], "summary": aggregate([]),
                                     "started_at": datetime.now(timezone.utc).isoformat(timespec="seconds")},
                            trigger_reason="контрольные вопросы владельца",
                            model_used=f"{llm.provider_info().get('provider')}:{llm.pro_model()}")
@@ -257,10 +287,10 @@ def run(db: Session, only: list[str] | None = None) -> BarometerVersion:
 
     for q in qs:
         diag: list[str] = []
-        item = {"id": q["id"], "contour": q["contour"], "question": q["question"], "answer": None,
+        item = {"id": q["id"], "contour": q["contour"], "question": q["question"], "answer": None, "mode": mode,
                 "judge": None, "notes": diag, "started_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
         try:
-            ans = ask(db, q, states_txt, conflict_txt, notes=diag)
+            ans = council_answer(db, q, notes=diag) if mode == "council" else ask(db, q, states_txt, conflict_txt, notes=diag)
         except Exception as e:  # noqa: BLE001
             logger.exception("probe[%s]: %s", q["id"], e); ans = None
             diag.append(f"аналитик упал: {type(e).__name__}: {e}")
@@ -304,7 +334,7 @@ def _record_quality(db: Session, payload: dict) -> None:
                              score=s["pct"], soft_rate=None, valid=s["judged"] >= 3,
                              invalid_reason=None if s["judged"] >= 3 else "оценено меньше трёх вопросов",
                              per_check=s["per_question"], triggered_by="probe_questions",
-                             note="контрольные вопросы владельца: средний балл по рубрике 0–30")
+                             note=f"контрольные вопросы владельца ({payload.get('mode', 'single')}): средний балл по рубрике 0–30")
         db.add(run_row); db.flush()
         for it in payload["items"]:
             j = it.get("judge") or {}
@@ -335,7 +365,7 @@ def history(db: Session, limit: int = 12) -> list[dict]:
 
 def render_md(payload: dict) -> str:
     s = payload.get("summary") or {}
-    out = [f"# Контрольные вопросы владельца — {payload.get('as_of')}",
+    out = [f"# Контрольные вопросы владельца — {payload.get('as_of')} · режим: {payload.get('mode', 'single')}",
            f"Средний балл: **{s.get('avg_total')} из {s.get('max_total')}** "
            f"(оценено {s.get('judged')} из {s.get('questions')}). Рубрика: " + ", ".join(RUBRIC.keys()) + ".", ""]
     for it in payload.get("items") or []:

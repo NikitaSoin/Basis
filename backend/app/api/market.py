@@ -979,6 +979,26 @@ def market_macro_state(db: Session = Depends(get_db)):
     return JSONResponse(content=payload)
 
 
+@router.get("/market/council")
+def market_council(format: str = "json", version_id: int | None = None, db: Session = Depends(get_db)):
+    """Совет агентов-методичек (lens_council.py): сведение + взгляды каждого агента.
+    Последняя версия или version_id; format=md — читаемый текст; history — список версий."""
+    from app.models.geo import BarometerVersion
+    from app.services import lens_council as lc
+    if version_id:
+        row = db.get(BarometerVersion, int(version_id))
+        payload = dict(row.payload or {}) if row and row.kind == lc.KIND else None
+    else:
+        payload = lc.current(db)
+    if payload is None:
+        raise HTTPException(status_code=404, detail="Совет ещё не собирался")
+    if format == "md":
+        from fastapi.responses import PlainTextResponse
+        return PlainTextResponse(lc.render_md(payload), media_type="text/markdown; charset=utf-8")
+    payload["history"] = lc.history(db)
+    return JSONResponse(content=payload)
+
+
 @router.get("/market/probe-questions")
 def market_probe_questions(format: str = "json", db: Session = Depends(get_db)):
     """Контрольные вопросы владельца — еженедельный экзамен агентской системы
