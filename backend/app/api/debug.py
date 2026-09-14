@@ -41,6 +41,22 @@ from fastapi import Depends as _Depends  # noqa: E402 — рядом с мест
 
 router = APIRouter(dependencies=[_Depends(_debug_guard)])
 
+
+def _enqueue(job_id: str, params: dict | None = None):
+    """🔴 Ручной запуск ТЯЖЁЛОГО — только через очередь процесса-воркера (инцидент
+    2026-09-14: LLM-прогон в веб-процессе вешал сайт всем). Ответ мгновенный, 202;
+    ход и результат — GET /api/debug/job-requests, живость воркера — GET /api/debug/worker.
+    Параметры из query приходят строками — реестр job_queue сам приводит типы."""
+    from app.services.job_queue import enqueue
+    try:
+        out = enqueue(job_id, params or {}, requested_by="debug")
+    except Exception as e:  # noqa: BLE001
+        logger.exception("очередь: не поставил %s: %s", job_id, e)
+        return JSONResponse(status_code=503, content={"error": f"очередь недоступна: {type(e).__name__}: {e}"})
+    if "error" in out:
+        return JSONResponse(status_code=400, content=out)
+    return JSONResponse(status_code=202, content=out)
+
 # 🔴 Отдельный роутер БЕЗ токена — ровно для одной страницы: HTML-консоли SQL. Браузер
 # не умеет слать заголовок X-Debug-Token при открытии адреса, поэтому под общим гардом
 # страница была бы недоступна вообще. Данных на ней НЕТ: это форма, которая сама
@@ -2051,57 +2067,19 @@ def debug_methodology_status():
 
 @router.post("/debug/trigger-evening-pipeline")
 def debug_trigger_evening_pipeline():
-    """Ручной запуск ВСЕЙ вечерней сборки (крон 21:50). Долго (30–60 мин); прокси
-    ответа не дождётся — смотреть /api/market/* и версии."""
-    from app.db.session import SessionLocal
-    from app.services.evening_pipeline import run
-    db = SessionLocal()
-    try:
-        return run(db)
-    except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-evening-pipeline: %s", e)
-        return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
+    """Ручной запуск ВСЕЙ вечерней сборки (крон 21:50). Долго (30–60 мин).
+    Исполняет воркер через очередь; ход — GET /api/debug/job-requests, версии — /api/market/*."""
+    return _enqueue("evening_pipeline")
 
 
 @router.post("/debug/trigger-probe-questions")
-async def debug_trigger_probe_questions(request: Request, only: str | None = None):
+def debug_trigger_probe_questions(only: str | None = None):
     """Ручной запуск контрольных вопросов владельца (обычно крон ночь вс 00:30).
-    🔴 Не в потоке запроса, а как разовая задача планировщика (советник 2026-09-14):
-    HTTP-поток держал анио-токен и сессию БД на час, прокси рвал соединение, результат
-    терялся при рестарте. Возвращается сразу; ход — /api/market/probe-questions (версия
-    растёт по мере ответов), пульс — jobs-health (probe_questions). only=id1,id2."""
-    sched = getattr(request.app.state, "scheduler", None)
-    ids = [x.strip() for x in only.split(",") if x.strip()] if only else None
-    if sched is None:
-        return {"error": "планировщик не запущен (тест/флаг DISABLE_SCHEDULER)"}
-    from datetime import datetime, timedelta
-
-    async def _job():
-        import asyncio as _a
-        from app.db.session import SessionLocal
-        from app.services.probe_questions import run
-        from app.services.job_heartbeat import hb_ok, hb_err
-
-        def _run():
-            db = SessionLocal()
-            try:
-                return run(db, only=ids)
-            finally:
-                db.close()
-        try:
-            row = await _a.get_event_loop().run_in_executor(None, _run)
-            await _a.get_event_loop().run_in_executor(None, hb_ok, "probe_questions")
-            logger.info("Контрольные вопросы (ручной запуск): версия #%s", getattr(row, "id", None))
-        except Exception as e:  # noqa: BLE001
-            logger.exception("Контрольные вопросы (ручной запуск): %s", e)
-            await _a.get_event_loop().run_in_executor(None, hb_err, "probe_questions", e)
-
-    job = sched.add_job(_job, "date", run_date=datetime.now(sched.timezone) + timedelta(seconds=5),
-                        id=f"probe_manual_{int(datetime.now().timestamp())}")
-    return {"scheduled": True, "job_id": job.id, "only": ids,
-            "hint": "ход — GET /api/market/probe-questions; пульс — /api/debug/jobs-health"}
+    🔴 Исполняет процесс-воркер через очередь (советник 2026-09-14: HTTP-поток и даже
+    разовая задача планировщика в веб-процессе вешали сайт). only=id1,id2.
+    Ход — /api/market/probe-questions (версия растёт по мере ответов) и
+    GET /api/debug/job-requests; пульс — jobs-health (probe_questions)."""
+    return _enqueue("probe_questions", {"only": only} if only else {})
 
 
 @router.get("/debug/watchdog")
@@ -2118,73 +2096,26 @@ def debug_watchdog():
 
 @router.post("/debug/trigger-critic")
 def debug_trigger_critic():
-    """Ручной запуск проверяющего по трём сводкам (обычно крон 23:40)."""
-    from app.db.session import SessionLocal
-    from app.services.critic import run_all
-    db = SessionLocal()
-    try:
-        return run_all(db)
-    except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-critic: %s", e)
-        return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
+    """Ручной запуск проверяющего по трём сводкам (обычно крон 23:40). Через очередь воркера."""
+    return _enqueue("critic")
 
 
 @router.post("/debug/trigger-cross-review")
 def debug_trigger_cross_review():
-    """Ручной запуск перекрёстного опроса трёх аналитиков (обычно крон 23:00)."""
-    from app.db.session import SessionLocal
-    from app.services.cross_review import run
-    db = SessionLocal()
-    try:
-        row = run(db)
-        if row is None:
-            return {"result": "сводок меньше двух"}
-        return {"id": row.id, "status": row.status, "questions": (row.payload or {}).get("questions")}
-    except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-cross-review: %s", e)
-        return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
+    """Ручной запуск перекрёстного опроса трёх аналитиков (обычно крон 23:00). Через очередь воркера."""
+    return _enqueue("cross_review")
 
 
 @router.post("/debug/trigger-consistency")
 def debug_trigger_consistency():
-    """Ручной запуск сверки противоречий между сводками (обычно крон 23:20)."""
-    from app.db.session import SessionLocal
-    from app.services.consistency_check import run
-    db = SessionLocal()
-    try:
-        row = run(db)
-        if row is None:
-            return {"result": "сводок меньше двух"}
-        return {"id": row.id, "status": row.status, "contradictions": (row.payload or {}).get("contradictions"),
-                "missing_handoffs": (row.payload or {}).get("missing_handoffs")}
-    except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-consistency: %s", e)
-        return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
+    """Ручной запуск сверки противоречий между сводками (обычно крон 23:20). Через очередь воркера."""
+    return _enqueue("consistency")
 
 
 @router.post("/debug/trigger-inst-state")
 def debug_trigger_inst_state():
-    """Ручной запуск пересборки ИНСТИТУЦИОНАЛЬНОГО СНИМКА (обычно крон 22:35)."""
-    from app.db.session import SessionLocal
-    from app.services.inst_state import rebuild
-    db = SessionLocal()
-    try:
-        row = rebuild(db)
-        if row is None:
-            return {"result": "нет статей и летописи — снимок не трогали"}
-        return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes,
-                "as_of": (row.payload or {}).get("as_of"), "summary": (row.payload or {}).get("summary")}
-    except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-inst-state: %s", e)
-        return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
+    """Ручной запуск пересборки ИНСТИТУЦИОНАЛЬНОГО СНИМКА (обычно крон 22:35). Через очередь воркера."""
+    return _enqueue("inst_state")
 
 
 @router.post("/debug/trigger-macro-state")
@@ -2192,99 +2123,31 @@ def debug_trigger_macro_state():
     """Ручной запуск пересборки СОСТОЯНИЯ ЭКОНОМИКИ (обычно крон 22:15).
     Пункт 2 плана владельца (2026-09-13): макро получает «карту пациента» по
     образцу гео-барометра — версия на дату в barometer_versions, kind="macro".
-    Возвращает id/status/заметки гейта."""
-    from app.db.session import SessionLocal
-    from app.services.macro_state import rebuild
-    db = SessionLocal()
-    try:
-        row = rebuild(db)
-        if row is None:
-            return {"result": "нет индикаторов — состояние не трогали"}
-        return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes,
-                "as_of": (row.payload or {}).get("as_of"),
-                "summary": (row.payload or {}).get("summary")}
-    except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-macro-state: %s", e)
-        return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
+    Через очередь воркера; id/status/заметки гейта — в результате job-requests."""
+    return _enqueue("macro_state")
 
 
 @router.post("/debug/trigger-barometer-daily")
 def debug_trigger_barometer_daily():
     """Ручной запуск ежедневной пересборки ГЕО-барометра (обычно крон 21:50).
     Владелец 2026-08-01: «слой 1 — ежедневный крон, где DeepSeek всё обновляет».
-    Возвращает id/status/заметки гейта; при пустой ленте — сообщение, барометр
-    не трогается."""
-    from app.db.session import SessionLocal
-    from app.services.barometer_daily import rebuild
-    db = SessionLocal()
-    try:
-        row = rebuild(db)
-        if row is None:
-            return {"result": "лента пуста — барометр не трогали"}
-        return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes,
-                "as_of": (row.payload or {}).get("as_of")}
-    except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-barometer-daily: %s", e)
-        return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
+    Через очередь воркера; при пустой ленте барометр не трогается."""
+    return _enqueue("barometer_daily")
 
 
 @router.post("/debug/trigger-geo-profile")
 def debug_trigger_geo_profile():
     """Ручной запуск НЕДЕЛЬНОГО портрета очагов (крон geo_profile, вс 22:10):
     стороны и цели, баланс сил, связки с макро и институтами в обе стороны.
-    Дорогой прогон — три reasoning-вызова, по одному на очаг."""
-    from app.db.session import SessionLocal
-    from app.services.geo_conflict_profile import rebuild
-    db = SessionLocal()
-    try:
-        row = rebuild(db)
-        if row is None:
-            return {"result": "ни один очаг не собран (лента пуста?)"}
-        return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes,
-                "scopes": [k for k in (row.payload or {}) if not k.startswith("_")]}
-    except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-geo-profile: %s", e)
-        return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
+    Дорогой прогон — три reasoning-вызова, по одному на очаг. Через очередь воркера."""
+    return _enqueue("geo_profile")
 
 
-# 🔴 ФОНОВЫЙ ЗАПУСК, А НЕ ОЖИДАНИЕ В HTTP. Первая версия этих триггеров ждала
-# прогон целиком и на бою не отработала ни разу: замеры направлений — это четыре
-# reasoning-вызова подряд (~15-20 минут), а прокси Timeweb обрывает долгий запрос
-# гораздо раньше (та же причина, по которой POST /market/macro/interpretation
-# отвечает 202 и генерит в фоне — см. комментарий там). Клиент получает ответ
-# сразу, результат смотрит через GET /market/institutions/domains|profile.
-_INST_RUNS: dict = {}
-
-
-def _inst_bg(name: str, fn) -> dict:
-    import threading
-    if _INST_RUNS.get(name, {}).get("running"):
-        return {"running": True, "note": "уже выполняется — второй дорогой прогон не запускаю"}
-
-    def _worker():
-        from app.db.session import SessionLocal
-        db = SessionLocal()
-        try:
-            row = fn(db)
-            _INST_RUNS[name] = {"running": False,
-                                "result": (f"версия {row.id} ({row.status})" if row
-                                           else "не собрано — мало материалов"),
-                                "gate_notes": (row.gate_notes or [])[:10] if row else []}
-        except Exception as e:  # noqa: BLE001
-            logger.exception("debug %s: %s", name, e)
-            _INST_RUNS[name] = {"running": False, "result": f"ошибка: {type(e).__name__}: {e}"}
-        finally:
-            db.close()
-
-    _INST_RUNS[name] = {"running": True, "result": None}
-    threading.Thread(target=_worker, name=name, daemon=True).start()
-    return {"running": True, "note": "запущено в фоне, смотри GET-эндпоинт раздела"}
+# 🔴 Фоновые прогоны (барометры, портреты, доводка карточек, своды, стресс-разборы)
+# раньше шли daemon-потоком ВНУТРИ веб-процесса со статусом в памяти (_INST_RUNS) —
+# статус терялся при рестарте, а сам прогон конкурировал с отдачей страниц за ядро.
+# С 2026-09-14 всё это — очередь процесса-воркера (см. _enqueue выше); единственный
+# источник статуса — таблица job_requests (GET /api/debug/job-requests).
 
 
 @router.post("/debug/trigger-nonequity-facts")
@@ -2411,51 +2274,26 @@ def debug_mark_overlays_consolidated(ids: str, status: str = "consolidated"):
 @router.post("/debug/trigger-sector-scout")
 def debug_trigger_sector_scout(code: str | None = None, dry: bool = False):
     """Добор отраслевых показателей, недоступных парсерам, — через агента-добытчика.
-    dry=true — только показать, что нашлось, без записи в ряд."""
-    from app.db.session import SessionLocal
-    from app.services.sector_scout import run_scout
-    db = SessionLocal()
-    try:
-        return run_scout(db, only_code=code, dry=dry)
-    except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-sector-scout: %s", e)
-        return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
+    dry=true — только показать, что нашлось, без записи в ряд. Через очередь воркера."""
+    return _enqueue("sector_scout", {"code": code, "dry": dry})
 
 
 @router.post("/debug/trigger-tab-rewrite")
 def debug_trigger_tab_rewrite(tab: str, ticker: str | None = None, batch: int = 1):
     """Перезапись вывода для вкладок finance|geo|institutions|governance|business.
     Сигналы разные: у финансов — вышедший отчётный период, у остальных — повторные
-    отказы патчера (проза структурно разошлась, точечная правка уже не помогает)."""
-    from app.db.session import SessionLocal
-    from app.services.card_rewriter import run_tab_rewrites
-    db = SessionLocal()
-    try:
-        return run_tab_rewrites(db, tab, batch=batch, only_ticker=ticker)
-    except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-tab-rewrite: %s", e)
-        return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
+    отказы патчера (проза структурно разошлась, точечная правка уже не помогает).
+    Через очередь воркера."""
+    return _enqueue("tab_rewrite", {"tab": tab, "ticker": ticker, "batch": batch})
 
 
 @router.post("/debug/trigger-markets-rewrite")
 def debug_trigger_markets_rewrite(ticker: str | None = None, batch: int = 2,
                                   use_web: bool = True):
     """Перезапись выводов «Рынков» там, где цена товара ушла в другую фазу цикла.
-    Якорь — цена, записанная в самой карточке (market.json), против живого ряда."""
-    from app.db.session import SessionLocal
-    from app.services.card_rewriter import run_markets_rewrites
-    db = SessionLocal()
-    try:
-        return run_markets_rewrites(db, batch=batch, only_ticker=ticker, use_web=use_web)
-    except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-markets-rewrite: %s", e)
-        return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
+    Якорь — цена, записанная в самой карточке (market.json), против живого ряда.
+    Через очередь воркера."""
+    return _enqueue("markets_rewrite", {"ticker": ticker, "batch": batch, "use_web": use_web})
 
 
 @router.post("/debug/trigger-card-rewrite")
@@ -2464,17 +2302,9 @@ def debug_trigger_card_rewrite(ticker: str | None = None, batch: int = 2):
 
     Запускается на голове очереди дрейфа — там, где расхождение переворачивает
     рассуждение, а не меняет цифру. Champion/challenger: новая версия публикуется,
-    только если все числа заземлены, триггер закрыт и критик не нашёл регрессий."""
-    from app.db.session import SessionLocal
-    from app.services.card_rewriter import run_macro_rewrites
-    db = SessionLocal()
-    try:
-        return run_macro_rewrites(db, batch=batch, only_ticker=ticker)
-    except Exception as e:  # noqa: BLE001
-        logger.exception("debug trigger-card-rewrite: %s", e)
-        return {"error": f"{type(e).__name__}: {e}"}
-    finally:
-        db.close()
+    только если все числа заземлены, триггер закрыт и критик не нашёл регрессий.
+    Через очередь воркера."""
+    return _enqueue("card_rewrite", {"ticker": ticker, "batch": batch})
 
 
 @router.post("/debug/trigger-futures-asset-facts")
@@ -2635,8 +2465,7 @@ def debug_trigger_sector_digest(max_new: int = 30):
 def debug_trigger_sector_barometer():
     """Ручной запуск ОТРАСЛЕВОГО БАРОМЕТРА (крон sector_barometer, вс 21:30):
     состояние 12 отраслей рынка РФ. Четыре reasoning-прохода — в ФОНЕ."""
-    from app.services.sector_barometer import rebuild
-    return JSONResponse(status_code=202, content=_inst_bg("sector_barometer", rebuild))
+    return _enqueue("sector_barometer")
 
 
 @router.post("/debug/trigger-institutions-domains")
@@ -2645,8 +2474,7 @@ def debug_trigger_institutions_domains():
     собственность, суды, законотворчество, госдоля, монополизация, конкуренция,
     регуляторная нагрузка, рыночные институты, конфликты бизнеса и государства,
     лоббизм. Четыре reasoning-прохода — запускается в ФОНЕ, ответ мгновенный."""
-    from app.services.institutions_domains import rebuild
-    return JSONResponse(status_code=202, content=_inst_bg("institutions_domains", rebuild))
+    return _enqueue("institutions_domains")
 
 
 @router.post("/debug/trigger-institutions-profile")
@@ -2655,8 +2483,7 @@ def debug_trigger_institutions_profile():
     «правила ↔ доступ», связь с ценой акций, факторы в обе стороны, кто
     выигрывает и проигрывает, зоны передела, связки с макро и гео. Запускать
     ПОСЛЕ замеров направлений: портрет использует их как вход. В ФОНЕ."""
-    from app.services.institutions_profile import rebuild
-    return JSONResponse(status_code=202, content=_inst_bg("institutions_profile", rebuild))
+    return _enqueue("institutions_profile")
 
 
 @router.post("/debug/trigger-env-card-interp")
@@ -2666,28 +2493,7 @@ def debug_trigger_env_card_interp(tab: str = "both", ticker: str | None = None,
     tab: geo | institutions | macro | both (гео+институты) | all (и макро тоже).
     ticker — прогнать одну компанию (полезно для проверки).
     В ФОНЕ: это партия LLM-вызовов."""
-    from app.services.card_prose_patcher import (
-        run_geo_env_interp, run_inst_env_interp, run_macro_env_interp,
-    )
-
-    def _run(db):
-        out = {}
-        if tab in ("geo", "both", "all"):
-            out["geo"] = run_geo_env_interp(db, batch=batch, only_ticker=ticker)
-        if tab in ("institutions", "both", "all"):
-            out["institutions"] = run_inst_env_interp(db, batch=batch, only_ticker=ticker)
-        if tab in ("macro", "all"):
-            out["macro"] = run_macro_env_interp(db, batch=batch, only_ticker=ticker)
-        if tab in ("markets", "all"):
-            from app.services.card_prose_patcher import run_markets_env_interp
-            out["markets"] = run_markets_env_interp(db, batch=batch, only_ticker=ticker)
-        if tab in ("governance", "all"):
-            from app.services.card_prose_patcher import run_gov_env_interp
-            out["governance"] = run_gov_env_interp(db, batch=batch, only_ticker=ticker)
-        # возвращаем объект-заглушку с полями, которые ждёт _inst_bg
-        return type("R", (), {"id": "-", "status": "done", "gate_notes": [str(out)[:400]]})()
-
-    return JSONResponse(status_code=202, content=_inst_bg("env_card_interp", _run))
+    return _enqueue("env_card_interp", {"tab": tab, "ticker": ticker, "batch": batch})
 
 
 @router.get("/debug/egress-check")
@@ -2736,8 +2542,10 @@ def debug_egress_check(url: str, timeout: int = 15, contains: str | None = None)
 
 @router.get("/debug/institutions-runs")
 def debug_institutions_runs():
-    """Состояние фоновых прогонов институтов: идёт / чем закончился."""
-    return _INST_RUNS or {"note": "прогонов в этой сессии сервера не было"}
+    """Состояние фоновых прогонов (институты и остальное): идёт / чем закончился."""
+    from app.services.job_queue import list_recent
+    return {"note": "статус фоновых прогонов — таблица job_requests (переживает рестарты)",
+            "recent": list_recent(20)}
 
 
 @router.post("/debug/trigger-geo-verification")
@@ -3918,15 +3726,7 @@ def debug_build_overview_synthesis(ticker: str | None = None, batch: int = 3,
 
     В ФОНЕ: каждая компания — отдельный LLM-прогон по семи разборам.
     """
-    from app.services.overview_synthesis import run_batch
-
-    def _run(db):
-        out = run_batch(db, batch=max(1, min(batch, 25)), stale_days=stale_days,
-                        only_ticker=ticker)
-        return type("R", (), {"id": "-", "status": "done",
-                              "gate_notes": [str(out)[:400]]})()
-
-    return JSONResponse(status_code=202, content=_inst_bg("overview_synthesis", _run))
+    return _enqueue("overview_synthesis", {"ticker": ticker, "batch": batch, "stale_days": stale_days})
 
 
 @router.post("/debug/build-stress-interpretation")
@@ -3937,15 +3737,7 @@ def debug_build_stress_interpretation(scenario: str | None = None, batch: int = 
 
     В ФОНЕ: каждый сценарий — отдельный LLM-прогон по сводам карточек и барометрам.
     """
-    from app.services.stress_interpreter import run_batch
-
-    def _run(db):
-        out = run_batch(db, only_key=scenario, batch=max(1, min(batch, 10)),
-                        stale_days=stale_days)
-        return type("R", (), {"id": "-", "status": "done",
-                              "gate_notes": [str(out)[:400]]})()
-
-    return JSONResponse(status_code=202, content=_inst_bg("stress_interpretation", _run))
+    return _enqueue("stress_interpretation", {"scenario": scenario, "batch": batch, "stale_days": stale_days})
 
 
 @router.get("/debug/stress-interpretation-status")
@@ -4933,3 +4725,41 @@ def analytics_redirect():
     return RedirectResponse("/api/debug/sql-console", status_code=307)
 
 
+# ── очередь процесса-воркера (2026-09-14) ─────────────────────────────────────
+@router.post("/debug/run-job/{job_id}")
+async def debug_run_job(job_id: str, request: Request):
+    """Поставить в очередь воркера ЛЮБУЮ известную задачу: с параметрами — по реестру
+    job_queue.REGISTRY (параметры — JSON-тело или query), без параметров — по id
+    крона из register_jobs (main.py). Неизвестный id → 400 со списком известных."""
+    params: dict = {}
+    try:
+        body = await request.json()
+        if isinstance(body, dict):
+            params.update(body)
+    except Exception:  # noqa: BLE001
+        pass
+    params.update(dict(request.query_params))
+    return _enqueue(job_id, params)
+
+
+@router.get("/debug/job-requests")
+def debug_job_requests(limit: int = Query(30, ge=1, le=200), job_id: str | None = None):
+    """Очередь ручных прогонов: последние заявки со статусом, длительностью и сводкой результата."""
+    from app.services.job_queue import list_recent, queue_depth
+    return {"depth": queue_depth(), "recent": list_recent(limit, job_id=job_id)}
+
+
+@router.get("/debug/worker")
+def debug_worker():
+    """Жив ли процесс-воркер (пульс worker_alive раз в минуту), глубина очереди,
+    последние заявки, сколько задач он знает. Первое, что смотреть, если «кроны молчат»."""
+    from app.services.job_heartbeat import jobs_health
+    from app.services.job_queue import list_recent, queue_depth, known_job_ids, REGISTRY
+    out = {"worker": jobs_health().get("worker")}
+    try:
+        out["queue"] = queue_depth()
+        out["recent"] = list_recent(5)
+    except Exception as e:  # noqa: BLE001
+        out["queue_error"] = f"{type(e).__name__}: {e}"
+    out["known_jobs"] = {"with_params": sorted(REGISTRY), "total": len(known_job_ids())}
+    return out

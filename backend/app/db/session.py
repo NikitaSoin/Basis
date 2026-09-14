@@ -36,8 +36,10 @@ engine = create_engine(
     pool_pre_ping=True,
     pool_recycle=280,
     pool_timeout=10,
-    pool_size=5,
-    max_overflow=10,
+    # Размер пула — по роли процесса (start.sh): веб 5+5, воркер 3+4 → ≤17 из 25
+    # max_connections managed-PG. Без переменных — прежние 5+10 (локалка, скрипты).
+    pool_size=int(os.environ.get("DB_POOL_SIZE", "5")),
+    max_overflow=int(os.environ.get("DB_MAX_OVERFLOW", "10")),
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

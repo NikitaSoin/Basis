@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 # Ожидаемые интервалы успешных прогонов (сек) — по расписанию в main.py, с
 # запасом ×2.5 на ретраи/паузы. Джоб не в списке → показываем без вердикта.
 EXPECTED_INTERVAL_SEC: dict[str, int] = {
+    "worker_alive": 3 * 60,              # процесс-воркер (app/worker.py) отмечается раз в минуту
     "quotes_update": 30 * 60,            # каждые 5 мин (запас на выходные — нет)
     "news_feed": 3 * 3600,               # каждый час
     "geo_digest": 3 * 3600,              # каждый час
@@ -125,4 +126,12 @@ def jobs_health() -> dict:
         if job_id not in seen:
             seen[job_id] = {"verdict": "no_heartbeat_yet", "note": "джоб ещё ни разу не отчитался (после внедрения мониторинга это норма до первого прогона)"}
     problems = [j for j, v in seen.items() if v["verdict"] in ("stale", "failing", "never_ran")]
-    return {"ok": not problems, "problems": problems, "jobs": seen}
+    # 🔴 Воркер — первой строкой: если он не поднялся, ВСЕ кроны молчат, и это одна
+    # причина, а не пятьдесят (расщепление процессов 2026-09-14).
+    w = seen.get("worker_alive") or {"verdict": "no_heartbeat_yet"}
+    worker = {"alive": w.get("verdict") == "ok", "verdict": w.get("verdict"),
+              "last_seen": w.get("last_success"), "age_min": w.get("age_min"),
+              "note": ("процесс-воркер исполняет кроны и очередь ручных прогонов; "
+                       "нет пульса дольше 3 мин — задачи стоят, см. лог start.sh")}
+    seen = {"worker_alive": w, **{k: v for k, v in seen.items() if k != "worker_alive"}}
+    return {"ok": not problems, "worker": worker, "problems": problems, "jobs": seen}

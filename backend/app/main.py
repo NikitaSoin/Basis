@@ -222,15 +222,19 @@ def _with_heartbeat(job_id: str, fn):
     инкрементально."""
     async def _wrapped():
         from app.services.job_heartbeat import hb_ok, hb_err
+        from app.services.job_queue import RUNNING_JOBS
         # 🔴 Запись пульса — INSERT в БД; в потоке цикла событий при заторе Postgres она
         # вешала ВЕСЬ процесс на pool_timeout (советник 2026-09-14). Только через executor.
         loop = asyncio.get_event_loop()
+        RUNNING_JOBS.add(job_id)   # страж памяти воркера перезапускает процесс только в тишине
         try:
             await fn()
             await loop.run_in_executor(None, hb_ok, job_id)
         except Exception as e:  # джоб выбросил наружу (редкость) — тоже фиксируем
             await loop.run_in_executor(None, hb_err, job_id, e)
             raise
+        finally:
+            RUNNING_JOBS.discard(job_id)
     return _wrapped
 
 
@@ -1894,66 +1898,50 @@ async def _selftest_startup():
         logger.warning("SELFTEST не выполнен: %s", e)
 
 
-@asynccontextmanager
-def _ensure_log_timestamps() -> None:
-    """В логе Timeweb нет времени — при разборе инцидента 2026-09-14 это была главная
-    дыра. Ставим формат с asctime на все хендлеры корневого логгера (и заводим один,
-    если их нет). Формат uvicorn-логгеров не трогаем."""
-    try:
-        fmt = logging.Formatter("%(asctime)s %(levelname).5s [%(name)s] %(message)s", "%Y-%m-%d %H:%M:%S")
-        root = logging.getLogger()
-        if not root.handlers:
-            h = logging.StreamHandler()
-            root.addHandler(h)
-        for h in root.handlers:
-            h.setFormatter(fmt)
-    except Exception:  # noqa: BLE001
-        pass
+SCHEDULER_TZ = "Europe/Moscow"
+# misfire_grace_time=1800: воркер, поднявшийся через несколько минут после плановой
+# минуты (рестарт контейнера, деплой), всё равно запускает пропущенную задачу — иначе
+# вечерняя сборка 21:50 молча не пошла бы после деплоя в 21:48. coalesce — один запуск
+# за все пропуски, не очередь из пяти quotes_update.
+SCHEDULER_JOB_DEFAULTS = {"misfire_grace_time": 1800, "coalesce": True}
 
 
-async def _startup_chain():
-    """Старт-задачи одна за другой, тяжёлые — с отсрочкой (см. комментарий в lifespan)."""
-    delay = float(os.environ.get("STARTUP_DELAY_SEC", "300"))
-    gap = float(os.environ.get("STARTUP_GAP_SEC", "45"))
+def basis_role() -> str:
+    """Роль процесса: web (только ручки), worker (только задачи), all (всё в одном —
+    локалка/тесты и откат WORKER_SPLIT=0 в start.sh). Расщепление задаёт ОДНА
+    переменная в start.sh, чтобы откат не породил два планировщика (советник 2026-09-14)."""
+    return (os.environ.get("BASIS_ROLE") or "all").strip().lower()
 
-    async def _step(name, coro_fn):
+
+async def _worker_alive_task() -> None:
+    """Пульс «воркер жив» раз в минуту — в роли all его пишет сам веб-процесс, иначе
+    jobs-health показывал бы stale при штатной работе без расщепления."""
+    from app.services.job_heartbeat import hb_ok
+    while True:
         try:
-            await coro_fn()
-        except Exception as e:  # noqa: BLE001
-            logger.warning("старт-задача %s: %s", name, e)
-
-    for name, fn in (("tinkoff_warmup", _tinkoff_warmup), ("seed_shares", _seed_shares_startup),
-                     ("selftest", _selftest_startup)):
-        await _step(name, fn)
-    logger.info("старт: лёгкие задачи выполнены, тяжёлые — через %.0f с, с паузой %.0f с", delay, gap)
-    await asyncio.sleep(delay)
-    for name, fn in (("barometer_expert_reimport", _barometer_expert_reimport_startup),
-                     ("geo_frontline_sync", _geo_frontline_sync_startup),
-                     ("instrument_history", _instrument_history_startup),
-                     ("asset_data", _asset_data_job),
-                     ("sector_tr_backfill", _sector_tr_backfill_startup),
-                     ("risk_metrics", _risk_metrics_startup)):
-        await _step(name, fn)
-        await asyncio.sleep(gap)
-    logger.info("старт: все старт-задачи выполнены")
+            await asyncio.get_event_loop().run_in_executor(None, hb_ok, "worker_alive")
+        except Exception:  # noqa: BLE001
+            pass
+        await asyncio.sleep(60)
 
 
-async def lifespan(app: FastAPI):
-    # Под тестами (pytest) НЕ запускаем планировщик и старт-задачи: они ходят в сеть
-    # и зовут LLM (ингест/новости/аналитика), что недопустимо в тестовом прогоне.
-    import sys
-    if "pytest" in sys.modules or os.environ.get("DISABLE_SCHEDULER"):
-        logger.info("Планировщик/старт-задачи отключены (тест/флаг)")
-        yield
-        return
-    _ensure_log_timestamps()
-    try:
-        from app.services.loop_watchdog import start as _watchdog_start
-        _watchdog_start()   # видеть зависания цикла событий (инцидент 2026-09-14)
-    except Exception as e:  # noqa: BLE001
-        logger.warning("Сторож цикла событий не запущен: %s", e)
-    scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
-    app.state.scheduler = scheduler   # разовые задачи из debug-ручек — через планировщик, не HTTP-поток
+async def _rss_log_task(tag: str, period_sec: int = 300) -> None:
+    """RSS процесса в лог раз в 5 минут: после расщепления видно, кто растёт — веб
+    (268 → 621 МБ за 7 часов до расщепления) или воркер."""
+    from app.worker import rss_mb
+    while True:
+        await asyncio.sleep(period_sec)
+        try:
+            logger.info("%s: RSS %s МБ", tag, rss_mb())
+        except Exception:  # noqa: BLE001
+            pass
+
+
+def register_jobs(scheduler) -> None:
+    """Все задачи планировщика — в одном месте. Вызывается воркером (app/worker.py,
+    роль worker) или самим веб-процессом (роль all — локалка / откат WORKER_SPLIT=0).
+    🔴 Список задач и расписание — ТОЛЬКО здесь; при роли web в uvicorn планировщика нет
+    вообще (инцидент 2026-09-14: задачи в одном процессе с сайтом вешали ответы всем)."""
     scheduler.add_job(_with_heartbeat("quotes_update", _quotes_job), "interval", minutes=5, id="quotes_update")
     # История: раз в день после закрытия торгов (19:30 МСК) докачиваем
     # пропущенные дни и финализируем live-снапшоты официальными свечами.
@@ -2104,7 +2092,86 @@ async def lifespan(app: FastAPI):
     # Отсев роботов — до ретеншена: сначала уточняем, кто робот, потом чистим по срокам.
     scheduler.add_job(_with_heartbeat("bots_reclassify", _bots_reclassify_job), "cron", hour=3, minute=50, id="bots_reclassify")
     scheduler.add_job(_with_heartbeat("pd_retention", _retention_job), "cron", hour=4, minute=10, id="pd_retention")
+
+
+def _ensure_log_timestamps() -> None:
+    """В логе Timeweb нет времени — при разборе инцидента 2026-09-14 это была главная
+    дыра. Ставим формат с asctime на все хендлеры корневого логгера (и заводим один,
+    если их нет). Формат uvicorn-логгеров не трогаем."""
+    try:
+        tag = {"web": "web", "worker": "wrk"}.get(basis_role(), "all")
+        fmt = logging.Formatter("%(asctime)s [" + tag + "] %(levelname).5s [%(name)s] %(message)s", "%Y-%m-%d %H:%M:%S")
+        root = logging.getLogger()
+        if not root.handlers:
+            h = logging.StreamHandler()
+            root.addHandler(h)
+        for h in root.handlers:
+            h.setFormatter(fmt)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+async def _startup_chain():
+    """Старт-задачи одна за другой, тяжёлые — с отсрочкой (см. комментарий в lifespan)."""
+    delay = float(os.environ.get("STARTUP_DELAY_SEC", "300"))
+    gap = float(os.environ.get("STARTUP_GAP_SEC", "45"))
+
+    async def _step(name, coro_fn):
+        try:
+            await coro_fn()
+        except Exception as e:  # noqa: BLE001
+            logger.warning("старт-задача %s: %s", name, e)
+
+    for name, fn in (("tinkoff_warmup", _tinkoff_warmup), ("seed_shares", _seed_shares_startup),
+                     ("selftest", _selftest_startup)):
+        await _step(name, fn)
+    logger.info("старт: лёгкие задачи выполнены, тяжёлые — через %.0f с, с паузой %.0f с", delay, gap)
+    await asyncio.sleep(delay)
+    for name, fn in (("barometer_expert_reimport", _barometer_expert_reimport_startup),
+                     ("geo_frontline_sync", _geo_frontline_sync_startup),
+                     ("instrument_history", _instrument_history_startup),
+                     ("asset_data", _asset_data_job),
+                     ("sector_tr_backfill", _sector_tr_backfill_startup),
+                     ("risk_metrics", _risk_metrics_startup)):
+        await _step(name, fn)
+        await asyncio.sleep(gap)
+    logger.info("старт: все старт-задачи выполнены")
+
+
+# 🔴 Декоратор — именно над lifespan. В 03f8e9f2f1 он оказался над _ensure_log_timestamps:
+# та превратилась в контекст-менеджер, тело не выполнялось, времени в логе так и не было.
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Под тестами (pytest) НЕ запускаем планировщик и старт-задачи: они ходят в сеть
+    # и зовут LLM (ингест/новости/аналитика), что недопустимо в тестовом прогоне.
+    import sys
+    if "pytest" in sys.modules or os.environ.get("DISABLE_SCHEDULER"):
+        logger.info("Планировщик/старт-задачи отключены (тест/флаг)")
+        yield
+        return
+    _ensure_log_timestamps()
+    try:
+        from app.services.loop_watchdog import start as _watchdog_start
+        _watchdog_start()   # видеть зависания цикла событий (инцидент 2026-09-14)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Сторож цикла событий не запущен: %s", e)
+    role = basis_role()
+    if role == "web":
+        # Планировщик, стартовая цепочка и очередь ручных прогонов — в процессе-воркере
+        # (app/worker.py, запускает start.sh при WORKER_SPLIT=1). Здесь — только отдача
+        # страниц: ни одна задача не конкурирует с ней за ядро и GIL.
+        app.state.scheduler = None
+        logger.info("роль web: планировщик и фоновые задачи исполняет отдельный процесс app.worker")
+        asyncio.create_task(_rss_log_task("web"))
+        yield
+        return
+    scheduler = AsyncIOScheduler(timezone=SCHEDULER_TZ, job_defaults=SCHEDULER_JOB_DEFAULTS)
+    app.state.scheduler = scheduler   # разовые задачи из debug-ручек — через планировщик, не HTTP-поток
+    register_jobs(scheduler)
     scheduler.start()
+    logger.info("роль all: планировщик в веб-процессе (локалка или откат WORKER_SPLIT=0)")
+    asyncio.create_task(_worker_alive_task())   # в этой роли «воркер» — сам веб-процесс
+    asyncio.create_task(_rss_log_task("all"))
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
     # 🔴 СТАРТОВЫЙ ЗАЛП — ПОСЛЕДОВАТЕЛЬНО И С ОТСРОЧКОЙ (советник 2026-09-14). Раньше
