@@ -109,8 +109,8 @@ _REF_RUB_USD = None
 
 def _live_refs(db: Session) -> tuple[float | None, float | None]:
     oil = db.execute(text(
-        "SELECT last_price FROM futures WHERE (asset_code ILIKE 'BR%' OR secid ILIKE 'BR%') "
-        "AND last_price IS NOT NULL AND expiration_date >= now()::date "
+        "SELECT last_price FROM futures WHERE asset_code = 'BR' "
+        "AND last_price > 0 AND expiration_date >= now()::date "
         "ORDER BY expiration_date ASC LIMIT 1")).first()
     rub = db.execute(text("SELECT last_price FROM spot_assets WHERE secid='USD000UTSTOM'")).first()
     return (float(oil[0]) if oil and oil[0] else None), (float(rub[0]) if rub and rub[0] else None)

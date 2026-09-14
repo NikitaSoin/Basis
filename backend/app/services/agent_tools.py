@@ -95,8 +95,8 @@ def _get_live_macro(db: Session) -> dict:
         out["key_rate_pct"] = float(row[0])
         out["key_rate_as_of"] = str(row[1])
     row = db.execute(text(
-        "SELECT last_price FROM futures WHERE (asset_code ILIKE 'BR%' OR secid ILIKE 'BR%') "
-        "AND last_price IS NOT NULL AND expiration_date >= now()::date "
+        "SELECT last_price FROM futures WHERE asset_code = 'BR' "
+        "AND last_price > 0 AND expiration_date >= now()::date "
         "ORDER BY expiration_date ASC LIMIT 1")).first()
     if row and row[0]:
         out["oil_brent_usd"] = float(row[0])

@@ -56,7 +56,7 @@ def _live_brent(db: Session) -> float | None:
     try:
         r = db.execute(text(
             "SELECT last_price FROM futures "
-            "WHERE (asset_code ILIKE 'BR%' OR secid ILIKE 'BR%') AND last_price IS NOT NULL "
+            "WHERE asset_code = 'BR' AND last_price > 0 "
             "AND expiration_date >= now()::date ORDER BY expiration_date ASC LIMIT 1")).first()
         return float(r[0]) if r and r[0] else None
     except Exception:  # noqa: BLE001

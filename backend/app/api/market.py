@@ -111,10 +111,15 @@ def market_drivers(db: Session = Depends(get_db)):
     # instrument_history, нужен re-backfill с MOEX ISS, не просто склейка имеющегося.
     # Пока — честная подпись: конкретный контракт + дата начала охвата (instrument_label),
     # не выдаём его за общий график «нефть».
+    # 🔴 Найдено на бою 2026-09-14 (владелец: «Brent 37 долларов, что за бред»): маска
+    # asset_code ILIKE 'BR%' ловила BRAZIL (фьючерс на бразильский индекс, BZU6 ≈ $37) и
+    # BRM (мини-Brent). Квартальный BRAZIL истекает раньше ближайшего месячного BR — с 1-го
+    # числа до 3-й пятницы марта/июня/сентября/декабря плитка показывала Бразилию вместо нефти.
+    # Только точный код 'BR' (как в stress_numeric.get_current_levels / market_pulse).
     try:
         r = db.execute(_t(
             "SELECT secid, last_price, prev_settle, expiration_date FROM futures "
-            "WHERE (asset_code ILIKE 'BR%' OR secid ILIKE 'BR%') AND last_price IS NOT NULL "
+            "WHERE asset_code = 'BR' AND last_price > 0 "
             "AND expiration_date >= now()::date ORDER BY expiration_date ASC LIMIT 1")).first()
         if r and r[1]:
             secid = r[0]; px = float(r[1]); prev = float(r[2]) if r[2] else None

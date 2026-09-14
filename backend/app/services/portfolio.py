@@ -1402,8 +1402,8 @@ def compute_portfolio_stress_v2(db: Session, portfolio_id: int,
 
     brent_spot = None
     row = db.execute(text(
-        "SELECT last_price FROM futures WHERE (asset_code ILIKE 'BR%' OR secid ILIKE 'BR%') "
-        "AND last_price IS NOT NULL AND expiration_date >= now()::date "
+        "SELECT last_price FROM futures WHERE asset_code = 'BR' "
+        "AND last_price > 0 AND expiration_date >= now()::date "
         "ORDER BY expiration_date ASC LIMIT 1")).first()
     if row and row[0]:
         brent_spot = float(row[0])
