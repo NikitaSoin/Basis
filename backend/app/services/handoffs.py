@@ -211,7 +211,7 @@ FINAL_FIELDS = (
     '"cross_chains": [...] — см. блок ЦЕПОЧКИ'
 )
 
-ALL_SHELF = ["code", "macro_base", "inst_env", "geo_base", "geo_events", "geo", "geo_macro",
+ALL_SHELF = ["code", "macro_base", "inst_env", "geo_base", "geo_events", "geo_macro",
              "macro_geo", "geo_inst", "inst_geo", "inst_macro", "macro_inst", "macro_sector", "macro"]
 
 

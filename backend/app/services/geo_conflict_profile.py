@@ -53,7 +53,6 @@ from app.services.situation_overlay import _BLOCKLIST, _sanitize_sources
 logger = logging.getLogger(__name__)
 
 _REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-_METHODOLOGY = os.path.join(_REPO, "docs", "geopolitics_methodology.md")
 
 # Отдельный kind в barometer_versions — портреты не мешают барометру ("geo").
 # 🔴 Ровно 7 символов НЕ случайно: barometer_versions.kind — varchar(8) (проверено
@@ -499,7 +498,7 @@ def build_one(db: Session, scope: str, prev: dict | None,
             db, extra_tools=_feed_schema(), extra_executor=_feed_exec,  system=system, task="\n\n".join(user_parts),
             # Портрет очага отвечает в том числе «сколько это продлится» —
             # macro_geo даёт для этого экономическую выносливость сторон.
-            shelf_docs=["code", "geo_base", "geo_events", "geo", "geo_macro", "macro_geo",
+            shelf_docs=["code", "geo_base", "geo_events", "geo_macro", "macro_geo",
                         "geo_inst", "inst_geo", "inst_env"],
             max_steps=12, budget=1_500_000, final_max_tokens=32_000,
             notes=_diag,

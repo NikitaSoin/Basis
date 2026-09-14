@@ -284,7 +284,17 @@ def _reject(db: Session, parent_id: int | None, why: list[str]) -> BarometerVers
 
 # ─────────────────────────── сборка ───────────────────────────
 
+def _protocol_core() -> str:
+    """Операционный протокол владельца (поведение + регулярный снимок). Мягко."""
+    try:
+        from app.services.protocol_core import STATE_PARTS, core_text
+        return core_text(STATE_PARTS) + "\n"
+    except Exception:  # noqa: BLE001
+        return ""
+
+
 _SYSTEM = (
+    _protocol_core() +
     "Ты — институциональный аналитик Basis (независимая аналитика для частного "
     "инвестора в РФ). Твоя работа — не текст, а ИНСТИТУЦИОНАЛЬНЫЙ СНИМОК страны на "
     "дату, который ты поддерживаешь и обновляешь: сравнением снимков, а не "

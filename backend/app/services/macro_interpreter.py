@@ -29,7 +29,6 @@ _REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.
 # (Часть 0), прогноз ПЯТИ переменных (Часть 14) и формат вывода в два слоя (Часть 19),
 # поэтому _OUTPUT_SPEC ниже приведён в соответствие с ней, а не живёт своей жизнью.
 _METHODOLOGY = os.path.join(_REPO, "docs", "macro_interpreter_methodology_v3.md")
-_METHODOLOGY_LEGACY = os.path.join(_REPO, "docs", "macroeconomics_methodology.md")
 _SECTORS = os.path.join(_REPO, "config", "sectors.json")
 
 # Жёсткая инструкция формата вывода (раздел 14 методички) — добавляется к методичке.
@@ -309,7 +308,7 @@ def _feed_exec(db, name, args):
         return None
 
 def _methodology() -> str:
-    for path in (_METHODOLOGY, _METHODOLOGY_LEGACY):
+    for path in (_METHODOLOGY,):
         try:
             with open(path, encoding="utf-8") as f:
                 return f.read()

@@ -98,6 +98,10 @@ _LENS_FORM = """
 
 _LENS_RULES = """
 ===== КАК ТЫ РАБОТАЕШЬ =====
+🔴 Операционный протокол выше описывает работу СОВЕТА целиком (три контура всегда, маршрут, второй и
+третий порядок): твоя доля в нём — ОДНА методичка; переводы в соседние контуры делают другие агенты, а
+картину собирает сведение. Оптика лица, принимающего решения (восемь вопросов) и девять правил —
+обязательны и для тебя.
 🔴 Ты смотришь на задачу ТОЛЬКО через свою методичку — она лежит выше целиком. Не пересказывай её:
 применяй к сегодняшним фактам из пачки данных и инструментов. Каждый механизм — с номером раздела.
 🔴 Чего методичка не видит — скажи прямо в blind_spots. Это не слабость, это разделение труда:
@@ -124,12 +128,20 @@ def lens_system(doc_id: str) -> str:
             "аналитика для частного инвестора в РФ. Ты один из двенадцати агентов совета: у каждого своя "
             "методичка, и на любую задачу совет смотрит двенадцатью разными способами, а потом сводит. "
             "Твоя работа — увидеть в задаче ровно то, что позволяет увидеть ТВОЯ методичка, и сказать это "
-            "конкретно, с механизмами и разделами.\n\n"
-            f"===== ТВОЯ МЕТОДИЧКА (целиком): {title} =====\n")
+            "конкретно, с механизмами и разделами.\n\n")
     code = _doc_text("code")
-    return (head + _doc_text(doc_id)
+    return (head + _protocol() + f"\n===== ТВОЯ МЕТОДИЧКА (целиком): {title} =====\n" + _doc_text(doc_id)
             + "\n\n===== ОБЩИЙ КОДЕКС АНАЛИЗА (правила доказательности, обязателен для всех) =====\n"
             + code + _LENS_RULES + _LENS_FORM)
+
+
+def _protocol(parts=None) -> str:
+    """Операционный протокол владельца — общее ядро (мягко: файл может отсутствовать)."""
+    try:
+        from app.services.protocol_core import core_text
+        return core_text(parts)
+    except Exception:  # noqa: BLE001
+        return ""
 
 
 # ─────────────────────────── пачка данных ───────────────────────────
@@ -303,6 +315,11 @@ _SYNTH_SYSTEM = (
 )
 
 
+def synth_system() -> str:
+    """Системное задание сведения: операционный протокол владельца + правила сведения."""
+    return _protocol() + "\n" + _SYNTH_SYSTEM
+
+
 def synthesize(db: Session, task: str, results: dict[str, dict], replies: dict[str, dict],
                packet: str, notes: list[str] | None = None) -> dict | None:
     from app.services.agent_runner import run_agent
@@ -314,7 +331,7 @@ def synthesize(db: Session, task: str, results: dict[str, dict], replies: dict[s
             + f"\n\nСегодня: {date.today().isoformat()}.")
     t0 = time.monotonic()
     try:
-        out = run_agent(db, system_prompt=_SYNTH_SYSTEM, task=user, tools_schema=[], allowed_ticker="",
+        out = run_agent(db, system_prompt=synth_system(), task=user, tools_schema=[], allowed_ticker="",
                         max_steps=2, max_tokens_total=1_000_000, web_call_cap=0, executor=lambda *_: None,
                         step_max_tokens=_SYNTH_MAX_TOKENS, final_max_tokens=_SYNTH_MAX_TOKENS,
                         final_instruction="Верни JSON строго по форме из роли.",

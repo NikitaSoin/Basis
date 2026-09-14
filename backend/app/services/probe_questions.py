@@ -119,8 +119,14 @@ def _analyst_system(contour: str) -> str:
         mandate = SENIOR_MANDATE + MANDATES.get(contour, "")
     except Exception:  # noqa: BLE001
         mandate = ""
+    try:
+        from app.services.protocol_core import core_text
+        protocol = core_text() + "\n"
+    except Exception:  # noqa: BLE001
+        protocol = ""
     return (
-        f"Ты — старший аналитик Basis по контуру «{_CONTOUR_RU.get(contour, contour)}» (независимая "
+        protocol
+        + f"Ты — старший аналитик Basis по контуру «{_CONTOUR_RU.get(contour, contour)}» (независимая "
         "аналитика для частного инвестора в РФ). Владелец платформы задаёт тебе вопрос как советнику: "
         "ему нужен не пересказ ленты, а системный разбор — что происходит на самом деле, кто участники "
         "и чего хотят, куда движется, что это значит для экономики и рынка, чего ты не знаешь. "

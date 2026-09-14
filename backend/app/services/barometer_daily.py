@@ -54,7 +54,6 @@ from app.services.situation_overlay import _BLOCKLIST, _sanitize_sources
 logger = logging.getLogger(__name__)
 
 _REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-_METHODOLOGY = os.path.join(_REPO, "docs", "geopolitics_methodology.md")
 
 _SCOPES = ("svo", "middle_east", "atr")
 _WINDOW_DAYS = 14        # окно ленты для суточной пересборки
@@ -88,6 +87,15 @@ def _feed_exec(db, name, args):
         return execute(db, name, args)
     except ImportError:  # pragma: no cover
         return None
+
+def _protocol_core() -> str:
+    """Операционный протокол владельца (части поведения + регулярный снимок). Мягко."""
+    try:
+        from app.services.protocol_core import STATE_PARTS, core_text
+        return core_text(STATE_PARTS) + "\n"
+    except Exception:  # noqa: BLE001
+        return ""
+
 
 def _mandate_prompt() -> str:
     try:
@@ -651,7 +659,8 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
         logger.warning("barometer_daily: разведка недоступна (%s) — выпуск по ленте", e)
 
     system = (
-        "Ты — старший гео-политэкономический аналитик Basis (независимая аналитика "
+        _protocol_core()
+        + "Ты — старший гео-политэкономический аналитик Basis (независимая аналитика "
         "для частного инвестора в РФ). Твоя задача — ежедневно пересобирать "
         "геополитический барометр рынка.\n\n"
         # 🔴 МЕТОДИЧЕК В ПРОМПТЕ НЕТ (владелец, 2026-08-20): они база знаний, а не

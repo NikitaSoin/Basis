@@ -424,7 +424,17 @@ def _news_context(db: Session, tickers: list[str] | None, limit: int = 8) -> lis
 
 
 # ----------------------------- Шаг 3: синтез ответа -----------------------------
+def _protocol_short() -> str:
+    """Операционный протокол владельца — оптика, разбор вопроса, девять правил. Мягко."""
+    try:
+        from app.services.protocol_core import ASSISTANT_PARTS, core_text
+        return core_text(ASSISTANT_PARTS) + "\n"
+    except Exception:  # noqa: BLE001
+        return ""
+
+
 _ANSWER_FRAMEWORK = (
+    _protocol_short() +
     "Ты — ИИ-ассистент инвестиционной платформы Basis для частного инвестора на "
     "российском рынке: грамотный, эрудированный аналитик-собеседник.\n\n"
     "ДВА СЛОЯ ЗНАНИЙ — строго различай:\n"
