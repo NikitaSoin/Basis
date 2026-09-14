@@ -165,7 +165,7 @@ def test_interpreter_generate(db, monkeypatch):
     row = ip.generate(db)
     assert row.sections["headline"] == "Главный вывод"
     assert captured["label"] == "macro_interpreter"   # звали именно интерпретатора
-    assert "macro" in (captured["shelf"] or [])       # с методичкой на полке
+    assert "macro_base" in (captured["shelf"] or [])  # с методичкой на полке (интерпретатор v3 удалён владельцем 14.09)
     assert ip.get_latest(db).id == row.id
     # гейт отработал и записал вердикт — выпуск не уходит на витрину неотмеченным
     assert row.source_snapshot.get("gate") in ("ok", "warn")
