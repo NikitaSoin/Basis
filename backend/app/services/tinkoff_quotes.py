@@ -355,6 +355,107 @@ def refresh_prices(prev_close_map: dict[str, float | None] | None = None) -> boo
         return False
 
 
+# ─── prev_close: посев раз в торговый день ─────────────────────────────────
+# 🔴 Найдено на бою 2026-09-16 (владелец: «в Акциях не выводится динамика по секторам»):
+# prev_close попадал в кэш ТОЛЬКО через _tinkoff_warmup при старте процесса (MOEX bulk).
+# После расщепления процессов (2026-09-14) цепочка старта уехала в воркер, веб-процесс
+# прогрев не делает → у всех 308 бумаг change_pct = null: на Рынке пропали «за день»,
+# динамика секторов и ширина рынка (0/0/0), хотя цены живые. И до расщепления prev_close
+# жил от рестарта до рестарта: на второй день без перезапуска «за день» считался бы от
+# позавчерашнего закрытия (в quotes на бою prev_close 15.09 = закрытие 13.09).
+# Теперь КАЖДЫЙ процесс сам досевает prev_close раз в торговый день из MOEX ISS
+# (источник истины для «вчерашнего закрытия»), в фоне и single-flight; между днями no-op.
+_prev_close_day: str | None = None
+_prev_close_lock = threading.Lock()
+_prev_close_seeding = False
+_prev_close_attempt_ts: float = 0.0
+_PREV_CLOSE_RETRY_SEC = 600   # MOEX недоступен → не долбить чаще раза в 10 минут
+
+
+def seed_prev_close(prev_map: dict[str, float | None]) -> int:
+    """Записать prev_close в кэш и пересчитать изменение по уже известной цене."""
+    n = 0
+    for ticker, pc in (prev_map or {}).items():
+        try:
+            pc = float(pc) if pc is not None else None
+        except (TypeError, ValueError):
+            pc = None
+        if not pc or pc <= 0:
+            continue
+        entry = _prices.get(ticker)
+        if entry is None:
+            # цена ещё не пришла — сохраняем prev_close, get_all_prices такие записи пропускает
+            _prices[ticker] = {"price": None, "change_abs": None, "change_pct": None, "prev_close": pc}
+        else:
+            entry["prev_close"] = pc
+            price = entry.get("price")
+            if price:
+                entry["change_abs"] = round(price - pc, 4)
+                entry["change_pct"] = round((price / pc - 1) * 100, 4)
+        n += 1
+    return n
+
+
+def prev_close_coverage() -> float:
+    """Доля бумаг в кэше, у которых есть prev_close (0..1)."""
+    priced = [v for v in _prices.values() if v.get("price") is not None]
+    if not priced:
+        return 0.0
+    return sum(1 for v in priced if v.get("prev_close")) / len(priced)
+
+
+def _prev_close_from_moex() -> dict[str, float]:
+    import sys as _sys
+    _sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "scripts"))
+    from fetch_quotes import fetch_moex_bulk
+    bulk = fetch_moex_bulk()
+    out: dict[str, float] = {}
+    for t, q in bulk.items():
+        if isinstance(q, dict) and q.get("prev_close"):
+            out[t] = float(q["prev_close"])
+    return out
+
+
+def _msk_today() -> str:
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    return datetime.now(ZoneInfo("Europe/Moscow")).strftime("%Y-%m-%d")
+
+
+def ensure_prev_close() -> None:
+    """Раз в торговый день (дата МСК) посеять prev_close из MOEX ISS — в фоне, не блокируя
+    вызывающий запрос. Зовут и веб (перед выдачей котировок), и воркер (перед записью в
+    БД). Уже посеяно сегодня → мгновенный no-op."""
+    global _prev_close_seeding, _prev_close_attempt_ts
+    today = _msk_today()
+    if _prev_close_day == today:
+        return
+    with _prev_close_lock:
+        if _prev_close_day == today or _prev_close_seeding:
+            return
+        if time.time() - _prev_close_attempt_ts < _PREV_CLOSE_RETRY_SEC:
+            return
+        _prev_close_seeding = True
+        _prev_close_attempt_ts = time.time()
+
+    def _bg():
+        global _prev_close_day, _prev_close_seeding
+        try:
+            m = _prev_close_from_moex()
+            if m:
+                n = seed_prev_close(m)
+                _prev_close_day = today
+                logger.info("Tinkoff: prev_close на %s посеян из MOEX ISS для %d бумаг", today, n)
+            else:
+                logger.warning("Tinkoff: MOEX ISS не отдал prev_close — «за день» останется пустым до повтора")
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Tinkoff: prev_close из MOEX ISS не получен: %s", e)
+        finally:
+            _prev_close_seeding = False
+
+    threading.Thread(target=_bg, name="prev-close-seed", daemon=True).start()
+
+
 # Неблокирующее обновление: запрос НИКОГДА не ждёт сетевой вызов к Tinkoff.
 _refresh_lock = threading.Lock()
 _refreshing = False

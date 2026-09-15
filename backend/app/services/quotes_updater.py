@@ -87,7 +87,10 @@ def _update_from_tinkoff() -> None:
     from datetime import date
     from app.services import tinkoff_quotes
 
-    # Обновляем кэш перед записью в БД
+    # Обновляем кэш перед записью в БД. prev_close — раз в торговый день из MOEX
+    # (иначе на второй день без рестарта «за день» и prev_close в quotes считались бы
+    # от позавчерашнего закрытия — так и было на бою 15.09.2026).
+    tinkoff_quotes.ensure_prev_close()
     tinkoff_quotes.refresh_prices()
 
     prices = tinkoff_quotes.get_all_prices()

@@ -252,6 +252,10 @@ def realtime_quotes_endpoint():
     # Раньше refresh_prices() звался синхронно на КАЖДЫЙ запрос → частый поллинг фронта
     # копил занятые потоки воркера и весь бэк вставал.
     if tinkoff_quotes.is_configured():
+        # 🔴 prev_close («вчерашнее закрытие») — раз в торговый день из MOEX, в фоне: без
+        # этого после расщепления процессов (2026-09-14) веб отдавал цены без «за день»
+        # (см. tinkoff_quotes.ensure_prev_close).
+        tinkoff_quotes.ensure_prev_close()
         tinkoff_quotes.maybe_refresh_async()
     if tinkoff_quotes.is_available():
         prices = tinkoff_quotes.get_all_prices()
