@@ -1,0 +1,1506 @@
+{
+ "schema": "cbr_scenarios v1 (docs/macro_model_contract_v1.md, раздел 2)",
+ "source": {
+  "title": "Основные направления единой государственной денежно-кредитной политики на 2027 год и период 2028 и 2029 годов (проект)",
+  "publisher": "Банк России",
+  "published": "2026-08-31",
+  "url": "https://www.cbr.ru/about_br/publ/ondkp/on_2027_2029/",
+  "pdf": "https://www.cbr.ru/Content/Document/File/197907/on_2027(2028-2029).pdf",
+  "tables": "3.1 (внешние условия), 3.2 базовый, 3.3 дезинфляционный, 3.4 проинфляционный, 3.5 рисковый",
+  "note": "Проект документа; окончательная редакция выходит осенью — при её выходе файл обновить. Ключевая ставка в 2026: 15,0% в среднем до 26.07.2026, далее 13,7–14,0% (сноска 1 к таблицам)."
+ },
+ "as_of": "2026-08-31",
+ "display_years": [
+  2026,
+  2027,
+  2028
+ ],
+ "tab_years": [
+  2027,
+  2028
+ ],
+ "tab_note": "2026 у всех сценариев одинаков (общая часть прогноза ЦБ) — во вкладке показывается одной строкой; сценарии расходятся с 2027.",
+ "base_period": {
+  "year": 2025,
+  "note": "Точка отсчёта изменений — средние условия 2025 года, при которых заработан отчётный результат. Ставка, инфляция, ВВП, потребление, накопление, кредит, счёт текущих операций и цена нефти — факт из таблиц ЦБ (столбец 2025); курс и зарплаты — средние за 2025 по рядам платформы (usdrub 83,3 — среднее дневных; real_wage 5,2 — среднее месячных г/г); номинальная зарплата ≈ реальная + инфляция (оценка); безработица — среднее месячных.",
+  "values": {
+   "key_rate_avg": 19.2,
+   "inflation_dec": 5.6,
+   "inflation_avg": 8.7,
+   "gdp": 1.0,
+   "consumption_hh": 3.6,
+   "gfcf": -0.4,
+   "money_supply": 10.6,
+   "credit_total": 9.5,
+   "credit_corp": 11.9,
+   "credit_hh": 2.8,
+   "mortgage": 7.8,
+   "current_account": 39,
+   "oil_tax_price": 56,
+   "usdrub_avg": 83.3,
+   "real_wage": 5.2,
+   "nominal_wage": 14.4,
+   "unemployment": 2.3
+  },
+  "origin": {
+   "key_rate_avg": "ЦБ",
+   "inflation_dec": "ЦБ",
+   "inflation_avg": "ЦБ",
+   "gdp": "ЦБ",
+   "consumption_hh": "ЦБ",
+   "gfcf": "ЦБ",
+   "money_supply": "ЦБ",
+   "credit_total": "ЦБ",
+   "credit_corp": "ЦБ",
+   "credit_hh": "ЦБ",
+   "mortgage": "ЦБ",
+   "current_account": "ЦБ",
+   "oil_tax_price": "ЦБ",
+   "usdrub_avg": "ряд платформы (среднее 2025)",
+   "real_wage": "ряд платформы (среднее 2025)",
+   "nominal_wage": "оценка Basis",
+   "unemployment": "ряд платформы (среднее 2025)"
+  }
+ },
+ "current": {
+  "as_of": "2026-09-14",
+  "key_rate": 14.0,
+  "key_rate_date": "2026-09-11",
+  "inflation_yoy": 6.29,
+  "inflation_date": "2026-09-07",
+  "usdrub": 84.26,
+  "usdrub_date": "2026-09-12",
+  "urals": 103.7,
+  "brent": 107.66,
+  "oil_date": "2026-09-14",
+  "gdp_yoy_q2_2026": 1.3,
+  "real_wage_yoy_jun_2026": 4.9,
+  "unemployment_jul_2026": 2.3,
+  "ytd_2026_avg": {
+   "usdrub": 77.9,
+   "urals": 72.5,
+   "key_rate": 15.0,
+   "note": "средние с начала 2026 по рядам платформы; ставка — по ЦБ (15,0% до 26.07)"
+  },
+  "note": "Сценарии ЦБ датированы 31.08.2026 — до скачка нефти в сентябре (остановка судоходства в Ормузском проливе с 04.09: Urals ~$104 против $60 в сценариях на 2026). Расхождение сценарных условий с текущими показывать во вкладке (спецификация 8.3)."
+ },
+ "variables": {
+  "key_rate_avg": {
+   "label": "Ключевая ставка, средняя за год",
+   "unit": "% годовых",
+   "origin": "ЦБ"
+  },
+  "inflation_dec": {
+   "label": "Инфляция, декабрь к декабрю",
+   "unit": "%",
+   "origin": "ЦБ"
+  },
+  "inflation_avg": {
+   "label": "Инфляция, средняя за год",
+   "unit": "%",
+   "origin": "ЦБ"
+  },
+  "gdp": {
+   "label": "ВВП, прирост",
+   "unit": "% г/г",
+   "origin": "ЦБ"
+  },
+  "consumption_hh": {
+   "label": "Потребление домохозяйств, прирост",
+   "unit": "% г/г",
+   "origin": "ЦБ"
+  },
+  "gfcf": {
+   "label": "Инвестиции в основной капитал (валовое накопление основного капитала), прирост",
+   "unit": "% г/г",
+   "origin": "ЦБ"
+  },
+  "exports_vol": {
+   "label": "Физический объём экспорта, прирост",
+   "unit": "% г/г",
+   "origin": "ЦБ"
+  },
+  "imports_vol": {
+   "label": "Физический объём импорта, прирост",
+   "unit": "% г/г",
+   "origin": "ЦБ"
+  },
+  "money_supply": {
+   "label": "Денежная масса, прирост",
+   "unit": "% г/г",
+   "origin": "ЦБ"
+  },
+  "credit_total": {
+   "label": "Кредит экономике (требования банковской системы), прирост",
+   "unit": "% г/г",
+   "origin": "ЦБ"
+  },
+  "credit_corp": {
+   "label": "Кредит организациям, прирост",
+   "unit": "% г/г",
+   "origin": "ЦБ"
+  },
+  "credit_hh": {
+   "label": "Кредит населению, прирост",
+   "unit": "% г/г",
+   "origin": "ЦБ"
+  },
+  "mortgage": {
+   "label": "Ипотека, прирост",
+   "unit": "% г/г",
+   "origin": "ЦБ"
+  },
+  "current_account": {
+   "label": "Счёт текущих операций",
+   "unit": "млрд долл.",
+   "origin": "ЦБ"
+  },
+  "oil_tax_price": {
+   "label": "Цена нефти для налогообложения (близка к Urals), средняя за год",
+   "unit": "долл./барр.",
+   "origin": "ЦБ"
+  },
+  "usdrub_avg": {
+   "label": "Курс доллара, средний за год",
+   "unit": "руб./долл.",
+   "origin": "допущение Basis",
+   "derivation": "ЦБ курс не публикует. Достроено из платёжного баланса при сценарной нефти: чем ниже цена нефти и счёт текущих операций и чем ниже ставка, тем слабее рубль; 2026 — фактическое среднее с начала года (77,9) плюс ожидание 82–88 на 4 квартал; рисковый сценарий — по образцу 2015 и 2022 годов (резкое ослабление при обвале экспорта). Диапазон ±5%."
+  },
+  "real_wage": {
+   "label": "Реальная зарплата, прирост",
+   "unit": "% г/г",
+   "origin": "допущение Basis",
+   "derivation": "Из роста потребления домохозяйств по сценарию и напряжённости рынка труда (безработица 2,3%): при дефиците кадров зарплаты растут быстрее потребления; в рисковом сценарии реальные зарплаты падают вместе с потреблением."
+  },
+  "nominal_wage": {
+   "label": "Номинальная зарплата, прирост",
+   "unit": "% г/г",
+   "origin": "допущение Basis",
+   "derivation": "≈ реальная зарплата + средняя инфляция сценария."
+  },
+  "unemployment": {
+   "label": "Безработица, среднегодовая",
+   "unit": "%",
+   "origin": "допущение Basis",
+   "derivation": "От ВВП сценария с запаздыванием и с учётом удержания работников фирмами: в базовом — медленный рост с минимума, в рисковом — 3,5–6%."
+  }
+ },
+ "scenarios": [
+  {
+   "id": "base",
+   "name": "Базовый",
+   "description": "Внешние условия без резких перемен: цена нефти для налогообложения $60 в 2026 году и $50 в 2027–2029. Инфляция 6–7% в 2026, 4% с 2027. Средняя ключевая ставка 14,5–14,6% в 2026, 10,5–12,5% в 2027, 8–9% в 2028, 7,5–8,5% в 2029. Рост ВВП 0–1% в 2026 и 1,5–2,5% далее; инвестиции восстанавливаются с 2027; кредит населению ускоряется к 2028. Регулятор считает этот сценарий наиболее вероятным.",
+   "years": {
+    "2026": {
+     "inflation_dec": {
+      "low": 6.0,
+      "high": 7.0
+     },
+     "inflation_avg": {
+      "low": 5.9,
+      "high": 6.2
+     },
+     "key_rate_avg": {
+      "low": 14.5,
+      "high": 14.6
+     },
+     "gdp": {
+      "low": 0.0,
+      "high": 1.0
+     },
+     "consumption_hh": {
+      "low": 1.5,
+      "high": 2.5
+     },
+     "gfcf": {
+      "low": -1.5,
+      "high": 0.5
+     },
+     "exports_vol": {
+      "low": 0.0,
+      "high": 2.0
+     },
+     "imports_vol": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "money_supply": {
+      "low": 7,
+      "high": 12
+     },
+     "credit_total": {
+      "low": 6,
+      "high": 10
+     },
+     "credit_corp": {
+      "low": 7,
+      "high": 11
+     },
+     "credit_hh": {
+      "low": 5,
+      "high": 9
+     },
+     "mortgage": {
+      "low": 6,
+      "high": 10
+     },
+     "current_account": {
+      "low": 48,
+      "high": 48
+     },
+     "oil_tax_price": {
+      "low": 60,
+      "high": 60
+     }
+    },
+    "2027": {
+     "inflation_dec": {
+      "low": 4.0,
+      "high": 4.0
+     },
+     "inflation_avg": {
+      "low": 4.3,
+      "high": 5.2
+     },
+     "key_rate_avg": {
+      "low": 10.5,
+      "high": 12.5
+     },
+     "gdp": {
+      "low": 1.5,
+      "high": 2.5
+     },
+     "consumption_hh": {
+      "low": 1.0,
+      "high": 2.0
+     },
+     "gfcf": {
+      "low": 2.0,
+      "high": 4.0
+     },
+     "exports_vol": {
+      "low": 0.0,
+      "high": 2.0
+     },
+     "imports_vol": {
+      "low": 0.0,
+      "high": 2.0
+     },
+     "money_supply": {
+      "low": 6,
+      "high": 11
+     },
+     "credit_total": {
+      "low": 6,
+      "high": 11
+     },
+     "credit_corp": {
+      "low": 7,
+      "high": 12
+     },
+     "credit_hh": {
+      "low": 5,
+      "high": 10
+     },
+     "mortgage": {
+      "low": 7,
+      "high": 12
+     },
+     "current_account": {
+      "low": 25,
+      "high": 25
+     },
+     "oil_tax_price": {
+      "low": 50,
+      "high": 50
+     }
+    },
+    "2028": {
+     "inflation_dec": {
+      "low": 4.0,
+      "high": 4.0
+     },
+     "inflation_avg": {
+      "low": 4.0,
+      "high": 4.0
+     },
+     "key_rate_avg": {
+      "low": 8.0,
+      "high": 9.0
+     },
+     "gdp": {
+      "low": 1.5,
+      "high": 2.5
+     },
+     "consumption_hh": {
+      "low": 1.0,
+      "high": 2.0
+     },
+     "gfcf": {
+      "low": 1.5,
+      "high": 3.5
+     },
+     "exports_vol": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "imports_vol": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "money_supply": {
+      "low": 7,
+      "high": 12
+     },
+     "credit_total": {
+      "low": 8,
+      "high": 13
+     },
+     "credit_corp": {
+      "low": 8,
+      "high": 13
+     },
+     "credit_hh": {
+      "low": 8,
+      "high": 13
+     },
+     "mortgage": {
+      "low": 10,
+      "high": 15
+     },
+     "current_account": {
+      "low": 15,
+      "high": 15
+     },
+     "oil_tax_price": {
+      "low": 50,
+      "high": 50
+     }
+    },
+    "2029": {
+     "inflation_dec": {
+      "low": 4.0,
+      "high": 4.0
+     },
+     "inflation_avg": {
+      "low": 4.0,
+      "high": 4.0
+     },
+     "key_rate_avg": {
+      "low": 7.5,
+      "high": 8.5
+     },
+     "gdp": {
+      "low": 1.5,
+      "high": 2.5
+     },
+     "consumption_hh": {
+      "low": 1.5,
+      "high": 2.5
+     },
+     "gfcf": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "exports_vol": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "imports_vol": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "money_supply": {
+      "low": 7,
+      "high": 12
+     },
+     "credit_total": {
+      "low": 8,
+      "high": 13
+     },
+     "credit_corp": {
+      "low": 8,
+      "high": 13
+     },
+     "credit_hh": {
+      "low": 8,
+      "high": 13
+     },
+     "mortgage": {
+      "low": 10,
+      "high": 15
+     },
+     "current_account": {
+      "low": 10,
+      "high": 10
+     },
+     "oil_tax_price": {
+      "low": 50,
+      "high": 50
+     }
+    }
+   },
+   "completions": {
+    "usdrub_avg": {
+     "2026": {
+      "low": 78,
+      "high": 82
+     },
+     "2027": {
+      "low": 84,
+      "high": 92
+     },
+     "2028": {
+      "low": 88,
+      "high": 96
+     },
+     "2029": {
+      "low": 90,
+      "high": 100
+     }
+    },
+    "real_wage": {
+     "2026": {
+      "low": 4.0,
+      "high": 6.0
+     },
+     "2027": {
+      "low": 2.0,
+      "high": 4.0
+     },
+     "2028": {
+      "low": 1.5,
+      "high": 3.5
+     },
+     "2029": {
+      "low": 1.5,
+      "high": 3.0
+     }
+    },
+    "nominal_wage": {
+     "2026": {
+      "low": 10.0,
+      "high": 12.5
+     },
+     "2027": {
+      "low": 6.5,
+      "high": 9.0
+     },
+     "2028": {
+      "low": 5.5,
+      "high": 7.5
+     },
+     "2029": {
+      "low": 5.5,
+      "high": 7.0
+     }
+    },
+    "unemployment": {
+     "2026": {
+      "low": 2.2,
+      "high": 2.6
+     },
+     "2027": {
+      "low": 2.4,
+      "high": 3.0
+     },
+     "2028": {
+      "low": 2.5,
+      "high": 3.2
+     },
+     "2029": {
+      "low": 2.5,
+      "high": 3.2
+     }
+    }
+   }
+  },
+  {
+   "id": "disinflation",
+   "name": "Дезинфляционный",
+   "description": "Предложение растёт быстрее спроса: выше инвестиции и производительность, высокий рост реальных зарплат при более быстром снижении инфляции (3–4% в 2027). Ставка снижается быстрее: 9–11% в 2027 и 7–8% в 2028. Рост ВВП 2,5–3,5% в 2027 и 2–3% в 2028; импорт растёт быстрее, счёт текущих операций ниже базового. Нефть как в базовом ($50).",
+   "years": {
+    "2026": {
+     "inflation_dec": {
+      "low": 6.0,
+      "high": 7.0
+     },
+     "inflation_avg": {
+      "low": 5.9,
+      "high": 6.2
+     },
+     "key_rate_avg": {
+      "low": 14.5,
+      "high": 14.6
+     },
+     "gdp": {
+      "low": 0.0,
+      "high": 1.0
+     },
+     "consumption_hh": {
+      "low": 1.5,
+      "high": 2.5
+     },
+     "gfcf": {
+      "low": -1.5,
+      "high": 0.5
+     },
+     "exports_vol": {
+      "low": 0.0,
+      "high": 2.0
+     },
+     "imports_vol": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "money_supply": {
+      "low": 7,
+      "high": 12
+     },
+     "credit_total": {
+      "low": 6,
+      "high": 10
+     },
+     "credit_corp": {
+      "low": 7,
+      "high": 11
+     },
+     "credit_hh": {
+      "low": 5,
+      "high": 9
+     },
+     "mortgage": {
+      "low": 6,
+      "high": 10
+     },
+     "current_account": {
+      "low": 48,
+      "high": 48
+     },
+     "oil_tax_price": {
+      "low": 60,
+      "high": 60
+     }
+    },
+    "2027": {
+     "inflation_dec": {
+      "low": 3.0,
+      "high": 4.0
+     },
+     "inflation_avg": {
+      "low": 3.7,
+      "high": 5.1
+     },
+     "key_rate_avg": {
+      "low": 9.0,
+      "high": 11.0
+     },
+     "gdp": {
+      "low": 2.5,
+      "high": 3.5
+     },
+     "consumption_hh": {
+      "low": 2.5,
+      "high": 3.5
+     },
+     "gfcf": {
+      "low": 4.0,
+      "high": 6.0
+     },
+     "exports_vol": {
+      "low": 0.0,
+      "high": 2.0
+     },
+     "imports_vol": {
+      "low": 2.0,
+      "high": 4.0
+     },
+     "money_supply": {
+      "low": 8,
+      "high": 13
+     },
+     "credit_total": {
+      "low": 8,
+      "high": 13
+     },
+     "credit_corp": {
+      "low": 8,
+      "high": 13
+     },
+     "credit_hh": {
+      "low": 8,
+      "high": 13
+     },
+     "mortgage": {
+      "low": 10,
+      "high": 15
+     },
+     "current_account": {
+      "low": 18,
+      "high": 18
+     },
+     "oil_tax_price": {
+      "low": 50,
+      "high": 50
+     }
+    },
+    "2028": {
+     "inflation_dec": {
+      "low": 4.0,
+      "high": 4.0
+     },
+     "inflation_avg": {
+      "low": 4.0,
+      "high": 4.0
+     },
+     "key_rate_avg": {
+      "low": 7.0,
+      "high": 8.0
+     },
+     "gdp": {
+      "low": 2.0,
+      "high": 3.0
+     },
+     "consumption_hh": {
+      "low": 2.0,
+      "high": 3.0
+     },
+     "gfcf": {
+      "low": 2.5,
+      "high": 4.5
+     },
+     "exports_vol": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "imports_vol": {
+      "low": 1.5,
+      "high": 3.5
+     },
+     "money_supply": {
+      "low": 8,
+      "high": 13
+     },
+     "credit_total": {
+      "low": 9,
+      "high": 14
+     },
+     "credit_corp": {
+      "low": 9,
+      "high": 14
+     },
+     "credit_hh": {
+      "low": 9,
+      "high": 14
+     },
+     "mortgage": {
+      "low": 11,
+      "high": 16
+     },
+     "current_account": {
+      "low": 9,
+      "high": 9
+     },
+     "oil_tax_price": {
+      "low": 50,
+      "high": 50
+     }
+    },
+    "2029": {
+     "inflation_dec": {
+      "low": 4.0,
+      "high": 4.0
+     },
+     "inflation_avg": {
+      "low": 4.0,
+      "high": 4.0
+     },
+     "key_rate_avg": {
+      "low": 7.5,
+      "high": 8.5
+     },
+     "gdp": {
+      "low": 1.5,
+      "high": 2.5
+     },
+     "consumption_hh": {
+      "low": 1.5,
+      "high": 2.5
+     },
+     "gfcf": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "exports_vol": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "imports_vol": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "money_supply": {
+      "low": 7,
+      "high": 12
+     },
+     "credit_total": {
+      "low": 8,
+      "high": 13
+     },
+     "credit_corp": {
+      "low": 8,
+      "high": 13
+     },
+     "credit_hh": {
+      "low": 8,
+      "high": 13
+     },
+     "mortgage": {
+      "low": 10,
+      "high": 15
+     },
+     "current_account": {
+      "low": 6,
+      "high": 6
+     },
+     "oil_tax_price": {
+      "low": 50,
+      "high": 50
+     }
+    }
+   },
+   "completions": {
+    "usdrub_avg": {
+     "2026": {
+      "low": 78,
+      "high": 82
+     },
+     "2027": {
+      "low": 85,
+      "high": 93
+     },
+     "2028": {
+      "low": 89,
+      "high": 97
+     },
+     "2029": {
+      "low": 91,
+      "high": 100
+     }
+    },
+    "real_wage": {
+     "2026": {
+      "low": 4.0,
+      "high": 6.0
+     },
+     "2027": {
+      "low": 3.5,
+      "high": 5.5
+     },
+     "2028": {
+      "low": 3.0,
+      "high": 5.0
+     },
+     "2029": {
+      "low": 2.0,
+      "high": 3.5
+     }
+    },
+    "nominal_wage": {
+     "2026": {
+      "low": 10.0,
+      "high": 12.5
+     },
+     "2027": {
+      "low": 7.0,
+      "high": 9.5
+     },
+     "2028": {
+      "low": 7.0,
+      "high": 9.0
+     },
+     "2029": {
+      "low": 6.0,
+      "high": 7.5
+     }
+    },
+    "unemployment": {
+     "2026": {
+      "low": 2.2,
+      "high": 2.6
+     },
+     "2027": {
+      "low": 2.2,
+      "high": 2.7
+     },
+     "2028": {
+      "low": 2.3,
+      "high": 2.8
+     },
+     "2029": {
+      "low": 2.4,
+      "high": 3.0
+     }
+    }
+   }
+  },
+  {
+   "id": "proinflation",
+   "name": "Проинфляционный",
+   "description": "Спрос сильнее, а внешние условия хуже: нефть $45, инфляция 4,5–5,5% в 2027 и возврат к 4% только в 2028. Ставка выше и дольше: 13–15% в 2027, 11–12% в 2028. Рост ВВП 1–2% в 2027 и замедление до 0,5–1,5% в 2028; потребление в 2028 почти не растёт; кредит замедляется до 4–9% в 2027.",
+   "years": {
+    "2026": {
+     "inflation_dec": {
+      "low": 6.0,
+      "high": 7.0
+     },
+     "inflation_avg": {
+      "low": 5.9,
+      "high": 6.2
+     },
+     "key_rate_avg": {
+      "low": 14.5,
+      "high": 14.6
+     },
+     "gdp": {
+      "low": 0.0,
+      "high": 1.0
+     },
+     "consumption_hh": {
+      "low": 1.5,
+      "high": 2.5
+     },
+     "gfcf": {
+      "low": -1.5,
+      "high": 0.5
+     },
+     "exports_vol": {
+      "low": 0.0,
+      "high": 2.0
+     },
+     "imports_vol": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "money_supply": {
+      "low": 7,
+      "high": 12
+     },
+     "credit_total": {
+      "low": 6,
+      "high": 10
+     },
+     "credit_corp": {
+      "low": 7,
+      "high": 11
+     },
+     "credit_hh": {
+      "low": 5,
+      "high": 9
+     },
+     "mortgage": {
+      "low": 6,
+      "high": 10
+     },
+     "current_account": {
+      "low": 48,
+      "high": 48
+     },
+     "oil_tax_price": {
+      "low": 60,
+      "high": 60
+     }
+    },
+    "2027": {
+     "inflation_dec": {
+      "low": 4.5,
+      "high": 5.5
+     },
+     "inflation_avg": {
+      "low": 4.6,
+      "high": 5.9
+     },
+     "key_rate_avg": {
+      "low": 13.0,
+      "high": 15.0
+     },
+     "gdp": {
+      "low": 1.0,
+      "high": 2.0
+     },
+     "consumption_hh": {
+      "low": 1.5,
+      "high": 2.5
+     },
+     "gfcf": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "exports_vol": {
+      "low": -1.0,
+      "high": 1.0
+     },
+     "imports_vol": {
+      "low": -1.0,
+      "high": 1.0
+     },
+     "money_supply": {
+      "low": 8,
+      "high": 13
+     },
+     "credit_total": {
+      "low": 4,
+      "high": 9
+     },
+     "credit_corp": {
+      "low": 4,
+      "high": 9
+     },
+     "credit_hh": {
+      "low": 4,
+      "high": 9
+     },
+     "mortgage": {
+      "low": 5,
+      "high": 10
+     },
+     "current_account": {
+      "low": 10,
+      "high": 10
+     },
+     "oil_tax_price": {
+      "low": 45,
+      "high": 45
+     }
+    },
+    "2028": {
+     "inflation_dec": {
+      "low": 4.0,
+      "high": 4.0
+     },
+     "inflation_avg": {
+      "low": 4.0,
+      "high": 4.5
+     },
+     "key_rate_avg": {
+      "low": 11.0,
+      "high": 12.0
+     },
+     "gdp": {
+      "low": 0.5,
+      "high": 1.5
+     },
+     "consumption_hh": {
+      "low": 0.0,
+      "high": 1.0
+     },
+     "gfcf": {
+      "low": 0.0,
+      "high": 2.0
+     },
+     "exports_vol": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "imports_vol": {
+      "low": -2.0,
+      "high": 0.0
+     },
+     "money_supply": {
+      "low": 7,
+      "high": 12
+     },
+     "credit_total": {
+      "low": 6,
+      "high": 11
+     },
+     "credit_corp": {
+      "low": 6,
+      "high": 11
+     },
+     "credit_hh": {
+      "low": 6,
+      "high": 11
+     },
+     "mortgage": {
+      "low": 8,
+      "high": 13
+     },
+     "current_account": {
+      "low": 13,
+      "high": 13
+     },
+     "oil_tax_price": {
+      "low": 45,
+      "high": 45
+     }
+    },
+    "2029": {
+     "inflation_dec": {
+      "low": 4.0,
+      "high": 4.0
+     },
+     "inflation_avg": {
+      "low": 4.0,
+      "high": 4.0
+     },
+     "key_rate_avg": {
+      "low": 8.5,
+      "high": 9.5
+     },
+     "gdp": {
+      "low": 1.5,
+      "high": 2.5
+     },
+     "consumption_hh": {
+      "low": 1.5,
+      "high": 2.5
+     },
+     "gfcf": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "exports_vol": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "imports_vol": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "money_supply": {
+      "low": 7,
+      "high": 12
+     },
+     "credit_total": {
+      "low": 6,
+      "high": 11
+     },
+     "credit_corp": {
+      "low": 6,
+      "high": 11
+     },
+     "credit_hh": {
+      "low": 6,
+      "high": 11
+     },
+     "mortgage": {
+      "low": 8,
+      "high": 13
+     },
+     "current_account": {
+      "low": 8,
+      "high": 8
+     },
+     "oil_tax_price": {
+      "low": 45,
+      "high": 45
+     }
+    }
+   },
+   "completions": {
+    "usdrub_avg": {
+     "2026": {
+      "low": 78,
+      "high": 82
+     },
+     "2027": {
+      "low": 90,
+      "high": 100
+     },
+     "2028": {
+      "low": 95,
+      "high": 105
+     },
+     "2029": {
+      "low": 96,
+      "high": 106
+     }
+    },
+    "real_wage": {
+     "2026": {
+      "low": 4.0,
+      "high": 6.0
+     },
+     "2027": {
+      "low": 1.5,
+      "high": 3.5
+     },
+     "2028": {
+      "low": 0.0,
+      "high": 2.0
+     },
+     "2029": {
+      "low": 1.0,
+      "high": 2.5
+     }
+    },
+    "nominal_wage": {
+     "2026": {
+      "low": 10.0,
+      "high": 12.5
+     },
+     "2027": {
+      "low": 7.5,
+      "high": 10.0
+     },
+     "2028": {
+      "low": 5.0,
+      "high": 7.5
+     },
+     "2029": {
+      "low": 5.0,
+      "high": 7.0
+     }
+    },
+    "unemployment": {
+     "2026": {
+      "low": 2.2,
+      "high": 2.6
+     },
+     "2027": {
+      "low": 2.2,
+      "high": 2.6
+     },
+     "2028": {
+      "low": 2.5,
+      "high": 3.2
+     },
+     "2029": {
+      "low": 2.5,
+      "high": 3.2
+     }
+    }
+   }
+  },
+  {
+   "id": "risk",
+   "name": "Рисковый",
+   "description": "Мировой финансовый кризис с усилением санкций: нефть $35 в 2027 и $25 в 2028, спад мировой торговли, экспорт −4…−6% и импорт −6…−8% в 2027. ВВП России падает на 3–4% в 2027 и на 1,5–2,5% в 2028, инфляция 11–13% в 2027, средняя ставка 19–21% в 2027 и 14–16% в 2028; потребление домохозяйств сокращается два года. Восстановление с ростом 2–3% в 2029.",
+   "years": {
+    "2026": {
+     "inflation_dec": {
+      "low": 6.0,
+      "high": 7.0
+     },
+     "inflation_avg": {
+      "low": 5.9,
+      "high": 6.2
+     },
+     "key_rate_avg": {
+      "low": 14.5,
+      "high": 14.6
+     },
+     "gdp": {
+      "low": 0.0,
+      "high": 1.0
+     },
+     "consumption_hh": {
+      "low": 1.5,
+      "high": 2.5
+     },
+     "gfcf": {
+      "low": -1.5,
+      "high": 0.5
+     },
+     "exports_vol": {
+      "low": 0.0,
+      "high": 2.0
+     },
+     "imports_vol": {
+      "low": 1.0,
+      "high": 3.0
+     },
+     "money_supply": {
+      "low": 7,
+      "high": 12
+     },
+     "credit_total": {
+      "low": 6,
+      "high": 10
+     },
+     "credit_corp": {
+      "low": 7,
+      "high": 11
+     },
+     "credit_hh": {
+      "low": 5,
+      "high": 9
+     },
+     "mortgage": {
+      "low": 6,
+      "high": 10
+     },
+     "current_account": {
+      "low": 48,
+      "high": 48
+     },
+     "oil_tax_price": {
+      "low": 60,
+      "high": 60
+     }
+    },
+    "2027": {
+     "inflation_dec": {
+      "low": 11.0,
+      "high": 13.0
+     },
+     "inflation_avg": {
+      "low": 7.3,
+      "high": 9.3
+     },
+     "key_rate_avg": {
+      "low": 19.0,
+      "high": 21.0
+     },
+     "gdp": {
+      "low": -4.0,
+      "high": -3.0
+     },
+     "consumption_hh": {
+      "low": -2.0,
+      "high": -1.0
+     },
+     "gfcf": {
+      "low": -6.0,
+      "high": -4.0
+     },
+     "exports_vol": {
+      "low": -6.0,
+      "high": -4.0
+     },
+     "imports_vol": {
+      "low": -8.0,
+      "high": -6.0
+     },
+     "money_supply": {
+      "low": 4,
+      "high": 9
+     },
+     "credit_total": {
+      "low": 0,
+      "high": 5
+     },
+     "credit_corp": {
+      "low": 2,
+      "high": 7
+     },
+     "credit_hh": {
+      "low": -5,
+      "high": 0
+     },
+     "mortgage": {
+      "low": 0,
+      "high": 5
+     },
+     "current_account": {
+      "low": 5,
+      "high": 5
+     },
+     "oil_tax_price": {
+      "low": 35,
+      "high": 35
+     }
+    },
+    "2028": {
+     "inflation_dec": {
+      "low": 5.0,
+      "high": 7.0
+     },
+     "inflation_avg": {
+      "low": 9.3,
+      "high": 11.4
+     },
+     "key_rate_avg": {
+      "low": 14.0,
+      "high": 16.0
+     },
+     "gdp": {
+      "low": -2.5,
+      "high": -1.5
+     },
+     "consumption_hh": {
+      "low": -6.5,
+      "high": -5.5
+     },
+     "gfcf": {
+      "low": -2.0,
+      "high": 0.0
+     },
+     "exports_vol": {
+      "low": -3.0,
+      "high": -1.0
+     },
+     "imports_vol": {
+      "low": -20.0,
+      "high": -18.0
+     },
+     "money_supply": {
+      "low": 6,
+      "high": 11
+     },
+     "credit_total": {
+      "low": 2,
+      "high": 7
+     },
+     "credit_corp": {
+      "low": 3,
+      "high": 8
+     },
+     "credit_hh": {
+      "low": -1,
+      "high": 4
+     },
+     "mortgage": {
+      "low": 2,
+      "high": 7
+     },
+     "current_account": {
+      "low": 4,
+      "high": 4
+     },
+     "oil_tax_price": {
+      "low": 25,
+      "high": 25
+     }
+    },
+    "2029": {
+     "inflation_dec": {
+      "low": 4.0,
+      "high": 4.0
+     },
+     "inflation_avg": {
+      "low": 3.6,
+      "high": 4.4
+     },
+     "key_rate_avg": {
+      "low": 9.5,
+      "high": 10.5
+     },
+     "gdp": {
+      "low": 2.0,
+      "high": 3.0
+     },
+     "consumption_hh": {
+      "low": 2.5,
+      "high": 3.5
+     },
+     "gfcf": {
+      "low": 2.0,
+      "high": 4.0
+     },
+     "exports_vol": {
+      "low": 2.0,
+      "high": 4.0
+     },
+     "imports_vol": {
+      "low": 3.0,
+      "high": 5.0
+     },
+     "money_supply": {
+      "low": 8,
+      "high": 13
+     },
+     "credit_total": {
+      "low": 9,
+      "high": 14
+     },
+     "credit_corp": {
+      "low": 9,
+      "high": 14
+     },
+     "credit_hh": {
+      "low": 10,
+      "high": 15
+     },
+     "mortgage": {
+      "low": 12,
+      "high": 17
+     },
+     "current_account": {
+      "low": 9,
+      "high": 9
+     },
+     "oil_tax_price": {
+      "low": 30,
+      "high": 30
+     }
+    }
+   },
+   "completions": {
+    "usdrub_avg": {
+     "2026": {
+      "low": 78,
+      "high": 82
+     },
+     "2027": {
+      "low": 105,
+      "high": 125
+     },
+     "2028": {
+      "low": 115,
+      "high": 140
+     },
+     "2029": {
+      "low": 110,
+      "high": 130
+     }
+    },
+    "real_wage": {
+     "2026": {
+      "low": 4.0,
+      "high": 6.0
+     },
+     "2027": {
+      "low": -5.0,
+      "high": -2.0
+     },
+     "2028": {
+      "low": -6.0,
+      "high": -3.0
+     },
+     "2029": {
+      "low": 1.0,
+      "high": 3.0
+     }
+    },
+    "nominal_wage": {
+     "2026": {
+      "low": 10.0,
+      "high": 12.5
+     },
+     "2027": {
+      "low": 5.0,
+      "high": 8.0
+     },
+     "2028": {
+      "low": 4.0,
+      "high": 7.0
+     },
+     "2029": {
+      "low": 5.0,
+      "high": 7.5
+     }
+    },
+    "unemployment": {
+     "2026": {
+      "low": 2.2,
+      "high": 2.6
+     },
+     "2027": {
+      "low": 3.5,
+      "high": 5.0
+     },
+     "2028": {
+      "low": 4.5,
+      "high": 6.0
+     },
+     "2029": {
+      "low": 4.0,
+      "high": 5.5
+     }
+    }
+   }
+  }
+ ]
+}
