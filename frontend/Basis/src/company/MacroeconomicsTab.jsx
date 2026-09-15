@@ -82,8 +82,11 @@ function Dots({ level }) {
 // каждой дельты глиф, никогда только цвет).
 function DeltaTag({ value, unit = "%" }) {
   if (!isNum(value)) return null;
-  const cls = value > 0 ? "bs-d-good" : value < 0 ? "bs-d-bad" : "bs-d-neutral";
-  const glyph = value > 0 ? "▲" : value < 0 ? "▼" : "•";
+  // |Δ| ≤ 3% — «примерно столько же»: нейтральный цвет и глиф ≈, чтобы +3% и +49% не
+  // читались одинаково (замечание персоны-ревьюера 16.09).
+  const nearZero = Math.abs(value) <= 3;
+  const cls = nearZero ? "bs-d-neutral" : value > 0 ? "bs-d-good" : "bs-d-bad";
+  const glyph = nearZero ? "≈" : value > 0 ? "▲" : "▼";
   return (
     <span className={`bs-mono mt-delta ${cls}`}>
       {glyph} {fmtSigned(value, 0)}{unit}
@@ -358,7 +361,7 @@ function ScenarioMetric({ label, o, domain, refValue }) {
   return (
     <div className="mt-scn-metric">
       <div className="mt-scn-metric-head">
-        <span className="mt-scn-metric-lbl">{label}</span>
+        <span className="mt-scn-metric-lbl">{label} <EpistemicTag label="прогноз" /></span>
         <DeltaTag value={o.pct_base} />
       </div>
       <div className="mt-scn-metric-val">{fmtN(o.base, 1)} млрд ₽</div>
@@ -421,7 +424,7 @@ function ScenariosBlock({ scenarios: scn, staleness }) {
   // берём первую, что нашлась, имя поля ещё не устоялось у источника данных.
   const framingNote = txt(scn.framing) || txt(scn.note) || txt(scn.reading_note) || txt(scn.scope_note);
   const conditionsLegend = txt(scn.conditions_legend);
-  const detailsItems = !!(framingNote || conditionsLegend || arr(scn.caveats).length > 0 || arr(scn.extra_assumptions).length > 0 || txt(scn.held_at_base_note));
+  const detailsItems = !!(framingNote || conditionsLegend || arr(scn.caveats).length > 0 || arr(scn.extra_assumptions).length > 0);
 
   return (
     <section className="mt-block">
@@ -429,6 +432,12 @@ function ScenariosBlock({ scenarios: scn, staleness }) {
 
       {(txt(scn.source) || asOfSrc) && (
         <div className="mt-scn-source">{scn.source}{asOfSrc ? ` · сценарии от ${asOfSrc}` : ""}</div>
+      )}
+
+      {txt(scn.held_at_base_note) && (
+        <div className="bs-callout mt-held">
+          <p><b>Что зафиксировано в расчёте.</b> {scn.held_at_base_note}</p>
+        </div>
       )}
 
       {staleness && txt(staleness.text) && (
@@ -481,7 +490,7 @@ function ScenariosBlock({ scenarios: scn, staleness }) {
                 <ul>{scn.extra_assumptions.map((c, i) => <li key={i}>{c}</li>)}</ul>
               </div>
             )}
-            {txt(scn.held_at_base_note) && <p>{scn.held_at_base_note}</p>}
+
           </div>
         </details>
       )}
@@ -504,7 +513,7 @@ function PriceLinkBlock({ priceLink }) {
       <ol className="mt-steps">
         {mechs.map((m, i) => (
           <li className="mt-step" key={i}>
-            <div className="mt-step-num">{i === 2 && mechs.length === 3 ? "1+2" : i + 1}</div>
+            <div className="mt-step-num" aria-hidden="true" data-n={i === 2 && mechs.length === 3 ? "1+2" : String(i + 1)} />
             <div className="mt-step-body">
               {txt(m.title) && <h4>{m.title}</h4>}
               {txt(m.text) && <p>{m.text}</p>}

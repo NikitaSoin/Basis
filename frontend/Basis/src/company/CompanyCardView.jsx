@@ -3208,7 +3208,7 @@ const LiveMacroBackdropChip = () => {
   const fmt = (n) => n == null ? "—" : n.toLocaleString("ru-RU", { maximumFractionDigits: 2 });
   return (
     <div className="tw-mb-4 tw-rounded-md tw-border tw-border-border-subtle tw-px-4 tw-py-2.5 tw-flex tw-items-center tw-gap-x-5 tw-gap-y-1 tw-flex-wrap">
-      <span className="tw-text-[11px] tw-uppercase tw-tracking-wide tw-text-text-tertiary">Макрофон сейчас</span>
+      <span className="tw-text-[11px] tw-uppercase tw-tracking-wide tw-text-text-tertiary">Макроэкономика сейчас</span>
       {rate != null && (
         <span className="tw-text-[13px] tw-text-text-primary">
           <span className="tw-text-text-secondary">Ставка ЦБ</span>{" "}
