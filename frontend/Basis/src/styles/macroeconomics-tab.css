@@ -1,0 +1,276 @@
+/* Вкладка «Макроэкономика» нового образца (пилот 09.2026), компонент
+   src/company/MacroeconomicsTab.jsx. Источник правды по цвету, шрифту и
+   радиусу — ТОЛЬКО frontend/Basis/src/styles/basis-design-system.css
+   (токены --bs- и классы .bs-), уже подключён глобально в src/index.js —
+   здесь НЕ дублируем токены, только раскладку и то, чего в базовом файле нет
+   (тёмная тема).
+
+   Тёмная тема: basis-design-system.css сам предупреждает в шапке, что токены
+   --bs- не переключаются под `.dark` (палитра --bs-deep- — фиксированная,
+   ТОЛЬКО для deep-card, не альтернативная тема всего сайта). Поэтому здесь —
+   тот же приём, что уже применён в styles/stress-test.css (токены --st-):
+   локальная проекция --mt- на светлые поверхности --bs-surface, --bs-ink,
+   --bs-line по умолчанию, и переключение ЦЕЛИКОМ на палитру --bs-deep- под
+   `.dark` и [data-theme=dark] — она уже часть канона, просто «подключаем» её
+   ко второй теме вместо того чтобы изобретать новые hex. Аналогично не
+   заводим отдельный акцентный токен: --bs-copper (не -deep) уже читаем на
+   обеих поверхностях по прототипу (тёмный сайдбар в
+   docs/observer-sidebar-v2.html красит активные пункты тем же --copper).
+
+   Фиксированные акцентные плашки (.bs-deep-card «Что происходит сейчас»,
+   .bs-callout, эпистемические чипы .bs-tag- и .bs-wind-) НЕ подключены к
+   --mt-: они самодостаточные пары фон и текст и всегда выглядят одинаково
+   независимо от темы сайта — это уже так работает у .bs-callout в
+   stress-test.css (владелец явно попросил именно «следует за темой» для
+   НЕЙТРАЛЬНЫХ поверхностей, акцентные плашки не трогали). */
+
+.macro-tab-v2 {
+  font-family: var(--bs-sans);
+  color: var(--bs-ink);
+  font-size: 14px;
+  line-height: 1.55;
+
+  --mt-surface: var(--bs-surface-2);
+  --mt-surface-2: var(--bs-surface-3);
+  --mt-surface-3: var(--bs-surface);
+  --mt-ink: var(--bs-ink);
+  --mt-ink-2: var(--bs-ink-2);
+  --mt-ink-3: var(--bs-ink-3);
+  --mt-line: var(--bs-line);
+  --mt-line-2: var(--bs-line-2);
+}
+.dark .macro-tab-v2, [data-theme="dark"] .macro-tab-v2 {
+  --mt-surface: var(--bs-deep-2);
+  --mt-surface-2: var(--bs-deep-3);
+  --mt-surface-3: var(--bs-deep);
+  --mt-ink: var(--bs-deep-ink);
+  --mt-ink-2: var(--bs-deep-ink2);
+  --mt-ink-3: var(--bs-deep-ink3);
+  --mt-line: var(--bs-deep-line);
+  --mt-line-2: var(--bs-deep-line);
+}
+/* .bs-card — общий канонический класс карточки, но его фон/рамка не тема-
+   зависимы (см. комментарий выше) — точечно патчим ТОЛЬКО внутри этой
+   вкладки, не трогая basis-design-system.css и другие места, где .bs-card
+   уже используется как задумано (светлая фиксированная плитка). */
+.dark .macro-tab-v2 .bs-card, [data-theme="dark"] .macro-tab-v2 .bs-card {
+  background: var(--mt-surface);
+  border-color: var(--mt-line);
+}
+
+.macro-tab-v2 * { min-width: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .macro-tab-v2 *, .macro-tab-v2 *::before, .macro-tab-v2 *::after { transition: none !important; animation: none !important; }
+}
+
+/* ▲/▼ + подписанное число — глиф и цвет вместе (canon .bs-mono даёт шрифт и
+   tabular-nums, здесь только начертание/кегль поверх него). */
+.mt-delta { font-weight: 600; font-size: 12.5px; }
+
+/* ---------------------------------------------------------------------------
+   ШАПКА ВКЛАДКИ — слой «идентичность» (заголовок + дата) из 4 слоёв чтения
+--------------------------------------------------------------------------- */
+.mt-topmeta { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+.mt-topmeta-eyebrow { font-family: var(--bs-mono); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--mt-ink-3); }
+.mt-topmeta-date { font-family: var(--bs-mono); font-size: 11.5px; color: var(--mt-ink-3); font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------------------------
+   ОБЩАЯ РАМКА БЛОКОВ
+--------------------------------------------------------------------------- */
+.mt-block { margin-bottom: 36px; }
+.mt-block:last-of-type { margin-bottom: 0; }
+.mt-block-title { font-family: var(--bs-serif); font-size: 20px; font-weight: 600; color: var(--mt-ink); margin: 0 0 14px; }
+
+/* ---------------------------------------------------------------------------
+   БЛОК 1 — «ЧТО ПРОИСХОДИТ СЕЙЧАС» (сигнал; всегда тёмная карточка-акцент,
+   как .bs-deep-card задуман в каноне — «для интерпретации/суждений»)
+--------------------------------------------------------------------------- */
+.mt-now-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+.mt-regime { display: inline-flex; align-items: center; gap: 7px; font-family: var(--bs-sans); font-weight: 700; font-size: 13.5px; padding: 7px 15px; border-radius: 999px; }
+.mt-regime .glyph { font-size: 10px; }
+.mt-regime-up { background: color-mix(in srgb, var(--bs-up) 22%, transparent); color: color-mix(in srgb, var(--bs-up) 78%, white); }
+.mt-regime-down { background: color-mix(in srgb, var(--bs-down) 22%, transparent); color: color-mix(in srgb, var(--bs-down) 78%, white); }
+.mt-regime-mixed { background: var(--bs-deep-3); color: var(--bs-deep-ink); }
+.mt-pressure { font-size: 12.5px; color: var(--bs-deep-ink2); }
+.mt-pressure b { color: var(--bs-deep-ink); font-weight: 600; }
+.mt-now-anchors { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.mt-deep-stat { display: inline-flex; flex-direction: column; gap: 3px; background: var(--bs-deep-3); border: 1px solid var(--bs-deep-line); border-radius: 9px; padding: 9px 14px; }
+.mt-ds-lbl { font-size: 10px; color: var(--bs-deep-ink3); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+.mt-ds-val { font-family: var(--bs-mono); font-size: 14px; font-weight: 600; color: var(--bs-deep-ink); font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------------------------
+   ЭПИСТЕМИЧЕСКИЕ МЕТКИ — переиспользуем канон .bs-tag-fact/estimate/judgment
+   на пять меток спецификации (6.3): из источника/из структуры → факт (серый),
+   оценка/прогноз → оценка (синий), разовый → суждение (медь, единственная
+   метка-предупреждение «не продлевай дальше»).
+--------------------------------------------------------------------------- */
+.mt-tag-row { display: inline-flex; align-items: center; gap: 8px; }
+
+/* ---------------------------------------------------------------------------
+   БЛОК 2 — «ОТ ЧЕГО ЗАВИСИТ КОМПАНИЯ»
+--------------------------------------------------------------------------- */
+.mt-factors { display: flex; flex-direction: column; gap: 12px; }
+.mt-factor { padding: 18px 20px; }
+.mt-factor-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+.mt-factor-head h4 { font-family: var(--bs-serif); font-size: 16px; font-weight: 600; color: var(--mt-ink); margin: 0; }
+.mt-factor-head-tags { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.mt-strength { display: inline-flex; gap: 3px; align-items: center; }
+.mt-strength i { width: 6px; height: 6px; border-radius: 50%; background: var(--mt-line-2); font-style: normal; display: inline-block; }
+.mt-strength i.on { background: var(--bs-copper); }
+.mt-strength-word { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--mt-ink-3); }
+.mt-factor-basis { font-size: 12px; color: var(--mt-ink-3); line-height: 1.55; margin: 2px 0 12px; }
+.mt-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 12px; }
+.mt-chain-step { background: var(--mt-surface-2); color: var(--mt-ink-2); font-size: 12px; line-height: 1.4; padding: 5px 10px; border-radius: 7px; }
+.mt-chain-arrow { color: var(--mt-ink-3); flex-shrink: 0; }
+.mt-factor-number { display: flex; flex-direction: column; gap: 7px; background: var(--mt-surface-2); border-radius: 9px; padding: 12px 14px; }
+.mt-factor-number p { margin: 0; font-size: 13px; color: var(--mt-ink-2); line-height: 1.6; }
+.mt-cycle { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; }
+.mt-cycle svg { flex-shrink: 0; color: var(--mt-ink-3); margin-top: 3px; }
+.mt-cycle p { margin: 0; font-size: 12.5px; color: var(--mt-ink-3); line-height: 1.6; }
+.mt-block .bs-callout { margin-top: 14px; }
+
+/* ---------------------------------------------------------------------------
+   БЛОК 3 — «КОНКУРЕНТНЫЙ РАЗРЕЗ»
+--------------------------------------------------------------------------- */
+.mt-peers { padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; }
+.mt-peers-eyebrow { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--mt-ink-3); margin-bottom: 6px; }
+.mt-peers-fault p { margin: 0; font-size: 13.5px; color: var(--mt-ink); line-height: 1.6; }
+.mt-peers-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 600px) { .mt-peers-cols { grid-template-columns: 1fr; } }
+.mt-peers-col-lbl { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 8px; }
+.mt-peers-col-lbl.up { color: var(--bs-up); }
+.mt-peers-col-lbl.down { color: var(--bs-down); }
+.mt-peers-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.mt-peer-chip { font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+.mt-peer-chip.up { background: var(--bs-up-soft); color: var(--bs-up); }
+.mt-peer-chip.down { background: var(--bs-down-soft); color: var(--bs-down); }
+.mt-peers-position { display: flex; gap: 10px; align-items: flex-start; background: var(--mt-surface-2); border-radius: 9px; padding: 12px 14px; }
+.mt-peers-position svg { flex-shrink: 0; margin-top: 2px; color: var(--bs-copper); }
+.mt-peers-position p { margin: 0; font-size: 13px; color: var(--mt-ink); line-height: 1.6; font-weight: 500; }
+.mt-peers-shift { display: flex; gap: 8px; margin: 0; font-size: 12px; color: var(--mt-ink-3); line-height: 1.6; }
+.mt-peers-shift svg { flex-shrink: 0; margin-top: 2px; }
+.mt-peers-uniform { margin: 0; font-size: 13.5px; color: var(--mt-ink-2); line-height: 1.6; }
+
+/* ---------------------------------------------------------------------------
+   БЛОК 4 — «СЦЕНАРИИ БАНКА РОССИИ»
+--------------------------------------------------------------------------- */
+.mt-scn-source { font-size: 12px; color: var(--mt-ink-3); margin-bottom: 14px; }
+.mt-scn-basefact { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+.mt-scn-basefact-txt { font-size: 13px; color: var(--mt-ink-2); }
+.mt-scn-basefact-note { flex: 0 0 100%; margin: 4px 0 0; font-size: 11.5px; color: var(--mt-ink-3); line-height: 1.55; }
+.mt-fact-note { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; background: var(--mt-surface-2); border-radius: 9px; padding: 11px 13px; margin: 12px 0 18px; }
+.mt-fact-note p { margin: 0; font-size: 12.5px; color: var(--mt-ink-2); line-height: 1.6; flex: 1 1 260px; }
+
+.mt-c2026 { background: var(--mt-surface-2); border-radius: 10px; padding: 13px 16px; margin: 14px 0; display: flex; flex-direction: column; gap: 8px; }
+.mt-c2026-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.mt-c2026-tag { font-family: var(--bs-mono); font-size: 11px; font-weight: 700; color: var(--mt-ink); background: var(--mt-surface); border: 1px solid var(--mt-line); padding: 3px 9px; border-radius: 6px; flex-shrink: 0; }
+.mt-c2026-note-lbl { font-size: 11.5px; color: var(--mt-ink-3); }
+.mt-c2026-conds { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; color: var(--mt-ink-2); }
+.mt-c2026-conds b { color: var(--mt-ink-3); font-weight: 600; margin-right: 4px; }
+.mt-c2026-metrics { display: flex; flex-wrap: wrap; gap: 10px 20px; font-family: var(--bs-mono); font-size: 13px; font-weight: 600; color: var(--mt-ink); font-variant-numeric: tabular-nums; }
+.mt-c2026-metrics span { display: inline-flex; align-items: center; gap: 8px; }
+.mt-c2026-noteline { margin: 0; font-size: 12px; color: var(--mt-ink-3); line-height: 1.55; }
+
+.mt-legend { font-size: 11px; color: var(--mt-ink-3); margin: 2px 0 12px; }
+
+.mt-scn-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 760px) { .mt-scn-grid { grid-template-columns: 1fr; } }
+
+.mt-scn-card { padding: 18px 20px; display: flex; flex-direction: column; gap: 13px; }
+.mt-scn-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.mt-scn-head h4 { font-family: var(--bs-serif); font-size: 17px; font-weight: 600; color: var(--mt-ink); margin: 0; }
+.mt-scn-year { font-family: var(--bs-mono); font-size: 11px; color: var(--mt-ink-3); flex-shrink: 0; }
+
+.mt-scn-conds { display: flex; flex-direction: column; gap: 5px; padding: 10px 12px; background: var(--mt-surface-2); border-radius: 8px; }
+.mt-scn-cond-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; }
+.mt-scn-cond-lbl { color: var(--mt-ink-3); }
+.mt-scn-cond-val { font-family: var(--bs-mono); color: var(--mt-ink-2); text-align: right; font-variant-numeric: tabular-nums; }
+
+.mt-scn-metrics { display: flex; flex-direction: column; gap: 14px; }
+.mt-scn-metric-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.mt-scn-metric-lbl { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--mt-ink-3); }
+.mt-scn-metric-val { font-family: var(--bs-mono); font-size: 20px; font-weight: 600; color: var(--mt-ink); font-variant-numeric: tabular-nums; margin: 3px 0 8px; }
+.mt-scn-metric-range { font-family: var(--bs-mono); font-size: 11px; color: var(--mt-ink-3); margin-top: 6px; font-variant-numeric: tabular-nums; }
+
+.mt-rbar-track { position: relative; height: 6px; background: var(--mt-surface-3); border-radius: 3px; }
+.mt-rbar-fill { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+.mt-rbar-fill.up { background: color-mix(in srgb, var(--bs-up) 50%, transparent); }
+.mt-rbar-fill.down { background: color-mix(in srgb, var(--bs-down) 50%, transparent); }
+.mt-rbar-base { position: absolute; top: -3px; width: 2px; height: 12px; background: var(--mt-ink); border-radius: 1px; }
+.mt-rbar-ref { position: absolute; top: -4px; height: 14px; border-left: 2px dashed var(--mt-ink-3); }
+
+.mt-scn-expl { margin: 0; font-size: 12.5px; color: var(--mt-ink-2); line-height: 1.6; }
+.mt-scn-dom { display: flex; align-items: flex-start; gap: 6px; font-size: 11px; color: var(--mt-ink-3); line-height: 1.5; }
+.mt-scn-dom svg { flex-shrink: 0; margin-top: 2px; }
+.mt-scn-flags { display: flex; flex-direction: column; gap: 5px; }
+.mt-scn-flag { display: flex; align-items: flex-start; gap: 6px; font-size: 11.5px; color: var(--bs-copper); line-height: 1.5; }
+.mt-scn-flag svg { flex-shrink: 0; margin-top: 2px; }
+
+/* ---------------------------------------------------------------------------
+   СВОРАЧИВАЕМЫЕ БЛОКИ — нативный <details>, свой шеврон вместо системного
+   маркера. Используется и для «оговорок» рядом со сценариями, и для блока 6.
+--------------------------------------------------------------------------- */
+.mt-details { border: 1px solid var(--mt-line); border-radius: var(--bs-radius); background: var(--mt-surface); padding: 15px 20px; }
+.mt-details + .mt-details { margin-top: 12px; }
+.mt-scn-grid + .mt-details { margin-top: 16px; }
+.mt-details summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 12px; font-family: var(--bs-sans); font-weight: 700; font-size: 13px; color: var(--bs-copper); }
+.mt-details summary::-webkit-details-marker { display: none; }
+.mt-details summary::after { content: '▾'; font-size: 10px; color: var(--bs-copper); transition: transform .18s var(--bs-ease); margin-left: auto; }
+.mt-details[open] summary::after { transform: rotate(180deg); }
+.mt-conf { display: inline-flex; align-items: center; gap: 8px; font-family: var(--bs-sans); font-weight: 600; font-size: 11.5px; color: var(--mt-ink-3); text-transform: none; }
+.mt-details-body { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--mt-line); display: flex; flex-direction: column; gap: 16px; }
+.mt-details-body ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; color: var(--mt-ink-2); font-size: 12.5px; line-height: 1.6; }
+.mt-details-body p { margin: 0; color: var(--mt-ink-2); font-size: 12.5px; line-height: 1.65; }
+.mt-details-sub { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--mt-ink-3); margin-bottom: 6px; }
+
+/* ---------------------------------------------------------------------------
+   БЛОК 5 — «КАК МАКРОЭКОНОМИКА ВЛИЯЕТ НА ЦЕНУ АКЦИИ» — три механизма как
+   шаги (не карточки-близнецы), один вынесенный номер-«сигнал».
+--------------------------------------------------------------------------- */
+.mt-steps { list-style: none; margin: 0 0 18px; padding: 0; display: flex; flex-direction: column; }
+.mt-step { display: flex; gap: 16px; padding: 14px 0; position: relative; }
+.mt-step:not(:last-child)::before { content: ''; position: absolute; left: 13px; top: 32px; bottom: -8px; width: 1px; background: var(--mt-line); }
+.mt-step-num { flex-shrink: 0; min-width: 27px; height: 27px; padding: 0 7px; border-radius: 999px; background: var(--bs-copper-soft); color: var(--bs-copper-deep); font-family: var(--bs-mono); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; z-index: 1; }
+.mt-step-body { flex: 1; padding-top: 2px; }
+.mt-step-body h4 { font-family: var(--bs-serif); font-size: 15.5px; font-weight: 600; color: var(--mt-ink); margin: 0 0 6px; }
+.mt-step-body p { margin: 0 0 8px; font-size: 13px; color: var(--mt-ink-2); line-height: 1.6; }
+.mt-step-company { font-size: 12.5px; color: var(--mt-ink-3); line-height: 1.6; padding-left: 12px; border-left: 2px solid var(--mt-line-2); margin: 0; }
+
+.mt-estimate-callout { display: flex; flex-direction: column; gap: 10px; background: var(--bs-estimate-soft); border-radius: 10px; padding: 17px 19px; }
+.mt-estimate-txt { margin: 0; font-family: var(--bs-serif); font-size: 16.5px; font-weight: 500; line-height: 1.5; color: var(--bs-ink); }
+.mt-estimate-caveat { margin: 0; font-size: 11.5px; color: var(--bs-ink-2); line-height: 1.5; }
+
+/* ---------------------------------------------------------------------------
+   БЛОК 6 — «КАК ПОСЧИТАНО» (детали внутри .mt-details выше)
+--------------------------------------------------------------------------- */
+.mt-hc-base-row { display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; color: var(--mt-ink-2); padding: 3px 0; }
+.mt-hc-base-row .bs-mono { color: var(--mt-ink); }
+.mt-hc-period { font-size: 11.5px; color: var(--mt-ink-3); margin-top: 4px; }
+.mt-hc-note { margin: 6px 0 0; font-size: 12px; color: var(--mt-ink-3); line-height: 1.6; }
+
+.mt-bridge-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 6px 0; border-bottom: 1px dashed var(--mt-line); font-size: 12.5px; color: var(--mt-ink-2); }
+.mt-bridge-row:last-child { border-bottom: none; font-weight: 700; color: var(--mt-ink); padding-top: 8px; }
+.mt-bridge-row .bs-mono { flex-shrink: 0; }
+.mt-bridge-step { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.mt-hc-oneoff { margin: 0; }
+
+.mt-coef-row { padding: 9px 0; border-bottom: 1px solid var(--mt-line); display: flex; flex-direction: column; gap: 3px; }
+.mt-coef-row:last-child { border-bottom: none; }
+.mt-coef-name { font-weight: 700; font-size: 12.5px; color: var(--mt-ink); }
+.mt-coef-value { font-family: var(--bs-sans); font-size: 12.5px; color: var(--mt-ink-2); line-height: 1.5; }
+.mt-coef-origin { font-size: 10.5px; color: var(--mt-ink-3); }
+
+.mt-hc-sources ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 7px; }
+.mt-hc-sources li { font-size: 12px; color: var(--mt-ink-2); line-height: 1.5; }
+.mt-hc-sources a { color: var(--bs-copper); text-decoration: underline; text-underline-offset: 2px; }
+.mt-src-date { color: var(--mt-ink-3); font-family: var(--bs-mono); font-size: 11px; }
+
+.mt-hc-dates { display: flex; flex-wrap: wrap; gap: 6px 18px; font-family: var(--bs-mono); font-size: 11px; color: var(--mt-ink-3); }
+
+.mt-legend-row { display: flex; align-items: baseline; gap: 10px; font-size: 12px; color: var(--mt-ink-2); }
+
+/* ---------------------------------------------------------------------------
+   ПОДВАЛ ВКЛАДКИ — мелкие даты (слой «основания», последний штрих)
+--------------------------------------------------------------------------- */
+.mt-footer { margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--mt-line); font-family: var(--bs-mono); font-size: 10.5px; color: var(--mt-ink-3); line-height: 1.6; }

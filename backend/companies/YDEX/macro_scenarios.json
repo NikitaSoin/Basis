@@ -1,6 +1,6 @@
 {
  "ticker": "YDEX",
- "computed_at": "2026-09-15",
+ "computed_at": "2026-09-16",
  "unit": "млрд руб",
  "base_year": 2025,
  "base_financials": {
@@ -82,14 +82,24 @@
   },
   "display_years": [
    2026,
-   2027,
-   2028
+   2027
   ],
   "tab_years": [
-   2027,
-   2028
-  ]
+   2026,
+   2027
+  ],
+  "core_variables": [
+   "key_rate_avg",
+   "inflation_avg",
+   "gdp",
+   "usdrub_avg"
+  ],
+  "core_note": "Условия сценария, которые показываются инвестору: ключевая ставка, инфляция, ВВП (данные ЦБ) и курс рубля (достройка Basis). Остальные переменные ЦБ (потребление, инвестиции, кредит, ипотека) и достройки (зарплаты, безработица) участвуют в расчёте как производные того же сценария, но в таблице условий не показываются.",
+  "excluded_note": "Цены на нефть и прочее сырьё — не макроэкономика (решение владельца 15.09.2026): в расчёте сценариев они зафиксированы на уровне базового периода, их прогноз — область финансовой модели. Цена нефти ЦБ хранится в файле для справки, в расчёте вкладки не участвует."
  },
+ "held_at_base": [
+  "oil_tax_price"
+ ],
  "current_macro": {
   "as_of": "2026-09-14",
   "key_rate": 14.0,
@@ -192,9 +202,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -222,6 +232,51 @@
        "high": 10.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -920,9 +975,9 @@
        "high": 25.0
       },
       "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 84.0,
@@ -950,6 +1005,51 @@
        "high": 12.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 10.5,
+       "high": 12.5,
+       "mid": 11.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "10,5–12,5%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 4.3,
+       "high": 5.2,
+       "mid": 4.75,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "4,3–5,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 1.5,
+       "high": 2.5,
+       "mid": 2.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "1,5–2,5%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 84.0,
+       "high": 92.0,
+       "mid": 88.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "84–92 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -1552,714 +1652,6 @@
      },
      "flags": [],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Базовый 2028",
-     "scenario_id": "base",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "key_rate_avg": {
-       "low": 8.0,
-       "mid": 8.5,
-       "high": 9.0
-      },
-      "gdp": {
-       "low": 1.5,
-       "mid": 2.0,
-       "high": 2.5
-      },
-      "consumption_hh": {
-       "low": 1.0,
-       "mid": 1.5,
-       "high": 2.0
-      },
-      "gfcf": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "money_supply": {
-       "low": 7.0,
-       "mid": 9.5,
-       "high": 12.0
-      },
-      "credit_total": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_corp": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_hh": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "mortgage": {
-       "low": 10.0,
-       "mid": 12.5,
-       "high": 15.0
-      },
-      "current_account": {
-       "low": 15.0,
-       "mid": 15.0,
-       "high": 15.0
-      },
-      "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
-      },
-      "usdrub_avg": {
-       "low": 88.0,
-       "mid": 92.0,
-       "high": 96.0
-      },
-      "real_wage": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "nominal_wage": {
-       "low": 5.5,
-       "mid": 6.5,
-       "high": 7.5
-      },
-      "unemployment": {
-       "low": 2.5,
-       "mid": 2.85,
-       "high": 3.2
-      },
-      "ad_market_growth": {
-       "low": 8.0,
-       "mid": 10.0,
-       "high": 12.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 1441.1,
-       "delta": {
-        "base": -56.6,
-        "low": -119.5,
-        "high": 6.0
-       },
-       "value": {
-        "base": 1384.5,
-        "low": 1321.6,
-        "high": 1447.1
-       },
-       "pct": {
-        "base": -3.9,
-        "low": -8.3,
-        "high": 0.4
-       },
-       "dominant_factor": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-       "dominant_factor_id": "inflation_nominal",
-       "contributions": [
-        {
-         "id": "inflation_nominal",
-         "label": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": -42.3,
-         "low": -54.99,
-         "high": -29.61,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 20.2
-        },
-        {
-         "id": "consumption_verticals",
-         "label": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-         "var": "consumption_hh",
-         "delta_var": -2.1,
-         "var_from": 3.6,
-         "var_to": 1.5,
-         "base": -30.19,
-         "low": -61.75,
-         "high": -12.0,
-         "var_value_in_low_set": 1.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 39.7
-        },
-        {
-         "id": "credit_hh_ecom",
-         "label": "Кредит населению → покупки на маркетплейсе и объём рассрочки",
-         "var": "credit_hh",
-         "delta_var": 7.7,
-         "var_from": 2.8,
-         "var_to": 10.5,
-         "base": 6.93,
-         "low": 1.56,
-         "high": 18.36,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 13.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 13.4
-        },
-        {
-         "id": "ad_demand",
-         "label": "Рекламный рынок → рекламная выручка и прибыль ядра",
-         "var": "ad_market_growth",
-         "delta_var": 1.0,
-         "var_from": 9.0,
-         "var_to": 10.0,
-         "base": 4.5,
-         "low": -4.95,
-         "high": 16.5,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 12.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 17.1
-        },
-        {
-         "id": "fx_costs",
-         "label": "Курс рубля → импортное оборудование дата-центров, валютные затраты и выручка СНГ",
-         "var": "usdrub_avg",
-         "delta_var": 8.7,
-         "var_from": 83.3,
-         "var_to": 92.0,
-         "base": 3.48,
-         "low": 0.47,
-         "high": 10.16,
-         "var_value_in_low_set": 88.0,
-         "var_value_in_high_set": 96.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 7.7
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "ВВП → корпоративные бюджеты: облако и B2B-сервисы",
-         "var": "gdp",
-         "delta_var": 1.0,
-         "var_from": 1.0,
-         "var_to": 2.0,
-         "base": 1.0,
-         "low": 0.2,
-         "high": 2.55,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 2.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.9
-        }
-       ],
-       "width_drivers": [
-        "consumption_verticals",
-        "inflation_nominal",
-        "ad_demand"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 280.8,
-       "delta": {
-        "base": 0.8,
-        "low": -36.2,
-        "high": 40.3
-       },
-       "value": {
-        "base": 281.6,
-        "low": 244.6,
-        "high": 321.1
-       },
-       "pct": {
-        "base": 0.3,
-        "low": -12.9,
-        "high": 14.4
-       },
-       "dominant_factor": "Зарплаты → фонд оплаты труда разработчиков и выплаты водителям и курьерам",
-       "dominant_factor_id": "wages_labor",
-       "contributions": [
-        {
-         "id": "wages_labor",
-         "label": "Зарплаты → фонд оплаты труда разработчиков и выплаты водителям и курьерам",
-         "var": "nominal_wage",
-         "delta_var": -7.9,
-         "var_from": 14.4,
-         "var_to": 6.5,
-         "base": 12.32,
-         "low": 6.62,
-         "high": 19.22,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 16.5
-        },
-        {
-         "id": "inflation_nominal",
-         "label": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": -11.42,
-         "low": -21.15,
-         "high": -3.38,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 23.2
-        },
-        {
-         "id": "rate_fintech_margin",
-         "label": "Ключевая ставка → фондирование и стоимость риска финтеха (Сплит, платежи)",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 8.56,
-         "low": 1.63,
-         "high": 17.92,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 21.3
-        },
-        {
-         "id": "consumption_verticals",
-         "label": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-         "var": "consumption_hh",
-         "delta_var": -2.1,
-         "var_from": 3.6,
-         "var_to": 1.5,
-         "base": -4.2,
-         "low": -8.78,
-         "high": -1.4,
-         "var_value_in_low_set": 1.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.6
-        },
-        {
-         "id": "inst_platform_reg_ebitda",
-         "label": "Регулирование платформенной экономики (289-ФЗ) и антимонопольное давление (в EBITDA)",
-         "kind": "institutional",
-         "base": -4.0,
-         "low": -4.0,
-         "high": -4.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "inst_digital_levy_tax_ebitda",
-         "label": "Сбор с интернет-рекламы и налоговая мишень цифрового бизнеса (в EBITDA)",
-         "kind": "institutional",
-         "base": -3.4,
-         "low": -3.4,
-         "high": -3.4,
-         "is_modifier": true,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "ad_demand",
-         "label": "Рекламный рынок → рекламная выручка и прибыль ядра",
-         "var": "ad_market_growth",
-         "delta_var": 1.0,
-         "var_from": 9.0,
-         "var_to": 10.0,
-         "base": 2.5,
-         "low": -2.97,
-         "high": 9.9,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 12.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 16.8
-        },
-        {
-         "id": "credit_hh_ecom",
-         "label": "Кредит населению → покупки на маркетплейсе и объём рассрочки",
-         "var": "credit_hh",
-         "delta_var": 7.7,
-         "var_from": 2.8,
-         "var_to": 10.5,
-         "base": 1.16,
-         "low": 0.26,
-         "high": 3.57,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 13.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.3
-        },
-        {
-         "id": "fx_costs",
-         "label": "Курс рубля → импортное оборудование дата-центров, валютные затраты и выручка СНГ",
-         "var": "usdrub_avg",
-         "delta_var": 8.7,
-         "var_from": 83.3,
-         "var_to": 92.0,
-         "base": -0.87,
-         "low": -4.45,
-         "high": 1.27,
-         "var_value_in_low_set": 96.0,
-         "var_value_in_high_set": 96.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 7.5
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "ВВП → корпоративные бюджеты: облако и B2B-сервисы",
-         "var": "gdp",
-         "delta_var": 1.0,
-         "var_from": 1.0,
-         "var_to": 2.0,
-         "base": 0.2,
-         "low": 0.03,
-         "high": 0.6,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 2.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.8
-        }
-       ],
-       "width_drivers": [
-        "inflation_nominal",
-        "rate_fintech_margin",
-        "ad_demand"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 93.3,
-       "delta": {
-        "base": 0.4,
-        "low": -42.2,
-        "high": 39.5
-       },
-       "value": {
-        "base": 93.7,
-        "low": 51.1,
-        "high": 132.8
-       },
-       "pct": {
-        "base": 0.4,
-        "low": -45.2,
-        "high": 42.3
-       },
-       "dominant_factor": "Ключевая ставка → процентные расходы по долгу",
-       "dominant_factor_id": "rate_debt_interest",
-       "contributions": [
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → процентные расходы по долгу",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 11.56,
-         "low": 7.06,
-         "high": 17.14,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 12.3
-        },
-        {
-         "id": "rate_cash_income",
-         "label": "Ключевая ставка → процентный доход на денежные остатки",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": -9.63,
-         "low": -16.8,
-         "high": -5.6,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 13.7
-        },
-        {
-         "id": "wages_labor",
-         "label": "Зарплаты → фонд оплаты труда разработчиков и выплаты водителям и курьерам",
-         "var": "nominal_wage",
-         "delta_var": -7.9,
-         "var_from": 14.4,
-         "var_to": 6.5,
-         "base": 9.48,
-         "low": 4.97,
-         "high": 14.42,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 11.6
-        },
-        {
-         "id": "inflation_nominal",
-         "label": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": -8.46,
-         "low": -16.07,
-         "high": -2.54,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 16.6
-        },
-        {
-         "id": "rate_fintech_margin",
-         "label": "Ключевая ставка → фондирование и стоимость риска финтеха (Сплит, платежи)",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 6.85,
-         "low": 1.79,
-         "high": 13.44,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 14.3
-        },
-        {
-         "id": "consumption_verticals",
-         "label": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-         "var": "consumption_hh",
-         "delta_var": -2.1,
-         "var_from": 3.6,
-         "var_to": 1.5,
-         "base": -3.15,
-         "low": -6.5,
-         "high": -1.0,
-         "var_value_in_low_set": 1.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.7
-        },
-        {
-         "id": "inst_platform_reg_np",
-         "label": "Регулирование платформенной экономики (289-ФЗ) и антимонопольное давление",
-         "kind": "institutional",
-         "base": -3.0,
-         "low": -3.0,
-         "high": -3.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "inst_digital_levy_tax_np",
-         "label": "Сбор с интернет-рекламы и налоговая мишень цифрового бизнеса",
-         "kind": "institutional",
-         "base": -2.5,
-         "low": -2.5,
-         "high": -2.5,
-         "is_modifier": true,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "fx_costs",
-         "label": "Курс рубля → импортное оборудование дата-центров, валютные затраты и выручка СНГ",
-         "var": "usdrub_avg",
-         "delta_var": 8.7,
-         "var_from": 83.3,
-         "var_to": 92.0,
-         "base": -2.18,
-         "low": -7.62,
-         "high": 0.0,
-         "var_value_in_low_set": 96.0,
-         "var_value_in_high_set": 88.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.3
-        },
-        {
-         "id": "ad_demand",
-         "label": "Рекламный рынок → рекламная выручка и прибыль ядра",
-         "var": "ad_market_growth",
-         "delta_var": 1.0,
-         "var_from": 9.0,
-         "var_to": 10.0,
-         "base": 1.9,
-         "low": -2.25,
-         "high": 7.5,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 12.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 11.9
-        },
-        {
-         "id": "geo_equipment_np",
-         "label": "Санкционная наценка на серверы и ИИ-ускорители → амортизация и стоимость облака",
-         "kind": "geo",
-         "base": -1.5,
-         "low": -1.5,
-         "high": -1.5,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "credit_hh_ecom",
-         "label": "Кредит населению → покупки на маркетплейсе и объём рассрочки",
-         "var": "credit_hh",
-         "delta_var": 7.7,
-         "var_from": 2.8,
-         "var_to": 10.5,
-         "base": 0.85,
-         "low": 0.21,
-         "high": 2.65,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 13.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.0
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "ВВП → корпоративные бюджеты: облако и B2B-сервисы",
-         "var": "gdp",
-         "delta_var": 1.0,
-         "var_from": 1.0,
-         "var_to": 2.0,
-         "base": 0.15,
-         "low": 0.02,
-         "high": 0.45,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 2.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.5
-        }
-       ],
-       "width_drivers": [
-        "inflation_nominal",
-        "rate_fintech_margin",
-        "rate_cash_income"
-       ]
-      }
-     },
-     "flags": [],
-     "missing_vars": []
     }
    }
   },
@@ -2342,9 +1734,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -2372,6 +1764,51 @@
        "high": 10.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -3070,9 +2507,9 @@
        "high": 18.0
       },
       "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 85.0,
@@ -3100,6 +2537,51 @@
        "high": 15.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 9.0,
+       "high": 11.0,
+       "mid": 10.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "9–11%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 3.7,
+       "high": 5.1,
+       "mid": 4.4,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "3,7–5,1%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 2.5,
+       "high": 3.5,
+       "mid": 3.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "2,5–3,5%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 85.0,
+       "high": 93.0,
+       "mid": 89.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "85–93 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -3704,714 +3186,6 @@
      },
      "flags": [],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Дезинфляционный 2028",
-     "scenario_id": "disinflation",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "key_rate_avg": {
-       "low": 7.0,
-       "mid": 7.5,
-       "high": 8.0
-      },
-      "gdp": {
-       "low": 2.0,
-       "mid": 2.5,
-       "high": 3.0
-      },
-      "consumption_hh": {
-       "low": 2.0,
-       "mid": 2.5,
-       "high": 3.0
-      },
-      "gfcf": {
-       "low": 2.5,
-       "mid": 3.5,
-       "high": 4.5
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "money_supply": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_total": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "credit_corp": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "credit_hh": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "mortgage": {
-       "low": 11.0,
-       "mid": 13.5,
-       "high": 16.0
-      },
-      "current_account": {
-       "low": 9.0,
-       "mid": 9.0,
-       "high": 9.0
-      },
-      "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
-      },
-      "usdrub_avg": {
-       "low": 89.0,
-       "mid": 93.0,
-       "high": 97.0
-      },
-      "real_wage": {
-       "low": 3.0,
-       "mid": 4.0,
-       "high": 5.0
-      },
-      "nominal_wage": {
-       "low": 7.0,
-       "mid": 8.0,
-       "high": 9.0
-      },
-      "unemployment": {
-       "low": 2.3,
-       "mid": 2.55,
-       "high": 2.8
-      },
-      "ad_market_growth": {
-       "low": 10.0,
-       "mid": 12.0,
-       "high": 14.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 1441.1,
-       "delta": {
-        "base": -31.4,
-        "low": -87.2,
-        "high": 27.9
-       },
-       "value": {
-        "base": 1409.7,
-        "low": 1353.9,
-        "high": 1469.0
-       },
-       "pct": {
-        "base": -2.2,
-        "low": -6.0,
-        "high": 1.9
-       },
-       "dominant_factor": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-       "dominant_factor_id": "inflation_nominal",
-       "contributions": [
-        {
-         "id": "inflation_nominal",
-         "label": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": -42.3,
-         "low": -54.99,
-         "high": -29.61,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 22.1
-        },
-        {
-         "id": "consumption_verticals",
-         "label": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-         "var": "consumption_hh",
-         "delta_var": -1.1,
-         "var_from": 3.6,
-         "var_to": 2.5,
-         "base": -15.81,
-         "low": -38.0,
-         "high": -4.5,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 29.1
-        },
-        {
-         "id": "ad_demand",
-         "label": "Рекламный рынок → рекламная выручка и прибыль ядра",
-         "var": "ad_market_growth",
-         "delta_var": 3.0,
-         "var_from": 9.0,
-         "var_to": 12.0,
-         "base": 13.5,
-         "low": 3.0,
-         "high": 27.5,
-         "var_value_in_low_set": 10.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 21.3
-        },
-        {
-         "id": "credit_hh_ecom",
-         "label": "Кредит населению → покупки на маркетплейсе и объём рассрочки",
-         "var": "credit_hh",
-         "delta_var": 8.7,
-         "var_from": 2.8,
-         "var_to": 11.5,
-         "base": 7.83,
-         "low": 1.86,
-         "high": 20.16,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 15.9
-        },
-        {
-         "id": "fx_costs",
-         "label": "Курс рубля → импортное оборудование дата-центров, валютные затраты и выручка СНГ",
-         "var": "usdrub_avg",
-         "delta_var": 9.7,
-         "var_from": 83.3,
-         "var_to": 93.0,
-         "base": 3.88,
-         "low": 0.57,
-         "high": 10.96,
-         "var_value_in_low_set": 89.0,
-         "var_value_in_high_set": 97.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.0
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "ВВП → корпоративные бюджеты: облако и B2B-сервисы",
-         "var": "gdp",
-         "delta_var": 1.5,
-         "var_from": 1.0,
-         "var_to": 2.5,
-         "base": 1.5,
-         "low": 0.4,
-         "high": 3.4,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 2.6
-        }
-       ],
-       "width_drivers": [
-        "consumption_verticals",
-        "inflation_nominal",
-        "ad_demand"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 280.8,
-       "delta": {
-        "base": 8.7,
-        "low": -28.3,
-        "high": 49.7
-       },
-       "value": {
-        "base": 289.5,
-        "low": 252.5,
-        "high": 330.5
-       },
-       "pct": {
-        "base": 3.1,
-        "low": -10.1,
-        "high": 17.7
-       },
-       "dominant_factor": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-       "dominant_factor_id": "inflation_nominal",
-       "contributions": [
-        {
-         "id": "inflation_nominal",
-         "label": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": -11.42,
-         "low": -21.15,
-         "high": -3.38,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 22.8
-        },
-        {
-         "id": "wages_labor",
-         "label": "Зарплаты → фонд оплаты труда разработчиков и выплаты водителям и курьерам",
-         "var": "nominal_wage",
-         "delta_var": -6.4,
-         "var_from": 14.4,
-         "var_to": 8.0,
-         "base": 9.98,
-         "low": 5.18,
-         "high": 15.98,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 13.8
-        },
-        {
-         "id": "rate_fintech_margin",
-         "label": "Ключевая ставка → фондирование и стоимость риска финтеха (Сплит, платежи)",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 9.36,
-         "low": 1.79,
-         "high": 19.52,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 22.7
-        },
-        {
-         "id": "ad_demand",
-         "label": "Рекламный рынок → рекламная выручка и прибыль ядра",
-         "var": "ad_market_growth",
-         "delta_var": 3.0,
-         "var_from": 9.0,
-         "var_to": 12.0,
-         "base": 7.5,
-         "low": 1.6,
-         "high": 16.5,
-         "var_value_in_low_set": 10.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 19.1
-        },
-        {
-         "id": "inst_digital_levy_tax_ebitda",
-         "label": "Сбор с интернет-рекламы и налоговая мишень цифрового бизнеса (в EBITDA)",
-         "kind": "institutional",
-         "base": -2.7,
-         "low": -3.4,
-         "high": -2.0,
-         "is_modifier": true,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "width_share_pct": 1.8
-        },
-        {
-         "id": "inst_platform_reg_ebitda",
-         "label": "Регулирование платформенной экономики (289-ФЗ) и антимонопольное давление (в EBITDA)",
-         "kind": "institutional",
-         "base": -2.5,
-         "low": -2.5,
-         "high": -2.5,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "consumption_verticals",
-         "label": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-         "var": "consumption_hh",
-         "delta_var": -1.1,
-         "var_from": 3.6,
-         "var_to": 2.5,
-         "base": -2.2,
-         "low": -5.4,
-         "high": -0.53,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.3
-        },
-        {
-         "id": "credit_hh_ecom",
-         "label": "Кредит населению → покупки на маркетплейсе и объём рассрочки",
-         "var": "credit_hh",
-         "delta_var": 8.7,
-         "var_from": 2.8,
-         "var_to": 11.5,
-         "base": 1.3,
-         "low": 0.31,
-         "high": 3.92,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.6
-        },
-        {
-         "id": "fx_costs",
-         "label": "Курс рубля → импортное оборудование дата-центров, валютные затраты и выручка СНГ",
-         "var": "usdrub_avg",
-         "delta_var": 9.7,
-         "var_from": 83.3,
-         "var_to": 93.0,
-         "base": -0.97,
-         "low": -4.8,
-         "high": 1.37,
-         "var_value_in_low_set": 97.0,
-         "var_value_in_high_set": 97.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 7.9
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "ВВП → корпоративные бюджеты: облако и B2B-сервисы",
-         "var": "gdp",
-         "delta_var": 1.5,
-         "var_from": 1.0,
-         "var_to": 2.5,
-         "base": 0.3,
-         "low": 0.05,
-         "high": 0.8,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.0
-        }
-       ],
-       "width_drivers": [
-        "inflation_nominal",
-        "rate_fintech_margin",
-        "ad_demand"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 93.3,
-       "delta": {
-        "base": 7.1,
-        "low": -36.6,
-        "high": 48.3
-       },
-       "value": {
-        "base": 100.4,
-        "low": 56.7,
-        "high": 141.6
-       },
-       "pct": {
-        "base": 7.6,
-        "low": -39.2,
-        "high": 51.8
-       },
-       "dominant_factor": "Ключевая ставка → процентные расходы по долгу",
-       "dominant_factor_id": "rate_debt_interest",
-       "contributions": [
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → процентные расходы по долгу",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 12.64,
-         "low": 7.69,
-         "high": 18.67,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 12.9
-        },
-        {
-         "id": "rate_cash_income",
-         "label": "Ключевая ставка → процентный доход на денежные остатки",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": -10.53,
-         "low": -18.3,
-         "high": -6.1,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 14.4
-        },
-        {
-         "id": "inflation_nominal",
-         "label": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": -8.46,
-         "low": -16.07,
-         "high": -2.54,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 15.9
-        },
-        {
-         "id": "wages_labor",
-         "label": "Зарплаты → фонд оплаты труда разработчиков и выплаты водителям и курьерам",
-         "var": "nominal_wage",
-         "delta_var": -6.4,
-         "var_from": 14.4,
-         "var_to": 8.0,
-         "base": 7.68,
-         "low": 3.89,
-         "high": 11.99,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.5
-        },
-        {
-         "id": "rate_fintech_margin",
-         "label": "Ключевая ставка → фондирование и стоимость риска финтеха (Сплит, платежи)",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 7.49,
-         "low": 1.95,
-         "high": 14.64,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 14.9
-        },
-        {
-         "id": "ad_demand",
-         "label": "Рекламный рынок → рекламная выручка и прибыль ядра",
-         "var": "ad_market_growth",
-         "delta_var": 3.0,
-         "var_from": 9.0,
-         "var_to": 12.0,
-         "base": 5.7,
-         "low": 1.2,
-         "high": 12.5,
-         "var_value_in_low_set": 10.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 13.3
-        },
-        {
-         "id": "fx_costs",
-         "label": "Курс рубля → импортное оборудование дата-центров, валютные затраты и выручка СНГ",
-         "var": "usdrub_avg",
-         "delta_var": 9.7,
-         "var_from": 83.3,
-         "var_to": 93.0,
-         "base": -2.43,
-         "low": -8.22,
-         "high": 0.0,
-         "var_value_in_low_set": 97.0,
-         "var_value_in_high_set": 89.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.7
-        },
-        {
-         "id": "inst_digital_levy_tax_np",
-         "label": "Сбор с интернет-рекламы и налоговая мишень цифрового бизнеса",
-         "kind": "institutional",
-         "base": -2.0,
-         "low": -2.5,
-         "high": -1.5,
-         "is_modifier": true,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "width_share_pct": 1.2
-        },
-        {
-         "id": "inst_platform_reg_np",
-         "label": "Регулирование платформенной экономики (289-ФЗ) и антимонопольное давление",
-         "kind": "institutional",
-         "base": -2.0,
-         "low": -2.0,
-         "high": -2.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "consumption_verticals",
-         "label": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-         "var": "consumption_hh",
-         "delta_var": -1.1,
-         "var_from": 3.6,
-         "var_to": 2.5,
-         "base": -1.65,
-         "low": -4.0,
-         "high": -0.38,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.3
-        },
-        {
-         "id": "credit_hh_ecom",
-         "label": "Кредит населению → покупки на маркетплейсе и объём рассрочки",
-         "var": "credit_hh",
-         "delta_var": 8.7,
-         "var_from": 2.8,
-         "var_to": 11.5,
-         "base": 0.96,
-         "low": 0.25,
-         "high": 2.91,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.1
-        },
-        {
-         "id": "geo_equipment_np",
-         "label": "Санкционная наценка на серверы и ИИ-ускорители → амортизация и стоимость облака",
-         "kind": "geo",
-         "base": -0.5,
-         "low": -0.5,
-         "high": -0.5,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "ВВП → корпоративные бюджеты: облако и B2B-сервисы",
-         "var": "gdp",
-         "delta_var": 1.5,
-         "var_from": 1.0,
-         "var_to": 2.5,
-         "base": 0.22,
-         "low": 0.04,
-         "high": 0.6,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.7
-        }
-       ],
-       "width_drivers": [
-        "inflation_nominal",
-        "rate_fintech_margin",
-        "rate_cash_income"
-       ]
-      }
-     },
-     "flags": [],
-     "missing_vars": []
     }
    }
   },
@@ -4494,9 +3268,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -4524,6 +3298,51 @@
        "high": 10.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -5222,9 +4041,9 @@
        "high": 10.0
       },
       "oil_tax_price": {
-       "low": 45.0,
-       "mid": 45.0,
-       "high": 45.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 90.0,
@@ -5252,6 +4071,51 @@
        "high": 11.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 13.0,
+       "high": 15.0,
+       "mid": 14.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "13–15%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 4.6,
+       "high": 5.9,
+       "mid": 5.25,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "4,6–5,9%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 1.0,
+       "high": 2.0,
+       "mid": 1.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "1–2%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 90.0,
+       "high": 100.0,
+       "mid": 95.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "90–100 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -5862,720 +4726,6 @@
      },
      "flags": [],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Проинфляционный 2028",
-     "scenario_id": "proinflation",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.25,
-       "high": 4.5
-      },
-      "key_rate_avg": {
-       "low": 11.0,
-       "mid": 11.5,
-       "high": 12.0
-      },
-      "gdp": {
-       "low": 0.5,
-       "mid": 1.0,
-       "high": 1.5
-      },
-      "consumption_hh": {
-       "low": 0.0,
-       "mid": 0.5,
-       "high": 1.0
-      },
-      "gfcf": {
-       "low": 0.0,
-       "mid": 1.0,
-       "high": 2.0
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": -2.0,
-       "mid": -1.0,
-       "high": 0.0
-      },
-      "money_supply": {
-       "low": 7.0,
-       "mid": 9.5,
-       "high": 12.0
-      },
-      "credit_total": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_corp": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_hh": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "mortgage": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "current_account": {
-       "low": 13.0,
-       "mid": 13.0,
-       "high": 13.0
-      },
-      "oil_tax_price": {
-       "low": 45.0,
-       "mid": 45.0,
-       "high": 45.0
-      },
-      "usdrub_avg": {
-       "low": 95.0,
-       "mid": 100.0,
-       "high": 105.0
-      },
-      "real_wage": {
-       "low": 0.0,
-       "mid": 1.0,
-       "high": 2.0
-      },
-      "nominal_wage": {
-       "low": 5.0,
-       "mid": 6.25,
-       "high": 7.5
-      },
-      "unemployment": {
-       "low": 2.5,
-       "mid": 2.85,
-       "high": 3.2
-      },
-      "ad_market_growth": {
-       "low": 5.0,
-       "mid": 7.5,
-       "high": 10.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 1441.1,
-       "delta": {
-        "base": -78.9,
-        "low": -159.1,
-        "high": -7.5
-       },
-       "value": {
-        "base": 1362.2,
-        "low": 1282.0,
-        "high": 1433.6
-       },
-       "pct": {
-        "base": -5.5,
-        "low": -11.0,
-        "high": -0.5
-       },
-       "dominant_factor": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-       "dominant_factor_id": "consumption_verticals",
-       "contributions": [
-        {
-         "id": "consumption_verticals",
-         "label": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-         "var": "consumption_hh",
-         "delta_var": -3.1,
-         "var_from": 3.6,
-         "var_to": 0.5,
-         "base": -44.56,
-         "low": -85.5,
-         "high": -19.5,
-         "var_value_in_low_set": 0.0,
-         "var_value_in_high_set": 1.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 43.5
-        },
-        {
-         "id": "inflation_nominal",
-         "label": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-         "var": "inflation_avg",
-         "delta_var": -4.45,
-         "var_from": 8.7,
-         "var_to": 4.25,
-         "base": -40.05,
-         "low": -54.99,
-         "high": -26.46,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 18.8
-        },
-        {
-         "id": "fx_costs",
-         "label": "Курс рубля → импортное оборудование дата-центров, валютные затраты и выручка СНГ",
-         "var": "usdrub_avg",
-         "delta_var": 16.7,
-         "var_from": 83.3,
-         "var_to": 100.0,
-         "base": 6.68,
-         "low": 1.17,
-         "high": 17.36,
-         "var_value_in_low_set": 95.0,
-         "var_value_in_high_set": 105.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 10.7
-        },
-        {
-         "id": "ad_demand",
-         "label": "Рекламный рынок → рекламная выручка и прибыль ядра",
-         "var": "ad_market_growth",
-         "delta_var": -1.5,
-         "var_from": 9.0,
-         "var_to": 7.5,
-         "base": -6.08,
-         "low": -19.8,
-         "high": 5.5,
-         "var_value_in_low_set": 5.0,
-         "var_value_in_high_set": 10.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 16.7
-        },
-        {
-         "id": "credit_hh_ecom",
-         "label": "Кредит населению → покупки на маркетплейсе и объём рассрочки",
-         "var": "credit_hh",
-         "delta_var": 5.7,
-         "var_from": 2.8,
-         "var_to": 8.5,
-         "base": 5.13,
-         "low": 0.96,
-         "high": 14.76,
-         "var_value_in_low_set": 6.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.1
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "ВВП → корпоративные бюджеты: облако и B2B-сервисы",
-         "var": "gdp",
-         "delta_var": 0.0,
-         "var_from": 1.0,
-         "var_to": 1.0,
-         "base": 0.0,
-         "low": -0.94,
-         "high": 0.85,
-         "var_value_in_low_set": 0.5,
-         "var_value_in_high_set": 1.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.2
-        }
-       ],
-       "width_drivers": [
-        "consumption_verticals",
-        "inflation_nominal",
-        "ad_demand"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 280.8,
-       "delta": {
-        "base": -17.0,
-        "low": -67.1,
-        "high": 29.3
-       },
-       "value": {
-        "base": 263.8,
-        "low": 213.7,
-        "high": 310.1
-       },
-       "pct": {
-        "base": -6.1,
-        "low": -23.9,
-        "high": 10.4
-       },
-       "dominant_factor": "Зарплаты → фонд оплаты труда разработчиков и выплаты водителям и курьерам",
-       "dominant_factor_id": "wages_labor",
-       "contributions": [
-        {
-         "id": "wages_labor",
-         "label": "Зарплаты → фонд оплаты труда разработчиков и выплаты водителям и курьерам",
-         "var": "nominal_wage",
-         "delta_var": -8.15,
-         "var_from": 14.4,
-         "var_to": 6.25,
-         "base": 12.71,
-         "low": 6.62,
-         "high": 20.3,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 14.2
-        },
-        {
-         "id": "inflation_nominal",
-         "label": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-         "var": "inflation_avg",
-         "delta_var": -4.45,
-         "var_from": 8.7,
-         "var_to": 4.25,
-         "base": -10.81,
-         "low": -21.15,
-         "high": -3.02,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 18.8
-        },
-        {
-         "id": "inst_digital_levy_tax_ebitda",
-         "label": "Сбор с интернет-рекламы и налоговая мишень цифрового бизнеса (в EBITDA)",
-         "kind": "institutional",
-         "base": -7.7,
-         "low": -12.0,
-         "high": -3.4,
-         "is_modifier": true,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "width_share_pct": 8.9
-        },
-        {
-         "id": "inst_platform_reg_ebitda",
-         "label": "Регулирование платформенной экономики (289-ФЗ) и антимонопольное давление (в EBITDA)",
-         "kind": "institutional",
-         "base": -7.0,
-         "low": -10.0,
-         "high": -4.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 6.2
-        },
-        {
-         "id": "consumption_verticals",
-         "label": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-         "var": "consumption_hh",
-         "delta_var": -3.1,
-         "var_from": 3.6,
-         "var_to": 0.5,
-         "base": -6.2,
-         "low": -12.15,
-         "high": -2.27,
-         "var_value_in_low_set": 0.0,
-         "var_value_in_high_set": 1.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 10.3
-        },
-        {
-         "id": "rate_fintech_margin",
-         "label": "Ключевая ставка → фондирование и стоимость риска финтеха (Сплит, платежи)",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 6.16,
-         "low": 1.15,
-         "high": 13.12,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 12.4
-        },
-        {
-         "id": "ad_demand",
-         "label": "Рекламный рынок → рекламная выручка и прибыль ядра",
-         "var": "ad_market_growth",
-         "delta_var": -1.5,
-         "var_from": 9.0,
-         "var_to": 7.5,
-         "base": -3.38,
-         "low": -11.88,
-         "high": 3.3,
-         "var_value_in_low_set": 5.0,
-         "var_value_in_high_set": 10.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 15.8
-        },
-        {
-         "id": "fx_costs",
-         "label": "Курс рубля → импортное оборудование дата-центров, валютные затраты и выручка СНГ",
-         "var": "usdrub_avg",
-         "delta_var": 16.7,
-         "var_from": 83.3,
-         "var_to": 100.0,
-         "base": -1.67,
-         "low": -7.6,
-         "high": 2.17,
-         "var_value_in_low_set": 105.0,
-         "var_value_in_high_set": 105.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 10.1
-        },
-        {
-         "id": "credit_hh_ecom",
-         "label": "Кредит населению → покупки на маркетплейсе и объём рассрочки",
-         "var": "credit_hh",
-         "delta_var": 5.7,
-         "var_from": 2.8,
-         "var_to": 8.5,
-         "base": 0.85,
-         "low": 0.16,
-         "high": 2.87,
-         "var_value_in_low_set": 6.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 2.8
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "ВВП → корпоративные бюджеты: облако и B2B-сервисы",
-         "var": "gdp",
-         "delta_var": 0.0,
-         "var_from": 1.0,
-         "var_to": 1.0,
-         "base": 0.0,
-         "low": -0.22,
-         "high": 0.2,
-         "var_value_in_low_set": 0.5,
-         "var_value_in_high_set": 1.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.4
-        }
-       ],
-       "width_drivers": [
-        "inflation_nominal",
-        "ad_demand",
-        "wages_labor"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 93.3,
-       "delta": {
-        "base": -16.7,
-        "low": -67.5,
-        "high": 25.9
-       },
-       "value": {
-        "base": 76.6,
-        "low": 25.8,
-        "high": 119.2
-       },
-       "pct": {
-        "base": -17.9,
-        "low": -72.3,
-        "high": 27.8
-       },
-       "dominant_factor": "Зарплаты → фонд оплаты труда разработчиков и выплаты водителям и курьерам",
-       "dominant_factor_id": "wages_labor",
-       "contributions": [
-        {
-         "id": "wages_labor",
-         "label": "Зарплаты → фонд оплаты труда разработчиков и выплаты водителям и курьерам",
-         "var": "nominal_wage",
-         "delta_var": -8.15,
-         "var_from": 14.4,
-         "var_to": 6.25,
-         "base": 9.78,
-         "low": 4.97,
-         "high": 15.23,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 11.0
-        },
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → процентные расходы по долгу",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 8.32,
-         "low": 5.17,
-         "high": 12.55,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.9
-        },
-        {
-         "id": "inflation_nominal",
-         "label": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-         "var": "inflation_avg",
-         "delta_var": -4.45,
-         "var_from": 8.7,
-         "var_to": 4.25,
-         "base": -8.01,
-         "low": -16.07,
-         "high": -2.27,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 14.8
-        },
-        {
-         "id": "rate_cash_income",
-         "label": "Ключевая ставка → процентный доход на денежные остатки",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": -6.93,
-         "low": -12.3,
-         "high": -4.1,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 8.8
-        },
-        {
-         "id": "inst_digital_levy_tax_np",
-         "label": "Сбор с интернет-рекламы и налоговая мишень цифрового бизнеса",
-         "kind": "institutional",
-         "base": -5.75,
-         "low": -9.0,
-         "high": -2.5,
-         "is_modifier": true,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "width_share_pct": 7.0
-        },
-        {
-         "id": "inst_platform_reg_np",
-         "label": "Регулирование платформенной экономики (289-ФЗ) и антимонопольное давление",
-         "kind": "institutional",
-         "base": -5.25,
-         "low": -7.5,
-         "high": -3.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 4.8
-        },
-        {
-         "id": "rate_fintech_margin",
-         "label": "Ключевая ставка → фондирование и стоимость риска финтеха (Сплит, платежи)",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 4.93,
-         "low": 1.31,
-         "high": 9.84,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.1
-        },
-        {
-         "id": "consumption_verticals",
-         "label": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-         "var": "consumption_hh",
-         "delta_var": -3.1,
-         "var_from": 3.6,
-         "var_to": 0.5,
-         "base": -4.65,
-         "low": -9.0,
-         "high": -1.62,
-         "var_value_in_low_set": 0.0,
-         "var_value_in_high_set": 1.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.9
-        },
-        {
-         "id": "fx_costs",
-         "label": "Курс рубля → импортное оборудование дата-центров, валютные затраты и выручка СНГ",
-         "var": "usdrub_avg",
-         "delta_var": 16.7,
-         "var_from": 83.3,
-         "var_to": 100.0,
-         "base": -4.18,
-         "low": -13.02,
-         "high": 0.0,
-         "var_value_in_low_set": 105.0,
-         "var_value_in_high_set": 95.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 13.9
-        },
-        {
-         "id": "geo_equipment_np",
-         "label": "Санкционная наценка на серверы и ИИ-ускорители → амортизация и стоимость облака",
-         "kind": "geo",
-         "base": -3.0,
-         "low": -3.0,
-         "high": -3.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "ad_demand",
-         "label": "Рекламный рынок → рекламная выручка и прибыль ядра",
-         "var": "ad_market_growth",
-         "delta_var": -1.5,
-         "var_from": 9.0,
-         "var_to": 7.5,
-         "base": -2.56,
-         "low": -9.0,
-         "high": 2.5,
-         "var_value_in_low_set": 5.0,
-         "var_value_in_high_set": 10.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 12.3
-        },
-        {
-         "id": "credit_hh_ecom",
-         "label": "Кредит населению → покупки на маркетплейсе и объём рассрочки",
-         "var": "credit_hh",
-         "delta_var": 5.7,
-         "var_from": 2.8,
-         "var_to": 8.5,
-         "base": 0.63,
-         "low": 0.13,
-         "high": 2.13,
-         "var_value_in_low_set": 6.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 2.1
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "ВВП → корпоративные бюджеты: облако и B2B-сервисы",
-         "var": "gdp",
-         "delta_var": 0.0,
-         "var_from": 1.0,
-         "var_to": 1.0,
-         "base": 0.0,
-         "low": -0.17,
-         "high": 0.15,
-         "var_value_in_low_set": 0.5,
-         "var_value_in_high_set": 1.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.3
-        }
-       ],
-       "width_drivers": [
-        "inflation_nominal",
-        "fx_costs",
-        "ad_demand"
-       ]
-      }
-     },
-     "flags": [],
-     "missing_vars": []
     }
    }
   },
@@ -6658,9 +4808,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -6688,6 +4838,51 @@
        "high": 10.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -7386,9 +5581,9 @@
        "high": 5.0
       },
       "oil_tax_price": {
-       "low": 35.0,
-       "mid": 35.0,
-       "high": 35.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 105.0,
@@ -7416,6 +5611,51 @@
        "high": 2.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 19.0,
+       "high": 21.0,
+       "mid": 20.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "19–21%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 7.3,
+       "high": 9.3,
+       "mid": 8.3,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "7,3–9,3%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": -4.0,
+       "high": -3.0,
+       "mid": -3.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "от −4 до −3%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 105.0,
+       "high": 125.0,
+       "mid": 115.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "105–125 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -8047,734 +6287,6 @@
       "при неблагоприятных значениях входов прибыль уходит в убыток"
      ],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Рисковый 2028",
-     "scenario_id": "risk",
-     "conditions": {
-      "inflation_dec": {
-       "low": 5.0,
-       "mid": 6.0,
-       "high": 7.0
-      },
-      "inflation_avg": {
-       "low": 9.3,
-       "mid": 10.35,
-       "high": 11.4
-      },
-      "key_rate_avg": {
-       "low": 14.0,
-       "mid": 15.0,
-       "high": 16.0
-      },
-      "gdp": {
-       "low": -2.5,
-       "mid": -2.0,
-       "high": -1.5
-      },
-      "consumption_hh": {
-       "low": -6.5,
-       "mid": -6.0,
-       "high": -5.5
-      },
-      "gfcf": {
-       "low": -2.0,
-       "mid": -1.0,
-       "high": 0.0
-      },
-      "exports_vol": {
-       "low": -3.0,
-       "mid": -2.0,
-       "high": -1.0
-      },
-      "imports_vol": {
-       "low": -20.0,
-       "mid": -19.0,
-       "high": -18.0
-      },
-      "money_supply": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_total": {
-       "low": 2.0,
-       "mid": 4.5,
-       "high": 7.0
-      },
-      "credit_corp": {
-       "low": 3.0,
-       "mid": 5.5,
-       "high": 8.0
-      },
-      "credit_hh": {
-       "low": -1.0,
-       "mid": 1.5,
-       "high": 4.0
-      },
-      "mortgage": {
-       "low": 2.0,
-       "mid": 4.5,
-       "high": 7.0
-      },
-      "current_account": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "oil_tax_price": {
-       "low": 25.0,
-       "mid": 25.0,
-       "high": 25.0
-      },
-      "usdrub_avg": {
-       "low": 115.0,
-       "mid": 127.5,
-       "high": 140.0
-      },
-      "real_wage": {
-       "low": -6.0,
-       "mid": -4.5,
-       "high": -3.0
-      },
-      "nominal_wage": {
-       "low": 4.0,
-       "mid": 5.5,
-       "high": 7.0
-      },
-      "unemployment": {
-       "low": 4.5,
-       "mid": 5.25,
-       "high": 6.0
-      },
-      "ad_market_growth": {
-       "low": 2.0,
-       "mid": 5.0,
-       "high": 8.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 1441.1,
-       "delta": {
-        "base": -119.4,
-        "low": -281.0,
-        "high": 24.2
-       },
-       "value": {
-        "base": 1321.7,
-        "low": 1160.1,
-        "high": 1465.3
-       },
-       "pct": {
-        "base": -8.3,
-        "low": -19.5,
-        "high": 1.7
-       },
-       "dominant_factor": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-       "dominant_factor_id": "consumption_verticals",
-       "contributions": [
-        {
-         "id": "consumption_verticals",
-         "label": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-         "var": "consumption_hh",
-         "delta_var": -9.6,
-         "var_from": 3.6,
-         "var_to": -6.0,
-         "base": -138.0,
-         "low": -239.88,
-         "high": -68.25,
-         "var_value_in_low_set": -6.5,
-         "var_value_in_high_set": -5.5,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 56.2
-        },
-        {
-         "id": "fx_costs",
-         "label": "Курс рубля → импортное оборудование дата-центров, валютные затраты и выручка СНГ",
-         "var": "usdrub_avg",
-         "delta_var": 44.2,
-         "var_from": 83.3,
-         "var_to": 127.5,
-         "base": 22.98,
-         "low": 4.12,
-         "high": 58.97,
-         "var_value_in_low_set": 115.0,
-         "var_value_in_high_set": 140.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "порог usdrub_avg > 110.0: ×1.3"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 18.0
-        },
-        {
-         "id": "inflation_nominal",
-         "label": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-         "var": "inflation_avg",
-         "delta_var": 1.65,
-         "var_from": 8.7,
-         "var_to": 10.35,
-         "base": 16.5,
-         "low": 4.2,
-         "high": 35.1,
-         "var_value_in_low_set": 9.3,
-         "var_value_in_high_set": 11.4,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 10.1
-        },
-        {
-         "id": "ad_demand",
-         "label": "Рекламный рынок → рекламная выручка и прибыль ядра",
-         "var": "ad_market_growth",
-         "delta_var": -4.0,
-         "var_from": 9.0,
-         "var_to": 5.0,
-         "base": -16.2,
-         "low": -34.65,
-         "high": -2.7,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 10.5
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "ВВП → корпоративные бюджеты: облако и B2B-сервисы",
-         "var": "gdp",
-         "delta_var": -3.0,
-         "var_from": 1.0,
-         "var_to": -2.0,
-         "base": -3.3,
-         "low": -6.55,
-         "high": -1.1,
-         "var_value_in_low_set": -2.5,
-         "var_value_in_high_set": -1.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.1"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.8
-        },
-        {
-         "id": "credit_hh_ecom",
-         "label": "Кредит населению → покупки на маркетплейсе и объём рассрочки",
-         "var": "credit_hh",
-         "delta_var": -1.3,
-         "var_from": 2.8,
-         "var_to": 1.5,
-         "base": -1.4,
-         "low": -8.21,
-         "high": 2.16,
-         "var_value_in_low_set": -1.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.4
-        }
-       ],
-       "width_drivers": [
-        "consumption_verticals",
-        "fx_costs",
-        "ad_demand"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 280.8,
-       "delta": {
-        "base": -38.6,
-        "low": -114.7,
-        "high": 30.5
-       },
-       "value": {
-        "base": 242.2,
-        "low": 166.1,
-        "high": 311.3
-       },
-       "pct": {
-        "base": -13.8,
-        "low": -40.9,
-        "high": 10.9
-       },
-       "dominant_factor": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-       "dominant_factor_id": "consumption_verticals",
-       "contributions": [
-        {
-         "id": "consumption_verticals",
-         "label": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-         "var": "consumption_hh",
-         "delta_var": -9.6,
-         "var_from": 3.6,
-         "var_to": -6.0,
-         "base": -19.2,
-         "low": -34.09,
-         "high": -7.96,
-         "var_value_in_low_set": -6.5,
-         "var_value_in_high_set": -5.5,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 18.0
-        },
-        {
-         "id": "inst_digital_levy_tax_ebitda",
-         "label": "Сбор с интернет-рекламы и налоговая мишень цифрового бизнеса (в EBITDA)",
-         "kind": "institutional",
-         "base": -14.0,
-         "low": -21.0,
-         "high": -7.0,
-         "is_modifier": true,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "width_share_pct": 9.6
-        },
-        {
-         "id": "wages_labor",
-         "label": "Зарплаты → фонд оплаты труда разработчиков и выплаты водителям и курьерам",
-         "var": "nominal_wage",
-         "delta_var": -8.9,
-         "var_from": 14.4,
-         "var_to": 5.5,
-         "base": 13.88,
-         "low": 7.1,
-         "high": 22.46,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 10.6
-        },
-        {
-         "id": "inst_platform_reg_ebitda",
-         "label": "Регулирование платформенной экономики (289-ФЗ) и антимонопольное давление (в EBITDA)",
-         "kind": "institutional",
-         "base": -11.5,
-         "low": -18.0,
-         "high": -5.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 9.0
-        },
-        {
-         "id": "ad_demand",
-         "label": "Рекламный рынок → рекламная выручка и прибыль ядра",
-         "var": "ad_market_growth",
-         "delta_var": -4.0,
-         "var_from": 9.0,
-         "var_to": 5.0,
-         "base": -9.0,
-         "low": -20.79,
-         "high": -1.44,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 13.3
-        },
-        {
-         "id": "fx_costs",
-         "label": "Курс рубля → импортное оборудование дата-центров, валютные затраты и выручка СНГ",
-         "var": "usdrub_avg",
-         "delta_var": 44.2,
-         "var_from": 83.3,
-         "var_to": 127.5,
-         "base": -5.75,
-         "low": -25.8,
-         "high": 7.37,
-         "var_value_in_low_set": 140.0,
-         "var_value_in_high_set": 140.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "порог usdrub_avg > 110.0: ×1.3"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 22.8
-        },
-        {
-         "id": "inflation_nominal",
-         "label": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-         "var": "inflation_avg",
-         "delta_var": 1.65,
-         "var_from": 8.7,
-         "var_to": 10.35,
-         "base": 4.46,
-         "low": 0.48,
-         "high": 13.5,
-         "var_value_in_low_set": 9.3,
-         "var_value_in_high_set": 11.4,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.0
-        },
-        {
-         "id": "rate_fintech_margin",
-         "label": "Ключевая ставка → фондирование и стоимость риска финтеха (Сплит, платежи)",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 3.36,
-         "low": 0.51,
-         "high": 8.32,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.4
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "ВВП → корпоративные бюджеты: облако и B2B-сервисы",
-         "var": "gdp",
-         "delta_var": -3.0,
-         "var_from": 1.0,
-         "var_to": -2.0,
-         "base": -0.66,
-         "low": -1.54,
-         "high": -0.14,
-         "var_value_in_low_set": -2.5,
-         "var_value_in_high_set": -1.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.1"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.0
-        },
-        {
-         "id": "credit_hh_ecom",
-         "label": "Кредит населению → покупки на маркетплейсе и объём рассрочки",
-         "var": "credit_hh",
-         "delta_var": -1.3,
-         "var_from": 2.8,
-         "var_to": 1.5,
-         "base": -0.23,
-         "low": -1.6,
-         "high": 0.42,
-         "var_value_in_low_set": -1.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.4
-        }
-       ],
-       "width_drivers": [
-        "fx_costs",
-        "consumption_verticals",
-        "ad_demand"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 93.3,
-       "delta": {
-        "base": -44.1,
-        "low": -124.1,
-        "high": 20.1
-       },
-       "value": {
-        "base": 49.2,
-        "low": -30.8,
-        "high": 113.4
-       },
-       "pct": {
-        "base": -47.3,
-        "low": -133.0,
-        "high": 21.6
-       },
-       "dominant_factor": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-       "dominant_factor_id": "consumption_verticals",
-       "contributions": [
-        {
-         "id": "consumption_verticals",
-         "label": "Потребление домохозяйств → городские сервисы (такси, доставка, маркетплейс) и подписки",
-         "var": "consumption_hh",
-         "delta_var": -9.6,
-         "var_from": 3.6,
-         "var_to": -6.0,
-         "base": -14.4,
-         "low": -25.25,
-         "high": -5.69,
-         "var_value_in_low_set": -6.5,
-         "var_value_in_high_set": -5.5,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 13.6
-        },
-        {
-         "id": "fx_costs",
-         "label": "Курс рубля → импортное оборудование дата-центров, валютные затраты и выручка СНГ",
-         "var": "usdrub_avg",
-         "delta_var": 44.2,
-         "var_from": 83.3,
-         "var_to": 127.5,
-         "base": -14.37,
-         "low": -44.23,
-         "high": 0.0,
-         "var_value_in_low_set": 140.0,
-         "var_value_in_high_set": 115.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "порог usdrub_avg > 110.0: ×1.3"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 30.7
-        },
-        {
-         "id": "wages_labor",
-         "label": "Зарплаты → фонд оплаты труда разработчиков и выплаты водителям и курьерам",
-         "var": "nominal_wage",
-         "delta_var": -8.9,
-         "var_from": 14.4,
-         "var_to": 5.5,
-         "base": 10.68,
-         "low": 5.33,
-         "high": 16.85,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 8.0
-        },
-        {
-         "id": "inst_digital_levy_tax_np",
-         "label": "Сбор с интернет-рекламы и налоговая мишень цифрового бизнеса",
-         "kind": "institutional",
-         "base": -10.5,
-         "low": -16.0,
-         "high": -5.0,
-         "is_modifier": true,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "width_share_pct": 7.6
-        },
-        {
-         "id": "inst_platform_reg_np",
-         "label": "Регулирование платформенной экономики (289-ФЗ) и антимонопольное давление",
-         "kind": "institutional",
-         "base": -8.75,
-         "low": -13.5,
-         "high": -4.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 6.6
-        },
-        {
-         "id": "ad_demand",
-         "label": "Рекламный рынок → рекламная выручка и прибыль ядра",
-         "var": "ad_market_growth",
-         "delta_var": -4.0,
-         "var_from": 9.0,
-         "var_to": 5.0,
-         "base": -6.84,
-         "low": -15.75,
-         "high": -1.08,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 10.2
-        },
-        {
-         "id": "geo_equipment_np",
-         "label": "Санкционная наценка на серверы и ИИ-ускорители → амортизация и стоимость облака",
-         "kind": "geo",
-         "base": -6.0,
-         "low": -9.0,
-         "high": -3.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 4.2
-        },
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → процентные расходы по долгу",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 4.54,
-         "low": 3.28,
-         "high": 7.96,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.2
-        },
-        {
-         "id": "rate_cash_income",
-         "label": "Ключевая ставка → процентный доход на денежные остатки",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": -3.78,
-         "low": -7.8,
-         "high": -2.6,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.6
-        },
-        {
-         "id": "inflation_nominal",
-         "label": "Инфляция → номинальная выручка (цена клика, чек поездки, комиссия с оборота)",
-         "var": "inflation_avg",
-         "delta_var": 1.65,
-         "var_from": 8.7,
-         "var_to": 10.35,
-         "base": 3.3,
-         "low": 0.36,
-         "high": 10.26,
-         "var_value_in_low_set": 9.3,
-         "var_value_in_high_set": 11.4,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.9
-        },
-        {
-         "id": "rate_fintech_margin",
-         "label": "Ключевая ставка → фондирование и стоимость риска финтеха (Сплит, платежи)",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 2.69,
-         "low": 0.83,
-         "high": 6.24,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.8
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "ВВП → корпоративные бюджеты: облако и B2B-сервисы",
-         "var": "gdp",
-         "delta_var": -3.0,
-         "var_from": 1.0,
-         "var_to": -2.0,
-         "base": -0.49,
-         "low": -1.16,
-         "high": -0.11,
-         "var_value_in_low_set": -2.5,
-         "var_value_in_high_set": -1.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.1"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 0.7
-        },
-        {
-         "id": "credit_hh_ecom",
-         "label": "Кредит населению → покупки на маркетплейсе и объём рассрочки",
-         "var": "credit_hh",
-         "delta_var": -1.3,
-         "var_from": 2.8,
-         "var_to": 1.5,
-         "base": -0.17,
-         "low": -1.19,
-         "high": 0.31,
-         "var_value_in_low_set": -1.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.0
-        }
-       ],
-       "width_drivers": [
-        "fx_costs",
-        "consumption_verticals",
-        "ad_demand"
-       ]
-      }
-     },
-     "flags": [
-      "при неблагоприятных значениях входов прибыль уходит в убыток"
-     ],
-     "missing_vars": []
     }
    }
   }
@@ -8834,6 +6346,49 @@
     "high": 6.0
    }
   },
+  "conditions_core": [
+   {
+    "var": "key_rate_avg",
+    "label": "ключевая ставка, средняя за год",
+    "low": 21.0,
+    "high": 21.0,
+    "mid": 21.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "21%"
+   },
+   {
+    "var": "inflation_avg",
+    "label": "инфляция, средняя за год",
+    "low": 11.0,
+    "high": 11.0,
+    "mid": 11.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "11%"
+   },
+   {
+    "var": "gdp",
+    "label": "рост ВВП",
+    "low": -4.0,
+    "high": -4.0,
+    "mid": -4.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "−4%"
+   },
+   {
+    "var": "usdrub_avg",
+    "label": "курс доллара, средний",
+    "low": 130.0,
+    "high": 130.0,
+    "mid": 130.0,
+    "unit": "руб.",
+    "origin": "допущение Basis",
+    "text": "130 руб."
+   }
+  ],
+  "held_at_base": [],
   "lines": {
    "revenue": {
     "label": "выручка",

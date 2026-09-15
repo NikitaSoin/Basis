@@ -1,6 +1,6 @@
 {
  "ticker": "MTSS",
- "computed_at": "2026-09-15",
+ "computed_at": "2026-09-16",
  "unit": "млрд руб",
  "base_year": 2025,
  "base_financials": {
@@ -68,14 +68,24 @@
   },
   "display_years": [
    2026,
-   2027,
-   2028
+   2027
   ],
   "tab_years": [
-   2027,
-   2028
-  ]
+   2026,
+   2027
+  ],
+  "core_variables": [
+   "key_rate_avg",
+   "inflation_avg",
+   "gdp",
+   "usdrub_avg"
+  ],
+  "core_note": "Условия сценария, которые показываются инвестору: ключевая ставка, инфляция, ВВП (данные ЦБ) и курс рубля (достройка Basis). Остальные переменные ЦБ (потребление, инвестиции, кредит, ипотека) и достройки (зарплаты, безработица) участвуют в расчёте как производные того же сценария, но в таблице условий не показываются.",
+  "excluded_note": "Цены на нефть и прочее сырьё — не макроэкономика (решение владельца 15.09.2026): в расчёте сценариев они зафиксированы на уровне базового периода, их прогноз — область финансовой модели. Цена нефти ЦБ хранится в файле для справки, в расчёте вкладки не участвует."
  },
+ "held_at_base": [
+  "oil_tax_price"
+ ],
  "current_macro": {
   "as_of": "2026-09-14",
   "key_rate": 14.0,
@@ -178,9 +188,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -213,6 +223,51 @@
        "high": 10.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -1061,9 +1116,9 @@
        "high": 25.0
       },
       "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 84.0,
@@ -1096,6 +1151,51 @@
        "high": 12.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 10.5,
+       "high": 12.5,
+       "mid": 11.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "10,5–12,5%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 4.3,
+       "high": 5.2,
+       "mid": 4.75,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "4,3–5,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 1.5,
+       "high": 2.5,
+       "mid": 2.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "1,5–2,5%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 84.0,
+       "high": 92.0,
+       "mid": 88.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "84–92 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -1850,871 +1950,6 @@
       "изменение прибыли +103% — линейность под вопросом, читать как порядок величины"
      ],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Базовый 2028",
-     "scenario_id": "base",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "key_rate_avg": {
-       "low": 8.0,
-       "mid": 8.5,
-       "high": 9.0
-      },
-      "gdp": {
-       "low": 1.5,
-       "mid": 2.0,
-       "high": 2.5
-      },
-      "consumption_hh": {
-       "low": 1.0,
-       "mid": 1.5,
-       "high": 2.0
-      },
-      "gfcf": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "money_supply": {
-       "low": 7.0,
-       "mid": 9.5,
-       "high": 12.0
-      },
-      "credit_total": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_corp": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_hh": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "mortgage": {
-       "low": 10.0,
-       "mid": 12.5,
-       "high": 15.0
-      },
-      "current_account": {
-       "low": 15.0,
-       "mid": 15.0,
-       "high": 15.0
-      },
-      "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
-      },
-      "usdrub_avg": {
-       "low": 88.0,
-       "mid": 92.0,
-       "high": 96.0
-      },
-      "real_wage": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "nominal_wage": {
-       "low": 5.5,
-       "mid": 6.5,
-       "high": 7.5
-      },
-      "unemployment": {
-       "low": 2.5,
-       "mid": 2.85,
-       "high": 3.2
-      },
-      "telecom_tariff_index": {
-       "low": 4.5,
-       "mid": 5.75,
-       "high": 7.0
-      },
-      "ad_market_growth": {
-       "low": 8.0,
-       "mid": 10.0,
-       "high": 12.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 807.2,
-       "delta": {
-        "base": -11.2,
-        "low": -50.1,
-        "high": 34.5
-       },
-       "value": {
-        "base": 796.0,
-        "low": 757.1,
-        "high": 841.7
-       },
-       "pct": {
-        "base": -1.4,
-        "low": -6.2,
-        "high": 4.3
-       },
-       "dominant_factor": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-       "dominant_factor_id": "rate_bank_nim",
-       "contributions": [
-        {
-         "id": "rate_bank_nim",
-         "label": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": -17.12,
-         "low": -29.12,
-         "high": -7.84,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 25.2
-        },
-        {
-         "id": "tariff_index_revenue",
-         "label": "Индексация тарифов связи → выручка (ценовая власть под надзором ФАС)",
-         "var": "telecom_tariff_index",
-         "delta_var": -2.25,
-         "var_from": 8.0,
-         "var_to": 5.75,
-         "base": -9.45,
-         "low": -18.2,
-         "high": -3.2,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 17.7
-        },
-        {
-         "id": "bank_volume_credit_hh",
-         "label": "Рост кредита населению → портфель МТС Банка и продажи устройств в рассрочку",
-         "var": "credit_hh",
-         "delta_var": 7.7,
-         "var_from": 2.8,
-         "var_to": 10.5,
-         "base": 7.39,
-         "low": 2.08,
-         "high": 17.95,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 13.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 18.8
-        },
-        {
-         "id": "rate_demand_credit",
-         "label": "Ключевая ставка → спрос: устройства в рассрочку и корпоративные проекты",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 5.99,
-         "low": 2.35,
-         "high": 14.11,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 13.9
-        },
-        {
-         "id": "fx_devices_capex",
-         "label": "Курс рубля → импортные устройства и стоимость сетевого оборудования",
-         "var": "usdrub_avg",
-         "delta_var": 8.7,
-         "var_from": 83.3,
-         "var_to": 92.0,
-         "base": 3.48,
-         "low": 0.71,
-         "high": 8.89,
-         "var_value_in_low_set": 88.0,
-         "var_value_in_high_set": 96.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.7
-        },
-        {
-         "id": "consumption_devices",
-         "label": "Потребление домохозяйств → устройства, дополнительные услуги, кикшеринг",
-         "var": "consumption_hh",
-         "delta_var": -2.1,
-         "var_from": 3.6,
-         "var_to": 1.5,
-         "base": -3.15,
-         "low": -6.86,
-         "high": -1.15,
-         "var_value_in_low_set": 1.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.8
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "Рост экономики → корпоративный спрос: облака, MWS, корпоративная связь",
-         "var": "gdp",
-         "delta_var": 1.0,
-         "var_from": 1.0,
-         "var_to": 2.0,
-         "base": 0.95,
-         "low": 0.2,
-         "high": 2.7,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 2.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.0
-        },
-        {
-         "id": "adtech_ad_market",
-         "label": "Рост рекламного рынка → выручка AdTech",
-         "var": "ad_market_growth",
-         "delta_var": 1.0,
-         "var_from": 9.0,
-         "var_to": 10.0,
-         "base": 0.7,
-         "low": -1.3,
-         "high": 3.0,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 12.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 5.1
-        }
-       ],
-       "width_drivers": [
-        "rate_bank_nim",
-        "bank_volume_credit_hh",
-        "tariff_index_revenue"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 279.7,
-       "delta": {
-        "base": 23.0,
-        "low": -24.1,
-        "high": 68.7
-       },
-       "value": {
-        "base": 302.7,
-        "low": 255.6,
-        "high": 348.4
-       },
-       "pct": {
-        "base": 8.2,
-        "low": -8.6,
-        "high": 24.6
-       },
-       "dominant_factor": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-       "dominant_factor_id": "rate_bank_nim",
-       "contributions": [
-        {
-         "id": "rate_bank_nim",
-         "label": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 23.54,
-         "low": 8.16,
-         "high": 40.32,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 34.6
-        },
-        {
-         "id": "tariff_index_revenue",
-         "label": "Индексация тарифов связи → выручка (ценовая власть под надзором ФАС)",
-         "var": "telecom_tariff_index",
-         "delta_var": -2.25,
-         "var_from": 8.0,
-         "var_to": 5.75,
-         "base": -8.55,
-         "low": -16.8,
-         "high": -2.8,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 15.1
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Инфляция → неперсональные операционные затраты (энергия, эксплуатация сети, межоператорские, контент)",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 8.39,
-         "low": 4.79,
-         "high": 12.78,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 8.6
-        },
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты → расходы на персонал",
-         "var": "nominal_wage",
-         "delta_var": -7.9,
-         "var_from": 14.4,
-         "var_to": 6.5,
-         "base": 4.27,
-         "low": 1.45,
-         "high": 8.54,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.5,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.6
-        },
-        {
-         "id": "inst_mandatory_costs_ebitda",
-         "label": "Обязательные затраты по требованиям государства (хранение трафика, антифрод, отчисления в универсальный фонд связи)",
-         "kind": "institution",
-         "base": -2.5,
-         "low": -4.0,
-         "high": -1.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 3.2
-        },
-        {
-         "id": "bank_cost_of_risk",
-         "label": "Безработица → стоимость риска МТС Банка (резервы)",
-         "var": "unemployment",
-         "delta_var": 0.55,
-         "var_from": 2.3,
-         "var_to": 2.85,
-         "base": -2.2,
-         "low": -7.65,
-         "high": -0.32,
-         "var_value_in_low_set": 3.2,
-         "var_value_in_high_set": 2.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 7.9
-        },
-        {
-         "id": "bank_volume_credit_hh",
-         "label": "Рост кредита населению → портфель МТС Банка и продажи устройств в рассрочку",
-         "var": "credit_hh",
-         "delta_var": 7.7,
-         "var_from": 2.8,
-         "var_to": 10.5,
-         "base": 1.85,
-         "low": 0.42,
-         "high": 4.9,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 13.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.8
-        },
-        {
-         "id": "inst_vat_hike_ebitda",
-         "label": "Повышение НДС до 22% с 2026 года — часть, которую не удаётся переложить на абонента",
-         "kind": "institution",
-         "base": -1.75,
-         "low": -3.0,
-         "high": -0.5,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.7
-        },
-        {
-         "id": "rate_demand_credit",
-         "label": "Ключевая ставка → спрос: устройства в рассрочку и корпоративные проекты",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 1.5,
-         "low": 0.36,
-         "high": 3.92,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.8
-        },
-        {
-         "id": "fx_devices_capex",
-         "label": "Курс рубля → импортные устройства и стоимость сетевого оборудования",
-         "var": "usdrub_avg",
-         "delta_var": 8.7,
-         "var_from": 83.3,
-         "var_to": 92.0,
-         "base": -1.31,
-         "low": -5.08,
-         "high": 0.64,
-         "var_value_in_low_set": 96.0,
-         "var_value_in_high_set": 96.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.2
-        },
-        {
-         "id": "consumption_devices",
-         "label": "Потребление домохозяйств → устройства, дополнительные услуги, кикшеринг",
-         "var": "consumption_hh",
-         "delta_var": -2.1,
-         "var_from": 3.6,
-         "var_to": 1.5,
-         "base": -0.88,
-         "low": -2.18,
-         "high": -0.29,
-         "var_value_in_low_set": 1.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.0
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "Рост экономики → корпоративный спрос: облака, MWS, корпоративная связь",
-         "var": "gdp",
-         "delta_var": 1.0,
-         "var_from": 1.0,
-         "var_to": 2.0,
-         "base": 0.35,
-         "low": 0.06,
-         "high": 1.05,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 2.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.1
-        },
-        {
-         "id": "adtech_ad_market",
-         "label": "Рост рекламного рынка → выручка AdTech",
-         "var": "ad_market_growth",
-         "delta_var": 1.0,
-         "var_from": 9.0,
-         "var_to": 10.0,
-         "base": 0.3,
-         "low": -0.65,
-         "high": 1.5,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 12.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 2.3
-        }
-       ],
-       "width_drivers": [
-        "rate_bank_nim",
-        "tariff_index_revenue",
-        "opex_inflation"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 35.2,
-       "delta": {
-        "base": 50.3,
-        "low": -8.8,
-        "high": 103.3
-       },
-       "value": {
-        "base": 85.5,
-        "low": 26.4,
-        "high": 138.5
-       },
-       "pct": {
-        "base": 142.8,
-        "low": -25.0,
-        "high": 293.5
-       },
-       "dominant_factor": "Ключевая ставка → проценты по корпоративному долгу",
-       "dominant_factor_id": "rate_debt_interest",
-       "contributions": [
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → проценты по корпоративному долгу",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 39.38,
-         "low": 24.48,
-         "high": 52.86,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 25.3
-        },
-        {
-         "id": "rate_bank_nim",
-         "label": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 18.19,
-         "low": 6.12,
-         "high": 30.24,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 21.5
-        },
-        {
-         "id": "tariff_index_revenue",
-         "label": "Индексация тарифов связи → выручка (ценовая власть под надзором ФАС)",
-         "var": "telecom_tariff_index",
-         "delta_var": -2.25,
-         "var_from": 8.0,
-         "var_to": 5.75,
-         "base": -6.52,
-         "low": -12.95,
-         "high": -2.1,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.7
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Инфляция → неперсональные операционные затраты (энергия, эксплуатация сети, межоператорские, контент)",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 6.39,
-         "low": 3.6,
-         "high": 9.99,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.7
-        },
-        {
-         "id": "rate_cash_income",
-         "label": "Ключевая ставка → процентные доходы на свободные средства (встречный канал)",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": -4.28,
-         "low": -9.18,
-         "high": -1.68,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.7
-        },
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты → расходы на персонал",
-         "var": "nominal_wage",
-         "delta_var": -7.9,
-         "var_from": 14.4,
-         "var_to": 6.5,
-         "base": 3.32,
-         "low": 1.12,
-         "high": 6.67,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.5,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.0
-        },
-        {
-         "id": "inst_mandatory_costs_np",
-         "label": "Обязательные затраты по требованиям государства — эффект на прибыль",
-         "kind": "institution",
-         "base": -1.88,
-         "low": -3.0,
-         "high": -0.75,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.0
-        },
-        {
-         "id": "geo_equipment_np",
-         "label": "Санкционная надбавка на сетевое оборудование и сдвиг капвложений",
-         "kind": "geo",
-         "base": -1.75,
-         "low": -3.0,
-         "high": -0.5,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.2
-        },
-        {
-         "id": "fx_devices_capex",
-         "label": "Курс рубля → импортные устройства и стоимость сетевого оборудования",
-         "var": "usdrub_avg",
-         "delta_var": 8.7,
-         "var_from": 83.3,
-         "var_to": 92.0,
-         "base": -1.74,
-         "low": -6.35,
-         "high": 0.64,
-         "var_value_in_low_set": 96.0,
-         "var_value_in_high_set": 96.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.2
-        },
-        {
-         "id": "bank_cost_of_risk",
-         "label": "Безработица → стоимость риска МТС Банка (резервы)",
-         "var": "unemployment",
-         "delta_var": 0.55,
-         "var_from": 2.3,
-         "var_to": 2.85,
-         "base": -1.65,
-         "low": -5.76,
-         "high": -0.24,
-         "var_value_in_low_set": 3.2,
-         "var_value_in_high_set": 2.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.9
-        },
-        {
-         "id": "inst_vat_hike_np",
-         "label": "Повышение НДС до 22% — эффект на прибыль",
-         "kind": "institution",
-         "base": -1.35,
-         "low": -2.3,
-         "high": -0.4,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 1.7
-        },
-        {
-         "id": "bank_volume_credit_hh",
-         "label": "Рост кредита населению → портфель МТС Банка и продажи устройств в рассрочку",
-         "var": "credit_hh",
-         "delta_var": 7.7,
-         "var_from": 2.8,
-         "var_to": 10.5,
-         "base": 1.23,
-         "low": 0.29,
-         "high": 3.67,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 13.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.0
-        },
-        {
-         "id": "rate_demand_credit",
-         "label": "Ключевая ставка → спрос: устройства в рассрочку и корпоративные проекты",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 1.12,
-         "low": 0.29,
-         "high": 3.14,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.5
-        },
-        {
-         "id": "consumption_devices",
-         "label": "Потребление домохозяйств → устройства, дополнительные услуги, кикшеринг",
-         "var": "consumption_hh",
-         "delta_var": -2.1,
-         "var_from": 3.6,
-         "var_to": 1.5,
-         "base": -0.68,
-         "low": -1.72,
-         "high": -0.19,
-         "var_value_in_low_set": 1.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.4
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "Рост экономики → корпоративный спрос: облака, MWS, корпоративная связь",
-         "var": "gdp",
-         "delta_var": 1.0,
-         "var_from": 1.0,
-         "var_to": 2.0,
-         "base": 0.27,
-         "low": 0.04,
-         "high": 0.83,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 2.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.7
-        },
-        {
-         "id": "adtech_ad_market",
-         "label": "Рост рекламного рынка → выручка AdTech",
-         "var": "ad_market_growth",
-         "delta_var": 1.0,
-         "var_from": 9.0,
-         "var_to": 10.0,
-         "base": 0.23,
-         "low": -0.49,
-         "high": 1.14,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 12.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.5
-        }
-       ],
-       "width_drivers": [
-        "rate_debt_interest",
-        "rate_bank_nim",
-        "tariff_index_revenue"
-       ]
-      }
-     },
-     "flags": [
-      "изменение прибыли +143% — линейность под вопросом, читать как порядок величины"
-     ],
-     "missing_vars": []
     }
    }
   },
@@ -2797,9 +2032,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -2832,6 +2067,51 @@
        "high": 10.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -3680,9 +2960,9 @@
        "high": 18.0
       },
       "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 85.0,
@@ -3715,6 +2995,51 @@
        "high": 15.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 9.0,
+       "high": 11.0,
+       "mid": 10.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "9–11%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 3.7,
+       "high": 5.1,
+       "mid": 4.4,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "3,7–5,1%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 2.5,
+       "high": 3.5,
+       "mid": 3.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "2,5–3,5%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 85.0,
+       "high": 93.0,
+       "mid": 89.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "85–93 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -4469,871 +3794,6 @@
       "изменение прибыли +131% — линейность под вопросом, читать как порядок величины"
      ],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Дезинфляционный 2028",
-     "scenario_id": "disinflation",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "key_rate_avg": {
-       "low": 7.0,
-       "mid": 7.5,
-       "high": 8.0
-      },
-      "gdp": {
-       "low": 2.0,
-       "mid": 2.5,
-       "high": 3.0
-      },
-      "consumption_hh": {
-       "low": 2.0,
-       "mid": 2.5,
-       "high": 3.0
-      },
-      "gfcf": {
-       "low": 2.5,
-       "mid": 3.5,
-       "high": 4.5
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "money_supply": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_total": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "credit_corp": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "credit_hh": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "mortgage": {
-       "low": 11.0,
-       "mid": 13.5,
-       "high": 16.0
-      },
-      "current_account": {
-       "low": 9.0,
-       "mid": 9.0,
-       "high": 9.0
-      },
-      "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
-      },
-      "usdrub_avg": {
-       "low": 89.0,
-       "mid": 93.0,
-       "high": 97.0
-      },
-      "real_wage": {
-       "low": 3.0,
-       "mid": 4.0,
-       "high": 5.0
-      },
-      "nominal_wage": {
-       "low": 7.0,
-       "mid": 8.0,
-       "high": 9.0
-      },
-      "unemployment": {
-       "low": 2.3,
-       "mid": 2.55,
-       "high": 2.8
-      },
-      "telecom_tariff_index": {
-       "low": 4.0,
-       "mid": 5.25,
-       "high": 6.5
-      },
-      "ad_market_growth": {
-       "low": 10.0,
-       "mid": 12.0,
-       "high": 14.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 807.2,
-       "delta": {
-        "base": -9.6,
-        "low": -50.0,
-        "high": 39.5
-       },
-       "value": {
-        "base": 797.6,
-        "low": 757.2,
-        "high": 846.7
-       },
-       "pct": {
-        "base": -1.2,
-        "low": -6.2,
-        "high": 4.9
-       },
-       "dominant_factor": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-       "dominant_factor_id": "rate_bank_nim",
-       "contributions": [
-        {
-         "id": "rate_bank_nim",
-         "label": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": -18.72,
-         "low": -31.72,
-         "high": -8.54,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 25.9
-        },
-        {
-         "id": "tariff_index_revenue",
-         "label": "Индексация тарифов связи → выручка (ценовая власть под надзором ФАС)",
-         "var": "telecom_tariff_index",
-         "delta_var": -2.75,
-         "var_from": 8.0,
-         "var_to": 5.25,
-         "base": -11.55,
-         "low": -20.8,
-         "high": -4.8,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 6.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 17.9
-        },
-        {
-         "id": "bank_volume_credit_hh",
-         "label": "Рост кредита населению → портфель МТС Банка и продажи устройств в рассрочку",
-         "var": "credit_hh",
-         "delta_var": 8.7,
-         "var_from": 2.8,
-         "var_to": 11.5,
-         "base": 8.35,
-         "low": 2.48,
-         "high": 19.71,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 19.3
-        },
-        {
-         "id": "rate_demand_credit",
-         "label": "Ключевая ставка → спрос: устройства в рассрочку и корпоративные проекты",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 6.55,
-         "low": 2.56,
-         "high": 15.37,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 14.3
-        },
-        {
-         "id": "fx_devices_capex",
-         "label": "Курс рубля → импортные устройства и стоимость сетевого оборудования",
-         "var": "usdrub_avg",
-         "delta_var": 9.7,
-         "var_from": 83.3,
-         "var_to": 93.0,
-         "base": 3.88,
-         "low": 0.86,
-         "high": 9.59,
-         "var_value_in_low_set": 89.0,
-         "var_value_in_high_set": 97.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.8
-        },
-        {
-         "id": "adtech_ad_market",
-         "label": "Рост рекламного рынка → выручка AdTech",
-         "var": "ad_market_growth",
-         "delta_var": 3.0,
-         "var_from": 9.0,
-         "var_to": 12.0,
-         "base": 2.1,
-         "low": 0.45,
-         "high": 5.0,
-         "var_value_in_low_set": 10.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 5.1
-        },
-        {
-         "id": "consumption_devices",
-         "label": "Потребление домохозяйств → устройства, дополнительные услуги, кикшеринг",
-         "var": "consumption_hh",
-         "delta_var": -1.1,
-         "var_from": 3.6,
-         "var_to": 2.5,
-         "base": -1.65,
-         "low": -4.22,
-         "high": -0.43,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.2
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "Рост экономики → корпоративный спрос: облака, MWS, корпоративная связь",
-         "var": "gdp",
-         "delta_var": 1.5,
-         "var_from": 1.0,
-         "var_to": 2.5,
-         "base": 1.42,
-         "low": 0.4,
-         "high": 3.6,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.6
-        }
-       ],
-       "width_drivers": [
-        "rate_bank_nim",
-        "bank_volume_credit_hh",
-        "tariff_index_revenue"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 279.7,
-       "delta": {
-        "base": 26.7,
-        "low": -18.7,
-        "high": 72.9
-       },
-       "value": {
-        "base": 306.4,
-        "low": 261.0,
-        "high": 352.6
-       },
-       "pct": {
-        "base": 9.6,
-        "low": -6.7,
-        "high": 26.1
-       },
-       "dominant_factor": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-       "dominant_factor_id": "rate_bank_nim",
-       "contributions": [
-        {
-         "id": "rate_bank_nim",
-         "label": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 25.74,
-         "low": 8.96,
-         "high": 43.92,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 38.1
-        },
-        {
-         "id": "tariff_index_revenue",
-         "label": "Индексация тарифов связи → выручка (ценовая власть под надзором ФАС)",
-         "var": "telecom_tariff_index",
-         "delta_var": -2.75,
-         "var_from": 8.0,
-         "var_to": 5.25,
-         "base": -10.45,
-         "low": -19.2,
-         "high": -4.2,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 6.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 16.4
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Инфляция → неперсональные операционные затраты (энергия, эксплуатация сети, межоператорские, контент)",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 8.39,
-         "low": 4.79,
-         "high": 12.78,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 8.7
-        },
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты → расходы на персонал",
-         "var": "nominal_wage",
-         "delta_var": -6.4,
-         "var_from": 14.4,
-         "var_to": 8.0,
-         "base": 3.46,
-         "low": 1.13,
-         "high": 7.1,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.5
-        },
-        {
-         "id": "bank_volume_credit_hh",
-         "label": "Рост кредита населению → портфель МТС Банка и продажи устройств в рассрочку",
-         "var": "credit_hh",
-         "delta_var": 8.7,
-         "var_from": 2.8,
-         "var_to": 11.5,
-         "base": 2.09,
-         "low": 0.5,
-         "high": 5.38,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.3
-        },
-        {
-         "id": "rate_demand_credit",
-         "label": "Ключевая ставка → спрос: устройства в рассрочку и корпоративные проекты",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 1.64,
-         "low": 0.39,
-         "high": 4.27,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.2
-        },
-        {
-         "id": "inst_mandatory_costs_ebitda",
-         "label": "Обязательные затраты по требованиям государства (хранение трафика, антифрод, отчисления в универсальный фонд связи)",
-         "kind": "institution",
-         "base": -1.5,
-         "low": -2.5,
-         "high": -0.5,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.2
-        },
-        {
-         "id": "fx_devices_capex",
-         "label": "Курс рубля → импортные устройства и стоимость сетевого оборудования",
-         "var": "usdrub_avg",
-         "delta_var": 9.7,
-         "var_from": 83.3,
-         "var_to": 93.0,
-         "base": -1.46,
-         "low": -5.48,
-         "high": 0.69,
-         "var_value_in_low_set": 97.0,
-         "var_value_in_high_set": 97.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.7
-        },
-        {
-         "id": "inst_vat_hike_ebitda",
-         "label": "Повышение НДС до 22% с 2026 года — часть, которую не удаётся переложить на абонента",
-         "kind": "institution",
-         "base": -1.15,
-         "low": -2.0,
-         "high": -0.3,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 1.9
-        },
-        {
-         "id": "bank_cost_of_risk",
-         "label": "Безработица → стоимость риска МТС Банка (резервы)",
-         "var": "unemployment",
-         "delta_var": 0.25,
-         "var_from": 2.3,
-         "var_to": 2.55,
-         "base": -1.0,
-         "low": -4.25,
-         "high": -0.0,
-         "var_value_in_low_set": 2.8,
-         "var_value_in_high_set": 2.3,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.6
-        },
-        {
-         "id": "adtech_ad_market",
-         "label": "Рост рекламного рынка → выручка AdTech",
-         "var": "ad_market_growth",
-         "delta_var": 3.0,
-         "var_from": 9.0,
-         "var_to": 12.0,
-         "base": 0.9,
-         "low": 0.15,
-         "high": 2.5,
-         "var_value_in_low_set": 10.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 2.6
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "Рост экономики → корпоративный спрос: облака, MWS, корпоративная связь",
-         "var": "gdp",
-         "delta_var": 1.5,
-         "var_from": 1.0,
-         "var_to": 2.5,
-         "base": 0.52,
-         "low": 0.12,
-         "high": 1.4,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.4
-        },
-        {
-         "id": "consumption_devices",
-         "label": "Потребление домохозяйств → устройства, дополнительные услуги, кикшеринг",
-         "var": "consumption_hh",
-         "delta_var": -1.1,
-         "var_from": 3.6,
-         "var_to": 2.5,
-         "base": -0.46,
-         "low": -1.34,
-         "high": -0.11,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.3
-        }
-       ],
-       "width_drivers": [
-        "rate_bank_nim",
-        "tariff_index_revenue",
-        "opex_inflation"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 35.2,
-       "delta": {
-        "base": 57.5,
-        "low": -1.5,
-        "high": 111.5
-       },
-       "value": {
-        "base": 92.7,
-        "low": 33.7,
-        "high": 146.7
-       },
-       "pct": {
-        "base": 163.5,
-        "low": -4.2,
-        "high": 316.9
-       },
-       "dominant_factor": "Ключевая ставка → проценты по корпоративному долгу",
-       "dominant_factor_id": "rate_debt_interest",
-       "contributions": [
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → проценты по корпоративному долгу",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 43.06,
-         "low": 26.88,
-         "high": 57.58,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 27.2
-        },
-        {
-         "id": "rate_bank_nim",
-         "label": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 19.89,
-         "low": 6.72,
-         "high": 32.94,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 23.2
-        },
-        {
-         "id": "tariff_index_revenue",
-         "label": "Индексация тарифов связи → выручка (ценовая власть под надзором ФАС)",
-         "var": "telecom_tariff_index",
-         "delta_var": -2.75,
-         "var_from": 8.0,
-         "var_to": 5.25,
-         "base": -7.97,
-         "low": -14.8,
-         "high": -3.15,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 6.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 10.3
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Инфляция → неперсональные операционные затраты (энергия, эксплуатация сети, межоператорские, контент)",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 6.39,
-         "low": 3.6,
-         "high": 9.99,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.7
-        },
-        {
-         "id": "rate_cash_income",
-         "label": "Ключевая ставка → процентные доходы на свободные средства (встречный канал)",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": -4.68,
-         "low": -10.08,
-         "high": -1.83,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 7.3
-        },
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты → расходы на персонал",
-         "var": "nominal_wage",
-         "delta_var": -6.4,
-         "var_from": 14.4,
-         "var_to": 8.0,
-         "base": 2.69,
-         "low": 0.87,
-         "high": 5.55,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.1
-        },
-        {
-         "id": "fx_devices_capex",
-         "label": "Курс рубля → импортные устройства и стоимость сетевого оборудования",
-         "var": "usdrub_avg",
-         "delta_var": 9.7,
-         "var_from": 83.3,
-         "var_to": 93.0,
-         "base": -1.94,
-         "low": -6.85,
-         "high": 0.69,
-         "var_value_in_low_set": 97.0,
-         "var_value_in_high_set": 97.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.7
-        },
-        {
-         "id": "bank_volume_credit_hh",
-         "label": "Рост кредита населению → портфель МТС Банка и продажи устройств в рассрочку",
-         "var": "credit_hh",
-         "delta_var": 8.7,
-         "var_from": 2.8,
-         "var_to": 11.5,
-         "base": 1.39,
-         "low": 0.35,
-         "high": 4.03,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.3
-        },
-        {
-         "id": "rate_demand_credit",
-         "label": "Ключевая ставка → спрос: устройства в рассрочку и корпоративные проекты",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 1.23,
-         "low": 0.31,
-         "high": 3.42,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.7
-        },
-        {
-         "id": "inst_mandatory_costs_np",
-         "label": "Обязательные затраты по требованиям государства — эффект на прибыль",
-         "kind": "institution",
-         "base": -1.15,
-         "low": -1.9,
-         "high": -0.4,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 1.3
-        },
-        {
-         "id": "inst_vat_hike_np",
-         "label": "Повышение НДС до 22% — эффект на прибыль",
-         "kind": "institution",
-         "base": -0.85,
-         "low": -1.5,
-         "high": -0.2,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 1.2
-        },
-        {
-         "id": "bank_cost_of_risk",
-         "label": "Безработица → стоимость риска МТС Банка (резервы)",
-         "var": "unemployment",
-         "delta_var": 0.25,
-         "var_from": 2.3,
-         "var_to": 2.55,
-         "base": -0.75,
-         "low": -3.2,
-         "high": -0.0,
-         "var_value_in_low_set": 2.8,
-         "var_value_in_high_set": 2.3,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 2.8
-        },
-        {
-         "id": "adtech_ad_market",
-         "label": "Рост рекламного рынка → выручка AdTech",
-         "var": "ad_market_growth",
-         "delta_var": 3.0,
-         "var_from": 9.0,
-         "var_to": 12.0,
-         "base": 0.69,
-         "low": 0.1,
-         "high": 1.9,
-         "var_value_in_low_set": 10.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.6
-        },
-        {
-         "id": "geo_equipment_np",
-         "label": "Санкционная надбавка на сетевое оборудование и сдвиг капвложений",
-         "kind": "geo",
-         "base": -0.5,
-         "low": -1.0,
-         "high": 0.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.9
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "Рост экономики → корпоративный спрос: облака, MWS, корпоративная связь",
-         "var": "gdp",
-         "delta_var": 1.5,
-         "var_from": 1.0,
-         "var_to": 2.5,
-         "base": 0.41,
-         "low": 0.09,
-         "high": 1.1,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.9
-        },
-        {
-         "id": "consumption_devices",
-         "label": "Потребление домохозяйств → устройства, дополнительные услуги, кикшеринг",
-         "var": "consumption_hh",
-         "delta_var": -1.1,
-         "var_from": 3.6,
-         "var_to": 2.5,
-         "base": -0.36,
-         "low": -1.06,
-         "high": -0.07,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 0.9
-        }
-       ],
-       "width_drivers": [
-        "rate_debt_interest",
-        "rate_bank_nim",
-        "tariff_index_revenue"
-       ]
-      }
-     },
-     "flags": [
-      "изменение прибыли +164% — линейность под вопросом, читать как порядок величины"
-     ],
-     "missing_vars": []
     }
    }
   },
@@ -5416,9 +3876,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -5451,6 +3911,51 @@
        "high": 10.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -6333,9 +4838,9 @@
        "high": 10.0
       },
       "oil_tax_price": {
-       "low": 45.0,
-       "mid": 45.0,
-       "high": 45.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 90.0,
@@ -6368,6 +4873,51 @@
        "high": 11.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 13.0,
+       "high": 15.0,
+       "mid": 14.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "13–15%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 4.6,
+       "high": 5.9,
+       "mid": 5.25,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "4,6–5,9%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 1.0,
+       "high": 2.0,
+       "mid": 1.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "1–2%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 90.0,
+       "high": 100.0,
+       "mid": 95.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "90–100 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -7162,911 +5712,6 @@
      },
      "flags": [],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Проинфляционный 2028",
-     "scenario_id": "proinflation",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.25,
-       "high": 4.5
-      },
-      "key_rate_avg": {
-       "low": 11.0,
-       "mid": 11.5,
-       "high": 12.0
-      },
-      "gdp": {
-       "low": 0.5,
-       "mid": 1.0,
-       "high": 1.5
-      },
-      "consumption_hh": {
-       "low": 0.0,
-       "mid": 0.5,
-       "high": 1.0
-      },
-      "gfcf": {
-       "low": 0.0,
-       "mid": 1.0,
-       "high": 2.0
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": -2.0,
-       "mid": -1.0,
-       "high": 0.0
-      },
-      "money_supply": {
-       "low": 7.0,
-       "mid": 9.5,
-       "high": 12.0
-      },
-      "credit_total": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_corp": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_hh": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "mortgage": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "current_account": {
-       "low": 13.0,
-       "mid": 13.0,
-       "high": 13.0
-      },
-      "oil_tax_price": {
-       "low": 45.0,
-       "mid": 45.0,
-       "high": 45.0
-      },
-      "usdrub_avg": {
-       "low": 95.0,
-       "mid": 100.0,
-       "high": 105.0
-      },
-      "real_wage": {
-       "low": 0.0,
-       "mid": 1.0,
-       "high": 2.0
-      },
-      "nominal_wage": {
-       "low": 5.0,
-       "mid": 6.25,
-       "high": 7.5
-      },
-      "unemployment": {
-       "low": 2.5,
-       "mid": 2.85,
-       "high": 3.2
-      },
-      "telecom_tariff_index": {
-       "low": 5.5,
-       "mid": 7.0,
-       "high": 8.5
-      },
-      "ad_market_growth": {
-       "low": 5.0,
-       "mid": 7.5,
-       "high": 10.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 807.2,
-       "delta": {
-        "base": -13.6,
-        "low": -57.3,
-        "high": 33.8
-       },
-       "value": {
-        "base": 793.6,
-        "low": 749.9,
-        "high": 841.0
-       },
-       "pct": {
-        "base": -1.7,
-        "low": -7.1,
-        "high": 4.2
-       },
-       "dominant_factor": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-       "dominant_factor_id": "rate_bank_nim",
-       "contributions": [
-        {
-         "id": "rate_bank_nim",
-         "label": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": -12.32,
-         "low": -21.32,
-         "high": -5.74,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 17.1
-        },
-        {
-         "id": "inst_fas_tariff_restraint_revenue",
-         "label": "Вмешательство ФАС в индексацию тарифов связи (откат или заморозка повышения)",
-         "kind": "institution",
-         "base": -7.5,
-         "low": -12.0,
-         "high": -3.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 9.9
-        },
-        {
-         "id": "fx_devices_capex",
-         "label": "Курс рубля → импортные устройства и стоимость сетевого оборудования",
-         "var": "usdrub_avg",
-         "delta_var": 16.7,
-         "var_from": 83.3,
-         "var_to": 100.0,
-         "base": 6.68,
-         "low": 1.76,
-         "high": 15.19,
-         "var_value_in_low_set": 95.0,
-         "var_value_in_high_set": 105.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 14.7
-        },
-        {
-         "id": "bank_volume_credit_hh",
-         "label": "Рост кредита населению → портфель МТС Банка и продажи устройств в рассрочку",
-         "var": "credit_hh",
-         "delta_var": 5.7,
-         "var_from": 2.8,
-         "var_to": 8.5,
-         "base": 5.47,
-         "low": 1.28,
-         "high": 14.43,
-         "var_value_in_low_set": 6.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 14.4
-        },
-        {
-         "id": "consumption_devices",
-         "label": "Потребление домохозяйств → устройства, дополнительные услуги, кикшеринг",
-         "var": "consumption_hh",
-         "delta_var": -3.1,
-         "var_from": 3.6,
-         "var_to": 0.5,
-         "base": -4.65,
-         "low": -9.5,
-         "high": -1.87,
-         "var_value_in_low_set": 0.0,
-         "var_value_in_high_set": 1.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 8.4
-        },
-        {
-         "id": "rate_demand_credit",
-         "label": "Ключевая ставка → спрос: устройства в рассрочку и корпоративные проекты",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 4.31,
-         "low": 1.72,
-         "high": 10.33,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.4
-        },
-        {
-         "id": "tariff_index_revenue",
-         "label": "Индексация тарифов связи → выручка (ценовая власть под надзором ФАС)",
-         "var": "telecom_tariff_index",
-         "delta_var": -1.0,
-         "var_from": 8.0,
-         "var_to": 7.0,
-         "base": -4.2,
-         "low": -13.0,
-         "high": 2.6,
-         "var_value_in_low_set": 5.5,
-         "var_value_in_high_set": 8.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 17.1
-        },
-        {
-         "id": "adtech_ad_market",
-         "label": "Рост рекламного рынка → выручка AdTech",
-         "var": "ad_market_growth",
-         "delta_var": -1.5,
-         "var_from": 9.0,
-         "var_to": 7.5,
-         "base": -1.36,
-         "low": -5.2,
-         "high": 1.0,
-         "var_value_in_low_set": 5.0,
-         "var_value_in_high_set": 10.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.3"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.8
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "Рост экономики → корпоративный спрос: облака, MWS, корпоративная связь",
-         "var": "gdp",
-         "delta_var": 0.0,
-         "var_from": 1.0,
-         "var_to": 1.0,
-         "base": 0.0,
-         "low": -1.08,
-         "high": 0.9,
-         "var_value_in_low_set": 0.5,
-         "var_value_in_high_set": 1.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 2.2
-        }
-       ],
-       "width_drivers": [
-        "rate_bank_nim",
-        "tariff_index_revenue",
-        "fx_devices_capex"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 279.7,
-       "delta": {
-        "base": 8.6,
-        "low": -42.9,
-        "high": 56.7
-       },
-       "value": {
-        "base": 288.3,
-        "low": 236.8,
-        "high": 336.4
-       },
-       "pct": {
-        "base": 3.1,
-        "low": -15.3,
-        "high": 20.3
-       },
-       "dominant_factor": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-       "dominant_factor_id": "rate_bank_nim",
-       "contributions": [
-        {
-         "id": "rate_bank_nim",
-         "label": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 16.94,
-         "low": 5.76,
-         "high": 29.52,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 23.9
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Инфляция → неперсональные операционные затраты (энергия, эксплуатация сети, межоператорские, контент)",
-         "var": "inflation_avg",
-         "delta_var": -4.45,
-         "var_from": 8.7,
-         "var_to": 4.25,
-         "base": 7.94,
-         "low": 4.28,
-         "high": 12.78,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 8.5
-        },
-        {
-         "id": "inst_fas_tariff_restraint_ebitda",
-         "label": "Вмешательство ФАС в индексацию тарифов связи — эффект на OIBDA",
-         "kind": "institution",
-         "base": -6.85,
-         "low": -11.0,
-         "high": -2.7,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 8.3
-        },
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты → расходы на персонал",
-         "var": "nominal_wage",
-         "delta_var": -8.15,
-         "var_from": 14.4,
-         "var_to": 6.25,
-         "base": 4.4,
-         "low": 1.45,
-         "high": 9.02,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.6
-        },
-        {
-         "id": "tariff_index_revenue",
-         "label": "Индексация тарифов связи → выручка (ценовая власть под надзором ФАС)",
-         "var": "telecom_tariff_index",
-         "delta_var": -1.0,
-         "var_from": 8.0,
-         "var_to": 7.0,
-         "base": -3.8,
-         "low": -12.0,
-         "high": 2.4,
-         "var_value_in_low_set": 5.5,
-         "var_value_in_high_set": 8.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 14.5
-        },
-        {
-         "id": "inst_mandatory_costs_ebitda",
-         "label": "Обязательные затраты по требованиям государства (хранение трафика, антифрод, отчисления в универсальный фонд связи)",
-         "kind": "institution",
-         "base": -3.5,
-         "low": -5.5,
-         "high": -1.5,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 4.0
-        },
-        {
-         "id": "fx_devices_capex",
-         "label": "Курс рубля → импортные устройства и стоимость сетевого оборудования",
-         "var": "usdrub_avg",
-         "delta_var": 16.7,
-         "var_from": 83.3,
-         "var_to": 100.0,
-         "base": -2.51,
-         "low": -8.68,
-         "high": 1.09,
-         "var_value_in_low_set": 105.0,
-         "var_value_in_high_set": 105.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.8
-        },
-        {
-         "id": "inst_vat_hike_ebitda",
-         "label": "Повышение НДС до 22% с 2026 года — часть, которую не удаётся переложить на абонента",
-         "kind": "institution",
-         "base": -2.4,
-         "low": -4.0,
-         "high": -0.8,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 3.2
-        },
-        {
-         "id": "bank_cost_of_risk",
-         "label": "Безработица → стоимость риска МТС Банка (резервы)",
-         "var": "unemployment",
-         "delta_var": 0.55,
-         "var_from": 2.3,
-         "var_to": 2.85,
-         "base": -2.2,
-         "low": -7.65,
-         "high": -0.32,
-         "var_value_in_low_set": 3.2,
-         "var_value_in_high_set": 2.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 7.4
-        },
-        {
-         "id": "bank_volume_credit_hh",
-         "label": "Рост кредита населению → портфель МТС Банка и продажи устройств в рассрочку",
-         "var": "credit_hh",
-         "delta_var": 5.7,
-         "var_from": 2.8,
-         "var_to": 8.5,
-         "base": 1.37,
-         "low": 0.26,
-         "high": 3.94,
-         "var_value_in_low_set": 6.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.7
-        },
-        {
-         "id": "consumption_devices",
-         "label": "Потребление домохозяйств → устройства, дополнительные услуги, кикшеринг",
-         "var": "consumption_hh",
-         "delta_var": -3.1,
-         "var_from": 3.6,
-         "var_to": 0.5,
-         "base": -1.3,
-         "low": -3.02,
-         "high": -0.47,
-         "var_value_in_low_set": 0.0,
-         "var_value_in_high_set": 1.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.6
-        },
-        {
-         "id": "rate_demand_credit",
-         "label": "Ключевая ставка → спрос: устройства в рассрочку и корпоративные проекты",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 1.08,
-         "low": 0.25,
-         "high": 2.87,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.6
-        },
-        {
-         "id": "adtech_ad_market",
-         "label": "Рост рекламного рынка → выручка AdTech",
-         "var": "ad_market_growth",
-         "delta_var": -1.5,
-         "var_from": 9.0,
-         "var_to": 7.5,
-         "base": -0.58,
-         "low": -2.6,
-         "high": 0.5,
-         "var_value_in_low_set": 5.0,
-         "var_value_in_high_set": 10.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.3"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.1
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "Рост экономики → корпоративный спрос: облака, MWS, корпоративная связь",
-         "var": "gdp",
-         "delta_var": 0.0,
-         "var_from": 1.0,
-         "var_to": 1.0,
-         "base": 0.0,
-         "low": -0.42,
-         "high": 0.35,
-         "var_value_in_low_set": 0.5,
-         "var_value_in_high_set": 1.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.8
-        }
-       ],
-       "width_drivers": [
-        "rate_bank_nim",
-        "tariff_index_revenue",
-        "fx_devices_capex"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 35.2,
-       "delta": {
-        "base": 28.0,
-        "low": -30.3,
-        "high": 80.1
-       },
-       "value": {
-        "base": 63.2,
-        "low": 4.9,
-        "high": 115.3
-       },
-       "pct": {
-        "base": 79.5,
-        "low": -86.1,
-        "high": 227.7
-       },
-       "dominant_factor": "Ключевая ставка → проценты по корпоративному долгу",
-       "dominant_factor_id": "rate_debt_interest",
-       "contributions": [
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → проценты по корпоративному долгу",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 28.34,
-         "low": 17.28,
-         "high": 38.7,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 19.4
-        },
-        {
-         "id": "rate_bank_nim",
-         "label": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 13.09,
-         "low": 4.32,
-         "high": 22.14,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 16.1
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Инфляция → неперсональные операционные затраты (энергия, эксплуатация сети, межоператорские, контент)",
-         "var": "inflation_avg",
-         "delta_var": -4.45,
-         "var_from": 8.7,
-         "var_to": 4.25,
-         "base": 6.05,
-         "low": 3.21,
-         "high": 9.99,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.1
-        },
-        {
-         "id": "inst_fas_tariff_restraint_np",
-         "label": "Вмешательство ФАС в индексацию тарифов связи — эффект на прибыль",
-         "kind": "institution",
-         "base": -5.3,
-         "low": -8.5,
-         "high": -2.1,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 5.8
-        },
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты → расходы на персонал",
-         "var": "nominal_wage",
-         "delta_var": -8.15,
-         "var_from": 14.4,
-         "var_to": 6.25,
-         "base": 3.42,
-         "low": 1.12,
-         "high": 7.05,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.4
-        },
-        {
-         "id": "fx_devices_capex",
-         "label": "Курс рубля → импортные устройства и стоимость сетевого оборудования",
-         "var": "usdrub_avg",
-         "delta_var": 16.7,
-         "var_from": 83.3,
-         "var_to": 100.0,
-         "base": -3.34,
-         "low": -10.85,
-         "high": 1.09,
-         "var_value_in_low_set": 105.0,
-         "var_value_in_high_set": 105.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 10.8
-        },
-        {
-         "id": "rate_cash_income",
-         "label": "Ключевая ставка → процентные доходы на свободные средства (встречный канал)",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": -3.08,
-         "low": -6.48,
-         "high": -1.23,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.8
-        },
-        {
-         "id": "tariff_index_revenue",
-         "label": "Индексация тарифов связи → выручка (ценовая власть под надзором ФАС)",
-         "var": "telecom_tariff_index",
-         "delta_var": -1.0,
-         "var_from": 8.0,
-         "var_to": 7.0,
-         "base": -2.9,
-         "low": -9.25,
-         "high": 1.85,
-         "var_value_in_low_set": 5.5,
-         "var_value_in_high_set": 8.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 10.0
-        },
-        {
-         "id": "inst_mandatory_costs_np",
-         "label": "Обязательные затраты по требованиям государства — эффект на прибыль",
-         "kind": "institution",
-         "base": -2.6,
-         "low": -4.1,
-         "high": -1.1,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.7
-        },
-        {
-         "id": "geo_equipment_np",
-         "label": "Санкционная надбавка на сетевое оборудование и сдвиг капвложений",
-         "kind": "geo",
-         "base": -2.5,
-         "low": -4.0,
-         "high": -1.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.7
-        },
-        {
-         "id": "inst_vat_hike_np",
-         "label": "Повышение НДС до 22% — эффект на прибыль",
-         "kind": "institution",
-         "base": -1.8,
-         "low": -3.0,
-         "high": -0.6,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.2
-        },
-        {
-         "id": "bank_cost_of_risk",
-         "label": "Безработица → стоимость риска МТС Банка (резервы)",
-         "var": "unemployment",
-         "delta_var": 0.55,
-         "var_from": 2.3,
-         "var_to": 2.85,
-         "base": -1.65,
-         "low": -5.76,
-         "high": -0.24,
-         "var_value_in_low_set": 3.2,
-         "var_value_in_high_set": 2.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 5.0
-        },
-        {
-         "id": "consumption_devices",
-         "label": "Потребление домохозяйств → устройства, дополнительные услуги, кикшеринг",
-         "var": "consumption_hh",
-         "delta_var": -3.1,
-         "var_from": 3.6,
-         "var_to": 0.5,
-         "base": -1.0,
-         "low": -2.38,
-         "high": -0.31,
-         "var_value_in_low_set": 0.0,
-         "var_value_in_high_set": 1.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.9
-        },
-        {
-         "id": "bank_volume_credit_hh",
-         "label": "Рост кредита населению → портфель МТС Банка и продажи устройств в рассрочку",
-         "var": "credit_hh",
-         "delta_var": 5.7,
-         "var_from": 2.8,
-         "var_to": 8.5,
-         "base": 0.91,
-         "low": 0.18,
-         "high": 2.95,
-         "var_value_in_low_set": 6.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.5
-        },
-        {
-         "id": "rate_demand_credit",
-         "label": "Ключевая ставка → спрос: устройства в рассрочку и корпоративные проекты",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 0.81,
-         "low": 0.2,
-         "high": 2.3,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.9
-        },
-        {
-         "id": "adtech_ad_market",
-         "label": "Рост рекламного рынка → выручка AdTech",
-         "var": "ad_market_growth",
-         "delta_var": -1.5,
-         "var_from": 9.0,
-         "var_to": 7.5,
-         "base": -0.45,
-         "low": -1.98,
-         "high": 0.38,
-         "var_value_in_low_set": 5.0,
-         "var_value_in_high_set": 10.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.3"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.1
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "Рост экономики → корпоративный спрос: облака, MWS, корпоративная связь",
-         "var": "gdp",
-         "delta_var": 0.0,
-         "var_from": 1.0,
-         "var_to": 1.0,
-         "base": 0.0,
-         "low": -0.33,
-         "high": 0.28,
-         "var_value_in_low_set": 0.5,
-         "var_value_in_high_set": 1.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.5
-        }
-       ],
-       "width_drivers": [
-        "rate_debt_interest",
-        "rate_bank_nim",
-        "fx_devices_capex"
-       ]
-      }
-     },
-     "flags": [],
-     "missing_vars": []
     }
    }
   },
@@ -8149,9 +5794,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -8184,6 +5829,51 @@
        "high": 10.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -9066,9 +6756,9 @@
        "high": 5.0
       },
       "oil_tax_price": {
-       "low": 35.0,
-       "mid": 35.0,
-       "high": 35.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 105.0,
@@ -9101,6 +6791,51 @@
        "high": 2.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 19.0,
+       "high": 21.0,
+       "mid": 20.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "19–21%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 7.3,
+       "high": 9.3,
+       "mid": 8.3,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "7,3–9,3%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": -4.0,
+       "high": -3.0,
+       "mid": -3.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "от −4 до −3%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 105.0,
+       "high": 125.0,
+       "mid": 115.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "105–125 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -9894,913 +7629,6 @@
       "изменение прибыли -123% — линейность под вопросом, читать как порядок величины"
      ],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Рисковый 2028",
-     "scenario_id": "risk",
-     "conditions": {
-      "inflation_dec": {
-       "low": 5.0,
-       "mid": 6.0,
-       "high": 7.0
-      },
-      "inflation_avg": {
-       "low": 9.3,
-       "mid": 10.35,
-       "high": 11.4
-      },
-      "key_rate_avg": {
-       "low": 14.0,
-       "mid": 15.0,
-       "high": 16.0
-      },
-      "gdp": {
-       "low": -2.5,
-       "mid": -2.0,
-       "high": -1.5
-      },
-      "consumption_hh": {
-       "low": -6.5,
-       "mid": -6.0,
-       "high": -5.5
-      },
-      "gfcf": {
-       "low": -2.0,
-       "mid": -1.0,
-       "high": 0.0
-      },
-      "exports_vol": {
-       "low": -3.0,
-       "mid": -2.0,
-       "high": -1.0
-      },
-      "imports_vol": {
-       "low": -20.0,
-       "mid": -19.0,
-       "high": -18.0
-      },
-      "money_supply": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_total": {
-       "low": 2.0,
-       "mid": 4.5,
-       "high": 7.0
-      },
-      "credit_corp": {
-       "low": 3.0,
-       "mid": 5.5,
-       "high": 8.0
-      },
-      "credit_hh": {
-       "low": -1.0,
-       "mid": 1.5,
-       "high": 4.0
-      },
-      "mortgage": {
-       "low": 2.0,
-       "mid": 4.5,
-       "high": 7.0
-      },
-      "current_account": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "oil_tax_price": {
-       "low": 25.0,
-       "mid": 25.0,
-       "high": 25.0
-      },
-      "usdrub_avg": {
-       "low": 115.0,
-       "mid": 127.5,
-       "high": 140.0
-      },
-      "real_wage": {
-       "low": -6.0,
-       "mid": -4.5,
-       "high": -3.0
-      },
-      "nominal_wage": {
-       "low": 4.0,
-       "mid": 5.5,
-       "high": 7.0
-      },
-      "unemployment": {
-       "low": 4.5,
-       "mid": 5.25,
-       "high": 6.0
-      },
-      "telecom_tariff_index": {
-       "low": 6.5,
-       "mid": 8.0,
-       "high": 9.5
-      },
-      "ad_market_growth": {
-       "low": 2.0,
-       "mid": 5.0,
-       "high": 8.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 807.2,
-       "delta": {
-        "base": -23.7,
-        "low": -89.2,
-        "high": 38.2
-       },
-       "value": {
-        "base": 783.5,
-        "low": 718.0,
-        "high": 845.4
-       },
-       "pct": {
-        "base": -2.9,
-        "low": -11.0,
-        "high": 4.7
-       },
-       "dominant_factor": "Курс рубля → импортные устройства и стоимость сетевого оборудования",
-       "dominant_factor_id": "fx_devices_capex",
-       "contributions": [
-        {
-         "id": "fx_devices_capex",
-         "label": "Курс рубля → импортные устройства и стоимость сетевого оборудования",
-         "var": "usdrub_avg",
-         "delta_var": 44.2,
-         "var_from": 83.3,
-         "var_to": 127.5,
-         "base": 17.68,
-         "low": 4.75,
-         "high": 39.69,
-         "var_value_in_low_set": 115.0,
-         "var_value_in_high_set": 140.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 27.4
-        },
-        {
-         "id": "consumption_devices",
-         "label": "Потребление домохозяйств → устройства, дополнительные услуги, кикшеринг",
-         "var": "consumption_hh",
-         "delta_var": -9.6,
-         "var_from": 3.6,
-         "var_to": -6.0,
-         "base": -14.4,
-         "low": -26.66,
-         "high": -6.55,
-         "var_value_in_low_set": -6.5,
-         "var_value_in_high_set": -5.5,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 15.8
-        },
-        {
-         "id": "inst_fas_tariff_restraint_revenue",
-         "label": "Вмешательство ФАС в индексацию тарифов связи (откат или заморозка повышения)",
-         "kind": "institution",
-         "base": -14.0,
-         "low": -22.0,
-         "high": -6.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 12.6
-        },
-        {
-         "id": "rate_bank_nim",
-         "label": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": -6.72,
-         "low": -13.52,
-         "high": -3.64,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 7.8
-        },
-        {
-         "id": "adtech_ad_market",
-         "label": "Рост рекламного рынка → выручка AdTech",
-         "var": "ad_market_growth",
-         "delta_var": -4.0,
-         "var_from": 9.0,
-         "var_to": 5.0,
-         "base": -3.64,
-         "low": -9.1,
-         "high": -0.59,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.3"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.7
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "Рост экономики → корпоративный спрос: облака, MWS, корпоративная связь",
-         "var": "gdp",
-         "delta_var": -3.0,
-         "var_from": 1.0,
-         "var_to": -2.0,
-         "base": -3.42,
-         "low": -7.56,
-         "high": -1.2,
-         "var_value_in_low_set": -2.5,
-         "var_value_in_high_set": -1.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.0
-        },
-        {
-         "id": "rate_demand_credit",
-         "label": "Ключевая ставка → спрос: устройства в рассрочку и корпоративные проекты",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 2.35,
-         "low": 1.09,
-         "high": 6.55,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.3
-        },
-        {
-         "id": "bank_volume_credit_hh",
-         "label": "Рост кредита населению → портфель МТС Банка и продажи устройств в рассрочку",
-         "var": "credit_hh",
-         "delta_var": -1.3,
-         "var_from": 2.8,
-         "var_to": 1.5,
-         "base": -1.56,
-         "low": -8.36,
-         "high": 2.11,
-         "var_value_in_low_set": -1.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 8.2
-        },
-        {
-         "id": "tariff_index_revenue",
-         "label": "Индексация тарифов связи → выручка (ценовая власть под надзором ФАС)",
-         "var": "telecom_tariff_index",
-         "delta_var": 0.0,
-         "var_from": 8.0,
-         "var_to": 8.0,
-         "base": 0.0,
-         "low": -7.8,
-         "high": 7.8,
-         "var_value_in_low_set": 6.5,
-         "var_value_in_high_set": 9.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 12.3
-        }
-       ],
-       "width_drivers": [
-        "fx_devices_capex",
-        "consumption_devices",
-        "inst_fas_tariff_restraint_revenue"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 279.7,
-       "delta": {
-        "base": -41.1,
-        "low": -132.7,
-        "high": 24.5
-       },
-       "value": {
-        "base": 238.6,
-        "low": 147.0,
-        "high": 304.2
-       },
-       "pct": {
-        "base": -14.7,
-        "low": -47.5,
-        "high": 8.8
-       },
-       "dominant_factor": "Безработица → стоимость риска МТС Банка (резервы)",
-       "dominant_factor_id": "bank_cost_of_risk",
-       "contributions": [
-        {
-         "id": "bank_cost_of_risk",
-         "label": "Безработица → стоимость риска МТС Банка (резервы)",
-         "var": "unemployment",
-         "delta_var": 2.95,
-         "var_from": 2.3,
-         "var_to": 5.25,
-         "base": -17.7,
-         "low": -47.18,
-         "high": -5.28,
-         "var_value_in_low_set": 6.0,
-         "var_value_in_high_set": 4.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "порог unemployment > 3.5: ×1.5"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 26.6
-        },
-        {
-         "id": "inst_fas_tariff_restraint_ebitda",
-         "label": "Вмешательство ФАС в индексацию тарифов связи — эффект на OIBDA",
-         "kind": "institution",
-         "base": -12.7,
-         "low": -20.0,
-         "high": -5.4,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 9.3
-        },
-        {
-         "id": "rate_bank_nim",
-         "label": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 9.24,
-         "low": 2.56,
-         "high": 18.72,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 10.3
-        },
-        {
-         "id": "fx_devices_capex",
-         "label": "Курс рубля → импортные устройства и стоимость сетевого оборудования",
-         "var": "usdrub_avg",
-         "delta_var": 44.2,
-         "var_from": 83.3,
-         "var_to": 127.5,
-         "base": -6.63,
-         "low": -22.68,
-         "high": 2.84,
-         "var_value_in_low_set": 140.0,
-         "var_value_in_high_set": 140.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 16.2
-        },
-        {
-         "id": "inst_mandatory_costs_ebitda",
-         "label": "Обязательные затраты по требованиям государства (хранение трафика, антифрод, отчисления в универсальный фонд связи)",
-         "kind": "institution",
-         "base": -5.0,
-         "low": -8.0,
-         "high": -2.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 3.8
-        },
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты → расходы на персонал",
-         "var": "nominal_wage",
-         "delta_var": -8.9,
-         "var_from": 14.4,
-         "var_to": 5.5,
-         "base": 4.81,
-         "low": 1.55,
-         "high": 9.98,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.4
-        },
-        {
-         "id": "consumption_devices",
-         "label": "Потребление домохозяйств → устройства, дополнительные услуги, кикшеринг",
-         "var": "consumption_hh",
-         "delta_var": -9.6,
-         "var_from": 3.6,
-         "var_to": -6.0,
-         "base": -4.03,
-         "low": -8.48,
-         "high": -1.64,
-         "var_value_in_low_set": -6.5,
-         "var_value_in_high_set": -5.5,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.4
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Инфляция → неперсональные операционные затраты (энергия, эксплуатация сети, межоператорские, контент)",
-         "var": "inflation_avg",
-         "delta_var": 1.65,
-         "var_from": 8.7,
-         "var_to": 10.35,
-         "base": -3.47,
-         "low": -8.64,
-         "high": -0.72,
-         "var_value_in_low_set": 11.4,
-         "var_value_in_high_set": 9.3,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 5.0
-        },
-        {
-         "id": "inst_vat_hike_ebitda",
-         "label": "Повышение НДС до 22% с 2026 года — часть, которую не удаётся переложить на абонента",
-         "kind": "institution",
-         "base": -3.0,
-         "low": -5.0,
-         "high": -1.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.5
-        },
-        {
-         "id": "adtech_ad_market",
-         "label": "Рост рекламного рынка → выручка AdTech",
-         "var": "ad_market_growth",
-         "delta_var": -4.0,
-         "var_from": 9.0,
-         "var_to": 5.0,
-         "base": -1.56,
-         "low": -4.55,
-         "high": -0.2,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.3"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.8
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "Рост экономики → корпоративный спрос: облака, MWS, корпоративная связь",
-         "var": "gdp",
-         "delta_var": -3.0,
-         "var_from": 1.0,
-         "var_to": -2.0,
-         "base": -1.26,
-         "low": -2.94,
-         "high": -0.36,
-         "var_value_in_low_set": -2.5,
-         "var_value_in_high_set": -1.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.6
-        },
-        {
-         "id": "rate_demand_credit",
-         "label": "Ключевая ставка → спрос: устройства в рассрочку и корпоративные проекты",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 0.59,
-         "low": 0.11,
-         "high": 1.82,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.1
-        },
-        {
-         "id": "bank_volume_credit_hh",
-         "label": "Рост кредита населению → портфель МТС Банка и продажи устройств в рассрочку",
-         "var": "credit_hh",
-         "delta_var": -1.3,
-         "var_from": 2.8,
-         "var_to": 1.5,
-         "base": -0.39,
-         "low": -2.28,
-         "high": 0.58,
-         "var_value_in_low_set": -1.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.8
-        },
-        {
-         "id": "tariff_index_revenue",
-         "label": "Индексация тарифов связи → выручка (ценовая власть под надзором ФАС)",
-         "var": "telecom_tariff_index",
-         "delta_var": 0.0,
-         "var_from": 8.0,
-         "var_to": 8.0,
-         "base": 0.0,
-         "low": -7.2,
-         "high": 7.2,
-         "var_value_in_low_set": 6.5,
-         "var_value_in_high_set": 9.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.2
-        }
-       ],
-       "width_drivers": [
-        "bank_cost_of_risk",
-        "fx_devices_capex",
-        "rate_bank_nim"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 35.2,
-       "delta": {
-        "base": -25.8,
-        "low": -114.6,
-        "high": 40.9
-       },
-       "value": {
-        "base": 9.4,
-        "low": -79.4,
-        "high": 76.1
-       },
-       "pct": {
-        "base": -73.4,
-        "low": -325.6,
-        "high": 116.3
-       },
-       "dominant_factor": "Ключевая ставка → проценты по корпоративному долгу",
-       "dominant_factor_id": "rate_debt_interest",
-       "contributions": [
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → проценты по корпоративному долгу",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 15.46,
-         "low": 7.68,
-         "high": 24.54,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 10.8
-        },
-        {
-         "id": "bank_cost_of_risk",
-         "label": "Безработица → стоимость риска МТС Банка (резервы)",
-         "var": "unemployment",
-         "delta_var": 2.95,
-         "var_from": 2.3,
-         "var_to": 5.25,
-         "base": -13.28,
-         "low": -35.52,
-         "high": -3.96,
-         "var_value_in_low_set": 6.0,
-         "var_value_in_high_set": 4.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "порог unemployment > 3.5: ×1.5"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 20.3
-        },
-        {
-         "id": "inst_fas_tariff_restraint_np",
-         "label": "Вмешательство ФАС в индексацию тарифов связи — эффект на прибыль",
-         "kind": "institution",
-         "base": -9.85,
-         "low": -15.5,
-         "high": -4.2,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 7.3
-        },
-        {
-         "id": "fx_devices_capex",
-         "label": "Курс рубля → импортные устройства и стоимость сетевого оборудования",
-         "var": "usdrub_avg",
-         "delta_var": 44.2,
-         "var_from": 83.3,
-         "var_to": 127.5,
-         "base": -8.84,
-         "low": -28.35,
-         "high": 2.84,
-         "var_value_in_low_set": 140.0,
-         "var_value_in_high_set": 140.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 20.0
-        },
-        {
-         "id": "rate_bank_nim",
-         "label": "Ключевая ставка → процентная маржа МТС Банка (пассивы переоцениваются быстрее активов)",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 7.14,
-         "low": 1.92,
-         "high": 14.04,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 7.8
-        },
-        {
-         "id": "geo_equipment_np",
-         "label": "Санкционная надбавка на сетевое оборудование и сдвиг капвложений",
-         "kind": "geo",
-         "base": -4.75,
-         "low": -7.0,
-         "high": -2.5,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.9
-        },
-        {
-         "id": "inst_mandatory_costs_np",
-         "label": "Обязательные затраты по требованиям государства — эффект на прибыль",
-         "kind": "institution",
-         "base": -3.75,
-         "low": -6.0,
-         "high": -1.5,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.9
-        },
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты → расходы на персонал",
-         "var": "nominal_wage",
-         "delta_var": -8.9,
-         "var_from": 14.4,
-         "var_to": 5.5,
-         "base": 3.74,
-         "low": 1.2,
-         "high": 7.8,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.2
-        },
-        {
-         "id": "consumption_devices",
-         "label": "Потребление домохозяйств → устройства, дополнительные услуги, кикшеринг",
-         "var": "consumption_hh",
-         "delta_var": -9.6,
-         "var_from": 3.6,
-         "var_to": -6.0,
-         "base": -3.11,
-         "low": -6.67,
-         "high": -1.09,
-         "var_value_in_low_set": -6.5,
-         "var_value_in_high_set": -5.5,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.6
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Инфляция → неперсональные операционные затраты (энергия, эксплуатация сети, межоператорские, контент)",
-         "var": "inflation_avg",
-         "delta_var": 1.65,
-         "var_from": 8.7,
-         "var_to": 10.35,
-         "base": -2.64,
-         "low": -6.75,
-         "high": -0.54,
-         "var_value_in_low_set": 11.4,
-         "var_value_in_high_set": 9.3,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.0
-        },
-        {
-         "id": "inst_vat_hike_np",
-         "label": "Повышение НДС до 22% — эффект на прибыль",
-         "kind": "institution",
-         "base": -2.27,
-         "low": -3.8,
-         "high": -0.75,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.0
-        },
-        {
-         "id": "rate_cash_income",
-         "label": "Ключевая ставка → процентные доходы на свободные средства (встречный канал)",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": -1.68,
-         "low": -2.88,
-         "high": -0.78,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.4
-        },
-        {
-         "id": "adtech_ad_market",
-         "label": "Рост рекламного рынка → выручка AdTech",
-         "var": "ad_market_growth",
-         "delta_var": -4.0,
-         "var_from": 9.0,
-         "var_to": 5.0,
-         "base": -1.2,
-         "low": -3.46,
-         "high": -0.13,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.3"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.1
-        },
-        {
-         "id": "gdp_b2b",
-         "label": "Рост экономики → корпоративный спрос: облака, MWS, корпоративная связь",
-         "var": "gdp",
-         "delta_var": -3.0,
-         "var_from": 1.0,
-         "var_to": -2.0,
-         "base": -0.97,
-         "low": -2.31,
-         "high": -0.27,
-         "var_value_in_low_set": -2.5,
-         "var_value_in_high_set": -1.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.3
-        },
-        {
-         "id": "rate_demand_credit",
-         "label": "Ключевая ставка → спрос: устройства в рассрочку и корпоративные проекты",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 0.44,
-         "low": 0.09,
-         "high": 1.46,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 0.9
-        },
-        {
-         "id": "bank_volume_credit_hh",
-         "label": "Рост кредита населению → портфель МТС Банка и продажи устройств в рассрочку",
-         "var": "credit_hh",
-         "delta_var": -1.3,
-         "var_from": 2.8,
-         "var_to": 1.5,
-         "base": -0.26,
-         "low": -1.71,
-         "high": 0.43,
-         "var_value_in_low_set": -1.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.4
-        },
-        {
-         "id": "tariff_index_revenue",
-         "label": "Индексация тарифов связи → выручка (ценовая власть под надзором ФАС)",
-         "var": "telecom_tariff_index",
-         "delta_var": 0.0,
-         "var_from": 8.0,
-         "var_to": 8.0,
-         "base": 0.0,
-         "low": -5.55,
-         "high": 5.55,
-         "var_value_in_low_set": 6.5,
-         "var_value_in_high_set": 9.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 7.1
-        }
-       ],
-       "width_drivers": [
-        "bank_cost_of_risk",
-        "fx_devices_capex",
-        "rate_debt_interest"
-       ]
-      }
-     },
-     "flags": [
-      "при неблагоприятных значениях входов прибыль уходит в убыток"
-     ],
-     "missing_vars": []
     }
    }
   }
@@ -10860,6 +7688,49 @@
     "high": -8.0
    }
   },
+  "conditions_core": [
+   {
+    "var": "key_rate_avg",
+    "label": "ключевая ставка, средняя за год",
+    "low": 21.0,
+    "high": 21.0,
+    "mid": 21.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "21%"
+   },
+   {
+    "var": "inflation_avg",
+    "label": "инфляция, средняя за год",
+    "low": 12.0,
+    "high": 12.0,
+    "mid": 12.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "12%"
+   },
+   {
+    "var": "gdp",
+    "label": "рост ВВП",
+    "low": -4.0,
+    "high": -4.0,
+    "mid": -4.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "−4%"
+   },
+   {
+    "var": "usdrub_avg",
+    "label": "курс доллара, средний",
+    "low": 120.0,
+    "high": 120.0,
+    "mid": 120.0,
+    "unit": "руб.",
+    "origin": "допущение Basis",
+    "text": "120 руб."
+   }
+  ],
+  "held_at_base": [],
   "lines": {
    "revenue": {
     "label": "выручка",

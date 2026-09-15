@@ -1,6 +1,6 @@
 {
  "ticker": "MGNT",
- "computed_at": "2026-09-15",
+ "computed_at": "2026-09-16",
  "unit": "млрд руб",
  "base_year": 2025,
  "base_financials": {
@@ -61,14 +61,24 @@
   },
   "display_years": [
    2026,
-   2027,
-   2028
+   2027
   ],
   "tab_years": [
-   2027,
-   2028
-  ]
+   2026,
+   2027
+  ],
+  "core_variables": [
+   "key_rate_avg",
+   "inflation_avg",
+   "gdp",
+   "usdrub_avg"
+  ],
+  "core_note": "Условия сценария, которые показываются инвестору: ключевая ставка, инфляция, ВВП (данные ЦБ) и курс рубля (достройка Basis). Остальные переменные ЦБ (потребление, инвестиции, кредит, ипотека) и достройки (зарплаты, безработица) участвуют в расчёте как производные того же сценария, но в таблице условий не показываются.",
+  "excluded_note": "Цены на нефть и прочее сырьё — не макроэкономика (решение владельца 15.09.2026): в расчёте сценариев они зафиксированы на уровне базового периода, их прогноз — область финансовой модели. Цена нефти ЦБ хранится в файле для справки, в расчёте вкладки не участвует."
  },
+ "held_at_base": [
+  "oil_tax_price"
+ ],
  "current_macro": {
   "as_of": "2026-09-14",
   "key_rate": 14.0,
@@ -171,9 +181,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -201,6 +211,51 @@
        "high": 6.5
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -835,9 +890,9 @@
        "high": 25.0
       },
       "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 84.0,
@@ -865,6 +920,51 @@
        "high": 5.5
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 10.5,
+       "high": 12.5,
+       "mid": 11.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "10,5–12,5%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 4.3,
+       "high": 5.2,
+       "mid": 4.75,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "4,3–5,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 1.5,
+       "high": 2.5,
+       "mid": 2.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "1,5–2,5%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 84.0,
+       "high": 92.0,
+       "mid": 88.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "84–92 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -1422,669 +1522,6 @@
       "изменение прибыли +83% — линейность под вопросом, читать как порядок величины"
      ],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Базовый 2028",
-     "scenario_id": "base",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "key_rate_avg": {
-       "low": 8.0,
-       "mid": 8.5,
-       "high": 9.0
-      },
-      "gdp": {
-       "low": 1.5,
-       "mid": 2.0,
-       "high": 2.5
-      },
-      "consumption_hh": {
-       "low": 1.0,
-       "mid": 1.5,
-       "high": 2.0
-      },
-      "gfcf": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "money_supply": {
-       "low": 7.0,
-       "mid": 9.5,
-       "high": 12.0
-      },
-      "credit_total": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_corp": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_hh": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "mortgage": {
-       "low": 10.0,
-       "mid": 12.5,
-       "high": 15.0
-      },
-      "current_account": {
-       "low": 15.0,
-       "mid": 15.0,
-       "high": 15.0
-      },
-      "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
-      },
-      "usdrub_avg": {
-       "low": 88.0,
-       "mid": 92.0,
-       "high": 96.0
-      },
-      "real_wage": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "nominal_wage": {
-       "low": 5.5,
-       "mid": 6.5,
-       "high": 7.5
-      },
-      "unemployment": {
-       "low": 2.5,
-       "mid": 2.85,
-       "high": 3.2
-      },
-      "food_inflation": {
-       "low": 3.8,
-       "mid": 4.3,
-       "high": 4.8
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 3509.2,
-       "delta": {
-        "base": -142.2,
-        "low": -217.8,
-        "high": -73.2
-       },
-       "value": {
-        "base": 3367.0,
-        "low": 3291.4,
-        "high": 3436.0
-       },
-       "pct": {
-        "base": -4.1,
-        "low": -6.2,
-        "high": -2.1
-       },
-       "dominant_factor": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-       "dominant_factor_id": "food_inflation_check",
-       "contributions": [
-        {
-         "id": "food_inflation_check",
-         "label": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-         "var": "food_inflation",
-         "delta_var": -4.5,
-         "var_from": 8.8,
-         "var_to": 4.3,
-         "base": -118.58,
-         "low": -153.0,
-         "high": -81.6,
-         "var_value_in_low_set": 3.8,
-         "var_value_in_high_set": 4.8,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 49.4
-        },
-        {
-         "id": "consumption_volume",
-         "label": "Потребление домохозяйств → натуральный объём продаж (трафик и объём корзины) → выручка",
-         "var": "consumption_hh",
-         "delta_var": -2.1,
-         "var_from": 3.6,
-         "var_to": 1.5,
-         "base": -21.96,
-         "low": -41.99,
-         "high": -8.16,
-         "var_value_in_low_set": 1.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 23.4
-        },
-        {
-         "id": "real_wage_mix",
-         "label": "Реальные зарплаты → торговля вниз (микс и глубина чека) → выручка и маржа",
-         "var": "real_wage",
-         "delta_var": -2.7,
-         "var_from": 5.2,
-         "var_to": 2.5,
-         "base": -11.34,
-         "low": -25.9,
-         "high": -3.57,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 3.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 15.4
-        },
-        {
-         "id": "rate_demand_mix",
-         "label": "Ключевая ставка → сбережения и потребкредит → непродовольственная полка и глубина корзины",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 9.63,
-         "low": 3.06,
-         "high": 20.16,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 11.8
-        }
-       ],
-       "width_drivers": [
-        "food_inflation_check",
-        "consumption_volume",
-        "real_wage_mix"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 299.6,
-       "delta": {
-        "base": 0.8,
-        "low": -46.3,
-        "high": 42.9
-       },
-       "value": {
-        "base": 300.4,
-        "low": 253.3,
-        "high": 342.5
-       },
-       "pct": {
-        "base": 0.3,
-        "low": -15.5,
-        "high": 14.3
-       },
-       "dominant_factor": "Номинальные зарплаты в экономике → фонд оплаты труда → EBITDA",
-       "dominant_factor_id": "labor_cost",
-       "contributions": [
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → EBITDA",
-         "var": "nominal_wage",
-         "delta_var": -7.9,
-         "var_from": 14.4,
-         "var_to": 6.5,
-         "base": 20.86,
-         "low": 14.9,
-         "high": 27.77,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 14.4
-        },
-        {
-         "id": "food_inflation_check",
-         "label": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-         "var": "food_inflation",
-         "delta_var": -4.5,
-         "var_from": 8.8,
-         "var_to": 4.3,
-         "base": -13.39,
-         "low": -29.75,
-         "high": 6.38,
-         "var_value_in_low_set": 3.8,
-         "var_value_in_high_set": 3.8,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 40.5
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Общая инфляция → коммунальные, логистика, услуги, оборотная аренда → EBITDA",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 10.59,
-         "low": 7.59,
-         "high": 13.58,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.7
-        },
-        {
-         "id": "fx_imported_goods",
-         "label": "Курс рубля → импортная часть закупки (non-food полка, плодоовощная группа) → маржа",
-         "var": "usdrub_avg",
-         "delta_var": 8.7,
-         "var_from": 83.3,
-         "var_to": 92.0,
-         "base": -5.22,
-         "low": -15.24,
-         "high": -0.71,
-         "var_value_in_low_set": 96.0,
-         "var_value_in_high_set": 88.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 16.3
-        },
-        {
-         "id": "reg_price_caps_ebitda",
-         "label": "Ограничение наценок на социально значимые товары",
-         "kind": "institutional",
-         "base": -4.0,
-         "low": -4.0,
-         "high": -4.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "real_wage_mix",
-         "label": "Реальные зарплаты → торговля вниз (микс и глубина чека) → выручка и маржа",
-         "var": "real_wage",
-         "delta_var": -2.7,
-         "var_from": 5.2,
-         "var_to": 2.5,
-         "base": -3.78,
-         "low": -10.36,
-         "high": -0.71,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 3.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 10.8
-        },
-        {
-         "id": "consumption_volume",
-         "label": "Потребление домохозяйств → натуральный объём продаж (трафик и объём корзины) → выручка",
-         "var": "consumption_hh",
-         "delta_var": -2.1,
-         "var_from": 3.6,
-         "var_to": 1.5,
-         "base": -3.57,
-         "low": -7.07,
-         "high": -1.5,
-         "var_value_in_low_set": 1.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.3
-        },
-        {
-         "id": "rate_demand_mix",
-         "label": "Ключевая ставка → сбережения и потребкредит → непродовольственная полка и глубина корзины",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 2.57,
-         "low": 0.92,
-         "high": 5.38,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.0
-        },
-        {
-         "id": "geo_import_markup_ebitda",
-         "label": "Санкционная надбавка на импорт: параллельный импорт оборудования и non-food полки",
-         "kind": "geo",
-         "base": -2.0,
-         "low": -2.0,
-         "high": -2.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "transaction_burden_ebitda",
-         "label": "Трансакционная нагрузка: расчётное трение, предоплата, посредники",
-         "kind": "institutional",
-         "base": -1.3,
-         "low": -1.3,
-         "high": -1.3,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        }
-       ],
-       "width_drivers": [
-        "food_inflation_check",
-        "fx_imported_goods",
-        "labor_cost"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 22.0,
-       "delta": {
-        "base": 26.3,
-        "low": -23.6,
-        "high": 73.8
-       },
-       "value": {
-        "base": 48.3,
-        "low": -1.6,
-        "high": 95.8
-       },
-       "pct": {
-        "base": 119.4,
-        "low": -107.1,
-        "high": 335.6
-       },
-       "dominant_factor": "Ключевая ставка → процентные расходы по долгу → чистая прибыль",
-       "dominant_factor_id": "rate_debt_interest",
-       "contributions": [
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → процентные расходы по долгу → чистая прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 36.59,
-         "low": 26.62,
-         "high": 49.39,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 23.4
-        },
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → EBITDA",
-         "var": "nominal_wage",
-         "delta_var": -7.9,
-         "var_from": 14.4,
-         "var_to": 6.5,
-         "base": 15.8,
-         "low": 11.04,
-         "high": 20.65,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.9
-        },
-        {
-         "id": "rate_cash_income",
-         "label": "Ключевая ставка → процентный доход по остаткам и депозитам → чистая прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": -11.77,
-         "low": -15.3,
-         "high": -8.96,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.5
-        },
-        {
-         "id": "food_inflation_check",
-         "label": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-         "var": "food_inflation",
-         "delta_var": -4.5,
-         "var_from": 8.8,
-         "var_to": 4.3,
-         "base": -9.95,
-         "low": -22.53,
-         "high": 4.68,
-         "var_value_in_low_set": 3.8,
-         "var_value_in_high_set": 3.8,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 27.9
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Общая инфляция → коммунальные, логистика, услуги, оборотная аренда → EBITDA",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 8.79,
-         "low": 5.99,
-         "high": 11.59,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.7
-        },
-        {
-         "id": "fx_imported_goods",
-         "label": "Курс рубля → импортная часть закупки (non-food полка, плодоовощная группа) → маржа",
-         "var": "usdrub_avg",
-         "delta_var": 8.7,
-         "var_from": 83.3,
-         "var_to": 92.0,
-         "base": -3.92,
-         "low": -11.43,
-         "high": -0.47,
-         "var_value_in_low_set": 96.0,
-         "var_value_in_high_set": 88.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 11.3
-        },
-        {
-         "id": "real_wage_mix",
-         "label": "Реальные зарплаты → торговля вниз (микс и глубина чека) → выручка и маржа",
-         "var": "real_wage",
-         "delta_var": -2.7,
-         "var_from": 5.2,
-         "var_to": 2.5,
-         "base": -3.02,
-         "low": -7.77,
-         "high": -0.48,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 3.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.5
-        },
-        {
-         "id": "reg_price_caps_np",
-         "label": "Ограничение наценок на социально значимые товары (в чистой прибыли)",
-         "kind": "institutional",
-         "base": -3.0,
-         "low": -3.0,
-         "high": -3.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "consumption_volume",
-         "label": "Потребление домохозяйств → натуральный объём продаж (трафик и объём корзины) → выручка",
-         "var": "consumption_hh",
-         "delta_var": -2.1,
-         "var_from": 3.6,
-         "var_to": 1.5,
-         "base": -2.68,
-         "low": -5.3,
-         "high": -1.09,
-         "var_value_in_low_set": 1.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.3
-        },
-        {
-         "id": "rate_demand_mix",
-         "label": "Ключевая ставка → сбережения и потребкредит → непродовольственная полка и глубина корзины",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 1.93,
-         "low": 0.61,
-         "high": 4.03,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.5
-        },
-        {
-         "id": "geo_import_markup_np",
-         "label": "Санкционная надбавка на импорт (в чистой прибыли, включая удорожание капвложений через амортизацию)",
-         "kind": "geo",
-         "base": -1.5,
-         "low": -1.5,
-         "high": -1.5,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "transaction_burden_np",
-         "label": "Трансакционная нагрузка (в чистой прибыли)",
-         "kind": "institutional",
-         "base": -1.0,
-         "low": -1.0,
-         "high": -1.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        }
-       ],
-       "width_drivers": [
-        "food_inflation_check",
-        "rate_debt_interest",
-        "fx_imported_goods"
-       ]
-      }
-     },
-     "flags": [
-      "при неблагоприятных значениях входов прибыль уходит в убыток",
-      "изменение прибыли +119% — линейность под вопросом, читать как порядок величины"
-     ],
-     "missing_vars": []
     }
    }
   },
@@ -2167,9 +1604,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -2197,6 +1634,51 @@
        "high": 6.5
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -2783,9 +2265,9 @@
        "high": 18.0
       },
       "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 85.0,
@@ -2813,6 +2295,51 @@
        "high": 4.8
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 9.0,
+       "high": 11.0,
+       "mid": 10.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "9–11%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 3.7,
+       "high": 5.1,
+       "mid": 4.4,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "3,7–5,1%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 2.5,
+       "high": 3.5,
+       "mid": 3.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "2,5–3,5%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 85.0,
+       "high": 93.0,
+       "mid": 89.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "85–93 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -3321,620 +2848,6 @@
       "изменение прибыли +123% — линейность под вопросом, читать как порядок величины"
      ],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Дезинфляционный 2028",
-     "scenario_id": "disinflation",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "key_rate_avg": {
-       "low": 7.0,
-       "mid": 7.5,
-       "high": 8.0
-      },
-      "gdp": {
-       "low": 2.0,
-       "mid": 2.5,
-       "high": 3.0
-      },
-      "consumption_hh": {
-       "low": 2.0,
-       "mid": 2.5,
-       "high": 3.0
-      },
-      "gfcf": {
-       "low": 2.5,
-       "mid": 3.5,
-       "high": 4.5
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "money_supply": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_total": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "credit_corp": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "credit_hh": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "mortgage": {
-       "low": 11.0,
-       "mid": 13.5,
-       "high": 16.0
-      },
-      "current_account": {
-       "low": 9.0,
-       "mid": 9.0,
-       "high": 9.0
-      },
-      "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
-      },
-      "usdrub_avg": {
-       "low": 89.0,
-       "mid": 93.0,
-       "high": 97.0
-      },
-      "real_wage": {
-       "low": 3.0,
-       "mid": 4.0,
-       "high": 5.0
-      },
-      "nominal_wage": {
-       "low": 7.0,
-       "mid": 8.0,
-       "high": 9.0
-      },
-      "unemployment": {
-       "low": 2.3,
-       "mid": 2.55,
-       "high": 2.8
-      },
-      "food_inflation": {
-       "low": 3.5,
-       "mid": 4.0,
-       "high": 4.5
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 3509.2,
-       "delta": {
-        "base": -132.5,
-        "low": -200.1,
-        "high": -69.2
-       },
-       "value": {
-        "base": 3376.7,
-        "low": 3309.1,
-        "high": 3440.0
-       },
-       "pct": {
-        "base": -3.8,
-        "low": -5.7,
-        "high": -2.0
-       },
-       "dominant_factor": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-       "dominant_factor_id": "food_inflation_check",
-       "contributions": [
-        {
-         "id": "food_inflation_check",
-         "label": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-         "var": "food_inflation",
-         "delta_var": -4.8,
-         "var_from": 8.8,
-         "var_to": 4.0,
-         "base": -126.48,
-         "low": -162.18,
-         "high": -87.72,
-         "var_value_in_low_set": 3.5,
-         "var_value_in_high_set": 4.5,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 56.9
-        },
-        {
-         "id": "consumption_volume",
-         "label": "Потребление домохозяйств → натуральный объём продаж (трафик и объём корзины) → выручка",
-         "var": "consumption_hh",
-         "delta_var": -1.1,
-         "var_from": 3.6,
-         "var_to": 2.5,
-         "base": -11.5,
-         "low": -25.84,
-         "high": -3.06,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 17.4
-        },
-        {
-         "id": "rate_demand_mix",
-         "label": "Ключевая ставка → сбережения и потребкредит → непродовольственная полка и глубина корзины",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 10.53,
-         "low": 3.36,
-         "high": 21.96,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 14.2
-        },
-        {
-         "id": "real_wage_mix",
-         "label": "Реальные зарплаты → торговля вниз (микс и глубина чека) → выручка и маржа",
-         "var": "real_wage",
-         "delta_var": -1.2,
-         "var_from": 5.2,
-         "var_to": 4.0,
-         "base": -5.04,
-         "low": -15.4,
-         "high": -0.42,
-         "var_value_in_low_set": 3.0,
-         "var_value_in_high_set": 5.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 11.5
-        }
-       ],
-       "width_drivers": [
-        "food_inflation_check",
-        "consumption_volume",
-        "rate_demand_mix"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 299.6,
-       "delta": {
-        "base": 4.6,
-        "low": -40.2,
-        "high": 45.8
-       },
-       "value": {
-        "base": 304.2,
-        "low": 259.4,
-        "high": 345.4
-       },
-       "pct": {
-        "base": 1.5,
-        "low": -13.4,
-        "high": 15.3
-       },
-       "dominant_factor": "Номинальные зарплаты в экономике → фонд оплаты труда → EBITDA",
-       "dominant_factor_id": "labor_cost",
-       "contributions": [
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → EBITDA",
-         "var": "nominal_wage",
-         "delta_var": -6.4,
-         "var_from": 14.4,
-         "var_to": 8.0,
-         "base": 16.9,
-         "low": 11.66,
-         "high": 23.09,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 13.3
-        },
-        {
-         "id": "food_inflation_check",
-         "label": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-         "var": "food_inflation",
-         "delta_var": -4.8,
-         "var_from": 8.8,
-         "var_to": 4.0,
-         "base": -14.28,
-         "low": -31.54,
-         "high": 6.76,
-         "var_value_in_low_set": 3.5,
-         "var_value_in_high_set": 3.5,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 44.5
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Общая инфляция → коммунальные, логистика, услуги, оборотная аренда → EBITDA",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 10.59,
-         "low": 7.59,
-         "high": 13.58,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.0
-        },
-        {
-         "id": "fx_imported_goods",
-         "label": "Курс рубля → импортная часть закупки (non-food полка, плодоовощная группа) → маржа",
-         "var": "usdrub_avg",
-         "delta_var": 9.7,
-         "var_from": 83.3,
-         "var_to": 93.0,
-         "base": -5.82,
-         "low": -16.44,
-         "high": -0.86,
-         "var_value_in_low_set": 97.0,
-         "var_value_in_high_set": 89.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 18.1
-        },
-        {
-         "id": "rate_demand_mix",
-         "label": "Ключевая ставка → сбережения и потребкредит → непродовольственная полка и глубина корзины",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 2.81,
-         "low": 1.01,
-         "high": 5.86,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.6
-        },
-        {
-         "id": "reg_price_caps_ebitda",
-         "label": "Ограничение наценок на социально значимые товары",
-         "kind": "institutional",
-         "base": -2.0,
-         "low": -2.0,
-         "high": -2.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "consumption_volume",
-         "label": "Потребление домохозяйств → натуральный объём продаж (трафик и объём корзины) → выручка",
-         "var": "consumption_hh",
-         "delta_var": -1.1,
-         "var_from": 3.6,
-         "var_to": 2.5,
-         "base": -1.87,
-         "low": -4.35,
-         "high": -0.56,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.4
-        },
-        {
-         "id": "real_wage_mix",
-         "label": "Реальные зарплаты → торговля вниз (микс и глубина чека) → выручка и маржа",
-         "var": "real_wage",
-         "delta_var": -1.2,
-         "var_from": 5.2,
-         "var_to": 4.0,
-         "base": -1.68,
-         "low": -6.16,
-         "high": -0.08,
-         "var_value_in_low_set": 3.0,
-         "var_value_in_high_set": 5.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.1
-        }
-       ],
-       "width_drivers": [
-        "food_inflation_check",
-        "fx_imported_goods",
-        "labor_cost"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 22.0,
-       "delta": {
-        "base": 31.6,
-        "low": -17.9,
-        "high": 79.6
-       },
-       "value": {
-        "base": 53.6,
-        "low": 4.1,
-        "high": 101.6
-       },
-       "pct": {
-        "base": 143.7,
-        "low": -81.2,
-        "high": 361.9
-       },
-       "dominant_factor": "Ключевая ставка → процентные расходы по долгу → чистая прибыль",
-       "dominant_factor_id": "rate_debt_interest",
-       "contributions": [
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → процентные расходы по долгу → чистая прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 40.01,
-         "low": 29.23,
-         "high": 53.8,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 25.2
-        },
-        {
-         "id": "rate_cash_income",
-         "label": "Ключевая ставка → процентный доход по остаткам и депозитам → чистая прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": -12.87,
-         "low": -16.8,
-         "high": -9.76,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 7.2
-        },
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → EBITDA",
-         "var": "nominal_wage",
-         "delta_var": -6.4,
-         "var_from": 14.4,
-         "var_to": 8.0,
-         "base": 12.8,
-         "low": 8.64,
-         "high": 17.17,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 8.7
-        },
-        {
-         "id": "food_inflation_check",
-         "label": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-         "var": "food_inflation",
-         "delta_var": -4.8,
-         "var_from": 8.8,
-         "var_to": 4.0,
-         "base": -10.61,
-         "low": -23.88,
-         "high": 4.96,
-         "var_value_in_low_set": 3.5,
-         "var_value_in_high_set": 3.5,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 29.6
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Общая инфляция → коммунальные, логистика, услуги, оборотная аренда → EBITDA",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 8.79,
-         "low": 5.99,
-         "high": 11.59,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.7
-        },
-        {
-         "id": "fx_imported_goods",
-         "label": "Курс рубля → импортная часть закупки (non-food полка, плодоовощная группа) → маржа",
-         "var": "usdrub_avg",
-         "delta_var": 9.7,
-         "var_from": 83.3,
-         "var_to": 93.0,
-         "base": -4.37,
-         "low": -12.33,
-         "high": -0.57,
-         "var_value_in_low_set": 97.0,
-         "var_value_in_high_set": 89.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 12.1
-        },
-        {
-         "id": "rate_demand_mix",
-         "label": "Ключевая ставка → сбережения и потребкредит → непродовольственная полка и глубина корзины",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 2.11,
-         "low": 0.67,
-         "high": 4.39,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.8
-        },
-        {
-         "id": "reg_price_caps_np",
-         "label": "Ограничение наценок на социально значимые товары (в чистой прибыли)",
-         "kind": "institutional",
-         "base": -1.5,
-         "low": -1.5,
-         "high": -1.5,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "consumption_volume",
-         "label": "Потребление домохозяйств → натуральный объём продаж (трафик и объём корзины) → выручка",
-         "var": "consumption_hh",
-         "delta_var": -1.1,
-         "var_from": 3.6,
-         "var_to": 2.5,
-         "base": -1.4,
-         "low": -3.26,
-         "high": -0.41,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.9
-        },
-        {
-         "id": "real_wage_mix",
-         "label": "Реальные зарплаты → торговля вниз (микс и глубина чека) → выручка и маржа",
-         "var": "real_wage",
-         "delta_var": -1.2,
-         "var_from": 5.2,
-         "var_to": 4.0,
-         "base": -1.34,
-         "low": -4.62,
-         "high": -0.06,
-         "var_value_in_low_set": 3.0,
-         "var_value_in_high_set": 5.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.7
-        }
-       ],
-       "width_drivers": [
-        "food_inflation_check",
-        "rate_debt_interest",
-        "fx_imported_goods"
-       ]
-      }
-     },
-     "flags": [
-      "изменение прибыли +144% — линейность под вопросом, читать как порядок величины"
-     ],
-     "missing_vars": []
     }
    }
   },
@@ -4017,9 +2930,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -4047,6 +2960,51 @@
        "high": 6.5
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -4683,9 +3641,9 @@
        "high": 10.0
       },
       "oil_tax_price": {
-       "low": 45.0,
-       "mid": 45.0,
-       "high": 45.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 90.0,
@@ -4713,6 +3671,51 @@
        "high": 7.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 13.0,
+       "high": 15.0,
+       "mid": 14.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "13–15%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 4.6,
+       "high": 5.9,
+       "mid": 5.25,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "4,6–5,9%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 1.0,
+       "high": 2.0,
+       "mid": 1.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "1–2%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 90.0,
+       "high": 100.0,
+       "mid": 95.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "90–100 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -5269,668 +4272,6 @@
       "при неблагоприятных значениях входов прибыль уходит в убыток"
      ],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Проинфляционный 2028",
-     "scenario_id": "proinflation",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.25,
-       "high": 4.5
-      },
-      "key_rate_avg": {
-       "low": 11.0,
-       "mid": 11.5,
-       "high": 12.0
-      },
-      "gdp": {
-       "low": 0.5,
-       "mid": 1.0,
-       "high": 1.5
-      },
-      "consumption_hh": {
-       "low": 0.0,
-       "mid": 0.5,
-       "high": 1.0
-      },
-      "gfcf": {
-       "low": 0.0,
-       "mid": 1.0,
-       "high": 2.0
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": -2.0,
-       "mid": -1.0,
-       "high": 0.0
-      },
-      "money_supply": {
-       "low": 7.0,
-       "mid": 9.5,
-       "high": 12.0
-      },
-      "credit_total": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_corp": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_hh": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "mortgage": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "current_account": {
-       "low": 13.0,
-       "mid": 13.0,
-       "high": 13.0
-      },
-      "oil_tax_price": {
-       "low": 45.0,
-       "mid": 45.0,
-       "high": 45.0
-      },
-      "usdrub_avg": {
-       "low": 95.0,
-       "mid": 100.0,
-       "high": 105.0
-      },
-      "real_wage": {
-       "low": 0.0,
-       "mid": 1.0,
-       "high": 2.0
-      },
-      "nominal_wage": {
-       "low": 5.0,
-       "mid": 6.25,
-       "high": 7.5
-      },
-      "unemployment": {
-       "low": 2.5,
-       "mid": 2.85,
-       "high": 3.2
-      },
-      "food_inflation": {
-       "low": 4.5,
-       "mid": 5.25,
-       "high": 6.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 3509.2,
-       "delta": {
-        "base": -136.7,
-        "low": -224.0,
-        "high": -62.3
-       },
-       "value": {
-        "base": 3372.5,
-        "low": 3285.2,
-        "high": 3446.9
-       },
-       "pct": {
-        "base": -3.9,
-        "low": -6.4,
-        "high": -1.8
-       },
-       "dominant_factor": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-       "dominant_factor_id": "food_inflation_check",
-       "contributions": [
-        {
-         "id": "food_inflation_check",
-         "label": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-         "var": "food_inflation",
-         "delta_var": -3.55,
-         "var_from": 8.8,
-         "var_to": 5.25,
-         "base": -93.54,
-         "low": -131.58,
-         "high": -57.12,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 6.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 46.1
-        },
-        {
-         "id": "consumption_volume",
-         "label": "Потребление домохозяйств → натуральный объём продаж (трафик и объём корзины) → выручка",
-         "var": "consumption_hh",
-         "delta_var": -3.1,
-         "var_from": 3.6,
-         "var_to": 0.5,
-         "base": -32.41,
-         "low": -58.14,
-         "high": -13.26,
-         "var_value_in_low_set": 0.0,
-         "var_value_in_high_set": 1.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 27.8
-        },
-        {
-         "id": "real_wage_mix",
-         "label": "Реальные зарплаты → торговля вниз (микс и глубина чека) → выручка и маржа",
-         "var": "real_wage",
-         "delta_var": -4.2,
-         "var_from": 5.2,
-         "var_to": 1.0,
-         "base": -17.64,
-         "low": -36.4,
-         "high": -6.72,
-         "var_value_in_low_set": 0.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 18.4
-        },
-        {
-         "id": "rate_demand_mix",
-         "label": "Ключевая ставка → сбережения и потребкредит → непродовольственная полка и глубина корзины",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 6.93,
-         "low": 2.16,
-         "high": 14.76,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.8
-        }
-       ],
-       "width_drivers": [
-        "food_inflation_check",
-        "consumption_volume",
-        "real_wage_mix"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 299.6,
-       "delta": {
-        "base": -15.1,
-        "low": -74.9,
-        "high": 34.5
-       },
-       "value": {
-        "base": 284.5,
-        "low": 224.7,
-        "high": 334.1
-       },
-       "pct": {
-        "base": -5.1,
-        "low": -25.0,
-        "high": 11.5
-       },
-       "dominant_factor": "Номинальные зарплаты в экономике → фонд оплаты труда → EBITDA",
-       "dominant_factor_id": "labor_cost",
-       "contributions": [
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → EBITDA",
-         "var": "nominal_wage",
-         "delta_var": -8.15,
-         "var_from": 14.4,
-         "var_to": 6.25,
-         "base": 21.52,
-         "low": 14.9,
-         "high": 29.33,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 13.2
-        },
-        {
-         "id": "food_inflation_check",
-         "label": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-         "var": "food_inflation",
-         "delta_var": -3.55,
-         "var_from": 8.8,
-         "var_to": 5.25,
-         "base": -10.56,
-         "low": -25.59,
-         "high": 5.48,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 4.5,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 28.4
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Общая инфляция → коммунальные, логистика, услуги, оборотная аренда → EBITDA",
-         "var": "inflation_avg",
-         "delta_var": -4.45,
-         "var_from": 8.7,
-         "var_to": 4.25,
-         "base": 10.02,
-         "low": 6.78,
-         "high": 13.58,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.2
-        },
-        {
-         "id": "fx_imported_goods",
-         "label": "Курс рубля → импортная часть закупки (non-food полка, плодоовощная группа) → маржа",
-         "var": "usdrub_avg",
-         "delta_var": 16.7,
-         "var_from": 83.3,
-         "var_to": 100.0,
-         "base": -10.02,
-         "low": -26.04,
-         "high": -1.76,
-         "var_value_in_low_set": 105.0,
-         "var_value_in_high_set": 95.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 22.2
-        },
-        {
-         "id": "reg_price_caps_ebitda",
-         "label": "Ограничение наценок на социально значимые товары",
-         "kind": "institutional",
-         "base": -9.5,
-         "low": -14.0,
-         "high": -5.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 8.2
-        },
-        {
-         "id": "real_wage_mix",
-         "label": "Реальные зарплаты → торговля вниз (микс и глубина чека) → выручка и маржа",
-         "var": "real_wage",
-         "delta_var": -4.2,
-         "var_from": 5.2,
-         "var_to": 1.0,
-         "base": -5.88,
-         "low": -14.56,
-         "high": -1.34,
-         "var_value_in_low_set": 0.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 12.1
-        },
-        {
-         "id": "consumption_volume",
-         "label": "Потребление домохозяйств → натуральный объём продаж (трафик и объём корзины) → выручка",
-         "var": "consumption_hh",
-         "delta_var": -3.1,
-         "var_from": 3.6,
-         "var_to": 0.5,
-         "base": -5.27,
-         "low": -9.79,
-         "high": -2.43,
-         "var_value_in_low_set": 0.0,
-         "var_value_in_high_set": 1.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.7
-        },
-        {
-         "id": "geo_import_markup_ebitda",
-         "label": "Санкционная надбавка на импорт: параллельный импорт оборудования и non-food полки",
-         "kind": "geo",
-         "base": -4.0,
-         "low": -4.0,
-         "high": -4.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "transaction_burden_ebitda",
-         "label": "Трансакционная нагрузка: расчётное трение, предоплата, посредники",
-         "kind": "institutional",
-         "base": -3.3,
-         "low": -3.3,
-         "high": -3.3,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "rate_demand_mix",
-         "label": "Ключевая ставка → сбережения и потребкредит → непродовольственная полка и глубина корзины",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 1.85,
-         "low": 0.65,
-         "high": 3.94,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.0
-        }
-       ],
-       "width_drivers": [
-        "food_inflation_check",
-        "fx_imported_goods",
-        "labor_cost"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 22.0,
-       "delta": {
-        "base": 7.2,
-        "low": -48.3,
-        "high": 56.8
-       },
-       "value": {
-        "base": 29.2,
-        "low": -26.3,
-        "high": 78.8
-       },
-       "pct": {
-        "base": 32.7,
-        "low": -219.8,
-        "high": 258.3
-       },
-       "dominant_factor": "Ключевая ставка → процентные расходы по долгу → чистая прибыль",
-       "dominant_factor_id": "rate_debt_interest",
-       "contributions": [
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → процентные расходы по долгу → чистая прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 26.33,
-         "low": 18.79,
-         "high": 36.16,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 16.5
-        },
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → EBITDA",
-         "var": "nominal_wage",
-         "delta_var": -8.15,
-         "var_from": 14.4,
-         "var_to": 6.25,
-         "base": 16.3,
-         "low": 11.04,
-         "high": 21.81,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 10.2
-        },
-        {
-         "id": "rate_cash_income",
-         "label": "Ключевая ставка → процентный доход по остаткам и депозитам → чистая прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": -8.47,
-         "low": -10.8,
-         "high": -6.56,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.0
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Общая инфляция → коммунальные, логистика, услуги, оборотная аренда → EBITDA",
-         "var": "inflation_avg",
-         "delta_var": -4.45,
-         "var_from": 8.7,
-         "var_to": 4.25,
-         "base": 8.32,
-         "low": 5.35,
-         "high": 11.59,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.9
-        },
-        {
-         "id": "food_inflation_check",
-         "label": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-         "var": "food_inflation",
-         "delta_var": -3.55,
-         "var_from": 8.8,
-         "var_to": 5.25,
-         "base": -7.85,
-         "low": -19.37,
-         "high": 4.02,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 4.5,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 22.2
-        },
-        {
-         "id": "fx_imported_goods",
-         "label": "Курс рубля → импортная часть закупки (non-food полка, плодоовощная группа) → маржа",
-         "var": "usdrub_avg",
-         "delta_var": 16.7,
-         "var_from": 83.3,
-         "var_to": 100.0,
-         "base": -7.52,
-         "low": -19.53,
-         "high": -1.17,
-         "var_value_in_low_set": 105.0,
-         "var_value_in_high_set": 95.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 17.5
-        },
-        {
-         "id": "reg_price_caps_np",
-         "label": "Ограничение наценок на социально значимые товары (в чистой прибыли)",
-         "kind": "institutional",
-         "base": -7.15,
-         "low": -10.5,
-         "high": -3.8,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 6.4
-        },
-        {
-         "id": "real_wage_mix",
-         "label": "Реальные зарплаты → торговля вниз (микс и глубина чека) → выручка и маржа",
-         "var": "real_wage",
-         "delta_var": -4.2,
-         "var_from": 5.2,
-         "var_to": 1.0,
-         "base": -4.7,
-         "low": -10.92,
-         "high": -0.9,
-         "var_value_in_low_set": 0.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.5
-        },
-        {
-         "id": "consumption_volume",
-         "label": "Потребление домохозяйств → натуральный объём продаж (трафик и объём корзины) → выручка",
-         "var": "consumption_hh",
-         "delta_var": -3.1,
-         "var_from": 3.6,
-         "var_to": 0.5,
-         "base": -3.95,
-         "low": -7.34,
-         "high": -1.77,
-         "var_value_in_low_set": 0.0,
-         "var_value_in_high_set": 1.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.3
-        },
-        {
-         "id": "geo_import_markup_np",
-         "label": "Санкционная надбавка на импорт (в чистой прибыли, включая удорожание капвложений через амортизацию)",
-         "kind": "geo",
-         "base": -3.0,
-         "low": -3.0,
-         "high": -3.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "transaction_burden_np",
-         "label": "Трансакционная нагрузка (в чистой прибыли)",
-         "kind": "institutional",
-         "base": -2.5,
-         "low": -2.5,
-         "high": -2.5,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "rate_demand_mix",
-         "label": "Ключевая ставка → сбережения и потребкредит → непродовольственная полка и глубина корзины",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 1.39,
-         "low": 0.43,
-         "high": 2.95,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.4
-        }
-       ],
-       "width_drivers": [
-        "food_inflation_check",
-        "fx_imported_goods",
-        "rate_debt_interest"
-       ]
-      }
-     },
-     "flags": [
-      "при неблагоприятных значениях входов прибыль уходит в убыток"
-     ],
-     "missing_vars": []
     }
    }
   },
@@ -6013,9 +4354,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -6043,6 +4384,51 @@
        "high": 6.5
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -6679,9 +5065,9 @@
        "high": 5.0
       },
       "oil_tax_price": {
-       "low": 35.0,
-       "mid": 35.0,
-       "high": 35.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 105.0,
@@ -6709,6 +5095,51 @@
        "high": 13.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 19.0,
+       "high": 21.0,
+       "mid": 20.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "19–21%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 7.3,
+       "high": 9.3,
+       "mid": 8.3,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "7,3–9,3%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": -4.0,
+       "high": -3.0,
+       "mid": -3.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "от −4 до −3%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 105.0,
+       "high": 125.0,
+       "mid": 115.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "105–125 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -7268,667 +5699,6 @@
       "изменение прибыли -198% — линейность под вопросом, читать как порядок величины"
      ],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Рисковый 2028",
-     "scenario_id": "risk",
-     "conditions": {
-      "inflation_dec": {
-       "low": 5.0,
-       "mid": 6.0,
-       "high": 7.0
-      },
-      "inflation_avg": {
-       "low": 9.3,
-       "mid": 10.35,
-       "high": 11.4
-      },
-      "key_rate_avg": {
-       "low": 14.0,
-       "mid": 15.0,
-       "high": 16.0
-      },
-      "gdp": {
-       "low": -2.5,
-       "mid": -2.0,
-       "high": -1.5
-      },
-      "consumption_hh": {
-       "low": -6.5,
-       "mid": -6.0,
-       "high": -5.5
-      },
-      "gfcf": {
-       "low": -2.0,
-       "mid": -1.0,
-       "high": 0.0
-      },
-      "exports_vol": {
-       "low": -3.0,
-       "mid": -2.0,
-       "high": -1.0
-      },
-      "imports_vol": {
-       "low": -20.0,
-       "mid": -19.0,
-       "high": -18.0
-      },
-      "money_supply": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_total": {
-       "low": 2.0,
-       "mid": 4.5,
-       "high": 7.0
-      },
-      "credit_corp": {
-       "low": 3.0,
-       "mid": 5.5,
-       "high": 8.0
-      },
-      "credit_hh": {
-       "low": -1.0,
-       "mid": 1.5,
-       "high": 4.0
-      },
-      "mortgage": {
-       "low": 2.0,
-       "mid": 4.5,
-       "high": 7.0
-      },
-      "current_account": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "oil_tax_price": {
-       "low": 25.0,
-       "mid": 25.0,
-       "high": 25.0
-      },
-      "usdrub_avg": {
-       "low": 115.0,
-       "mid": 127.5,
-       "high": 140.0
-      },
-      "real_wage": {
-       "low": -6.0,
-       "mid": -4.5,
-       "high": -3.0
-      },
-      "nominal_wage": {
-       "low": 4.0,
-       "mid": 5.5,
-       "high": 7.0
-      },
-      "unemployment": {
-       "low": 4.5,
-       "mid": 5.25,
-       "high": 6.0
-      },
-      "food_inflation": {
-       "low": 11.0,
-       "mid": 13.5,
-       "high": 16.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 3509.2,
-       "delta": {
-        "base": -35.3,
-        "low": -203.6,
-        "high": 127.2
-       },
-       "value": {
-        "base": 3473.9,
-        "low": 3305.6,
-        "high": 3636.4
-       },
-       "pct": {
-        "base": -1.0,
-        "low": -5.8,
-        "high": 3.6
-       },
-       "dominant_factor": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-       "dominant_factor_id": "food_inflation_check",
-       "contributions": [
-        {
-         "id": "food_inflation_check",
-         "label": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-         "var": "food_inflation",
-         "delta_var": 4.7,
-         "var_from": 8.8,
-         "var_to": 13.5,
-         "base": 101.99,
-         "low": 36.96,
-         "high": 181.44,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 16.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "порог real_wage < 0.0: ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 43.7
-        },
-        {
-         "id": "consumption_volume",
-         "label": "Потребление домохозяйств → натуральный объём продаж (трафик и объём корзины) → выручка",
-         "var": "consumption_hh",
-         "delta_var": -9.6,
-         "var_from": 3.6,
-         "var_to": -6.0,
-         "base": -100.37,
-         "low": -163.12,
-         "high": -46.41,
-         "var_value_in_low_set": -6.5,
-         "var_value_in_high_set": -5.5,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 35.3
-        },
-        {
-         "id": "real_wage_mix",
-         "label": "Реальные зарплаты → торговля вниз (микс и глубина чека) → выручка и маржа",
-         "var": "real_wage",
-         "delta_var": -9.7,
-         "var_from": 5.2,
-         "var_to": -4.5,
-         "base": -40.74,
-         "low": -78.4,
-         "high": -17.22,
-         "var_value_in_low_set": -6.0,
-         "var_value_in_high_set": -3.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 18.5
-        },
-        {
-         "id": "rate_demand_mix",
-         "label": "Ключевая ставка → сбережения и потребкредит → непродовольственная полка и глубина корзины",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 3.78,
-         "low": 0.96,
-         "high": 9.36,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.5
-        }
-       ],
-       "width_drivers": [
-        "food_inflation_check",
-        "consumption_volume",
-        "real_wage_mix"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 299.6,
-       "delta": {
-        "base": -66.1,
-        "low": -179.3,
-        "high": 21.3
-       },
-       "value": {
-        "base": 233.5,
-        "low": 120.3,
-        "high": 320.9
-       },
-       "pct": {
-        "base": -22.1,
-        "low": -59.9,
-        "high": 7.1
-       },
-       "dominant_factor": "Курс рубля → импортная часть закупки (non-food полка, плодоовощная группа) → маржа",
-       "dominant_factor_id": "fx_imported_goods",
-       "contributions": [
-        {
-         "id": "fx_imported_goods",
-         "label": "Курс рубля → импортная часть закупки (non-food полка, плодоовощная группа) → маржа",
-         "var": "usdrub_avg",
-         "delta_var": 44.2,
-         "var_from": 83.3,
-         "var_to": 127.5,
-         "base": -26.52,
-         "low": -68.04,
-         "high": -4.75,
-         "var_value_in_low_set": 140.0,
-         "var_value_in_high_set": 115.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 31.5
-        },
-        {
-         "id": "reg_price_caps_ebitda",
-         "label": "Ограничение наценок на социально значимые товары",
-         "kind": "institutional",
-         "base": -19.0,
-         "low": -28.0,
-         "high": -10.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 9.0
-        },
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → EBITDA",
-         "var": "nominal_wage",
-         "delta_var": -8.9,
-         "var_from": 14.4,
-         "var_to": 5.5,
-         "base": 17.62,
-         "low": 11.99,
-         "high": 24.34,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8",
-          "порог unemployment > 4.0: ×0.75"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.2
-        },
-        {
-         "id": "consumption_volume",
-         "label": "Потребление домохозяйств → натуральный объём продаж (трафик и объём корзины) → выручка",
-         "var": "consumption_hh",
-         "delta_var": -9.6,
-         "var_from": 3.6,
-         "var_to": -6.0,
-         "base": -16.32,
-         "low": -27.47,
-         "high": -8.51,
-         "var_value_in_low_set": -6.5,
-         "var_value_in_high_set": -5.5,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.5
-        },
-        {
-         "id": "real_wage_mix",
-         "label": "Реальные зарплаты → торговля вниз (микс и глубина чека) → выручка и маржа",
-         "var": "real_wage",
-         "delta_var": -9.7,
-         "var_from": 5.2,
-         "var_to": -4.5,
-         "base": -13.58,
-         "low": -31.36,
-         "high": -3.44,
-         "var_value_in_low_set": -6.0,
-         "var_value_in_high_set": -3.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 13.9
-        },
-        {
-         "id": "food_inflation_check",
-         "label": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-         "var": "food_inflation",
-         "delta_var": 4.7,
-         "var_from": 8.8,
-         "var_to": 13.5,
-         "base": 11.51,
-         "low": -7.56,
-         "high": 35.28,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 16.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "порог real_wage < 0.0: ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 21.4
-        },
-        {
-         "id": "geo_import_markup_ebitda",
-         "label": "Санкционная надбавка на импорт: параллельный импорт оборудования и non-food полки",
-         "kind": "geo",
-         "base": -8.5,
-         "low": -12.0,
-         "high": -5.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 3.5
-        },
-        {
-         "id": "transaction_burden_ebitda",
-         "label": "Трансакционная нагрузка: расчётное трение, предоплата, посредники",
-         "kind": "institutional",
-         "base": -8.0,
-         "low": -8.0,
-         "high": -8.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Общая инфляция → коммунальные, логистика, услуги, оборотная аренда → EBITDA",
-         "var": "inflation_avg",
-         "delta_var": 1.65,
-         "var_from": 8.7,
-         "var_to": 10.35,
-         "base": -4.37,
-         "low": -9.18,
-         "high": -1.14,
-         "var_value_in_low_set": 11.4,
-         "var_value_in_high_set": 9.3,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.0
-        },
-        {
-         "id": "rate_demand_mix",
-         "label": "Ключевая ставка → сбережения и потребкредит → непродовольственная полка и глубина корзины",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 1.01,
-         "low": 0.29,
-         "high": 2.5,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.1
-        }
-       ],
-       "width_drivers": [
-        "fx_imported_goods",
-        "food_inflation_check",
-        "real_wage_mix"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 22.0,
-       "delta": {
-        "base": -40.9,
-        "low": -131.9,
-        "high": 35.6
-       },
-       "value": {
-        "base": -18.9,
-        "low": -109.9,
-        "high": 57.6
-       },
-       "pct": {
-        "base": -185.8,
-        "low": -599.6,
-        "high": 161.8
-       },
-       "dominant_factor": "Курс рубля → импортная часть закупки (non-food полка, плодоовощная группа) → маржа",
-       "dominant_factor_id": "fx_imported_goods",
-       "contributions": [
-        {
-         "id": "fx_imported_goods",
-         "label": "Курс рубля → импортная часть закупки (non-food полка, плодоовощная группа) → маржа",
-         "var": "usdrub_avg",
-         "delta_var": 44.2,
-         "var_from": 83.3,
-         "var_to": 127.5,
-         "base": -19.89,
-         "low": -51.03,
-         "high": -3.17,
-         "var_value_in_low_set": 140.0,
-         "var_value_in_high_set": 115.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 28.6
-        },
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → процентные расходы по долгу → чистая прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 14.36,
-         "low": 8.35,
-         "high": 22.93,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 8.7
-        },
-        {
-         "id": "reg_price_caps_np",
-         "label": "Ограничение наценок на социально значимые товары (в чистой прибыли)",
-         "kind": "institutional",
-         "base": -14.25,
-         "low": -21.0,
-         "high": -7.5,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 8.1
-        },
-        {
-         "id": "labor_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → EBITDA",
-         "var": "nominal_wage",
-         "delta_var": -8.9,
-         "var_from": 14.4,
-         "var_to": 5.5,
-         "base": 13.35,
-         "low": 8.88,
-         "high": 18.1,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8",
-          "порог unemployment > 4.0: ×0.75"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.5
-        },
-        {
-         "id": "consumption_volume",
-         "label": "Потребление домохозяйств → натуральный объём продаж (трафик и объём корзины) → выручка",
-         "var": "consumption_hh",
-         "delta_var": -9.6,
-         "var_from": 3.6,
-         "var_to": -6.0,
-         "base": -12.24,
-         "low": -20.6,
-         "high": -6.19,
-         "var_value_in_low_set": -6.5,
-         "var_value_in_high_set": -5.5,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 8.6
-        },
-        {
-         "id": "real_wage_mix",
-         "label": "Реальные зарплаты → торговля вниз (микс и глубина чека) → выручка и маржа",
-         "var": "real_wage",
-         "delta_var": -9.7,
-         "var_from": 5.2,
-         "var_to": -4.5,
-         "base": -10.86,
-         "low": -23.52,
-         "high": -2.3,
-         "var_value_in_low_set": -6.0,
-         "var_value_in_high_set": -3.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 12.7
-        },
-        {
-         "id": "food_inflation_check",
-         "label": "Продовольственная инфляция → средний чек и закупочная цена → выручка и валовая маржа",
-         "var": "food_inflation",
-         "delta_var": 4.7,
-         "var_from": 8.8,
-         "var_to": 13.5,
-         "base": 8.55,
-         "low": -5.54,
-         "high": 26.71,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 16.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "порог real_wage < 0.0: ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 19.3
-        },
-        {
-         "id": "geo_import_markup_np",
-         "label": "Санкционная надбавка на импорт (в чистой прибыли, включая удорожание капвложений через амортизацию)",
-         "kind": "geo",
-         "base": -6.4,
-         "low": -9.0,
-         "high": -3.8,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 3.1
-        },
-        {
-         "id": "transaction_burden_np",
-         "label": "Трансакционная нагрузка (в чистой прибыли)",
-         "kind": "institutional",
-         "base": -6.0,
-         "low": -6.0,
-         "high": -6.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "rate_cash_income",
-         "label": "Ключевая ставка → процентный доход по остаткам и депозитам → чистая прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": -4.62,
-         "low": -4.8,
-         "high": -4.16,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.4
-        },
-        {
-         "id": "opex_inflation",
-         "label": "Общая инфляция → коммунальные, логистика, услуги, оборотная аренда → EBITDA",
-         "var": "inflation_avg",
-         "delta_var": 1.65,
-         "var_from": 8.7,
-         "var_to": 10.35,
-         "base": -3.63,
-         "low": -7.83,
-         "high": -0.9,
-         "var_value_in_low_set": 11.4,
-         "var_value_in_high_set": 9.3,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.1
-        },
-        {
-         "id": "rate_demand_mix",
-         "label": "Ключевая ставка → сбережения и потребкредит → непродовольственная полка и глубина корзины",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 0.76,
-         "low": 0.19,
-         "high": 1.87,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.0
-        }
-       ],
-       "width_drivers": [
-        "fx_imported_goods",
-        "food_inflation_check",
-        "real_wage_mix"
-       ]
-      }
-     },
-     "flags": [
-      "при неблагоприятных значениях входов прибыль уходит в убыток",
-      "изменение прибыли -186% — линейность под вопросом, читать как порядок величины"
-     ],
-     "missing_vars": []
     }
    }
   }
@@ -7978,6 +5748,39 @@
     "high": 6.0
    }
   },
+  "conditions_core": [
+   {
+    "var": "key_rate_avg",
+    "label": "ключевая ставка, средняя за год",
+    "low": 21.0,
+    "high": 21.0,
+    "mid": 21.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "21%"
+   },
+   {
+    "var": "inflation_avg",
+    "label": "инфляция, средняя за год",
+    "low": 13.0,
+    "high": 13.0,
+    "mid": 13.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "13%"
+   },
+   {
+    "var": "usdrub_avg",
+    "label": "курс доллара, средний",
+    "low": 120.0,
+    "high": 120.0,
+    "mid": 120.0,
+    "unit": "руб.",
+    "origin": "допущение Basis",
+    "text": "120 руб."
+   }
+  ],
+  "held_at_base": [],
   "lines": {
    "revenue": {
     "label": "выручка",

@@ -1,6 +1,6 @@
 {
  "ticker": "SBER",
- "computed_at": "2026-09-15",
+ "computed_at": "2026-09-16",
  "unit": "млрд руб",
  "base_year": 2025,
  "base_financials": {
@@ -48,14 +48,24 @@
   },
   "display_years": [
    2026,
-   2027,
-   2028
+   2027
   ],
   "tab_years": [
-   2027,
-   2028
-  ]
+   2026,
+   2027
+  ],
+  "core_variables": [
+   "key_rate_avg",
+   "inflation_avg",
+   "gdp",
+   "usdrub_avg"
+  ],
+  "core_note": "Условия сценария, которые показываются инвестору: ключевая ставка, инфляция, ВВП (данные ЦБ) и курс рубля (достройка Basis). Остальные переменные ЦБ (потребление, инвестиции, кредит, ипотека) и достройки (зарплаты, безработица) участвуют в расчёте как производные того же сценария, но в таблице условий не показываются.",
+  "excluded_note": "Цены на нефть и прочее сырьё — не макроэкономика (решение владельца 15.09.2026): в расчёте сценариев они зафиксированы на уровне базового периода, их прогноз — область финансовой модели. Цена нефти ЦБ хранится в файле для справки, в расчёте вкладки не участвует."
  },
+ "held_at_base": [
+  "oil_tax_price"
+ ],
  "current_macro": {
   "as_of": "2026-09-14",
   "key_rate": 14.0,
@@ -158,9 +168,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -193,6 +203,51 @@
        "high": 78.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -703,9 +758,9 @@
        "high": 25.0
       },
       "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 84.0,
@@ -738,6 +793,51 @@
        "high": 68.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 10.5,
+       "high": 12.5,
+       "mid": 11.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "10,5–12,5%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 4.3,
+       "high": 5.2,
+       "mid": 4.75,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "4,3–5,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 1.5,
+       "high": 2.5,
+       "mid": 2.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "1,5–2,5%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 84.0,
+       "high": 92.0,
+       "mid": 88.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "84–92 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -1166,547 +1266,6 @@
      },
      "flags": [],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Базовый 2028",
-     "scenario_id": "base",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "key_rate_avg": {
-       "low": 8.0,
-       "mid": 8.5,
-       "high": 9.0
-      },
-      "gdp": {
-       "low": 1.5,
-       "mid": 2.0,
-       "high": 2.5
-      },
-      "consumption_hh": {
-       "low": 1.0,
-       "mid": 1.5,
-       "high": 2.0
-      },
-      "gfcf": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "money_supply": {
-       "low": 7.0,
-       "mid": 9.5,
-       "high": 12.0
-      },
-      "credit_total": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_corp": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_hh": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "mortgage": {
-       "low": 10.0,
-       "mid": 12.5,
-       "high": 15.0
-      },
-      "current_account": {
-       "low": 15.0,
-       "mid": 15.0,
-       "high": 15.0
-      },
-      "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
-      },
-      "usdrub_avg": {
-       "low": 88.0,
-       "mid": 92.0,
-       "high": 96.0
-      },
-      "real_wage": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "nominal_wage": {
-       "low": 5.5,
-       "mid": 6.5,
-       "high": 7.5
-      },
-      "unemployment": {
-       "low": 2.5,
-       "mid": 2.85,
-       "high": 3.2
-      },
-      "mortgage_rate_market": {
-       "low": 11.5,
-       "mid": 12.15,
-       "high": 12.8
-      },
-      "subsidized_share_new_mortgage": {
-       "low": 45.0,
-       "mid": 52.5,
-       "high": 60.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 4389.7,
-       "delta": {
-        "base": -230.5,
-        "low": -656.7,
-        "high": 249.0
-       },
-       "value": {
-        "base": 4159.2,
-        "low": 3733.0,
-        "high": 4638.7
-       },
-       "pct": {
-        "base": -5.3,
-        "low": -15.0,
-        "high": 5.7
-       },
-       "dominant_factor": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-       "dominant_factor_id": "rate_asset_repricing",
-       "contributions": [
-        {
-         "id": "rate_asset_repricing",
-         "label": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": -2022.3,
-         "low": -2217.6,
-         "high": -1836.0,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 9.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 42.1
-        },
-        {
-         "id": "rate_liability_repricing",
-         "label": "Ключевая ставка → переоценка пассивов с бетой депозитов (срочные вклады против текущих счетов) → процентный расход",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 1647.8,
-         "low": 1601.6,
-         "high": 1703.4,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 9.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 11.2
-        },
-        {
-         "id": "credit_hh_volume",
-         "label": "Прирост кредита населению → розничный портфель Сбера → процентный и комиссионный доход",
-         "var": "credit_hh",
-         "delta_var": 7.7,
-         "var_from": 2.8,
-         "var_to": 10.5,
-         "base": 97.02,
-         "low": 32.76,
-         "high": 220.32,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 13.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "модификатор reg_macroprudential: ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 20.7
-        },
-        {
-         "id": "rate_origination_volume",
-         "label": "Ключевая ставка → доступность кредита и объём выдач → комиссии за выдачу и страхование, маржа новых кредитов",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 74.9,
-         "low": 33.6,
-         "high": 122.4,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 9.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8",
-          "порог subsidized_share_new_mortgage < 55.0: ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.8
-        },
-        {
-         "id": "inflation_opex_fees",
-         "label": "Инфляция → две встречные ноги: индексация неперсональных расходов и рост адвалорных комиссий",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": -23.97,
-         "low": -35.95,
-         "high": -11.98,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.6
-        },
-        {
-         "id": "credit_corp_volume",
-         "label": "Прирост корпоративного кредита в экономике → портфель Сбера → процентный доход",
-         "var": "credit_corp",
-         "delta_var": -1.4,
-         "var_from": 11.9,
-         "var_to": 10.5,
-         "base": -15.96,
-         "low": -74.1,
-         "high": 20.9,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 13.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "модификатор reg_capital_growth_cap: ×0.95"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 10.5
-        },
-        {
-         "id": "gdp_fees_activity",
-         "label": "Рост экономики → транзакционная активность и деловой оборот → комиссионные доходы",
-         "var": "gdp",
-         "delta_var": 1.0,
-         "var_from": 1.0,
-         "var_to": 2.0,
-         "base": 12.0,
-         "low": 3.0,
-         "high": 30.0,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 2.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.0
-        }
-       ],
-       "width_drivers": [
-        "rate_asset_repricing",
-        "credit_hh_volume",
-        "rate_liability_repricing"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 1707.4,
-       "delta": {
-        "base": 29.5,
-        "low": -499.4,
-        "high": 644.6
-       },
-       "value": {
-        "base": 1736.9,
-        "low": 1208.0,
-        "high": 2352.1
-       },
-       "pct": {
-        "base": 1.7,
-        "low": -29.2,
-        "high": 37.8
-       },
-       "dominant_factor": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-       "dominant_factor_id": "rate_asset_repricing",
-       "contributions": [
-        {
-         "id": "rate_asset_repricing",
-         "label": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": -1519.4,
-         "low": -1668.8,
-         "high": -1512.0,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 13.7
-        },
-        {
-         "id": "rate_liability_repricing",
-         "label": "Ключевая ставка → переоценка пассивов с бетой депозитов (срочные вклады против текущих счетов) → процентный расход",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 1235.85,
-         "low": 1198.4,
-         "high": 1400.0,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 17.6
-        },
-        {
-         "id": "rate_cost_of_risk",
-         "label": "Ключевая ставка → долговая нагрузка заёмщиков → стоимость риска → резервы под кредитные убытки",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 180.56,
-         "low": 126.0,
-         "high": 285.6,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.75"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 14.0
-        },
-        {
-         "id": "rate_securities_revaluation",
-         "label": "Ключевая ставка → переоценка портфеля ценных бумаг (в основном в капитал, частично в прибыль) — ⚠ канал с природой разового",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 85.6,
-         "low": 44.8,
-         "high": 156.8,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.8
-        },
-        {
-         "id": "credit_hh_volume",
-         "label": "Прирост кредита населению → розничный портфель Сбера → процентный и комиссионный доход",
-         "var": "credit_hh",
-         "delta_var": 7.7,
-         "var_from": 2.8,
-         "var_to": 10.5,
-         "base": 72.77,
-         "low": 23.4,
-         "high": 165.24,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 13.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "модификатор reg_macroprudential: ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 12.4
-        },
-        {
-         "id": "rate_origination_volume",
-         "label": "Ключевая ставка → доступность кредита и объём выдач → комиссии за выдачу и страхование, маржа новых кредитов",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 53.5,
-         "low": 22.4,
-         "high": 100.8,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8",
-          "порог subsidized_share_new_mortgage < 55.0: ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.9
-        },
-        {
-         "id": "unemployment_cost_of_risk",
-         "label": "Безработица → потеря дохода заёмщиков → стоимость риска → резервы",
-         "var": "unemployment",
-         "delta_var": 0.55,
-         "var_from": 2.3,
-         "var_to": 2.85,
-         "base": -51.7,
-         "low": -126.0,
-         "high": -12.0,
-         "var_value_in_low_set": 3.2,
-         "var_value_in_high_set": 2.5,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 10.0
-        },
-        {
-         "id": "wage_opex",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда банка → операционные расходы",
-         "var": "nominal_wage",
-         "delta_var": -7.9,
-         "var_from": 14.4,
-         "var_to": 6.5,
-         "base": 26.07,
-         "low": 15.73,
-         "high": 40.05,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.1
-        },
-        {
-         "id": "inst_windfall_tax",
-         "label": "Налоговая мишень: разовый налог на сверхприбыль банков (вероятность × размер)",
-         "kind": "institutional",
-         "base": -25.0,
-         "low": -45.0,
-         "high": -5.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 3.5
-        },
-        {
-         "id": "inst_preferential_lending_burden",
-         "label": "Бремя инструмента госполитики: кредитование по нерыночным ставкам сверх бюджетной компенсации",
-         "kind": "institutional",
-         "base": -25.0,
-         "low": -25.0,
-         "high": -25.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "credit_corp_volume",
-         "label": "Прирост корпоративного кредита в экономике → портфель Сбера → процентный доход",
-         "var": "credit_corp",
-         "delta_var": -1.4,
-         "var_from": 11.9,
-         "var_to": 10.5,
-         "base": -11.97,
-         "low": -55.58,
-         "high": 15.67,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 13.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "модификатор reg_capital_growth_cap: ×0.95"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.2
-        },
-        {
-         "id": "gdp_fees_activity",
-         "label": "Рост экономики → транзакционная активность и деловой оборот → комиссионные доходы",
-         "var": "gdp",
-         "delta_var": 1.0,
-         "var_from": 1.0,
-         "var_to": 2.0,
-         "base": 9.0,
-         "low": 2.25,
-         "high": 22.5,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 2.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.8
-        },
-        {
-         "id": "inflation_opex_fees",
-         "label": "Инфляция → две встречные ноги: индексация неперсональных расходов и рост адвалорных комиссий",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": -0.8,
-         "low": -11.98,
-         "high": 11.98,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.1
-        }
-       ],
-       "width_drivers": [
-        "rate_liability_repricing",
-        "rate_cost_of_risk",
-        "rate_asset_repricing"
-       ]
-      }
-     },
-     "flags": [],
-     "missing_vars": []
     }
    }
   },
@@ -1789,9 +1348,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -1824,6 +1383,51 @@
        "high": 76.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -2348,9 +1952,9 @@
        "high": 18.0
       },
       "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 85.0,
@@ -2383,6 +1987,51 @@
        "high": 58.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 9.0,
+       "high": 11.0,
+       "mid": 10.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "9–11%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 3.7,
+       "high": 5.1,
+       "mid": 4.4,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "3,7–5,1%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 2.5,
+       "high": 3.5,
+       "mid": 3.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "2,5–3,5%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 85.0,
+       "high": 93.0,
+       "mid": 89.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "85–93 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -2827,561 +2476,6 @@
      },
      "flags": [],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Дезинфляционный 2028",
-     "scenario_id": "disinflation",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "key_rate_avg": {
-       "low": 7.0,
-       "mid": 7.5,
-       "high": 8.0
-      },
-      "gdp": {
-       "low": 2.0,
-       "mid": 2.5,
-       "high": 3.0
-      },
-      "consumption_hh": {
-       "low": 2.0,
-       "mid": 2.5,
-       "high": 3.0
-      },
-      "gfcf": {
-       "low": 2.5,
-       "mid": 3.5,
-       "high": 4.5
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "money_supply": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_total": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "credit_corp": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "credit_hh": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "mortgage": {
-       "low": 11.0,
-       "mid": 13.5,
-       "high": 16.0
-      },
-      "current_account": {
-       "low": 9.0,
-       "mid": 9.0,
-       "high": 9.0
-      },
-      "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
-      },
-      "usdrub_avg": {
-       "low": 89.0,
-       "mid": 93.0,
-       "high": 97.0
-      },
-      "real_wage": {
-       "low": 3.0,
-       "mid": 4.0,
-       "high": 5.0
-      },
-      "nominal_wage": {
-       "low": 7.0,
-       "mid": 8.0,
-       "high": 9.0
-      },
-      "unemployment": {
-       "low": 2.3,
-       "mid": 2.55,
-       "high": 2.8
-      },
-      "mortgage_rate_market": {
-       "low": 10.5,
-       "mid": 11.15,
-       "high": 11.8
-      },
-      "subsidized_share_new_mortgage": {
-       "low": 35.0,
-       "mid": 42.5,
-       "high": 50.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 4389.7,
-       "delta": {
-        "base": -242.3,
-        "low": -680.4,
-        "high": 267.6
-       },
-       "value": {
-        "base": 4147.4,
-        "low": 3709.3,
-        "high": 4657.3
-       },
-       "pct": {
-        "base": -5.5,
-        "low": -15.5,
-        "high": 6.1
-       },
-       "dominant_factor": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-       "dominant_factor_id": "rate_asset_repricing",
-       "contributions": [
-        {
-         "id": "rate_asset_repricing",
-         "label": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": -2211.3,
-         "low": -2415.6,
-         "high": -2016.0,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 42.2
-        },
-        {
-         "id": "rate_liability_repricing",
-         "label": "Ключевая ставка → переоценка пассивов с бетой депозитов (срочные вклады против текущих счетов) → процентный расход",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 1801.8,
-         "low": 1744.6,
-         "high": 1870.4,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 13.3
-        },
-        {
-         "id": "credit_hh_volume",
-         "label": "Прирост кредита населению → розничный портфель Сбера → процентный и комиссионный доход",
-         "var": "credit_hh",
-         "delta_var": 8.7,
-         "var_from": 2.8,
-         "var_to": 11.5,
-         "base": 103.53,
-         "low": 36.89,
-         "high": 228.48,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "модификатор reg_macroprudential: ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 20.2
-        },
-        {
-         "id": "rate_origination_volume",
-         "label": "Ключевая ставка → доступность кредита и объём выдач → комиссии за выдачу и страхование, маржа новых кредитов",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 73.71,
-         "low": 32.94,
-         "high": 120.96,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8",
-          "порог subsidized_share_new_mortgage < 55.0: ×1.25",
-          "модификатор inst_subsidized_credit: ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.3
-        },
-        {
-         "id": "inflation_opex_fees",
-         "label": "Инфляция → две встречные ноги: индексация неперсональных расходов и рост адвалорных комиссий",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": -23.97,
-         "low": -35.95,
-         "high": -11.98,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.5
-        },
-        {
-         "id": "gdp_fees_activity",
-         "label": "Рост экономики → транзакционная активность и деловой оборот → комиссионные доходы",
-         "var": "gdp",
-         "delta_var": 1.5,
-         "var_from": 1.0,
-         "var_to": 2.5,
-         "base": 18.0,
-         "low": 6.0,
-         "high": 40.0,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.6
-        },
-        {
-         "id": "credit_corp_volume",
-         "label": "Прирост корпоративного кредита в экономике → портфель Сбера → процентный доход",
-         "var": "credit_corp",
-         "delta_var": -0.4,
-         "var_from": 11.9,
-         "var_to": 11.5,
-         "base": -4.08,
-         "low": -49.3,
-         "high": 35.7,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "модификатор reg_capital_growth_cap: ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.0
-        }
-       ],
-       "width_drivers": [
-        "rate_asset_repricing",
-        "credit_hh_volume",
-        "rate_liability_repricing"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 1707.4,
-       "delta": {
-        "base": 103.5,
-        "low": -415.2,
-        "high": 737.1
-       },
-       "value": {
-        "base": 1810.9,
-        "low": 1292.2,
-        "high": 2444.5
-       },
-       "pct": {
-        "base": 6.1,
-        "low": -24.3,
-        "high": 43.2
-       },
-       "dominant_factor": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-       "dominant_factor_id": "rate_asset_repricing",
-       "contributions": [
-        {
-         "id": "rate_asset_repricing",
-         "label": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": -1661.4,
-         "low": -1817.8,
-         "high": -1647.0,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 14.8
-        },
-        {
-         "id": "rate_liability_repricing",
-         "label": "Ключевая ставка → переоценка пассивов с бетой депозитов (срочные вклады против текущих счетов) → процентный расход",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 1351.35,
-         "low": 1305.4,
-         "high": 1525.0,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 19.1
-        },
-        {
-         "id": "rate_cost_of_risk",
-         "label": "Ключевая ставка → долговая нагрузка заёмщиков → стоимость риска → резервы под кредитные убытки",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 197.44,
-         "low": 137.25,
-         "high": 311.1,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.75"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 15.1
-        },
-        {
-         "id": "rate_securities_revaluation",
-         "label": "Ключевая ставка → переоценка портфеля ценных бумаг (в основном в капитал, частично в прибыль) — ⚠ канал с природой разового",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 93.6,
-         "low": 48.8,
-         "high": 170.8,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 10.6
-        },
-        {
-         "id": "credit_hh_volume",
-         "label": "Прирост кредита населению → розничный портфель Сбера → процентный и комиссионный доход",
-         "var": "credit_hh",
-         "delta_var": 8.7,
-         "var_from": 2.8,
-         "var_to": 11.5,
-         "base": 77.65,
-         "low": 26.35,
-         "high": 171.36,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "модификатор reg_macroprudential: ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 12.6
-        },
-        {
-         "id": "rate_origination_volume",
-         "label": "Ключевая ставка → доступность кредита и объём выдач → комиссии за выдачу и страхование, маржа новых кредитов",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 52.65,
-         "low": 21.96,
-         "high": 98.82,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8",
-          "порог subsidized_share_new_mortgage < 55.0: ×1.25",
-          "модификатор inst_subsidized_credit: ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.7
-        },
-        {
-         "id": "unemployment_cost_of_risk",
-         "label": "Безработица → потеря дохода заёмщиков → стоимость риска → резервы",
-         "var": "unemployment",
-         "delta_var": 0.25,
-         "var_from": 2.3,
-         "var_to": 2.55,
-         "base": -23.5,
-         "low": -70.0,
-         "high": -0.0,
-         "var_value_in_low_set": 2.8,
-         "var_value_in_high_set": 2.3,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.1
-        },
-        {
-         "id": "wage_opex",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда банка → операционные расходы",
-         "var": "nominal_wage",
-         "delta_var": -6.4,
-         "var_from": 14.4,
-         "var_to": 8.0,
-         "base": 21.12,
-         "low": 12.31,
-         "high": 33.3,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.8
-        },
-        {
-         "id": "inst_preferential_lending_burden",
-         "label": "Бремя инструмента госполитики: кредитование по нерыночным ставкам сверх бюджетной компенсации",
-         "kind": "institutional",
-         "base": -15.0,
-         "low": -15.0,
-         "high": -15.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 0.0
-        },
-        {
-         "id": "gdp_fees_activity",
-         "label": "Рост экономики → транзакционная активность и деловой оборот → комиссионные доходы",
-         "var": "gdp",
-         "delta_var": 1.5,
-         "var_from": 1.0,
-         "var_to": 2.5,
-         "base": 13.5,
-         "low": 4.5,
-         "high": 30.0,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 2.2
-        },
-        {
-         "id": "inst_windfall_tax",
-         "label": "Налоговая мишень: разовый налог на сверхприбыль банков (вероятность × размер)",
-         "kind": "institutional",
-         "base": -12.5,
-         "low": -25.0,
-         "high": 0.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.2
-        },
-        {
-         "id": "geo_payments_sanctions",
-         "label": "Санкционные ограничения расчётов и комплаенс-издержки",
-         "kind": "geo",
-         "base": 12.5,
-         "low": 5.0,
-         "high": 20.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 1.3
-        },
-        {
-         "id": "credit_corp_volume",
-         "label": "Прирост корпоративного кредита в экономике → портфель Сбера → процентный доход",
-         "var": "credit_corp",
-         "delta_var": -0.4,
-         "var_from": 11.9,
-         "var_to": 11.5,
-         "base": -3.06,
-         "low": -36.98,
-         "high": 26.77,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "модификатор reg_capital_growth_cap: ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.5
-        },
-        {
-         "id": "inflation_opex_fees",
-         "label": "Инфляция → две встречные ноги: индексация неперсональных расходов и рост адвалорных комиссий",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": -0.8,
-         "low": -11.98,
-         "high": 11.98,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.1
-        }
-       ],
-       "width_drivers": [
-        "rate_liability_repricing",
-        "rate_cost_of_risk",
-        "rate_asset_repricing"
-       ]
-      }
-     },
-     "flags": [],
-     "missing_vars": []
     }
    }
   },
@@ -3464,9 +2558,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -3499,6 +2593,51 @@
        "high": 80.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -4023,9 +3162,9 @@
        "high": 10.0
       },
       "oil_tax_price": {
-       "low": 45.0,
-       "mid": 45.0,
-       "high": 45.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 90.0,
@@ -4058,6 +3197,51 @@
        "high": 78.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 13.0,
+       "high": 15.0,
+       "mid": 14.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "13–15%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 4.6,
+       "high": 5.9,
+       "mid": 5.25,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "4,6–5,9%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 1.0,
+       "high": 2.0,
+       "mid": 1.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "1–2%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 90.0,
+       "high": 100.0,
+       "mid": 95.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "90–100 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -4500,559 +3684,6 @@
      },
      "flags": [],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Проинфляционный 2028",
-     "scenario_id": "proinflation",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.25,
-       "high": 4.5
-      },
-      "key_rate_avg": {
-       "low": 11.0,
-       "mid": 11.5,
-       "high": 12.0
-      },
-      "gdp": {
-       "low": 0.5,
-       "mid": 1.0,
-       "high": 1.5
-      },
-      "consumption_hh": {
-       "low": 0.0,
-       "mid": 0.5,
-       "high": 1.0
-      },
-      "gfcf": {
-       "low": 0.0,
-       "mid": 1.0,
-       "high": 2.0
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": -2.0,
-       "mid": -1.0,
-       "high": 0.0
-      },
-      "money_supply": {
-       "low": 7.0,
-       "mid": 9.5,
-       "high": 12.0
-      },
-      "credit_total": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_corp": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_hh": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "mortgage": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "current_account": {
-       "low": 13.0,
-       "mid": 13.0,
-       "high": 13.0
-      },
-      "oil_tax_price": {
-       "low": 45.0,
-       "mid": 45.0,
-       "high": 45.0
-      },
-      "usdrub_avg": {
-       "low": 95.0,
-       "mid": 100.0,
-       "high": 105.0
-      },
-      "real_wage": {
-       "low": 0.0,
-       "mid": 1.0,
-       "high": 2.0
-      },
-      "nominal_wage": {
-       "low": 5.0,
-       "mid": 6.25,
-       "high": 7.5
-      },
-      "unemployment": {
-       "low": 2.5,
-       "mid": 2.85,
-       "high": 3.2
-      },
-      "mortgage_rate_market": {
-       "low": 14.8,
-       "mid": 15.4,
-       "high": 16.0
-      },
-      "subsidized_share_new_mortgage": {
-       "low": 60.0,
-       "mid": 67.5,
-       "high": 75.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 4389.7,
-       "delta": {
-        "base": -209.5,
-        "low": -567.8,
-        "high": 157.2
-       },
-       "value": {
-        "base": 4180.2,
-        "low": 3821.9,
-        "high": 4546.9
-       },
-       "pct": {
-        "base": -4.8,
-        "low": -12.9,
-        "high": 3.6
-       },
-       "dominant_factor": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-       "dominant_factor_id": "rate_asset_repricing",
-       "contributions": [
-        {
-         "id": "rate_asset_repricing",
-         "label": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": -1455.3,
-         "low": -1623.6,
-         "high": -1296.0,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 12.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 45.2
-        },
-        {
-         "id": "rate_liability_repricing",
-         "label": "Ключевая ставка → переоценка пассивов с бетой депозитов (срочные вклады против текущих счетов) → процентный расход",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 1185.8,
-         "low": 1172.6,
-         "high": 1202.4,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 12.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.1
-        },
-        {
-         "id": "credit_hh_volume",
-         "label": "Прирост кредита населению → розничный портфель Сбера → процентный и комиссионный доход",
-         "var": "credit_hh",
-         "delta_var": 5.7,
-         "var_from": 2.8,
-         "var_to": 8.5,
-         "base": 71.82,
-         "low": 20.16,
-         "high": 177.12,
-         "var_value_in_low_set": 6.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "модификатор reg_macroprudential: ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 21.7
-        },
-        {
-         "id": "rate_origination_volume",
-         "label": "Ключевая ставка → доступность кредита и объём выдач → комиссии за выдачу и страхование, маржа новых кредитов",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 49.59,
-         "low": 22.63,
-         "high": 79.49,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 12.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8",
-          "модификатор inst_subsidized_credit: ×1.15"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.8
-        },
-        {
-         "id": "credit_corp_volume",
-         "label": "Прирост корпоративного кредита в экономике → портфель Сбера → процентный доход",
-         "var": "credit_corp",
-         "delta_var": -3.4,
-         "var_from": 11.9,
-         "var_to": 8.5,
-         "base": -38.76,
-         "low": -112.1,
-         "high": -5.13,
-         "var_value_in_low_set": 6.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "модификатор reg_capital_growth_cap: ×0.95"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 14.8
-        },
-        {
-         "id": "inflation_opex_fees",
-         "label": "Инфляция → две встречные ноги: индексация неперсональных расходов и рост адвалорных комиссий",
-         "var": "inflation_avg",
-         "delta_var": -4.45,
-         "var_from": 8.7,
-         "var_to": 4.25,
-         "base": -22.69,
-         "low": -35.95,
-         "high": -10.71,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.5,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.5
-        },
-        {
-         "id": "gdp_fees_activity",
-         "label": "Рост экономики → транзакционная активность и деловой оборот → комиссионные доходы",
-         "var": "gdp",
-         "delta_var": 0.0,
-         "var_from": 1.0,
-         "var_to": 1.0,
-         "base": 0.0,
-         "low": -11.5,
-         "high": 10.0,
-         "var_value_in_low_set": 0.5,
-         "var_value_in_high_set": 1.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.0
-        }
-       ],
-       "width_drivers": [
-        "rate_asset_repricing",
-        "credit_hh_volume",
-        "credit_corp_volume"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 1707.4,
-       "delta": {
-        "base": -65.9,
-        "low": -537.8,
-        "high": 445.6
-       },
-       "value": {
-        "base": 1641.5,
-        "low": 1169.6,
-        "high": 2153.0
-       },
-       "pct": {
-        "base": -3.9,
-        "low": -31.5,
-        "high": 26.1
-       },
-       "dominant_factor": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-       "dominant_factor_id": "rate_asset_repricing",
-       "contributions": [
-        {
-         "id": "rate_asset_repricing",
-         "label": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": -1093.4,
-         "low": -1221.8,
-         "high": -1107.0,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 11.7
-        },
-        {
-         "id": "rate_liability_repricing",
-         "label": "Ключевая ставка → переоценка пассивов с бетой депозитов (срочные вклады против текущих счетов) → процентный расход",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 889.35,
-         "low": 877.4,
-         "high": 1025.0,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 15.0
-        },
-        {
-         "id": "rate_cost_of_risk",
-         "label": "Ключевая ставка → долговая нагрузка заёмщиков → стоимость риска → резервы под кредитные убытки",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 129.94,
-         "low": 92.25,
-         "high": 209.1,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.75"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 11.9
-        },
-        {
-         "id": "rate_securities_revaluation",
-         "label": "Ключевая ставка → переоценка портфеля ценных бумаг (в основном в капитал, частично в прибыль) — ⚠ канал с природой разового",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 61.6,
-         "low": 32.8,
-         "high": 114.8,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 8.3
-        },
-        {
-         "id": "credit_hh_volume",
-         "label": "Прирост кредита населению → розничный портфель Сбера → процентный и комиссионный доход",
-         "var": "credit_hh",
-         "delta_var": 5.7,
-         "var_from": 2.8,
-         "var_to": 8.5,
-         "base": 53.87,
-         "low": 14.4,
-         "high": 132.84,
-         "var_value_in_low_set": 6.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "модификатор reg_macroprudential: ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 12.0
-        },
-        {
-         "id": "unemployment_cost_of_risk",
-         "label": "Безработица → потеря дохода заёмщиков → стоимость риска → резервы",
-         "var": "unemployment",
-         "delta_var": 0.55,
-         "var_from": 2.3,
-         "var_to": 2.85,
-         "base": -51.7,
-         "low": -126.0,
-         "high": -12.0,
-         "var_value_in_low_set": 3.2,
-         "var_value_in_high_set": 2.5,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 11.6
-        },
-        {
-         "id": "inst_windfall_tax",
-         "label": "Налоговая мишень: разовый налог на сверхприбыль банков (вероятность × размер)",
-         "kind": "institutional",
-         "base": -42.5,
-         "low": -70.0,
-         "high": -15.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 5.6
-        },
-        {
-         "id": "rate_origination_volume",
-         "label": "Ключевая ставка → доступность кредита и объём выдач → комиссии за выдачу и страхование, маржа новых кредитов",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 35.42,
-         "low": 15.09,
-         "high": 67.9,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8",
-          "модификатор inst_subsidized_credit: ×1.15"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.4
-        },
-        {
-         "id": "inst_preferential_lending_burden",
-         "label": "Бремя инструмента госполитики: кредитование по нерыночным ставкам сверх бюджетной компенсации",
-         "kind": "institutional",
-         "base": -35.0,
-         "low": -45.0,
-         "high": -25.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.0
-        },
-        {
-         "id": "credit_corp_volume",
-         "label": "Прирост корпоративного кредита в экономике → портфель Сбера → процентный доход",
-         "var": "credit_corp",
-         "delta_var": -3.4,
-         "var_from": 11.9,
-         "var_to": 8.5,
-         "base": -29.07,
-         "low": -84.08,
-         "high": -3.85,
-         "var_value_in_low_set": 6.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "модификатор reg_capital_growth_cap: ×0.95"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 8.2
-        },
-        {
-         "id": "wage_opex",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда банка → операционные расходы",
-         "var": "nominal_wage",
-         "delta_var": -8.15,
-         "var_from": 14.4,
-         "var_to": 6.25,
-         "base": 26.89,
-         "low": 15.73,
-         "high": 42.3,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.7
-        },
-        {
-         "id": "geo_payments_sanctions",
-         "label": "Санкционные ограничения расчётов и комплаенс-издержки",
-         "kind": "geo",
-         "base": -10.5,
-         "low": -18.0,
-         "high": -3.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 1.5
-        },
-        {
-         "id": "inflation_opex_fees",
-         "label": "Инфляция → две встречные ноги: индексация неперсональных расходов и рост адвалорных комиссий",
-         "var": "inflation_avg",
-         "delta_var": -4.45,
-         "var_from": 8.7,
-         "var_to": 4.25,
-         "base": -0.76,
-         "low": -11.98,
-         "high": 11.98,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.4
-        },
-        {
-         "id": "gdp_fees_activity",
-         "label": "Рост экономики → транзакционная активность и деловой оборот → комиссионные доходы",
-         "var": "gdp",
-         "delta_var": 0.0,
-         "var_from": 1.0,
-         "var_to": 1.0,
-         "base": 0.0,
-         "low": -8.62,
-         "high": 7.5,
-         "var_value_in_low_set": 0.5,
-         "var_value_in_high_set": 1.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.6
-        }
-       ],
-       "width_drivers": [
-        "rate_liability_repricing",
-        "credit_hh_volume",
-        "rate_cost_of_risk"
-       ]
-      }
-     },
-     "flags": [],
-     "missing_vars": []
     }
    }
   },
@@ -5135,9 +3766,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -5170,6 +3801,51 @@
        "high": 80.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -5686,9 +4362,9 @@
        "high": 5.0
       },
       "oil_tax_price": {
-       "low": 35.0,
-       "mid": 35.0,
-       "high": 35.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 105.0,
@@ -5721,6 +4397,51 @@
        "high": 78.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 19.0,
+       "high": 21.0,
+       "mid": 20.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "19–21%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 7.3,
+       "high": 9.3,
+       "mid": 8.3,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "7,3–9,3%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": -4.0,
+       "high": -3.0,
+       "mid": -3.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "от −4 до −3%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 105.0,
+       "high": 125.0,
+       "mid": 115.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "105–125 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -6171,561 +4892,6 @@
      },
      "flags": [],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Рисковый 2028",
-     "scenario_id": "risk",
-     "conditions": {
-      "inflation_dec": {
-       "low": 5.0,
-       "mid": 6.0,
-       "high": 7.0
-      },
-      "inflation_avg": {
-       "low": 9.3,
-       "mid": 10.35,
-       "high": 11.4
-      },
-      "key_rate_avg": {
-       "low": 14.0,
-       "mid": 15.0,
-       "high": 16.0
-      },
-      "gdp": {
-       "low": -2.5,
-       "mid": -2.0,
-       "high": -1.5
-      },
-      "consumption_hh": {
-       "low": -6.5,
-       "mid": -6.0,
-       "high": -5.5
-      },
-      "gfcf": {
-       "low": -2.0,
-       "mid": -1.0,
-       "high": 0.0
-      },
-      "exports_vol": {
-       "low": -3.0,
-       "mid": -2.0,
-       "high": -1.0
-      },
-      "imports_vol": {
-       "low": -20.0,
-       "mid": -19.0,
-       "high": -18.0
-      },
-      "money_supply": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_total": {
-       "low": 2.0,
-       "mid": 4.5,
-       "high": 7.0
-      },
-      "credit_corp": {
-       "low": 3.0,
-       "mid": 5.5,
-       "high": 8.0
-      },
-      "credit_hh": {
-       "low": -1.0,
-       "mid": 1.5,
-       "high": 4.0
-      },
-      "mortgage": {
-       "low": 2.0,
-       "mid": 4.5,
-       "high": 7.0
-      },
-      "current_account": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "oil_tax_price": {
-       "low": 25.0,
-       "mid": 25.0,
-       "high": 25.0
-      },
-      "usdrub_avg": {
-       "low": 115.0,
-       "mid": 127.5,
-       "high": 140.0
-      },
-      "real_wage": {
-       "low": -6.0,
-       "mid": -4.5,
-       "high": -3.0
-      },
-      "nominal_wage": {
-       "low": 4.0,
-       "mid": 5.5,
-       "high": 7.0
-      },
-      "unemployment": {
-       "low": 4.5,
-       "mid": 5.25,
-       "high": 6.0
-      },
-      "mortgage_rate_market": {
-       "low": 18.5,
-       "mid": 19.75,
-       "high": 21.0
-      },
-      "subsidized_share_new_mortgage": {
-       "low": 48.0,
-       "mid": 60.0,
-       "high": 72.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 4389.7,
-       "delta": {
-        "base": -233.3,
-        "low": -638.7,
-        "high": 48.3
-       },
-       "value": {
-        "base": 4156.4,
-        "low": 3751.0,
-        "high": 4438.0
-       },
-       "pct": {
-        "base": -5.3,
-        "low": -14.5,
-        "high": 1.1
-       },
-       "dominant_factor": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-       "dominant_factor_id": "rate_asset_repricing",
-       "contributions": [
-        {
-         "id": "rate_asset_repricing",
-         "label": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": -793.8,
-         "low": -1029.6,
-         "high": -936.0,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 13.6
-        },
-        {
-         "id": "rate_liability_repricing",
-         "label": "Ключевая ставка → переоценка пассивов с бетой депозитов (срочные вклады против текущих счетов) → процентный расход",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 646.8,
-         "low": 743.6,
-         "high": 868.4,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 18.2
-        },
-        {
-         "id": "credit_corp_volume",
-         "label": "Прирост корпоративного кредита в экономике → портфель Сбера → процентный доход",
-         "var": "credit_corp",
-         "delta_var": -6.4,
-         "var_from": 11.9,
-         "var_to": 5.5,
-         "base": -76.8,
-         "low": -178.0,
-         "high": -23.4,
-         "var_value_in_low_set": 3.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 22.5
-        },
-        {
-         "id": "rate_origination_volume",
-         "label": "Ключевая ставка → доступность кредита и объём выдач → комиссии за выдачу и страхование, маржа новых кредитов",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 46.04,
-         "low": 24.43,
-         "high": 97.72,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8",
-          "порог mortgage_rate_market > 18.0: ×1.45",
-          "модификатор inst_subsidized_credit: ×1.35"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 10.7
-        },
-        {
-         "id": "gdp_fees_activity",
-         "label": "Рост экономики → транзакционная активность и деловой оборот → комиссионные доходы",
-         "var": "gdp",
-         "delta_var": -3.0,
-         "var_from": 1.0,
-         "var_to": -2.0,
-         "base": -41.4,
-         "low": -80.5,
-         "high": -17.25,
-         "var_value_in_low_set": -2.5,
-         "var_value_in_high_set": -1.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×1.15"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.2
-        },
-        {
-         "id": "credit_hh_volume",
-         "label": "Прирост кредита населению → розничный портфель Сбера → процентный и комиссионный доход",
-         "var": "credit_hh",
-         "delta_var": -1.3,
-         "var_from": 2.8,
-         "var_to": 1.5,
-         "base": -24.02,
-         "low": -120.38,
-         "high": 34.56,
-         "var_value_in_low_set": -1.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×1.1",
-          "порог mortgage < 5.0: ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 22.6
-        },
-        {
-         "id": "inflation_opex_fees",
-         "label": "Инфляция → две встречные ноги: индексация неперсональных расходов и рост адвалорных комиссий",
-         "var": "inflation_avg",
-         "delta_var": 1.65,
-         "var_from": 8.7,
-         "var_to": 10.35,
-         "base": 9.9,
-         "low": 1.8,
-         "high": 24.3,
-         "var_value_in_low_set": 9.3,
-         "var_value_in_high_set": 11.4,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.3
-        }
-       ],
-       "width_drivers": [
-        "credit_hh_volume",
-        "credit_corp_volume",
-        "rate_liability_repricing"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 1707.4,
-       "delta": {
-        "base": -588.8,
-        "low": -1342.5,
-        "high": 16.8
-       },
-       "value": {
-        "base": 1118.6,
-        "low": 364.9,
-        "high": 1724.2
-       },
-       "pct": {
-        "base": -34.5,
-        "low": -78.6,
-        "high": 1.0
-       },
-       "dominant_factor": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-       "dominant_factor_id": "rate_asset_repricing",
-       "contributions": [
-        {
-         "id": "rate_asset_repricing",
-         "label": "Ключевая ставка → переоценка активов (плавающие корпкредиты, короткие активы, льготная ипотека с бюджетной компенсацией) → процентный доход",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": -596.4,
-         "low": -774.8,
-         "high": -702.0,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 5.4
-        },
-        {
-         "id": "rate_liability_repricing",
-         "label": "Ключевая ставка → переоценка пассивов с бетой депозитов (срочные вклады против текущих счетов) → процентный расход",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 485.1,
-         "low": 556.4,
-         "high": 650.0,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.9
-        },
-        {
-         "id": "unemployment_cost_of_risk",
-         "label": "Безработица → потеря дохода заёмщиков → стоимость риска → резервы",
-         "var": "unemployment",
-         "delta_var": 2.95,
-         "var_from": 2.3,
-         "var_to": 5.25,
-         "base": -374.36,
-         "low": -699.3,
-         "high": -178.2,
-         "var_value_in_low_set": 6.0,
-         "var_value_in_high_set": 4.5,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [
-          "порог unemployment > 3.5: ×1.35"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 38.3
-        },
-        {
-         "id": "inst_windfall_tax",
-         "label": "Налоговая мишень: разовый налог на сверхприбыль банков (вероятность × размер)",
-         "kind": "institutional",
-         "base": -75.0,
-         "low": -120.0,
-         "high": -30.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 6.6
-        },
-        {
-         "id": "rate_cost_of_risk",
-         "label": "Ключевая ставка → долговая нагрузка заёмщиков → стоимость риска → резервы под кредитные убытки",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 70.87,
-         "low": 58.5,
-         "high": 132.6,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "оценено по истории",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.75"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.5
-        },
-        {
-         "id": "inst_preferential_lending_burden",
-         "label": "Бремя инструмента госполитики: кредитование по нерыночным ставкам сверх бюджетной компенсации",
-         "kind": "institutional",
-         "base": -60.0,
-         "low": -80.0,
-         "high": -40.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.9
-        },
-        {
-         "id": "credit_corp_volume",
-         "label": "Прирост корпоративного кредита в экономике → портфель Сбера → процентный доход",
-         "var": "credit_corp",
-         "delta_var": -6.4,
-         "var_from": 11.9,
-         "var_to": 5.5,
-         "base": -57.6,
-         "low": -133.5,
-         "high": -17.55,
-         "var_value_in_low_set": 3.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 8.5
-        },
-        {
-         "id": "rate_securities_revaluation",
-         "label": "Ключевая ставка → переоценка портфеля ценных бумаг (в основном в капитал, частично в прибыль) — ⚠ канал с природой разового",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 33.6,
-         "low": 20.8,
-         "high": 72.8,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.8
-        },
-        {
-         "id": "rate_origination_volume",
-         "label": "Ключевая ставка → доступность кредита и объём выдач → комиссии за выдачу и страхование, маржа новых кредитов",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 32.89,
-         "low": 16.29,
-         "high": 73.29,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.8",
-          "порог mortgage_rate_market > 18.0: ×1.45",
-          "модификатор inst_subsidized_credit: ×1.35"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.2
-        },
-        {
-         "id": "gdp_fees_activity",
-         "label": "Рост экономики → транзакционная активность и деловой оборот → комиссионные доходы",
-         "var": "gdp",
-         "delta_var": -3.0,
-         "var_from": 1.0,
-         "var_to": -2.0,
-         "base": -31.05,
-         "low": -60.37,
-         "high": -12.94,
-         "var_value_in_low_set": -2.5,
-         "var_value_in_high_set": -1.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×1.15"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.5
-        },
-        {
-         "id": "wage_opex",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда банка → операционные расходы",
-         "var": "nominal_wage",
-         "delta_var": -8.9,
-         "var_from": 14.4,
-         "var_to": 5.5,
-         "base": 29.37,
-         "low": 16.87,
-         "high": 46.8,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.2
-        },
-        {
-         "id": "geo_payments_sanctions",
-         "label": "Санкционные ограничения расчётов и комплаенс-издержки",
-         "kind": "geo",
-         "base": -28.5,
-         "low": -45.0,
-         "high": -12.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.4
-        },
-        {
-         "id": "credit_hh_volume",
-         "label": "Прирост кредита населению → розничный портфель Сбера → процентный и комиссионный доход",
-         "var": "credit_hh",
-         "delta_var": -1.3,
-         "var_from": 2.8,
-         "var_to": 1.5,
-         "base": -18.02,
-         "low": -90.29,
-         "high": 25.92,
-         "var_value_in_low_set": -1.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×1.1",
-          "порог mortgage < 5.0: ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 8.5
-        },
-        {
-         "id": "inflation_opex_fees",
-         "label": "Инфляция → две встречные ноги: индексация неперсональных расходов и рост адвалорных комиссий",
-         "var": "inflation_avg",
-         "delta_var": 1.65,
-         "var_from": 8.7,
-         "var_to": 10.35,
-         "base": 0.33,
-         "low": -8.1,
-         "high": 8.1,
-         "var_value_in_low_set": 11.4,
-         "var_value_in_high_set": 11.4,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.2
-        }
-       ],
-       "width_drivers": [
-        "unemployment_cost_of_risk",
-        "credit_corp_volume",
-        "credit_hh_volume"
-       ]
-      }
-     },
-     "flags": [],
-     "missing_vars": []
     }
    }
   }
@@ -6795,6 +4961,39 @@
     "high": 45.0
    }
   },
+  "conditions_core": [
+   {
+    "var": "key_rate_avg",
+    "label": "ключевая ставка, средняя за год",
+    "low": 21.0,
+    "high": 21.0,
+    "mid": 21.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "21%"
+   },
+   {
+    "var": "inflation_avg",
+    "label": "инфляция, средняя за год",
+    "low": 12.0,
+    "high": 12.0,
+    "mid": 12.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "12%"
+   },
+   {
+    "var": "gdp",
+    "label": "рост ВВП",
+    "low": -4.0,
+    "high": -4.0,
+    "mid": -4.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "−4%"
+   }
+  ],
+  "held_at_base": [],
   "lines": {
    "revenue": {
     "label": "выручка",

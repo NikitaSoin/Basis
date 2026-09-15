@@ -1,6 +1,6 @@
 {
  "ticker": "UNAC",
- "computed_at": "2026-09-15",
+ "computed_at": "2026-09-16",
  "unit": "млрд руб",
  "base_year": 2025,
  "base_financials": {
@@ -111,14 +111,24 @@
   },
   "display_years": [
    2026,
-   2027,
-   2028
+   2027
   ],
   "tab_years": [
-   2027,
-   2028
-  ]
+   2026,
+   2027
+  ],
+  "core_variables": [
+   "key_rate_avg",
+   "inflation_avg",
+   "gdp",
+   "usdrub_avg"
+  ],
+  "core_note": "Условия сценария, которые показываются инвестору: ключевая ставка, инфляция, ВВП (данные ЦБ) и курс рубля (достройка Basis). Остальные переменные ЦБ (потребление, инвестиции, кредит, ипотека) и достройки (зарплаты, безработица) участвуют в расчёте как производные того же сценария, но в таблице условий не показываются.",
+  "excluded_note": "Цены на нефть и прочее сырьё — не макроэкономика (решение владельца 15.09.2026): в расчёте сценариев они зафиксированы на уровне базового периода, их прогноз — область финансовой модели. Цена нефти ЦБ хранится в файле для справки, в расчёте вкладки не участвует."
  },
+ "held_at_base": [
+  "oil_tax_price"
+ ],
  "current_macro": {
   "as_of": "2026-09-14",
   "key_rate": 14.0,
@@ -221,9 +231,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -261,6 +271,51 @@
        "high": 184.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -974,9 +1029,9 @@
        "high": 25.0
       },
       "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 84.0,
@@ -1014,6 +1069,51 @@
        "high": 184.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 10.5,
+       "high": 12.5,
+       "mid": 11.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "10,5–12,5%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 4.3,
+       "high": 5.2,
+       "mid": 4.75,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "4,3–5,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 1.5,
+       "high": 2.5,
+       "mid": 2.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "1,5–2,5%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 84.0,
+       "high": 92.0,
+       "mid": 88.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "84–92 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -1653,761 +1753,6 @@
       "изменение прибыли +592% — линейность под вопросом, читать как порядок величины"
      ],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Базовый 2028",
-     "scenario_id": "base",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "key_rate_avg": {
-       "low": 8.0,
-       "mid": 8.5,
-       "high": 9.0
-      },
-      "gdp": {
-       "low": 1.5,
-       "mid": 2.0,
-       "high": 2.5
-      },
-      "consumption_hh": {
-       "low": 1.0,
-       "mid": 1.5,
-       "high": 2.0
-      },
-      "gfcf": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "money_supply": {
-       "low": 7.0,
-       "mid": 9.5,
-       "high": 12.0
-      },
-      "credit_total": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_corp": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_hh": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "mortgage": {
-       "low": 10.0,
-       "mid": 12.5,
-       "high": 15.0
-      },
-      "current_account": {
-       "low": 15.0,
-       "mid": 15.0,
-       "high": 15.0
-      },
-      "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
-      },
-      "usdrub_avg": {
-       "low": 88.0,
-       "mid": 92.0,
-       "high": 96.0
-      },
-      "real_wage": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "nominal_wage": {
-       "low": 5.5,
-       "mid": 6.5,
-       "high": 7.5
-      },
-      "unemployment": {
-       "low": 2.5,
-       "mid": 2.85,
-       "high": 3.2
-      },
-      "state_order_growth": {
-       "low": 9.0,
-       "mid": 14.5,
-       "high": 20.0
-      },
-      "civil_program_funding": {
-       "low": 10.0,
-       "mid": 22.5,
-       "high": 35.0
-      },
-      "payment_delay_days": {
-       "low": 164.0,
-       "mid": 174.0,
-       "high": 184.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 759.0,
-       "delta": {
-        "base": 84.8,
-        "low": 0.2,
-        "high": 192.4
-       },
-       "value": {
-        "base": 843.8,
-        "low": 759.2,
-        "high": 951.4
-       },
-       "pct": {
-        "base": 11.2,
-        "low": 0.0,
-        "high": 25.4
-       },
-       "dominant_factor": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-       "dominant_factor_id": "goz_military_supply",
-       "contributions": [
-        {
-         "id": "goz_military_supply",
-         "label": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-         "var": "state_order_growth",
-         "delta_var": 14.5,
-         "var_from": 0.0,
-         "var_to": 14.5,
-         "base": 55.1,
-         "low": 27.0,
-         "high": 92.0,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 20.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 33.8
-        },
-        {
-         "id": "civil_program_supply",
-         "label": "Бюджетное финансирование гражданской программы → МС-21, SJ-100, Ил-114, Ту-214 → выручка",
-         "var": "civil_program_funding",
-         "delta_var": 22.5,
-         "var_from": 0.0,
-         "var_to": 22.5,
-         "base": 26.1,
-         "low": 8.0,
-         "high": 56.0,
-         "var_value_in_low_set": 10.0,
-         "var_value_in_high_set": 35.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 25.0
-        },
-        {
-         "id": "geo_delivery_delay_revenue",
-         "label": "Сдвиг сроков серийных поставок из-за компонентов — перенос выручки",
-         "kind": "geo",
-         "base": -15.0,
-         "low": -40.0,
-         "high": 0.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 20.8
-        },
-        {
-         "id": "goz_mro",
-         "label": "Гособоронзаказ → модернизация, ремонт и сервис парка → выручка",
-         "var": "state_order_growth",
-         "delta_var": 14.5,
-         "var_from": 0.0,
-         "var_to": 14.5,
-         "base": 10.44,
-         "low": 4.05,
-         "high": 21.0,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 20.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 8.8
-        },
-        {
-         "id": "fx_operating",
-         "label": "Курс рубля → импортные компоненты и экспортная выручка (операционный канал)",
-         "var": "usdrub_avg",
-         "delta_var": 8.7,
-         "var_from": 83.3,
-         "var_to": 92.0,
-         "base": 4.7,
-         "low": 0.85,
-         "high": 13.72,
-         "var_value_in_low_set": 88.0,
-         "var_value_in_high_set": 96.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.7
-        },
-        {
-         "id": "rate_civil_lease_demand",
-         "label": "Ключевая ставка → стоимость лизинга гражданских самолётов → спрос авиакомпаний",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 2.25,
-         "low": -0.0,
-         "high": 6.72,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.5
-        },
-        {
-         "id": "gdp_civil_services",
-         "label": "Рост экономики → пассажиропоток и рыночные заказы → авиаперевозки и комплектующие",
-         "var": "gdp",
-         "delta_var": 1.0,
-         "var_from": 1.0,
-         "var_to": 2.0,
-         "base": 1.2,
-         "low": 0.3,
-         "high": 3.0,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 2.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.4
-        }
-       ],
-       "width_drivers": [
-        "goz_military_supply",
-        "civil_program_supply",
-        "geo_delivery_delay_revenue"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 105.2,
-       "delta": {
-        "base": 28.4,
-        "low": 0.8,
-        "high": 69.9
-       },
-       "value": {
-        "base": 133.6,
-        "low": 106.0,
-        "high": 175.1
-       },
-       "pct": {
-        "base": 27.0,
-        "low": 0.8,
-        "high": 66.4
-       },
-       "dominant_factor": "Инфляция → материалы, комплектующие и услуги смежников → маржа",
-       "dominant_factor_id": "cost_inflation_materials",
-       "contributions": [
-        {
-         "id": "cost_inflation_materials",
-         "label": "Инфляция → материалы, комплектующие и услуги смежников → маржа",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 10.53,
-         "low": 4.51,
-         "high": 16.92,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 18.0
-        },
-        {
-         "id": "wage_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → маржа",
-         "var": "nominal_wage",
-         "delta_var": -7.9,
-         "var_from": 14.4,
-         "var_to": 6.5,
-         "base": 8.9,
-         "low": 3.33,
-         "high": 17.19,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.7",
-          "порог unemployment < 3.0: ×1.15"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 20.1
-        },
-        {
-         "id": "goz_military_supply",
-         "label": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-         "var": "state_order_growth",
-         "delta_var": 14.5,
-         "var_from": 0.0,
-         "var_to": 14.5,
-         "base": 6.67,
-         "low": 1.35,
-         "high": 18.4,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 20.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 24.7
-        },
-        {
-         "id": "goz_mro",
-         "label": "Гособоронзаказ → модернизация, ремонт и сервис парка → выручка",
-         "var": "state_order_growth",
-         "delta_var": 14.5,
-         "var_from": 0.0,
-         "var_to": 14.5,
-         "base": 1.89,
-         "low": 0.45,
-         "high": 5.2,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 20.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.9
-        },
-        {
-         "id": "civil_program_supply",
-         "label": "Бюджетное финансирование гражданской программы → МС-21, SJ-100, Ил-114, Ту-214 → выручка",
-         "var": "civil_program_funding",
-         "delta_var": 22.5,
-         "var_from": 0.0,
-         "var_to": 22.5,
-         "base": 1.08,
-         "low": -1.96,
-         "high": 8.4,
-         "var_value_in_low_set": 35.0,
-         "var_value_in_high_set": 35.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 15.0
-        },
-        {
-         "id": "fx_operating",
-         "label": "Курс рубля → импортные компоненты и экспортная выручка (операционный канал)",
-         "var": "usdrub_avg",
-         "delta_var": 8.7,
-         "var_from": 83.3,
-         "var_to": 92.0,
-         "base": -1.04,
-         "low": -6.86,
-         "high": 2.29,
-         "var_value_in_low_set": 96.0,
-         "var_value_in_high_set": 96.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 13.2
-        },
-        {
-         "id": "rate_civil_lease_demand",
-         "label": "Ключевая ставка → стоимость лизинга гражданских самолётов → спрос авиакомпаний",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 0.26,
-         "low": -0.0,
-         "high": 1.01,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.5
-        },
-        {
-         "id": "gdp_civil_services",
-         "label": "Рост экономики → пассажиропоток и рыночные заказы → авиаперевозки и комплектующие",
-         "var": "gdp",
-         "delta_var": 1.0,
-         "var_from": 1.0,
-         "var_to": 2.0,
-         "base": 0.12,
-         "low": 0.01,
-         "high": 0.45,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 2.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.6
-        }
-       ],
-       "width_drivers": [
-        "goz_military_supply",
-        "wage_cost",
-        "cost_inflation_materials"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": -9.0,
-       "delta": {
-        "base": 63.8,
-        "low": -9.6,
-        "high": 161.0
-       },
-       "value": {
-        "base": 54.8,
-        "low": -18.6,
-        "high": 152.0
-       },
-       "pct": {
-        "base": 709.2,
-        "low": -107.1,
-        "high": 1788.4
-       },
-       "dominant_factor": "Ключевая ставка → проценты по рыночной части долга (за вычетом субсидируемой) → прибыль",
-       "dominant_factor_id": "rate_debt_interest",
-       "contributions": [
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → проценты по рыночной части долга (за вычетом субсидируемой) → прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 25.47,
-         "low": 15.61,
-         "high": 45.7,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 17.6
-        },
-        {
-         "id": "inst_state_recap",
-         "label": "Докапитализация и господдержка: гашение долга за счёт взносов государства",
-         "kind": "institutional",
-         "base": 25.0,
-         "low": 10.0,
-         "high": 50.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 23.4
-        },
-        {
-         "id": "cost_inflation_materials",
-         "label": "Инфляция → материалы, комплектующие и услуги смежников → маржа",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 10.15,
-         "low": 4.14,
-         "high": 16.17,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.1
-        },
-        {
-         "id": "wage_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → маржа",
-         "var": "nominal_wage",
-         "delta_var": -7.9,
-         "var_from": 14.4,
-         "var_to": 6.5,
-         "base": 8.59,
-         "low": 3.05,
-         "high": 16.48,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.7",
-          "порог unemployment < 3.0: ×1.15"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.9
-        },
-        {
-         "id": "geo_components_sanctions_np",
-         "label": "Санкции на компоненты: удорожание импортозамещения и простои",
-         "kind": "geo",
-         "base": -5.0,
-         "low": -12.0,
-         "high": 0.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 7.0
-        },
-        {
-         "id": "goz_military_supply",
-         "label": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-         "var": "state_order_growth",
-         "delta_var": 14.5,
-         "var_from": 0.0,
-         "var_to": 14.5,
-         "base": 3.62,
-         "low": -1.0,
-         "high": 14.0,
-         "var_value_in_low_set": 20.0,
-         "var_value_in_high_set": 20.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 8.8
-        },
-        {
-         "id": "rate_interest_income",
-         "label": "Ключевая ставка → доход на денежные остатки и авансы на счетах ГОЗ → прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": -3.21,
-         "low": -8.16,
-         "high": -1.12,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.1
-        },
-        {
-         "id": "inst_tax_burden",
-         "label": "Рост налоговой и административной нагрузки",
-         "kind": "institutional",
-         "base": -2.0,
-         "low": -5.0,
-         "high": 0.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.9
-        },
-        {
-         "id": "goz_mro",
-         "label": "Гособоронзаказ → модернизация, ремонт и сервис парка → выручка",
-         "var": "state_order_growth",
-         "delta_var": 14.5,
-         "var_from": 0.0,
-         "var_to": 14.5,
-         "base": 1.45,
-         "low": 0.4,
-         "high": 4.4,
-         "var_value_in_low_set": 20.0,
-         "var_value_in_high_set": 20.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 2.3
-        },
-        {
-         "id": "fx_revaluation",
-         "label": "Курс рубля → переоценка валютной позиции (разовый, неденежный)",
-         "var": "usdrub_avg",
-         "delta_var": 8.7,
-         "var_from": 83.3,
-         "var_to": 92.0,
-         "base": 1.31,
-         "low": 0.38,
-         "high": 3.81,
-         "var_value_in_low_set": 96.0,
-         "var_value_in_high_set": 96.0,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.0
-        },
-        {
-         "id": "fx_operating",
-         "label": "Курс рубля → импортные компоненты и экспортная выручка (операционный канал)",
-         "var": "usdrub_avg",
-         "delta_var": 8.7,
-         "var_from": 83.3,
-         "var_to": 92.0,
-         "base": -1.04,
-         "low": -6.86,
-         "high": 2.29,
-         "var_value_in_low_set": 96.0,
-         "var_value_in_high_set": 96.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.4
-        },
-        {
-         "id": "civil_program_supply",
-         "label": "Бюджетное финансирование гражданской программы → МС-21, SJ-100, Ил-114, Ту-214 → выручка",
-         "var": "civil_program_funding",
-         "delta_var": 22.5,
-         "var_from": 0.0,
-         "var_to": 22.5,
-         "base": -0.9,
-         "low": -7.0,
-         "high": 5.6,
-         "var_value_in_low_set": 35.0,
-         "var_value_in_high_set": 35.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.4
-        },
-        {
-         "id": "rate_civil_lease_demand",
-         "label": "Ключевая ставка → стоимость лизинга гражданских самолётов → спрос авиакомпаний",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 0.32,
-         "low": -0.0,
-         "high": 1.34,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 0.8
-        },
-        {
-         "id": "gdp_civil_services",
-         "label": "Рост экономики → пассажиропоток и рыночные заказы → авиаперевозки и комплектующие",
-         "var": "gdp",
-         "delta_var": 1.0,
-         "var_from": 1.0,
-         "var_to": 2.0,
-         "base": 0.08,
-         "low": 0.0,
-         "high": 0.38,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 2.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.2
-        },
-        {
-         "id": "payment_delay_wc",
-         "label": "Задержка расчётов и сокращение авансирования → оборотный капитал → проценты",
-         "var": "payment_delay_days",
-         "delta_var": 0.0,
-         "var_from": 174.0,
-         "var_to": 174.0,
-         "base": -0.0,
-         "low": -3.2,
-         "high": 1.92,
-         "var_value_in_low_set": 184.0,
-         "var_value_in_high_set": 164.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.0
-        }
-       ],
-       "width_drivers": [
-        "inst_state_recap",
-        "rate_debt_interest",
-        "goz_military_supply"
-       ]
-      }
-     },
-     "flags": [
-      "при неблагоприятных значениях входов прибыль уходит в убыток",
-      "изменение прибыли +709% — линейность под вопросом, читать как порядок величины"
-     ],
-     "missing_vars": []
     }
    }
   },
@@ -2490,9 +1835,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -2530,6 +1875,51 @@
        "high": 179.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -3250,9 +2640,9 @@
        "high": 18.0
       },
       "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 85.0,
@@ -3290,6 +2680,51 @@
        "high": 179.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 9.0,
+       "high": 11.0,
+       "mid": 10.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "9–11%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 3.7,
+       "high": 5.1,
+       "mid": 4.4,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "3,7–5,1%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 2.5,
+       "high": 3.5,
+       "mid": 3.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "2,5–3,5%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 85.0,
+       "high": 93.0,
+       "mid": 89.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "85–93 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -3936,768 +3371,6 @@
       "изменение прибыли +699% — линейность под вопросом, читать как порядок величины"
      ],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Дезинфляционный 2028",
-     "scenario_id": "disinflation",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "key_rate_avg": {
-       "low": 7.0,
-       "mid": 7.5,
-       "high": 8.0
-      },
-      "gdp": {
-       "low": 2.0,
-       "mid": 2.5,
-       "high": 3.0
-      },
-      "consumption_hh": {
-       "low": 2.0,
-       "mid": 2.5,
-       "high": 3.0
-      },
-      "gfcf": {
-       "low": 2.5,
-       "mid": 3.5,
-       "high": 4.5
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "money_supply": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_total": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "credit_corp": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "credit_hh": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "mortgage": {
-       "low": 11.0,
-       "mid": 13.5,
-       "high": 16.0
-      },
-      "current_account": {
-       "low": 9.0,
-       "mid": 9.0,
-       "high": 9.0
-      },
-      "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
-      },
-      "usdrub_avg": {
-       "low": 89.0,
-       "mid": 93.0,
-       "high": 97.0
-      },
-      "real_wage": {
-       "low": 3.0,
-       "mid": 4.0,
-       "high": 5.0
-      },
-      "nominal_wage": {
-       "low": 7.0,
-       "mid": 8.0,
-       "high": 9.0
-      },
-      "unemployment": {
-       "low": 2.3,
-       "mid": 2.55,
-       "high": 2.8
-      },
-      "state_order_growth": {
-       "low": 7.0,
-       "mid": 12.0,
-       "high": 17.0
-      },
-      "civil_program_funding": {
-       "low": 18.0,
-       "mid": 31.5,
-       "high": 45.0
-      },
-      "payment_delay_days": {
-       "low": 159.0,
-       "mid": 169.0,
-       "high": 179.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 759.0,
-       "delta": {
-        "base": 95.3,
-        "low": 20.2,
-        "high": 204.2
-       },
-       "value": {
-        "base": 854.3,
-        "low": 779.2,
-        "high": 963.2
-       },
-       "pct": {
-        "base": 12.6,
-        "low": 2.7,
-        "high": 26.9
-       },
-       "dominant_factor": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-       "dominant_factor_id": "goz_military_supply",
-       "contributions": [
-        {
-         "id": "goz_military_supply",
-         "label": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-         "var": "state_order_growth",
-         "delta_var": 12.0,
-         "var_from": 0.0,
-         "var_to": 12.0,
-         "base": 45.6,
-         "low": 21.0,
-         "high": 78.2,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 17.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 31.1
-        },
-        {
-         "id": "civil_program_supply",
-         "label": "Бюджетное финансирование гражданской программы → МС-21, SJ-100, Ил-114, Ту-214 → выручка",
-         "var": "civil_program_funding",
-         "delta_var": 31.5,
-         "var_from": 0.0,
-         "var_to": 31.5,
-         "base": 36.54,
-         "low": 14.4,
-         "high": 72.0,
-         "var_value_in_low_set": 18.0,
-         "var_value_in_high_set": 45.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 31.3
-        },
-        {
-         "id": "goz_mro",
-         "label": "Гособоронзаказ → модернизация, ремонт и сервис парка → выручка",
-         "var": "state_order_growth",
-         "delta_var": 12.0,
-         "var_from": 0.0,
-         "var_to": 12.0,
-         "base": 8.64,
-         "low": 3.15,
-         "high": 17.85,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 17.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 8.0
-        },
-        {
-         "id": "fx_operating",
-         "label": "Курс рубля → импортные компоненты и экспортная выручка (операционный канал)",
-         "var": "usdrub_avg",
-         "delta_var": 9.7,
-         "var_from": 83.3,
-         "var_to": 93.0,
-         "base": 5.24,
-         "low": 1.03,
-         "high": 14.8,
-         "var_value_in_low_set": 89.0,
-         "var_value_in_high_set": 97.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.5
-        },
-        {
-         "id": "geo_delivery_delay_revenue",
-         "label": "Сдвиг сроков серийных поставок из-за компонентов — перенос выручки",
-         "kind": "geo",
-         "base": -5.0,
-         "low": -20.0,
-         "high": 10.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 16.3
-        },
-        {
-         "id": "rate_civil_lease_demand",
-         "label": "Ключевая ставка → стоимость лизинга гражданских самолётов → спрос авиакомпаний",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 2.46,
-         "low": -0.0,
-         "high": 7.32,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.0
-        },
-        {
-         "id": "gdp_civil_services",
-         "label": "Рост экономики → пассажиропоток и рыночные заказы → авиаперевозки и комплектующие",
-         "var": "gdp",
-         "delta_var": 1.5,
-         "var_from": 1.0,
-         "var_to": 2.5,
-         "base": 1.8,
-         "low": 0.6,
-         "high": 4.0,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.8
-        }
-       ],
-       "width_drivers": [
-        "civil_program_supply",
-        "goz_military_supply",
-        "geo_delivery_delay_revenue"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 105.2,
-       "delta": {
-        "base": 23.9,
-        "low": -2.1,
-        "high": 63.1
-       },
-       "value": {
-        "base": 129.1,
-        "low": 103.1,
-        "high": 168.3
-       },
-       "pct": {
-        "base": 22.7,
-        "low": -2.0,
-        "high": 60.0
-       },
-       "dominant_factor": "Инфляция → материалы, комплектующие и услуги смежников → маржа",
-       "dominant_factor_id": "cost_inflation_materials",
-       "contributions": [
-        {
-         "id": "cost_inflation_materials",
-         "label": "Инфляция → материалы, комплектующие и услуги смежников → маржа",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 9.48,
-         "low": 4.06,
-         "high": 15.23,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8",
-          "модификатор inst_goz_pricing_materials: ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 17.1
-        },
-        {
-         "id": "wage_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → маржа",
-         "var": "nominal_wage",
-         "delta_var": -6.4,
-         "var_from": 14.4,
-         "var_to": 8.0,
-         "base": 6.49,
-         "low": 2.35,
-         "high": 12.87,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.7",
-          "порог unemployment < 3.0: ×1.15",
-          "модификатор inst_goz_pricing_wages: ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 16.1
-        },
-        {
-         "id": "goz_military_supply",
-         "label": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-         "var": "state_order_growth",
-         "delta_var": 12.0,
-         "var_from": 0.0,
-         "var_to": 12.0,
-         "base": 5.52,
-         "low": 1.05,
-         "high": 15.64,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 17.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 22.4
-        },
-        {
-         "id": "goz_mro",
-         "label": "Гособоронзаказ → модернизация, ремонт и сервис парка → выручка",
-         "var": "state_order_growth",
-         "delta_var": 12.0,
-         "var_from": 0.0,
-         "var_to": 12.0,
-         "base": 1.56,
-         "low": 0.35,
-         "high": 4.42,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 17.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.2
-        },
-        {
-         "id": "civil_program_supply",
-         "label": "Бюджетное финансирование гражданской программы → МС-21, SJ-100, Ил-114, Ту-214 → выручка",
-         "var": "civil_program_funding",
-         "delta_var": 31.5,
-         "var_from": 0.0,
-         "var_to": 31.5,
-         "base": 1.51,
-         "low": -2.52,
-         "high": 10.8,
-         "var_value_in_low_set": 45.0,
-         "var_value_in_high_set": 45.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 20.4
-        },
-        {
-         "id": "fx_operating",
-         "label": "Курс рубля → импортные компоненты и экспортная выручка (операционный канал)",
-         "var": "usdrub_avg",
-         "delta_var": 9.7,
-         "var_from": 83.3,
-         "var_to": 93.0,
-         "base": -1.16,
-         "low": -7.4,
-         "high": 2.47,
-         "var_value_in_low_set": 97.0,
-         "var_value_in_high_set": 97.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 15.1
-        },
-        {
-         "id": "rate_civil_lease_demand",
-         "label": "Ключевая ставка → стоимость лизинга гражданских самолётов → спрос авиакомпаний",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 0.28,
-         "low": -0.0,
-         "high": 1.1,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.7
-        },
-        {
-         "id": "gdp_civil_services",
-         "label": "Рост экономики → пассажиропоток и рыночные заказы → авиаперевозки и комплектующие",
-         "var": "gdp",
-         "delta_var": 1.5,
-         "var_from": 1.0,
-         "var_to": 2.5,
-         "base": 0.18,
-         "low": 0.03,
-         "high": 0.6,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.9
-        }
-       ],
-       "width_drivers": [
-        "goz_military_supply",
-        "civil_program_supply",
-        "cost_inflation_materials"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": -9.0,
-       "delta": {
-        "base": 69.6,
-        "low": -0.9,
-        "high": 164.2
-       },
-       "value": {
-        "base": 60.6,
-        "low": -9.9,
-        "high": 155.2
-       },
-       "pct": {
-        "base": 773.1,
-        "low": -10.0,
-        "high": 1824.5
-       },
-       "dominant_factor": "Докапитализация и господдержка: гашение долга за счёт взносов государства",
-       "dominant_factor_id": "inst_state_recap",
-       "contributions": [
-        {
-         "id": "inst_state_recap",
-         "label": "Докапитализация и господдержка: гашение долга за счёт взносов государства",
-         "kind": "institutional",
-         "base": 30.0,
-         "low": 15.0,
-         "high": 55.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 24.2
-        },
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → проценты по рыночной части долга (за вычетом субсидируемой) → прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 26.45,
-         "low": 16.28,
-         "high": 47.29,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85",
-          "модификатор inst_interest_subsidy_budget: ×0.95"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 18.8
-        },
-        {
-         "id": "cost_inflation_materials",
-         "label": "Инфляция → материалы, комплектующие и услуги смежников → маржа",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 9.14,
-         "low": 3.72,
-         "high": 14.55,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8",
-          "модификатор inst_goz_pricing_materials: ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.6
-        },
-        {
-         "id": "wage_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → маржа",
-         "var": "nominal_wage",
-         "delta_var": -6.4,
-         "var_from": 14.4,
-         "var_to": 8.0,
-         "base": 6.26,
-         "low": 2.15,
-         "high": 12.33,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.7",
-          "порог unemployment < 3.0: ×1.15",
-          "модификатор inst_goz_pricing_wages: ×0.9"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.2
-        },
-        {
-         "id": "rate_interest_income",
-         "label": "Ключевая ставка → доход на денежные остатки и авансы на счетах ГОЗ → прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": -3.51,
-         "low": -8.96,
-         "high": -1.22,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.7
-        },
-        {
-         "id": "goz_military_supply",
-         "label": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-         "var": "state_order_growth",
-         "delta_var": 12.0,
-         "var_from": 0.0,
-         "var_to": 12.0,
-         "base": 3.0,
-         "low": -0.85,
-         "high": 11.9,
-         "var_value_in_low_set": 17.0,
-         "var_value_in_high_set": 17.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 7.7
-        },
-        {
-         "id": "geo_components_sanctions_np",
-         "label": "Санкции на компоненты: удорожание импортозамещения и простои",
-         "kind": "geo",
-         "base": -2.0,
-         "low": -8.0,
-         "high": 2.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 6.1
-        },
-        {
-         "id": "fx_revaluation",
-         "label": "Курс рубля → переоценка валютной позиции (разовый, неденежный)",
-         "var": "usdrub_avg",
-         "delta_var": 9.7,
-         "var_from": 83.3,
-         "var_to": 93.0,
-         "base": 1.46,
-         "low": 0.41,
-         "high": 4.11,
-         "var_value_in_low_set": 97.0,
-         "var_value_in_high_set": 97.0,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.2
-        },
-        {
-         "id": "civil_program_supply",
-         "label": "Бюджетное финансирование гражданской программы → МС-21, SJ-100, Ил-114, Ту-214 → выручка",
-         "var": "civil_program_funding",
-         "delta_var": 31.5,
-         "var_from": 0.0,
-         "var_to": 31.5,
-         "base": -1.26,
-         "low": -9.0,
-         "high": 7.2,
-         "var_value_in_low_set": 45.0,
-         "var_value_in_high_set": 45.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.8
-        },
-        {
-         "id": "goz_mro",
-         "label": "Гособоронзаказ → модернизация, ремонт и сервис парка → выручка",
-         "var": "state_order_growth",
-         "delta_var": 12.0,
-         "var_from": 0.0,
-         "var_to": 12.0,
-         "base": 1.2,
-         "low": 0.34,
-         "high": 3.74,
-         "var_value_in_low_set": 17.0,
-         "var_value_in_high_set": 17.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 2.1
-        },
-        {
-         "id": "fx_operating",
-         "label": "Курс рубля → импортные компоненты и экспортная выручка (операционный канал)",
-         "var": "usdrub_avg",
-         "delta_var": 9.7,
-         "var_from": 83.3,
-         "var_to": 93.0,
-         "base": -1.16,
-         "low": -7.4,
-         "high": 2.47,
-         "var_value_in_low_set": 97.0,
-         "var_value_in_high_set": 97.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.0
-        },
-        {
-         "id": "inst_tax_burden",
-         "label": "Рост налоговой и административной нагрузки",
-         "kind": "institutional",
-         "base": -1.0,
-         "low": -3.0,
-         "high": 0.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 1.8
-        },
-        {
-         "id": "payment_delay_wc",
-         "label": "Задержка расчётов и сокращение авансирования → оборотный капитал → проценты",
-         "var": "payment_delay_days",
-         "delta_var": -5.0,
-         "var_from": 174.0,
-         "var_to": 169.0,
-         "base": 0.54,
-         "low": -1.6,
-         "high": 2.88,
-         "var_value_in_low_set": 179.0,
-         "var_value_in_high_set": 159.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.7
-        },
-        {
-         "id": "rate_civil_lease_demand",
-         "label": "Ключевая ставка → стоимость лизинга гражданских самолётов → спрос авиакомпаний",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 0.35,
-         "low": -0.0,
-         "high": 1.46,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 0.9
-        },
-        {
-         "id": "gdp_civil_services",
-         "label": "Рост экономики → пассажиропоток и рыночные заказы → авиаперевозки и комплектующие",
-         "var": "gdp",
-         "delta_var": 1.5,
-         "var_from": 1.0,
-         "var_to": 2.5,
-         "base": 0.12,
-         "low": 0.0,
-         "high": 0.5,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.3
-        }
-       ],
-       "width_drivers": [
-        "inst_state_recap",
-        "rate_debt_interest",
-        "civil_program_supply"
-       ]
-      }
-     },
-     "flags": [
-      "при неблагоприятных значениях входов прибыль уходит в убыток",
-      "изменение прибыли +773% — линейность под вопросом, читать как порядок величины"
-     ],
-     "missing_vars": []
     }
    }
   },
@@ -4780,9 +3453,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -4820,6 +3493,51 @@
        "high": 189.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -5538,9 +4256,9 @@
        "high": 10.0
       },
       "oil_tax_price": {
-       "low": 45.0,
-       "mid": 45.0,
-       "high": 45.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 90.0,
@@ -5578,6 +4296,51 @@
        "high": 194.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 13.0,
+       "high": 15.0,
+       "mid": 14.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "13–15%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 4.6,
+       "high": 5.9,
+       "mid": 5.25,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "4,6–5,9%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 1.0,
+       "high": 2.0,
+       "mid": 1.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "1–2%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 90.0,
+       "high": 100.0,
+       "mid": 95.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "90–100 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -6222,766 +4985,6 @@
       "изменение прибыли +429% — линейность под вопросом, читать как порядок величины"
      ],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Проинфляционный 2028",
-     "scenario_id": "proinflation",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.25,
-       "high": 4.5
-      },
-      "key_rate_avg": {
-       "low": 11.0,
-       "mid": 11.5,
-       "high": 12.0
-      },
-      "gdp": {
-       "low": 0.5,
-       "mid": 1.0,
-       "high": 1.5
-      },
-      "consumption_hh": {
-       "low": 0.0,
-       "mid": 0.5,
-       "high": 1.0
-      },
-      "gfcf": {
-       "low": 0.0,
-       "mid": 1.0,
-       "high": 2.0
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": -2.0,
-       "mid": -1.0,
-       "high": 0.0
-      },
-      "money_supply": {
-       "low": 7.0,
-       "mid": 9.5,
-       "high": 12.0
-      },
-      "credit_total": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_corp": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_hh": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "mortgage": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "current_account": {
-       "low": 13.0,
-       "mid": 13.0,
-       "high": 13.0
-      },
-      "oil_tax_price": {
-       "low": 45.0,
-       "mid": 45.0,
-       "high": 45.0
-      },
-      "usdrub_avg": {
-       "low": 95.0,
-       "mid": 100.0,
-       "high": 105.0
-      },
-      "real_wage": {
-       "low": 0.0,
-       "mid": 1.0,
-       "high": 2.0
-      },
-      "nominal_wage": {
-       "low": 5.0,
-       "mid": 6.25,
-       "high": 7.5
-      },
-      "unemployment": {
-       "low": 2.5,
-       "mid": 2.85,
-       "high": 3.2
-      },
-      "state_order_growth": {
-       "low": 14.0,
-       "mid": 21.0,
-       "high": 28.0
-      },
-      "civil_program_funding": {
-       "low": 8.0,
-       "mid": 18.0,
-       "high": 28.0
-      },
-      "payment_delay_days": {
-       "low": 174.0,
-       "mid": 184.0,
-       "high": 194.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 759.0,
-       "delta": {
-        "base": 101.4,
-        "low": 0.6,
-        "high": 222.4
-       },
-       "value": {
-        "base": 860.4,
-        "low": 759.6,
-        "high": 981.4
-       },
-       "pct": {
-        "base": 13.4,
-        "low": 0.1,
-        "high": 29.3
-       },
-       "dominant_factor": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-       "dominant_factor_id": "goz_military_supply",
-       "contributions": [
-        {
-         "id": "goz_military_supply",
-         "label": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-         "var": "state_order_growth",
-         "delta_var": 21.0,
-         "var_from": 0.0,
-         "var_to": 21.0,
-         "base": 79.8,
-         "low": 42.0,
-         "high": 128.8,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 39.1
-        },
-        {
-         "id": "geo_delivery_delay_revenue",
-         "label": "Сдвиг сроков серийных поставок из-за компонентов — перенос выручки",
-         "kind": "geo",
-         "base": -25.0,
-         "low": -55.0,
-         "high": -10.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 20.3
-        },
-        {
-         "id": "civil_program_supply",
-         "label": "Бюджетное финансирование гражданской программы → МС-21, SJ-100, Ил-114, Ту-214 → выручка",
-         "var": "civil_program_funding",
-         "delta_var": 18.0,
-         "var_from": 0.0,
-         "var_to": 18.0,
-         "base": 20.88,
-         "low": 6.4,
-         "high": 44.8,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 17.3
-        },
-        {
-         "id": "goz_mro",
-         "label": "Гособоронзаказ → модернизация, ремонт и сервис парка → выручка",
-         "var": "state_order_growth",
-         "delta_var": 21.0,
-         "var_from": 0.0,
-         "var_to": 21.0,
-         "base": 15.12,
-         "low": 6.3,
-         "high": 29.4,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 10.4
-        },
-        {
-         "id": "fx_operating",
-         "label": "Курс рубля → импортные компоненты и экспортная выручка (операционный канал)",
-         "var": "usdrub_avg",
-         "delta_var": 16.7,
-         "var_from": 83.3,
-         "var_to": 100.0,
-         "base": 9.02,
-         "low": 2.11,
-         "high": 23.44,
-         "var_value_in_low_set": 95.0,
-         "var_value_in_high_set": 105.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.6
-        },
-        {
-         "id": "rate_civil_lease_demand",
-         "label": "Ключевая ставка → стоимость лизинга гражданских самолётов → спрос авиакомпаний",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 1.62,
-         "low": -0.0,
-         "high": 4.92,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 2.2
-        },
-        {
-         "id": "gdp_civil_services",
-         "label": "Рост экономики → пассажиропоток и рыночные заказы → авиаперевозки и комплектующие",
-         "var": "gdp",
-         "delta_var": 0.0,
-         "var_from": 1.0,
-         "var_to": 1.0,
-         "base": 0.0,
-         "low": -1.2,
-         "high": 1.0,
-         "var_value_in_low_set": 0.5,
-         "var_value_in_high_set": 1.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.0
-        }
-       ],
-       "width_drivers": [
-        "goz_military_supply",
-        "geo_delivery_delay_revenue",
-        "civil_program_supply"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 105.2,
-       "delta": {
-        "base": 34.5,
-        "low": -1.8,
-        "high": 86.6
-       },
-       "value": {
-        "base": 139.7,
-        "low": 103.4,
-        "high": 191.8
-       },
-       "pct": {
-        "base": 32.8,
-        "low": -1.7,
-        "high": 82.3
-       },
-       "dominant_factor": "Инфляция → материалы, комплектующие и услуги смежников → маржа",
-       "dominant_factor_id": "cost_inflation_materials",
-       "contributions": [
-        {
-         "id": "cost_inflation_materials",
-         "label": "Инфляция → материалы, комплектующие и услуги смежников → маржа",
-         "var": "inflation_avg",
-         "delta_var": -4.45,
-         "var_from": 8.7,
-         "var_to": 4.25,
-         "base": 12.46,
-         "low": 5.04,
-         "high": 21.15,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8",
-          "модификатор inst_goz_pricing_materials: ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 18.2
-        },
-        {
-         "id": "wage_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → маржа",
-         "var": "nominal_wage",
-         "delta_var": -8.15,
-         "var_from": 14.4,
-         "var_to": 6.25,
-         "base": 10.56,
-         "low": 3.83,
-         "high": 20.88,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.7",
-          "порог unemployment < 3.0: ×1.15",
-          "модификатор inst_goz_pricing_wages: ×1.15"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 19.3
-        },
-        {
-         "id": "goz_military_supply",
-         "label": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-         "var": "state_order_growth",
-         "delta_var": 21.0,
-         "var_from": 0.0,
-         "var_to": 21.0,
-         "base": 9.66,
-         "low": 2.1,
-         "high": 25.76,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 26.8
-        },
-        {
-         "id": "goz_mro",
-         "label": "Гособоронзаказ → модернизация, ремонт и сервис парка → выручка",
-         "var": "state_order_growth",
-         "delta_var": 21.0,
-         "var_from": 0.0,
-         "var_to": 21.0,
-         "base": 2.73,
-         "low": 0.7,
-         "high": 7.28,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 7.4
-        },
-        {
-         "id": "fx_operating",
-         "label": "Курс рубля → импортные компоненты и экспортная выручка (операционный канал)",
-         "var": "usdrub_avg",
-         "delta_var": 16.7,
-         "var_from": 83.3,
-         "var_to": 100.0,
-         "base": -2.0,
-         "low": -11.72,
-         "high": 3.91,
-         "var_value_in_low_set": 105.0,
-         "var_value_in_high_set": 105.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 17.7
-        },
-        {
-         "id": "civil_program_supply",
-         "label": "Бюджетное финансирование гражданской программы → МС-21, SJ-100, Ил-114, Ту-214 → выручка",
-         "var": "civil_program_funding",
-         "delta_var": 18.0,
-         "var_from": 0.0,
-         "var_to": 18.0,
-         "base": 0.86,
-         "low": -1.57,
-         "high": 6.72,
-         "var_value_in_low_set": 28.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.4
-        },
-        {
-         "id": "rate_civil_lease_demand",
-         "label": "Ключевая ставка → стоимость лизинга гражданских самолётов → спрос авиакомпаний",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 0.18,
-         "low": -0.0,
-         "high": 0.74,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 0.8
-        },
-        {
-         "id": "gdp_civil_services",
-         "label": "Рост экономики → пассажиропоток и рыночные заказы → авиаперевозки и комплектующие",
-         "var": "gdp",
-         "delta_var": 0.0,
-         "var_from": 1.0,
-         "var_to": 1.0,
-         "base": 0.0,
-         "low": -0.18,
-         "high": 0.15,
-         "var_value_in_low_set": 0.5,
-         "var_value_in_high_set": 1.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.4
-        }
-       ],
-       "width_drivers": [
-        "goz_military_supply",
-        "wage_cost",
-        "cost_inflation_materials"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": -9.0,
-       "delta": {
-        "base": 52.6,
-        "low": -30.6,
-        "high": 159.0
-       },
-       "value": {
-        "base": 43.6,
-        "low": -39.6,
-        "high": 150.0
-       },
-       "pct": {
-        "base": 584.6,
-        "low": -339.6,
-        "high": 1766.3
-       },
-       "dominant_factor": "Ключевая ставка → проценты по рыночной части долга (за вычетом субсидируемой) → прибыль",
-       "dominant_factor_id": "rate_debt_interest",
-       "contributions": [
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → проценты по рыночной части долга (за вычетом субсидируемой) → прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 20.16,
-         "low": 12.12,
-         "high": 36.8,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85",
-          "модификатор inst_interest_subsidy_budget: ×1.1"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 13.0
-        },
-        {
-         "id": "inst_state_recap",
-         "label": "Докапитализация и господдержка: гашение долга за счёт взносов государства",
-         "kind": "institutional",
-         "base": 20.0,
-         "low": 5.0,
-         "high": 45.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 21.1
-        },
-        {
-         "id": "cost_inflation_materials",
-         "label": "Инфляция → материалы, комплектующие и услуги смежников → маржа",
-         "var": "inflation_avg",
-         "delta_var": -4.45,
-         "var_from": 8.7,
-         "var_to": 4.25,
-         "base": 12.01,
-         "low": 4.62,
-         "high": 20.21,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8",
-          "модификатор inst_goz_pricing_materials: ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 8.2
-        },
-        {
-         "id": "wage_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → маржа",
-         "var": "nominal_wage",
-         "delta_var": -8.15,
-         "var_from": 14.4,
-         "var_to": 6.25,
-         "base": 10.19,
-         "low": 3.51,
-         "high": 20.01,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.7",
-          "порог unemployment < 3.0: ×1.15",
-          "модификатор inst_goz_pricing_wages: ×1.15"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 8.7
-        },
-        {
-         "id": "geo_components_sanctions_np",
-         "label": "Санкции на компоненты: удорожание импортозамещения и простои",
-         "kind": "geo",
-         "base": -9.0,
-         "low": -18.0,
-         "high": -3.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 7.9
-        },
-        {
-         "id": "goz_military_supply",
-         "label": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-         "var": "state_order_growth",
-         "delta_var": 21.0,
-         "var_from": 0.0,
-         "var_to": 21.0,
-         "base": 5.25,
-         "low": -1.4,
-         "high": 19.6,
-         "var_value_in_low_set": 28.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 11.1
-        },
-        {
-         "id": "inst_tax_burden",
-         "label": "Рост налоговой и административной нагрузки",
-         "kind": "institutional",
-         "base": -4.0,
-         "low": -8.0,
-         "high": -1.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 3.7
-        },
-        {
-         "id": "fx_revaluation",
-         "label": "Курс рубля → переоценка валютной позиции (разовый, неденежный)",
-         "var": "usdrub_avg",
-         "delta_var": 16.7,
-         "var_from": 83.3,
-         "var_to": 100.0,
-         "base": 2.51,
-         "low": 0.65,
-         "high": 6.51,
-         "var_value_in_low_set": 105.0,
-         "var_value_in_high_set": 105.0,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.1
-        },
-        {
-         "id": "rate_interest_income",
-         "label": "Ключевая ставка → доход на денежные остатки и авансы на счетах ГОЗ → прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": -2.31,
-         "low": -5.76,
-         "high": -0.82,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 2.6
-        },
-        {
-         "id": "goz_mro",
-         "label": "Гособоронзаказ → модернизация, ремонт и сервис парка → выручка",
-         "var": "state_order_growth",
-         "delta_var": 21.0,
-         "var_from": 0.0,
-         "var_to": 21.0,
-         "base": 2.1,
-         "low": 0.56,
-         "high": 6.16,
-         "var_value_in_low_set": 28.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.0
-        },
-        {
-         "id": "fx_operating",
-         "label": "Курс рубля → импортные компоненты и экспортная выручка (операционный канал)",
-         "var": "usdrub_avg",
-         "delta_var": 16.7,
-         "var_from": 83.3,
-         "var_to": 100.0,
-         "base": -2.0,
-         "low": -11.72,
-         "high": 3.91,
-         "var_value_in_low_set": 105.0,
-         "var_value_in_high_set": 105.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 8.2
-        },
-        {
-         "id": "payment_delay_wc",
-         "label": "Задержка расчётов и сокращение авансирования → оборотный капитал → проценты",
-         "var": "payment_delay_days",
-         "delta_var": 10.0,
-         "var_from": 174.0,
-         "var_to": 184.0,
-         "base": -1.8,
-         "low": -6.4,
-         "high": -0.0,
-         "var_value_in_low_set": 194.0,
-         "var_value_in_high_set": 174.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.4
-        },
-        {
-         "id": "civil_program_supply",
-         "label": "Бюджетное финансирование гражданской программы → МС-21, SJ-100, Ил-114, Ту-214 → выручка",
-         "var": "civil_program_funding",
-         "delta_var": 18.0,
-         "var_from": 0.0,
-         "var_to": 18.0,
-         "base": -0.72,
-         "low": -5.6,
-         "high": 4.48,
-         "var_value_in_low_set": 28.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.3
-        },
-        {
-         "id": "rate_civil_lease_demand",
-         "label": "Ключевая ставка → стоимость лизинга гражданских самолётов → спрос авиакомпаний",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 0.23,
-         "low": -0.0,
-         "high": 0.98,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 0.5
-        },
-        {
-         "id": "gdp_civil_services",
-         "label": "Рост экономики → пассажиропоток и рыночные заказы → авиаперевозки и комплектующие",
-         "var": "gdp",
-         "delta_var": 0.0,
-         "var_from": 1.0,
-         "var_to": 1.0,
-         "base": 0.0,
-         "low": -0.15,
-         "high": 0.12,
-         "var_value_in_low_set": 0.5,
-         "var_value_in_high_set": 1.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.1
-        }
-       ],
-       "width_drivers": [
-        "inst_state_recap",
-        "rate_debt_interest",
-        "goz_military_supply"
-       ]
-      }
-     },
-     "flags": [
-      "при неблагоприятных значениях входов прибыль уходит в убыток",
-      "изменение прибыли +585% — линейность под вопросом, читать как порядок величины"
-     ],
-     "missing_vars": []
     }
    }
   },
@@ -7064,9 +5067,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -7104,6 +5107,51 @@
        "high": 199.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -7821,9 +5869,9 @@
        "high": 5.0
       },
       "oil_tax_price": {
-       "low": 35.0,
-       "mid": 35.0,
-       "high": 35.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 105.0,
@@ -7861,6 +5909,51 @@
        "high": 234.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 19.0,
+       "high": 21.0,
+       "mid": 20.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "19–21%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 7.3,
+       "high": 9.3,
+       "mid": 8.3,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "7,3–9,3%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": -4.0,
+       "high": -3.0,
+       "mid": -3.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "от −4 до −3%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 105.0,
+       "high": 125.0,
+       "mid": 115.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "105–125 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -8503,774 +6596,6 @@
       "изменение прибыли -121% — линейность под вопросом, читать как порядок величины"
      ],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Рисковый 2028",
-     "scenario_id": "risk",
-     "conditions": {
-      "inflation_dec": {
-       "low": 5.0,
-       "mid": 6.0,
-       "high": 7.0
-      },
-      "inflation_avg": {
-       "low": 9.3,
-       "mid": 10.35,
-       "high": 11.4
-      },
-      "key_rate_avg": {
-       "low": 14.0,
-       "mid": 15.0,
-       "high": 16.0
-      },
-      "gdp": {
-       "low": -2.5,
-       "mid": -2.0,
-       "high": -1.5
-      },
-      "consumption_hh": {
-       "low": -6.5,
-       "mid": -6.0,
-       "high": -5.5
-      },
-      "gfcf": {
-       "low": -2.0,
-       "mid": -1.0,
-       "high": 0.0
-      },
-      "exports_vol": {
-       "low": -3.0,
-       "mid": -2.0,
-       "high": -1.0
-      },
-      "imports_vol": {
-       "low": -20.0,
-       "mid": -19.0,
-       "high": -18.0
-      },
-      "money_supply": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_total": {
-       "low": 2.0,
-       "mid": 4.5,
-       "high": 7.0
-      },
-      "credit_corp": {
-       "low": 3.0,
-       "mid": 5.5,
-       "high": 8.0
-      },
-      "credit_hh": {
-       "low": -1.0,
-       "mid": 1.5,
-       "high": 4.0
-      },
-      "mortgage": {
-       "low": 2.0,
-       "mid": 4.5,
-       "high": 7.0
-      },
-      "current_account": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "oil_tax_price": {
-       "low": 25.0,
-       "mid": 25.0,
-       "high": 25.0
-      },
-      "usdrub_avg": {
-       "low": 115.0,
-       "mid": 127.5,
-       "high": 140.0
-      },
-      "real_wage": {
-       "low": -6.0,
-       "mid": -4.5,
-       "high": -3.0
-      },
-      "nominal_wage": {
-       "low": 4.0,
-       "mid": 5.5,
-       "high": 7.0
-      },
-      "unemployment": {
-       "low": 4.5,
-       "mid": 5.25,
-       "high": 6.0
-      },
-      "state_order_growth": {
-       "low": 10.0,
-       "mid": 19.0,
-       "high": 28.0
-      },
-      "civil_program_funding": {
-       "low": -35.0,
-       "mid": -17.5,
-       "high": 0.0
-      },
-      "payment_delay_days": {
-       "low": 199.0,
-       "mid": 224.0,
-       "high": 249.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 759.0,
-       "delta": {
-        "base": 18.7,
-        "low": -175.8,
-        "high": 195.8
-       },
-       "value": {
-        "base": 777.7,
-        "low": 583.2,
-        "high": 954.8
-       },
-       "pct": {
-        "base": 2.5,
-        "low": -23.2,
-        "high": 25.8
-       },
-       "dominant_factor": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-       "dominant_factor_id": "goz_military_supply",
-       "contributions": [
-        {
-         "id": "goz_military_supply",
-         "label": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-         "var": "state_order_growth",
-         "delta_var": 19.0,
-         "var_from": 0.0,
-         "var_to": 19.0,
-         "base": 72.2,
-         "low": 30.0,
-         "high": 128.8,
-         "var_value_in_low_set": 10.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 26.6
-        },
-        {
-         "id": "geo_delivery_delay_revenue",
-         "label": "Сдвиг сроков серийных поставок из-за компонентов — перенос выручки",
-         "kind": "geo",
-         "base": -45.0,
-         "low": -90.0,
-         "high": -25.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 17.5
-        },
-        {
-         "id": "civil_program_supply",
-         "label": "Бюджетное финансирование гражданской программы → МС-21, SJ-100, Ил-114, Ту-214 → выручка",
-         "var": "civil_program_funding",
-         "delta_var": -17.5,
-         "var_from": 0.0,
-         "var_to": -17.5,
-         "base": -42.63,
-         "low": -117.6,
-         "high": 0.0,
-         "var_value_in_low_set": -35.0,
-         "var_value_in_high_set": 0.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2",
-          "порог civil_program_funding < -10.0: ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 31.7
-        },
-        {
-         "id": "fx_operating",
-         "label": "Курс рубля → импортные компоненты и экспортная выручка (операционный канал)",
-         "var": "usdrub_avg",
-         "delta_var": 44.2,
-         "var_from": 83.3,
-         "var_to": 127.5,
-         "base": 23.87,
-         "low": 5.71,
-         "high": 61.24,
-         "var_value_in_low_set": 115.0,
-         "var_value_in_high_set": 140.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 14.9
-        },
-        {
-         "id": "goz_mro",
-         "label": "Гособоронзаказ → модернизация, ремонт и сервис парка → выручка",
-         "var": "state_order_growth",
-         "delta_var": 19.0,
-         "var_from": 0.0,
-         "var_to": 19.0,
-         "base": 13.68,
-         "low": 4.5,
-         "high": 29.4,
-         "var_value_in_low_set": 10.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.7
-        },
-        {
-         "id": "gdp_civil_services",
-         "label": "Рост экономики → пассажиропоток и рыночные заказы → авиаперевозки и комплектующие",
-         "var": "gdp",
-         "delta_var": -3.0,
-         "var_from": 1.0,
-         "var_to": -2.0,
-         "base": -4.32,
-         "low": -8.4,
-         "high": -1.8,
-         "var_value_in_low_set": -2.5,
-         "var_value_in_high_set": -1.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 1.8
-        },
-        {
-         "id": "rate_civil_lease_demand",
-         "label": "Ключевая ставка → стоимость лизинга гражданских самолётов → спрос авиакомпаний",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 0.88,
-         "low": -0.0,
-         "high": 3.12,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 0.8
-        }
-       ],
-       "width_drivers": [
-        "civil_program_supply",
-        "goz_military_supply",
-        "geo_delivery_delay_revenue"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 105.2,
-       "delta": {
-        "base": 7.1,
-        "low": -64.7,
-        "high": 69.4
-       },
-       "value": {
-        "base": 112.3,
-        "low": 40.5,
-        "high": 174.6
-       },
-       "pct": {
-        "base": 6.7,
-        "low": -61.5,
-        "high": 66.0
-       },
-       "dominant_factor": "Номинальные зарплаты в экономике → фонд оплаты труда → маржа",
-       "dominant_factor_id": "wage_cost",
-       "contributions": [
-        {
-         "id": "wage_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → маржа",
-         "var": "nominal_wage",
-         "delta_var": -8.9,
-         "var_from": 14.4,
-         "var_to": 5.5,
-         "base": 11.34,
-         "low": 4.04,
-         "high": 22.71,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.7",
-          "модификатор inst_goz_pricing_wages: ×1.3"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 13.9
-        },
-        {
-         "id": "goz_military_supply",
-         "label": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-         "var": "state_order_growth",
-         "delta_var": 19.0,
-         "var_from": 0.0,
-         "var_to": 19.0,
-         "base": 8.74,
-         "low": 1.5,
-         "high": 25.76,
-         "var_value_in_low_set": 10.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 18.1
-        },
-        {
-         "id": "cost_inflation_materials",
-         "label": "Инфляция → материалы, комплектующие и услуги смежников → маржа",
-         "var": "inflation_avg",
-         "delta_var": 1.65,
-         "var_from": 8.7,
-         "var_to": 10.35,
-         "base": -8.09,
-         "low": -21.26,
-         "high": -1.01,
-         "var_value_in_low_set": 11.4,
-         "var_value_in_high_set": 9.3,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "порог inflation_avg > 10.0: ×1.25",
-          "модификатор inst_goz_pricing_materials: ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 15.1
-        },
-        {
-         "id": "fx_operating",
-         "label": "Курс рубля → импортные компоненты и экспортная выручка (операционный канал)",
-         "var": "usdrub_avg",
-         "delta_var": 44.2,
-         "var_from": 83.3,
-         "var_to": 127.5,
-         "base": -5.3,
-         "low": -30.62,
-         "high": 10.21,
-         "var_value_in_low_set": 140.0,
-         "var_value_in_high_set": 140.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 30.4
-        },
-        {
-         "id": "goz_mro",
-         "label": "Гособоронзаказ → модернизация, ремонт и сервис парка → выручка",
-         "var": "state_order_growth",
-         "delta_var": 19.0,
-         "var_from": 0.0,
-         "var_to": 19.0,
-         "base": 2.47,
-         "low": 0.5,
-         "high": 7.28,
-         "var_value_in_low_set": 10.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 5.1
-        },
-        {
-         "id": "civil_program_supply",
-         "label": "Бюджетное финансирование гражданской программы → МС-21, SJ-100, Ил-114, Ту-214 → выручка",
-         "var": "civil_program_funding",
-         "delta_var": -17.5,
-         "var_from": 0.0,
-         "var_to": -17.5,
-         "base": -1.76,
-         "low": -17.64,
-         "high": 4.12,
-         "var_value_in_low_set": -35.0,
-         "var_value_in_high_set": -35.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2",
-          "порог civil_program_funding < -10.0: ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 16.2
-        },
-        {
-         "id": "gdp_civil_services",
-         "label": "Рост экономики → пассажиропоток и рыночные заказы → авиаперевозки и комплектующие",
-         "var": "gdp",
-         "delta_var": -3.0,
-         "var_from": 1.0,
-         "var_to": -2.0,
-         "base": -0.43,
-         "low": -1.26,
-         "high": -0.09,
-         "var_value_in_low_set": -2.5,
-         "var_value_in_high_set": -1.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 0.9
-        },
-        {
-         "id": "rate_civil_lease_demand",
-         "label": "Ключевая ставка → стоимость лизинга гражданских самолётов → спрос авиакомпаний",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 0.1,
-         "low": -0.0,
-         "high": 0.47,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 0.3
-        }
-       ],
-       "width_drivers": [
-        "fx_operating",
-        "goz_military_supply",
-        "civil_program_supply"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": -9.0,
-       "delta": {
-        "base": -5.5,
-        "low": -146.1,
-        "high": 136.3
-       },
-       "value": {
-        "base": -14.5,
-        "low": -155.1,
-        "high": 127.3
-       },
-       "pct": {
-        "base": -61.6,
-        "low": -1623.0,
-        "high": 1514.8
-       },
-       "dominant_factor": "Санкции на компоненты: удорожание импортозамещения и простои",
-       "dominant_factor_id": "geo_components_sanctions_np",
-       "contributions": [
-        {
-         "id": "geo_components_sanctions_np",
-         "label": "Санкции на компоненты: удорожание импортозамещения и простои",
-         "kind": "geo",
-         "base": -18.0,
-         "low": -35.0,
-         "high": -8.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 9.6
-        },
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → проценты по рыночной части долга (за вычетом субсидируемой) → прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 12.0,
-         "low": 5.88,
-         "high": 25.46,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85",
-          "модификатор inst_interest_subsidy_budget: ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.9
-        },
-        {
-         "id": "payment_delay_wc",
-         "label": "Задержка расчётов и сокращение авансирования → оборотный капитал → проценты",
-         "var": "payment_delay_days",
-         "delta_var": 50.0,
-         "var_from": 174.0,
-         "var_to": 224.0,
-         "base": -11.7,
-         "low": -31.2,
-         "high": -1.75,
-         "var_value_in_low_set": 249.0,
-         "var_value_in_high_set": 199.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "порог payment_delay_days > 219.0: ×1.3"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 10.4
-        },
-        {
-         "id": "wage_cost",
-         "label": "Номинальные зарплаты в экономике → фонд оплаты труда → маржа",
-         "var": "nominal_wage",
-         "delta_var": -8.9,
-         "var_from": 14.4,
-         "var_to": 5.5,
-         "base": 10.93,
-         "low": 3.7,
-         "high": 21.77,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.7",
-          "модификатор inst_goz_pricing_wages: ×1.3"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.4
-        },
-        {
-         "id": "inst_state_recap",
-         "label": "Докапитализация и господдержка: гашение долга за счёт взносов государства",
-         "kind": "institutional",
-         "base": 8.0,
-         "low": -10.0,
-         "high": 35.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 15.9
-        },
-        {
-         "id": "cost_inflation_materials",
-         "label": "Инфляция → материалы, комплектующие и услуги смежников → маржа",
-         "var": "inflation_avg",
-         "delta_var": 1.65,
-         "var_from": 8.7,
-         "var_to": 10.35,
-         "base": -7.8,
-         "low": -20.32,
-         "high": -0.92,
-         "var_value_in_low_set": 11.4,
-         "var_value_in_high_set": 9.3,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "порог inflation_avg > 10.0: ×1.25",
-          "модификатор inst_goz_pricing_materials: ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.9
-        },
-        {
-         "id": "inst_tax_burden",
-         "label": "Рост налоговой и административной нагрузки",
-         "kind": "institutional",
-         "base": -7.0,
-         "low": -14.0,
-         "high": -3.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 3.9
-        },
-        {
-         "id": "fx_revaluation",
-         "label": "Курс рубля → переоценка валютной позиции (разовый, неденежный)",
-         "var": "usdrub_avg",
-         "delta_var": 44.2,
-         "var_from": 83.3,
-         "var_to": 127.5,
-         "base": 6.63,
-         "low": 1.7,
-         "high": 17.01,
-         "var_value_in_low_set": 140.0,
-         "var_value_in_high_set": 140.0,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.4
-        },
-        {
-         "id": "fx_operating",
-         "label": "Курс рубля → импортные компоненты и экспортная выручка (операционный канал)",
-         "var": "usdrub_avg",
-         "delta_var": 44.2,
-         "var_from": 83.3,
-         "var_to": 127.5,
-         "base": -5.3,
-         "low": -30.62,
-         "high": 10.21,
-         "var_value_in_low_set": 140.0,
-         "var_value_in_high_set": 140.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 14.5
-        },
-        {
-         "id": "goz_military_supply",
-         "label": "Гособоронзаказ → поставки военной авиатехники, ГОЗ-НИОКР и комплектующих → выручка",
-         "var": "state_order_growth",
-         "delta_var": 19.0,
-         "var_from": 0.0,
-         "var_to": 19.0,
-         "base": 4.75,
-         "low": -1.4,
-         "high": 19.6,
-         "var_value_in_low_set": 28.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 7.4
-        },
-        {
-         "id": "goz_mro",
-         "label": "Гособоронзаказ → модернизация, ремонт и сервис парка → выручка",
-         "var": "state_order_growth",
-         "delta_var": 19.0,
-         "var_from": 0.0,
-         "var_to": 19.0,
-         "base": 1.9,
-         "low": 0.56,
-         "high": 6.16,
-         "var_value_in_low_set": 28.0,
-         "var_value_in_high_set": 28.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 2.0
-        },
-        {
-         "id": "civil_program_supply",
-         "label": "Бюджетное финансирование гражданской программы → МС-21, SJ-100, Ил-114, Ту-214 → выручка",
-         "var": "civil_program_funding",
-         "delta_var": -17.5,
-         "var_from": 0.0,
-         "var_to": -17.5,
-         "base": 1.47,
-         "low": -11.76,
-         "high": 14.7,
-         "var_value_in_low_set": -35.0,
-         "var_value_in_high_set": -35.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×1.2",
-          "порог civil_program_funding < -10.0: ×1.4"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.4
-        },
-        {
-         "id": "rate_interest_income",
-         "label": "Ключевая ставка → доход на денежные остатки и авансы на счетах ГОЗ → прибыль",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": -1.26,
-         "low": -2.56,
-         "high": -0.52,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.7
-        },
-        {
-         "id": "gdp_civil_services",
-         "label": "Рост экономики → пассажиропоток и рыночные заказы → авиаперевозки и комплектующие",
-         "var": "gdp",
-         "delta_var": -3.0,
-         "var_from": 1.0,
-         "var_to": -2.0,
-         "base": -0.29,
-         "low": -1.05,
-         "high": -0.0,
-         "var_value_in_low_set": -2.5,
-         "var_value_in_high_set": -2.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×1.2"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 0.4
-        },
-        {
-         "id": "rate_civil_lease_demand",
-         "label": "Ключевая ставка → стоимость лизинга гражданских самолётов → спрос авиакомпаний",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 0.13,
-         "low": -0.0,
-         "high": 0.62,
-         "var_value_in_low_set": 16.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.6"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 0.2
-        }
-       ],
-       "width_drivers": [
-        "inst_state_recap",
-        "fx_operating",
-        "payment_delay_wc"
-       ]
-      }
-     },
-     "flags": [
-      "при неблагоприятных значениях входов прибыль уходит в убыток"
-     ],
-     "missing_vars": []
     }
    }
   }
@@ -9320,6 +6645,49 @@
     "high": -4.0
    }
   },
+  "conditions_core": [
+   {
+    "var": "key_rate_avg",
+    "label": "ключевая ставка, средняя за год",
+    "low": 21.0,
+    "high": 21.0,
+    "mid": 21.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "21%"
+   },
+   {
+    "var": "inflation_avg",
+    "label": "инфляция, средняя за год",
+    "low": 12.0,
+    "high": 12.0,
+    "mid": 12.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "12%"
+   },
+   {
+    "var": "gdp",
+    "label": "рост ВВП",
+    "low": -4.0,
+    "high": -4.0,
+    "mid": -4.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "−4%"
+   },
+   {
+    "var": "usdrub_avg",
+    "label": "курс доллара, средний",
+    "low": 130.0,
+    "high": 130.0,
+    "mid": 130.0,
+    "unit": "руб.",
+    "origin": "допущение Basis",
+    "text": "130 руб."
+   }
+  ],
+  "held_at_base": [],
   "lines": {
    "revenue": {
     "label": "выручка",

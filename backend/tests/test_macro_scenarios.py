@@ -150,3 +150,17 @@ def test_shared_variable_uses_one_value_per_set():
     by = {c["id"]: c for c in npf["contributions"]}
     assert by["assets"]["var_value_in_low_set"] == by["liabs"]["var_value_in_low_set"]
     assert abs(sum(c["low"] for c in npf["contributions"]) - npf["delta"]["low"]) < 0.5
+
+
+def test_excluded_variables_are_held_at_base():
+    cfg = _cfg(); cfg["excluded_variables"] = ["oil_tax_price"]; cfg["core_variables"] = ["key_rate_avg", "usdrub_avg"]
+    m = _model()
+    res = ms.run_scenarios(m, cfg)
+    y = res["base"]["years"]["2027"]
+    assert y["held_at_base"] == ["oil_tax_price"]
+    ids = {c["id"] for c in y["lines"]["net_profit"]["contributions"]}
+    assert "oil" not in ids  # Δ = 0 → вклада нет
+    assert [c["var"] for c in y["conditions_core"]] == ["key_rate_avg", "usdrub_avg"]
+    assert y["conditions_core"][0]["text"] == "10,5–12,5%"
+    md = ms.run_most_dangerous(m, cfg)
+    assert "oil" not in {c["id"] for c in md["lines"]["net_profit"]["contributions"]}

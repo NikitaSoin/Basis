@@ -1,6 +1,6 @@
 {
  "ticker": "FEES",
- "computed_at": "2026-09-15",
+ "computed_at": "2026-09-16",
  "unit": "млрд руб",
  "base_year": 2025,
  "base_financials": {
@@ -82,14 +82,24 @@
   },
   "display_years": [
    2026,
-   2027,
-   2028
+   2027
   ],
   "tab_years": [
-   2027,
-   2028
-  ]
+   2026,
+   2027
+  ],
+  "core_variables": [
+   "key_rate_avg",
+   "inflation_avg",
+   "gdp",
+   "usdrub_avg"
+  ],
+  "core_note": "Условия сценария, которые показываются инвестору: ключевая ставка, инфляция, ВВП (данные ЦБ) и курс рубля (достройка Basis). Остальные переменные ЦБ (потребление, инвестиции, кредит, ипотека) и достройки (зарплаты, безработица) участвуют в расчёте как производные того же сценария, но в таблице условий не показываются.",
+  "excluded_note": "Цены на нефть и прочее сырьё — не макроэкономика (решение владельца 15.09.2026): в расчёте сценариев они зафиксированы на уровне базового периода, их прогноз — область финансовой модели. Цена нефти ЦБ хранится в файле для справки, в расчёте вкладки не участвует."
  },
+ "held_at_base": [
+  "oil_tax_price"
+ ],
  "current_macro": {
   "as_of": "2026-09-14",
   "key_rate": 14.0,
@@ -192,9 +202,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -227,6 +237,51 @@
        "high": 14.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -803,9 +858,9 @@
        "high": 25.0
       },
       "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 84.0,
@@ -838,6 +893,51 @@
        "high": 12.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 10.5,
+       "high": 12.5,
+       "mid": 11.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "10,5–12,5%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 4.3,
+       "high": 5.2,
+       "mid": 4.75,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "4,3–5,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 1.5,
+       "high": 2.5,
+       "mid": 2.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "1,5–2,5%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 84.0,
+       "high": 92.0,
+       "mid": 88.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "84–92 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -1344,623 +1444,6 @@
      },
      "flags": [],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Базовый 2028",
-     "scenario_id": "base",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "key_rate_avg": {
-       "low": 8.0,
-       "mid": 8.5,
-       "high": 9.0
-      },
-      "gdp": {
-       "low": 1.5,
-       "mid": 2.0,
-       "high": 2.5
-      },
-      "consumption_hh": {
-       "low": 1.0,
-       "mid": 1.5,
-       "high": 2.0
-      },
-      "gfcf": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "money_supply": {
-       "low": 7.0,
-       "mid": 9.5,
-       "high": 12.0
-      },
-      "credit_total": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_corp": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_hh": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "mortgage": {
-       "low": 10.0,
-       "mid": 12.5,
-       "high": 15.0
-      },
-      "current_account": {
-       "low": 15.0,
-       "mid": 15.0,
-       "high": 15.0
-      },
-      "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
-      },
-      "usdrub_avg": {
-       "low": 88.0,
-       "mid": 92.0,
-       "high": 96.0
-      },
-      "real_wage": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "nominal_wage": {
-       "low": 5.5,
-       "mid": 6.5,
-       "high": 7.5
-      },
-      "unemployment": {
-       "low": 2.5,
-       "mid": 2.85,
-       "high": 3.2
-      },
-      "tariff_indexation": {
-       "low": 9.0,
-       "mid": 10.25,
-       "high": 11.5
-      },
-      "power_price_wholesale": {
-       "low": 7.0,
-       "mid": 9.0,
-       "high": 11.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 1834.0,
-       "delta": {
-        "base": -5.1,
-        "low": -41.4,
-        "high": 35.0
-       },
-       "value": {
-        "base": 1828.9,
-        "low": 1792.6,
-        "high": 1869.0
-       },
-       "pct": {
-        "base": -0.3,
-        "low": -2.3,
-        "high": 1.9
-       },
-       "dominant_factor": "Цена электроэнергии на оптовом рынке → покупка на компенсацию потерь и перепродажа",
-       "dominant_factor_id": "power_price_losses",
-       "contributions": [
-        {
-         "id": "power_price_losses",
-         "label": "Цена электроэнергии на оптовом рынке → покупка на компенсацию потерь и перепродажа",
-         "var": "power_price_wholesale",
-         "delta_var": -3.0,
-         "var_from": 12.0,
-         "var_to": 9.0,
-         "base": -8.88,
-         "low": -20.0,
-         "high": -1.6,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 24.1
-        },
-        {
-         "id": "gdp_volume",
-         "label": "Рост экономики → полезный отпуск электроэнергии → выручка от передачи",
-         "var": "gdp",
-         "delta_var": 1.0,
-         "var_from": 1.0,
-         "var_to": 2.0,
-         "base": 6.8,
-         "low": 2.0,
-         "high": 18.0,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 2.5,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 20.9
-        },
-        {
-         "id": "tariff_indexation_revenue",
-         "label": "Индексация тарифа на передачу → тарифная выручка и маржа",
-         "var": "tariff_indexation",
-         "delta_var": -0.35,
-         "var_from": 10.6,
-         "var_to": 10.25,
-         "base": -4.93,
-         "low": -24.0,
-         "high": 13.5,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 11.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 49.1
-        },
-        {
-         "id": "gfcf_connections",
-         "label": "Инвестиции в экономике → технологическое присоединение новых потребителей",
-         "var": "gfcf",
-         "delta_var": 2.9,
-         "var_from": -0.4,
-         "var_to": 2.5,
-         "base": 1.91,
-         "low": 0.57,
-         "high": 5.07,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 3.5,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 5.9
-        }
-       ],
-       "width_drivers": [
-        "tariff_indexation_revenue",
-        "power_price_losses",
-        "gdp_volume"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 389.5,
-       "delta": {
-        "base": 21.5,
-        "low": -16.4,
-        "high": 67.6
-       },
-       "value": {
-        "base": 411.0,
-        "low": 373.1,
-        "high": 457.1
-       },
-       "pct": {
-        "base": 5.5,
-        "low": -4.2,
-        "high": 17.4
-       },
-       "dominant_factor": "Зарплаты в экономике → фонд оплаты труда (крупнейшая статья затрат)",
-       "dominant_factor_id": "wage_payroll",
-       "contributions": [
-        {
-         "id": "wage_payroll",
-         "label": "Зарплаты в экономике → фонд оплаты труда (крупнейшая статья затрат)",
-         "var": "nominal_wage",
-         "delta_var": -7.9,
-         "var_from": 14.4,
-         "var_to": 6.5,
-         "base": 12.76,
-         "low": 7.25,
-         "high": 21.81,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.5"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 17.3
-        },
-        {
-         "id": "inflation_costs",
-         "label": "Инфляция → ремонт, материалы, услуги подрядчиков и налоги на имущество",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 7.5,
-         "low": 4.61,
-         "high": 11.19,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.8
-        },
-        {
-         "id": "tariff_indexation_revenue",
-         "label": "Индексация тарифа на передачу → тарифная выручка и маржа",
-         "var": "tariff_indexation",
-         "delta_var": -0.35,
-         "var_from": 10.6,
-         "var_to": 10.25,
-         "base": -4.48,
-         "low": -22.72,
-         "high": 12.78,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 11.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 42.2
-        },
-        {
-         "id": "gdp_volume",
-         "label": "Рост экономики → полезный отпуск электроэнергии → выручка от передачи",
-         "var": "gdp",
-         "delta_var": 1.0,
-         "var_from": 1.0,
-         "var_to": 2.0,
-         "base": 3.68,
-         "low": 0.88,
-         "high": 10.2,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 2.5,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 11.1
-        },
-        {
-         "id": "power_price_losses",
-         "label": "Цена электроэнергии на оптовом рынке → покупка на компенсацию потерь и перепродажа",
-         "var": "power_price_wholesale",
-         "delta_var": -3.0,
-         "var_from": 12.0,
-         "var_to": 9.0,
-         "base": 3.43,
-         "low": 0.48,
-         "high": 10.4,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 11.8
-        },
-        {
-         "id": "fx_capex_imports",
-         "label": "Курс рубля → импортное оборудование инвестпрограммы и импортные материалы",
-         "var": "usdrub_avg",
-         "delta_var": 8.7,
-         "var_from": 83.3,
-         "var_to": 92.0,
-         "base": -1.65,
-         "low": -5.72,
-         "high": -0.28,
-         "var_value_in_low_set": 96.0,
-         "var_value_in_high_set": 88.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.5
-        },
-        {
-         "id": "gfcf_connections",
-         "label": "Инвестиции в экономике → технологическое присоединение новых потребителей",
-         "var": "gfcf",
-         "delta_var": 2.9,
-         "var_from": -0.4,
-         "var_to": 2.5,
-         "base": 0.29,
-         "low": -1.17,
-         "high": 1.56,
-         "var_value_in_low_set": 3.5,
-         "var_value_in_high_set": 3.5,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.2
-        }
-       ],
-       "width_drivers": [
-        "tariff_indexation_revenue",
-        "wage_payroll",
-        "power_price_losses"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 212.4,
-       "delta": {
-        "base": 15.5,
-        "low": -35.6,
-        "high": 76.8
-       },
-       "value": {
-        "base": 227.9,
-        "low": 176.8,
-        "high": 289.2
-       },
-       "pct": {
-        "base": 7.3,
-        "low": -16.8,
-        "high": 36.2
-       },
-       "dominant_factor": "Ключевая ставка → проценты по долгу под инвестпрограмму",
-       "dominant_factor_id": "rate_debt_interest",
-       "contributions": [
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → проценты по долгу под инвестпрограмму",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": 26.38,
-         "low": 17.14,
-         "high": 41.89,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 22.0
-        },
-        {
-         "id": "rate_interest_income",
-         "label": "Ключевая ставка → процентный доход на денежные остатки (встречный канал)",
-         "var": "key_rate_avg",
-         "delta_var": -10.7,
-         "var_from": 19.2,
-         "var_to": 8.5,
-         "base": -16.05,
-         "low": -22.4,
-         "high": -12.32,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.0
-        },
-        {
-         "id": "wage_payroll",
-         "label": "Зарплаты в экономике → фонд оплаты труда (крупнейшая статья затрат)",
-         "var": "nominal_wage",
-         "delta_var": -7.9,
-         "var_from": 14.4,
-         "var_to": 6.5,
-         "base": 9.56,
-         "low": 5.52,
-         "high": 16.46,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.5,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.5"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 9.7
-        },
-        {
-         "id": "inst_investment_program",
-         "label": "Директивная инвестпрограмма: долг растёт независимо от цены денег",
-         "kind": "institutional",
-         "base": -8.0,
-         "low": -12.0,
-         "high": -4.0,
-         "is_modifier": true,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "width_share_pct": 7.1
-        },
-        {
-         "id": "inflation_costs",
-         "label": "Инфляция → ремонт, материалы, услуги подрядчиков и налоги на имущество",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 5.63,
-         "low": 3.45,
-         "high": 8.55,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.5
-        },
-        {
-         "id": "tariff_indexation_revenue",
-         "label": "Индексация тарифа на передачу → тарифная выручка и маржа",
-         "var": "tariff_indexation",
-         "delta_var": -0.35,
-         "var_from": 10.6,
-         "var_to": 10.25,
-         "base": -3.36,
-         "low": -17.12,
-         "high": 9.63,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 11.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 23.8
-        },
-        {
-         "id": "gdp_volume",
-         "label": "Рост экономики → полезный отпуск электроэнергии → выручка от передачи",
-         "var": "gdp",
-         "delta_var": 1.0,
-         "var_from": 1.0,
-         "var_to": 2.0,
-         "base": 2.8,
-         "low": 0.68,
-         "high": 7.68,
-         "var_value_in_low_set": 1.5,
-         "var_value_in_high_set": 2.5,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.2
-        },
-        {
-         "id": "power_price_losses",
-         "label": "Цена электроэнергии на оптовом рынке → покупка на компенсацию потерь и перепродажа",
-         "var": "power_price_wholesale",
-         "delta_var": -3.0,
-         "var_from": 12.0,
-         "var_to": 9.0,
-         "base": 2.57,
-         "low": 0.36,
-         "high": 8.0,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.8
-        },
-        {
-         "id": "geo_import_equipment",
-         "label": "Санкционная надбавка и сроки по импортному высоковольтному оборудованию",
-         "kind": "geo",
-         "base": -1.5,
-         "low": -3.0,
-         "high": 0.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.7
-        },
-        {
-         "id": "geo_grid_damage",
-         "label": "Физические удары по приграничным сетям: восстановление и выпадение выручки",
-         "kind": "geo",
-         "base": -1.5,
-         "low": -3.0,
-         "high": 0.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.7
-        },
-        {
-         "id": "fx_capex_imports",
-         "label": "Курс рубля → импортное оборудование инвестпрограммы и импортные материалы",
-         "var": "usdrub_avg",
-         "delta_var": 8.7,
-         "var_from": 83.3,
-         "var_to": 92.0,
-         "base": -1.31,
-         "low": -4.45,
-         "high": -0.24,
-         "var_value_in_low_set": 96.0,
-         "var_value_in_high_set": 88.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.7
-        },
-        {
-         "id": "gfcf_connections",
-         "label": "Инвестиции в экономике → технологическое присоединение новых потребителей",
-         "var": "gfcf",
-         "delta_var": 2.9,
-         "var_from": -0.4,
-         "var_to": 2.5,
-         "base": 0.29,
-         "low": -0.78,
-         "high": 1.17,
-         "var_value_in_low_set": 3.5,
-         "var_value_in_high_set": 3.5,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.7
-        }
-       ],
-       "width_drivers": [
-        "tariff_indexation_revenue",
-        "rate_debt_interest",
-        "wage_payroll"
-       ]
-      }
-     },
-     "flags": [],
-     "missing_vars": []
     }
    }
   },
@@ -2043,9 +1526,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -2078,6 +1561,51 @@
        "high": 14.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -2678,9 +2206,9 @@
        "high": 18.0
       },
       "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 85.0,
@@ -2713,6 +2241,51 @@
        "high": 10.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 9.0,
+       "high": 11.0,
+       "mid": 10.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "9–11%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 3.7,
+       "high": 5.1,
+       "mid": 4.4,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "3,7–5,1%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 2.5,
+       "high": 3.5,
+       "mid": 3.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "2,5–3,5%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 85.0,
+       "high": 93.0,
+       "mid": 89.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "85–93 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -3245,647 +2818,6 @@
      },
      "flags": [],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Дезинфляционный 2028",
-     "scenario_id": "disinflation",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "key_rate_avg": {
-       "low": 7.0,
-       "mid": 7.5,
-       "high": 8.0
-      },
-      "gdp": {
-       "low": 2.0,
-       "mid": 2.5,
-       "high": 3.0
-      },
-      "consumption_hh": {
-       "low": 2.0,
-       "mid": 2.5,
-       "high": 3.0
-      },
-      "gfcf": {
-       "low": 2.5,
-       "mid": 3.5,
-       "high": 4.5
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": 1.5,
-       "mid": 2.5,
-       "high": 3.5
-      },
-      "money_supply": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "credit_total": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "credit_corp": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "credit_hh": {
-       "low": 9.0,
-       "mid": 11.5,
-       "high": 14.0
-      },
-      "mortgage": {
-       "low": 11.0,
-       "mid": 13.5,
-       "high": 16.0
-      },
-      "current_account": {
-       "low": 9.0,
-       "mid": 9.0,
-       "high": 9.0
-      },
-      "oil_tax_price": {
-       "low": 50.0,
-       "mid": 50.0,
-       "high": 50.0
-      },
-      "usdrub_avg": {
-       "low": 89.0,
-       "mid": 93.0,
-       "high": 97.0
-      },
-      "real_wage": {
-       "low": 3.0,
-       "mid": 4.0,
-       "high": 5.0
-      },
-      "nominal_wage": {
-       "low": 7.0,
-       "mid": 8.0,
-       "high": 9.0
-      },
-      "unemployment": {
-       "low": 2.3,
-       "mid": 2.55,
-       "high": 2.8
-      },
-      "tariff_indexation": {
-       "low": 7.5,
-       "mid": 8.75,
-       "high": 10.0
-      },
-      "power_price_wholesale": {
-       "low": 5.0,
-       "mid": 7.0,
-       "high": 9.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 1834.0,
-       "delta": {
-        "base": -28.1,
-        "low": -69.6,
-        "high": 18.4
-       },
-       "value": {
-        "base": 1805.9,
-        "low": 1764.4,
-        "high": 1852.4
-       },
-       "pct": {
-        "base": -1.5,
-        "low": -3.8,
-        "high": 1.0
-       },
-       "dominant_factor": "Индексация тарифа на передачу → тарифная выручка и маржа",
-       "dominant_factor_id": "tariff_indexation_revenue",
-       "contributions": [
-        {
-         "id": "tariff_indexation_revenue",
-         "label": "Индексация тарифа на передачу → тарифная выручка и маржа",
-         "var": "tariff_indexation",
-         "delta_var": -1.85,
-         "var_from": 10.6,
-         "var_to": 8.75,
-         "base": -26.08,
-         "low": -46.5,
-         "high": -7.2,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 10.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 44.7
-        },
-        {
-         "id": "power_price_losses",
-         "label": "Цена электроэнергии на оптовом рынке → покупка на компенсацию потерь и перепродажа",
-         "var": "power_price_wholesale",
-         "delta_var": -5.0,
-         "var_from": 12.0,
-         "var_to": 7.0,
-         "base": -14.8,
-         "low": -28.0,
-         "high": -4.8,
-         "var_value_in_low_set": 5.0,
-         "var_value_in_high_set": 9.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 26.4
-        },
-        {
-         "id": "gdp_volume",
-         "label": "Рост экономики → полезный отпуск электроэнергии → выручка от передачи",
-         "var": "gdp",
-         "delta_var": 1.5,
-         "var_from": 1.0,
-         "var_to": 2.5,
-         "base": 10.2,
-         "low": 4.0,
-         "high": 24.0,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 22.7
-        },
-        {
-         "id": "gfcf_connections",
-         "label": "Инвестиции в экономике → технологическое присоединение новых потребителей",
-         "var": "gfcf",
-         "delta_var": 3.9,
-         "var_from": -0.4,
-         "var_to": 3.5,
-         "base": 2.57,
-         "low": 0.87,
-         "high": 6.37,
-         "var_value_in_low_set": 2.5,
-         "var_value_in_high_set": 4.5,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.3
-        }
-       ],
-       "width_drivers": [
-        "tariff_indexation_revenue",
-        "power_price_losses",
-        "gdp_volume"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 389.5,
-       "delta": {
-        "base": 3.9,
-        "low": -38.2,
-        "high": 53.1
-       },
-       "value": {
-        "base": 393.4,
-        "low": 351.3,
-        "high": 442.6
-       },
-       "pct": {
-        "base": 1.0,
-        "low": -9.8,
-        "high": 13.6
-       },
-       "dominant_factor": "Индексация тарифа на передачу → тарифная выручка и маржа",
-       "dominant_factor_id": "tariff_indexation_revenue",
-       "contributions": [
-        {
-         "id": "tariff_indexation_revenue",
-         "label": "Индексация тарифа на передачу → тарифная выручка и маржа",
-         "var": "tariff_indexation",
-         "delta_var": -1.85,
-         "var_from": 10.6,
-         "var_to": 8.75,
-         "base": -23.68,
-         "low": -44.02,
-         "high": -6.0,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 10.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 41.7
-        },
-        {
-         "id": "wage_payroll",
-         "label": "Зарплаты в экономике → фонд оплаты труда (крупнейшая статья затрат)",
-         "var": "nominal_wage",
-         "delta_var": -6.4,
-         "var_from": 14.4,
-         "var_to": 8.0,
-         "base": 10.34,
-         "low": 5.67,
-         "high": 18.13,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.5"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 13.7
-        },
-        {
-         "id": "inflation_costs",
-         "label": "Инфляция → ремонт, материалы, услуги подрядчиков и налоги на имущество",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 7.5,
-         "low": 4.61,
-         "high": 11.19,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.2
-        },
-        {
-         "id": "power_price_losses",
-         "label": "Цена электроэнергии на оптовом рынке → покупка на компенсацию потерь и перепродажа",
-         "var": "power_price_wholesale",
-         "delta_var": -5.0,
-         "var_from": 12.0,
-         "var_to": 7.0,
-         "base": 5.72,
-         "low": 1.44,
-         "high": 14.56,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 5.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 14.4
-        },
-        {
-         "id": "gdp_volume",
-         "label": "Рост экономики → полезный отпуск электроэнергии → выручка от передачи",
-         "var": "gdp",
-         "delta_var": 1.5,
-         "var_from": 1.0,
-         "var_to": 2.5,
-         "base": 5.52,
-         "low": 1.76,
-         "high": 13.6,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 13.0
-        },
-        {
-         "id": "fx_capex_imports",
-         "label": "Курс рубля → импортное оборудование инвестпрограммы и импортные материалы",
-         "var": "usdrub_avg",
-         "delta_var": 9.7,
-         "var_from": 83.3,
-         "var_to": 93.0,
-         "base": -1.84,
-         "low": -6.17,
-         "high": -0.34,
-         "var_value_in_low_set": 97.0,
-         "var_value_in_high_set": 89.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 6.4
-        },
-        {
-         "id": "gfcf_connections",
-         "label": "Инвестиции в экономике → технологическое присоединение новых потребителей",
-         "var": "gfcf",
-         "delta_var": 3.9,
-         "var_from": -0.4,
-         "var_to": 3.5,
-         "base": 0.39,
-         "low": -1.47,
-         "high": 1.96,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 4.5,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.8
-        }
-       ],
-       "width_drivers": [
-        "tariff_indexation_revenue",
-        "power_price_losses",
-        "wage_payroll"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 212.4,
-       "delta": {
-        "base": 18.3,
-        "low": -42.5,
-        "high": 88.6
-       },
-       "value": {
-        "base": 230.7,
-        "low": 169.9,
-        "high": 301.0
-       },
-       "pct": {
-        "base": 8.6,
-        "low": -20.0,
-        "high": 41.7
-       },
-       "dominant_factor": "Ключевая ставка → проценты по долгу под инвестпрограмму",
-       "dominant_factor_id": "rate_debt_interest",
-       "contributions": [
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → проценты по долгу под инвестпрограмму",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": 28.84,
-         "low": 18.67,
-         "high": 45.63,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 20.6
-        },
-        {
-         "id": "tariff_indexation_revenue",
-         "label": "Индексация тарифа на передачу → тарифная выручка и маржа",
-         "var": "tariff_indexation",
-         "delta_var": -1.85,
-         "var_from": 10.6,
-         "var_to": 8.75,
-         "base": -17.76,
-         "low": -33.17,
-         "high": -4.5,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 10.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 21.9
-        },
-        {
-         "id": "rate_interest_income",
-         "label": "Ключевая ставка → процентный доход на денежные остатки (встречный канал)",
-         "var": "key_rate_avg",
-         "delta_var": -11.7,
-         "var_from": 19.2,
-         "var_to": 7.5,
-         "base": -17.55,
-         "low": -24.4,
-         "high": -13.42,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 8.4
-        },
-        {
-         "id": "wage_payroll",
-         "label": "Зарплаты в экономике → фонд оплаты труда (крупнейшая статья затрат)",
-         "var": "nominal_wage",
-         "delta_var": -6.4,
-         "var_from": 14.4,
-         "var_to": 8.0,
-         "base": 7.74,
-         "low": 4.32,
-         "high": 13.69,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 7.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.5"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.2
-        },
-        {
-         "id": "inflation_costs",
-         "label": "Инфляция → ремонт, материалы, услуги подрядчиков и налоги на имущество",
-         "var": "inflation_avg",
-         "delta_var": -4.7,
-         "var_from": 8.7,
-         "var_to": 4.0,
-         "base": 5.63,
-         "low": 3.45,
-         "high": 8.55,
-         "var_value_in_low_set": 4.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.9
-        },
-        {
-         "id": "inst_tariff_decision",
-         "label": "Административное решение по тарифу: перенос даты индексации или частичная заморозка",
-         "kind": "institutional",
-         "base": 5.0,
-         "low": 0.0,
-         "high": 10.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 7.6
-        },
-        {
-         "id": "inst_investment_program",
-         "label": "Директивная инвестпрограмма: долг растёт независимо от цены денег",
-         "kind": "institutional",
-         "base": -5.0,
-         "low": -8.0,
-         "high": -2.0,
-         "is_modifier": true,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "width_share_pct": 4.6
-        },
-        {
-         "id": "power_price_losses",
-         "label": "Цена электроэнергии на оптовом рынке → покупка на компенсацию потерь и перепродажа",
-         "var": "power_price_wholesale",
-         "delta_var": -5.0,
-         "var_from": 12.0,
-         "var_to": 7.0,
-         "base": 4.28,
-         "low": 1.08,
-         "high": 11.2,
-         "var_value_in_low_set": 9.0,
-         "var_value_in_high_set": 5.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.7
-        },
-        {
-         "id": "gdp_volume",
-         "label": "Рост экономики → полезный отпуск электроэнергии → выручка от передачи",
-         "var": "gdp",
-         "delta_var": 1.5,
-         "var_from": 1.0,
-         "var_to": 2.5,
-         "base": 4.2,
-         "low": 1.36,
-         "high": 10.24,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 3.0,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вверх ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.8
-        },
-        {
-         "id": "fin_access_spread",
-         "label": "Доступ к финансированию и спред по новым размещениям",
-         "kind": "institutional",
-         "base": 1.5,
-         "low": 0.0,
-         "high": 3.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.3
-        },
-        {
-         "id": "geo_import_equipment",
-         "label": "Санкционная надбавка и сроки по импортному высоковольтному оборудованию",
-         "kind": "geo",
-         "base": 1.5,
-         "low": 0.0,
-         "high": 3.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 2.3
-        },
-        {
-         "id": "fx_capex_imports",
-         "label": "Курс рубля → импортное оборудование инвестпрограммы и импортные материалы",
-         "var": "usdrub_avg",
-         "delta_var": 9.7,
-         "var_from": 83.3,
-         "var_to": 93.0,
-         "base": -1.46,
-         "low": -4.8,
-         "high": -0.29,
-         "var_value_in_low_set": 97.0,
-         "var_value_in_high_set": 89.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.4
-        },
-        {
-         "id": "geo_grid_damage",
-         "label": "Физические удары по приграничным сетям: восстановление и выпадение выручки",
-         "kind": "geo",
-         "base": 1.0,
-         "low": 0.0,
-         "high": 2.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 1.5
-        },
-        {
-         "id": "gfcf_connections",
-         "label": "Инвестиции в экономике → технологическое присоединение новых потребителей",
-         "var": "gfcf",
-         "delta_var": 3.9,
-         "var_from": -0.4,
-         "var_to": 3.5,
-         "base": 0.39,
-         "low": -0.98,
-         "high": 1.47,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 4.5,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.9
-        }
-       ],
-       "width_drivers": [
-        "tariff_indexation_revenue",
-        "rate_debt_interest",
-        "rate_interest_income"
-       ]
-      }
-     },
-     "flags": [],
-     "missing_vars": []
     }
    }
   },
@@ -3968,9 +2900,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -4003,6 +2935,51 @@
        "high": 14.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -4615,9 +3592,9 @@
        "high": 10.0
       },
       "oil_tax_price": {
-       "low": 45.0,
-       "mid": 45.0,
-       "high": 45.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 90.0,
@@ -4650,6 +3627,51 @@
        "high": 14.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 13.0,
+       "high": 15.0,
+       "mid": 14.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "13–15%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 4.6,
+       "high": 5.9,
+       "mid": 5.25,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "4,6–5,9%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 1.0,
+       "high": 2.0,
+       "mid": 1.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "1–2%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 90.0,
+       "high": 100.0,
+       "mid": 95.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "90–100 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -5194,653 +4216,6 @@
      },
      "flags": [],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Проинфляционный 2028",
-     "scenario_id": "proinflation",
-     "conditions": {
-      "inflation_dec": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "inflation_avg": {
-       "low": 4.0,
-       "mid": 4.25,
-       "high": 4.5
-      },
-      "key_rate_avg": {
-       "low": 11.0,
-       "mid": 11.5,
-       "high": 12.0
-      },
-      "gdp": {
-       "low": 0.5,
-       "mid": 1.0,
-       "high": 1.5
-      },
-      "consumption_hh": {
-       "low": 0.0,
-       "mid": 0.5,
-       "high": 1.0
-      },
-      "gfcf": {
-       "low": 0.0,
-       "mid": 1.0,
-       "high": 2.0
-      },
-      "exports_vol": {
-       "low": 1.0,
-       "mid": 2.0,
-       "high": 3.0
-      },
-      "imports_vol": {
-       "low": -2.0,
-       "mid": -1.0,
-       "high": 0.0
-      },
-      "money_supply": {
-       "low": 7.0,
-       "mid": 9.5,
-       "high": 12.0
-      },
-      "credit_total": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_corp": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_hh": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "mortgage": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "current_account": {
-       "low": 13.0,
-       "mid": 13.0,
-       "high": 13.0
-      },
-      "oil_tax_price": {
-       "low": 45.0,
-       "mid": 45.0,
-       "high": 45.0
-      },
-      "usdrub_avg": {
-       "low": 95.0,
-       "mid": 100.0,
-       "high": 105.0
-      },
-      "real_wage": {
-       "low": 0.0,
-       "mid": 1.0,
-       "high": 2.0
-      },
-      "nominal_wage": {
-       "low": 5.0,
-       "mid": 6.25,
-       "high": 7.5
-      },
-      "unemployment": {
-       "low": 2.5,
-       "mid": 2.85,
-       "high": 3.2
-      },
-      "tariff_indexation": {
-       "low": 9.5,
-       "mid": 11.0,
-       "high": 12.5
-      },
-      "power_price_wholesale": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 1834.0,
-       "delta": {
-        "base": 2.1,
-        "low": -39.9,
-        "high": 42.6
-       },
-       "value": {
-        "base": 1836.1,
-        "low": 1794.1,
-        "high": 1876.6
-       },
-       "pct": {
-        "base": 0.1,
-        "low": -2.2,
-        "high": 2.3
-       },
-       "dominant_factor": "Индексация тарифа на передачу → тарифная выручка и маржа",
-       "dominant_factor_id": "tariff_indexation_revenue",
-       "contributions": [
-        {
-         "id": "tariff_indexation_revenue",
-         "label": "Индексация тарифа на передачу → тарифная выручка и маржа",
-         "var": "tariff_indexation",
-         "delta_var": 0.4,
-         "var_from": 10.6,
-         "var_to": 11.0,
-         "base": 5.64,
-         "low": -16.5,
-         "high": 28.5,
-         "var_value_in_low_set": 9.5,
-         "var_value_in_high_set": 12.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 54.5
-        },
-        {
-         "id": "power_price_losses",
-         "label": "Цена электроэнергии на оптовом рынке → покупка на компенсацию потерь и перепродажа",
-         "var": "power_price_wholesale",
-         "delta_var": -1.5,
-         "var_from": 12.0,
-         "var_to": 10.5,
-         "base": -4.44,
-         "low": -16.0,
-         "high": 5.0,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 13.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 25.5
-        },
-        {
-         "id": "gfcf_connections",
-         "label": "Инвестиции в экономике → технологическое присоединение новых потребителей",
-         "var": "gfcf",
-         "delta_var": 1.4,
-         "var_from": -0.4,
-         "var_to": 1.0,
-         "base": 0.92,
-         "low": 0.12,
-         "high": 3.12,
-         "var_value_in_low_set": 0.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.6
-        },
-        {
-         "id": "gdp_volume",
-         "label": "Рост экономики → полезный отпуск электроэнергии → выручка от передачи",
-         "var": "gdp",
-         "delta_var": 0.0,
-         "var_from": 1.0,
-         "var_to": 1.0,
-         "base": 0.0,
-         "low": -7.5,
-         "high": 6.0,
-         "var_value_in_low_set": 0.5,
-         "var_value_in_high_set": 1.5,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 16.4
-        }
-       ],
-       "width_drivers": [
-        "tariff_indexation_revenue",
-        "power_price_losses",
-        "gdp_volume"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 389.5,
-       "delta": {
-        "base": 24.1,
-        "low": -21.6,
-        "high": 73.2
-       },
-       "value": {
-        "base": 413.6,
-        "low": 367.9,
-        "high": 462.7
-       },
-       "pct": {
-        "base": 6.2,
-        "low": -5.5,
-        "high": 18.8
-       },
-       "dominant_factor": "Зарплаты в экономике → фонд оплаты труда (крупнейшая статья затрат)",
-       "dominant_factor_id": "wage_payroll",
-       "contributions": [
-        {
-         "id": "wage_payroll",
-         "label": "Зарплаты в экономике → фонд оплаты труда (крупнейшая статья затрат)",
-         "var": "nominal_wage",
-         "delta_var": -8.15,
-         "var_from": 14.4,
-         "var_to": 6.25,
-         "base": 13.16,
-         "low": 7.25,
-         "high": 23.03,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.5"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 16.7
-        },
-        {
-         "id": "inflation_costs",
-         "label": "Инфляция → ремонт, материалы, услуги подрядчиков и налоги на имущество",
-         "var": "inflation_avg",
-         "delta_var": -4.45,
-         "var_from": 8.7,
-         "var_to": 4.25,
-         "base": 7.1,
-         "low": 4.12,
-         "high": 11.19,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.5
-        },
-        {
-         "id": "tariff_indexation_revenue",
-         "label": "Индексация тарифа на передачу → тарифная выручка и маржа",
-         "var": "tariff_indexation",
-         "delta_var": 0.4,
-         "var_from": 10.6,
-         "var_to": 11.0,
-         "base": 5.12,
-         "low": -15.62,
-         "high": 26.98,
-         "var_value_in_low_set": 9.5,
-         "var_value_in_high_set": 12.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 45.0
-        },
-        {
-         "id": "fx_capex_imports",
-         "label": "Курс рубля → импортное оборудование инвестпрограммы и импортные материалы",
-         "var": "usdrub_avg",
-         "delta_var": 16.7,
-         "var_from": 83.3,
-         "var_to": 100.0,
-         "base": -3.17,
-         "low": -9.77,
-         "high": -0.7,
-         "var_value_in_low_set": 105.0,
-         "var_value_in_high_set": 95.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.6
-        },
-        {
-         "id": "power_price_losses",
-         "label": "Цена электроэнергии на оптовом рынке → покупка на компенсацию потерь и перепродажа",
-         "var": "power_price_wholesale",
-         "delta_var": -1.5,
-         "var_from": 12.0,
-         "var_to": 10.5,
-         "base": 1.72,
-         "low": -2.6,
-         "high": 8.32,
-         "var_value_in_low_set": 13.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 11.5
-        },
-        {
-         "id": "gfcf_connections",
-         "label": "Инвестиции в экономике → технологическое присоединение новых потребителей",
-         "var": "gfcf",
-         "delta_var": 1.4,
-         "var_from": -0.4,
-         "var_to": 1.0,
-         "base": 0.14,
-         "low": -0.72,
-         "high": 0.96,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.8
-        },
-        {
-         "id": "gdp_volume",
-         "label": "Рост экономики → полезный отпуск электроэнергии → выручка от передачи",
-         "var": "gdp",
-         "delta_var": 0.0,
-         "var_from": 1.0,
-         "var_to": 1.0,
-         "base": 0.0,
-         "low": -4.25,
-         "high": 3.4,
-         "var_value_in_low_set": 0.5,
-         "var_value_in_high_set": 1.5,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 8.1
-        }
-       ],
-       "width_drivers": [
-        "tariff_indexation_revenue",
-        "wage_payroll",
-        "power_price_losses"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 212.4,
-       "delta": {
-        "base": -12.6,
-        "low": -87.3,
-        "high": 68.0
-       },
-       "value": {
-        "base": 199.8,
-        "low": 125.1,
-        "high": 280.4
-       },
-       "pct": {
-        "base": -5.9,
-        "low": -41.1,
-        "high": 32.0
-       },
-       "dominant_factor": "Ключевая ставка → проценты по долгу под инвестпрограмму",
-       "dominant_factor_id": "rate_debt_interest",
-       "contributions": [
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → проценты по долгу под инвестпрограмму",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": 18.98,
-         "low": 12.55,
-         "high": 30.67,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 11.7
-        },
-        {
-         "id": "inst_investment_program",
-         "label": "Директивная инвестпрограмма: долг растёт независимо от цены денег",
-         "kind": "institutional",
-         "base": -12.5,
-         "low": -18.0,
-         "high": -7.0,
-         "is_modifier": true,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "width_share_pct": 7.1
-        },
-        {
-         "id": "rate_interest_income",
-         "label": "Ключевая ставка → процентный доход на денежные остатки (встречный канал)",
-         "var": "key_rate_avg",
-         "delta_var": -7.7,
-         "var_from": 19.2,
-         "var_to": 11.5,
-         "base": -11.55,
-         "low": -16.4,
-         "high": -9.02,
-         "var_value_in_low_set": 11.0,
-         "var_value_in_high_set": 11.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.8
-        },
-        {
-         "id": "inst_tariff_decision",
-         "label": "Административное решение по тарифу: перенос даты индексации или частичная заморозка",
-         "kind": "institutional",
-         "base": -10.0,
-         "low": -20.0,
-         "high": 0.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 12.9
-        },
-        {
-         "id": "wage_payroll",
-         "label": "Зарплаты в экономике → фонд оплаты труда (крупнейшая статья затрат)",
-         "var": "nominal_wage",
-         "delta_var": -8.15,
-         "var_from": 14.4,
-         "var_to": 6.25,
-         "base": 9.86,
-         "low": 5.52,
-         "high": 17.39,
-         "var_value_in_low_set": 7.5,
-         "var_value_in_high_set": 5.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.5"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 7.6
-        },
-        {
-         "id": "inst_tax_burden",
-         "label": "Налоговая нагрузка на сетевые активы (налог на имущество, кадастровая переоценка, льготы по ЛЭП)",
-         "kind": "institutional",
-         "base": -6.0,
-         "low": -12.0,
-         "high": 0.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 7.7
-        },
-        {
-         "id": "inflation_costs",
-         "label": "Инфляция → ремонт, материалы, услуги подрядчиков и налоги на имущество",
-         "var": "inflation_avg",
-         "delta_var": -4.45,
-         "var_from": 8.7,
-         "var_to": 4.25,
-         "base": 5.33,
-         "low": 3.09,
-         "high": 8.55,
-         "var_value_in_low_set": 4.5,
-         "var_value_in_high_set": 4.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.7"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.5
-        },
-        {
-         "id": "tariff_indexation_revenue",
-         "label": "Индексация тарифа на передачу → тарифная выручка и маржа",
-         "var": "tariff_indexation",
-         "delta_var": 0.4,
-         "var_from": 10.6,
-         "var_to": 11.0,
-         "base": 3.84,
-         "low": -11.77,
-         "high": 20.33,
-         "var_value_in_low_set": 9.5,
-         "var_value_in_high_set": 12.5,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 20.7
-        },
-        {
-         "id": "geo_import_equipment",
-         "label": "Санкционная надбавка и сроки по импортному высоковольтному оборудованию",
-         "kind": "geo",
-         "base": -3.5,
-         "low": -6.0,
-         "high": -1.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 3.2
-        },
-        {
-         "id": "geo_grid_damage",
-         "label": "Физические удары по приграничным сетям: восстановление и выпадение выручки",
-         "kind": "geo",
-         "base": -3.5,
-         "low": -6.0,
-         "high": -1.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 3.2
-        },
-        {
-         "id": "fx_capex_imports",
-         "label": "Курс рубля → импортное оборудование инвестпрограммы и импортные материалы",
-         "var": "usdrub_avg",
-         "delta_var": 16.7,
-         "var_from": 83.3,
-         "var_to": 100.0,
-         "base": -2.51,
-         "low": -7.6,
-         "high": -0.59,
-         "var_value_in_low_set": 105.0,
-         "var_value_in_high_set": 95.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.5
-        },
-        {
-         "id": "fin_access_spread",
-         "label": "Доступ к финансированию и спред по новым размещениям",
-         "kind": "institutional",
-         "base": -2.5,
-         "low": -5.0,
-         "high": 0.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 3.2
-        },
-        {
-         "id": "power_price_losses",
-         "label": "Цена электроэнергии на оптовом рынке → покупка на компенсацию потерь и перепродажа",
-         "var": "power_price_wholesale",
-         "delta_var": -1.5,
-         "var_from": 12.0,
-         "var_to": 10.5,
-         "base": 1.28,
-         "low": -2.0,
-         "high": 6.4,
-         "var_value_in_low_set": 13.0,
-         "var_value_in_high_set": 8.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.8"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.4
-        },
-        {
-         "id": "gfcf_connections",
-         "label": "Инвестиции в экономике → технологическое присоединение новых потребителей",
-         "var": "gfcf",
-         "delta_var": 1.4,
-         "var_from": -0.4,
-         "var_to": 1.0,
-         "base": 0.14,
-         "low": -0.48,
-         "high": 0.72,
-         "var_value_in_low_set": 2.0,
-         "var_value_in_high_set": 2.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.8
-        },
-        {
-         "id": "gdp_volume",
-         "label": "Рост экономики → полезный отпуск электроэнергии → выручка от передачи",
-         "var": "gdp",
-         "delta_var": 0.0,
-         "var_from": 1.0,
-         "var_to": 1.0,
-         "base": 0.0,
-         "low": -3.2,
-         "high": 2.56,
-         "var_value_in_low_set": 0.5,
-         "var_value_in_high_set": 1.5,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 3.7
-        }
-       ],
-       "width_drivers": [
-        "tariff_indexation_revenue",
-        "inst_tariff_decision",
-        "rate_debt_interest"
-       ]
-      }
-     },
-     "flags": [],
-     "missing_vars": []
     }
    }
   },
@@ -5923,9 +4298,9 @@
        "high": 48.0
       },
       "oil_tax_price": {
-       "low": 60.0,
-       "mid": 60.0,
-       "high": 60.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 78.0,
@@ -5958,6 +4333,51 @@
        "high": 14.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 14.5,
+       "high": 14.6,
+       "mid": 14.55,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "14,5–14,6%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 5.9,
+       "high": 6.2,
+       "mid": 6.050000000000001,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "5,9–6,2%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": 0.0,
+       "high": 1.0,
+       "mid": 0.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "0–1%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 78.0,
+       "high": 82.0,
+       "mid": 80.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "78–82 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -6570,9 +4990,9 @@
        "high": 5.0
       },
       "oil_tax_price": {
-       "low": 35.0,
-       "mid": 35.0,
-       "high": 35.0
+       "low": 56.0,
+       "mid": 56.0,
+       "high": 56.0
       },
       "usdrub_avg": {
        "low": 105.0,
@@ -6605,6 +5025,51 @@
        "high": 18.0
       }
      },
+     "conditions_core": [
+      {
+       "var": "key_rate_avg",
+       "label": "ключевая ставка, средняя за год",
+       "low": 19.0,
+       "high": 21.0,
+       "mid": 20.0,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "19–21%"
+      },
+      {
+       "var": "inflation_avg",
+       "label": "инфляция, средняя за год",
+       "low": 7.3,
+       "high": 9.3,
+       "mid": 8.3,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "7,3–9,3%"
+      },
+      {
+       "var": "gdp",
+       "label": "рост ВВП",
+       "low": -4.0,
+       "high": -3.0,
+       "mid": -3.5,
+       "unit": "%",
+       "origin": "ЦБ",
+       "text": "от −4 до −3%"
+      },
+      {
+       "var": "usdrub_avg",
+       "label": "курс доллара, средний",
+       "low": 105.0,
+       "high": 125.0,
+       "mid": 115.0,
+       "unit": "руб.",
+       "origin": "допущение Basis",
+       "text": "105–125 руб."
+      }
+     ],
+     "held_at_base": [
+      "oil_tax_price"
+     ],
      "lines": {
       "revenue": {
        "label": "выручка",
@@ -7143,649 +5608,6 @@
       "при неблагоприятных значениях входов прибыль уходит в убыток"
      ],
      "missing_vars": []
-    },
-    "2028": {
-     "label": "Рисковый 2028",
-     "scenario_id": "risk",
-     "conditions": {
-      "inflation_dec": {
-       "low": 5.0,
-       "mid": 6.0,
-       "high": 7.0
-      },
-      "inflation_avg": {
-       "low": 9.3,
-       "mid": 10.35,
-       "high": 11.4
-      },
-      "key_rate_avg": {
-       "low": 14.0,
-       "mid": 15.0,
-       "high": 16.0
-      },
-      "gdp": {
-       "low": -2.5,
-       "mid": -2.0,
-       "high": -1.5
-      },
-      "consumption_hh": {
-       "low": -6.5,
-       "mid": -6.0,
-       "high": -5.5
-      },
-      "gfcf": {
-       "low": -2.0,
-       "mid": -1.0,
-       "high": 0.0
-      },
-      "exports_vol": {
-       "low": -3.0,
-       "mid": -2.0,
-       "high": -1.0
-      },
-      "imports_vol": {
-       "low": -20.0,
-       "mid": -19.0,
-       "high": -18.0
-      },
-      "money_supply": {
-       "low": 6.0,
-       "mid": 8.5,
-       "high": 11.0
-      },
-      "credit_total": {
-       "low": 2.0,
-       "mid": 4.5,
-       "high": 7.0
-      },
-      "credit_corp": {
-       "low": 3.0,
-       "mid": 5.5,
-       "high": 8.0
-      },
-      "credit_hh": {
-       "low": -1.0,
-       "mid": 1.5,
-       "high": 4.0
-      },
-      "mortgage": {
-       "low": 2.0,
-       "mid": 4.5,
-       "high": 7.0
-      },
-      "current_account": {
-       "low": 4.0,
-       "mid": 4.0,
-       "high": 4.0
-      },
-      "oil_tax_price": {
-       "low": 25.0,
-       "mid": 25.0,
-       "high": 25.0
-      },
-      "usdrub_avg": {
-       "low": 115.0,
-       "mid": 127.5,
-       "high": 140.0
-      },
-      "real_wage": {
-       "low": -6.0,
-       "mid": -4.5,
-       "high": -3.0
-      },
-      "nominal_wage": {
-       "low": 4.0,
-       "mid": 5.5,
-       "high": 7.0
-      },
-      "unemployment": {
-       "low": 4.5,
-       "mid": 5.25,
-       "high": 6.0
-      },
-      "tariff_indexation": {
-       "low": 8.0,
-       "mid": 10.5,
-       "high": 13.0
-      },
-      "power_price_wholesale": {
-       "low": 12.0,
-       "mid": 15.0,
-       "high": 18.0
-      }
-     },
-     "lines": {
-      "revenue": {
-       "label": "выручка",
-       "base_year_value": 1834.0,
-       "delta": {
-        "base": -16.2,
-        "low": -109.3,
-        "high": 54.0
-       },
-       "value": {
-        "base": 1817.8,
-        "low": 1724.7,
-        "high": 1888.0
-       },
-       "pct": {
-        "base": -0.9,
-        "low": -6.0,
-        "high": 2.9
-       },
-       "dominant_factor": "Рост экономики → полезный отпуск электроэнергии → выручка от передачи",
-       "dominant_factor_id": "gdp_volume",
-       "contributions": [
-        {
-         "id": "gdp_volume",
-         "label": "Рост экономики → полезный отпуск электроэнергии → выручка от передачи",
-         "var": "gdp",
-         "delta_var": -3.0,
-         "var_from": 1.0,
-         "var_to": -2.0,
-         "base": -25.5,
-         "low": -68.25,
-         "high": -12.5,
-         "var_value_in_low_set": -2.5,
-         "var_value_in_high_set": -1.5,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 34.1
-        },
-        {
-         "id": "power_price_losses",
-         "label": "Цена электроэнергии на оптовом рынке → покупка на компенсацию потерь и перепродажа",
-         "var": "power_price_wholesale",
-         "delta_var": 3.0,
-         "var_from": 12.0,
-         "var_to": 15.0,
-         "base": 11.1,
-         "low": 0.0,
-         "high": 30.0,
-         "var_value_in_low_set": 12.0,
-         "var_value_in_high_set": 18.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 18.4
-        },
-        {
-         "id": "tariff_indexation_revenue",
-         "label": "Индексация тарифа на передачу → тарифная выручка и маржа",
-         "var": "tariff_indexation",
-         "delta_var": -0.1,
-         "var_from": 10.6,
-         "var_to": 10.5,
-         "base": -1.41,
-         "low": -39.0,
-         "high": 36.0,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 13.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 45.9
-        },
-        {
-         "id": "gfcf_connections",
-         "label": "Инвестиции в экономике → технологическое присоединение новых потребителей",
-         "var": "gfcf",
-         "delta_var": -0.6,
-         "var_from": -0.4,
-         "var_to": -1.0,
-         "base": -0.4,
-         "low": -2.08,
-         "high": 0.52,
-         "var_value_in_low_set": -2.0,
-         "var_value_in_high_set": 0.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.6
-        }
-       ],
-       "width_drivers": [
-        "tariff_indexation_revenue",
-        "gdp_volume",
-        "power_price_losses"
-       ]
-      },
-      "ebitda": {
-       "label": "EBITDA",
-       "base_year_value": 389.5,
-       "delta": {
-        "base": -18.2,
-        "low": -121.1,
-        "high": 51.6
-       },
-       "value": {
-        "base": 371.3,
-        "low": 268.4,
-        "high": 441.1
-       },
-       "pct": {
-        "base": -4.7,
-        "low": -31.1,
-        "high": 13.2
-       },
-       "dominant_factor": "Зарплаты в экономике → фонд оплаты труда (крупнейшая статья затрат)",
-       "dominant_factor_id": "wage_payroll",
-       "contributions": [
-        {
-         "id": "wage_payroll",
-         "label": "Зарплаты в экономике → фонд оплаты труда (крупнейшая статья затрат)",
-         "var": "nominal_wage",
-         "delta_var": -8.9,
-         "var_from": 14.4,
-         "var_to": 5.5,
-         "base": 14.37,
-         "low": 7.77,
-         "high": 25.48,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.5"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 10.3
-        },
-        {
-         "id": "gdp_volume",
-         "label": "Рост экономики → полезный отпуск электроэнергии → выручка от передачи",
-         "var": "gdp",
-         "delta_var": -3.0,
-         "var_from": 1.0,
-         "var_to": -2.0,
-         "base": -13.8,
-         "low": -38.68,
-         "high": -5.5,
-         "var_value_in_low_set": -2.5,
-         "var_value_in_high_set": -1.5,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 19.2
-        },
-        {
-         "id": "fx_capex_imports",
-         "label": "Курс рубля → импортное оборудование инвестпрограммы и импортные материалы",
-         "var": "usdrub_avg",
-         "delta_var": 44.2,
-         "var_from": 83.3,
-         "var_to": 127.5,
-         "base": -8.4,
-         "low": -25.52,
-         "high": -1.9,
-         "var_value_in_low_set": 140.0,
-         "var_value_in_high_set": 115.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 13.7
-        },
-        {
-         "id": "inflation_costs",
-         "label": "Инфляция → ремонт, материалы, услуги подрядчиков и налоги на имущество",
-         "var": "inflation_avg",
-         "delta_var": 1.65,
-         "var_from": 8.7,
-         "var_to": 10.35,
-         "base": -4.7,
-         "low": -11.48,
-         "high": -1.05,
-         "var_value_in_low_set": 11.4,
-         "var_value_in_high_set": 9.3,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "порог inflation_avg > 9.0: ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 6.0
-        },
-        {
-         "id": "power_price_losses",
-         "label": "Цена электроэнергии на оптовом рынке → покупка на компенсацию потерь и перепродажа",
-         "var": "power_price_wholesale",
-         "delta_var": 3.0,
-         "var_from": 12.0,
-         "var_to": 15.0,
-         "base": -4.29,
-         "low": -15.6,
-         "high": -0.0,
-         "var_value_in_low_set": 18.0,
-         "var_value_in_high_set": 12.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.0
-        },
-        {
-         "id": "tariff_indexation_revenue",
-         "label": "Индексация тарифа на передачу → тарифная выручка и маржа",
-         "var": "tariff_indexation",
-         "delta_var": -0.1,
-         "var_from": 10.6,
-         "var_to": 10.5,
-         "base": -1.28,
-         "low": -36.92,
-         "high": 34.08,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 13.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 41.1
-        },
-        {
-         "id": "gfcf_connections",
-         "label": "Инвестиции в экономике → технологическое присоединение новых потребителей",
-         "var": "gfcf",
-         "delta_var": -0.6,
-         "var_from": -0.4,
-         "var_to": -1.0,
-         "base": -0.06,
-         "low": -0.64,
-         "high": 0.48,
-         "var_value_in_low_set": -2.0,
-         "var_value_in_high_set": -2.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.6
-        }
-       ],
-       "width_drivers": [
-        "tariff_indexation_revenue",
-        "gdp_volume",
-        "fx_capex_imports"
-       ]
-      },
-      "net_profit": {
-       "label": "чистая прибыль",
-       "base_year_value": 212.4,
-       "delta": {
-        "base": -104.6,
-        "low": -246.6,
-        "high": 15.3
-       },
-       "value": {
-        "base": 107.8,
-        "low": -34.2,
-        "high": 227.7
-       },
-       "pct": {
-        "base": -49.2,
-        "low": -116.1,
-        "high": 7.2
-       },
-       "dominant_factor": "Административное решение по тарифу: перенос даты индексации или частичная заморозка",
-       "dominant_factor_id": "inst_tariff_decision",
-       "contributions": [
-        {
-         "id": "inst_tariff_decision",
-         "label": "Административное решение по тарифу: перенос даты индексации или частичная заморозка",
-         "kind": "institutional",
-         "base": -32.5,
-         "low": -55.0,
-         "high": -10.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 17.2
-        },
-        {
-         "id": "inst_investment_program",
-         "label": "Директивная инвестпрограмма: долг растёт независимо от цены денег",
-         "kind": "institutional",
-         "base": -21.0,
-         "low": -30.0,
-         "high": -12.0,
-         "is_modifier": true,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "width_share_pct": 6.9
-        },
-        {
-         "id": "inst_tax_burden",
-         "label": "Налоговая нагрузка на сетевые активы (налог на имущество, кадастровая переоценка, льготы по ЛЭП)",
-         "kind": "institutional",
-         "base": -15.0,
-         "low": -25.0,
-         "high": -5.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 7.6
-        },
-        {
-         "id": "wage_payroll",
-         "label": "Зарплаты в экономике → фонд оплаты труда (крупнейшая статья затрат)",
-         "var": "nominal_wage",
-         "delta_var": -8.9,
-         "var_from": 14.4,
-         "var_to": 5.5,
-         "base": 10.77,
-         "low": 5.92,
-         "high": 19.24,
-         "var_value_in_low_set": 7.0,
-         "var_value_in_high_set": 4.0,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "notes": [
-          "асимметрия вниз ×0.5"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 5.1
-        },
-        {
-         "id": "gdp_volume",
-         "label": "Рост экономики → полезный отпуск электроэнергии → выручка от передачи",
-         "var": "gdp",
-         "delta_var": -3.0,
-         "var_from": 1.0,
-         "var_to": -2.0,
-         "base": -10.5,
-         "low": -29.12,
-         "high": -4.25,
-         "var_value_in_low_set": -2.5,
-         "var_value_in_high_set": -1.5,
-         "origin": "оценено по истории",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 9.5
-        },
-        {
-         "id": "rate_debt_interest",
-         "label": "Ключевая ставка → проценты по долгу под инвестпрограмму",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": 10.35,
-         "low": 7.96,
-         "high": 19.45,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "асимметрия вниз ×0.85"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 4.4
-        },
-        {
-         "id": "geo_grid_damage",
-         "label": "Физические удары по приграничным сетям: восстановление и выпадение выручки",
-         "kind": "geo",
-         "base": -9.5,
-         "low": -15.0,
-         "high": -4.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 4.2
-        },
-        {
-         "id": "fin_access_spread",
-         "label": "Доступ к финансированию и спред по новым размещениям",
-         "kind": "institutional",
-         "base": -9.0,
-         "low": -15.0,
-         "high": -3.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 4.6
-        },
-        {
-         "id": "geo_import_equipment",
-         "label": "Санкционная надбавка и сроки по импортному высоковольтному оборудованию",
-         "kind": "geo",
-         "base": -7.5,
-         "low": -12.0,
-         "high": -3.0,
-         "is_modifier": true,
-         "origin": "принято допущением",
-         "credibility": 3,
-         "width_share_pct": 3.4
-        },
-        {
-         "id": "fx_capex_imports",
-         "label": "Курс рубля → импортное оборудование инвестпрограммы и импортные материалы",
-         "var": "usdrub_avg",
-         "delta_var": 44.2,
-         "var_from": 83.3,
-         "var_to": 127.5,
-         "base": -6.63,
-         "low": -19.84,
-         "high": -1.59,
-         "var_value_in_low_set": 140.0,
-         "var_value_in_high_set": 115.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 7.0
-        },
-        {
-         "id": "rate_interest_income",
-         "label": "Ключевая ставка → процентный доход на денежные остатки (встречный канал)",
-         "var": "key_rate_avg",
-         "delta_var": -4.2,
-         "var_from": 19.2,
-         "var_to": 15.0,
-         "base": -6.3,
-         "low": -10.4,
-         "high": -5.72,
-         "var_value_in_low_set": 14.0,
-         "var_value_in_high_set": 14.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 1.8
-        },
-        {
-         "id": "inflation_costs",
-         "label": "Инфляция → ремонт, материалы, услуги подрядчиков и налоги на имущество",
-         "var": "inflation_avg",
-         "delta_var": 1.65,
-         "var_from": 8.7,
-         "var_to": 10.35,
-         "base": -3.53,
-         "low": -8.78,
-         "high": -0.79,
-         "var_value_in_low_set": 11.4,
-         "var_value_in_high_set": 9.3,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [
-          "порог inflation_avg > 9.0: ×1.25"
-         ],
-         "is_modifier": false,
-         "width_share_pct": 3.0
-        },
-        {
-         "id": "power_price_losses",
-         "label": "Цена электроэнергии на оптовом рынке → покупка на компенсацию потерь и перепродажа",
-         "var": "power_price_wholesale",
-         "delta_var": 3.0,
-         "var_from": 12.0,
-         "var_to": 15.0,
-         "base": -3.21,
-         "low": -12.0,
-         "high": -0.0,
-         "var_value_in_low_set": 18.0,
-         "var_value_in_high_set": 12.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 4.6
-        },
-        {
-         "id": "tariff_indexation_revenue",
-         "label": "Индексация тарифа на передачу → тарифная выручка и маржа",
-         "var": "tariff_indexation",
-         "delta_var": -0.1,
-         "var_from": 10.6,
-         "var_to": 10.5,
-         "base": -0.96,
-         "low": -27.82,
-         "high": 25.68,
-         "var_value_in_low_set": 8.0,
-         "var_value_in_high_set": 13.0,
-         "origin": "выведено из структуры",
-         "credibility": 2,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 20.4
-        },
-        {
-         "id": "gfcf_connections",
-         "label": "Инвестиции в экономике → технологическое присоединение новых потребителей",
-         "var": "gfcf",
-         "delta_var": -0.6,
-         "var_from": -0.4,
-         "var_to": -1.0,
-         "base": -0.06,
-         "low": -0.48,
-         "high": 0.32,
-         "var_value_in_low_set": -2.0,
-         "var_value_in_high_set": -2.0,
-         "origin": "выведено из структуры",
-         "credibility": 3,
-         "notes": [],
-         "is_modifier": false,
-         "width_share_pct": 0.3
-        }
-       ],
-       "width_drivers": [
-        "tariff_indexation_revenue",
-        "inst_tariff_decision",
-        "gdp_volume"
-       ]
-      }
-     },
-     "flags": [
-      "при неблагоприятных значениях входов прибыль уходит в убыток"
-     ],
-     "missing_vars": []
     }
    }
   }
@@ -7840,6 +5662,49 @@
     "high": 5.0
    }
   },
+  "conditions_core": [
+   {
+    "var": "key_rate_avg",
+    "label": "ключевая ставка, средняя за год",
+    "low": 20.0,
+    "high": 20.0,
+    "mid": 20.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "20%"
+   },
+   {
+    "var": "inflation_avg",
+    "label": "инфляция, средняя за год",
+    "low": 12.0,
+    "high": 12.0,
+    "mid": 12.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "12%"
+   },
+   {
+    "var": "gdp",
+    "label": "рост ВВП",
+    "low": -4.0,
+    "high": -4.0,
+    "mid": -4.0,
+    "unit": "%",
+    "origin": "ЦБ",
+    "text": "−4%"
+   },
+   {
+    "var": "usdrub_avg",
+    "label": "курс доллара, средний",
+    "low": 120.0,
+    "high": 120.0,
+    "mid": 120.0,
+    "unit": "руб.",
+    "origin": "допущение Basis",
+    "text": "120 руб."
+   }
+  ],
+  "held_at_base": [],
   "lines": {
    "revenue": {
     "label": "выручка",

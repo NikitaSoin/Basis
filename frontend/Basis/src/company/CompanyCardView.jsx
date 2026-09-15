@@ -54,6 +54,7 @@ import FinanceTab from "./FinanceTab";
 import GovernanceTab from "./GovernanceTab";
 import InstitutionsTab from "./InstitutionsTab";
 import GeoTab from "./GeoTab";
+import MacroeconomicsTab from "./MacroeconomicsTab";
 import { BondRiskAnalysis } from "../design/bondrisk";
 import { ObsLineChart } from "../observer/ObsPanels";
 import ChartPro from "../market/ChartPro";
@@ -3282,6 +3283,7 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
   const [marketView, setMarketView] = useState(null); // активный ракурс сегмент-контрола главного рынка (m5)
   const [macroMd, setMacroMd] = useState(null);
   const [macroJson, setMacroJson] = useState(null);
+  const [macroTab, setMacroTab] = useState(null); // вкладка «Макроэкономика» нового образца (пилот), см. MacroeconomicsTab.jsx
   const [macroLoading, setMacroLoading] = useState(true);
   // Правые рельсы «Макро» и «Рынки» — выезжающие панели по триггеру (владелец 2026-08-10:
   // правое поле карточки отдано «Содержанию», как в Финансах и Корп. управлении)
@@ -3448,13 +3450,16 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
     setMacroLoading(true);
     setMacroMd(null);
     setMacroJson(null);
+    setMacroTab(null);
     const base = `${apiUrl}/api/companies/by-ticker/${company.ticker}`;
     Promise.all([
       fetch(`${base}/macro-summary`).then(r => r.ok ? r.text() : null).catch(() => null),
       fetch(`${base}/macro`).then(r => r.ok ? r.json() : null).catch(() => null),
-    ]).then(([md, js]) => {
+      fetch(`${base}/macro-tab`).then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([md, js, tabJs]) => {
       setMacroMd(md);
       setMacroJson(js);
+      setMacroTab(tabJs);
       setMacroLoading(false);
     });
   }, [company.ticker]);
@@ -6713,6 +6718,7 @@ const CompanyCard = ({ company, onBack, initialTab, onTabChange }) => {
         <div className="tw-text-text-tertiary tw-animate-pulse">Загружаем макроанализ...</div>
       </div>
     );
+    if (macroTab) return <MacroeconomicsTab data={macroTab} company={company} />;
     if (!macroMd && !macroJson) return renderComingSoon("Макроэкономика");
 
     const meta = macroJson?.meta || {};

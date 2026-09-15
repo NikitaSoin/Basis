@@ -134,8 +134,20 @@ def base_vector(cfg: dict, model: dict) -> dict[str, float]:
     return vec
 
 
+def excluded_vars(cfg: dict, model: dict) -> set[str]:
+    """Переменные, которые во вкладке НЕ двигаются сценарием (цены на нефть и сырьё — область
+    финансовой модели, решение владельца 15.09.2026): общий список конфига + достройки компании
+    со scope == "financial_model". Держатся на уровне базового периода (Δ = 0)."""
+    ex = set(cfg.get("excluded_variables") or [])
+    for var, spec in (model.get("scenario_inputs") or {}).items():
+        if (spec or {}).get("scope") == "financial_model":
+            ex.add(var)
+    return ex
+
+
 def scenario_vector(cfg: dict, model: dict, sid: str, year: int | str) -> dict[str, tuple[float, float, float]]:
-    """Значения переменных сценария в году: (low, mid, high). Общие + достройки ЦБ-файла + достройки компании."""
+    """Значения переменных сценария в году: (low, mid, high). Общие + достройки ЦБ-файла + достройки компании.
+    Исключённые переменные (excluded_vars) получают значение базового периода — сценарий их не двигает."""
     y = str(year)
     out: dict[str, tuple[float, float, float]] = {}
     scen = next((s for s in cfg.get("scenarios", []) if s["id"] == sid), None)
@@ -153,6 +165,33 @@ def scenario_vector(cfg: dict, model: dict, sid: str, year: int | str) -> dict[s
         r = _rng(((spec.get("by_scenario") or {}).get(sid) or {}).get(y))
         if r:
             out[var] = r
+    bvec = base_vector(cfg, model)
+    for var in excluded_vars(cfg, model):
+        if var in bvec:
+            out[var] = (bvec[var], bvec[var], bvec[var])
+    return out
+
+
+def core_conditions(cfg: dict, vec: dict[str, tuple[float, float, float]]) -> list[dict]:
+    """Условия сценария для показа инвестору: ставка, инфляция, ВВП (ЦБ), курс (Basis)."""
+    labels = {"key_rate_avg": ("ключевая ставка, средняя за год", "%", "ЦБ"), "inflation_avg": ("инфляция, средняя за год", "%", "ЦБ"),
+              "gdp": ("рост ВВП", "%", "ЦБ"), "usdrub_avg": ("курс доллара, средний", "руб.", "допущение Basis")}
+    out = []
+    for var in cfg.get("core_variables") or list(labels):
+        if var not in vec:
+            continue
+        lo, mid, hi = vec[var]
+        lab, unit, origin = labels.get(var, (var, "", ""))
+        def _n(x):
+            return f"{x:g}".replace(".", ",").replace("-", "−")
+        suffix = " " + unit if unit == "руб." else "%"
+        if lo == hi:
+            txt = _n(lo) + suffix
+        elif lo < 0 or hi < 0:
+            txt = f"от {_n(lo)} до {_n(hi)}" + suffix
+        else:
+            txt = f"{_n(lo)}–{_n(hi)}" + suffix
+        out.append({"var": var, "label": lab, "low": lo, "high": hi, "mid": mid, "unit": unit, "origin": origin, "text": txt})
     return out
 
 
@@ -236,8 +275,11 @@ def run_vector(model: dict, cfg: dict, sid: str, vec: dict[str, tuple[float, flo
         if not isinstance(base_line, (int, float)):
             continue
         groups: dict[str, list[dict]] = {}
+        held = excluded_vars(cfg, model)
         for coef in model.get("coefficients") or []:
             var = coef.get("macro_var")
+            if var in held:
+                continue  # цены на сырьё: сценарий их не двигает, вклад нулевой — в атрибуцию не попадает
             if _rng((coef.get("effects") or {}).get(line)) is None:
                 continue
             if var not in vec or var not in bvec:
@@ -315,7 +357,9 @@ def run_vector(model: dict, cfg: dict, sid: str, vec: dict[str, tuple[float, flo
         flags.append("при неблагоприятных значениях входов прибыль уходит в убыток")
     if npf and npf["pct"]["base"] is not None and abs(npf["pct"]["base"]) > 2 * LINEARITY_LIMIT_PCT:
         flags.append(f"изменение прибыли {npf['pct']['base']:+.0f}% — линейность под вопросом, читать как порядок величины")
+    held = sorted(v for v in excluded_vars(cfg, model) if v in vec)
     return {"label": label, "scenario_id": sid, "conditions": {k: {"low": _r(v[0], 2), "mid": _r(v[1], 2), "high": _r(v[2], 2)} for k, v in vec.items()},
+            "conditions_core": core_conditions(cfg, vec), "held_at_base": held,
             "lines": lines_out, "flags": flags, "missing_vars": sorted(v for v in missing_vars if v)}
 
 
@@ -338,10 +382,12 @@ def run_most_dangerous(model: dict, cfg: dict) -> dict | None:
     if not adverse:
         return None
     vec = {}
+    bvec = base_vector(cfg, model)
+    ex = excluded_vars(cfg, model)
     for var, v in adverse.items():
         r = _rng(v)
         if r:
-            vec[var] = r
+            vec[var] = (bvec[var], bvec[var], bvec[var]) if (var in ex and var in bvec) else r
     sid = md.get("modifiers_key", "most_dangerous")
     res = run_vector(model, cfg, sid, vec, label="наиболее опасный (не прогноз)")
     res["description"] = md.get("description")
@@ -457,7 +503,9 @@ def compute(ticker: str, cfg: dict | None = None) -> dict | None:
         "base_year": (model.get("base_financials") or {}).get("year"),
         "base_financials": model.get("base_financials"),
         "cbr_scenarios": {"as_of": cfg.get("as_of"), "source": cfg.get("source"), "display_years": cfg.get("display_years"),
-                          "tab_years": cfg.get("tab_years")},
+                          "tab_years": cfg.get("tab_years"), "core_variables": cfg.get("core_variables"), "core_note": cfg.get("core_note"),
+                          "excluded_note": cfg.get("excluded_note")},
+        "held_at_base": sorted(excluded_vars(cfg, model)),
         "current_macro": cfg.get("current"),
         "scenarios": run_scenarios(model, cfg),
         "most_dangerous": run_most_dangerous(model, cfg),

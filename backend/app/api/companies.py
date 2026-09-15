@@ -894,6 +894,35 @@ async def get_macro_json(ticker: str, db: Session = Depends(get_db)):
     return JSONResponse(content=data)
 
 
+@router.get("/companies/by-ticker/{ticker}/macro-tab")
+async def get_macro_tab(ticker: str):
+    """Вкладка «Макроэкономика» нового образца (пилот 09.2026): шесть блоков по спецификации
+    docs/Описание_вкладки_макроэкономика.md, собранные писателем из входов модельера и расчёта
+    сценариев ЦБ (docs/macro_model_contract_v1.md). Отдаём файл как есть плюс краткий паспорт
+    расчёта (даты, исключённые переменные, эффект ставки на стоимость) из macro_scenarios.json.
+    404 — у компании нет новой вкладки, фронт показывает прежний разбор."""
+    folder = COMPANIES_DIR / _safe(ticker).upper()
+    path = folder / "macro_tab.json"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Macro tab not found")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    calc_path = folder / "macro_scenarios.json"
+    if calc_path.exists():
+        try:
+            calc = json.loads(calc_path.read_text(encoding="utf-8"))
+            data["calc"] = {
+                "computed_at": calc.get("computed_at"),
+                "cbr_scenarios": calc.get("cbr_scenarios"),
+                "held_at_base": calc.get("held_at_base"),
+                "current_macro": calc.get("current_macro"),
+                "rate_valuation": calc.get("rate_valuation"),
+                "method_note": calc.get("method_note"),
+            }
+        except (OSError, json.JSONDecodeError):
+            pass
+    return JSONResponse(content=data)
+
+
 @router.get("/companies/by-ticker/{ticker}/macro-summary", response_class=PlainTextResponse)
 async def get_macro_summary_md(ticker: str):
     """Текстовая интерпретация блока «Макро» (markdown)."""
