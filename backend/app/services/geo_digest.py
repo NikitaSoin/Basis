@@ -727,6 +727,53 @@ def regeocode_claims(db: Session, dry_run: bool = False, min_move_km: float = 0.
             "ambiguous_list": ambiguous[:40], "not_found_list": not_found[:60]}
 
 
+_RU_REGIONS_CACHE: list | None = None
+
+
+def _ru_regions() -> list[tuple[str, str, float, float]]:
+    """[(name_ru, первое слово в нижнем регистре, lat, lon центра)] по регионам РФ
+    из карты «Россия целиком» (config/geo_map_svo.json → russia_wide_map). Один
+    раз на процесс; нет файла — пустой список, сводки идут прежним путём."""
+    global _RU_REGIONS_CACHE
+    if _RU_REGIONS_CACHE is not None:
+        return _RU_REGIONS_CACHE
+    out = []
+    try:
+        from shapely.geometry import shape
+        path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                            "config", "geo_map_svo.json")
+        with open(path, encoding="utf-8") as f:
+            feats = json.load(f).get("russia_wide_map", {}).get("base_map", {}).get("regions_geojson", {}).get("features", [])
+        for ft in feats:
+            name = (ft.get("properties", {}).get("name_ru") or "").strip()
+            if not name or not ft.get("geometry"):
+                continue
+            c = shape(ft["geometry"]).representative_point()
+            first = name.replace("Республика ", "").split()[0].lower()
+            out.append((name, first, round(c.y, 4), round(c.x, 4)))
+    except Exception:  # noqa: BLE001
+        logger.warning("geo_digest: регионы РФ для сводок не прочитаны", exc_info=True)
+    _RU_REGIONS_CACHE = out
+    return out
+
+
+def _split_region_list(location: str) -> list[tuple[str, float, float]]:
+    """Сводка МО РФ «сбито N БПЛА над Белгородской, Брянской, … областями» —
+    это не один удар, а перечень регионов. Раньше такая строка геокодилась
+    как одно место и садилась в случайную точку (Крым, Краснодар) — владелец
+    (2026-09-16): «удары по территории России не отображаются». Возвращает
+    [(регион, lat, lon)] при ≥2 совпадениях, иначе пусто."""
+    low = (location or "").lower()
+    if low.count(",") < 1 and " и " not in low:
+        return []
+    hits = []
+    for name, first, lat, lon in _ru_regions():
+        stem = first[:-2] if len(first) > 6 else first  # «белгородская» ↔ «белгородской»
+        if stem and stem in low:
+            hits.append((name, lat, lon))
+    return hits if len(hits) >= 2 else []
+
+
 def _persist_strike_events(db: Session, theater: str, events: list, event_date, source_key: str | None,
                             source_url: str | None) -> int:
     """Сохранение ударов с ДЕДУПЛИКАЦИЕЙ: одна и та же атака приходит из
@@ -753,11 +800,22 @@ def _persist_strike_events(db: Session, theater: str, events: list, event_date, 
         return False
 
     saved = 0
+    expanded = []
     for ev in events:
         if not isinstance(ev, dict) or not ev.get("location"):
             continue
+        regions = _split_region_list(ev["location"])
+        if regions:
+            # перечень регионов → по одной точке на регион (центр региона), все minor:
+            # это сводка перехватов, а не удар по конкретному объекту
+            for name, lat, lon in regions:
+                expanded.append({**ev, "location": name, "significance": "minor", "_coords": (lat, lon),
+                                 "label": (ev.get("label") or ev["location"])[:300]})
+        else:
+            expanded.append(ev)
+    for ev in expanded:
         significance = ev.get("significance") if ev.get("significance") in ("major", "minor") else "minor"
-        coords = _geocode_place(ev["location"])
+        coords = ev.get("_coords") or _geocode_place(ev["location"])
         _lat, _lon = (coords if coords else (None, None))
         if _is_dup(_lat, _lon, ev["location"].lower(), event_date):
             continue

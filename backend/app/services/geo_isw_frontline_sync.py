@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import os
 from datetime import datetime, timezone
 
@@ -131,6 +132,9 @@ _MAX_BORDER_DISTANCE_KM = 12.0
 # Цепочка от уже принятого пункта: продвижение от границы идёт полосой сёл, каждое
 # следующее в нескольких км от предыдущего.
 _CHAIN_KM = 8.0
+# Кружок села из ленты/хронологии/заявлений: 1,5 км — застройка села с ближней
+# округой; 3 км давали 28 км² на каждое село и раздували «км²/мес» (см. _CAP_*).
+_VILLAGE_RADIUS_KM = 1.5
 
 
 def load_barriers():
@@ -320,11 +324,11 @@ def dated_candidates(ukraine_boundary=None, db=None) -> list[dict]:
                                      if t.get("date") and t.get("holder"))
                 if not transitions:
                     continue
-                add(e.get("name"), e.get("oblast"), e.get("lat"), e.get("lon"), 3,
+                add(e.get("name"), e.get("oblast"), e.get("lat"), e.get("lon"), _VILLAGE_RADIUS_KM,
                     src="timeline", transitions=transitions)
         else:
             for p in data.get("points", []):
-                add(p.get("name"), p.get("oblast"), p.get("lat"), p.get("lon"), 3,
+                add(p.get("name"), p.get("oblast"), p.get("lat"), p.get("lon"), _VILLAGE_RADIUS_KM,
                     src="claimed", date=p.get("claimed_date"))
 
     # 4-й источник — ЖИВОЙ: territorial_claims, автоматически извлечённые
@@ -340,7 +344,7 @@ def dated_candidates(ukraine_boundary=None, db=None) -> list[dict]:
                               GeoTerritorialClaim.lat.isnot(None)).all()):
                 when = (r.claimed_date.isoformat() if r.claimed_date
                         else (r.created_at.date().isoformat() if r.created_at else None))
-                add(r.settlement, r.oblast, r.lat, r.lon, 3, src="db", date=when)
+                add(r.settlement, r.oblast, r.lat, r.lon, _VILLAGE_RADIUS_KM, src="db", date=when)
         except Exception:  # noqa: BLE001 — живой источник не роняет синк
             logger.warning("dated_candidates: territorial_claims из БД не подмешаны", exc_info=True)
     return out
@@ -592,10 +596,15 @@ _WEDGE_MAX_WIDTH_KM = 12.0
 # к нему, целиком. Радиус окна вдоль фронта = доля от зазора до фронта, но не
 # меньше минимума (иначе село в 2 км от границы даёт точку, а не полосу) и не
 # больше потолка (иначе один дальний пункт закрывает пол-области).
-_CAP_RATIO = 1.5
-_CAP_MIN_KM = 6.0
+# Владелец (2026-09-16): «цифры за июль и сентябрь выглядят чересчур». Замер на
+# живых данных: при радиусе села 3 км и окне 6 км каждый заявленный пункт
+# добавлял ~39 км² (3,5 тыс. км² сверх ISW на 90 пунктов) — село с округой
+# столько не занимает. Радиус села 1,5 км, окно от 3 км, ширина = зазор: ~20 км²
+# на пункт, вдвое скромнее, при этом карман между фронтом и пунктом закрывается.
+_CAP_RATIO = 1.0
+_CAP_MIN_KM = 3.0
 _CAP_MAX_KM = 18.0
-_CAP_CITY_RATIO = 3.0             # × radius_km ГОРОДА: Константиновка (5 км) смотрит на 15 км фронта
+_CAP_CITY_RATIO = 2.5             # × radius_km ГОРОДА: Константиновка (5 км) смотрит на 12,5 км фронта
 _CAP_CITY_MIN_RADIUS_KM = 4.0     # сёла (3 км) под это правило не попадают — иначе полосы у границы раздуваются
 
 
@@ -699,12 +708,17 @@ def _absorb_overrides(ru_mass, overrides: list[dict], source_mass=None, ukraine_
         # по одному зазору до неё не доставало (владелец, 2026-09-14: «восточнее
         # Константиновки точно взято»).
         city_reach = _CAP_CITY_RATIO * radius_km if radius_km >= _CAP_CITY_MIN_RADIUS_KM else 0.0
-        r_km = min(max(_CAP_MIN_KM, _CAP_RATIO * gap_km, city_reach), _CAP_MAX_KM)
+        # окно обязано заходить ЗА линию фронта (gap + 1 км): ровно в зазор оно
+        # лишь касается границы, обрезка даёт пустоту, и крышка не строится
+        r_km = min(max(_CAP_MIN_KM, _CAP_RATIO * gap_km, gap_km + 1.0, city_reach), _CAP_MAX_KM)
         r_deg = r_km / _KM_PER_DEG_LAT
-        # окно — квадрат 2R (clip_by_rect в разы быстрее пересечения с кругом)
-        facing_parts = [clip_by_rect(source_boundary, p.x - r_deg, p.y - r_deg, p.x + r_deg, p.y + r_deg)]
+        # по долготе градус короче (cos широты ≈ 0,66 на этих широтах) — иначе окно
+        # по фронту, идущему с севера на юг, было бы на треть уже заявленного
+        r_lon = r_deg / max(0.3, math.cos(math.radians(p.y)))
+        # окно — прямоугольник 2R (clip_by_rect в разы быстрее пересечения с кругом)
+        facing_parts = [clip_by_rect(source_boundary, p.x - r_lon, p.y - r_deg, p.x + r_lon, p.y + r_deg)]
         if added is not None and not added.is_empty:
-            facing_parts.append(clip_by_rect(added.boundary, p.x - r_deg, p.y - r_deg, p.x + r_deg, p.y + r_deg))
+            facing_parts.append(clip_by_rect(added.boundary, p.x - r_lon, p.y - r_deg, p.x + r_lon, p.y + r_deg))
         facing = unary_union([g for g in facing_parts if not g.is_empty])
         if facing.is_empty:
             # окно не достаёт до фронта (не должно случаться после правила 25 км)

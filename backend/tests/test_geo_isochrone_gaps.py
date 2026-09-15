@@ -49,6 +49,7 @@ def archive(tmp_path, monkeypatch):
     path.write_text(json.dumps({"months": months}), encoding="utf-8")
     monkeypatch.setattr(iso, "_REAL_HISTORY_PATH", str(path))
     monkeypatch.setattr(iso, "_load_timeline_points", lambda: [])
+    monkeypatch.setattr(iso, "_DETECT_ARCHIVE_COPIES", False)  # плоский фронт в заготовке — не копия
     return {"cur": cur, "m2": m2, "m1": m1}
 
 
@@ -140,6 +141,7 @@ def test_архивный_месяц_с_чужим_снапшотом_не_вы�
     path.write_text(json.dumps({"months": months}), encoding="utf-8")
     monkeypatch.setattr(iso, "_REAL_HISTORY_PATH", str(path))
     monkeypatch.setattr(iso, "_load_timeline_points", lambda: [])
+    monkeypatch.setattr(iso, "_DETECT_ARCHIVE_COPIES", False)  # плоский фронт в заготовке — не копия
 
     res = iso._isochrone_from_real_history(_fc([_sq(35.0, 47.0)]), isw_area_km2=100_400, db=None)
     props = _by_month(res)
@@ -149,3 +151,24 @@ def test_архивный_месяц_с_чужим_снапшотом_не_вы�
     assert props[m1]["delta_km2"] is None, "движение двух месяцев подписано как месячное"
     assert props[m1]["delta_since_km2"] == 300
     assert props[m1]["delta_span_months"] == 2
+
+
+def test_копия_среза_и_ненадёжный_месяц_архива_дают_нет_данных(tmp_path, monkeypatch):
+    """Апрель 2025 в архиве — площадь до км² равна мартовской (сервис ISW отдал тот же
+    кадр), ноябрь 2025 — в списке ненадёжных (у ISW +701 км², у среза −26). Оба
+    обязаны стать «данных нет», а следующий месяц — нести накопленное «за N мес.»."""
+    cur = date.today().isoformat()[:7]
+    m4, m3, m2, m1 = _prev_month(cur, 4), _prev_month(cur, 3), _prev_month(cur, 2), _prev_month(cur, 1)
+    months = [_archive_month(m4, 100_000), _archive_month(m3, 100_000),  # m3 — копия m4
+              _archive_month(m2, 100_200), _archive_month(m1, 100_500)]
+    path = tmp_path / "real_history.json"
+    path.write_text(json.dumps({"months": months}), encoding="utf-8")
+    monkeypatch.setattr(iso, "_REAL_HISTORY_PATH", str(path))
+    monkeypatch.setattr(iso, "_load_timeline_points", lambda: [])
+    monkeypatch.setattr(iso, "_UNRELIABLE_ARCHIVE_MONTHS", {m2: "тест"})
+    res = iso._isochrone_from_real_history(_fc([_sq(35.0, 47.0)]), isw_area_km2=100_600, db=None)
+    props = _by_month(res)
+    assert props[m3]["no_data"] is True, "копия среза не распознана"
+    assert props[m2]["no_data"] is True, "ненадёжный месяц не помечен"
+    assert props[m1]["delta_km2"] is None and props[m1]["delta_since_km2"] == 500
+    assert props[m1]["delta_span_months"] == 3

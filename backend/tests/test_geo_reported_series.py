@@ -66,6 +66,7 @@ def archive(tmp_path, monkeypatch):
     path.write_text(json.dumps({"months": months}), encoding="utf-8")
     monkeypatch.setattr(iso, "_REAL_HISTORY_PATH", str(path))
     monkeypatch.setattr(iso, "_load_timeline_points", lambda: [])
+    monkeypatch.setattr(iso, "_DETECT_ARCHIVE_COPIES", False)  # плоский фронт в заготовке — не копия
     # Проверки области/города — на реальных конфигах, но тестовые координаты
     # лежат вне любых защищённых городов; область не заявлена → правило 1 молчит.
     return {"cur": cur, "m3": m3, "m2": m2, "m1": m1}

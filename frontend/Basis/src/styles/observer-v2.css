@@ -7368,7 +7368,11 @@ details[open] > summary .obs-inst-chev,
   font-family: var(--bs-serif, Fraunces), Georgia, serif;
   font-size: 16px;
   line-height: 1.4;
-  color: var(--obs-text, #E8E4DC);
+  /* Основной текст экрана, а не --obs-text: тот — светлые чернила тёмного
+     сайдбара, и в светлой теме вердикт на кремовой карточке был почти
+     невидим (владелец, 2026-09-16: «вверху заголовки не читаются, они тоже
+     светлые»). --text-primary тема-адаптивен в обеих темах. */
+  color: var(--text-primary, var(--obs-text, #E8E4DC));
 }
 
 /* Пометка необратимого канала в связках портрета очага. Цвет — только в данных:
