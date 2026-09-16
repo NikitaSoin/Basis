@@ -1,13 +1,24 @@
-/* Вкладка «Макроэкономика» нового образца (пилот 09.2026).
+/* Вкладка «Макроэкономика» нового образца (пилот 09.2026, доработка 16.09 —
+   продуктовые рекомендации docs/macro_tab_product_recommendations_2026-09-16.md).
    Источник данных: GET /api/companies/by-ticker/{ticker}/macro-tab — файл
    backend/companies/<T>/macro_tab.json (агент-писатель) + поле calc,
    которое ручка подмешивает из macro_scenarios.json (см. companies.py,
-   get_macro_tab). Контракт полей — docs/macro_model_contract_v1.md, раздел 7.
-   Состав, порядок и формулировки шести блоков — docs/Описание_вкладки_
-   макроэкономика.md, Части 0–7 (владелец, версия 1). Рендерит ТОЛЬКО то,
-   что реально пришло — компонент не считает арифметику и не досочиняет
-   текст (методика 0.5): каждое число берётся из JSON как есть, каждый блок
-   без обязательных полей просто не рисуется.
+   get_macro_tab). Контракт полей — docs/macro_model_contract_v1.md, раздел 7
+   и 7.1 (два слоя текста lead/details/takeaway, качественный вариант
+   scenarios.variant === "qualitative" без чисел). Состав, порядок и
+   формулировки шести блоков — docs/Описание_вкладки_макроэкономика.md, Части
+   0–7 (владелец, версия 1). Рендерит ТОЛЬКО то, что реально пришло —
+   компонент не считает арифметику и не досочиняет текст (методика 0.5):
+   каждое число берётся из JSON как есть, каждый блок без обязательных полей
+   просто не рисуется.
+
+   На 16.09.2026 из 35 карточек пилота только 10 — числовой вариант
+   (now/drivers/peers/price_link/how_computed заполнены), у остальных 25 эти
+   блоки — null (скелет вида GAZP: заполнена только качественная «лестница»
+   сценариев). Это НЕ край случая, а большинство — компонент обязан рендерить
+   такие файлы без единой пустой плашки и без падений. Новые поля 7.1
+   (lead/details/takeaway/headline/verdict/takeaway) ещё не пришли ни в один
+   из 10 числовых файлов — везде в ходу фолбэк (первое предложение текста).
 
    Поля с суффиксом needs_rewrite/needs_rewrite_fields — служебная пометка
    для параллельного процесса переписывания прозы, к отображению отношения
@@ -30,6 +41,17 @@ const arr = (v) => (Array.isArray(v) ? v : []);
 const txt = (v) => (typeof v === "string" && v.trim() ? v.trim() : null);
 const obj = (v) => (v && typeof v === "object" && !Array.isArray(v) ? v : null);
 
+// Первое предложение — фолбэк для now.lead, пока писатель не прислал
+// отдельное поле (раздел 7.1 контракта): режем по первому ./!/?/…
+// с пробелом или концом строки после. Грубая эвристика, используется ТОЛЬКО
+// как временный фолбэк — когда придёт настоящий now.lead, вызывается не будет.
+function firstSentence(text) {
+  const t = txt(text);
+  if (!t) return null;
+  const m = /^(.+?[.!?…])(\s|$)/.exec(t);
+  return m ? m[1] : t;
+}
+
 // Денежные величины вкладки — всегда млрд руб. (docs/macro_model_contract_v1.md, п.1);
 // в исходных данных числа уже приходят с одним знаком после запятой — сохраняем эту точность,
 // без автопереключения млрд↔трлн (единица здесь фиксирована контрактом, не выводится из величины).
@@ -49,6 +71,14 @@ function fmtDate(iso) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
   return m ? `${m[3]}.${m[2]}.${m[1]}` : s;
 }
+// Округление главного числа лестницы сценариев без ложной точности (продуктовая
+// рекомендация B/E-2): целое число, а при величине больше 1000 — до десятков,
+// чтобы последняя цифра не изображала точность, которой нет у оценки с диапазоном.
+function stepFor(base) { return isNum(base) && Math.abs(base) > 1000 ? 10 : 1; }
+function fmtStep(v, step) {
+  if (!isNum(v)) return "—";
+  return fmtN(Math.round(v / step) * step, 0);
+}
 
 // Пять эпистемических меток спецификации (Часть 6.3) — переиспользуем ТРИ
 // канонических цвета из basis-design-system.css: факт (серый) / оценка
@@ -60,11 +90,36 @@ const TAG_CLASS = {
   "оценка": "bs-tag-estimate",
   "прогноз": "bs-tag-estimate",
   "разовый": "bs-tag-judgment",
+  "суждение": "bs-tag-judgment",
 };
+
+// Вердикт качественного сценария (раскатка без финмодели): помогает / мешает / примерно так же
+const VERDICT_CLASS = { "помогает": "mt-verdict good", "мешает": "mt-verdict bad", "примерно так же": "mt-verdict neutral" };
+function VerdictChip({ verdict }) {
+  const v = txt(verdict);
+  if (!v) return null;
+  const glyph = v === "помогает" ? "▲" : v === "мешает" ? "▼" : "≈";
+  return <span className={VERDICT_CLASS[v] || "mt-verdict neutral"}>{glyph} {v}</span>;
+}
 function EpistemicTag({ label }) {
   const l = txt(label);
   if (!l) return null;
   return <span className={TAG_CLASS[l] || "bs-tag-fact"}>{l}</span>;
+}
+
+// Строка-итог «Итог для инвестора» (продуктовая рекомендация D) — следствие
+// БЕЗ рекомендации: описывает, что происходит с выручкой/прибылью/долгом,
+// не переходит в «стоит/выгодно». Текст пишет агент-писатель, компонент
+// только выводит его, если поле пришло — сам ничего не формулирует.
+function Takeaway({ text }) {
+  const t = txt(text);
+  if (!t) return null;
+  return (
+    <div className="mt-takeaway">
+      <span className="mt-takeaway-lbl">Итог для инвестора</span>
+      <p>{t}</p>
+    </div>
+  );
 }
 
 // Три точки — сила фактора / уверенность расчёта. Декоративное усиление слова
@@ -95,6 +150,11 @@ function DeltaTag({ value, unit = "%" }) {
 }
 
 const COND_ORDER = ["ключевая ставка", "инфляция", "рост ВВП", "курс рубля"];
+// Короткие подписи ТОЛЬКО для четырёх канонических условий (методика 0 —
+// «инвестору как условия сценария показываются ровно четыре показателя»);
+// неизвестные дополнительные ключи (напр. госзаказ у ОАК) выводим как есть —
+// не подбираем сокращение для того, что не контролируем сами.
+const COND_SHORT = { "ключевая ставка": "ставка", "инфляция": "инфляция", "рост ВВП": "ВВП", "курс рубля": "курс" };
 function orderedConditions(cond) {
   const c = obj(cond);
   if (!c) return [];
@@ -103,28 +163,24 @@ function orderedConditions(cond) {
   return [...known, ...rest];
 }
 
-// Домен для полоски диапазона: один общий масштаб на метрику (выручка / чистая
-// прибыль) по всем строкам сценариев + 2026 год + базовый год — так все восемь
-// полосок в сетке сравнимы визуально между собой, а не каждая в своём масштабе.
-function computeDomain(scn) {
-  const vals = { revenue: [], net_profit: [] };
+// Домен для полоски диапазона на шкале (клик по строке лестницы) — один общий
+// масштаб чистой прибыли по всем строкам + 2026 год + базовый год, чтобы бар
+// каждой развёрнутой строки был сравним с остальными, а не в своём масштабе.
+function computeProfitDomain(scn) {
+  const vals = [];
   const pushRow = (r) => {
-    ["revenue", "net_profit"].forEach((k) => {
-      const o = obj(r && r[k]);
-      if (!o) return;
-      ["low", "base", "high"].forEach((f) => { if (isNum(o[f])) vals[k].push(o[f]); });
-    });
+    const o = obj(r && r.net_profit);
+    if (!o) return;
+    ["low", "base", "high"].forEach((f) => { if (isNum(o[f])) vals.push(o[f]); });
   };
   arr(scn && scn.rows).forEach(pushRow);
   if (scn && scn.common_2026) pushRow(scn.common_2026);
   const bf = obj(scn && scn.base_fact);
   if (bf) {
-    if (isNum(bf.revenue)) vals.revenue.push(bf.revenue);
-    if (isNum(bf.net_profit)) vals.net_profit.push(bf.net_profit);
-    if (isNum(bf.net_profit_scenario_base)) vals.net_profit.push(bf.net_profit_scenario_base);
+    if (isNum(bf.net_profit)) vals.push(bf.net_profit);
+    if (isNum(bf.net_profit_scenario_base)) vals.push(bf.net_profit_scenario_base);
   }
-  const mk = (a) => (a.length ? [Math.min(...a), Math.max(...a)] : null);
-  return { revenue: mk(vals.revenue), net_profit: mk(vals.net_profit) };
+  return vals.length ? [Math.min(...vals), Math.max(...vals)] : null;
 }
 function posPct(v, domain) {
   const [dmin, dmax] = domain;
@@ -132,11 +188,10 @@ function posPct(v, domain) {
   return Math.max(0, Math.min(100, ((v - dmin) / (dmax - dmin)) * 100));
 }
 
-// Полоска диапазона «min–база–max» относительно базового года (дизайн-решение
-// брифа для блока 4): заливка от low до high, сплошная риска — среднее значение
-// сценария, пунктирная — где на этой же шкале стоит базовый (фактический) год.
-// Числами дублируется рядом в тексте (.mt-scn-metric-range) — полоска не
-// единственный носитель информации, только усиление.
+// Полоска диапазона «min–база–max» относительно базового года — теперь живёт
+// ТОЛЬКО под раскрытием строки лестницы (клик «показать на шкале» — вариант 3
+// из брифа как опция внутри варианта 2). Заливка от low до high, сплошная
+// риска — среднее значение сценария, пунктирная — базовый (фактический) год.
 function RangeBar({ low, base, high, domain, refValue, positive }) {
   if (!domain || !isNum(low) || !isNum(high)) return null;
   const lowP = posPct(low, domain);
@@ -154,10 +209,44 @@ function RangeBar({ low, base, high, domain, refValue, positive }) {
   );
 }
 
+// Мост к устойчивой базе прибыли встречался у пилота в трёх формах: список
+// объектов {step,amount,label} (base_values.base_bridge — основная форма
+// контракта), список готовых строк (у части компаний — на уровень выше,
+// how_computed.base_bridge) или короткий абзац одной строкой (base_values.
+// bridge_note). Общий разбор формы — здесь, используется и в плашке моста
+// над сценариями (блок 4), и в «Как посчитано» (блок 6), без дублирования кода.
+function resolveBridge(bv, hc) {
+  const rows = arr(bv && bv.base_bridge).length > 0 ? bv.base_bridge : arr(hc && hc.base_bridge);
+  const isRows = rows.length > 0 && typeof rows[0] === "object" && rows[0] !== null;
+  return { rows, isRows, note: txt(bv && bv.bridge_note) };
+}
+function BridgeBody({ bridge }) {
+  if (!bridge) return null;
+  if (bridge.rows.length > 0) {
+    return bridge.isRows ? (
+      <>
+        {bridge.rows.map((s, i) => (
+          <div className="mt-bridge-row" key={i}>
+            <span className="mt-bridge-step">{s.step}{s.label ? <EpistemicTag label={s.label} /> : null}</span>
+            {isNum(s.amount) && <span className="bs-mono">{fmtSigned(s.amount, 1)}</span>}
+          </div>
+        ))}
+      </>
+    ) : (
+      <ul>{bridge.rows.map((s, i) => <li key={i}>{String(s)}</li>)}</ul>
+    );
+  }
+  if (bridge.note) return <p>{bridge.note}</p>;
+  return null;
+}
+
 // --------------------------------------------------------------------------
 // Блок 1 — «Что происходит сейчас» (сигнал вкладки, слой 2 из четырёх слоёв
 // чтения). Единственная всегда-тёмная карточка вкладки — .bs-deep-card
 // задумана каноном именно для интерпретации/суждения, здесь ей самое место.
+// Продуктовая рекомендация B/C: вывод (lead) — крупно первой строкой, полный
+// текст — ниже, всё избыточное — под «Подробнее», «Итог для инвестора» —
+// последней строкой.
 // --------------------------------------------------------------------------
 const REGIME_CLASS = { "помогает": "up", "смешанно": "mixed", "мешает": "down" };
 const REGIME_GLYPH = { "помогает": "▲", "смешанно": "●", "мешает": "▼" };
@@ -166,6 +255,13 @@ function NowBlock({ now }) {
   if (!now || (!txt(now.text) && !now.regime)) return null;
   const av = arr(now.anchor_values);
   const asOf = fmtDate(now.as_of);
+  // now.lead ещё не пришёл ни у одной из 10 карточек пилота (16.09.2026) —
+  // фолбэк первым предложением now.text. Когда поле появится, оно станет
+  // самостоятельным выводом, а now.text ниже — короче (раздел B методички),
+  // временное дублирование первой фразы — ожидаемая цена фолбэка, не баг.
+  const lead = txt(now.lead) || firstSentence(now.text);
+  const bodyText = txt(now.text);
+  const details = txt(now.details);
   return (
     <section className="mt-block">
       <div className="bs-deep-card mt-now">
@@ -178,7 +274,8 @@ function NowBlock({ now }) {
           )}
           {txt(now.main_pressure) && <span className="mt-pressure">главное давление — <b>{now.main_pressure}</b></span>}
         </div>
-        {txt(now.text) && <p>{now.text}</p>}
+        {lead && <div className="mt-now-lead">{lead}</div>}
+        {bodyText && <p className="mt-now-text">{bodyText}</p>}
         {av.length > 0 && (
           <div className="mt-now-anchors">
             {av.map((a, i) => (a && txt(a.value) ? (
@@ -189,20 +286,46 @@ function NowBlock({ now }) {
             ) : null))}
           </div>
         )}
+        {details && (
+          <details className="mt-details mt-now-details">
+            <summary><span>Подробнее</span></summary>
+            <div className="mt-details-body"><p>{details}</p></div>
+          </details>
+        )}
+        <Takeaway text={now.takeaway} />
       </div>
     </section>
   );
 }
 
 // --------------------------------------------------------------------------
-// Блок 2 — «От чего зависит компания»
+// Блок 2 — «От чего зависит компания» — облегчённая карточка фактора
+// (рекомендация C): имя+метки+цепочка-чипы+компактное число видимы сразу,
+// основание силы и детали — под «Подробнее», тонкая полоска силы — рядом
+// с меткой (усиление, не единственный носитель смысла).
 // --------------------------------------------------------------------------
 const SIGN_CLASS = { "помогает": "bs-wind-up", "мешает": "bs-wind-down", "двояко": "bs-wind-neutral" };
 const STRENGTH_LEVEL = { "сильный": 3, "средний": 2, "слабый": 1 };
+const STRENGTH_PCT = { "сильный": 100, "средний": 62, "слабый": 32 };
+
+function FactorStrengthBar({ sign, strength }) {
+  const pct = STRENGTH_PCT[strength];
+  const cls = sign === "помогает" ? "up" : sign === "мешает" ? "down" : null;
+  if (!pct || !cls) return null;
+  return (
+    <div className="mt-factor-bar" aria-hidden="true">
+      <div className="mt-factor-bar-track">
+        <span className="mt-factor-bar-center" />
+        <span className={`mt-factor-bar-fill ${cls}`} style={{ width: `${pct / 2}%` }} />
+      </div>
+    </div>
+  );
+}
 
 function FactorCard({ f }) {
   const chain = arr(f.chain);
   const n = obj(f.number);
+  const hasMore = txt(f.strength_basis) || txt(f.details);
   return (
     <div className="bs-card mt-factor">
       <div className="mt-factor-head">
@@ -217,7 +340,7 @@ function FactorCard({ f }) {
           )}
         </div>
       </div>
-      {txt(f.strength_basis) && <p className="mt-factor-basis">{f.strength_basis}</p>}
+      <FactorStrengthBar sign={f.sign} strength={f.strength} />
       {chain.length > 0 && (
         <div className="mt-chain">
           {chain.map((step, i) => (
@@ -233,6 +356,15 @@ function FactorCard({ f }) {
           <EpistemicTag label={n.label} />
           <p>{n.text}</p>
         </div>
+      )}
+      {hasMore && (
+        <details className="mt-details mt-factor-details">
+          <summary><span>Подробнее</span></summary>
+          <div className="mt-details-body">
+            {txt(f.strength_basis) && <p>{f.strength_basis}</p>}
+            {txt(f.details) && <p>{f.details}</p>}
+          </div>
+        </details>
       )}
     </div>
   );
@@ -259,6 +391,7 @@ function DriversBlock({ drivers }) {
           <p><b>Неочевидное звено.</b> {drivers.hidden_link}</p>
         </div>
       )}
+      <Takeaway text={drivers.takeaway} />
     </section>
   );
 }
@@ -319,104 +452,233 @@ function PeersBlock({ peers }) {
 }
 
 // --------------------------------------------------------------------------
-// Блок 4 — «Сценарии Банка России» — дизайн-задача брифа: не «простыня» 4×7,
-// а карточки сценариев (2026 год тонкой строкой сверху, четыре сценария 2027
-// года — сеткой карточек с полоской диапазона относительно базового года).
+// Блок 4 — «Сценарии Банка России» — дизайн-задача доработки 16.09: вместо
+// сетки 2×2 тяжёлых карточек — «лестница» (вариант 2 из брифа): строки в
+// общей логике «хуже ← база → лучше», сравнимые за секунду сверху вниз,
+// работающая одинаково с числами и без (качественный вариант). Клик по
+// строке разворачивает объяснение, выручку (вторичную) и диапазон на шкале.
 // --------------------------------------------------------------------------
-function Common2026Row({ c2026 }) {
-  const conds = orderedConditions(c2026.conditions);
-  const rev = obj(c2026.revenue);
-  const np = obj(c2026.net_profit);
-  return (
-    <div className="mt-c2026">
-      <div className="mt-c2026-head">
-        <span className="mt-c2026-tag">{c2026.year || "2026"} год</span>
-        <span className="mt-c2026-note-lbl">ожидание регулятора на текущий год — одинаково во всех сценариях</span>
-      </div>
-      {conds.length > 0 && (
-        <div className="mt-c2026-conds">
-          {conds.map(([k, v]) => <span key={k}><b>{k}:</b> {txt(v) || "—"}</span>)}
-        </div>
-      )}
-      {(rev || np) && (
-        <div className="mt-c2026-metrics">
-          {rev && <span>Выручка {fmtN(rev.base, 1)} млрд ₽ <DeltaTag value={rev.pct_base} /></span>}
-          {np && <span>Чистая прибыль {fmtN(np.base, 1)} млрд ₽ <DeltaTag value={np.pct_base} /></span>}
-        </div>
-      )}
-      {txt(c2026.note) && <p className="mt-c2026-noteline">{c2026.note}</p>}
-      {arr(c2026.flags).length > 0 && (
-        <div className="mt-scn-flags">
-          {c2026.flags.map((fl, i) => <div className="mt-scn-flag" key={i}><AlertTriangle size={12} aria-hidden="true" /> {fl}</div>)}
-        </div>
-      )}
-    </div>
-  );
+
+// Порядок строк — по фактическому исходу для КОМПАНИИ, а не по названию
+// сценария у регулятора: «Рисковый» называется рисковым по меркам экономики
+// в целом, но для конкретной компании может оказаться лучшим исходом (пример
+// методички: у экспортёра резкая девальвация в рисковом сценарии перевешивает
+// сопутствующие риски). Приоритет сигнала: реальный % изменения прибыли →
+// вердикт (если чисел ещё нет) → типовой порядок ЦБ (только когда нет вообще
+// никакого сигнала, напр. ещё не заполненный качественный файл).
+const CANON_SCN_RANK = { risk: -2, proinflation: -1, base: 0, disinflation: 1 };
+const VERDICT_RANK = { "мешает": -1, "примерно так же": 0, "помогает": 1 };
+function deriveVerdict(pctBase) {
+  if (!isNum(pctBase)) return null;
+  if (pctBase > 3) return "помогает";
+  if (pctBase < -3) return "мешает";
+  return "примерно так же";
+}
+function rowVerdict(row) {
+  const np = obj(row.net_profit);
+  return txt(row.verdict) || deriveVerdict(np && np.pct_base);
+}
+// Контракт задаёт headline целиком как «▲/≈/▼ слово — причина» (раздел 7.1) —
+// тот же глиф и слово уже показывает цветной VerdictChip прямо над этой
+// строкой, поэтому здесь оставляем только причину: иначе «▼ мешает» читается
+// дважды подряд (ровно та «проза-дубль», которую и убирает вся доработка).
+const HEADLINE_PREFIX_RE = /^[▲≈▼]\s*(помогает|мешает|примерно так же)\s*[—-]\s*/i;
+function headlineReason(headline) {
+  const h = txt(headline);
+  if (!h) return null;
+  return h.replace(HEADLINE_PREFIX_RE, "");
+}
+function scenarioSortScore(row) {
+  const np = obj(row.net_profit);
+  if (np && isNum(np.pct_base)) return np.pct_base;
+  const v = rowVerdict(row);
+  if (v && v in VERDICT_RANK) return VERDICT_RANK[v] * 1000;
+  const rank = CANON_SCN_RANK[row.scenario_id];
+  return isNum(rank) ? rank : 99;
 }
 
-function ScenarioMetric({ label, o, domain, refValue }) {
-  if (!o) return null;
-  const positive = isNum(o.pct_base) ? o.pct_base >= 0 : (isNum(o.base) && isNum(refValue) ? o.base >= refValue : true);
-  const hasPctRange = isNum(o.pct_low) || isNum(o.pct_high);
-  return (
-    <div className="mt-scn-metric">
-      <div className="mt-scn-metric-head">
-        <span className="mt-scn-metric-lbl">{label} <EpistemicTag label="прогноз" /></span>
-        <DeltaTag value={o.pct_base} />
-      </div>
-      <div className="mt-scn-metric-val">{fmtN(o.base, 1)} млрд ₽</div>
-      <RangeBar low={o.low} base={o.base} high={o.high} domain={domain} refValue={refValue} positive={positive} />
-      <div className="mt-scn-metric-range">
-        {fmtN(o.low, 1)} … {fmtN(o.high, 1)} млрд ₽
-        {hasPctRange ? ` (${fmtSigned(o.pct_low, 0)}…${fmtSigned(o.pct_high, 0)}%)` : ""}
-      </div>
-    </div>
-  );
+function normalizeC2026(c2026) {
+  if (!c2026) return null;
+  return {
+    key: "c2026",
+    name: `${c2026.year || 2026} год`,
+    badge: "одинаково во всех сценариях",
+    conditions: c2026.conditions,
+    verdict: rowVerdict(c2026),
+    headline: null,
+    revenue: c2026.revenue,
+    net_profit: c2026.net_profit,
+    explanation: c2026.note,
+    dominant_factor: c2026.dominant_factor,
+    flags: c2026.flags,
+  };
+}
+function normalizeRow(row) {
+  return {
+    key: row.scenario_id || row.scenario,
+    name: row.scenario || "—",
+    badge: isNum(row.year) ? String(row.year) : null,
+    conditions: row.conditions,
+    verdict: rowVerdict(row),
+    headline: txt(row.headline),
+    revenue: row.revenue,
+    net_profit: row.net_profit,
+    explanation: row.explanation,
+    dominant_factor: row.dominant_factor,
+    flags: row.flags,
+  };
 }
 
-function ScenarioCard({ row, domain, refRevenue, refProfit }) {
-  const conds = orderedConditions(row.conditions);
-  const flags = arr(row.flags);
-  return (
-    <div className="bs-card mt-scn-card">
-      <div className="mt-scn-head">
-        <h4>{row.scenario || "—"}</h4>
-        {isNum(row.year) && <span className="mt-scn-year">{row.year}</span>}
+function LadderRow({ item, hidePct, domain, refValue, refYear, isQualitative }) {
+  const conds = orderedConditions(item.conditions);
+  const np = obj(item.net_profit);
+  const rev = obj(item.revenue);
+  const flags = arr(item.flags);
+  const hasNumber = !!(np && isNum(np.base));
+  const step = hasNumber ? stepFor(np.base) : 1;
+  const hasRevenue = !!(rev && isNum(rev.base));
+  const hasBody = txt(item.explanation) || txt(item.dominant_factor) || flags.length > 0 || hasRevenue || (hasNumber && domain);
+  const positive = hasNumber && isNum(np.pct_base) ? np.pct_base >= 0 : true;
+  const hideProfitPct = hidePct || (np && np.pct_hidden === true);
+  const hideRevPct = !!(rev && rev.pct_hidden === true);
+
+  const head = (
+    <>
+      <div className="mt-ladder-name">
+        <span className="mt-ladder-scn-name">{item.name}</span>
+        {item.badge && <span className="mt-ladder-badge">{item.badge}</span>}
       </div>
-      {conds.length > 0 && (
-        <div className="mt-scn-conds">
-          {conds.map(([k, v]) => (
-            <div className="mt-scn-cond-row" key={k}>
-              <span className="mt-scn-cond-lbl">{k}</span>
-              <span className="mt-scn-cond-val">{txt(v) || "—"}</span>
+      <div className="mt-ladder-conds">
+        {conds.map(([k, v]) => (
+          <span className="mt-ladder-cond" key={k}><b>{COND_SHORT[k] || k}</b> {txt(v) || "—"}</span>
+        ))}
+      </div>
+      <div className="mt-ladder-verdict">
+        <VerdictChip verdict={item.verdict} />
+        {headlineReason(item.headline) && <span className="mt-ladder-headline">{headlineReason(item.headline)}</span>}
+      </div>
+      <div className="mt-ladder-number">
+        {hasNumber ? (
+          <>
+            <span className="mt-ladder-num-val bs-mono">
+              ≈{fmtStep(np.base, step)}
+              <span className="mt-ladder-num-range"> ({fmtStep(np.low, step)}…{fmtStep(np.high, step)})</span>
+            </span>
+            <div className="mt-ladder-num-tags">
+              {!hideProfitPct && isNum(np.pct_base) && <DeltaTag value={np.pct_base} />}
+              <EpistemicTag label="прогноз" />
             </div>
-          ))}
-        </div>
-      )}
-      <div className="mt-scn-metrics">
-        <ScenarioMetric label="Выручка" o={obj(row.revenue)} domain={domain.revenue} refValue={refRevenue} />
-        <ScenarioMetric label="Чистая прибыль" o={obj(row.net_profit)} domain={domain.net_profit} refValue={refProfit} />
+          </>
+        ) : item.verdict && isQualitative ? (
+          <EpistemicTag label="суждение" />
+        ) : null}
       </div>
-      {txt(row.explanation) && <p className="mt-scn-expl">{row.explanation}</p>}
-      {txt(row.dominant_factor) && (
-        <div className="mt-scn-dom"><Zap size={12} aria-hidden="true" /> <span>Определяет исход: {row.dominant_factor}</span></div>
-      )}
-      {flags.length > 0 && (
-        <div className="mt-scn-flags">
-          {flags.map((fl, i) => <div className="mt-scn-flag" key={i}><AlertTriangle size={12} aria-hidden="true" /> {fl}</div>)}
+    </>
+  );
+
+  if (!hasBody) {
+    return (
+      <div className="mt-ladder-row mt-ladder-row-flat">
+        <div className="mt-ladder-summary">{head}</div>
+      </div>
+    );
+  }
+
+  return (
+    <details className="mt-ladder-row">
+      <summary className="mt-ladder-summary">
+        {head}
+        <span className="mt-ladder-chevron" aria-hidden="true">▾</span>
+      </summary>
+      <div className="mt-ladder-body">
+        {hasRevenue && (
+          <div className="mt-ladder-revenue">
+            <span className="mt-ladder-revenue-lbl">Выручка (вторично)</span>
+            <span className="bs-mono">{fmtN(rev.base, 1)} млрд ₽</span>
+            {!hideRevPct && <DeltaTag value={rev.pct_base} />}
+            <EpistemicTag label="прогноз" />
+          </div>
+        )}
+        {txt(item.explanation) && <p className="mt-ladder-expl">{item.explanation}</p>}
+        {txt(item.dominant_factor) && (
+          <div className="mt-scn-dom"><Zap size={12} aria-hidden="true" /> <span>Определяет исход: {item.dominant_factor}</span></div>
+        )}
+        {flags.length > 0 && (
+          <div className="mt-scn-flags">
+            {flags.map((fl, i) => <div className="mt-scn-flag" key={i}><AlertTriangle size={12} aria-hidden="true" /> {fl}</div>)}
+          </div>
+        )}
+        {hasNumber && domain && (
+          <div className="mt-ladder-scale">
+            <div className="mt-ladder-scale-lbl">Чистая прибыль на шкале относительно {refYear || "предыдущего"} года</div>
+            <RangeBar low={np.low} base={np.base} high={np.high} domain={domain} refValue={refValue} positive={positive} />
+            <div className="mt-scn-metric-range">{fmtN(np.low, 1)} … {fmtN(np.high, 1)} млрд ₽</div>
+          </div>
+        )}
+      </div>
+    </details>
+  );
+}
+
+// Мост базы прибыли — постоянная строка НАД лестницей (рекомендация E-3):
+// если устойчивая база сценариев отличается от нормализованной прибыли
+// «Финансов», сразу показываем «почему» с разворотом моста, а не заставляем
+// искать это в «Как посчитано» внизу. Если база совпадает — короткая строка
+// «точка отсчёта», без моста (пример из пилота — SBER, где мост не нужен).
+function BaseBridgeCallout({ bf, hc }) {
+  // scn.base_fact отсутствует целиком у части качественного варианта (пока нет
+  // финансовой модели, напр. GAZP до её построения) — bf в ScenariosBlock уже
+  // подстрахован через `|| {}` для других мест блока, но здесь пустой объект
+  // ничем не отличается от «данных нет»: без выручки и прибыли строка
+  // превращается в прочерки («Точка отсчёта: выручка — млрд ₽») — это ровно
+  // тот дефект, который конституция запрещает возвращать («прочерки»), лучше
+  // вообще не показывать строку.
+  if (!bf || (!isNum(bf.revenue) && !isNum(bf.net_profit))) return null;
+  const bv = obj(hc && hc.base_values) || {};
+  const scenarioBase = isNum(bf.net_profit_scenario_base) ? bf.net_profit_scenario_base : null;
+  const adjusted = isNum(bf.net_profit) ? bf.net_profit : null;
+  const reported = isNum(bv.net_profit_reported) ? bv.net_profit_reported : null;
+  const needsBridge = scenarioBase != null && adjusted != null && Math.abs(scenarioBase - adjusted) > 0.5;
+  const bridge = resolveBridge(bv, hc);
+  const hasBridgeBody = bridge.rows.length > 0 || !!bridge.note;
+
+  if (needsBridge) {
+    const alt = [];
+    if (adjusted != null) alt.push(`не ${fmtN(adjusted, 0)} из «Финансов»`);
+    if (reported != null && Math.abs(reported - adjusted) > 0.5) alt.push(`не ${fmtN(reported, 0)} из отчёта`);
+    return (
+      <details className="mt-details mt-bridge-callout">
+        <summary>
+          <span>База для сценариев ≈{fmtN(scenarioBase, 0)} млрд ₽{alt.length ? ` — ${alt.join(" и ")}` : ""}</span>
+          <span className="mt-bridge-why">почему</span>
+        </summary>
+        <div className="mt-details-body">
+          {hasBridgeBody && <div className="mt-details-sub">Мост к устойчивой базе прибыли</div>}
+          <BridgeBody bridge={bridge} />
+          {txt(bf.note) && <p>{bf.note}</p>}
         </div>
-      )}
+      </details>
+    );
+  }
+
+  return (
+    <div className="mt-scn-basefact">
+      <EpistemicTag label="из источника" />
+      <span className="mt-scn-basefact-txt">
+        Точка отсчёта — {bf.year || "предыдущий"} год: выручка {fmtN(bf.revenue, 1)} млрд ₽, чистая прибыль {fmtN(adjusted, 1)} млрд ₽
+      </span>
+      {txt(bf.note) && <p className="mt-scn-basefact-note">{bf.note}</p>}
     </div>
   );
 }
 
-function ScenariosBlock({ scenarios: scn, staleness }) {
+function ScenariosBlock({ scenarios: scn, staleness, howComputed }) {
   const rows = arr(scn && scn.rows);
   if (!scn || !rows.length) return null;
-  const domain = computeDomain(scn);
+  const domain = computeProfitDomain(scn);
   const bf = obj(scn.base_fact) || {};
   const profitBase = isNum(bf.net_profit_scenario_base) ? bf.net_profit_scenario_base : bf.net_profit;
-  const bridgeNeeded = isNum(bf.net_profit_scenario_base) && isNum(bf.net_profit) && Math.abs(bf.net_profit_scenario_base - bf.net_profit) > 0.5;
+  const isQualitative = scn.variant === "qualitative";
   const interim = obj(scn.interim_fact);
   const asOfSrc = fmtDate(scn.as_of);
   // Разные компании (пилот) пробовали разные имена для одной и той же вводной
@@ -425,6 +687,17 @@ function ScenariosBlock({ scenarios: scn, staleness }) {
   const framingNote = txt(scn.framing) || txt(scn.note) || txt(scn.reading_note) || txt(scn.scope_note);
   const conditionsLegend = txt(scn.conditions_legend);
   const detailsItems = !!(framingNote || conditionsLegend || arr(scn.caveats).length > 0 || arr(scn.extra_assumptions).length > 0);
+
+  // Тонкая или отрицательная база — процент по всей лестнице вводит в
+  // заблуждение (контракт 7.1, рекомендация B: |база| < 5% выручки — не
+  // показывать проценты; у некоторых компаний это уже приходит явным
+  // net_profit.pct_hidden на каждой строке, здесь — общий подстраховочный
+  // расчёт на случай, если писатель его не проставил).
+  const pctThin = isNum(profitBase) && isNum(bf.revenue) && bf.revenue !== 0
+    && Math.abs(profitBase) < 0.05 * Math.abs(bf.revenue);
+
+  const c2026Item = scn.common_2026 ? normalizeC2026(scn.common_2026) : null;
+  const orderedRows = [...rows].sort((a, b) => scenarioSortScore(a || {}) - scenarioSortScore(b || {}));
 
   return (
     <section className="mt-block">
@@ -441,22 +714,16 @@ function ScenariosBlock({ scenarios: scn, staleness }) {
       )}
 
       {staleness && txt(staleness.text) && (
-        <div className="bs-callout">
+        <div className="bs-callout mt-staleness">
           <RefreshCw aria-hidden="true" />
-          <p><b>Что изменилось с даты сценариев.</b> {staleness.text}</p>
+          <div>
+            <div className="mt-callout-heading">Поправка на сегодня</div>
+            <p>{staleness.text}</p>
+          </div>
         </div>
       )}
 
-      {(isNum(bf.revenue) || isNum(bf.net_profit)) && (
-        <div className="mt-scn-basefact">
-          <EpistemicTag label="из источника" />
-          <span className="mt-scn-basefact-txt">
-            {bf.year || "предыдущий"} год — точка отсчёта: выручка {fmtN(bf.revenue, 1)} млрд ₽, чистая прибыль {fmtN(bf.net_profit, 1)} млрд ₽
-            {bridgeNeeded ? <>; сравнение сценариев ведётся от устойчивой базы {fmtN(bf.net_profit_scenario_base, 1)} млрд ₽ (мост — в «Как посчитано»)</> : null}
-          </span>
-          {(txt(bf.note) || txt(scn.base_note)) && <p className="mt-scn-basefact-note">{txt(bf.note) || txt(scn.base_note)}</p>}
-        </div>
-      )}
+      <BaseBridgeCallout bf={bf} hc={howComputed} />
 
       {interim && txt(interim.text) && (
         <div className="mt-fact-note">
@@ -465,17 +732,31 @@ function ScenariosBlock({ scenarios: scn, staleness }) {
         </div>
       )}
 
-      {scn.common_2026 && <Common2026Row c2026={scn.common_2026} />}
-
       <div className="mt-legend">
-        Полоска — диапазон сценария на {rows[0]?.year || "следующий год"} (низкий…высокий), тёмная чёрточка — среднее значение сценария, пунктирная — {bf.year || "предыдущий"} год (факт).
+        {isQualitative
+          ? "Вердикт у каждого сценария — направление для компании при условиях сценария против условий 2025 года: суждение, без расчёта выручки и прибыли."
+          : "Строки — от худшего исхода к лучшему для компании. Нажмите на сценарий — раскроются объяснение, выручка и диапазон на шкале."}
       </div>
 
-      <div className="mt-scn-grid">
-        {rows.map((row, i) => (
-          <ScenarioCard row={row || {}} domain={domain} refRevenue={bf.revenue} refProfit={profitBase} key={row?.scenario_id || row?.scenario || i} />
+      <div className="mt-ladder">
+        {c2026Item && (
+          <LadderRow item={c2026Item} hidePct={pctThin} domain={domain} refValue={bf.net_profit} refYear={bf.year} isQualitative={isQualitative} />
+        )}
+        {orderedRows.map((row, i) => (
+          <LadderRow
+            item={normalizeRow(row || {})}
+            hidePct={pctThin}
+            domain={domain}
+            refValue={profitBase}
+            refYear={bf.year}
+            isQualitative={isQualitative}
+            key={row?.scenario_id || row?.scenario || i}
+          />
         ))}
       </div>
+
+      {txt(scn.numbers_note) && <p className="mt-numbers-note">{scn.numbers_note}</p>}
+      <Takeaway text={scn.takeaway} />
 
       {detailsItems && (
         <details className="mt-details">
@@ -490,7 +771,6 @@ function ScenariosBlock({ scenarios: scn, staleness }) {
                 <ul>{scn.extra_assumptions.map((c, i) => <li key={i}>{c}</li>)}</ul>
               </div>
             )}
-
           </div>
         </details>
       )}
@@ -499,14 +779,16 @@ function ScenariosBlock({ scenarios: scn, staleness }) {
 }
 
 // --------------------------------------------------------------------------
-// Блок 5 — «Как макроэкономика влияет на цену акции» — дизайн-задача брифа:
-// три механизма как последовательность шагов (не одинаковые карточки), а не
-// одно число выделено как отдельный «сигнал» с эпистемической меткой.
+// Блок 5 — «Как макроэкономика влияет на цену акции» — дизайн-задача
+// доработки: строки «у этой компании» видимы сразу (главное), общая теория —
+// под один общий разворот «как это работает вообще» (не под каждый механизм),
+// единственное число — компактным чипом-сигналом с меткой.
 // --------------------------------------------------------------------------
 function PriceLinkBlock({ priceLink }) {
   const mechs = arr(priceLink && priceLink.mechanisms);
   if (!mechs.length) return null;
   const number = obj(priceLink.number);
+  const hasTheory = mechs.some((m) => txt(m && m.text));
   return (
     <section className="mt-block">
       <h2 className="mt-block-title">Как макроэкономика влияет на цену акции</h2>
@@ -516,19 +798,27 @@ function PriceLinkBlock({ priceLink }) {
             <div className="mt-step-num" aria-hidden="true" data-n={i === 2 && mechs.length === 3 ? "1+2" : String(i + 1)} />
             <div className="mt-step-body">
               {txt(m.title) && <h4>{m.title}</h4>}
-              {txt(m.text) && <p>{m.text}</p>}
-              {txt(m.company) && <p className="mt-step-company">{m.company}</p>}
+              {txt(m.company) && <p className="mt-step-company-main">{m.company}</p>}
             </div>
           </li>
         ))}
       </ol>
       {number && txt(number.text) && (
-        <div className="mt-estimate-callout">
+        <div className="mt-signal-chip">
           <EpistemicTag label={number.label || "оценка"} />
-          <p className="mt-estimate-txt">{number.text}</p>
-          {txt(number.caveat) && <p className="mt-estimate-caveat">{number.caveat}</p>}
+          <p className="mt-signal-chip-txt">{number.text}</p>
         </div>
       )}
+      {number && txt(number.caveat) && <p className="mt-estimate-caveat">{number.caveat}</p>}
+      {hasTheory && (
+        <details className="mt-details">
+          <summary><span>Как это работает вообще</span></summary>
+          <div className="mt-details-body">
+            {mechs.map((m, i) => txt(m && m.text) ? <p key={i}><b>{m.title || `Механизм ${i + 1}`}.</b> {m.text}</p> : null)}
+          </div>
+        </details>
+      )}
+      <Takeaway text={priceLink.takeaway} />
     </section>
   );
 }
@@ -547,14 +837,7 @@ function HowComputedBlock({ howComputed: hc, calc }) {
   const coefs = arr(hc.coefficients);
   const assumptions = arr(hc.assumptions);
   const sources = arr(hc.sources);
-  // Мост к устойчивой базе прибыли встречался у пилота в трёх формах: список
-  // объектов {step,amount,label} (base_values.base_bridge — основная форма
-  // контракта), список готовых строк (у одной компании — на уровень выше,
-  // how_computed.base_bridge) или короткий абзац одной строкой (base_values.
-  // bridge_note) — показываем то, что реально есть, без гадания за писателя.
-  const bridge = arr(bv.base_bridge).length > 0 ? bv.base_bridge : arr(hc.base_bridge);
-  const bridgeIsRows = bridge.length > 0 && typeof bridge[0] === "object" && bridge[0] !== null;
-  const bridgeNote = txt(bv.bridge_note);
+  const bridge = resolveBridge(bv, hc);
   const oneOff = obj(bv.one_off);
   const legendEntries = Object.entries(legend);
   // У части компаний нет плоского net_profit — только net_profit_adjusted
@@ -588,25 +871,10 @@ function HowComputedBlock({ howComputed: hc, calc }) {
 
           {txt(hc.interim_note) && <p className="mt-hc-note">{hc.interim_note}</p>}
 
-          {bridge.length > 0 && (
+          {(bridge.rows.length > 0 || bridge.note) && (
             <div>
               <div className="mt-details-sub">Мост к устойчивой базе прибыли</div>
-              {bridgeIsRows ? (
-                bridge.map((s, i) => (
-                  <div className="mt-bridge-row" key={i}>
-                    <span className="mt-bridge-step">{s.step}{s.label ? <EpistemicTag label={s.label} /> : null}</span>
-                    {isNum(s.amount) && <span className="bs-mono">{fmtSigned(s.amount, 1)}</span>}
-                  </div>
-                ))
-              ) : (
-                <ul>{bridge.map((s, i) => <li key={i}>{String(s)}</li>)}</ul>
-              )}
-            </div>
-          )}
-          {!bridge.length && bridgeNote && (
-            <div>
-              <div className="mt-details-sub">Мост к устойчивой базе прибыли</div>
-              <p>{bridgeNote}</p>
+              <BridgeBody bridge={bridge} />
             </div>
           )}
 
@@ -709,7 +977,7 @@ export default function MacroeconomicsTab({ data, company }) {
       <NowBlock now={data.now} />
       <DriversBlock drivers={data.drivers} />
       <PeersBlock peers={data.peers} />
-      <ScenariosBlock scenarios={data.scenarios} staleness={data.staleness} />
+      <ScenariosBlock scenarios={data.scenarios} staleness={data.staleness} howComputed={data.how_computed} />
       <PriceLinkBlock priceLink={data.price_link} />
       <HowComputedBlock howComputed={data.how_computed} calc={data.calc} />
 

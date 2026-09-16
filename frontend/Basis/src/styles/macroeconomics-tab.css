@@ -1,4 +1,5 @@
-/* Вкладка «Макроэкономика» нового образца (пилот 09.2026), компонент
+/* Вкладка «Макроэкономика» нового образца (пилот 09.2026, доработка 16.09 —
+   docs/macro_tab_product_recommendations_2026-09-16.md), компонент
    src/company/MacroeconomicsTab.jsx. Источник правды по цвету, шрифту и
    радиусу — ТОЛЬКО frontend/Basis/src/styles/basis-design-system.css
    (токены --bs- и классы .bs-), уже подключён глобально в src/index.js —
@@ -22,7 +23,10 @@
    --mt-: они самодостаточные пары фон и текст и всегда выглядят одинаково
    независимо от темы сайта — это уже так работает у .bs-callout в
    stress-test.css (владелец явно попросил именно «следует за темой» для
-   НЕЙТРАЛЬНЫХ поверхностей, акцентные плашки не трогали). */
+   НЕЙТРАЛЬНЫХ поверхностей, акцентные плашки не трогали). Внутри .bs-deep-card
+   (блок 1, всегда тёмная карточка) новые элементы (lead/details/takeaway)
+   красятся напрямую токенами --bs-deep-*, а не через --mt- проекцию — карточка
+   не переключается по теме сайта, поэтому и её внутренние элементы не должны. */
 
 .macro-tab-v2 {
   font-family: var(--bs-sans);
@@ -65,7 +69,7 @@
 
 /* ▲/▼ + подписанное число — глиф и цвет вместе (canon .bs-mono даёт шрифт и
    tabular-nums, здесь только начертание/кегль поверх него). */
-.mt-delta { font-weight: 600; font-size: 12.5px; }
+.mt-delta { font-weight: 600; font-size: 12.5px; white-space: nowrap; }
 
 /* ---------------------------------------------------------------------------
    ШАПКА ВКЛАДКИ — слой «идентичность» (заголовок + дата) из 4 слоёв чтения
@@ -82,10 +86,21 @@
 .mt-block-title { font-family: var(--bs-serif); font-size: 20px; font-weight: 600; color: var(--mt-ink); margin: 0 0 14px; }
 
 /* ---------------------------------------------------------------------------
-   БЛОК 1 — «ЧТО ПРОИСХОДИТ СЕЙЧАС» (сигнал; всегда тёмная карточка-акцент,
-   как .bs-deep-card задуман в каноне — «для интерпретации/суждений»)
+   «ИТОГ ДЛЯ ИНВЕСТОРА» — строка-вывод в конце блока (следствие без
+   рекомендации). Светлый контекст по умолчанию (--mt-), внутри тёмной
+   карточки блока 1 — переопределена ниже на --bs-deep-*.
 --------------------------------------------------------------------------- */
-.mt-now-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+.mt-takeaway { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--mt-line); display: flex; flex-direction: column; gap: 4px; }
+.mt-takeaway-lbl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--bs-copper-deep); }
+.mt-takeaway p { margin: 0; font-size: 13px; color: var(--mt-ink); line-height: 1.6; font-weight: 500; }
+
+/* ---------------------------------------------------------------------------
+   БЛОК 1 — «ЧТО ПРОИСХОДИТ СЕЙЧАС» (сигнал; всегда тёмная карточка-акцент,
+   как .bs-deep-card задуман в каноне — «для интерпретации/суждений»).
+   Порядок внутри (рекомендация B/C): режим+давление → lead (вывод, крупно)
+   → полный текст → якорные числа → «Подробнее» → «Итог для инвестора».
+--------------------------------------------------------------------------- */
+.mt-now-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
 .mt-regime { display: inline-flex; align-items: center; gap: 7px; font-family: var(--bs-sans); font-weight: 700; font-size: 13.5px; padding: 7px 15px; border-radius: 999px; }
 .mt-regime .glyph { font-size: 10px; }
 .mt-regime-up { background: color-mix(in srgb, var(--bs-up) 22%, transparent); color: color-mix(in srgb, var(--bs-up) 78%, white); }
@@ -93,37 +108,66 @@
 .mt-regime-mixed { background: var(--bs-deep-3); color: var(--bs-deep-ink); }
 .mt-pressure { font-size: 12.5px; color: var(--bs-deep-ink2); }
 .mt-pressure b { color: var(--bs-deep-ink); font-weight: 600; }
+
+.mt-now-lead { font-family: var(--bs-serif); font-weight: 600; font-size: 17px; line-height: 1.45; color: var(--bs-deep-ink); margin: 0 0 10px; }
+.mt-now-text { margin: 0; color: var(--bs-deep-ink2); font-size: 13.5px; line-height: 1.7; }
+
 .mt-now-anchors { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
 .mt-deep-stat { display: inline-flex; flex-direction: column; gap: 3px; background: var(--bs-deep-3); border: 1px solid var(--bs-deep-line); border-radius: 9px; padding: 9px 14px; }
 .mt-ds-lbl { font-size: 10px; color: var(--bs-deep-ink3); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
 .mt-ds-val { font-family: var(--bs-mono); font-size: 14px; font-weight: 600; color: var(--bs-deep-ink); font-variant-numeric: tabular-nums; }
 
+/* «Подробнее» и «Итог для инвестора» внутри .bs-deep-card — своя, всегда
+   тёмная палитра (карточка не следует теме сайта, см. комментарий в шапке
+   файла), specificity через два класса-родителя, чтобы надёжно перебить
+   общие .mt-details/.mt-takeaway (светлый --mt- вариант по умолчанию). */
+.macro-tab-v2 .mt-now .mt-details { margin-top: 16px; background: var(--bs-deep-3); border-color: var(--bs-deep-line); }
+.macro-tab-v2 .mt-now .mt-details summary { color: var(--bs-copper); }
+.macro-tab-v2 .mt-now .mt-details-body { border-top-color: var(--bs-deep-line); }
+.macro-tab-v2 .mt-now .mt-details-body p { color: var(--bs-deep-ink2); }
+.macro-tab-v2 .mt-now .mt-takeaway { border-top-color: var(--bs-deep-line); }
+.macro-tab-v2 .mt-now .mt-takeaway p { color: var(--bs-deep-ink); }
+
 /* ---------------------------------------------------------------------------
    ЭПИСТЕМИЧЕСКИЕ МЕТКИ — переиспользуем канон .bs-tag-fact/estimate/judgment
    на пять меток спецификации (6.3): из источника/из структуры → факт (серый),
-   оценка/прогноз → оценка (синий), разовый → суждение (медь, единственная
-   метка-предупреждение «не продлевай дальше»).
+   оценка/прогноз → оценка (синий), разовый/суждение → суждение (медь).
+   Метка ставится инлайн у числового кластера самым лёгким весом (рекомендация
+   D) — canon-класс уже это даёт (10.5px пилюля), здесь ничего не переопределяем.
 --------------------------------------------------------------------------- */
 .mt-tag-row { display: inline-flex; align-items: center; gap: 8px; }
 
 /* ---------------------------------------------------------------------------
-   БЛОК 2 — «ОТ ЧЕГО ЗАВИСИТ КОМПАНИЯ»
+   БЛОК 2 — «ОТ ЧЕГО ЗАВИСИТ КОМПАНИЯ» — облегчённая карточка (рекомендация
+   C): имя+метки+полоска силы+цепочка-чипы+компактное число видимы сразу,
+   основание силы и детали — под «Подробнее».
 --------------------------------------------------------------------------- */
 .mt-factors { display: flex; flex-direction: column; gap: 12px; }
-.mt-factor { padding: 18px 20px; }
-.mt-factor-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+.mt-factor { padding: 16px 20px; }
+.mt-factor-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
 .mt-factor-head h4 { font-family: var(--bs-serif); font-size: 16px; font-weight: 600; color: var(--mt-ink); margin: 0; }
 .mt-factor-head-tags { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .mt-strength { display: inline-flex; gap: 3px; align-items: center; }
 .mt-strength i { width: 6px; height: 6px; border-radius: 50%; background: var(--mt-line-2); font-style: normal; display: inline-block; }
 .mt-strength i.on { background: var(--bs-copper); }
 .mt-strength-word { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--mt-ink-3); }
-.mt-factor-basis { font-size: 12px; color: var(--mt-ink-3); line-height: 1.55; margin: 2px 0 12px; }
+
+/* Мини-полоска силы фактора (рекомендация C, «кандидат в вау») — чисто
+   декоративное усиление слова+точек, не единственный носитель смысла: центр
+   = ноль, вправо помогает (зелёная), влево мешает (красная), длина = сила. */
+.mt-factor-bar { margin-bottom: 12px; }
+.mt-factor-bar-track { position: relative; height: 4px; background: var(--mt-surface-3); border-radius: 2px; }
+.mt-factor-bar-center { position: absolute; left: 50%; top: -2px; width: 1px; height: 8px; background: var(--mt-line-2); transform: translateX(-50%); }
+.mt-factor-bar-fill { position: absolute; top: 0; height: 4px; border-radius: 2px; }
+.mt-factor-bar-fill.up { left: 50%; background: var(--bs-up); }
+.mt-factor-bar-fill.down { right: 50%; background: var(--bs-down); }
+
 .mt-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 12px; }
 .mt-chain-step { background: var(--mt-surface-2); color: var(--mt-ink-2); font-size: 12px; line-height: 1.4; padding: 5px 10px; border-radius: 7px; }
 .mt-chain-arrow { color: var(--mt-ink-3); flex-shrink: 0; }
-.mt-factor-number { display: flex; flex-direction: column; gap: 7px; background: var(--mt-surface-2); border-radius: 9px; padding: 12px 14px; }
-.mt-factor-number p { margin: 0; font-size: 13px; color: var(--mt-ink-2); line-height: 1.6; }
+.mt-factor-number { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; background: var(--mt-surface-2); border-radius: 9px; padding: 10px 14px; }
+.mt-factor-number p { margin: 0; font-size: 12.5px; color: var(--mt-ink-2); line-height: 1.55; flex: 1 1 220px; }
+.mt-factor-details { margin-top: 10px; }
 .mt-cycle { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; }
 .mt-cycle svg { flex-shrink: 0; color: var(--mt-ink-3); margin-top: 3px; }
 .mt-cycle p { margin: 0; font-size: 12.5px; color: var(--mt-ink-3); line-height: 1.6; }
@@ -155,42 +199,76 @@
    БЛОК 4 — «СЦЕНАРИИ БАНКА РОССИИ»
 --------------------------------------------------------------------------- */
 .mt-scn-source { font-size: 12px; color: var(--mt-ink-3); margin-bottom: 14px; }
-.mt-scn-basefact { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+
+/* Плашка моста базы прибыли (рекомендация E-3) — постоянная строка над
+   лестницей; медная кромка — так же заметна, как «Что зафиксировано в
+   расчёте» (.mt-held), но кликабельна («почему →» разворачивает мост). */
+.mt-bridge-callout { border-left: 3px solid var(--bs-copper); margin: 0 0 14px; }
+.mt-bridge-callout summary { align-items: baseline; }
+.mt-bridge-callout summary > span:first-child { font-weight: 600; color: var(--mt-ink); }
+.mt-bridge-why { flex-shrink: 0; margin-left: auto; }
+.macro-tab-v2 .mt-bridge-callout summary::after { content: none; }
+
+/* Короткая строка «точка отсчёта», когда мост не нужен (база = «Финансы») */
+.mt-scn-basefact { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin: 0 0 14px; }
 .mt-scn-basefact-txt { font-size: 13px; color: var(--mt-ink-2); }
 .mt-scn-basefact-note { flex: 0 0 100%; margin: 4px 0 0; font-size: 11.5px; color: var(--mt-ink-3); line-height: 1.55; }
-.mt-fact-note { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; background: var(--mt-surface-2); border-radius: 9px; padding: 11px 13px; margin: 12px 0 18px; }
+
+.mt-fact-note { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; background: var(--mt-surface-2); border-radius: 9px; padding: 11px 13px; margin: 0 0 18px; }
 .mt-fact-note p { margin: 0; font-size: 12.5px; color: var(--mt-ink-2); line-height: 1.6; flex: 1 1 260px; }
 
-.mt-c2026 { background: var(--mt-surface-2); border-radius: 10px; padding: 13px 16px; margin: 14px 0; display: flex; flex-direction: column; gap: 8px; }
-.mt-c2026-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.mt-c2026-tag { font-family: var(--bs-mono); font-size: 11px; font-weight: 700; color: var(--mt-ink); background: var(--mt-surface); border: 1px solid var(--mt-line); padding: 3px 9px; border-radius: 6px; flex-shrink: 0; }
-.mt-c2026-note-lbl { font-size: 11.5px; color: var(--mt-ink-3); }
-.mt-c2026-conds { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; color: var(--mt-ink-2); }
-.mt-c2026-conds b { color: var(--mt-ink-3); font-weight: 600; margin-right: 4px; }
-.mt-c2026-metrics { display: flex; flex-wrap: wrap; gap: 10px 20px; font-family: var(--bs-mono); font-size: 13px; font-weight: 600; color: var(--mt-ink); font-variant-numeric: tabular-nums; }
-.mt-c2026-metrics span { display: inline-flex; align-items: center; gap: 8px; }
-.mt-c2026-noteline { margin: 0; font-size: 12px; color: var(--mt-ink-3); line-height: 1.55; }
+.mt-callout-heading { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--bs-copper-deep); margin-bottom: 5px; }
+.mt-staleness p { margin: 0; }
 
-.mt-legend { font-size: 11px; color: var(--mt-ink-3); margin: 2px 0 12px; }
+.mt-legend { font-size: 11.5px; color: var(--mt-ink-3); margin: 0 0 12px; }
 
-.mt-scn-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-@media (max-width: 760px) { .mt-scn-grid { grid-template-columns: 1fr; } }
+/* «Лестница» сценариев (вариант 2 из брифа) — строки хуже←база→лучше вместо
+   сетки карточек; одна общая рамка-таблица, каждая строка — native <details>
+   для клика-разворота (клавиатура и скринридеры получают это бесплатно). */
+.mt-ladder { border: 1px solid var(--mt-line); border-radius: var(--bs-radius); overflow: hidden; background: var(--mt-surface); }
+.mt-ladder-row { border-bottom: 1px solid var(--mt-line); }
+.mt-ladder-row:last-child { border-bottom: none; }
+.mt-ladder-row > summary { cursor: pointer; list-style: none; }
+.mt-ladder-row > summary::-webkit-details-marker { display: none; }
+.mt-ladder-row:not(.mt-ladder-row-flat):hover { background: var(--mt-surface-2); }
+/* Фокус-кольцо ВНУТРЬ строки (inset) — .mt-ladder режет overflow:hidden ради
+   скруглённых углов общей рамки; обычное (наружное) свечение на первой/
+   последней строке обрезалось бы этим overflow. */
+.mt-ladder-row > summary:focus-visible { outline: none; box-shadow: inset 0 0 0 3px var(--bs-copper-glow); }
 
-.mt-scn-card { padding: 18px 20px; display: flex; flex-direction: column; gap: 13px; }
-.mt-scn-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-.mt-scn-head h4 { font-family: var(--bs-serif); font-size: 17px; font-weight: 600; color: var(--mt-ink); margin: 0; }
-.mt-scn-year { font-family: var(--bs-mono); font-size: 11px; color: var(--mt-ink-3); flex-shrink: 0; }
+.mt-ladder-summary {
+  display: grid;
+  grid-template-columns: minmax(92px, auto) minmax(160px, 1.6fr) minmax(118px, auto) minmax(140px, auto) 14px;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 13px 16px;
+}
+.mt-ladder-row-flat .mt-ladder-summary { grid-template-columns: minmax(92px, auto) minmax(160px, 1.6fr) minmax(118px, auto) minmax(140px, auto); }
 
-.mt-scn-conds { display: flex; flex-direction: column; gap: 5px; padding: 10px 12px; background: var(--mt-surface-2); border-radius: 8px; }
-.mt-scn-cond-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; }
-.mt-scn-cond-lbl { color: var(--mt-ink-3); }
-.mt-scn-cond-val { font-family: var(--bs-mono); color: var(--mt-ink-2); text-align: right; font-variant-numeric: tabular-nums; }
+.mt-ladder-chevron { justify-self: end; font-size: 10px; color: var(--bs-copper); transition: transform .18s var(--bs-ease); }
+.mt-ladder-row[open] .mt-ladder-chevron { transform: rotate(180deg); }
 
-.mt-scn-metrics { display: flex; flex-direction: column; gap: 14px; }
-.mt-scn-metric-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.mt-scn-metric-lbl { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--mt-ink-3); }
-.mt-scn-metric-val { font-family: var(--bs-mono); font-size: 20px; font-weight: 600; color: var(--mt-ink); font-variant-numeric: tabular-nums; margin: 3px 0 8px; }
-.mt-scn-metric-range { font-family: var(--bs-mono); font-size: 11px; color: var(--mt-ink-3); margin-top: 6px; font-variant-numeric: tabular-nums; }
+.mt-ladder-name { display: flex; flex-direction: column; gap: 2px; }
+.mt-ladder-scn-name { font-family: var(--bs-serif); font-size: 14.5px; font-weight: 600; color: var(--mt-ink); }
+.mt-ladder-badge { font-size: 10px; color: var(--mt-ink-3); font-family: var(--bs-mono); }
+
+.mt-ladder-conds { display: flex; flex-wrap: wrap; gap: 3px 12px; font-family: var(--bs-mono); font-size: 11px; color: var(--mt-ink-2); font-variant-numeric: tabular-nums; }
+.mt-ladder-conds b { color: var(--mt-ink-3); font-weight: 600; }
+
+.mt-ladder-verdict { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.mt-ladder-headline { font-size: 11.5px; color: var(--mt-ink-2); line-height: 1.4; }
+
+.mt-ladder-number { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; text-align: right; }
+.mt-ladder-num-val { font-size: 14px; font-weight: 700; color: var(--mt-ink); white-space: nowrap; }
+.mt-ladder-num-range { font-weight: 500; color: var(--mt-ink-3); font-size: 11.5px; }
+.mt-ladder-num-tags { display: flex; align-items: center; gap: 6px; }
+
+.mt-ladder-body { padding: 4px 16px 16px; border-top: 1px dashed var(--mt-line); margin: 0 16px 14px; display: flex; flex-direction: column; gap: 11px; }
+.mt-ladder-revenue { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.mt-ladder-revenue-lbl { color: var(--mt-ink-3); text-transform: uppercase; font-size: 10.5px; font-weight: 700; letter-spacing: .03em; }
+.mt-ladder-expl { margin: 0; font-size: 12.5px; color: var(--mt-ink-2); line-height: 1.6; }
+.mt-ladder-scale { display: flex; flex-direction: column; gap: 6px; }
+.mt-ladder-scale-lbl { font-size: 10.5px; color: var(--mt-ink-3); text-transform: uppercase; letter-spacing: .03em; font-weight: 700; }
 
 .mt-rbar-track { position: relative; height: 6px; background: var(--mt-surface-3); border-radius: 3px; }
 .mt-rbar-fill { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
@@ -199,24 +277,54 @@
 .mt-rbar-base { position: absolute; top: -3px; width: 2px; height: 12px; background: var(--mt-ink); border-radius: 1px; }
 .mt-rbar-ref { position: absolute; top: -4px; height: 14px; border-left: 2px dashed var(--mt-ink-3); }
 
-.mt-scn-expl { margin: 0; font-size: 12.5px; color: var(--mt-ink-2); line-height: 1.6; }
 .mt-scn-dom { display: flex; align-items: flex-start; gap: 6px; font-size: 11px; color: var(--mt-ink-3); line-height: 1.5; }
 .mt-scn-dom svg { flex-shrink: 0; margin-top: 2px; }
 .mt-scn-flags { display: flex; flex-direction: column; gap: 5px; }
 .mt-scn-flag { display: flex; align-items: flex-start; gap: 6px; font-size: 11.5px; color: var(--bs-copper); line-height: 1.5; }
 .mt-scn-flag svg { flex-shrink: 0; margin-top: 2px; }
+.mt-scn-metric-range { font-family: var(--bs-mono); font-size: 11px; color: var(--mt-ink-3); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 700px) {
+  /* Ряд/номер больше НЕ делят строку с вердиктом (был баг: колонка под номер
+     наследовала ширину узкой колонки шеврона — 14px — и число обрезалось за
+     краем экрана, найдено живым скриншотом). Каждая часть — своя строка на
+     всю ширину, номер читается как горизонтальная строка (не как в узкой
+     колонке справа, там места больше нет). */
+  .mt-ladder-summary {
+    grid-template-columns: 1fr 14px;
+    grid-template-areas: "name chev" "conds conds" "verdict verdict" "number number";
+    row-gap: 8px;
+  }
+  .mt-ladder-row-flat .mt-ladder-summary {
+    grid-template-columns: 1fr;
+    grid-template-areas: "name" "conds" "verdict" "number";
+  }
+  .mt-ladder-name { grid-area: name; }
+  .mt-ladder-chevron { grid-area: chev; }
+  .mt-ladder-conds { grid-area: conds; }
+  .mt-ladder-verdict { grid-area: verdict; }
+  .mt-ladder-number { grid-area: number; flex-direction: row; flex-wrap: wrap; align-items: baseline; justify-content: flex-start; text-align: left; }
+}
 
 /* ---------------------------------------------------------------------------
    СВОРАЧИВАЕМЫЕ БЛОКИ — нативный <details>, свой шеврон вместо системного
-   маркера. Используется и для «оговорок» рядом со сценариями, и для блока 6.
+   маркера. Используется для «Подробнее» (блоки 1/2/5), моста базы прибыли,
+   «оговорок» рядом со сценариями и блока 6.
 --------------------------------------------------------------------------- */
 .mt-details { border: 1px solid var(--mt-line); border-radius: var(--bs-radius); background: var(--mt-surface); padding: 15px 20px; }
 .mt-details + .mt-details { margin-top: 12px; }
-.mt-scn-grid + .mt-details { margin-top: 16px; }
+.mt-ladder + .mt-details { margin-top: 16px; }
 .mt-details summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 12px; font-family: var(--bs-sans); font-weight: 700; font-size: 13px; color: var(--bs-copper); }
 .mt-details summary::-webkit-details-marker { display: none; }
 .mt-details summary::after { content: '▾'; font-size: 10px; color: var(--bs-copper); transition: transform .18s var(--bs-ease); margin-left: auto; }
 .mt-details[open] summary::after { transform: rotate(180deg); }
+/* Фокус-кольцо на КАЖДОМ интерактивном элементе (конституция) — у нативного
+   <summary> его не даёт браузер по умолчанию достаточно заметным, добавляем
+   явно, тем же медным акцентом, что и весь этот таб (--bs-copper-glow уже
+   канонический токен свечения меди, basis-design-system.css). Работает и
+   внутри всегда-тёмной .bs-deep-card (блок 1) — медь читается на обеих
+   поверхностях по замыслу канона, отдельный тёмный вариант не нужен. */
+.mt-details summary:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--bs-copper-glow); border-radius: 8px; }
 .mt-conf { display: inline-flex; align-items: center; gap: 8px; font-family: var(--bs-sans); font-weight: 600; font-size: 11.5px; color: var(--mt-ink-3); text-transform: none; }
 .mt-details-body { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--mt-line); display: flex; flex-direction: column; gap: 16px; }
 .mt-details-body ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; color: var(--mt-ink-2); font-size: 12.5px; line-height: 1.6; }
@@ -225,21 +333,21 @@
 
 /* ---------------------------------------------------------------------------
    БЛОК 5 — «КАК МАКРОЭКОНОМИКА ВЛИЯЕТ НА ЦЕНУ АКЦИИ» — три механизма как
-   шаги (не карточки-близнецы), один вынесенный номер-«сигнал».
+   строки «у этой компании» (главное), общая теория — под один разворот,
+   единственное число — компактный чип-сигнал.
 --------------------------------------------------------------------------- */
-.mt-steps { list-style: none; margin: 0 0 18px; padding: 0; display: flex; flex-direction: column; }
-.mt-step { display: flex; gap: 16px; padding: 14px 0; position: relative; }
-.mt-step:not(:last-child)::before { content: ''; position: absolute; left: 13px; top: 32px; bottom: -8px; width: 1px; background: var(--mt-line); }
+.mt-steps { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; }
+.mt-step { display: flex; gap: 16px; padding: 12px 0; position: relative; }
+.mt-step:not(:last-child)::before { content: ''; position: absolute; left: 13px; top: 32px; bottom: -6px; width: 1px; background: var(--mt-line); }
 .mt-step-num { flex-shrink: 0; min-width: 27px; height: 27px; padding: 0 7px; border-radius: 999px; background: var(--bs-copper-soft); color: var(--bs-copper-deep); font-family: var(--bs-mono); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; z-index: 1; }
 .mt-step-num::before { content: attr(data-n); }
 .mt-step-body { flex: 1; padding-top: 2px; }
-.mt-step-body h4 { font-family: var(--bs-serif); font-size: 15.5px; font-weight: 600; color: var(--mt-ink); margin: 0 0 6px; }
-.mt-step-body p { margin: 0 0 8px; font-size: 13px; color: var(--mt-ink-2); line-height: 1.6; }
-.mt-step-company { font-size: 12.5px; color: var(--mt-ink-3); line-height: 1.6; padding-left: 12px; border-left: 2px solid var(--mt-line-2); margin: 0; }
+.mt-step-body h4 { font-family: var(--bs-serif); font-size: 15.5px; font-weight: 600; color: var(--mt-ink); margin: 0 0 5px; }
+.mt-step-company-main { margin: 0; font-size: 13px; color: var(--mt-ink-2); line-height: 1.6; }
 
-.mt-estimate-callout { display: flex; flex-direction: column; gap: 10px; background: var(--bs-estimate-soft); border-radius: 10px; padding: 17px 19px; }
-.mt-estimate-txt { margin: 0; font-family: var(--bs-serif); font-size: 16.5px; font-weight: 500; line-height: 1.5; color: var(--bs-ink); }
-.mt-estimate-caveat { margin: 0; font-size: 11.5px; color: var(--bs-ink-2); line-height: 1.5; }
+.mt-signal-chip { display: flex; align-items: flex-start; gap: 10px; background: var(--bs-estimate-soft); border-radius: 10px; padding: 12px 14px; }
+.mt-signal-chip-txt { margin: 0; font-size: 13px; color: var(--bs-ink); line-height: 1.55; font-weight: 500; }
+.mt-estimate-caveat { margin: 8px 0 0; font-size: 11.5px; color: var(--mt-ink-3); line-height: 1.5; }
 
 /* ---------------------------------------------------------------------------
    БЛОК 6 — «КАК ПОСЧИТАНО» (детали внутри .mt-details выше)
@@ -278,4 +386,11 @@
 
 /* Плашка «что зафиксировано» — заметнее обычной оговорки: медная кромка, без иконки */
 .mt-held { border-left: 3px solid var(--bs-copper); }
-.mt-scn-metric-lbl .bs-chip, .mt-scn-metric-lbl .mt-epi { margin-left: 6px; vertical-align: middle; }
+
+/* Вердикт сценария (лестница блока 4, обе разновидности — числовая и
+   качественная): помогает/мешает/примерно так же */
+.mt-verdict { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; font-family: var(--bs-sans); font-size: 12px; font-weight: 600; line-height: 1.4; white-space: nowrap; }
+.mt-verdict.good { background: var(--bs-up-soft, rgba(46,125,79,.12)); color: var(--bs-up); }
+.mt-verdict.bad { background: var(--bs-down-soft, rgba(181,69,59,.12)); color: var(--bs-down); }
+.mt-verdict.neutral { background: var(--bs-surface-3); color: var(--bs-ink-2); }
+.mt-numbers-note { margin: 10px 0 0; font-size: 13px; color: var(--bs-ink-3); }
