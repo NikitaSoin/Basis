@@ -437,6 +437,26 @@ async def _macro_job():
         logger.exception("Ошибка ингеста Макрообзора: %s", e)
 
 
+async def _macro_prices_structure_job():
+    """Структура инфляции (владелец, 2026-09-18): когорты «продовольственные /
+    непродовольственные / услуги» из помесячного файла Росстата + официальный сводный
+    индекс в основной ряд инфляции. Раз в сутки: файл обновляется раз в месяц, но
+    дата публикации плавает, а прогон дешёвый — одна страница и один файл на 40 КБ."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.macro_prices_structure import sync
+        db = SessionLocal()
+        try:
+            return sync(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_running_loop().run_in_executor(None, _run)
+        logger.info("Структура инфляции: %s", res)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("Ошибка загрузки структуры инфляции: %s", e)
+
+
 async def _macro_rate_watch_job():
     """Лёгкая ПОЧАСОВАЯ проверка ставки/прогноза ЦБ — отдельно от тяжёлого _macro_job
     (06:30, раз в сутки). Заседания ЦБ проходят днём (пресс-конференция обычно
@@ -2001,6 +2021,10 @@ def register_jobs(scheduler) -> None:
         scheduler.add_job(_with_heartbeat("news_feed", _news_job), "cron", minute=5, id="news_feed")  # каждый час
         scheduler.add_job(_with_heartbeat("macro_ingest", _macro_job), "cron", hour=6, minute=30, id="macro_ingest")
         scheduler.add_job(_with_heartbeat("macro_rate_watch", _macro_rate_watch_job), "cron", minute=20, id="macro_rate_watch")  # почасово — ловит заседание ЦБ в тот же день
+        # Структура инфляции по когортам — сразу после дневного ингеста: сводный индекс
+        # из официального файла должен лечь раньше, чем его перезапишет пересказ ленты.
+        scheduler.add_job(_with_heartbeat("macro_prices_structure", _macro_prices_structure_job),
+                          "cron", hour=6, minute=38, id="macro_prices_structure")
         # Целевой ловец недельной инфляции (владелец 2026-07-30: публикация стабильно в
         # среду во второй половине дня, а ряд дырявый — общая лента её пропускала).
         # ср 16-23 + чт/пт утро-день; внутри идемпотентный guard «точка есть → no-op»,

@@ -482,7 +482,16 @@ def gather_snapshot(db: Session) -> dict:
                     if "ставка" in (f.indicator or "").lower() else {})}
                 for f in db.query(MacroForecast).order_by(MacroForecast.as_of.desc()).limit(40).all()]
     expectations = _external_expectations(indicators)
+    # Разложение сводной инфляции на вклады когорт: доля в корзине × годовой рост.
+    # Считает КОД, а не модель — арифметику вкладов LLM делать не должна.
+    try:
+        from app.services.macro_prices_structure import digest as prices_digest
+        inflation_structure = prices_digest(db)
+    except Exception:  # noqa: BLE001
+        logger.warning("Интерпретатор: разложение инфляции недоступно", exc_info=True)
+        inflation_structure = None
     return {"key_facts": _key_facts(indicators, expectations),
+            "inflation_structure": inflation_structure,
             "tone_guard": _tone_guard(indicators),
             "scenario_odds": _scenario_odds(db),
             # 🔴 СРАЗУ после key_facts, а не в хвосте снапшота: в первой версии блок
@@ -744,6 +753,17 @@ def _sensitivity_map() -> dict:
 _KEY_FACT_SPECS = (
     ("key_rate", "level", "Ключевая ставка ЦБ"),
     ("inflation", "yoy", "Инфляция год к году"),
+    # 🔴 Разбивка по когортам (владелец, 2026-09-18). Методичка макро: «базовая
+    # инфляция и инфляция услуг информативнее общего индекса», продовольственный шок
+    # и зарплатная инфляция требуют разных прогнозов при одинаковом сводном числе.
+    # Поэтому три части корзины стоят рядом со сводной цифрой, а не в хвосте снапшота.
+    ("inflation_food", "yoy", "Инфляция ПРОДОВОЛЬСТВЕННЫХ товаров год к году "
+     "(около 38% корзины; чаще всего шок урожая или курса — обычно временный)"),
+    ("inflation_nonfood", "yoy", "Инфляция НЕПРОДОВОЛЬСТВЕННЫХ товаров год к году "
+     "(около 33% корзины; ведёт курс рубля и импортные издержки)"),
+    ("inflation_services", "yoy", "Инфляция УСЛУГ год к году "
+     "(около 28% корзины; зарплаты и тарифы — самая устойчивая часть, "
+     "именно она показывает, закрепилась инфляция или нет)"),
     ("inflation_expectations", "level",
      "Инфляционные ОЖИДАНИЯ населения на год вперёд (инФОМ). "
      "НЕ путать с «наблюдаемой инфляцией» из записок — это другая величина"),

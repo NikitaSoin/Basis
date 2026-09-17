@@ -3027,56 +3027,12 @@ fetch(`${apiUrl}/api/market/macro/scenario-impact?top=6`)
                 </div>
               )}
 
-              {/* ТРАЕКТОРИЯ — формат v2 (старые срезы). Коридор + якорь на прогноз ЦБ. */}
-              {(interpSections.rate_path || interpSections.inflation_path) && (
-                <div className="obs-macro-paths">
-                  {[
-                    { p: interpSections.rate_path, title: "Куда идёт ключевая ставка" },
-                    { p: interpSections.inflation_path, title: "Куда идёт инфляция" },
-                  ].filter(({ p }) => p && (p.base || p.range)).map(({ p, title }, i) => (
-                    <div key={i} className="obs-macro-card obs-macro-path-card">
-                      <div className="obs-macro-eyebrow">
-                        <TrendingUp size={12} style={{ marginRight: 5, verticalAlign: -2 }} />
-                        {title} · <span className="obs-tag-judgment">оценка Basis</span>
-                      </div>
-                      {p.base && <div className="obs-macro-path-base">{p.base}</div>}
-                      {p.range && <div className="obs-macro-path-range">Коридор: {p.range}</div>}
-                      {p.anchor && <div className="obs-macro-path-anchor">Опора: {p.anchor}</div>}
-                      {Array.isArray(p.gates) && p.gates.length > 0 && (
-                        <ul className="obs-macro-path-gates">
-                          {p.gates.map((g, j) => <li key={j}>{g}</li>)}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* РАЗВИЛКИ — только те, что реально стоят на повестке. Вероятность
-                  словом, без процентов: мы их не калибруем (решение владельца). */}
-              {Array.isArray(interpSections.forks) && interpSections.forks.length > 0 && (
-                <div className="obs-inst-card">
-                  <div className="obs-inst-card-title"><GitBranch size={16} />Развилки на повестке</div>
-                  <div className="obs-inst-list">
-                    {interpSections.forks.map((f, i) => (
-                      <div key={i} className="obs-fork-row">
-                        <div className="obs-fork-head">
-                          <span className="obs-fork-event">{f.event}</span>
-                          {f.status && <span className="obs-fork-status">{f.status}</span>}
-                          {f.tag && (
-                            <span className={f.tag === "факт" ? "obs-tag-fact" : "obs-tag-judgment"}>{f.tag}</span>
-                          )}
-                        </div>
-                        <div className="obs-fork-chain">
-                          {f.to_inflation && <div><b>Инфляция:</b> {f.to_inflation}</div>}
-                          {f.to_rate && <div><b>Ставка:</b> {f.to_rate}</div>}
-                          {f.to_market && <div><b>Рынок:</b> {f.to_market}</div>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Блоки «Куда идёт ставка/инфляция» и «Развилки на повестке» удалены
+                  (2026-09-18): они ждали полей rate_path/inflation_path/forks из формата
+                  выпуска v2, а нынешний формат (macro_interpreter._OUTPUT_SPEC) таких полей
+                  не отдаёт вовсе — ветки не могли отрисоваться ни при каком выпуске.
+                  Траектория теперь живёт внутри «Прогноза ключевых переменных» (поле path),
+                  развилки — в «Контексте момента» и сценарной лестнице. */}
 
               {/* Блок «По пунктам» убран (владелец, 2026-08-02): он дословно повторял
                   тезисы из «Что происходит и почему», только без цепочки рассуждения. */}
@@ -3255,23 +3211,9 @@ fetch(`${apiUrl}/api/market/macro/scenario-impact?top=6`)
                 </div>
               )}
 
-              {/* ДЕЙСТВИЕ, шаг 0: на что смотреть дальше. Формат v2 — объекты
-                  {signal, why}; старые срезы отдавали строки, поддерживаем оба. */}
-              {Array.isArray(interpSections.watch) && interpSections.watch.length > 0 && (
-                <div className="obs-inst-checkpoint">
-                  <div className="obs-inst-checkpoint-label"><Info size={12} />На что смотреть дальше</div>
-                  {interpSections.watch.map((w, i) => (
-                    <div key={i} className="obs-inst-checkpoint-text">
-                      {typeof w === "string" ? w : (
-                        <>
-                          <b>{w.signal}</b>
-                          {w.why ? ` — ${w.why}` : ""}
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+              {/* Блок «На что смотреть дальше» удалён (2026-09-18): ждал поля watch из
+                  формата v2, которого нынешний выпуск не отдаёт. Живой аналог — triggers,
+                  он собирается, но скрыт по решению владельца от 2026-08-02. */}
 
               {/* 🔴 Сценарии в этом виде СКРЫТЫ (владелец, 2026-08-09: «сценарии как они
                   сейчас выводятся убрать, сделал бы как в геополитике — лестницей, и брал

@@ -337,6 +337,16 @@ def macro_data_quality(request: Request, db: Session = Depends(get_db),
     return latest_results(db)
 
 
+@router.get("/market/macro/inflation-structure")
+def macro_inflation_structure(db: Session = Depends(get_db)):
+    """Разложение инфляции по когортам: продовольственные товары, непродовольственные,
+    услуги — уровень, доля в корзине и вклад в годовую инфляцию, плюс веса разделов
+    потребительской корзины Росстата. Считает код (app/services/macro_prices_structure),
+    не модель: арифметика вкладов не должна зависеть от того, как сегодня сложился текст."""
+    from app.services.macro_prices_structure import digest
+    return digest(db)
+
+
 @router.get("/market/macro/{code}/series")
 def macro_series(code: str, metric: str = "level",
                  from_: str | None = Query(None, alias="from"), to: str | None = None,
