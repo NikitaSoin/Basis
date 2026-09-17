@@ -293,6 +293,37 @@ def _protocol_core() -> str:
         return ""
 
 
+def _screen_spec() -> str:
+    """Форма экрана «Оценка ситуации» условий для бизнеса (спецификация владельца, 2026-09-18):
+    карточки изменений, серии, шесть измерений, ветви — поле screen снимка. Мягко: модуль новый,
+    Timeweb выкатывает файлы неравномерно."""
+    try:
+        from app.services.inst_screen import INST_SCREEN_SPEC
+        return INST_SCREEN_SPEC
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def _screen_gate(fresh: dict, prev: dict | None) -> list[str]:
+    try:
+        from app.services.inst_screen import inst_screen_gate
+        return inst_screen_gate(fresh, prev)
+    except Exception:  # noqa: BLE001
+        logger.warning("inst_state: гейт экрана не отработал", exc_info=True)
+        return []
+
+
+def _screen_task_blocks(db: Session, prev: dict | None, peers: dict | None) -> str:
+    """Прошлый экран кратко (id карточек, серии, стрелки, ветви) + ветви геополитика, к которым
+    привязываются ветви условий для бизнеса (спецификация, Часть 4.2)."""
+    try:
+        from app.services.inst_screen import geo_branches_block, prev_screen_block
+        return prev_screen_block(prev) + "\n\n" + geo_branches_block(db, peers)
+    except Exception:  # noqa: BLE001
+        logger.warning("inst_state: блоки экрана в задание не собраны", exc_info=True)
+        return ""
+
+
 _SYSTEM = (
     _protocol_core() +
     "Ты — институциональный аналитик Basis (независимая аналитика для частного "
@@ -350,6 +381,9 @@ _SYSTEM = (
     # 🔴 Мандат старшего аналитика (владелец 2026-09-13). Мягко: файл handoffs может
     # доехать позже.
     + getattr(handoffs, "mandate_block", lambda c: "")("inst_state")
+    # 🔴 Экран «Оценка ситуации» условий для бизнеса (владелец, 2026-09-18): карточки
+    # изменений с осязаемыми следствиями, серии, шесть измерений, ветви — поле screen.
+    + _screen_spec()
 )
 
 
@@ -437,17 +471,21 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
     # соседей, вопросов, противоречий, замечаний и уроков (приоритет `if/else`
     # ниже, чем у `+`). Нашлось на первом локальном прогоне вечерней сборки.
     draft_txt = (("ТВОЙ ЧЕРНОВИК СЕГОДНЯШНЕГО ВЕЧЕРА (доработай: ответь соседям, сними противоречия, исправь "
-                  "замечания, разбери цепочки — и опубликуй):\n" + json.dumps(draft, ensure_ascii=False)[:40_000] + "\n\n")
+                  "замечания, разбери цепочки — и опубликуй):\n" + json.dumps(draft, ensure_ascii=False)[:56_000] + "\n\n")
                  if draft else "")
     if draft_row is not None and draft_row.gate_notes:
         draft_txt += ("ЗАМЕЧАНИЯ АВТОМАТИЧЕСКОЙ ПРОВЕРКИ К ЧЕРНОВИКУ (исправить в финале, иначе публикация "
                       "не пройдёт):\n" + json.dumps(draft_row.gate_notes, ensure_ascii=False) + "\n\n")
     task = (draft_txt
             + peers_full + "\n\n"
-            + "ПРОШЛЫЙ СНИМОК (обнови, не переписывай):\n"            # 🔴 Лимиты входа ужаты после прогона #51: задание разрослось до 159 тыс.
+            + "ПРОШЛЫЙ СНИМОК (обнови, не переписывай; его экран screen дан ниже кратко):\n"            # 🔴 Лимиты входа ужаты после прогона #51: задание разрослось до 159 тыс.
             # знаков (прошлый снимок + досье + передачи + вопросы + противоречия),
             # 23 шага, 934 тыс. токенов — и итоговый JSON обрезался на середине.
-            + (json.dumps(prev, ensure_ascii=False)[:40_000] if prev else "— нет, это первая сборка: собери снимок с нуля по §12.1 —")
+            # Экран (screen) из прошлого снимка вырезан из дампа — он идёт кратким блоком ниже,
+            # иначе карточки съедали бы весь лимит и обрезали снимок.
+            + (json.dumps({k: v for k, v in prev.items() if k != "screen"}, ensure_ascii=False)[:40_000]
+               if prev else "— нет, это первая сборка: собери снимок с нуля по §12.1 —")
+            + "\n\n" + _screen_task_blocks(db, prev, inputs["peers"])
             + "\n\nДОСЬЕ РАЗВЕДКИ:\n" + (json.dumps(dossier, ensure_ascii=False)[:24_000] if dossier else "— нет —")
             + "\n\n" + handoffs.incoming_block("inst_state", inputs["peers"])
             + "\n\nВОПРОСЫ СОСЕДЕЙ К ТЕБЕ (ответить в answers_to_peers, с фактом и источником):\n"
@@ -474,7 +512,8 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
             # Финал снимка с передачами и ответами соседям длиннее 28 тыс. токенов —
             # #51 обрезался на середине JSON. Бюджет — с запасом на 20 шагов.
             max_steps=20, budget=3_000_000, final_max_tokens=64_000,
-            final_instruction="Верни JSON снимка строго по формату из роли, плюс methodology_used.",
+            final_instruction="Верни JSON снимка строго по формату из роли, включая поле screen "
+                              "(экран оценки ситуации условий для бизнеса), плюс methodology_used.",
             label="inst_state", notes=diag)
         if fresh is None:
             raise llm.LLMError("аналитик не вернул валидный снимок. " + " | ".join(diag)[:600])
@@ -485,6 +524,7 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
         return _reject(db, parent_id, ["ответ без sections или forecast_card"])
 
     fresh, notes = _gate(fresh, prev)
+    notes += _screen_gate(fresh, prev)
     notes += getattr(handoffs, "situation_gate_notes", lambda *_: [])(fresh, KIND)
     if mode == "final":
         try:

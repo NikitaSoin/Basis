@@ -213,7 +213,8 @@ FINAL_FIELDS = (
 
 ALL_SHELF = ["code", "macro_base", "inst_env", "geo_base", "geo_events", "geo_macro",
              "macro_geo", "geo_inst", "inst_geo", "inst_macro", "macro_inst", "macro_sector",
-             "geo_screen"]   # спецификация экрана «Оценка ситуации» (владелец, 2026-09-16)
+             "geo_screen",   # спецификация экрана «Оценка ситуации» (владелец, 2026-09-16)
+             "inst_screen"]  # спецификация экрана условий для бизнеса (владелец, 2026-09-18)
 
 
 # ─────────────── мандат старшего аналитика (владелец, 2026-09-13) ───────────────

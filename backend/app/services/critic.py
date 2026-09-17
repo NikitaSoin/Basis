@@ -49,8 +49,10 @@ CONTOURS: dict[str, dict] = {
         "kind": "crit_inst", "title": "институциональный снимок",
         "checklist": [("code", "Часть 2"), ("inst_env", "0.7"), ("inst_env", "9.9"),
                       ("inst_env", "12.4"), ("inst_env", "13.9"), ("macro_inst", "12.2"),
-                      ("geo_inst", "8.2")],
-        "shelf": ["code", "inst_env", "geo_inst", "macro_inst"],
+                      ("geo_inst", "8.2"),
+                      # экран «Оценка ситуации» условий для бизнеса: язык и чек-лист (владелец, 2026-09-18)
+                      ("inst_screen", "Часть 6"), ("inst_screen", "Часть 8")],
+        "shelf": ["code", "inst_env", "geo_inst", "macro_inst", "inst_screen"],
     },
     "geo": {
         "kind": "crit_geo", "title": "сводка геополитики",

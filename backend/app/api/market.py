@@ -996,6 +996,23 @@ def market_geo_screen(db: Session = Depends(get_db)):
     return JSONResponse(content=payload)
 
 
+@router.get("/market/inst-screen")
+def market_inst_screen(db: Session = Depends(get_db)):
+    """Экран «Оценка ситуации» раздела «Институциональная среда» по спецификации владельца
+    (docs/Экран_Институциональная_среда_спецификация_v1.md): карточки изменений условий для
+    бизнеса за период, серии, шесть измерений с накопленным эффектом, направление и ветви —
+    из опубликованного снимка институционалиста (поле screen). Пока экран не собран —
+    available:false, витрина показывает прежний вид, а не ошибку."""
+    from app.services.inst_screen import assemble
+    try:
+        payload = assemble(db)
+    except Exception:  # noqa: BLE001
+        import logging as _logging
+        _logging.getLogger(__name__).warning("inst-screen: сборка не отработала", exc_info=True)
+        payload = {"available": False, "note": "сборка экрана не отработала"}
+    return JSONResponse(content=payload)
+
+
 @router.get("/market/forecast-journal")
 def market_forecast_journal(status: str | None = None, source: str | None = None, limit: int = 100,
                             db: Session = Depends(get_db)):

@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import ObsGeoScreen from "./ObsGeoScreen";
+import ObsInstScreen from "./ObsInstScreen";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 // MapLibre грузит воркер (парсинг тайлов) через import.meta.url относительно
@@ -6235,10 +6236,18 @@ function ObsInstitutions({ token }) {
   // «ещё одна оценка», а возможность увидеть, ЧТО ИМЕННО сдвинулось — у общего
   // балла барометра этого не видно.
   const [domains, setDomains] = useState(null);
+  // Экран «Оценка ситуации» по спецификации владельца (GET /api/market/inst-screen):
+  // карточки изменений условий для бизнеса, серии, шесть измерений, ветви — из снимка
+  // институционалиста. Пока не собран вечерней сборкой — прежний вид ниже, не пустота.
+  const [screen, setScreen] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
+    fetch(`${apiUrl}/api/market/inst-screen`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setScreen(d && d.available ? d : null))
+      .catch(() => setScreen(null));
     fetch(`${apiUrl}/api/market/institutions/domains`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => setDomains(d && d.available ? d : null))
@@ -6268,7 +6277,9 @@ function ObsInstitutions({ token }) {
       <p className="obs-art-desc">
         «Обзор» — материалы по институциональной среде (регулирование, собственность,
         госсектор), пересказ близко к тексту, без указания источников. «Текущая ситуация» —
-        институциональный барометр Basis: 13 показателей, сценарии, активные алерты.
+        {screen
+          ? " что изменилось в условиях для бизнеса за период, накопленный эффект по шести измерениям и направление на год вперёд."
+          : " институциональный барометр Basis: 13 показателей, сценарии, активные алерты."}
       </p>
 
       <div className="obs-seg">
@@ -6294,7 +6305,18 @@ function ObsInstitutions({ token }) {
         />
       )}
 
-      {mode === "assessment" && (
+      {/* ===== ОЦЕНКА СИТУАЦИИ ПО СПЕЦИФИКАЦИИ ВЛАДЕЛЬЦА (2026-09-18) =====
+          docs/Экран_Институциональная_среда_спецификация_v1.md: три блока — изменения
+          условий для бизнеса, накопленный эффект, направление и сценарии. Собирает
+          GET /api/market/inst-screen из снимка институционалиста. Лента «Обзор» не
+          меняется (владелец); список всех карточек периода свёрнут по умолчанию. */}
+      {mode === "assessment" && screen && (
+        <div style={{ marginTop: 16 }}>
+          <ObsInstScreen data={screen} />
+        </div>
+      )}
+
+      {mode === "assessment" && !screen && (
         <>
           {baroLoading && <div className="obs-news-loading">Загрузка барометра…</div>}
 
