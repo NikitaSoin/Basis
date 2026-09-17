@@ -83,13 +83,15 @@ def test_агенты_ссылаются_только_на_существующ�
 def test_новые_методички_розданы_потребителям():
     """Регистрация без раздачи бессмысленна: документ на полке, но ни один агент
     его не видит. Проверяем, что каждый id кому-то выдан."""
-    pattern = re.compile(r"shelf_docs\s*=\s*\[(.*?)\]|shelf_card\(\s*\[(.*?)\]", re.S)
+    # ALL_SHELF (handoffs.py) — тоже раздача: его целиком получают три аналитика сводок,
+    # перекрёстный опрос и совет; документ, добавленный только туда, выдан всем.
+    pattern = re.compile(r"shelf_docs\s*=\s*\[(.*?)\]|shelf_card\(\s*\[(.*?)\]|ALL_SHELF\s*=\s*\[(.*?)\]", re.S)
     handed: set[str] = set()
     for path in SERVICES.glob("*.py"):
         if path.name == "methodology.py":
             continue
         for match in pattern.finditer(path.read_text(encoding="utf-8")):
-            handed.update(re.findall(r'"([a-z_]+)"', match.group(1) or match.group(2) or ""))
+            handed.update(re.findall(r'"([a-z_]+)"', match.group(1) or match.group(2) or match.group(3) or ""))
     orphans = sorted(set(REGISTRY) - handed)
     assert not orphans, f"методички на полке, но никому не выданы: {orphans}"
 

@@ -979,6 +979,23 @@ def market_macro_state(db: Session = Depends(get_db)):
     return JSONResponse(content=payload)
 
 
+@router.get("/market/geo-screen")
+def market_geo_screen(db: Session = Depends(get_db)):
+    """Экран «Оценка ситуации» раздела «Геополитика» по спецификации владельца
+    (docs/Оценка_ситуации_Геополитика.md): блоки 1–3 и карта — из опубликованной
+    сводки геополитика (поле screen), блок «Последствия для экономики России» — из
+    опубликованной сводки экономиста (hotspot_effects). Пока экран не собран —
+    available:false, витрина показывает прежний вид, а не ошибку."""
+    from app.services.geo_screen import assemble
+    try:
+        payload = assemble(db)
+    except Exception:  # noqa: BLE001
+        import logging as _logging
+        _logging.getLogger(__name__).warning("geo-screen: сборка не отработала", exc_info=True)
+        payload = {"available": False, "hotspots": {}, "order": [], "note": "сборка экрана не отработала"}
+    return JSONResponse(content=payload)
+
+
 @router.get("/market/forecast-journal")
 def market_forecast_journal(status: str | None = None, source: str | None = None, limit: int = 100,
                             db: Session = Depends(get_db)):

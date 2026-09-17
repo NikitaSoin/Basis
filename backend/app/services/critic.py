@@ -41,8 +41,9 @@ CONTOURS: dict[str, dict] = {
     "macro": {
         "kind": "crit_macro", "title": "состояние экономики",
         "checklist": [("code", "Часть 2"), ("code", "0.5"), ("macro_base", "12.4"),
-                      ("macro_base", "16.5"), ("inst_macro", "10.3"), ("geo_macro", "11.1")],
-        "shelf": ["code", "macro_base", "geo_macro", "inst_macro"],
+                      ("macro_base", "16.5"), ("inst_macro", "10.3"), ("geo_macro", "11.1"),
+                      ("geo_screen", "Часть 8"), ("geo_screen", "Часть 10")],
+        "shelf": ["code", "macro_base", "geo_macro", "inst_macro", "geo_screen"],
     },
     "inst_state": {
         "kind": "crit_inst", "title": "институциональный снимок",
@@ -55,8 +56,10 @@ CONTOURS: dict[str, dict] = {
         "kind": "crit_geo", "title": "сводка геополитики",
         "checklist": [("code", "Часть 2"), ("geo_base", "11.4"), ("geo_base", "11.6"),
                       ("geo_events", "1.5"), ("geo_events", "2.6"), ("geo_events", "4.6"),
-                      ("macro_geo", "11.2"), ("inst_geo", "9.9")],
-        "shelf": ["code", "geo_base", "geo_events", "macro_geo", "inst_geo"],
+                      ("macro_geo", "11.2"), ("inst_geo", "9.9"),
+                      # экран «Оценка ситуации»: язык и чек-лист ошибок вывода (владелец, 2026-09-18)
+                      ("geo_screen", "Часть 8"), ("geo_screen", "Часть 10")],
+        "shelf": ["code", "geo_base", "geo_events", "macro_geo", "inst_geo", "geo_screen"],
     },
 }
 SEVERITY = {"критично": 3, "существенно": 2, "мелочь": 1}

@@ -121,6 +121,25 @@ def _snapshot_gate(fresh: dict, prev: dict) -> list[str]:
         return []
 
 
+def _screen_spec() -> str:
+    """Форма экрана «Оценка ситуации» (блоки 1–3 + карта) — спецификация владельца. Мягко:
+    модуль новый, Timeweb выкатывает файлы неравномерно."""
+    try:
+        from app.services.geo_screen import GEO_SCREEN_SPEC
+        return GEO_SCREEN_SPEC
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def _screen_gate(fresh: dict, prev: dict) -> list[str]:
+    try:
+        from app.services.geo_screen import geo_screen_gate
+        return geo_screen_gate(fresh, prev)
+    except Exception:  # noqa: BLE001
+        logger.warning("barometer_daily: гейт экрана не отработал", exc_info=True)
+        return []
+
+
 def _situation_gate(fresh: dict) -> list[str]:
     try:
         from app.services.handoffs import situation_gate_notes
@@ -176,12 +195,8 @@ _OUTPUT_SPEC = (
     "Ты пересобираешь барометр ЦЕЛИКОМ на сегодня. Верни объект той же формы, "
     "что ВЧЕРАШНИЙ БАРОМЕТР во входных данных, с ключами:\n"
     "  \"as_of\": \"<сегодняшняя дата YYYY-MM-DD>\",\n"
-    "  \"subindices\": [ {\"key\":\"G1\"...\"G13\", \"label\":\"<как вчера>\", "
-    "\"score\": <1..5, шаг 0.5>, \"type\":\"оценка\", "
-    "\"rationale\":\"<почему такой балл, с конкретикой>\", "
-    "\"delta_rationale\":\"<ОБЯЗАТЕЛЬНО, если балл отличается от вчерашнего: "
-    "что именно в ленте это оправдывает, со ссылкой на событие; если балл не "
-    "менялся — null>\"} ],\n"
+    "  // 🔴 субиндексы G1–G13 и общий балл НЕ считаем (владелец 2026-09-18: старая методика, "
+    "больше не используется) — поле subindices не возвращай, даже если оно есть во вчерашнем\n"
     "  \"scenario\": {\"probabilities_6m\": {\"S1\":..,\"S2\":..,\"S3\":..,\"S4\":..}, "
     "\"probabilities_18m\": {...}, \"current_lean\":\"<S1|S2|S3|S4>\", "
     "\"delta_explanation\":\"<что изменилось против вчера и почему>\", "
@@ -692,6 +707,9 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
         # их функции полезности, внешние игроки и электоральные циклы. Мягко.
         + _mandate_prompt()
         + _snapshot_spec()
+        # 🔴 Экран «Оценка ситуации» по спецификации владельца (2026-09-18): блоки 1–3 и
+        # карта — работа геополитика; блок про экономику пишет экономист по этим ветвям.
+        + _screen_spec()
         + "\nИсточник и роль у статей ленты даны для взвешивания надёжности и позиции; "
           "в текст витрины названия источников не выносить.\n"
     )
@@ -756,8 +774,9 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
             shelf_docs=__import__("app.services.handoffs", fromlist=["ALL_SHELF"]).ALL_SHELF,   # все методички, включая чужие
             max_steps=14, budget=2_500_000, final_max_tokens=64_000,
             final_instruction="Верни JSON строго в формате из твоей роли (ключи "
-                              "as_of, subindices, scenario, regions, sector_flags, "
-                              "watchlist_30d, summary, geo_snapshot, methodology_used).",
+                              "as_of, scenario, regions, sector_flags, watchlist_30d, "
+                              "summary, geo_snapshot, screen, methodology_used; "
+                              "subindices не нужны).",
             label="barometer_daily", notes=_diag)
         if fresh is None:
             raise llm.LLMError("аналитик не вернул валидный барометр. "
@@ -770,9 +789,11 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
         logger.warning("barometer_daily: LLM недоступен (%s) — версия не опубликована", e)
         return row
 
-    if not isinstance(fresh, dict) or not fresh.get("subindices"):
+    # 🔴 Субиндексы больше не обязательны (владелец 2026-09-18: не считаем вообще);
+    # каркас сводки — очаги (regions). Старые версии с subindices проходят как прежде.
+    if not isinstance(fresh, dict) or not (fresh.get("regions") or fresh.get("subindices")):
         row = BarometerVersion(kind="geo", source="auto", status="rejected",
-                               payload=None, gate_notes=["ответ без subindices"],
+                               payload=None, gate_notes=["ответ без regions"],
                                parent_id=prev_row.id, trigger_reason="ежедневная пересборка")
         db.add(row); db.commit(); db.refresh(row)
         return row
@@ -808,7 +829,8 @@ def rebuild(db: Session, window_days: int = _WINDOW_DAYS, mode: str = "final") -
     _drop_scores(fresh)
 
     fresh, notes = _gate(fresh, prev)
-    notes = carried + notes + _handoff_gate(fresh) + _situation_gate(fresh) + _snapshot_gate(fresh, prev)
+    notes = (carried + notes + _handoff_gate(fresh) + _situation_gate(fresh) + _snapshot_gate(fresh, prev)
+             + _screen_gate(fresh, prev))
     fresh = _sanitize_sources(fresh)
 
     ok, why = compliance_ok(fresh)

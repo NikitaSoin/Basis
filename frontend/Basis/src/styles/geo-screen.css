@@ -1,0 +1,102 @@
+/* Экран «Оценка ситуации» раздела «Геополитика» по спецификации владельца
+   (docs/Оценка_ситуации_Геополитика.md). Токены — из basis-design-system.css
+   (--bs-*), с фолбэком на переменные Обозревателя, если экран рендерится
+   в контексте, где канон ещё не подключён. Плиток нет (владелец, 2026-09-18):
+   числа — в таблицах и в тексте. */
+.gs-root{font-family:var(--bs-sans,var(--font-sans,Inter,system-ui,sans-serif));color:var(--bs-ink,var(--text-1));font-size:14.5px;line-height:1.55}
+.gs-head{display:grid;grid-template-columns:1fr auto;gap:10px 24px;align-items:end;padding:6px 0 18px;border-bottom:1px solid var(--bs-line,var(--border))}
+.gs-cfg{font:11px var(--bs-mono,monospace);letter-spacing:.05em;text-transform:uppercase;color:var(--bs-ink-3,var(--text-3));margin-bottom:6px}
+.gs-h1{font-family:var(--bs-serif,Georgia,serif);font-weight:500;font-size:28px;line-height:1.12;margin:0;letter-spacing:-.012em;text-wrap:balance}
+.gs-dates{font:11.5px var(--bs-mono,monospace);color:var(--bs-ink-3,var(--text-3));text-align:right;line-height:1.7}
+.gs-block{padding:26px 0;border-bottom:1px solid var(--bs-line,var(--border))}
+.gs-block:last-child{border-bottom:0}
+.gs-eyebrow{font:11.5px var(--bs-mono,monospace);letter-spacing:.08em;text-transform:uppercase;color:var(--bs-copper-deep,var(--accent-text));margin:0 0 6px}
+.gs-eyebrow span{color:var(--bs-ink-3,var(--text-3));letter-spacing:0;text-transform:none;margin-left:12px}
+.gs-h2{font-family:var(--bs-serif,Georgia,serif);font-weight:500;font-size:22px;line-height:1.18;margin:0 0 14px;letter-spacing:-.01em;text-wrap:balance}
+.gs-h3{font-weight:600;font-size:12.5px;letter-spacing:.02em;text-transform:uppercase;color:var(--bs-ink-2,var(--text-2));margin:24px 0 10px}
+.gs-lead{font-family:var(--bs-serif,Georgia,serif);font-size:16.5px;line-height:1.5;max-width:74ch;margin:0 0 8px}
+.gs-lead .gs-phase{font-weight:600;color:var(--bs-copper-deep,var(--accent-text))}
+.gs-note{font-size:13.5px;color:var(--bs-ink-2,var(--text-2));max-width:78ch;margin:0 0 8px}
+.gs-small{font-size:12.5px;color:var(--bs-ink-3,var(--text-3))}
+.gs-tag{display:inline-block;font:500 10px var(--bs-mono,monospace);letter-spacing:.05em;text-transform:uppercase;padding:1px 6px;border-radius:999px;border:1px solid var(--bs-line-2,var(--border-mid));color:var(--bs-ink-2,var(--text-2));vertical-align:middle;margin-left:6px;white-space:nowrap}
+.gs-tag--fact{border-color:var(--bs-up,var(--positive));color:var(--bs-up,var(--positive))}
+.gs-tag--est{border-color:var(--bs-estimate,#1F5FC4);color:var(--bs-estimate,#1F5FC4)}
+.gs-tag--jud{border-color:var(--bs-copper,var(--accent));color:var(--bs-copper-deep,var(--accent-text))}
+.gs-tblwrap{overflow-x:auto}
+.gs-table{border-collapse:collapse;width:100%;font-size:13.5px}
+.gs-table th{text-align:left;font:10.5px var(--bs-mono,monospace);letter-spacing:.06em;text-transform:uppercase;color:var(--bs-ink-3,var(--text-3));padding:8px 12px 8px 0;border-bottom:1px solid var(--bs-line-2,var(--border-mid));vertical-align:bottom}
+.gs-table td{padding:9px 12px 9px 0;border-bottom:1px solid var(--bs-line,var(--border));vertical-align:top}
+.gs-table td.gs-ch{font-weight:600}
+.gs-table td.gs-num{font-family:var(--bs-mono,monospace);font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.gs-dir{font-family:var(--bs-mono,monospace);font-size:12.5px;white-space:nowrap}
+.gs-dir--up{color:var(--bs-up,var(--positive))}
+.gs-dir--dn{color:var(--bs-down,var(--negative))}
+.gs-dir--mx{color:var(--bs-ink-2,var(--text-2))}
+.gs-forces{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px 26px}
+.gs-force b{display:block;font-family:var(--bs-serif,Georgia,serif);font-weight:600;font-size:15.5px;margin-bottom:3px}
+.gs-force p{font-size:13.5px;color:var(--bs-ink-2,var(--text-2));margin:0}
+.gs-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 28px;border-top:1px solid var(--bs-line,var(--border))}
+.gs-cols>div{padding:12px 0}
+.gs-cols>div:first-child{border-right:1px solid var(--bs-line,var(--border));padding-right:22px}
+.gs-cols h4{margin:0 0 8px;font-weight:600;font-size:12.5px;letter-spacing:.02em;text-transform:uppercase;color:var(--bs-ink-2,var(--text-2))}
+.gs-cols ul{margin:0;padding:0;list-style:none}
+.gs-cols li{padding:6px 0;border-top:1px dashed var(--bs-line,var(--border));font-size:13.5px}
+.gs-cols li:first-child{border-top:0}
+.gs-duration{display:grid;grid-template-columns:auto 1fr;gap:12px 18px;align-items:start;margin-top:10px}
+.gs-pill{display:inline-block;font:500 12.5px var(--bs-mono,monospace);padding:6px 12px;border-radius:999px;background:var(--bs-copper-soft,var(--accent-fade));color:var(--bs-copper-deep,var(--accent-text));white-space:nowrap}
+.gs-twist{margin-top:14px;padding:12px 16px;border-left:3px solid var(--bs-copper,var(--accent));background:var(--bs-surface-3,var(--bg-surface));border-radius:0 12px 12px 0;font-size:13.5px;max-width:78ch}
+.gs-details{margin-top:10px}
+.gs-details summary{cursor:pointer;font-weight:500;font-size:13px;color:var(--bs-ink-2,var(--text-2))}
+.gs-details ul{margin:8px 0 0;padding-left:18px;font-size:13.5px}
+/* сценарии — список по убыванию вероятности */
+.gs-branches{list-style:none;margin:0;padding:0;border-top:1px solid var(--bs-line,var(--border))}
+.gs-branches>li{border-bottom:1px solid var(--bs-line,var(--border))}
+.gs-brow{display:grid;grid-template-columns:32px 1.4fr 1fr 1.6fr;gap:14px;padding:13px 0;cursor:pointer;align-items:start;background:none;border:0;width:100%;text-align:left;color:inherit;font:inherit}
+.gs-brow:focus-visible{outline:2px solid var(--bs-copper,var(--accent));outline-offset:2px}
+.gs-rank{font:500 19px var(--bs-serif,Georgia,serif);color:var(--bs-ink-3,var(--text-3))}
+.gs-bname{font-family:var(--bs-serif,Georgia,serif);font-size:17px;font-weight:600;line-height:1.2}
+.gs-bname small{display:block;font:10.5px var(--bs-mono,monospace);letter-spacing:.06em;text-transform:uppercase;margin-top:4px;color:var(--bs-copper-deep,var(--accent-text))}
+.gs-bname small.gs-dg{color:var(--bs-down,var(--negative))}
+.gs-prob{font:12.5px var(--bs-mono,monospace);color:var(--bs-ink-2,var(--text-2));line-height:1.6}
+.gs-prob b{display:block;font-weight:500;color:var(--bs-ink,var(--text-1))}
+.gs-how{font-size:13px;color:var(--bs-ink-2,var(--text-2))}
+.gs-how b{display:block;font:10.5px var(--bs-mono,monospace);letter-spacing:.06em;text-transform:uppercase;color:var(--bs-ink-3,var(--text-3));margin:0 0 2px}
+.gs-how b+span+b{margin-top:8px}
+.gs-bopen{padding:4px 12px 16px 58px;background:var(--bs-surface-3,var(--bg-surface));margin:0 -12px;border-radius:0 0 12px 12px}
+li.gs-open .gs-brow{background:var(--bs-surface-3,var(--bg-surface));margin:0 -12px;padding:13px 12px;width:calc(100% + 24px);border-radius:12px 12px 0 0}
+.gs-four{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 22px;margin-top:6px}
+.gs-four h5{margin:0 0 3px;font-weight:600;font-size:11.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--bs-ink-3,var(--text-3))}
+.gs-four p{font-size:13.5px;margin:0}
+.gs-nearest{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:12px 16px;background:var(--bs-surface-3,var(--bg-surface));border-radius:12px;margin-top:16px;font-size:13.5px}
+.gs-nearest .gs-k{font:10.5px var(--bs-mono,monospace);letter-spacing:.06em;text-transform:uppercase;color:var(--bs-copper-deep,var(--accent-text));padding-top:3px;white-space:nowrap}
+/* экономика — каналы */
+.gs-chan{border-top:1px solid var(--bs-line,var(--border));padding:14px 0;display:grid;grid-template-columns:220px 1fr;gap:8px 24px}
+.gs-chan-hd{font-family:var(--bs-serif,Georgia,serif);font-size:16px;font-weight:600;line-height:1.25}
+.gs-chan-hd span{display:block;font:11.5px var(--bs-mono,monospace);color:var(--bs-ink-2,var(--text-2));margin-top:5px;font-weight:400}
+.gs-chan-body p{margin:0 0 7px;max-width:80ch;font-size:13.5px}
+.gs-chan-body b{font-weight:600;color:var(--bs-ink-2,var(--text-2))}
+.gs-sys{margin-top:14px;padding:12px 16px;background:var(--bs-deep,#12131A);color:var(--bs-deep-ink,#EDEBE3);border-radius:12px;font-size:13.5px}
+.gs-sys b{display:block;font:10.5px var(--bs-mono,monospace);letter-spacing:.08em;text-transform:uppercase;color:var(--bs-deep-ink2,#9B9AA8);margin-bottom:5px}
+.gs-inst{list-style:none;margin:0;padding:0;border-top:1px solid var(--bs-line,var(--border))}
+.gs-inst li{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;padding:9px 0;border-bottom:1px solid var(--bs-line,var(--border));font-size:13.5px}
+.gs-inst .gs-to{font-size:12.5px;color:var(--bs-ink-2,var(--text-2))}
+.gs-tick{font:500 11.5px var(--bs-mono,monospace);border:1px solid var(--bs-line-2,var(--border-mid));border-radius:6px;padding:1px 6px;margin:0 3px 3px 0;display:inline-block;white-space:nowrap}
+.gs-map{background:var(--bs-deep,#12131A);color:var(--bs-deep-ink,#EDEBE3);border-radius:12px;padding:16px 20px;display:grid;grid-template-columns:1.1fr 1fr;gap:14px 26px;margin-top:8px}
+.gs-map h4{margin:0 0 6px;font-weight:600;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--bs-deep-ink2,#9B9AA8)}
+.gs-map ul{margin:0;padding:0;list-style:none;font-size:13px}
+.gs-map li{padding:4px 0;border-top:1px solid #2a2b36}
+.gs-map li:first-child{border-top:0}
+.gs-map .gs-mnum{font-family:var(--bs-mono,monospace);color:#E8B08C}
+.gs-mapwrap{margin-top:12px}
+.gs-empty{padding:14px 16px;border:1px dashed var(--bs-line-2,var(--border-mid));border-radius:12px;font-size:13.5px;color:var(--bs-ink-2,var(--text-2))}
+.gs-foot{font:11.5px var(--bs-mono,monospace);color:var(--bs-ink-3,var(--text-3));margin-top:18px;line-height:1.7}
+@media (max-width:820px){
+  .gs-head{grid-template-columns:1fr}
+  .gs-dates{text-align:left}
+  .gs-cols,.gs-map,.gs-chan{grid-template-columns:1fr}
+  .gs-cols>div:first-child{border-right:0;padding-right:0;border-bottom:1px solid var(--bs-line,var(--border))}
+  .gs-inst li{grid-template-columns:1fr}
+  .gs-brow{grid-template-columns:26px 1fr}
+  .gs-prob,.gs-how{grid-column:2}
+  .gs-bopen{padding-left:12px}
+}

@@ -4,6 +4,7 @@ import { PAYMENT_REQUIRED, upgradeMessage } from "../account/entitlements";
 import { createRoot } from "react-dom/client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import ObsGeoScreen from "./ObsGeoScreen";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 // MapLibre грузит воркер (парсинг тайлов) через import.meta.url относительно
@@ -5751,6 +5752,9 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
   // что весь блок собран сегодня.
   const [profiles, setProfiles] = useState(null);
   const [geoDq, setGeoDq] = useState(null);
+  // Экран «Оценка ситуации» по спецификации владельца (GET /api/market/geo-screen):
+  // блоки 1–3 и карта — сводка геополитика, блок про экономику — сводка экономиста.
+  const [screen, setScreen] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -5774,6 +5778,10 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => setGeoDq(d && d.available ? d : null))
       .catch(() => setGeoDq(null));
+    fetch(`${apiUrl}/api/market/geo-screen`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setScreen(d && d.available && d.hotspots ? d : null))
+      .catch(() => setScreen(null));
   }, [apiUrl]);
 
   // Лента материалов (Рыбарь/Carnegie/re:russia/Economist/ISW) по региону — грузим лениво,
@@ -5828,6 +5836,10 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
   // исчезали. Теперь три очага есть всегда, независимо от бэкенда.
   const regions = GEO_REGION_META.map((m) => m.key);
   const activeRegion = region || regions[0] || null;
+  // Новый экран показываем, только когда сборка по спецификации есть для выбранного
+  // очага; иначе — прежний вид (ниже), а не пустота: экран появляется после первой
+  // вечерней сборки с полем screen у геополитика.
+  const screenReady = !!(screen && screen.available && screen.hotspots && screen.hotspots[assessmentScope]);
   // regionMap нужен только чтобы получить СПИСОК регионов для чипов-фильтров:
   // сами блоки региона (regionData) больше не рендерятся — карточка «Обзор · факты»
   // убрана (2026-08-01, см. комментарий в разметке).
@@ -5955,7 +5967,29 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
           )}
 
           {/* ===== ОЦЕНКА СИТУАЦИИ: единый геополитический барометр (G1-G13, сценарии S1-S4) ===== */}
-          {mode === "assessment" && (
+          {/* ===== ОЦЕНКА СИТУАЦИИ ПО СПЕЦИФИКАЦИИ ВЛАДЕЛЬЦА (2026-09-18) =====
+              docs/Оценка_ситуации_Геополитика.md: блоки 1–3 и карта — сводка геополитика,
+              блок «Последствия для экономики России» — сводка экономиста; собирает
+              GET /api/market/geo-screen. Пока экран не собран вечерней сборкой —
+              прежний вид ниже, а не пустота. Субиндексы и баллы не считаются вообще. */}
+          {mode === "assessment" && screenReady && (
+            <div style={{ marginTop: 16 }}>
+              <ObsGeoScreen
+                data={screen.hotspots[assessmentScope]}
+                mapNode={(
+                  <ObsGeoTheaters
+                    regions={GEO_REGION_META.map(({ key, label, icon }) => {
+                      const r = baro?.regions?.[key];
+                      return { key, label, icon, direction: r?.direction, directionColor: obsGeoDirColor(r?.direction) };
+                    })}
+                    token={token}
+                    activeTheater={assessmentScope}
+                  />
+                )}
+              />
+            </div>
+          )}
+          {mode === "assessment" && !screenReady && (
             <>
               {baroLoading && <div className="obs-news-loading">Загрузка барометра…</div>}
               {!baroLoading && !baro && (

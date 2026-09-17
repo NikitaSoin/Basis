@@ -320,6 +320,33 @@ def _protocol_core() -> str:
         return ""
 
 
+def _screen_spec_macro() -> str:
+    """Блок «Последствия для экономики России» по очагам — форма из спецификации владельца
+    (владелец 2026-09-18: этот блок экрана геополитики пишет экономист). Мягко."""
+    try:
+        from app.services.geo_screen import MACRO_SCREEN_SPEC
+        return MACRO_SCREEN_SPEC
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def _branches_block(geo_payload: dict | None) -> str:
+    try:
+        from app.services.geo_screen import branches_block
+        return branches_block(geo_payload)
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def _screen_gate_macro(fresh: dict, prev: dict | None, geo_payload: dict | None) -> list[str]:
+    try:
+        from app.services.geo_screen import macro_screen_gate
+        return macro_screen_gate(fresh, prev, geo_payload)
+    except Exception:  # noqa: BLE001
+        logger.warning("macro_state: гейт блока по очагам не отработал", exc_info=True)
+        return []
+
+
 _SYSTEM = (
     _protocol_core() +
     "Ты — макроэкономический агент Basis (независимая аналитика для частного "
@@ -378,6 +405,8 @@ _SYSTEM = (
     + handoffs.CHAINS_RULE
     # 🔴 Мандат старшего аналитика (владелец 2026-09-13). Мягко.
     + getattr(handoffs, "mandate_block", lambda c: "")("macro")
+    # 🔴 Блок экрана геополитики «Последствия для экономики России» по очагам (2026-09-18).
+    + _screen_spec_macro()
 )
 
 
@@ -471,6 +500,7 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
             + "ПРОШЛАЯ ВЕРСИЯ СОСТОЯНИЯ (обнови, не переписывай):\n"            + (json.dumps(prev, ensure_ascii=False)[:40_000] if prev else "— нет, это первая сборка: собери состояние с нуля —")
             + "\n\nДОСЬЕ РАЗВЕДКИ:\n" + (json.dumps(dossier, ensure_ascii=False)[:24_000] if dossier else "— нет —")
             + "\n\n" + handoffs.incoming_block("macro", inputs["peers"])
+            + "\n\n" + _branches_block(inputs["peers"].get("geo"))
             + "\n\nВОПРОСЫ СОСЕДЕЙ К ТЕБЕ (ответить в answers_to_peers, с числом и источником):\n"
             + (json.dumps(inputs["peer_questions"], ensure_ascii=False) if inputs["peer_questions"] else "— нет —")
             + "\n\n" + _contradictions_block(db)
@@ -498,7 +528,8 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
             # «пусть агент больше прочитает»). Вход ~30 тыс. токенов × до 14
             # шагов — без запаса цикл упрётся в потолок на середине.
             max_steps=16, budget=3_000_000, final_max_tokens=64_000,
-            final_instruction="Верни JSON состояния строго по формату из роли, плюс methodology_used.",
+            final_instruction="Верни JSON состояния строго по формату из роли, плюс methodology_used "
+                              "и hotspot_effects по каждому очагу из задания.",
             label="macro_state", notes=diag)
         if fresh is None:
             raise llm.LLMError("аналитик не вернул валидное состояние. " + " | ".join(diag)[:600])
@@ -510,6 +541,7 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
 
     fresh, notes = _gate(fresh, prev)
     notes += getattr(handoffs, "situation_gate_notes", lambda *_: [])(fresh, KIND)
+    notes += _screen_gate_macro(fresh, prev, inputs["peers"].get("geo"))
     if mode == "final":
         try:
             from app.services.consistency_check import contradictions_for
