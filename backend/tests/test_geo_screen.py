@@ -198,3 +198,41 @@ def test_спецификация_на_диске_читается_по_част
     assert isinstance(txt, str)
     if txt:
         assert "Язык" in txt or "язык" in txt
+
+
+def test_цель_россии_через_гарантии_безопасности_помечается():
+    fresh = _screen()
+    fresh["screen"]["svo"]["state"]["goals"][0] = {"side": "Россия", "goal": "урегулирование с гарантиями безопасности",
+                                                   "direction": "к цели", "speed": "так же",
+                                                   "achievable": "при сохранении нынешних условий — медленно", "status": "В"}
+    notes = G.geo_screen_gate(fresh, None)
+    assert any("гарантии безопасности» — это цель Украины" in n for n in notes)
+    # у Украины та же формулировка законна
+    ok = _screen()
+    ok["screen"]["svo"]["state"]["goals"][1]["side"] = "Украина"
+    ok["screen"]["svo"]["state"]["goals"][1]["goal"] = "гарантии безопасности на будущее"
+    assert not any("цель Украины" in n for n in G.geo_screen_gate(ok, None))
+
+
+def test_эскалация_с_расшифровкой_не_замечание_а_статусы_в_тексте_замечание():
+    fresh = _screen()
+    br = fresh["screen"]["svo"]["scenarios"]["branches"][1]
+    br["label"] = "Эскалация (расширение или ужесточение противостояния)"
+    notes = G.geo_screen_gate(fresh, None)
+    assert not any("эскалац" in n.lower() and "язык" in n for n in notes), notes
+    bad = _screen()
+    bad["screen"]["svo"]["forces"]["twist"] = "изъятия 980 млрд (NSP, В); статус Г у оценки"
+    notes = G.geo_screen_gate(bad, None)
+    assert any("статусы Ф/Д/В/Г" in n for n in notes)
+
+
+def test_экономист_пустые_тикеры_и_вероятность_в_подписи_колонки():
+    fresh = _effects()
+    e = fresh["hotspot_effects"]["svo"]
+    for s in e["sectors"]:
+        s["tickers"] = []
+    e["by_branch"]["columns"][0]["label"] = "Затяжная война (базовая, 0,42)"
+    notes = G.macro_screen_gate(fresh, None, _screen())
+    assert any("тикеры пусты" in n for n in notes)
+    assert e["by_branch"]["columns"][0]["label"] == "Затяжная война"
+    assert any("убраны числа в скобках" in n for n in notes)

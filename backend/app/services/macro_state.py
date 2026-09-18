@@ -338,6 +338,16 @@ def _branches_block(geo_payload: dict | None) -> str:
         return ""
 
 
+def _tickers_block(db: Session) -> str:
+    """Тикеры платформы по секторам — для отраслевого слоя блока по очагам (первый прогон
+    2026-09-18 вернул пустые tickers: агент не знал имён платформы). Мягко."""
+    try:
+        from app.services.geo_screen import tickers_by_sector
+        return tickers_by_sector(db)
+    except Exception:  # noqa: BLE001
+        return ""
+
+
 def _screen_gate_macro(fresh: dict, prev: dict | None, geo_payload: dict | None) -> list[str]:
     try:
         from app.services.geo_screen import macro_screen_gate
@@ -501,6 +511,7 @@ def rebuild(db: Session, mode: str = "final") -> BarometerVersion | None:
             + "\n\nДОСЬЕ РАЗВЕДКИ:\n" + (json.dumps(dossier, ensure_ascii=False)[:24_000] if dossier else "— нет —")
             + "\n\n" + handoffs.incoming_block("macro", inputs["peers"])
             + "\n\n" + _branches_block(inputs["peers"].get("geo"))
+            + "\n\n" + _tickers_block(db)
             + "\n\nВОПРОСЫ СОСЕДЕЙ К ТЕБЕ (ответить в answers_to_peers, с числом и источником):\n"
             + (json.dumps(inputs["peer_questions"], ensure_ascii=False) if inputs["peer_questions"] else "— нет —")
             + "\n\n" + _contradictions_block(db)

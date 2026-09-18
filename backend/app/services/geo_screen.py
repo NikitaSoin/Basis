@@ -97,26 +97,62 @@ TERM_DICT: tuple[tuple[str, str], ...] = (
     (r"\bэскалац\w*", "допустимо только с пояснением «расширение или ужесточение противостояния»"),
 )
 _TERM_RX = [(re.compile(p, re.IGNORECASE), hint) for p, hint in TERM_DICT]
+# «Эскалация» допустима, если рядом есть расшифровка (первый живой прогон 2026-09-18 дал
+# «Эскалация (расширение или ужесточение противостояния)» — это правильно, не замечание).
+_ESCALATION_OK = re.compile(r"расширени\w*\s+или\s+ужесточени\w*", re.IGNORECASE)
 # Внутренние коды в тексте для пользователя (правило языка витрины).
 _CODE_RX = re.compile(r"\b(?:S[1-4][ab]?|G(?:1[0-3]|[1-9])|ME[1-4]|ATR[1-4]|SVO[1-4]|M(?:1[0-3]|[1-9]))\b")
+# Статусы утверждений Ф/Д/В/Г — служебная разметка; в тексте для читателя их быть не должно
+# (первый прогон: «(NSP, В)», «статус Г», «класс, В/Г» прямо в прозе).
+_STATUS_RX = re.compile(r"\((?:[^()]{0,40},\s*)?[ФДВГ](?:/[ФДВГ])?\)|\bстатус\w*\s+[ФДВГ]\b")
 _DIGIT_RX = re.compile(r"\d")
 _TICKER_RX = re.compile(r"^[A-Z0-9]{2,7}$")
+_PROB_IN_LABEL_RX = re.compile(r"\s*\((?:[^()]*\d[^()]*)\)")
 
 
 def term_notes(obj, label: str) -> list[str]:
-    """Заметки по словарю замен и по внутренним кодам во всех текстах объекта."""
+    """Заметки по словарю замен, внутренним кодам и статусам во всех текстах объекта."""
     text = json.dumps(obj, ensure_ascii=False) if not isinstance(obj, str) else obj
     notes: list[str] = []
     seen: set[str] = set()
     for rx, hint in _TERM_RX:
         m = rx.search(text)
-        if m and hint not in seen:
-            seen.add(hint)
-            notes.append(f"{label}: язык — «{m.group(0)}» → {hint}")
-    codes = sorted(set(_CODE_RX.findall(_strip_keys(obj))))
+        if not m or hint in seen:
+            continue
+        if m.group(0).lower().startswith("эскалац") and _ESCALATION_OK.search(text):
+            continue
+        seen.add(hint)
+        notes.append(f"{label}: язык — «{m.group(0)}» → {hint}")
+    values = _strip_keys(obj)
+    codes = sorted(set(_CODE_RX.findall(values)))
     if codes:
         notes.append(f"{label}: внутренние коды в тексте для пользователя: {', '.join(codes[:6])}")
+    st = _STATUS_RX.search(values)
+    if st:
+        notes.append(f"{label}: статусы Ф/Д/В/Г в тексте для читателя («{st.group(0)}») — словами «факт / оценка / гипотеза» или в поле status")
     return notes
+
+
+def tickers_by_sector(db, cap: int = 14) -> str:
+    """Тикеры платформы по секторам — экономисту для sectors[].tickers (первый прогон
+    2026-09-18 вернул пустые списки: агент не знал, какие имена у платформы есть). Мягко."""
+    try:
+        from app.models.company import Company
+        rows = db.query(Company.sector, Company.ticker).all()
+    except Exception:  # noqa: BLE001
+        return ""
+    by: dict[str, list[str]] = {}
+    for sector, ticker in rows:
+        if ticker:
+            by.setdefault(sector or "Прочее", []).append(str(ticker))
+    if not by:
+        return ""
+    lines = ["ТИКЕРЫ ПЛАТФОРМЫ ПО СЕКТОРАМ (для hotspot_effects.<очаг>.sectors[].tickers — только отсюда, 1–4 на строку):"]
+    for sector in sorted(by):
+        tk = sorted(set(by[sector]))
+        more = f" … ещё {len(tk) - cap}" if len(tk) > cap else ""
+        lines.append(f"  {sector}: {', '.join(tk[:cap])}{more}")
+    return "\n".join(lines)
 
 
 def _strip_keys(obj) -> str:
@@ -180,9 +216,13 @@ GEO_SCREEN_SPEC = (
     "противостояние, переговорная пауза, заморозка, послеконфликтное состояние>,\n"
     "    \"summary\": [ <ровно 5 предложений, каждое полное и самодостаточное: 1) фаза и что "
     "происходит физически; 2) стороны и ЧЕГО КАЖДАЯ ДОБИВАЕТСЯ НА ДЕЛЕ — по распределению усилий "
-    "(Г 8.5), а не по заявлениям (сверь с портретом очага: у России — закрепление контроля, "
-    "статус Украины, зона безопасности; гарантии безопасности на будущее просит Украина); "
-    "3) что удерживает ситуацию; 4) на чьей стороне время; 5) что изменилось с прошлого среза> ],\n"
+    "(Г 8.5), а не по заявлениям; 3) что удерживает ситуацию; 4) на чьей стороне время; 5) что "
+    "изменилось с прошлого среза> ],\n"
+    "    // 🔴 ЦЕЛИ СТОРОН ПО СВО (владелец, 2026-09-18, ошибка первого прогона): Россия НЕ "
+    "добивается «гарантий безопасности» — это цель УКРАИНЫ (гарантии, что нападение не повторится). "
+    "Цели России: закрепление контроля над территориями, нейтральный статус Украины без НАТО, зона "
+    "безопасности от дальнобойного оружия; на сделку без этих условий не идёт. Формулировка «Россия "
+    "хочет урегулирования с гарантиями безопасности» — брак, гейт её помечает.\n"
     "    \"goals\": [ {\"side\", \"goal\": <фактическая цель словами>, \"direction\": <к цели|стоит|от цели>, "
     "\"speed\": <быстрее|так же|медленнее — относительно прошлого периода>, \"achievable\": <вывод "
     "словами ОБЯЗАТЕЛЬНО с оборотом «при сохранении нынешних условий»; для территориальных целей — "
@@ -274,14 +314,16 @@ MACRO_SCREEN_SPEC = (
     "  \"institutional\": [ {\"what\": <конкретное проявление с датами и числами — из передачи "
     "институционалиста и его сводки>, \"effect\": <во что выливается для экономики и бизнеса>} ] — "
     "4–6 строк,\n"
-    "  \"sectors\": [ {\"sector\", \"tickers\": [<тикеры Мосбиржи, только с платформы>], "
-    "\"direction\": <помогает|мешает|по-разному|не влияет>, \"metric\": <через что: выручка, маржа, "
-    "издержки, логистика, спрос, ставка>, \"numbers\": <цифры>, \"why\": <почему именно этот очаг>} ] "
-    "— 5–10 строк, кому помогает и кому мешает,\n"
+    "  \"sectors\": [ {\"sector\", \"tickers\": [<1–4 тикера ИЗ СПИСКА «ТИКЕРЫ ПЛАТФОРМЫ ПО СЕКТОРАМ» "
+    "в задании — обязательно; пустой список только если в секторе нет подходящих имён, тогда скажи "
+    "почему в why>], \"direction\": <помогает|мешает|по-разному|не влияет>, \"metric\": <через что: "
+    "выручка, маржа, издержки, логистика, спрос, ставка>, \"numbers\": <цифры>, \"why\": <почему "
+    "именно этот очаг>} ] — 5–10 строк, кому помогает и кому мешает,\n"
     "  \"by_branch\": {\"columns\": [ {\"key\": <ключ ветви геополитика>, \"label\"} ], "
     "\"rows\": [ {\"indicator\": <ВВП|инфляция|ставка|дефицит|курс|экспорт и топливо…>, "
     "\"cells\": [<по колонке, с числами или диапазонами>]} ]} — сравнение по ветвям ИМЕННО ЭТОГО "
-    "очага, колонки = ветви геополитика из задания (те же ключи и порядок)\n"
+    "очага, колонки = ветви геополитика из задания (те же ключи и порядок); в label колонки — "
+    "название ветви БЕЗ вероятности числом (вероятности на экране только словами)\n"
     "} }\n"
     "🔴 ПРАВИЛА: числа только из данных платформы и внешних прогнозов, с датами; обычные слова, "
     "полные фразы, без терминов (не «клин цены», а «разница между мировой ценой и тем, что реально "
@@ -380,6 +422,10 @@ def geo_screen_gate(fresh: dict, prev: dict | None) -> list[str]:
             for g in goals:
                 if not isinstance(g, dict):
                     continue
+                # 🔴 Владелец (2026-09-18): гарантии безопасности просит Украина, не Россия.
+                if h == "svo" and re.search(r"росси", str(g.get("side") or ""), re.IGNORECASE) \
+                        and re.search(r"гарант", str(g.get("goal") or ""), re.IGNORECASE):
+                    notes.append(f"{label}.state.goals[Россия]: цель сформулирована через «гарантии безопасности» — это цель Украины; у России: закрепление контроля, нейтральный статус Украины, зона безопасности — переписать")
                 if g.get("direction") not in GOAL_DIRECTIONS:
                     notes.append(f"{label}.state.goals[{g.get('side')}]: направление не из списка")
                 if g.get("speed") not in GOAL_SPEEDS:
@@ -496,6 +542,7 @@ def macro_screen_gate(fresh: dict, prev: dict | None, geo_payload: dict | None) 
         secs = e.get("sectors") if isinstance(e.get("sectors"), list) else []
         if len(secs) < 3:
             notes.append(f"{label}.sectors: меньше трёх отраслей")
+        empty_tickers = 0
         for s in secs:
             if not isinstance(s, dict):
                 continue
@@ -504,8 +551,20 @@ def macro_screen_gate(fresh: dict, prev: dict | None, geo_payload: dict | None) 
             bad = [t for t in (s.get("tickers") or []) if not isinstance(t, str) or not _TICKER_RX.match(t)]
             if bad:
                 notes.append(f"{label}.sectors[{s.get('sector')}]: не тикеры — {bad[:3]}")
+            if not s.get("tickers"):
+                empty_tickers += 1
+        if secs and empty_tickers * 2 >= len(secs):
+            notes.append(f"{label}.sectors: тикеры пусты у {empty_tickers} из {len(secs)} отраслей — назвать компании из списка платформы в задании")
         bb = e.get("by_branch") if isinstance(e.get("by_branch"), dict) else {}
         cols = bb.get("columns") if isinstance(bb.get("columns"), list) else []
+        # вероятность числом в подписи колонки — на экране только словами: срезаем скобку
+        stripped = []
+        for c in cols:
+            if isinstance(c, dict) and isinstance(c.get("label"), str) and _PROB_IN_LABEL_RX.search(c["label"]):
+                c["label"] = _PROB_IN_LABEL_RX.sub("", c["label"]).strip()
+                stripped.append(c.get("key"))
+        if stripped:
+            notes.append(f"{label}.by_branch: из подписей колонок убраны числа в скобках ({stripped}) — вероятности на экране словами")
         if not cols or not bb.get("rows"):
             notes.append(f"{label}.by_branch: сравнение по ветвям пусто")
         elif isinstance(geo_screen, dict) and isinstance(geo_screen.get(h), dict):
