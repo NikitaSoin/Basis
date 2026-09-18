@@ -270,3 +270,21 @@ def test_спецификация_на_диске_читается_по_част
     assert isinstance(txt, str)
     if txt:
         assert "следств" in txt.lower()
+
+
+def test_уровень_измерения_и_числа_вероятностей_в_ветвях():
+    fresh = _fresh()
+    fresh["screen"]["dimensions"][0]["level"] = "Низкая: правила меняются указами, критерии выхода из временного управления не определены, итоги выборов не опубликованы"
+    fresh["screen"]["branches"][0]["geo_note"] = "При базовом геополитическом сценарии (затяжная война, p≈0,42)"
+    fresh["screen"]["branches"][1]["geo_note"] = "при расширении противостояния: вероятность 0.3"
+    notes = I.inst_screen_gate(fresh, None)
+    assert any("predictability" in n and "уровень длиннее" in n for n in notes)
+    assert sum(1 for n in notes if "вероятность числом" in n) == 2
+
+
+def test_жаргон_первого_прогона():
+    fresh = _fresh()
+    fresh["screen"]["economy"] = ["Госконтур растёт.", "Фискальный голод усиливает экстракцию.", "Двухконтурная экономика закрепляется."]
+    notes = I.inst_screen_gate(fresh, None)
+    hints = " ".join(n for n in notes if "язык" in n)
+    assert "Госконтур" in hints and "Фискальный голод" in hints and "экстракцию" in hints and "Двухконтурная" in hints
